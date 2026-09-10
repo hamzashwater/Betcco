@@ -1,0 +1,78 @@
+name: Quality
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  application:
+    name: Application quality
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: betcco_ci
+          POSTGRES_USER: betcco_ci
+          POSTGRES_PASSWORD: ci-only-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U betcco_ci -d betcco_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      ConnectionStrings__Postgres: Host=localhost;Port=5432;Database=betcco_ci;Username=betcco_ci;Password=ci-only-password
+      BETCCO_TEST_POSTGRES_ADMIN: Host=localhost;Port=5432;Database=postgres;Username=betcco_ci;Password=ci-only-password
+      ASPNETCORE_ENVIRONMENT: Testing
+      BETCCO_API_URL: http://localhost:5085
+      BETCCO_NEXT_DIST_DIR: .next-ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.19.0
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Install frontend dependencies
+        run: pnpm --dir frontend install --frozen-lockfile
+      - name: Frontend format, lint, types and tests
+        run: |
+          pnpm --dir frontend format:check
+          pnpm --dir frontend lint
+          pnpm --dir frontend typecheck
+          pnpm --dir frontend test
+      - name: Build frontend
+        run: pnpm --dir frontend build
+      - name: Restore .NET tools and dependencies
+        run: |
+          dotnet tool restore
+          dotnet restore backend/Betcco.sln
+      - name: Verify .NET formatting and build
+        run: |
+          dotnet format backend/Betcco.sln --verify-no-changes
+          dotnet build backend/Betcco.sln --no-restore
+      - name: Apply migrations to an empty PostgreSQL database
+        run: dotnet tool run dotnet-ef database update --project backend/src/Betcco.Infrastructure --startup-project backend/src/Betcco.Api
+      - name: Run .NET tests including required PostgreSQL finance tests
+        run: dotnet test backend/Betcco.sln --no-build --no-restore
+      - name: Run public Playwright smoke tests
+        run: pnpm --dir frontend exec playwright test tests/e2e/public.spec.ts
+      - name: Validate Docker compose syntax
+        run: docker compose config --quiet
+      - name: Build non-root production images
+        run: |
+          docker build --file backend/src/Betcco.Api/Dockerfile --tag betcco-api:ci .
+          docker build --file frontend/Dockerfile --tag betcco-web:ci .

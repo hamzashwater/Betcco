@@ -1,0 +1,483 @@
+@import "tailwindcss";
+@import "./brand-tokens.css";
+
+:root {
+  --shell-max-width: 1180px;
+  --shell-gutter: 1rem;
+  --background: var(--betcco-navy);
+  --background-elevated: #10283b;
+  --foreground: var(--betcco-white);
+  --surface: #133147;
+  --surface-solid: #173a52;
+  --muted: #b8d1d6;
+  --primary: var(--betcco-blue);
+  --primary-strong: #123d5b;
+  --secondary: var(--betcco-teal-strong);
+  --accent: var(--betcco-teal);
+  --warm: var(--betcco-teal);
+  --border: rgba(198, 232, 230, 0.2);
+  --glass: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.09),
+    rgba(255, 255, 255, 0.028)
+  );
+  --glass-strong: rgba(9, 31, 46, 0.8);
+  --shadow: 0 20px 70px rgba(0, 0, 0, 0.27);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-accent: var(--accent);
+  --font-sans: "Tajawal", "Noto Sans Arabic", "Segoe UI", Arial, sans-serif;
+}
+
+:root[data-theme="light"] {
+  --background: var(--betcco-white);
+  --background-elevated: #ffffff;
+  --foreground: var(--betcco-navy);
+  --surface: var(--betcco-white);
+  --surface-solid: #ffffff;
+  --muted: #496679;
+  --primary: var(--betcco-blue);
+  --primary-strong: #123d5b;
+  --secondary: var(--betcco-teal-strong);
+  --accent: var(--betcco-teal);
+  --warm: var(--betcco-teal-strong);
+  --border: rgba(13, 27, 42, 0.13);
+  --glass: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.94),
+    rgba(230, 247, 245, 0.8)
+  );
+  --glass-strong: rgba(255, 255, 255, 0.92);
+  --shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+}
+
+.light-icon {
+  display: none;
+}
+
+:root[data-theme="light"] .dark-icon {
+  display: none;
+}
+
+:root[data-theme="light"] .light-icon {
+  display: inline-flex;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  min-width: 320px;
+  text-rendering: optimizeLegibility;
+}
+
+/* One shared, low-contrast canvas for every public and workspace route.
+   Cards stay responsible for their own readable surface; the auth routes add
+   their dedicated star field on top of this base. */
+.page-backdrop {
+  background:
+    radial-gradient(
+      circle at 88% 8%,
+      color-mix(in srgb, var(--betcco-teal) 16%, transparent),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 7% 58%,
+      color-mix(in srgb, var(--betcco-blue) 17%, transparent),
+      transparent 32%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(6, 23, 36, 0.88) 0%,
+      rgba(9, 31, 46, 0.8) 48%,
+      rgba(13, 27, 42, 0.9) 100%
+    );
+  background-attachment: fixed;
+}
+
+:root[data-theme="light"] .page-backdrop {
+  background:
+    radial-gradient(
+      circle at 88% 8%,
+      color-mix(in srgb, var(--betcco-teal) 13%, transparent),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 7% 58%,
+      color-mix(in srgb, var(--betcco-blue) 7%, transparent),
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(245, 246, 248, 0.9) 0%,
+      rgba(230, 247, 245, 0.84) 48%,
+      rgba(237, 244, 247, 0.92) 100%
+    );
+}
+
+@media (max-width: 767px) {
+  .page-backdrop {
+    background-attachment: scroll;
+  }
+}
+
+* {
+  border-color: var(--border);
+}
+a {
+  text-underline-offset: 0.2em;
+}
+
+select {
+  color-scheme: dark;
+}
+
+select option,
+select optgroup {
+  background: var(--surface-solid);
+  color: var(--foreground);
+}
+
+:root[data-theme="light"] select {
+  color-scheme: light;
+}
+.shell {
+  width: min(var(--shell-max-width), calc(100% - (var(--shell-gutter) * 2)));
+  margin-inline: auto;
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --shell-max-width: 1320px;
+    --shell-gutter: 2rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  :root {
+    --shell-max-width: 1480px;
+    --shell-gutter: 3rem;
+  }
+}
+
+@media (min-width: 1800px) {
+  :root {
+    --shell-max-width: 1600px;
+    --shell-gutter: 4rem;
+  }
+}
+.card {
+  border: 1px solid var(--border);
+  background: var(--glass);
+  box-shadow:
+    var(--shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px);
+  border-radius: 1.25rem;
+}
+.focus-ring:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 78%, white);
+  outline-offset: 3px;
+}
+
+@media print {
+  body {
+    background: #fff !important;
+  }
+
+  header,
+  footer,
+  .deep-space-background,
+  .scroll-progress,
+  .certificate-print-actions {
+    display: none !important;
+  }
+
+  .certificate-document {
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+}
+
+.skip-link {
+  position: fixed;
+  inset-block-start: 0.75rem;
+  inset-inline-start: 0.75rem;
+  z-index: 100;
+  transform: translateY(-180%);
+  border-radius: 0.75rem;
+  background: var(--primary);
+  color: var(--betcco-white);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 800;
+  transition: transform 150ms ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.deep-space-background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at 82% 20%,
+      color-mix(in srgb, var(--betcco-teal) 24%, transparent),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 20% 75%,
+      color-mix(in srgb, var(--betcco-blue) 17%, transparent),
+      transparent 30%
+    );
+}
+
+.scroll-progress {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 60;
+  height: 2px;
+  background: transparent;
+  pointer-events: none;
+}
+
+.scroll-progress > span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: right center;
+  background: linear-gradient(
+    90deg,
+    var(--primary),
+    var(--secondary),
+    var(--accent)
+  );
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+.glass-panel {
+  border: 1px solid var(--border);
+  background: var(--glass);
+  box-shadow:
+    var(--shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(18px);
+}
+
+.navigation-popover {
+  background: color-mix(in srgb, var(--surface-solid) 96%, #020617);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(24px);
+}
+
+:root[data-theme="light"] .navigation-popover {
+  background: color-mix(in srgb, var(--surface-solid) 95%, var(--betcco-mint));
+}
+
+:root[data-theme="light"] .deep-space-background {
+  background:
+    radial-gradient(
+      circle at 88% 4%,
+      color-mix(in srgb, var(--betcco-teal) 12%, transparent),
+      transparent 31%
+    ),
+    radial-gradient(
+      circle at 12% 92%,
+      color-mix(in srgb, var(--betcco-blue) 5%, transparent),
+      transparent 35%
+    ),
+    linear-gradient(180deg, #f5f6f8 0%, #eaf7f5 100%);
+}
+
+.auth-page-shell {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+}
+
+.auth-three-galaxy {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  isolation: isolate;
+  background: linear-gradient(135deg, #061724 0%, #0d1b2a 52%, #071e28 100%);
+}
+
+.auth-three-galaxy::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(
+    90deg,
+    rgba(6, 23, 36, 0.1),
+    rgba(6, 23, 36, 0.42)
+  );
+}
+
+.auth-three-galaxy canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.auth-three-galaxy--fallback {
+  background:
+    radial-gradient(circle, rgba(230, 247, 245, 0.7) 0 1px, transparent 1.5px),
+    radial-gradient(circle, rgba(33, 193, 166, 0.55) 0 1px, transparent 1.7px),
+    radial-gradient(
+      circle,
+      rgba(184, 209, 214, 0.48) 0 0.7px,
+      transparent 1.4px
+    ),
+    linear-gradient(135deg, #061724 0%, #0d1b2a 48%, #071e28 100%);
+  background-position:
+    0 0,
+    37px 57px,
+    83px 29px,
+    0 0;
+  background-size:
+    113px 113px,
+    167px 167px,
+    89px 89px,
+    auto;
+}
+
+:root[data-theme="light"] .auth-three-galaxy {
+  background:
+    linear-gradient(120deg, rgba(33, 193, 166, 0.09), transparent 34%),
+    linear-gradient(135deg, #e6f7f5 0%, #f5f6f8 62%, #e8f2f6 100%);
+}
+
+:root[data-theme="light"] .auth-three-galaxy::after {
+  background: linear-gradient(
+    90deg,
+    rgba(230, 247, 245, 0.1),
+    rgba(245, 246, 248, 0.56)
+  );
+}
+
+:root[data-theme="light"] .auth-three-galaxy canvas {
+  opacity: 0.68;
+}
+
+.elevated-surface {
+  background: var(--glass-strong);
+}
+
+.brand-logo {
+  display: block;
+  height: auto;
+  object-fit: contain;
+}
+
+:root:not([data-theme="light"]) .brand-logo-on-light {
+  display: none;
+}
+
+:root[data-theme="light"] .brand-logo-on-dark {
+  display: none;
+}
+
+.bg-primary.text-slate-950 {
+  color: var(--betcco-white);
+}
+
+.auth-logo-float {
+  animation: auth-logo-float 5.4s ease-in-out infinite;
+}
+
+.auth-logo-tilt {
+  transform: translate3d(
+      calc(var(--auth-pointer-x, 0) * 18px),
+      calc(var(--auth-pointer-y, 0) * 14px),
+      0
+    )
+    rotateX(calc(var(--auth-pointer-y, 0) * -9deg))
+    rotateY(calc(var(--auth-pointer-x, 0) * 11deg));
+  transition: transform 180ms ease-out;
+  will-change: transform;
+}
+
+:root:not([data-theme="light"]) .auth-logo-on-dark {
+  filter: brightness(0) invert(1);
+}
+
+.auth-motivation-card {
+  border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border));
+  border-radius: 1.25rem;
+  background: transparent;
+  padding: 1.1rem 1.25rem;
+  animation: auth-message-in 320ms ease-out both;
+}
+
+@keyframes auth-logo-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.5deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(1.5deg);
+  }
+}
+
+@keyframes auth-message-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.premium-button {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .premium-button:hover {
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 12px 28px color-mix(in srgb, var(--primary) 25%, transparent);
+  }
+
+  .card[data-interactive="true"]:hover {
+    transform: translateY(-5px);
+    border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-logo-float,
+  .auth-motivation-card {
+    animation: none;
+  }
+}

@@ -1,0 +1,78 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1200"
+  height="900"
+  viewBox="0 0 1200 900"
+>
+  <defs>
+    <linearGradient id="gradB" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1B4F72" />
+      <stop offset="100%" stop-color="#21C1A6" />
+    </linearGradient>
+    <linearGradient id="gradB2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1B4F72" />
+      <stop offset="100%" stop-color="#21C1A6" />
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="900" rx="40" fill="#F5F6F8" />
+
+  <g transform="translate(345,100) scale(2.2)">
+    <!-- stylized B -->
+    <path
+      d="M55 58 C55 38 73 23 97 23 H128 C157 23 178 38 178 61
+           C178 77 168 89 153 96
+           C173 103 186 117 186 138
+           C186 168 160 188 128 188 H83
+           C66 188 55 177 55 160 Z
+           M93 57 V91 H124 C138 91 146 84 146 74
+           C146 64 138 57 124 57 Z
+           M93 122 V155 H128 C144 155 153 149 153 138
+           C153 127 144 122 128 122 Z"
+      fill="url(#gradB)"
+    />
+    <!-- play triangle -->
+    <path d="M96 79 L96 145 L146 112 Z" fill="#F5F6F8" />
+    <!-- graduation cap -->
+    <path d="M45 34 L120 4 L195 34 L120 64 Z" fill="#0D1B2A" />
+    <path
+      d="M72 47 V70 C96 82 145 82 168 70 V47 L120 66 Z"
+      fill="#0D1B2A"
+      opacity="0.96"
+    />
+    <path
+      d="M195 34 V82"
+      stroke="#21C1A6"
+      stroke-width="5"
+      stroke-linecap="round"
+    />
+    <circle cx="195" cy="88" r="7" fill="#21C1A6" />
+    <path d="M195 95 L188 118 H202 Z" fill="#21C1A6" />
+  </g>
+
+  <text
+    x="600"
+    y="650"
+    text-anchor="middle"
+    font-family="Poppins, Arial, sans-serif"
+    font-weight="800"
+    font-size="118"
+    fill="#0D1B2A"
+    letter-spacing="2"
+  >
+    BETC
+    <tspan fill="url(#gradB2)">CO</tspan>
+  </text>
+  <text
+    x="600"
+    y="720"
+    text-anchor="middle"
+    font-family="Poppins, Arial, sans-serif"
+    font-weight="500"
+    font-size="32"
+    fill="#0D1B2A"
+    letter-spacing="3"
+  >
+    LEARN TODAY · BUILD TOMORROW
+  </text>
+</svg>

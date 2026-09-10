@@ -1,0 +1,9 @@
+allowBuilds:
+  # Native build scripts are explicitly reviewed. Next.js needs SWC for its
+  # compiler; the other optional native dependencies are not used at runtime.
+  "@parcel/watcher": false
+  "@swc/core": true
+  sharp: false
+  unrs-resolver: false
+minimumReleaseAgeExclude:
+  - "@tanstack/query-core@5.102.0"

@@ -1,0 +1,48 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# JavaScript
+frontend/node_modules/
+frontend/.next/
+frontend/coverage/
+frontend/playwright-report/
+frontend/test-results/
+**/coverage/
+**/TestResults/
+
+# .NET
+**/bin/
+**/obj/
+**/*.user
+**/*.suo
+.vs/
+.idea/
+
+# Local infrastructure and uploads
+data/
+storage/
+keys/
+*.log
+
+# Generated artifacts and local credentials/certificates
+.artifacts/
+*.pfx
+*.pem
+*.key
+*.p12
+*.db
+*.sqlite
+*.dump
+*.backup
+*.tmp
+/.DS_Store
+backend/artifacts/
+
+# Unused framework starter assets (kept locally, excluded from the baseline)
+/frontend/public/file.svg
+/frontend/public/globe.svg
+/frontend/public/next.svg
+/frontend/public/vercel.svg
+/frontend/public/window.svg

@@ -1,0 +1,289 @@
+using System.Security.Claims;
+using Betcco.Application.Assignments;
+using Betcco.Application.Common;
+using Betcco.Application.Learning;
+using Betcco.Domain.Common;
+using Betcco.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
+
+namespace Betcco.Api.Controllers;
+
+[ApiController]
+[Authorize]
+[Route("api/v1")]
+public sealed class CourseAssignmentsController(
+    ICourseAssignmentService assignments,
+    IFileStorage storage,
+    IFileSecurityScanner scanner,
+    BetccoDbContext db,
+    IContentAccessService contentAccess) : ControllerBase
+{
+    [Authorize(Policy = "Teacher")]
+    [HttpGet("teacher/courses/{courseId:guid}/assignments")]
+    public async Task<IActionResult> TeacherList(Guid courseId, CancellationToken cancellationToken)
+    {
+        var rows = await db.CourseAssignments.AsNoTracking()
+            .Include(assignment => assignment.Criteria)
+            .Include(assignment => assignment.Resources)
+            .Where(assignment => assignment.CourseId == courseId && assignment.Course!.TeacherUserId == UserId)
+            .OrderBy(assignment => assignment.DueAtUtc)
+            .ToListAsync(cancellationToken);
+        var visible = new List<Betcco.Domain.Assessments.CourseAssignment>();
+        foreach (var assignment in rows)
+        {
+            if ((await contentAccess.CanAccessAsync(UserId, courseId, LearningContentType.Assignment, assignment.Id, cancellationToken)).IsAvailable)
+                visible.Add(assignment);
+        }
+        return Ok(visible.Select(AssignmentView));
+    }
+
+    [Authorize(Policy = "Teacher")]
+    [HttpPost("teacher/assignments")]
+    public async Task<IActionResult> Create(CreateCourseAssignmentCommand command, CancellationToken cancellationToken)
+    {
+        var id = await assignments.CreateAsync(UserId, command, cancellationToken);
+        return id is null ? BadRequest(new { message = "The assignment must belong to one of your active courses and contain complete instructions." }) : Ok(new { id });
+    }
+
+    [Authorize(Policy = "Teacher")]
+    [HttpPut("teacher/assignments/{assignmentId:guid}")]
+    public async Task<IActionResult> Update(Guid assignmentId, UpdateCourseAssignmentCommand command, CancellationToken cancellationToken) => await assignments.UpdateAsync(UserId, assignmentId, command, cancellationToken) ? NoContent() : BadRequest(new { message = "Published assignments cannot be structurally edited." });
+
+    [Authorize(Policy = "Teacher")]
+    [HttpDelete("teacher/assignments/{assignmentId:guid}")]
+    public async Task<IActionResult> Delete(Guid assignmentId, CancellationToken cancellationToken) => await assignments.DeleteAsync(UserId, assignmentId, cancellationToken) ? NoContent() : BadRequest(new { message = "Only an unpublished assignment without student work can be deleted." });
+
+    [Authorize(Policy = "Teacher")]
+    [HttpPost("teacher/assignments/criteria")]
+    public async Task<IActionResult> AddCriterion(AddCourseAssignmentCriterionCommand command, CancellationToken cancellationToken)
+    {
+        var id = await assignments.AddCriterionAsync(UserId, command, cancellationToken);
+        return id is null ? BadRequest(new { message = "Use a valid assignment criterion or a BTEC criterion from this course." }) : Ok(new { id });
+    }
+
+    [Authorize(Policy = "Teacher")]
+    [HttpDelete("teacher/assignments/criteria/{criterionId:guid}")]
+    public async Task<IActionResult> DeleteCriterion(Guid criterionId, CancellationToken cancellationToken) => await assignments.DeleteCriterionAsync(UserId, criterionId, cancellationToken) ? NoContent() : BadRequest(new { message = "Published assignment criteria cannot be deleted." });
+
+    [Authorize(Policy = "Teacher")]
+    [HttpPost("teacher/assignments/{assignmentId:guid}/publish")]
+    public async Task<IActionResult> Publish(Guid assignmentId, PublishAssignmentRequest request, CancellationToken cancellationToken) => await assignments.PublishAsync(UserId, assignmentId, request.Publish, cancellationToken) ? NoContent() : BadRequest(new { message = "A published assignment needs criteria. An assignment with submitted work cannot be unpublished." });
+
+    [Authorize(Policy = "Teacher")]
+    [HttpPost("teacher/assignments/{assignmentId:guid}/publication")]
+    public async Task<IActionResult> SetPublication(Guid assignmentId, SetAssignmentPublicationRequest request, CancellationToken cancellationToken) =>
+        await assignments.SetPublicationStatusAsync(UserId, assignmentId, request.PublicationStatus, request.AvailableFromUtc, cancellationToken)
+            ? NoContent()
+            : BadRequest(new { message = "Use a valid publication state. A scheduled assignment needs a future opening date and published coursework needs criteria." });
+
+    [Authorize(Policy = "Teacher")]
+    [HttpPost("teacher/assignments/{assignmentId:guid}/resources")]
+    [EnableRateLimiting("upload")]
+    [RequestSizeLimit(110L * 1024 * 1024)]
+    [RequestFormLimits(MultipartBodyLengthLimit = 110L * 1024 * 1024)]
+    public async Task<IActionResult> UploadResource(Guid assignmentId, IFormFile file, CancellationToken cancellationToken)
+    {
+        if (file.Length is <= 0 or > 100L * 1024 * 1024 || !IsAllowedAssignmentResource(file.FileName))
+            return BadRequest(new { message = "Use an approved assignment resource type no larger than 100 MB." });
+        await using var stream = file.OpenReadStream();
+        if (!FileUploadValidation.TryValidate(stream, file.FileName, out var validation))
+            return BadRequest(new { message = "The resource content does not match its approved file type." });
+        var scan = await scanner.ScanAsync(stream, cancellationToken);
+        if (scan.Outcome == FileScanOutcome.Rejected)
+            return BadRequest(new { message = "The resource was rejected by the security scanner." });
+        if (!scan.IsClean)
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = "File security scanning is temporarily unavailable. Try again later." });
+        stream.Position = 0;
+        var key = await storage.SavePrivateAsync(stream, validation.DetectedContentType!, cancellationToken);
+        return await assignments.AddResourceAsync(UserId, assignmentId, file.FileName, key, validation.DetectedContentType!, cancellationToken)
+            ? NoContent()
+            : NotFound();
+    }
+
+    [Authorize(Policy = "Teacher")]
+    [HttpDelete("teacher/assignments/resources/{resourceId:guid}")]
+    public async Task<IActionResult> DeleteResource(Guid resourceId, CancellationToken cancellationToken) =>
+        await assignments.DeleteResourceAsync(UserId, resourceId, cancellationToken) ? NoContent() : NotFound();
+
+    [Authorize(Policy = "Teacher")]
+    [HttpGet("teacher/assignments/submissions")]
+    public async Task<IActionResult> TeacherSubmissions([FromQuery] Guid? courseId, CancellationToken cancellationToken)
+    {
+        var data = await db.CourseAssignmentSubmissions.AsNoTracking()
+            .Where(submission => submission.CourseAssignment!.Course!.TeacherUserId == UserId && (!courseId.HasValue || submission.CourseAssignment.CourseId == courseId))
+            .OrderByDescending(submission => submission.UpdatedAtUtc)
+            .Select(submission => new
+            {
+                submission.Id,
+                assignmentId = submission.CourseAssignmentId,
+                courseId = submission.CourseAssignment!.CourseId,
+                submission.CourseAssignment.ArabicTitle,
+                submission.CourseAssignment.EnglishTitle,
+                submission.StudentUserId,
+                status = submission.Status.ToString(),
+                calculatedGrade = submission.CalculatedGrade == null ? null : submission.CalculatedGrade.ToString(),
+                submission.CurrentVersionNumber,
+                submission.SubmittedAtUtc,
+                files = submission.Versions.Where(version => version.VersionNumber == submission.CurrentVersionNumber).SelectMany(version => version.Files).Select(file => new { file.Id, file.OriginalFileName, file.ContentType, file.LengthBytes, scanStatus = file.ScanStatus.ToString() }),
+                feedback = submission.FeedbackItems.OrderBy(item => item.CreatedAtUtc).Select(item => new { item.Body, item.RequestsResubmission, item.IsPrivate, item.CreatedAtUtc })
+            })
+            .ToListAsync(cancellationToken);
+        return Ok(data);
+    }
+
+    [Authorize(Policy = "Teacher")]
+    [HttpPost("teacher/assignments/submissions/{submissionId:guid}/grade")]
+    public async Task<IActionResult> Grade(Guid submissionId, AssignmentGradeCommand command, CancellationToken cancellationToken) => await assignments.GradeAsync(UserId, submissionId, command, cancellationToken) ? NoContent() : BadRequest(new { message = "Assess every criterion exactly once before saving the calculated result." });
+
+    [Authorize(Policy = "Teacher")]
+    [HttpPost("teacher/assignments/submissions/{submissionId:guid}/revision")]
+    public async Task<IActionResult> RequestRevision(Guid submissionId, RequestAssignmentRevision request, CancellationToken cancellationToken) => await assignments.RequestRevisionAsync(UserId, submissionId, request.Feedback, cancellationToken) ? NoContent() : BadRequest(new { message = "A submitted assignment and revision feedback are required." });
+
+    [Authorize(Policy = "Student")]
+    [HttpGet("student/courses/{courseId:guid}/assignments")]
+    public async Task<IActionResult> StudentList(Guid courseId, CancellationToken cancellationToken)
+    {
+        if (!await db.Enrollments.AnyAsync(enrollment => enrollment.CourseId == courseId && enrollment.StudentUserId == UserId && (enrollment.AccessEndsAtUtc == null || enrollment.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken)) return NotFound();
+        var rows = await db.CourseAssignments.AsNoTracking()
+            .Include(assignment => assignment.Criteria)
+            .Include(assignment => assignment.Resources)
+            .Where(assignment => assignment.CourseId == courseId && assignment.IsPublished && assignment.PublicationStatus == ContentPublicationStatus.Published)
+            .OrderBy(assignment => assignment.DueAtUtc)
+            .ToListAsync(cancellationToken);
+        return Ok(rows.Select(AssignmentView));
+    }
+
+    [Authorize(Policy = "Student")]
+    [HttpPost("student/assignments/{assignmentId:guid}/submissions")]
+    public async Task<IActionResult> StartSubmission(Guid assignmentId, StartAssignmentSubmissionRequest request, CancellationToken cancellationToken)
+    {
+        var target = await db.CourseAssignments.AsNoTracking().Where(item => item.Id == assignmentId).Select(item => new { item.CourseId }).SingleOrDefaultAsync(cancellationToken);
+        if (target is null || !(await contentAccess.CanAccessAsync(UserId, target.CourseId, LearningContentType.Assignment, assignmentId, cancellationToken)).IsAvailable) return NotFound();
+        var submission = await assignments.StartSubmissionAsync(UserId, assignmentId, request.Comment, cancellationToken);
+        return submission is null ? BadRequest(new { message = "You need an active enrollment, an open assignment, and an available submission attempt." }) : Ok(submission);
+    }
+
+    [Authorize(Policy = "Student")]
+    [HttpPost("student/assignments/submissions/{submissionId:guid}/files")]
+    [EnableRateLimiting("upload")]
+    [RequestSizeLimit(110L * 1024 * 1024)]
+    [RequestFormLimits(MultipartBodyLengthLimit = 110L * 1024 * 1024)]
+    public async Task<IActionResult> UploadFile(Guid submissionId, IFormFile file, CancellationToken cancellationToken)
+    {
+        var allowed = new[] { "application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.openxmlformats-officedocument.presentationml.presentation", "text/plain", "image/jpeg", "image/png", "image/webp", "application/zip" };
+        if (file.Length is <= 0 or > 100L * 1024 * 1024) return BadRequest(new { message = "Use an approved file type no larger than 100 MB." });
+        await using var content = file.OpenReadStream();
+        if (!FileUploadValidation.TryValidate(content, file.FileName, out var validation)
+            || validation.DetectedContentType is null
+            || !allowed.Contains(validation.DetectedContentType, StringComparer.OrdinalIgnoreCase))
+            return BadRequest(new { message = "The file content does not match an approved file type." });
+        var result = await assignments.AddFileAsync(UserId, submissionId, file.FileName, validation.DetectedContentType!, file.Length, content, cancellationToken);
+        return result switch
+        {
+            CourseAssignmentFileAddStatus.Added => NoContent(),
+            CourseAssignmentFileAddStatus.Rejected => BadRequest(new { message = "The file was rejected by the security scanner." }),
+            CourseAssignmentFileAddStatus.ScannerUnavailable => StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = "File security scanning is temporarily unavailable. Try again later." }),
+            CourseAssignmentFileAddStatus.RejectedByAssignmentPolicy => BadRequest(new { message = "This file type or size is not allowed for this assignment." }),
+            _ => NotFound()
+        };
+    }
+
+    [Authorize(Policy = "Student")]
+    [HttpPost("student/assignments/submissions/{submissionId:guid}/submit")]
+    public async Task<IActionResult> Submit(Guid submissionId, CancellationToken cancellationToken) => await assignments.SubmitAsync(UserId, submissionId, cancellationToken) ? NoContent() : BadRequest(new { message = "Attach a clean file before submitting and submit before the deadline." });
+
+    [Authorize(Policy = "Student")]
+    [HttpGet("student/assignments/mine")]
+    public async Task<IActionResult> Mine(CancellationToken cancellationToken)
+    {
+        var data = await db.CourseAssignmentSubmissions.AsNoTracking()
+            .Include(submission => submission.CriterionResults).ThenInclude(result => result.CourseAssignmentCriterion)
+            .Include(submission => submission.FeedbackItems)
+            .Include(submission => submission.Versions).ThenInclude(version => version.Files)
+            .Where(submission => submission.StudentUserId == UserId)
+            .OrderByDescending(submission => submission.UpdatedAtUtc)
+            .ToListAsync(cancellationToken);
+        return Ok(data.Select(submission => new
+        {
+            submission.Id,
+            assignmentId = submission.CourseAssignmentId,
+            status = submission.Status.ToString(),
+            submission.CurrentVersionNumber,
+            calculatedGrade = submission.CalculatedGrade == null ? null : submission.CalculatedGrade.ToString(),
+            submission.SubmittedAtUtc,
+            submission.GradedAtUtc,
+            versions = submission.Versions.OrderBy(version => version.VersionNumber).Select(version => new { version.VersionNumber, version.StudentComment, version.SubmittedAtUtc, files = version.Files.Select(file => new { file.Id, file.OriginalFileName, file.ContentType, file.LengthBytes, scanStatus = file.ScanStatus.ToString() }) }),
+            results = submission.Status is CourseAssignmentSubmissionStatus.Graded or CourseAssignmentSubmissionStatus.Finalized ? submission.CriterionResults.OrderBy(result => result.CourseAssignmentCriterion!.SortOrder).Select(result => new { result.CourseAssignmentCriterion!.Code, band = result.CourseAssignmentCriterion.Band.ToString(), achievement = result.Achievement.ToString(), result.Feedback }) : [],
+            feedback = submission.FeedbackItems.Where(item => !item.IsPrivate).OrderBy(item => item.CreatedAtUtc).Select(item => new { item.Body, item.RequestsResubmission, item.CreatedAtUtc })
+        }));
+    }
+
+    [HttpGet("assignments/{assignmentId:guid}/resources/{resourceId:guid}")]
+    public async Task<IActionResult> DownloadResource(Guid assignmentId, Guid resourceId, CancellationToken cancellationToken)
+    {
+        var resource = await db.CourseAssignmentResources.AsNoTracking()
+            .Include(item => item.CourseAssignment).ThenInclude(item => item!.Course)
+            .SingleOrDefaultAsync(item => item.Id == resourceId && item.CourseAssignmentId == assignmentId && item.ScanStatus == UploadScanStatus.Clean, cancellationToken);
+        if (resource is null) return NotFound();
+        var assignment = resource.CourseAssignment!;
+        var studentEnrollment = await db.Enrollments.AsNoTracking().AnyAsync(item =>
+            item.CourseId == assignment.CourseId && item.StudentUserId == UserId
+            && (item.AccessEndsAtUtc == null || item.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken);
+        var studentMayAccess = studentEnrollment
+            && assignment.PublicationStatus == ContentPublicationStatus.Published
+            && (await contentAccess.CanAccessAsync(UserId, assignment.CourseId, LearningContentType.Assignment, assignment.Id, cancellationToken)).IsAvailable;
+        var permitted = User.IsInRole(PlatformRoles.Admin)
+            || assignment.Course!.TeacherUserId == UserId
+            || studentMayAccess;
+        if (!permitted) return NotFound();
+        var content = await storage.OpenPrivateReadAsync(resource.StorageKey, cancellationToken);
+        return content is null ? NotFound() : File(content, resource.ContentType, resource.DisplayName, enableRangeProcessing: true);
+    }
+
+    [HttpGet("assignments/submissions/{submissionId:guid}/files/{fileId:guid}")]
+    public async Task<IActionResult> DownloadFile(Guid submissionId, Guid fileId, CancellationToken cancellationToken)
+    {
+        var file = await db.CourseAssignmentSubmissionFiles.AsNoTracking().Include(item => item.CourseAssignmentSubmissionVersion).ThenInclude(item => item!.CourseAssignmentSubmission).ThenInclude(item => item!.CourseAssignment).ThenInclude(item => item!.Course).SingleOrDefaultAsync(item => item.Id == fileId && item.CourseAssignmentSubmissionVersion!.CourseAssignmentSubmissionId == submissionId, cancellationToken);
+        if (file is null) return NotFound();
+        var submission = file.CourseAssignmentSubmissionVersion!.CourseAssignmentSubmission!;
+        if (!User.IsInRole(PlatformRoles.Admin) && submission.StudentUserId != UserId && submission.CourseAssignment!.Course!.TeacherUserId != UserId) return NotFound();
+        var content = await storage.OpenPrivateReadAsync(file.StorageKey, cancellationToken);
+        return content is null ? NotFound() : File(content, file.ContentType, file.OriginalFileName, enableRangeProcessing: true);
+    }
+
+    private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+    private static object AssignmentView(Betcco.Domain.Assessments.CourseAssignment assignment) => new
+    {
+        assignment.Id,
+        assignment.CourseId,
+        assignment.CourseModuleId,
+        assignment.LessonId,
+        assignment.BtecLearningAimId,
+        assignment.ArabicTitle,
+        assignment.EnglishTitle,
+        assignment.ArabicInstructions,
+        assignment.EnglishInstructions,
+        assignment.AvailableFromUtc,
+        assignment.DueAtUtc,
+        assignment.MaxSubmissionAttempts,
+        assignment.AllowResubmission,
+        assignment.MaxFileSizeBytes,
+        allowedFileExtensions = System.Text.Json.JsonSerializer.Deserialize<string[]>(assignment.AllowedFileExtensionsJson) ?? [],
+        assignment.MaxScore,
+        isPublished = assignment.IsPublished,
+        publicationStatus = assignment.PublicationStatus.ToString(),
+        resources = assignment.Resources.OrderBy(resource => resource.DisplayName).Select(resource => new { resource.Id, resource.DisplayName, resource.ContentType, resource.ScanStatus }),
+        criteria = assignment.Criteria.OrderBy(criterion => criterion.SortOrder).Select(criterion => new { criterion.Id, criterion.BtecCriterionId, criterion.Code, band = criterion.Band.ToString(), criterion.ArabicDescription, criterion.EnglishDescription, criterion.SortOrder })
+    };
+
+    private static bool IsAllowedAssignmentResource(string fileName) => Path.GetExtension(fileName).ToLowerInvariant() is ".pdf" or ".doc" or ".docx" or ".ppt" or ".pptx" or ".xls" or ".xlsx" or ".txt" or ".zip" or ".jpg" or ".jpeg" or ".png" or ".webp";
+}
+
+public sealed record PublishAssignmentRequest(bool Publish);
+public sealed record SetAssignmentPublicationRequest(string PublicationStatus, DateTimeOffset? AvailableFromUtc);
+public sealed record StartAssignmentSubmissionRequest(string? Comment);
+public sealed record RequestAssignmentRevision(string Feedback);

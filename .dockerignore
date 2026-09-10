@@ -1,0 +1,15 @@
+.git
+.github
+.artifacts
+.env
+.env.*
+!.env.example
+**/bin
+**/obj
+**/node_modules
+**/.next
+**/coverage
+**/playwright-report
+**/test-results
+docs
+*.md

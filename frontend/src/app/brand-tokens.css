@@ -1,0 +1,11 @@
+:root {
+  --betcco-navy: #0d1b2a;
+  --betcco-blue: #1b4f72;
+  --betcco-teal: #21c1a6;
+  --betcco-teal-strong: #087d6f;
+  --betcco-mint: #e6f7f5;
+  --betcco-white: #f5f6f8;
+
+  --betcco-font-en: "Poppins", Arial, sans-serif;
+  --betcco-font-ar: "Cairo", Tahoma, sans-serif;
+}
