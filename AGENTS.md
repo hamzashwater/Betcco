@@ -119,6 +119,17 @@ At the end of a normal task report only:
 
 Do not continue automatically to the next roadmap item.
 
+## Repository collaboration
+
+- Keep work for the same feature in the same Codex thread when practical; start a new branch and thread for a different feature.
+- Create a `feature/<short-description>` or `fix/<short-description>` branch for normal development. Do not develop or push directly on `main`.
+- Before merge, review `git diff main...HEAD` and inspect the changed files plus only the direct dependencies needed to judge behavior.
+- Do not mix unrelated refactoring into a feature or fix branch.
+- Never expose secrets, local configuration, private keys, user uploads, or runtime data.
+- Run the narrowest relevant tests and report any blocker clearly.
+- Require a Pull Request, Codex review, green required CI, and final approval before merging into `main`.
+- Never force-push `main`.
+
 SEARCH NARROWLY.
 READ MINIMALLY.
 EDIT MINIMALLY.
