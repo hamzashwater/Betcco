@@ -21,6 +21,7 @@ public sealed class PostgresMigrationTests
         Assert.Contains(migrations, migration => migration.EndsWith("_AddCouponCheckoutReservation", StringComparison.Ordinal));
         Assert.Contains(migrations, migration => migration.EndsWith("_AddPaymentSessionRecovery", StringComparison.Ordinal));
         Assert.Contains(migrations, migration => migration.EndsWith("_AddRegistrationEmailOutbox", StringComparison.Ordinal));
+        Assert.Contains(migrations, migration => migration.EndsWith("_AddDurablePrivateStorageFoundation", StringComparison.Ordinal));
         Assert.False(db.Database.HasPendingModelChanges());
 
         var script = db.GetService<IMigrator>().GenerateScript(
@@ -29,5 +30,6 @@ public sealed class PostgresMigrationTests
         Assert.Contains("AddCouponCheckoutReservation", script, StringComparison.Ordinal);
         Assert.Contains("AddPaymentSessionRecovery", script, StringComparison.Ordinal);
         Assert.Contains("AddRegistrationEmailOutbox", script, StringComparison.Ordinal);
+        Assert.Contains("AddDurablePrivateStorageFoundation", script, StringComparison.Ordinal);
     }
 }

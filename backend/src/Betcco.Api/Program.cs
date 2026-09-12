@@ -1,5 +1,9 @@
 using System.Threading.RateLimiting;
 using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
+using Amazon;
+using Amazon.Runtime;
+using Amazon.S3;
 using Betcco.Api;
 using Betcco.Api.Authorization;
 using Betcco.Api.Configuration;
@@ -35,11 +39,27 @@ builder.Services.AddExceptionHandler<BetccoExceptionHandler>();
 builder.Services.AddMemoryCache();
 builder.Services.AddDbContext<BetccoDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddHttpContextAccessor();
-var dataProtectionPath = builder.Configuration["DataProtection:KeysPath"]
-    ?? (builder.Environment.IsDevelopment() ? "../keys" : throw new InvalidOperationException("DataProtection:KeysPath is required outside Development."));
-builder.Services.AddDataProtection()
-    .SetApplicationName("BETCCO")
-    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionPath));
+var dataProtection = builder.Services.AddDataProtection().SetApplicationName("BETCCO");
+var dataProtectionProvider = builder.Configuration["DataProtection:Provider"]
+    ?? (builder.Environment.IsProduction() ? null : "FileSystem");
+if (string.Equals(dataProtectionProvider, "Postgres", StringComparison.OrdinalIgnoreCase))
+{
+    dataProtection.PersistKeysToDbContext<BetccoDbContext>();
+}
+else
+{
+    var dataProtectionPath = builder.Configuration["DataProtection:KeysPath"] ?? "../keys";
+    dataProtection.PersistKeysToFileSystem(new DirectoryInfo(dataProtectionPath));
+}
+
+var dataProtectionCertificatePath = builder.Configuration["DataProtection:CertificatePath"];
+if (!string.IsNullOrWhiteSpace(dataProtectionCertificatePath))
+{
+    var certificate = X509CertificateLoader.LoadPkcs12FromFile(
+        dataProtectionCertificatePath,
+        builder.Configuration["DataProtection:CertificatePassword"]);
+    dataProtection.ProtectKeysWithCertificate(certificate);
+}
 builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
 {
     options.User.RequireUniqueEmail = true;
@@ -209,7 +229,45 @@ builder.Services.AddScoped<DataSubjectFulfillmentService>();
 builder.Services.AddScoped<IDataSubjectFulfillmentService>(serviceProvider => serviceProvider.GetRequiredService<DataSubjectFulfillmentService>());
 builder.Services.AddScoped<IDataProcessingRestrictionChecker>(serviceProvider => serviceProvider.GetRequiredService<DataSubjectFulfillmentService>());
 builder.Services.AddScoped<IDataPortabilityExportService, DataPortabilityExportService>();
-builder.Services.AddScoped<IFileStorage, LocalPrivateFileStorage>();
+var storageProvider = builder.Configuration["Storage:Provider"] ?? "Local";
+if (string.Equals(storageProvider, "S3Compatible", StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddSingleton<IAmazonS3>(_ =>
+    {
+        var region = builder.Configuration["Storage:S3:Region"] ?? "us-east-1";
+        var endpoint = builder.Configuration["Storage:S3:Endpoint"];
+        var s3Configuration = new AmazonS3Config
+        {
+            RegionEndpoint = RegionEndpoint.GetBySystemName(region),
+            ForcePathStyle = builder.Configuration.GetValue("Storage:S3:ForcePathStyle", false),
+            MaxErrorRetry = Math.Clamp(builder.Configuration.GetValue("Storage:S3:MaxRetries", 3), 0, 5),
+            Timeout = TimeSpan.FromSeconds(Math.Clamp(builder.Configuration.GetValue("Storage:S3:TimeoutSeconds", 100), 5, 300))
+        };
+        if (!string.IsNullOrWhiteSpace(endpoint)) s3Configuration.ServiceURL = endpoint.TrimEnd('/');
+
+        var accessKey = builder.Configuration["Storage:S3:AccessKey"];
+        var secretKey = builder.Configuration["Storage:S3:SecretKey"];
+        return !string.IsNullOrWhiteSpace(accessKey) && !string.IsNullOrWhiteSpace(secretKey)
+            ? new AmazonS3Client(new BasicAWSCredentials(accessKey, secretKey), s3Configuration)
+            : new AmazonS3Client(s3Configuration);
+    });
+    builder.Services.AddScoped<IFileStorage, S3CompatiblePrivateFileStorage>();
+}
+else if (string.Equals(storageProvider, "Local", StringComparison.OrdinalIgnoreCase)
+         || string.Equals(storageProvider, "LocalPrivate", StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddScoped<IFileStorage, LocalPrivateFileStorage>();
+}
+else
+{
+    throw new InvalidOperationException("Storage:Provider must be Local or S3Compatible.");
+}
+builder.Services.AddScoped<IStorageLifecycleCoordinator, StorageLifecycleCoordinator>();
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddHostedService<StorageProviderStartupService>();
+    builder.Services.AddHostedService<StorageLifecycleWorker>();
+}
 builder.Services.AddSingleton<IFileSecurityScanner>(serviceProvider =>
 {
     var environment = serviceProvider.GetRequiredService<IHostEnvironment>();

@@ -13,7 +13,8 @@ public sealed class EvaluationService(
     BetccoDbContext db,
     IFileStorage storage,
     IFileSecurityScanner scanner,
-    IAssessorEligibilityService? assessorEligibility = null) : IEvaluationService
+    IAssessorEligibilityService? assessorEligibility = null,
+    IStorageLifecycleCoordinator? storageLifecycle = null) : IEvaluationService
 {
     public async Task<EvaluationView?> CreateDraftAsync(string studentUserId, CreateEvaluationCommand command, CancellationToken cancellationToken = default)
     {
@@ -63,9 +64,30 @@ public sealed class EvaluationService(
         }
         if (!scan.IsClean) return EvaluationFileAddStatus.ScannerUnavailable;
         if (content.CanSeek) content.Position = 0;
-        var key = await storage.SavePrivateAsync(content, validation.DetectedContentType!, cancellationToken);
+        StagedPrivateFile? staged = null;
+        StorageLifecycleOperation? finalization = null;
+        string key;
+        if (storageLifecycle is null)
+        {
+            key = await storage.SavePrivateAsync(content, validation.DetectedContentType!, cancellationToken);
+        }
+        else
+        {
+            staged = await storage.StagePrivateAsync(content, validation.DetectedContentType!, cancellationToken);
+            key = staged.StorageKey;
+            finalization = storageLifecycle.EnqueueFinalization(staged);
+        }
         db.SubmissionFiles.Add(new SubmissionFile { EvaluationRequestId = requestId, OriginalFileName = Path.GetFileName(originalName), StorageKey = key, ContentType = validation.DetectedContentType!, LengthBytes = length, ScanStatus = UploadScanStatus.Clean });
-        await db.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
+        catch
+        {
+            if (staged is not null) await storageLifecycle!.DiscardStagedAsync(staged, cancellationToken);
+            throw;
+        }
+        if (finalization is not null) await storageLifecycle!.TryProcessNowAsync(finalization.Id, cancellationToken);
         return EvaluationFileAddStatus.Added;
     }
 

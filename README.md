@@ -11,7 +11,7 @@ BETCCO is an Arabic-first educational platform focused on BTEC learners. It comb
 ## Start locally
 
 1. Copy `.env.example` to `.env` and set non-default local passwords.
-2. Run `docker compose up -d postgres minio mailpit`.
+2. Run `docker compose up -d postgres minio minio-init mailpit`.
 3. Run `dotnet tool restore` then `./scripts/update-database.ps1`.
 4. Run `./scripts/start-api.ps1` (the script loads only the current shell's ignored `.env` values; the local API listens on `http://localhost:5085`).
 5. In `frontend`, run `pnpm install` then `pnpm dev`.
@@ -37,6 +37,9 @@ The optional first Admin is created only when both `SEED_ADMIN_EMAIL` and `SEED_
 - A Stripe adapter is not implemented yet. `Stripe__SecretKey` and `Stripe__WebhookSecret` are documented integration contracts only; production checkout safely refuses to create a payment until a verified provider adapter is supplied.
 - Payout adapters are not implemented yet. `Payouts__BankApiKey` and `Payouts__EWalletApiKey` are documented integration contracts only; production payout execution safely refuses until a verified bank or wallet adapter is supplied.
 - Development/Test accepts uploads through a test scanner. In Production, uploads are rejected until `Storage__ScannerProvider=ClamAv`, `ClamAv__Host`, and `ClamAv__Port` are configured; the ClamAV adapter scans the upload before private storage accepts it.
+- Development uses private local disk by default. Set `Storage__Provider=S3Compatible` with the documented `Storage__S3__*` values to use the private MinIO bucket. Production rejects local storage, checks the configured bucket during startup, and never falls back to node-local disk.
+- Private uploads use a staging object, commit their database reference with a durable lifecycle record, and then promote the object. A storage-scoped worker retries promotions/deletions and removes old staging objects that have no committed lifecycle record.
+- Production Data Protection uses `DataProtection__Provider=Postgres` so API replicas share key material. The keys must be encrypted with a mounted PFX configured through `DataProtection__CertificatePath` and the secret `DataProtection__CertificatePassword`; development may keep filesystem-backed keys.
 - A teacher can upload an MP4 or WEBM lesson video (up to 500MB) from the course editor. The platform keeps the source private and streams it only to the teacher or an enrolled, entitled learner; this direct multipart implementation is for normal lesson-video sizes. Use a reviewed private object-storage/resumable-upload adapter before supporting larger production uploads.
 - AI stays disabled until `Ai__Enabled=true`, `Ai__Provider=OpenAI`, `Ai__ApiKey`, and `Ai__Model` are supplied. When configured, the server-side OpenAI Responses adapter sends only bounded published course/lesson text; it never sends private uploads, payment details, or student profile data. Configure `Ai__BaseUrl` only for a reviewed compatible endpoint.
 - The installable PWA caches only public static assets and an offline notice. It deliberately never caches private API responses, course files, payments, or authenticated learning content.

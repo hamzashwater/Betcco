@@ -17,7 +17,8 @@ public sealed class CourseAssignmentService(
     IFileStorage storage,
     IFileSecurityScanner scanner,
     IEmailNotificationService emailNotifications,
-    IContentAccessService contentAccess) : ICourseAssignmentService
+    IContentAccessService contentAccess,
+    IStorageLifecycleCoordinator? storageLifecycle = null) : ICourseAssignmentService
 {
     public async Task<Guid?> CreateAsync(string teacherUserId, CreateCourseAssignmentCommand command, CancellationToken cancellationToken = default)
     {
@@ -213,9 +214,11 @@ public sealed class CourseAssignmentService(
             .Include(item => item.CourseAssignment).ThenInclude(item => item!.Course)
             .SingleOrDefaultAsync(item => item.Id == resourceId && item.CourseAssignment!.Course!.TeacherUserId == teacherUserId, cancellationToken);
         if (resource is null) return false;
+        var deletion = storageLifecycle?.EnqueueDeletion(resource.StorageKey);
         db.CourseAssignmentResources.Remove(resource);
         db.AuditLogs.Add(Audit(teacherUserId, "CourseAssignmentResourceDeleted", nameof(CourseAssignmentResource), resourceId.ToString()));
         await db.SaveChangesAsync(cancellationToken);
+        if (deletion is not null) await storageLifecycle!.TryProcessNowAsync(deletion.Id, cancellationToken);
         return true;
     }
 
@@ -289,7 +292,19 @@ public sealed class CourseAssignmentService(
         if (scan.Outcome == FileScanOutcome.Rejected) return CourseAssignmentFileAddStatus.Rejected;
         if (!scan.IsClean) return CourseAssignmentFileAddStatus.ScannerUnavailable;
         if (content.CanSeek) content.Position = 0;
-        var storageKey = await storage.SavePrivateAsync(content, validation.DetectedContentType!, cancellationToken);
+        StagedPrivateFile? staged = null;
+        StorageLifecycleOperation? finalization = null;
+        string storageKey;
+        if (storageLifecycle is null)
+        {
+            storageKey = await storage.SavePrivateAsync(content, validation.DetectedContentType!, cancellationToken);
+        }
+        else
+        {
+            staged = await storage.StagePrivateAsync(content, validation.DetectedContentType!, cancellationToken);
+            storageKey = staged.StorageKey;
+            finalization = storageLifecycle.EnqueueFinalization(staged);
+        }
         var version = submission.Versions.Single(item => item.VersionNumber == submission.CurrentVersionNumber);
         // Attach the private file explicitly to the active version. This avoids
         // relying on relationship fix-up when a submission is loaded through a
@@ -304,7 +319,16 @@ public sealed class CourseAssignmentService(
             ScanStatus = UploadScanStatus.Clean
         });
         db.AuditLogs.Add(Audit(studentUserId, "CourseAssignmentFileUploaded", nameof(CourseAssignmentSubmission), submission.Id.ToString(), submission.CurrentVersionNumber.ToString()));
-        await db.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
+        catch
+        {
+            if (staged is not null) await storageLifecycle!.DiscardStagedAsync(staged, cancellationToken);
+            throw;
+        }
+        if (finalization is not null) await storageLifecycle!.TryProcessNowAsync(finalization.Id, cancellationToken);
         return CourseAssignmentFileAddStatus.Added;
     }
 

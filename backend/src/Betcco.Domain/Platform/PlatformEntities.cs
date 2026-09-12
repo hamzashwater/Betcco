@@ -487,6 +487,23 @@ public sealed class AuditLog : Entity
 }
 
 /// <summary>
+/// Durable intent for completing a private-object promotion or deletion after
+/// the related database mutation commits. Keys are opaque server-generated
+/// identifiers and failure details are deliberately bounded.
+/// </summary>
+public sealed class StorageLifecycleOperation : Entity
+{
+    public StorageLifecycleAction Action { get; set; }
+    public StorageLifecycleStatus Status { get; set; } = StorageLifecycleStatus.Pending;
+    public string? StagingKey { get; set; }
+    public required string StorageKey { get; set; }
+    public int Attempts { get; set; }
+    public DateTimeOffset NextAttemptAtUtc { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset? CompletedAtUtc { get; set; }
+    public string? LastErrorCategory { get; set; }
+}
+
+/// <summary>
 /// A server-side record for an authenticated browser session. The cookie only
 /// carries this entity's opaque id; no session secret is stored in the database.
 /// </summary>

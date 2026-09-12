@@ -46,6 +46,8 @@ public enum CriterionAchievement { Achieved, PartiallyAchieved, NotAchieved, Not
 // The sequential values intentionally preserve ordering only.
 public enum EvaluationGrade { NotYetAchieved, Pass, Merit, Distinction }
 public enum UploadScanStatus { Pending, Clean, Rejected, Quarantined }
+public enum StorageLifecycleAction { Finalize, Delete }
+public enum StorageLifecycleStatus { Pending, Completed }
 public enum SupportTicketStatus { Open, InProgress, WaitingForStudent, Resolved, Closed }
 public enum NotificationType { System, Enrollment, Payment, Evaluation, Support, Course, LiveSession }
 /// <summary>

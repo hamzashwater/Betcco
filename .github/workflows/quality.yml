@@ -33,6 +33,10 @@ jobs:
       ASPNETCORE_ENVIRONMENT: Testing
       BETCCO_API_URL: http://localhost:5085
       BETCCO_NEXT_DIST_DIR: .next-ci
+      BETCCO_TEST_S3_ENDPOINT: http://localhost:9000
+      BETCCO_TEST_S3_ACCESS_KEY: betcco-ci
+      BETCCO_TEST_S3_SECRET_KEY: ci-only-minio-password
+      BETCCO_TEST_S3_BUCKET: betcco-ci-private
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -46,6 +50,21 @@ jobs:
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
+      - name: Start private S3-compatible test storage
+        run: |
+          docker run --detach --name betcco-minio --publish 9000:9000 \
+            --env MINIO_ROOT_USER=betcco-ci \
+            --env MINIO_ROOT_PASSWORD=ci-only-minio-password \
+            minio/minio:latest server /data
+          for attempt in {1..30}; do
+            if curl --fail --silent http://localhost:9000/minio/health/ready >/dev/null; then break; fi
+            if [ "$attempt" = 30 ]; then docker logs betcco-minio; exit 1; fi
+            sleep 2
+          done
+          docker run --rm --network host \
+            --entrypoint /bin/sh \
+            minio/mc:latest -c \
+            "mc alias set betcco http://localhost:9000 betcco-ci ci-only-minio-password && mc mb --ignore-existing betcco/betcco-ci-private && mc anonymous set none betcco/betcco-ci-private"
       - name: Install frontend dependencies
         run: pnpm --dir frontend install --frozen-lockfile
       - name: Frontend format, lint, types and tests

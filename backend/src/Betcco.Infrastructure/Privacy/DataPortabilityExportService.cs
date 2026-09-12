@@ -20,7 +20,8 @@ public sealed class DataPortabilityExportService(
     BetccoDbContext db,
     IFileStorage storage,
     IPrivacySubjectDataService subjectDataService,
-    IConfiguration configuration) : IDataPortabilityExportService
+    IConfiguration configuration,
+    IStorageLifecycleCoordinator? storageLifecycle = null) : IDataPortabilityExportService
 {
     private const string ExportFormat = "application/json";
     private const string ExportVersion = "betcco-portability-v1";
@@ -39,6 +40,8 @@ public sealed class DataPortabilityExportService(
             return await RecordGenerationFailureAsync(eligibility.Request, actorUserId, requestedAt, expiresAt, "The supported subject data is unavailable.", cancellationToken);
 
         string storageKey;
+        StagedPrivateFile? staged = null;
+        StorageLifecycleOperation? finalization = null;
         try
         {
             var content = JsonSerializer.SerializeToUtf8Bytes(new
@@ -49,7 +52,16 @@ public sealed class DataPortabilityExportService(
                 data
             });
             await using var stream = new MemoryStream(content, writable: false);
-            storageKey = await storage.SavePrivateAsync(stream, ExportFormat, cancellationToken);
+            if (storageLifecycle is null)
+            {
+                storageKey = await storage.SavePrivateAsync(stream, ExportFormat, cancellationToken);
+            }
+            else
+            {
+                staged = await storage.StagePrivateAsync(stream, ExportFormat, cancellationToken);
+                storageKey = staged.StorageKey;
+                finalization = storageLifecycle.EnqueueFinalization(staged);
+            }
         }
         catch (Exception) when (!cancellationToken.IsCancellationRequested)
         {
@@ -94,7 +106,16 @@ public sealed class DataPortabilityExportService(
         db.DataSubjectFulfillments.Add(fulfillment);
         db.DataPortabilityExports.Add(export);
         Audit("DataPortabilityExportGenerated", export, actorUserId, new { export.ExportFormat, export.ExportVersion, export.ExpiresAtUtc });
-        await db.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
+        catch
+        {
+            if (staged is not null) await storageLifecycle!.DiscardStagedAsync(staged, cancellationToken);
+            throw;
+        }
+        if (finalization is not null) await storageLifecycle!.TryProcessNowAsync(finalization.Id, cancellationToken);
         return new(export);
     }
 

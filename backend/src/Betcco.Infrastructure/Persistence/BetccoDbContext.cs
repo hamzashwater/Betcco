@@ -8,6 +8,7 @@ using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Betcco.Infrastructure.Persistence;
@@ -15,7 +16,7 @@ namespace Betcco.Infrastructure.Persistence;
 public sealed class BetccoDbContext(
     DbContextOptions<BetccoDbContext> options,
     IHttpContextAccessor? httpContextAccessor = null)
-    : IdentityDbContext<ApplicationUser, Microsoft.AspNetCore.Identity.IdentityRole<Guid>, Guid>(options)
+    : IdentityDbContext<ApplicationUser, Microsoft.AspNetCore.Identity.IdentityRole<Guid>, Guid>(options), IDataProtectionKeyContext
 {
     private readonly IHttpContextAccessor? httpContextAccessor = httpContextAccessor;
     public DbSet<LearningTrack> LearningTracks => Set<LearningTrack>();
@@ -126,6 +127,8 @@ public sealed class BetccoDbContext(
     public DbSet<TeacherInvitation> TeacherInvitations => Set<TeacherInvitation>();
     public DbSet<StudentDeviceBinding> StudentDeviceBindings => Set<StudentDeviceBinding>();
     public DbSet<RegistrationEmailOutboxMessage> RegistrationEmailOutboxMessages => Set<RegistrationEmailOutboxMessage>();
+    public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
+    public DbSet<StorageLifecycleOperation> StorageLifecycleOperations => Set<StorageLifecycleOperation>();
     public DbSet<Quiz> Quizzes => Set<Quiz>();
     public DbSet<QuizQuestion> QuizQuestions => Set<QuizQuestion>();
     public DbSet<QuestionBankQuestion> QuestionBankQuestions => Set<QuestionBankQuestion>();
@@ -1001,6 +1004,11 @@ public sealed class BetccoDbContext(
             .HasForeignKey(x => x.DataSubjectRequestId).OnDelete(DeleteBehavior.Restrict);
         builder.Entity<DataPortabilityExport>().HasOne<DataSubjectFulfillment>().WithMany()
             .HasForeignKey(x => x.DataSubjectFulfillmentId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<StorageLifecycleOperation>().Property(x => x.StagingKey).HasMaxLength(512);
+        builder.Entity<StorageLifecycleOperation>().Property(x => x.StorageKey).HasMaxLength(512);
+        builder.Entity<StorageLifecycleOperation>().Property(x => x.LastErrorCategory).HasMaxLength(200);
+        builder.Entity<StorageLifecycleOperation>().HasIndex(x => new { x.Status, x.NextAttemptAtUtc });
+        builder.Entity<StorageLifecycleOperation>().HasIndex(x => x.StagingKey);
         builder.Entity<DataProcessingRestriction>().HasIndex(x => x.DataSubjectRequestId).IsUnique();
         builder.Entity<DataProcessingRestriction>().HasIndex(x => new { x.SubjectUserId, x.Status, x.ProcessingScope });
         builder.Entity<DataProcessingRestriction>().Property(x => x.SubjectUserId).HasMaxLength(64);

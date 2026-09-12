@@ -1,3 +1,5 @@
+using Betcco.Domain.Platform;
+
 namespace Betcco.Application.Common;
 
 public static class PlatformRoles
@@ -107,6 +109,48 @@ public interface IFileStorage
 {
     Task<string> SavePrivateAsync(Stream content, string contentType, CancellationToken cancellationToken = default);
     Task<Stream?> OpenPrivateReadAsync(string storageKey, CancellationToken cancellationToken = default);
+
+    async Task<StagedPrivateFile> StagePrivateAsync(Stream content, string contentType, CancellationToken cancellationToken = default)
+    {
+        var key = await SavePrivateAsync(content, contentType, cancellationToken);
+        return new StagedPrivateFile(key, key, contentType, content.CanSeek ? content.Length : null, DateTimeOffset.UtcNow);
+    }
+
+    Task FinalizePrivateAsync(StagedPrivateFile file, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+    async Task<bool> ExistsPrivateAsync(string storageKey, CancellationToken cancellationToken = default)
+    {
+        await using var content = await OpenPrivateReadAsync(storageKey, cancellationToken);
+        return content is not null;
+    }
+
+    Task DeletePrivateAsync(string storageKey, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+    IAsyncEnumerable<StagedPrivateFile> ListStagedAsync(DateTimeOffset createdBeforeUtc, CancellationToken cancellationToken = default) =>
+        EmptyStagedFiles();
+
+    private static async IAsyncEnumerable<StagedPrivateFile> EmptyStagedFiles()
+    {
+        await Task.CompletedTask;
+        yield break;
+    }
+}
+
+public sealed record StagedPrivateFile(
+    string StagingKey,
+    string StorageKey,
+    string ContentType,
+    long? ContentLength,
+    DateTimeOffset CreatedAtUtc);
+
+public interface IStorageLifecycleCoordinator
+{
+    StorageLifecycleOperation EnqueueFinalization(StagedPrivateFile file);
+    StorageLifecycleOperation EnqueueDeletion(string storageKey);
+    Task<bool> TryProcessNowAsync(Guid operationId, CancellationToken cancellationToken = default);
+    Task DiscardStagedAsync(StagedPrivateFile file, CancellationToken cancellationToken = default);
+    Task<int> ProcessPendingAsync(CancellationToken cancellationToken = default);
+    Task<int> CleanOrphanedStagingAsync(DateTimeOffset createdBeforeUtc, CancellationToken cancellationToken = default);
 }
 
 public enum FileScanOutcome { Clean, Rejected, Unavailable }

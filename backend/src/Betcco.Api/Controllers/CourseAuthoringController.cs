@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Betcco.Application.Common;
 using Betcco.Application.Courses;
+using Betcco.Domain.Platform;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -12,7 +13,7 @@ namespace Betcco.Api.Controllers;
 [ApiController]
 [Authorize(Policy = "CourseAuthor")]
 [Route("api/v1/teacher/courses")]
-public sealed class CourseAuthoringController(ICourseAuthoringService courses, IFileStorage storage, IFileSecurityScanner scanner, BetccoDbContext db) : ControllerBase
+public sealed class CourseAuthoringController(ICourseAuthoringService courses, IFileStorage storage, IStorageLifecycleCoordinator storageLifecycle, IFileSecurityScanner scanner, BetccoDbContext db) : ControllerBase
 {
     private const long MaxCourseVideoBytes = 500L * 1024 * 1024;
 
@@ -143,9 +144,24 @@ public sealed class CourseAuthoringController(ICourseAuthoringService courses, I
         if (scan.Outcome == FileScanOutcome.Rejected) return BadRequest(new { message = "The image was rejected by the security scanner." });
         if (!scan.IsClean) return StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = "File security scanning is temporarily unavailable. Try again later." });
         stream.Position = 0;
-        var key = await storage.SavePrivateAsync(stream, validation.DetectedContentType, cancellationToken);
-        var updated = await courses.SetPresentationAsync(UserId, new SetCoursePresentationCommand(courseId, key, validation.DetectedContentType, seoTitle, seoDescription), cancellationToken);
-        return updated ? Ok(new { storageKey = key }) : Forbid();
+        var previousKey = await db.Courses.AsNoTracking()
+            .Where(course => course.Id == courseId && course.TeacherUserId == UserId)
+            .Select(course => course.CoverImageKey)
+            .SingleOrDefaultAsync(cancellationToken);
+        var staged = await storage.StagePrivateAsync(stream, validation.DetectedContentType, cancellationToken);
+        var finalization = storageLifecycle.EnqueueFinalization(staged);
+        StorageLifecycleOperation? deletion = null;
+        if (!string.IsNullOrWhiteSpace(previousKey) && !string.Equals(previousKey, staged.StorageKey, StringComparison.Ordinal))
+            deletion = storageLifecycle.EnqueueDeletion(previousKey);
+        var updated = await courses.SetPresentationAsync(UserId, new SetCoursePresentationCommand(courseId, staged.StorageKey, validation.DetectedContentType, seoTitle, seoDescription), cancellationToken);
+        if (!updated)
+        {
+            await storageLifecycle.DiscardStagedAsync(staged, cancellationToken);
+            return Forbid();
+        }
+        await storageLifecycle.TryProcessNowAsync(finalization.Id, cancellationToken);
+        if (deletion is not null) await storageLifecycle.TryProcessNowAsync(deletion.Id, cancellationToken);
+        return Ok(new { storageKey = staged.StorageKey });
     }
 
     [HttpGet("{courseId:guid}/cover")]
@@ -172,9 +188,16 @@ public sealed class CourseAuthoringController(ICourseAuthoringService courses, I
         if (scan.Outcome == FileScanOutcome.Rejected) return BadRequest(new { message = "The resource was rejected by the security scanner." });
         if (!scan.IsClean) return StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = "File security scanning is temporarily unavailable. Try again later." });
         stream.Position = 0;
-        var key = await storage.SavePrivateAsync(stream, validation.DetectedContentType!, cancellationToken);
-        var added = await courses.AddLessonResourceAsync(UserId, new AddLessonResourceCommand(lessonId, Path.GetFileName(file.FileName), key, validation.DetectedContentType!, isDownloadable), cancellationToken);
-        return added ? NoContent() : Forbid();
+        var staged = await storage.StagePrivateAsync(stream, validation.DetectedContentType!, cancellationToken);
+        var finalization = storageLifecycle.EnqueueFinalization(staged);
+        var added = await courses.AddLessonResourceAsync(UserId, new AddLessonResourceCommand(lessonId, Path.GetFileName(file.FileName), staged.StorageKey, validation.DetectedContentType!, isDownloadable), cancellationToken);
+        if (!added)
+        {
+            await storageLifecycle.DiscardStagedAsync(staged, cancellationToken);
+            return Forbid();
+        }
+        await storageLifecycle.TryProcessNowAsync(finalization.Id, cancellationToken);
+        return NoContent();
     }
 
     /// <summary>
@@ -202,10 +225,17 @@ public sealed class CourseAuthoringController(ICourseAuthoringService courses, I
             return StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = "File security scanning is temporarily unavailable. Try again later." });
         if (stream.CanSeek) stream.Position = 0;
 
-        var key = await storage.SavePrivateAsync(stream, validation.DetectedContentType!, cancellationToken);
+        var staged = await storage.StagePrivateAsync(stream, validation.DetectedContentType!, cancellationToken);
+        var finalization = storageLifecycle.EnqueueFinalization(staged);
         var videoId = await courses.AddLessonVideoAsync(UserId,
-            new AddLessonVideoCommand(lessonId, Path.GetFileName(file.FileName), key, validation.DetectedContentType!), cancellationToken);
-        return videoId is { } id ? Ok(new { id }) : Forbid();
+            new AddLessonVideoCommand(lessonId, Path.GetFileName(file.FileName), staged.StorageKey, validation.DetectedContentType!), cancellationToken);
+        if (videoId is not { } id)
+        {
+            await storageLifecycle.DiscardStagedAsync(staged, cancellationToken);
+            return Forbid();
+        }
+        await storageLifecycle.TryProcessNowAsync(finalization.Id, cancellationToken);
+        return Ok(new { id });
     }
 
     [HttpGet("lessons/{lessonId:guid}/video")]

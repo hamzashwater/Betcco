@@ -31,8 +31,22 @@ public static class StartupConfigurationValidator
         foreach (var origin in origins)
             RequireHttpsUrl(origin, "AllowedOrigins", errors);
 
-        if (string.IsNullOrWhiteSpace(configuration["DataProtection:KeysPath"]))
-            errors.Add("DataProtection:KeysPath is required in production.");
+        if (!string.Equals(configuration["DataProtection:Provider"], "Postgres", StringComparison.OrdinalIgnoreCase))
+            errors.Add("DataProtection:Provider must be Postgres in production.");
+        if (string.IsNullOrWhiteSpace(configuration["DataProtection:CertificatePath"]))
+            errors.Add("DataProtection:CertificatePath is required in production.");
+        if (string.IsNullOrWhiteSpace(configuration["DataProtection:CertificatePassword"]))
+            errors.Add("DataProtection:CertificatePassword is required in production.");
+        if (!string.Equals(configuration["Storage:Provider"], "S3Compatible", StringComparison.OrdinalIgnoreCase))
+            errors.Add("Storage:Provider must be S3Compatible in production.");
+        if (string.IsNullOrWhiteSpace(configuration["Storage:S3:Bucket"]))
+            errors.Add("Storage:S3:Bucket is required in production.");
+        if (string.IsNullOrWhiteSpace(configuration["Storage:S3:Region"]))
+            errors.Add("Storage:S3:Region is required in production.");
+        var s3AccessKey = configuration["Storage:S3:AccessKey"];
+        var s3SecretKey = configuration["Storage:S3:SecretKey"];
+        if (string.IsNullOrWhiteSpace(s3AccessKey) != string.IsNullOrWhiteSpace(s3SecretKey))
+            errors.Add("Storage:S3 access key and secret key must either both be configured or both use the provider credential chain.");
         if (!string.Equals(configuration["Storage:ScannerProvider"], "ClamAv", StringComparison.OrdinalIgnoreCase))
             errors.Add("Storage:ScannerProvider must be ClamAv in production.");
         if (string.Equals(configuration["Payments:Provider"], "Fake", StringComparison.OrdinalIgnoreCase))

@@ -17,6 +17,7 @@ namespace Betcco.Api.Controllers;
 public sealed class CourseAssignmentsController(
     ICourseAssignmentService assignments,
     IFileStorage storage,
+    IStorageLifecycleCoordinator storageLifecycle,
     IFileSecurityScanner scanner,
     BetccoDbContext db,
     IContentAccessService contentAccess) : ControllerBase
@@ -97,10 +98,16 @@ public sealed class CourseAssignmentsController(
         if (!scan.IsClean)
             return StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = "File security scanning is temporarily unavailable. Try again later." });
         stream.Position = 0;
-        var key = await storage.SavePrivateAsync(stream, validation.DetectedContentType!, cancellationToken);
-        return await assignments.AddResourceAsync(UserId, assignmentId, file.FileName, key, validation.DetectedContentType!, cancellationToken)
-            ? NoContent()
-            : NotFound();
+        var staged = await storage.StagePrivateAsync(stream, validation.DetectedContentType!, cancellationToken);
+        var finalization = storageLifecycle.EnqueueFinalization(staged);
+        var added = await assignments.AddResourceAsync(UserId, assignmentId, file.FileName, staged.StorageKey, validation.DetectedContentType!, cancellationToken);
+        if (!added)
+        {
+            await storageLifecycle.DiscardStagedAsync(staged, cancellationToken);
+            return NotFound();
+        }
+        await storageLifecycle.TryProcessNowAsync(finalization.Id, cancellationToken);
+        return NoContent();
     }
 
     [Authorize(Policy = "Teacher")]

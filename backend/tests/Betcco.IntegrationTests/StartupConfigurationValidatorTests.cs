@@ -23,9 +23,65 @@ public sealed class StartupConfigurationValidatorTests
             StartupConfigurationValidator.ThrowIfInvalid(configuration, new TestHostEnvironment(Environments.Production)));
 
         Assert.Contains("APP_PUBLIC_URL", exception.Message);
-        Assert.Contains("DataProtection:KeysPath", exception.Message);
+        Assert.Contains("DataProtection:Provider", exception.Message);
+        Assert.Contains("DataProtection:CertificatePath", exception.Message);
+        Assert.Contains("Storage:Provider", exception.Message);
+        Assert.Contains("Storage:S3:Bucket", exception.Message);
         Assert.Contains("Storage:ScannerProvider", exception.Message);
         Assert.Contains("cannot be Fake", exception.Message);
+    }
+
+    [Fact]
+    public void Production_accepts_shared_private_storage_configuration_without_inline_credentials()
+    {
+        var configuration = Configuration(new Dictionary<string, string?>
+        {
+            ["ConnectionStrings:Postgres"] = "Host=db;Database=betcco;Username=betcco;Password=not-logged",
+            ["APP_PUBLIC_URL"] = "https://betcco.test",
+            ["AllowedOrigins:0"] = "https://betcco.test",
+            ["DataProtection:Provider"] = "Postgres",
+            ["DataProtection:CertificatePath"] = "/run/secrets/data-protection.pfx",
+            ["DataProtection:CertificatePassword"] = "not-logged",
+            ["Storage:Provider"] = "S3Compatible",
+            ["Storage:S3:Bucket"] = "betcco-private",
+            ["Storage:S3:Region"] = "me-south-1",
+            ["Storage:ScannerProvider"] = "ClamAv",
+            ["Payments:Provider"] = "PayTabs",
+            ["PayTabs:ProfileId"] = "123",
+            ["PayTabs:ServerKey"] = "not-logged",
+            ["PayTabs:BaseUrl"] = "https://secure-jordan.paytabs.com",
+            ["PayTabs:Environment"] = "Live",
+            ["Payouts:Provider"] = "Manual"
+        });
+
+        StartupConfigurationValidator.ThrowIfInvalid(configuration, new TestHostEnvironment(Environments.Production));
+    }
+
+    [Fact]
+    public void Production_rejects_node_local_storage_when_other_storage_security_is_configured()
+    {
+        var configuration = Configuration(new Dictionary<string, string?>
+        {
+            ["ConnectionStrings:Postgres"] = "Host=db;Database=betcco;Username=betcco;Password=not-logged",
+            ["APP_PUBLIC_URL"] = "https://betcco.test",
+            ["AllowedOrigins:0"] = "https://betcco.test",
+            ["DataProtection:Provider"] = "Postgres",
+            ["DataProtection:CertificatePath"] = "/run/secrets/data-protection.pfx",
+            ["DataProtection:CertificatePassword"] = "not-logged",
+            ["Storage:Provider"] = "Local",
+            ["Storage:LocalRoot"] = "/data/private",
+            ["Storage:S3:Bucket"] = "betcco-private",
+            ["Storage:S3:Region"] = "me-south-1",
+            ["Storage:ScannerProvider"] = "ClamAv",
+            ["Payments:Provider"] = "Manual",
+            ["Payouts:Provider"] = "Manual"
+        });
+
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            StartupConfigurationValidator.ThrowIfInvalid(configuration, new TestHostEnvironment(Environments.Production)));
+
+        Assert.Contains("Storage:Provider must be S3Compatible", exception.Message);
+        Assert.DoesNotContain("/data/private", exception.Message);
     }
 
     [Fact]
