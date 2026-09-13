@@ -12,7 +12,9 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   webServer: {
-    command: process.env.CI ? "pnpm start" : "pnpm dev",
+    command: process.env.CI
+      ? `node ${process.env.BETCCO_NEXT_DIST_DIR ?? ".next"}/standalone/server.js`
+      : "pnpm dev",
     port: 3000,
     reuseExistingServer: !process.env.CI,
   },
