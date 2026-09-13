@@ -6,7 +6,7 @@ BETCCO is an Arabic-first educational technology platform focused on BTEC learne
 
 - Backend: ASP.NET Core on .NET 10, Entity Framework Core, and PostgreSQL with pgvector.
 - Frontend: Next.js 16, React 19, TypeScript, Tailwind CSS, next-intl, and TanStack Query.
-- Private storage: local filesystem for supported development use and S3-compatible storage for production; MinIO provides deterministic local and integration-test infrastructure.
+- Private storage: local filesystem for supported development use and S3-compatible storage for production; a pinned MinIO Community source build provides deterministic local and integration-test infrastructure.
 - Tests and quality: xUnit, Vitest, Playwright, ESLint, Prettier, TypeScript, Docker Compose, and GitHub Actions.
 
 ## Repository Structure
@@ -18,7 +18,7 @@ docs/                 Architecture, security, review, and project documentation
 .github/              GitHub Actions and Pull Request template
 infra/                Supporting infrastructure assets
 scripts/              Local database and API helper scripts
-docker-compose.yml    Local PostgreSQL, MinIO, and Mailpit services
+docker-compose.yml    Local PostgreSQL, source-built MinIO Community, and Mailpit services
 .env.example          Safe local configuration template
 ```
 
@@ -72,6 +72,8 @@ docker compose config --quiet
 ```
 
 MinIO's object API is available locally on port `9000`, its console on `9001`, and Mailpit on `8025`. The initialization service creates the configured private bucket and disables anonymous access.
+
+Compose builds the AGPL-3.0 MinIO Community server from the official `RELEASE.2025-10-15T17-29-55Z` source commit and bundles the official `mc` client release `RELEASE.2025-08-13T08-35-41Z`. This local image does not use MinIO AIStor and does not require a commercial license key. The first storage startup takes longer while Docker builds the pinned sources.
 
 ## Backend
 
