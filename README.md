@@ -19,7 +19,9 @@ docs/                 Architecture, security, review, and project documentation
 infra/                Supporting infrastructure assets
 scripts/              Local database and API helper scripts
 docker-compose.yml    Local PostgreSQL, source-built MinIO Community, and Mailpit services
+compose.deploy.yml    Provider-neutral staging/production application stack
 .env.example          Safe local configuration template
+deploy.env.example    Safe staging/production configuration contract
 ```
 
 ## Prerequisites
@@ -150,6 +152,12 @@ Playwright tests are available through `pnpm --dir frontend test:e2e`. Some inte
 - Uploaded objects are staged, committed with a durable database lifecycle record, then finalized. A storage-scoped worker retries finalization/deletion and removes orphan staging objects.
 - Protected files are streamed through authorized application endpoints; raw objects are not public.
 - Production Data Protection keys are shared through PostgreSQL and encrypted with a configured certificate.
+
+## Staging and Production Deployment
+
+The provider-neutral deployment topology, configuration contract, controlled migration command, health checks, rollback procedure, and deferred production decisions are documented in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
+`docker-compose.yml` remains development-only. Staging and production use `compose.deploy.yml` with a protected environment file stored outside Git. The deployment stack keeps payments, payouts, JoFotara, AI, demo data, and PDF reporting disabled.
 
 ## Git Workflow
 

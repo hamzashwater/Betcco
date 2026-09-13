@@ -109,8 +109,29 @@ jobs:
       - name: Validate Docker compose syntax
         env:
           POSTGRES_PASSWORD: ci-only-password
-        run: docker compose config --quiet
+        run: |
+          docker compose config --quiet
+          docker compose --env-file deploy.env.example --file compose.deploy.yml --profile operations config --quiet
       - name: Build non-root production images
         run: |
           docker build --file backend/src/Betcco.Api/Dockerfile --tag betcco-api:ci .
           docker build --file frontend/Dockerfile --tag betcco-web:ci .
+      - name: Verify controlled migration command from the production API image
+        run: |
+          docker run --rm --network host \
+            --env ASPNETCORE_ENVIRONMENT=Testing \
+            --env 'ConnectionStrings__Postgres=Host=localhost;Port=5432;Database=betcco_ci;Username=betcco_ci;Password=ci-only-password' \
+            betcco-api:ci --migrate
+      - name: Verify production API image health endpoints
+        run: |
+          docker run --detach --name betcco-api-smoke --network host \
+            --env ASPNETCORE_ENVIRONMENT=Testing \
+            --env 'ConnectionStrings__Postgres=Host=localhost;Port=5432;Database=betcco_ci;Username=betcco_ci;Password=ci-only-password' \
+            betcco-api:ci
+          trap 'docker rm --force betcco-api-smoke >/dev/null 2>&1 || true' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8080/health/ready >/dev/null; then break; fi
+            if [ "$attempt" = 30 ]; then docker logs betcco-api-smoke; exit 1; fi
+            sleep 2
+          done
+          curl --fail --silent http://127.0.0.1:8080/health/live >/dev/null
