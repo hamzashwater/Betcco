@@ -1,0 +1,119 @@
+name: betcco-deployment
+
+x-api-build: &api-build
+  context: .
+  dockerfile: backend/src/Betcco.Api/Dockerfile
+
+x-api-environment: &api-environment
+  ASPNETCORE_ENVIRONMENT: ${BETCCO_ENVIRONMENT:?Set BETCCO_ENVIRONMENT to Staging or Production}
+  Deployment__RequireSecureEnvironment: "true"
+  ConnectionStrings__Postgres: ${BETCCO_POSTGRES_CONNECTION_STRING:?Set BETCCO_POSTGRES_CONNECTION_STRING}
+  APP_PUBLIC_URL: ${BETCCO_PUBLIC_APP_URL:?Set BETCCO_PUBLIC_APP_URL}
+  AllowedOrigins__0: ${BETCCO_PUBLIC_APP_URL:?Set BETCCO_PUBLIC_APP_URL}
+  AllowedHosts: ${BETCCO_ALLOWED_HOSTS:?Set BETCCO_ALLOWED_HOSTS}
+  ReverseProxy__Enabled: "true"
+  ReverseProxy__ForwardLimit: "1"
+  ReverseProxy__KnownProxies__0: 172.30.0.10
+  DataProtection__Provider: Postgres
+  DataProtection__CertificatePath: /run/secrets/betcco-data-protection.pfx
+  DataProtection__CertificatePassword: ${BETCCO_DATA_PROTECTION_CERTIFICATE_PASSWORD:?Set BETCCO_DATA_PROTECTION_CERTIFICATE_PASSWORD}
+  Storage__Provider: S3Compatible
+  Storage__S3__Bucket: ${BETCCO_S3_BUCKET:?Set BETCCO_S3_BUCKET}
+  Storage__S3__Endpoint: ${BETCCO_S3_ENDPOINT:-}
+  Storage__S3__Region: ${BETCCO_S3_REGION:?Set BETCCO_S3_REGION}
+  Storage__S3__ForcePathStyle: ${BETCCO_S3_FORCE_PATH_STYLE:-false}
+  Storage__S3__AutoCreateBucket: "false"
+  Storage__S3__AccessKey: ${BETCCO_S3_ACCESS_KEY:-}
+  Storage__S3__SecretKey: ${BETCCO_S3_SECRET_KEY:-}
+  Storage__ScannerProvider: ClamAv
+  ClamAv__Host: ${BETCCO_CLAMAV_HOST:?Set BETCCO_CLAMAV_HOST}
+  ClamAv__Port: ${BETCCO_CLAMAV_PORT:-3310}
+  Email__Host: ${BETCCO_SMTP_HOST:?Set BETCCO_SMTP_HOST}
+  Email__Port: ${BETCCO_SMTP_PORT:-587}
+  Email__UseSsl: "true"
+  Email__FromAddress: ${BETCCO_SMTP_FROM_ADDRESS:?Set BETCCO_SMTP_FROM_ADDRESS}
+  Email__Username: ${BETCCO_SMTP_USERNAME:-}
+  Email__Password: ${BETCCO_SMTP_PASSWORD:-}
+  Payments__Provider: Disabled
+  Payouts__Provider: Disabled
+  JoFotara__Enabled: "false"
+  AssessmentReports__PdfProvider: Disabled
+  Ai__Enabled: "false"
+  ENABLE_DEMO_DATA: "false"
+  Operations__ShutdownTimeoutSeconds: ${BETCCO_SHUTDOWN_TIMEOUT_SECONDS:-30}
+
+x-api-volumes: &api-volumes
+  - type: bind
+    source: ${BETCCO_DATA_PROTECTION_CERTIFICATE_PATH:?Set BETCCO_DATA_PROTECTION_CERTIFICATE_PATH}
+    target: /run/secrets/betcco-data-protection.pfx
+    read_only: true
+
+x-container-security: &container-security
+  init: true
+  read_only: true
+  cap_drop:
+    - ALL
+  security_opt:
+    - no-new-privileges:true
+  stop_grace_period: 30s
+
+services:
+  migrate:
+    <<: *container-security
+    image: betcco-api:${BETCCO_IMAGE_TAG:?Set BETCCO_IMAGE_TAG to an immutable release identifier}
+    build: *api-build
+    command: ["--migrate"]
+    environment: *api-environment
+    volumes: *api-volumes
+    tmpfs:
+      - /tmp:mode=1777
+    networks:
+      app:
+        ipv4_address: 172.30.0.30
+    profiles: [operations]
+    restart: "no"
+
+  api:
+    <<: *container-security
+    image: betcco-api:${BETCCO_IMAGE_TAG:?Set BETCCO_IMAGE_TAG to an immutable release identifier}
+    build: *api-build
+    environment: *api-environment
+    volumes: *api-volumes
+    tmpfs:
+      - /tmp:mode=1777
+    expose:
+      - "8080"
+    networks:
+      app:
+        ipv4_address: 172.30.0.20
+    restart: unless-stopped
+
+  web:
+    <<: *container-security
+    image: betcco-web:${BETCCO_IMAGE_TAG:?Set BETCCO_IMAGE_TAG to an immutable release identifier}
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        BETCCO_API_URL: http://api:8080
+    environment:
+      APP_PUBLIC_URL: ${BETCCO_PUBLIC_APP_URL:?Set BETCCO_PUBLIC_APP_URL}
+    tmpfs:
+      - /tmp:mode=1777
+      - /app/.next/cache:uid=1001,gid=1001
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${BETCCO_WEB_PORT:-3000}:3000"
+    networks:
+      app:
+        ipv4_address: 172.30.0.10
+    restart: unless-stopped
+
+networks:
+  app:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24

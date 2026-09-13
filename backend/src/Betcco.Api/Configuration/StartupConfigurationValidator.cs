@@ -1,10 +1,11 @@
+using System.Net;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
 namespace Betcco.Api.Configuration;
 
 /// <summary>
-/// Prevents a production deployment from silently starting with local or
+/// Prevents a staging or production deployment from silently starting with local or
 /// incomplete security configuration. Values themselves are never logged.
 /// </summary>
 public static class StartupConfigurationValidator
@@ -17,8 +18,11 @@ public static class StartupConfigurationValidator
         ValidatePayTabs(configuration, errors);
         ValidateJoFotara(configuration, errors);
 
-        if (!environment.IsProduction())
+        var deploymentEnvironment = environment.IsProduction() || environment.IsStaging();
+        if (!deploymentEnvironment)
         {
+            if (configuration.GetValue("Deployment:RequireSecureEnvironment", false))
+                errors.Add("Deployment:RequireSecureEnvironment requires ASPNETCORE_ENVIRONMENT to be Staging or Production.");
             ThrowIfErrors(errors);
             return;
         }
@@ -27,32 +31,48 @@ public static class StartupConfigurationValidator
 
         var origins = configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
         if (origins.Length == 0)
-            errors.Add("At least one AllowedOrigins value is required in production.");
+            errors.Add("At least one AllowedOrigins value is required in staging and production.");
         foreach (var origin in origins)
             RequireHttpsUrl(origin, "AllowedOrigins", errors);
 
+        var allowedHosts = (configuration["AllowedHosts"] ?? string.Empty)
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (allowedHosts.Length == 0 || allowedHosts.Any(host => host == "*"))
+            errors.Add("AllowedHosts must explicitly list the deployment host names.");
+
+        if (!configuration.GetValue("ReverseProxy:Enabled", false))
+            errors.Add("ReverseProxy:Enabled must be true in staging and production.");
+        var knownProxies = configuration.GetSection("ReverseProxy:KnownProxies").Get<string[]>() ?? [];
+        if (knownProxies.Length == 0)
+            errors.Add("At least one ReverseProxy:KnownProxies address is required in staging and production.");
+        else if (knownProxies.Any(proxy => !IPAddress.TryParse(proxy, out _)))
+            errors.Add("Every ReverseProxy:KnownProxies value must be an IP address.");
+
         if (!string.Equals(configuration["DataProtection:Provider"], "Postgres", StringComparison.OrdinalIgnoreCase))
-            errors.Add("DataProtection:Provider must be Postgres in production.");
+            errors.Add("DataProtection:Provider must be Postgres in staging and production.");
         if (string.IsNullOrWhiteSpace(configuration["DataProtection:CertificatePath"]))
-            errors.Add("DataProtection:CertificatePath is required in production.");
+            errors.Add("DataProtection:CertificatePath is required in staging and production.");
         if (string.IsNullOrWhiteSpace(configuration["DataProtection:CertificatePassword"]))
-            errors.Add("DataProtection:CertificatePassword is required in production.");
+            errors.Add("DataProtection:CertificatePassword is required in staging and production.");
         if (!string.Equals(configuration["Storage:Provider"], "S3Compatible", StringComparison.OrdinalIgnoreCase))
-            errors.Add("Storage:Provider must be S3Compatible in production.");
+            errors.Add("Storage:Provider must be S3Compatible in staging and production.");
         if (string.IsNullOrWhiteSpace(configuration["Storage:S3:Bucket"]))
-            errors.Add("Storage:S3:Bucket is required in production.");
+            errors.Add("Storage:S3:Bucket is required in staging and production.");
         if (string.IsNullOrWhiteSpace(configuration["Storage:S3:Region"]))
-            errors.Add("Storage:S3:Region is required in production.");
+            errors.Add("Storage:S3:Region is required in staging and production.");
         var s3AccessKey = configuration["Storage:S3:AccessKey"];
         var s3SecretKey = configuration["Storage:S3:SecretKey"];
         if (string.IsNullOrWhiteSpace(s3AccessKey) != string.IsNullOrWhiteSpace(s3SecretKey))
             errors.Add("Storage:S3 access key and secret key must either both be configured or both use the provider credential chain.");
         if (!string.Equals(configuration["Storage:ScannerProvider"], "ClamAv", StringComparison.OrdinalIgnoreCase))
-            errors.Add("Storage:ScannerProvider must be ClamAv in production.");
-        if (string.Equals(configuration["Payments:Provider"], "Fake", StringComparison.OrdinalIgnoreCase))
-            errors.Add("Payments:Provider cannot be Fake in production.");
-        if (string.Equals(configuration["Payouts:Provider"], "Fake", StringComparison.OrdinalIgnoreCase))
-            errors.Add("Payouts:Provider cannot be Fake in production.");
+            errors.Add("Storage:ScannerProvider must be ClamAv in staging and production.");
+        if (string.IsNullOrWhiteSpace(configuration["ClamAv:Host"]))
+            errors.Add("ClamAv:Host is required in staging and production.");
+        if (!int.TryParse(configuration["ClamAv:Port"], out var clamAvPort) || clamAvPort is < 1 or > 65535)
+            errors.Add("ClamAv:Port must be a valid TCP port in staging and production.");
+
+        ValidateDeploymentEmail(configuration, errors);
+        ValidateDeploymentProviders(configuration, environment, errors);
 
         if (string.Equals(configuration["AssessmentReports:PdfProvider"], "QuestPdf", StringComparison.OrdinalIgnoreCase))
         {
@@ -75,8 +95,52 @@ public static class StartupConfigurationValidator
 
     private static void RequireHttpsUrl(string? value, string key, ICollection<string> errors)
     {
-        if (!Uri.TryCreate(value, UriKind.Absolute, out var uri) || !string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
-            errors.Add($"{key} must be an absolute HTTPS URL in production.");
+        if (!Uri.TryCreate(value, UriKind.Absolute, out var uri)
+            || !string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
+            || uri.AbsolutePath != "/"
+            || !string.IsNullOrEmpty(uri.Query)
+            || !string.IsNullOrEmpty(uri.Fragment))
+            errors.Add($"{key} must be an absolute HTTPS URL in staging and production.");
+    }
+
+    private static void ValidateDeploymentEmail(IConfiguration configuration, ICollection<string> errors)
+    {
+        if (string.IsNullOrWhiteSpace(configuration["Email:Host"]))
+            errors.Add("Email:Host is required in staging and production.");
+        if (string.IsNullOrWhiteSpace(configuration["Email:FromAddress"]))
+            errors.Add("Email:FromAddress is required in staging and production.");
+        if (!int.TryParse(configuration["Email:Port"], out var emailPort) || emailPort is < 1 or > 65535)
+            errors.Add("Email:Port must be a valid TCP port in staging and production.");
+        if (!configuration.GetValue("Email:UseSsl", false))
+            errors.Add("Email:UseSsl must be true in staging and production.");
+
+        var username = configuration["Email:Username"];
+        var password = configuration["Email:Password"];
+        if (string.IsNullOrWhiteSpace(username) != string.IsNullOrWhiteSpace(password))
+            errors.Add("Email username and password must either both be configured or both be omitted.");
+    }
+
+    private static void ValidateDeploymentProviders(
+        IConfiguration configuration,
+        IHostEnvironment environment,
+        ICollection<string> errors)
+    {
+        var paymentProvider = configuration["Payments:Provider"];
+        if (paymentProvider is null
+            || (!string.Equals(paymentProvider, "Disabled", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(paymentProvider, "PayTabs", StringComparison.OrdinalIgnoreCase)))
+            errors.Add("Payments:Provider must explicitly be Disabled or PayTabs in staging and production.");
+
+        if (environment.IsStaging()
+            && string.Equals(paymentProvider, "PayTabs", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(configuration["PayTabs:Environment"], "Live", StringComparison.Ordinal))
+            errors.Add("Staging cannot use the live PayTabs environment.");
+
+        var payoutProvider = configuration["Payouts:Provider"];
+        if (payoutProvider is null
+            || (!string.Equals(payoutProvider, "Disabled", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(payoutProvider, "Manual", StringComparison.OrdinalIgnoreCase)))
+            errors.Add("Payouts:Provider must explicitly be Disabled or Manual in staging and production.");
     }
 
     private static void ValidatePayTabs(IConfiguration configuration, ICollection<string> errors)

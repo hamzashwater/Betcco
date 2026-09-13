@@ -1,18 +1,18 @@
 # BETCCO implementation plan
 
-Updated: 2026-09-02
+Updated: 2026-09-13
 
 This is the execution plan for the approved master implementation prompt. Each stage is kept buildable and is verified before the next stage starts. External-commercial decisions are implemented as disabled adapters and documented blockers, not guessed integrations.
 
-| Stage | Status | Deliverable |
-| --- | --- | --- |
-| Discovery and baseline | Completed | Audit, risk register, ADRs, baseline command record and Prettier repair |
-| P0 repository and CI | In progress | CI workflows, local verification script, smoke tests and production container definitions added; container build verification is running |
-| P0 BTEC assessment correctness | In progress | Versioned criterion rules, qualification-version registry/snapshots, authenticity, academic audit export, authorised resubmission, risk-informed internal-verification sampling, and a protected appeal workflow are complete for the current external-evaluation slice; formal PDF reporting remains |
-| P0 identity, privacy and commerce hardening | In progress | Central permission policies, invitation lifecycle, privacy-rights workflow, and versioned marketing-consent evidence are in place; payment/ledger adapter hardening remains |
-| P1 storage and operations | Pending | Object-storage abstraction, upload lifecycle, observability, deployment and recovery runbooks |
-| P1 learning experience | Pending | Course lifecycle, student learning improvements, i18n, SEO, performance and accessibility |
-| P2/P3 educational extensions | Pending | Early warning, guardian portal, community/formative learning and guarded integrations |
+| Stage                                       | Status      | Deliverable                                                                                                                                                                                                                                                                                           |
+| ------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Discovery and baseline                      | Completed   | Audit, risk register, ADRs, baseline command record and Prettier repair                                                                                                                                                                                                                               |
+| P0 repository and CI                        | Completed   | CI, clean-clone verification, production image builds, Playwright, PostgreSQL/S3 tests, CodeQL and dependency review are green                                                                                                                                                                        |
+| P0 BTEC assessment correctness              | In progress | Versioned criterion rules, qualification-version registry/snapshots, authenticity, academic audit export, authorised resubmission, risk-informed internal-verification sampling, and a protected appeal workflow are complete for the current external-evaluation slice; formal PDF reporting remains |
+| P0 identity, privacy and commerce hardening | In progress | Central permission policies, invitation lifecycle, privacy-rights workflow, and versioned marketing-consent evidence are in place; payment/ledger adapter hardening remains                                                                                                                           |
+| P1 storage and operations                   | In progress | Durable private storage is complete; provider-neutral staging/production deployment and rollback runbooks are present; backup/restore and monitoring remain deferred                                                                                                                                  |
+| P1 learning experience                      | Pending     | Course lifecycle, student learning improvements, i18n, SEO, performance and accessibility                                                                                                                                                                                                             |
+| P2/P3 educational extensions                | Pending     | Early warning, guardian portal, community/formative learning and guarded integrations                                                                                                                                                                                                                 |
 
 ## Work rules
 

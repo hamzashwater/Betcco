@@ -21,6 +21,16 @@ public sealed class S3CompatiblePrivateFileStorage(IAmazonS3 client, IConfigurat
         await client.PutBucketAsync(new PutBucketRequest { BucketName = _bucket }, cancellationToken);
     }
 
+    public async Task CheckAvailabilityAsync(CancellationToken cancellationToken = default)
+    {
+        await client.ListObjectsV2Async(new ListObjectsV2Request
+        {
+            BucketName = _bucket,
+            Prefix = StagingPrefix,
+            MaxKeys = 1
+        }, cancellationToken);
+    }
+
     public async Task<string> SavePrivateAsync(Stream content, string contentType, CancellationToken cancellationToken = default)
     {
         var staged = await StagePrivateAsync(content, contentType, cancellationToken);

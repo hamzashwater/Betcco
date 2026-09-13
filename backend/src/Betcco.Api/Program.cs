@@ -1,3 +1,4 @@
+using System.Net;
 using System.Threading.RateLimiting;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
@@ -24,13 +25,17 @@ using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder(args);
+var migrationOnly = args.Any(argument => string.Equals(argument, "--migrate", StringComparison.OrdinalIgnoreCase));
+var applicationArguments = args.Where(argument => !string.Equals(argument, "--migrate", StringComparison.OrdinalIgnoreCase)).ToArray();
+var builder = WebApplication.CreateBuilder(applicationArguments);
 StartupConfigurationValidator.ThrowIfInvalid(builder.Configuration, builder.Environment);
+var deploymentEnvironment = builder.Environment.IsProduction() || builder.Environment.IsStaging();
 var connectionString = builder.Configuration.GetConnectionString("Postgres")
     ?? builder.Configuration["ConnectionStrings__Postgres"];
 
@@ -78,7 +83,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.Name = "betcco.auth";
     options.Cookie.HttpOnly = true;
     options.Cookie.SameSite = SameSiteMode.Lax;
-    options.Cookie.SecurePolicy = builder.Environment.IsProduction() ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SecurePolicy = deploymentEnvironment ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
     options.SlidingExpiration = true;
     options.Events.OnValidatePrincipal = async context =>
     {
@@ -218,6 +223,28 @@ builder.Services.AddCors(options => options.AddPolicy("same-origin", policy =>
     var origins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? ["http://localhost:3000"];
     policy.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
 }));
+var reverseProxyEnabled = builder.Configuration.GetValue("ReverseProxy:Enabled", false);
+if (reverseProxyEnabled)
+{
+    var knownProxies = builder.Configuration.GetSection("ReverseProxy:KnownProxies").Get<string[]>() ?? [];
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor
+            | ForwardedHeaders.XForwardedProto
+            | ForwardedHeaders.XForwardedHost;
+        options.ForwardLimit = Math.Clamp(builder.Configuration.GetValue("ReverseProxy:ForwardLimit", 1), 1, 3);
+        foreach (var proxy in knownProxies)
+        {
+            if (!IPAddress.TryParse(proxy, out var address)) continue;
+            options.KnownProxies.Add(address);
+            if (address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                options.KnownProxies.Add(address.MapToIPv6());
+        }
+    });
+}
+builder.Services.Configure<HostOptions>(options =>
+    options.ShutdownTimeout = TimeSpan.FromSeconds(
+        Math.Clamp(builder.Configuration.GetValue("Operations:ShutdownTimeoutSeconds", 30), 10, 120)));
 
 builder.Services.AddScoped<ICurrentUserAccessor, CurrentUserAccessor>();
 builder.Services.AddScoped<IAssessorEligibilityService, AssessorEligibilityService>();
@@ -384,7 +411,17 @@ builder.Services.AddScoped<IQualificationRegistryService, QualificationRegistryS
 builder.Services.AddScoped<DatabaseInitializer>();
 
 var app = builder.Build();
+if (migrationOnly)
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Betcco.Migrations");
+    logger.LogInformation("Applying BETCCO database migrations.");
+    await scope.ServiceProvider.GetRequiredService<BetccoDbContext>().Database.MigrateAsync();
+    logger.LogInformation("BETCCO database migrations completed.");
+    return;
+}
 app.UseExceptionHandler();
+if (reverseProxyEnabled) app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 app.UseRateLimiter();
 app.UseCors("same-origin");
@@ -411,10 +448,20 @@ if (app.Environment.IsDevelopment())
 }
 app.MapControllers();
 app.MapGet("/health/live", () => Results.Ok(new { status = "live" })).AllowAnonymous();
-app.MapGet("/health/ready", async (BetccoDbContext db, CancellationToken cancellationToken) =>
+app.MapGet("/health/ready", async (BetccoDbContext db, IFileStorage storage, CancellationToken cancellationToken) =>
 {
-    var ready = await db.Database.CanConnectAsync(cancellationToken);
-    return ready ? Results.Ok(new { status = "ready" }) : Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
+    try
+    {
+        if (!await db.Database.CanConnectAsync(cancellationToken))
+            return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
+        if (storage is S3CompatiblePrivateFileStorage s3Storage)
+            await s3Storage.CheckAvailabilityAsync(cancellationToken);
+        return Results.Ok(new { status = "ready" });
+    }
+    catch when (!cancellationToken.IsCancellationRequested)
+    {
+        return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
+    }
 }).AllowAnonymous();
 if (app.Environment.IsDevelopment())
 {
