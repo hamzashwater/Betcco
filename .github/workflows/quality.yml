@@ -102,8 +102,8 @@ jobs:
       - name: Prepare standalone frontend for Playwright
         run: |
           cp -R frontend/public frontend/.next-ci/standalone/public
-          mkdir -p frontend/.next-ci/standalone/.next
-          cp -R frontend/.next-ci/static frontend/.next-ci/standalone/.next/static
+          mkdir -p frontend/.next-ci/standalone/.next-ci
+          cp -R frontend/.next-ci/static frontend/.next-ci/standalone/.next-ci/static
       - name: Run public Playwright smoke tests
         run: pnpm --dir frontend exec playwright test tests/e2e/public.spec.ts
       - name: Validate Docker compose syntax
