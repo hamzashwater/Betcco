@@ -4,6 +4,10 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { FilePicker } from "@/components/forms/file-picker";
+import {
+  CourseWorkspaceNavigation,
+  CourseWorkspaceSection,
+} from "@/features/teacher/course-workspace-navigation";
 import { api } from "@/lib/api";
 import { defaultBrand } from "@/lib/brand";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -773,32 +777,49 @@ function ExistingCourseEditor({ courseId }: { courseId: string }) {
           {statusLabel(course.data.status, locale)}
         </span>
       </div>
+      <CourseWorkspaceNavigation />
       <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="grid gap-6">
-          <CourseDetailsForm course={course.data} disabled={!editable} />
-          <LearningAccessEditor
-            course={course.data}
-            disabled={!assignmentsEditable}
-          />
-          <CourseAnnouncementsEditor
-            course={course.data}
-            disabled={!assignmentsEditable}
-          />
-          <CurriculumEditor course={course.data} disabled={!editable} />
-          <CourseAssignmentsEditor
-            course={course.data}
-            disabled={!assignmentsEditable}
-          />
-          <TeacherCourseGradebook course={course.data} />
-          <CourseQuizzesEditor
-            course={course.data}
-            disabled={!assignmentsEditable}
-          />
+          <CourseWorkspaceSection id="details">
+            <CourseDetailsForm course={course.data} disabled={!editable} />
+          </CourseWorkspaceSection>
+          <CourseWorkspaceSection id="access">
+            <LearningAccessEditor
+              course={course.data}
+              disabled={!assignmentsEditable}
+            />
+          </CourseWorkspaceSection>
+          <CourseWorkspaceSection id="announcements">
+            <CourseAnnouncementsEditor
+              course={course.data}
+              disabled={!assignmentsEditable}
+            />
+          </CourseWorkspaceSection>
+          <CourseWorkspaceSection id="curriculum">
+            <CurriculumEditor course={course.data} disabled={!editable} />
+          </CourseWorkspaceSection>
+          <CourseWorkspaceSection id="assignments">
+            <div className="grid gap-6">
+              <CourseAssignmentsEditor
+                course={course.data}
+                disabled={!assignmentsEditable}
+              />
+              <TeacherCourseGradebook course={course.data} />
+            </div>
+          </CourseWorkspaceSection>
+          <CourseWorkspaceSection id="quizzes">
+            <CourseQuizzesEditor
+              course={course.data}
+              disabled={!assignmentsEditable}
+            />
+          </CourseWorkspaceSection>
         </div>
         <aside className="grid h-fit gap-5 xl:sticky xl:top-24">
           <CoverManager course={course.data} disabled={!editable} />
           <OutcomesEditor course={course.data} disabled={!editable} />
-          <ReviewSubmission course={course.data} disabled={!editable} />
+          <CourseWorkspaceSection id="review">
+            <ReviewSubmission course={course.data} disabled={!editable} />
+          </CourseWorkspaceSection>
         </aside>
       </div>
     </section>
