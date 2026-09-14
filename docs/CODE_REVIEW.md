@@ -20,7 +20,8 @@ Review for:
 - exception handling, validation, and API compatibility;
 - frontend/backend contracts and backwards compatibility;
 - relevant tests and failure cases;
-- duplication and architecture boundaries;
+- business-rule duplication and architecture boundaries;
+- maintainability and accidental scope expansion;
 - material performance regressions.
 
 ## Finding Severity
