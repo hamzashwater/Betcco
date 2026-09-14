@@ -4,8 +4,8 @@
 
 - Last updated: 2026-09-14
 - Verified implementation baseline SHA: `c9e6f3662a282402e332ed13940fb5456d875d89`
-- Status generated/verified against origin/main: `c9e6f3662a282402e332ed13940fb5456d875d89`
-- Baseline branch used for status generation: `docs/project-handoff-baseline`
+- Status generated/verified against origin/main: `37f0bc02fc07bc2a5ba19d085754b343b18a5074`
+- Baseline branch used for status generation: `docs/parallel-workstream-governance`
 - Working tree state during status generation: clean
 - Latest verified CI state: UNKNOWN — no live GitHub Actions result was available in the local repository evidence. The repository contains `quality.yml` and `security.yml` workflow definitions, but their latest run was not verified here.
 
@@ -70,24 +70,42 @@ Done: Main contains BTEC result views, internal-verification and appeal workspac
 
 Remaining: The broader course lifecycle, learning experience, and full teacher/student UX roadmap remain incomplete.
 
-## In Progress
+## Active Workstreams
 
-IN PROGRESS — UNMERGED FEATURE WORK
+Live progress is tracked in OPEN Draft PRs, and repository evidence wins over conversation memory. This document remains a repository-level snapshot and may not contain every intermediate checkpoint.
 
-- Task: Formal BTEC assessment PDF reporting
-- Branch: `feature/btec-assessment-pdf-report`
-- Merged into main: NO
-- Status: The separate feature worktree is dirty and contains unfinished work. Its uncommitted contents were intentionally not inspected or modified during this documentation task. Implementation details not present on `main` remain UNKNOWN.
+Maximum active implementation workstreams: **2**
 
-## Next Task
+### Workstream A
 
-- Task: Complete, review, and merge the current active BTEC assessment PDF feature task.
-- Why next: `main` still documents formal PDF reporting as the remaining P0 assessment slice, and an active unmerged feature branch exists. No different implementation task should be invented ahead of it.
-- Suggested branch: `feature/btec-assessment-pdf-report`
-- Dependencies: Preserve and complete the existing feature work; run targeted PDF/report tests; complete engineering/Codex review; open a Pull Request; obtain green required CI and final approval.
-- Definition of Done: The implementation is merged into `main`, required CI is green, blocking review findings are resolved, and this document is updated to reflect the merged result.
+Task: Formal BTEC Assessment PDF Reporting
+Owner: Account 1 / Device 1
+Branch: `feature/btec-assessment-pdf-report`
+Pull Request: #6
+Status: IN PROGRESS
+Scope: BTEC assessment PDF backend/reporting and PDF-specific validation.
+Reserved areas:
 
-Exactly one next action is recorded above.
+- `AssessmentPdfReportService`
+- `QuestPdfAssessmentReportRenderer`
+- `AssessmentPdfReportTests`
+- PDF-specific deployment documentation
+
+Merged into main: **NO**
+
+### Workstream B
+
+Status: AVAILABLE
+Purpose: Reserved parallel capacity for one independent task.
+
+No branch, owner, or implementation is invented yet. Workstream B becomes ACTIVE only after a scoped task is selected, a dedicated branch is created, and a Draft PR records its ownership and reserved scope.
+
+## Next Actions
+
+- Workstream A: Complete, review, validate, and merge the current BTEC assessment PDF workstream.
+- Workstream B: Remains available for one sufficiently independent, explicitly scoped task; it must not overlap Workstream A's reserved areas.
+
+Definition of Done for each workstream: implementation is reviewed, required CI is green, its PR is merged into `main`, and this document is reconciled with the new merged state.
 
 ## Blocked
 
@@ -126,7 +144,7 @@ Do not reopen these areas merely because a later account lacks conversation memo
 
 ## Known Risks
 
-- The active BTEC assessment PDF work is unmerged and must not be represented as completed until it reaches `main` with targeted verification, review, and required CI green.
+- Workstream A / PR #6 is unmerged and must not be represented as completed until it reaches `main` with targeted verification, review, and required CI green.
 - The latest GitHub Actions result was not verified in this local checkout; do not claim current green CI without checking the remote result.
 - Production S3, SMTP, ClamAV, Data Protection certificate, hosting, monitoring, backup/restore, payment, payout, and fiscal integrations require external configuration or validation.
 - Full UAT, capacity testing, launch hardening, retention decisions, and final legal review remain outstanding.
@@ -135,6 +153,8 @@ Do not reopen these areas merely because a later account lacks conversation memo
 
 - GitHub `main` and repository evidence are the technical Source of Truth.
 - Keep one scoped task per feature/fix branch; do not perform normal feature work directly on `main`.
+- BETCCO supports a maximum of two sufficiently independent active implementation workstreams, coordinated through OPEN Draft PRs.
+- Draft PR descriptions are the live progress ledger; `docs/PROJECT_STATUS.md` remains a high-level merged-state snapshot.
 - Do not force-push or destructively reset/clean repository state without explicit approval.
 - Server-side authorization, academic decisions, financial decisions, and privacy enforcement remain the source of truth.
 - Use additive, data-safe migrations and preserve historical academic and financial facts.
@@ -168,6 +188,6 @@ Every new ChatGPT/Codex account or developer session must:
 6. Read `docs/PROJECT_STATUS.md`.
 7. Inspect recent Git history.
 8. Reconcile the documented state against current repository evidence.
-9. Continue only the documented next task after verification.
+9. Inspect all OPEN Draft PRs and compare their reserved areas before choosing a scoped task.
 
 Never rely on previous account memory to determine project state.
