@@ -20,6 +20,23 @@
 Run the narrowest relevant validation after each change.
 Run broader formatter, lint, typecheck, build, and test suites only when the scope of the change requires them.
 
+## Source of truth and handoff
+
+GitHub `main` is the technical Source of Truth for BETCCO. If `docs/PROJECT_STATUS.md` conflicts with current code, Git history, tests, migrations, or CI evidence, repository evidence wins and the status document must be corrected.
+
+Before starting any new task:
+
+1. Run `git fetch origin`.
+2. Check out or start from the latest `main`.
+3. Run `git pull --ff-only origin main`.
+4. Verify that the working tree is clean.
+5. Read `docs/PROJECT_STATUS.md`.
+6. Inspect recent Git history.
+7. Verify the documented next task against repository evidence.
+
+Use one scoped feature or gap per branch. Do not begin a later task until the previous merged task and `docs/PROJECT_STATUS.md` are synchronized.
+Do not reopen completed work without new repository evidence.
+
 ## Context and usage efficiency
 
 The current repository state is the source of truth.
@@ -109,6 +126,12 @@ For each new task:
 
 ## Completion
 
+A task is NOT DONE until:
+
+1. The implementation is merged into `main`.
+2. Required CI is green.
+3. `docs/PROJECT_STATUS.md` reflects the merged result.
+
 At the end of a normal task report only:
 
 1. What changed
@@ -123,6 +146,7 @@ Do not continue automatically to the next roadmap item.
 
 - Keep work for the same feature in the same Codex thread when practical; start a new branch and thread for a different feature.
 - Create a `feature/<short-description>` or `fix/<short-description>` branch for normal development. Do not develop or push directly on `main`.
+- Do not use destructive `git reset` or `git clean` operations without explicit approval.
 - Before merge, review `git diff main...HEAD` and inspect the changed files plus only the direct dependencies needed to judge behavior.
 - Do not mix unrelated refactoring into a feature or fix branch.
 - Never expose secrets, local configuration, private keys, user uploads, or runtime data.

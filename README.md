@@ -159,13 +159,16 @@ The provider-neutral deployment topology, configuration contract, controlled mig
 
 `docker-compose.yml` remains development-only. Staging and production use `compose.deploy.yml` with a protected environment file stored outside Git. The deployment stack keeps payments, payouts, JoFotara, AI, demo data, and PDF reporting disabled.
 
+Before starting work, read the current handoff state in [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md).
+
 ## Git Workflow
 
 `main` is the protected integration branch. Normal development must use a focused feature or fix branch and a Pull Request.
 
 ```bash
+git fetch origin
 git checkout main
-git pull
+git pull --ff-only origin main
 git checkout -b feature/teacher-resource-library
 ```
 

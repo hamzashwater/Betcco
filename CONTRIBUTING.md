@@ -16,6 +16,8 @@ BETCCO changes must be small, reviewable, and safe for a production system.
 
 Never perform normal development directly on `main`, force-push `main`, or bypass the Pull Request workflow.
 
+Before another engineer or account starts a new task, the previous implementation must be merged into `main` and `docs/PROJECT_STATUS.md` must reflect that merged state. Do not rely on previous ChatGPT or Codex conversation memory.
+
 ## Security and Repository Hygiene
 
 - Never commit `.env`, secrets, tokens, production URLs, private keys, certificate private material, user uploads, database data, runtime logs, or runtime Data Protection keys.
