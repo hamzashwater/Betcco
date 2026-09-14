@@ -24,18 +24,58 @@ Run broader formatter, lint, typecheck, build, and test suites only when the sco
 
 GitHub `main` is the technical Source of Truth for BETCCO. If `docs/PROJECT_STATUS.md` conflicts with current code, Git history, tests, migrations, or CI evidence, repository evidence wins and the status document must be corrected.
 
-Before starting any new task:
+Use one scoped feature or gap per branch. Do not reopen completed work without new repository evidence.
+
+## Parallel workstreams
+
+BETCCO may have a maximum of TWO simultaneous active implementation workstreams.
+
+Parallel work is allowed only when the workstreams are sufficiently independent. Every active workstream must have:
+
+- one dedicated branch
+- one clearly defined owner/account
+- one scoped module/feature
+- one Draft Pull Request as soon as meaningful work is pushed
+- a PR description containing current progress and reserved scope
+
+Each workstream owns its declared files/modules while active. Another workstream must not modify owned files/modules without explicit coordination.
+
+Before beginning a coding session, every account must:
 
 1. Run `git fetch origin`.
-2. Check out or start from the latest `main`.
-3. Run `git pull --ff-only origin main`.
-4. Verify that the working tree is clean.
-5. Read `docs/PROJECT_STATUS.md`.
-6. Inspect recent Git history.
-7. Verify the documented next task against repository evidence.
+2. Inspect the latest `main`.
+3. Inspect all OPEN Draft PRs.
+4. Read their Reserved Scope / Primary Files.
+5. Compare those areas with the task it intends to modify.
+6. STOP if meaningful overlap exists.
 
-Use one scoped feature or gap per branch. Do not begin a later task until the previous merged task and `docs/PROJECT_STATUS.md` are synchronized.
-Do not reopen completed work without new repository evidence.
+Open Draft PRs are part of the live collaboration state, not merely review artifacts.
+
+## Synchronization
+
+Each account works only on its own branch. Never push to another workstream's branch or share the same working directory across accounts/devices.
+
+When another workstream merges into `main`, fetch `origin`, inspect the merged diff, determine whether it affects the current workstream, and merge the latest `origin/main` into the feature branch when needed. Never rebase or force-push shared workstream branches without explicit approval.
+
+If integration produces conflicts, STOP and inspect them. Do not automatically choose ours/theirs.
+
+## Live progress
+
+The Draft PR body is the live progress ledger for an active workstream. Update it at meaningful checkpoints with:
+
+- Status
+- Current Progress
+- Primary Files / Modules
+- Reserved Scope
+- Last Completed Checkpoint
+- Next Step
+- Blockers
+
+Do not update `docs/PROJECT_STATUS.md` after every commit.
+
+## PROJECT_STATUS role
+
+`docs/PROJECT_STATUS.md` represents merged project state, a high-level active-work snapshot, roadmap state, and blockers. It is not a per-commit activity log. Live implementation progress belongs in Draft PRs.
 
 ## Context and usage efficiency
 
@@ -132,6 +172,8 @@ A task is NOT DONE until:
 2. Required CI is green.
 3. `docs/PROJECT_STATUS.md` reflects the merged result.
 
+When multiple workstreams are active, status reconciliation must not cause both branches to edit `docs/PROJECT_STATUS.md` concurrently. Prefer a small dedicated status/governance update after the product merge or another explicitly coordinated method.
+
 At the end of a normal task report only:
 
 1. What changed
@@ -146,6 +188,8 @@ Do not continue automatically to the next roadmap item.
 
 - Keep work for the same feature in the same Codex thread when practical; start a new branch and thread for a different feature.
 - Create a `feature/<short-description>` or `fix/<short-description>` branch for normal development. Do not develop or push directly on `main`.
+- BETCCO supports a maximum of two sufficiently independent active implementation workstreams, coordinated through OPEN Draft PRs.
+- Draft PR descriptions are the live progress ledger; `docs/PROJECT_STATUS.md` remains a high-level merged-state snapshot.
 - Do not use destructive `git reset` or `git clean` operations without explicit approval.
 - Before merge, review `git diff main...HEAD` and inspect the changed files plus only the direct dependencies needed to judge behavior.
 - Do not mix unrelated refactoring into a feature or fix branch.
