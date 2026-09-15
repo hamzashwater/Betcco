@@ -2,22 +2,22 @@
 
 ## Metadata
 
-- Last updated: 2026-09-14
-- Verified implementation baseline SHA: `c9e6f3662a282402e332ed13940fb5456d875d89`
-- Status generated/verified against origin/main: `37f0bc02fc07bc2a5ba19d085754b343b18a5074`
-- Baseline branch used for status generation: `docs/parallel-workstream-governance`
+- Last updated: 2026-09-15
+- Verified implementation baseline SHA: `f4b1b737d7d9d5a2f022cbaa87216cd7c38bf897`
+- Status generated/verified against origin/main: `f4b1b737d7d9d5a2f022cbaa87216cd7c38bf897`
+- Baseline branch used for status generation: `docs/status-after-teacher-navigation`
 - Working tree state during status generation: clean
-- Latest verified CI state: UNKNOWN — no live GitHub Actions result was available in the local repository evidence. The repository contains `quality.yml` and `security.yml` workflow definitions, but their latest run was not verified here.
+- Latest verified CI state: GREEN for PR #8 at feature head `e3b80735af378c2d9541e401aa6288efd7594295` — Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
 ## Last Merged Task
 
-- Task: Production/Staging deployment foundation
-- Merge/commit SHA: `c9e6f3662a282402e332ed13940fb5456d875d89`
-- Pull Request: #4
-- Outcome: Added the provider-neutral deployment stack, deployment environment contract, controlled migration command, health checks, startup validation, and rollback/runbook documentation. External production services remain configuration and validation responsibilities.
-- Verification evidence: The merge commit is on `main` and contains `compose.deploy.yml`, `deploy.env.example`, the deployment validation changes, the two GitHub Actions workflow definitions, and `docs/DEPLOYMENT.md`. A live CI result was not available in this local checkout.
+- Task: Teacher Course Workspace Navigation
+- Merge/commit SHA: `f4b1b737d7d9d5a2f022cbaa87216cd7c38bf897`
+- Pull Request: #8
+- Outcome: Added responsive teacher course-workspace navigation with stable section anchors/deep links, active navigation state, mobile overflow handling, and usable sticky review/sidebar behavior. This is a scoped navigation and accessibility slice, not completion of the broader Teacher UX roadmap.
+- Verification evidence: English LTR and Arabic RTL desktop/mobile browser validation passed, including keyboard accessibility, deep-link reload/history behavior, sticky positioning, and existing editor usability. Focused and frontend validation passed, and Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully.
 
 ## Completed
 
@@ -25,6 +25,7 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - Frontend dependency security remediation — merged in `fc5e20d`.
 - Next.js route type-generation fix — merged in `d8649d5`.
 - Durable private-storage foundation — merged in `3bad612`.
+- Teacher Course Workspace Navigation — merged through PR #8 in `f4b1b73`.
 
 These entries are merged repository evidence only; new behavior changes still require targeted validation and review.
 
@@ -66,7 +67,7 @@ Remaining: Live payment and payout providers, JoFotara, production reconciliatio
 
 ### Teacher and student experience
 
-Done: Main contains BTEC result views, internal-verification and appeal workspaces, and protected privacy surfaces.
+Done: Main contains BTEC result views, internal-verification and appeal workspaces, protected privacy surfaces, and the Teacher Course Workspace Navigation slice with responsive navigation, stable deep links, active state, Arabic RTL/English LTR behavior, keyboard accessibility, mobile overflow handling, and usable sticky review/sidebar behavior.
 
 Remaining: The broader course lifecycle, learning experience, and full teacher/student UX roadmap remain incomplete.
 
@@ -95,15 +96,21 @@ Merged into main: **NO**
 
 ### Workstream B
 
-Status: AVAILABLE
-Purpose: Reserved parallel capacity for one independent task.
+Last task: Teacher Course Workspace Navigation
+Owner: Account 2 / Device 2
+Branch: `feature/teacher-course-workspace-navigation`
+Pull Request: #8
+Task status: MERGED
+Merged into main: **YES** — `f4b1b737d7d9d5a2f022cbaa87216cd7c38bf897`
+Capacity status: AVAILABLE
+Purpose: Reserved parallel capacity for one future independent task after explicit scoping.
 
-No branch, owner, or implementation is invented yet. Workstream B becomes ACTIVE only after a scoped task is selected, a dedicated branch is created, and a Draft PR records its ownership and reserved scope.
+No new Workstream B branch, owner, task, or implementation is invented here. Workstream B becomes ACTIVE only after a scoped task is selected, a dedicated branch is created, and a Draft PR records its ownership and reserved scope.
 
 ## Next Actions
 
-- Workstream A: Complete, review, validate, and merge the current BTEC assessment PDF workstream.
-- Workstream B: Remains available for one sufficiently independent, explicitly scoped task; it must not overlap Workstream A's reserved areas.
+- Workstream A: Continue and complete PR #6, including its required review and validation before merge.
+- Workstream B capacity: AVAILABLE for one future independent task after explicit scoping; this reconciliation does not select or invent that task.
 
 Definition of Done for each workstream: implementation is reviewed, required CI is green, its PR is merged into `main`, and this document is reconciled with the new merged state.
 
@@ -145,7 +152,7 @@ Do not reopen these areas merely because a later account lacks conversation memo
 ## Known Risks
 
 - Workstream A / PR #6 is unmerged and must not be represented as completed until it reaches `main` with targeted verification, review, and required CI green.
-- The latest GitHub Actions result was not verified in this local checkout; do not claim current green CI without checking the remote result.
+- PR #8's required CI was verified green for its merged feature head. Future workstreams must still verify their own current remote CI before claiming completion.
 - Production S3, SMTP, ClamAV, Data Protection certificate, hosting, monitoring, backup/restore, payment, payout, and fiscal integrations require external configuration or validation.
 - Full UAT, capacity testing, launch hardening, retention decisions, and final legal review remain outstanding.
 
