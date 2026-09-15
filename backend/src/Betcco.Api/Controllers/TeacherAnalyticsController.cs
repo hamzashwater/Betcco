@@ -13,8 +13,29 @@ namespace Betcco.Api.Controllers;
 public sealed class TeacherAnalyticsController(BetccoDbContext db) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> Get(CancellationToken cancellationToken)
+    public async Task<IActionResult> Get(
+        CancellationToken cancellationToken,
+        [FromQuery] bool followUp = false,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 25,
+        [FromQuery] string? search = null,
+        [FromQuery] string? attention = null,
+        [FromQuery] string? reason = null,
+        [FromQuery] string sort = "priority")
     {
+        var allowedAttentionLevels = new[] { "High", "Medium" };
+        var allowedReasons = new[] { "LowProgress", "MissedAssignments", "LowQuizScore", "Inactive14Days" };
+        var allowedSorts = new[] { "priority", "progress", "missedAssignments", "quizAverage", "lastActivity" };
+        if (followUp && (page < 1 || pageSize is < 1 or > 100
+            || search?.Length > 200
+            || attention is not null && !allowedAttentionLevels.Contains(attention, StringComparer.OrdinalIgnoreCase)
+            || reason is not null && !allowedReasons.Contains(reason, StringComparer.OrdinalIgnoreCase)
+            || !allowedSorts.Contains(sort, StringComparer.OrdinalIgnoreCase)))
+            return BadRequest(new
+            {
+                message = "Use page >= 1, pageSize between 1 and 100, a search up to 200 characters, supported attention/reason filters, and a supported sort."
+            });
+
         var teacherUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (teacherUserId is null) return Unauthorized();
         var courses = await db.Courses.AsNoTracking()
@@ -30,7 +51,12 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db) : ControllerB
             .ToListAsync(cancellationToken);
         var courseIds = courses.Select(course => course.Id).ToArray();
         if (courseIds.Length == 0)
-            return Ok(new { courses = 0, students = 0, pendingReviews = 0, quizAttempts = 0, averageQuizScore = 0m, averageLessonProgress = 0m, studentsAtRisk = Array.Empty<object>(), studentsAtRiskCount = 0 });
+        {
+            var empty = Array.Empty<object>();
+            return followUp
+                ? Ok(new { courses = 0, students = 0, pendingReviews = 0, quizAttempts = 0, averageQuizScore = 0m, averageLessonProgress = 0m, studentsAtRisk = empty, studentsAtRiskCount = 0, filteredStudentsAtRiskCount = 0, page, pageSize })
+                : Ok(new { courses = 0, students = 0, pendingReviews = 0, quizAttempts = 0, averageQuizScore = 0m, averageLessonProgress = 0m, studentsAtRisk = empty, studentsAtRiskCount = 0 });
+        }
 
         var enrollments = await db.Enrollments.AsNoTracking()
             .Where(enrollment => courseIds.Contains(enrollment.CourseId))
@@ -131,6 +157,55 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db) : ControllerB
                 lastActiveAtUtc = lastActiveAtUtc == default ? (DateTimeOffset?)null : lastActiveAtUtc
             };
         }).Where(student => student.reasons.Count > 0).OrderByDescending(student => student.riskLevel == "High").ThenByDescending(student => student.reasons.Count).ThenBy(student => student.studentName).ToArray();
+        if (!followUp)
+            return Ok(new
+            {
+                courses = courses.Count,
+                students = enrollments.Select(enrollment => enrollment.StudentUserId).Distinct().Count(),
+                pendingReviews,
+                quizAttempts = quizData.Count,
+                averageQuizScore = quizData.Count == 0 ? 0m : Math.Round(quizData.Average(attempt => attempt.ScorePercent), 2),
+                averageLessonProgress = learningSlots == 0 ? 0m : Math.Round(completed * 100m / learningSlots, 2),
+                studentsAtRisk = studentsAtRisk.Take(8),
+                studentsAtRiskCount = studentsAtRisk.Length
+            });
+
+        var filteredStudents = studentsAtRisk.AsEnumerable();
+        var normalizedSearch = search?.Trim();
+        if (!string.IsNullOrWhiteSpace(normalizedSearch))
+            filteredStudents = filteredStudents.Where(student => student.studentName.Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase));
+        if (!string.IsNullOrWhiteSpace(attention))
+            filteredStudents = filteredStudents.Where(student => string.Equals(student.riskLevel, attention, StringComparison.OrdinalIgnoreCase));
+        if (!string.IsNullOrWhiteSpace(reason))
+            filteredStudents = filteredStudents.Where(student => student.reasons.Contains(reason, StringComparer.OrdinalIgnoreCase));
+
+        var orderedStudents = sort.ToLowerInvariant() switch
+        {
+            "progress" => filteredStudents.OrderBy(student => student.progressPercent)
+                .ThenBy(student => student.studentName, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(student => student.studentUserId, StringComparer.Ordinal),
+            "missedassignments" => filteredStudents.OrderByDescending(student => student.missedAssignments)
+                .ThenBy(student => student.studentName, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(student => student.studentUserId, StringComparer.Ordinal),
+            "quizaverage" => filteredStudents.OrderBy(student => student.averageQuizScore is null)
+                .ThenBy(student => student.averageQuizScore)
+                .ThenBy(student => student.studentName, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(student => student.studentUserId, StringComparer.Ordinal),
+            "lastactivity" => filteredStudents.OrderBy(student => student.lastActiveAtUtc is null)
+                .ThenBy(student => student.lastActiveAtUtc)
+                .ThenBy(student => student.studentName, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(student => student.studentUserId, StringComparer.Ordinal),
+            _ => filteredStudents.OrderByDescending(student => student.riskLevel == "High")
+                .ThenByDescending(student => student.reasons.Count)
+                .ThenBy(student => student.studentName, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(student => student.studentUserId, StringComparer.Ordinal)
+        };
+        var filteredStudentsAtRisk = orderedStudents.ToArray();
+        var skip = (page - 1L) * pageSize;
+        var pagedStudentsAtRisk = skip >= filteredStudentsAtRisk.Length
+            ? filteredStudentsAtRisk.Take(0).ToArray()
+            : filteredStudentsAtRisk.Skip((int)skip).Take(pageSize).ToArray();
+
         return Ok(new
         {
             courses = courses.Count,
@@ -139,8 +214,11 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db) : ControllerB
             quizAttempts = quizData.Count,
             averageQuizScore = quizData.Count == 0 ? 0m : Math.Round(quizData.Average(attempt => attempt.ScorePercent), 2),
             averageLessonProgress = learningSlots == 0 ? 0m : Math.Round(completed * 100m / learningSlots, 2),
-            studentsAtRisk = studentsAtRisk.Take(8),
-            studentsAtRiskCount = studentsAtRisk.Length
+            studentsAtRisk = pagedStudentsAtRisk,
+            studentsAtRiskCount = studentsAtRisk.Length,
+            filteredStudentsAtRiskCount = filteredStudentsAtRisk.Length,
+            page,
+            pageSize
         });
     }
 }
