@@ -230,6 +230,60 @@
     "taxConfirm": "Update the sales tax for future payments?",
     "requestFailed": "The request could not be completed."
   },
+  "teacherCoursesManagement": {
+    "title": "My courses",
+    "description": "Manage course content and track each course through review and publishing.",
+    "addCourse": "Add course",
+    "loading": "Loading courses…",
+    "loadError": "Your courses could not be loaded.",
+    "retry": "Try again",
+    "searchLabel": "Search courses",
+    "searchPlaceholder": "Search Arabic or English titles",
+    "clearSearch": "Clear search",
+    "showAllCourses": "Show all courses",
+    "sortLabel": "Sort courses",
+    "filterLabel": "Filter courses by status",
+    "courseListLabel": "Teacher courses",
+    "results": "Showing {visible} of {total} courses",
+    "filters": {
+      "All": "All",
+      "Draft": "Draft",
+      "SubmittedForReview": "Submitted for review",
+      "Published": "Published",
+      "Rejected": "Rejected"
+    },
+    "sort": {
+      "title": "Title",
+      "status": "Status",
+      "content": "Most content first"
+    },
+    "statuses": {
+      "Draft": "Draft",
+      "SubmittedForReview": "Submitted for review",
+      "Approved": "Approved, awaiting publication",
+      "Rejected": "Rejected",
+      "Published": "Published",
+      "Archived": "Archived",
+      "Scheduled": "Scheduled"
+    },
+    "modules": "{count, plural, one {# module} other {# modules}}",
+    "lessons": "{count, plural, one {# lesson} other {# lessons}}",
+    "free": "Free",
+    "paid": "Paid",
+    "coverReady": "Cover ready",
+    "noCover": "No cover",
+    "edit": "Edit",
+    "view": "View",
+    "courseActionLabel": "{action} {title}",
+    "empty": {
+      "noCourses": "You do not have any courses yet. Start by creating your first draft.",
+      "noSearchResults": "No courses match your search.",
+      "draft": "No draft courses.",
+      "submittedForReview": "No courses submitted for review.",
+      "published": "No published courses.",
+      "rejected": "No rejected courses."
+    }
+  },
   "teacherCourseWorkspace": {
     "navigation": {
       "label": "Course workspace sections",
