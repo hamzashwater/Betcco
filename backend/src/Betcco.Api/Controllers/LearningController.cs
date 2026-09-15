@@ -16,7 +16,8 @@ public sealed class LearningController(
     BetccoDbContext db,
     IFileStorage storage,
     IContentAccessService contentAccess,
-    IStudentCoursesLearningHubService learningHub) : ControllerBase
+    IStudentCoursesLearningHubService learningHub,
+    IStudentCoursePlayerService coursePlayer) : ControllerBase
 {
     [Authorize(Policy = "Student")]
     [HttpGet("my-courses")]
@@ -45,15 +46,32 @@ public sealed class LearningController(
             cancellationToken));
     }
     [HttpGet("courses/{courseId:guid}/player")]
-    public async Task<IActionResult> Player(Guid courseId, [FromQuery] string locale = "ar", CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Player(
+        Guid courseId,
+        [FromQuery] string locale = "ar",
+        [FromQuery] Guid? lessonId = null,
+        CancellationToken cancellationToken = default)
     {
-        var course = await db.Courses.Include(x => x.Modules).ThenInclude(x => x.Lessons).ThenInclude(x => x.Resources).AsNoTracking().SingleOrDefaultAsync(x => x.Id == courseId && x.Status == CourseStatus.Published, cancellationToken);
-        if (course is null || !await CanAccessCourseAsync(courseId, cancellationToken)) return NotFound();
         if (User.IsInRole("Student"))
         {
             var courseDecision = await contentAccess.CanAccessCourseAsync(UserId!, courseId, cancellationToken);
-            if (!courseDecision.IsAvailable) return Conflict(new { message = "Complete this course's prerequisite before opening its player.", courseDecision.Reason, courseDecision.AvailableAtUtc });
+            if (!courseDecision.IsAvailable)
+            {
+                if (courseDecision.Reason is "EnrollmentRequired" or "ContentNotFound") return NotFound();
+                return Conflict(new
+                {
+                    message = "Complete this course's prerequisite before opening its player.",
+                    courseDecision.Reason,
+                    courseDecision.AvailableAtUtc
+                });
+            }
+
+            var player = await coursePlayer.GetAsync(UserId!, courseId, locale, lessonId, cancellationToken);
+            return player is null ? NotFound() : Ok(player);
         }
+
+        var course = await db.Courses.Include(x => x.Modules).ThenInclude(x => x.Lessons).ThenInclude(x => x.Resources).AsNoTracking().SingleOrDefaultAsync(x => x.Id == courseId && x.Status == CourseStatus.Published, cancellationToken);
+        if (course is null || !await CanAccessCourseAsync(courseId, cancellationToken)) return NotFound();
         var modules = new List<object>();
         foreach (var module in course.Modules.Where(item => item.IsPublished).OrderBy(item => item.SortOrder))
         {
@@ -159,17 +177,13 @@ public sealed class LearningController(
     [HttpPost("lessons/{lessonId:guid}/progress")]
     public async Task<IActionResult> SaveProgress(Guid lessonId, ProgressRequest request, CancellationToken cancellationToken)
     {
-        var lesson = await db.Lessons.Include(x => x.CourseModule).SingleOrDefaultAsync(x => x.Id == lessonId && x.IsPublished && x.CourseModule!.IsPublished, cancellationToken);
-        if (lesson is null || !await CanAccessCourseAsync(lesson.CourseModule!.CourseId, cancellationToken)
-            || !(await StudentAccessAsync(lesson.CourseModule.CourseId, LearningContentType.Lesson, lessonId, cancellationToken)).IsAvailable) return NotFound();
-        var userId = UserId!;
-        var progress = await db.LessonProgresses.SingleOrDefaultAsync(x => x.StudentUserId == userId && x.LessonId == lessonId, cancellationToken);
-        if (progress is null) { progress = new Betcco.Domain.Learning.LessonProgress { StudentUserId = userId, LessonId = lessonId }; db.LessonProgresses.Add(progress); }
-        progress.LastPositionSeconds = Math.Clamp(request.LastPositionSeconds, 0, Math.Max(lesson.DurationSeconds, request.LastPositionSeconds));
-        progress.IsCompleted = request.MarkCompleted && (lesson.Type != LessonType.Video || lesson.DurationSeconds == 0 || progress.LastPositionSeconds >= (int)(lesson.DurationSeconds * .8));
-        progress.LastVisitedAtUtc = DateTimeOffset.UtcNow;
-        await db.SaveChangesAsync(cancellationToken);
-        return Ok(new { progress.IsCompleted, progress.LastPositionSeconds });
+        var progress = await coursePlayer.SaveProgressAsync(
+            UserId!,
+            lessonId,
+            request.LastPositionSeconds,
+            request.MarkCompleted,
+            cancellationToken);
+        return progress is null ? NotFound() : Ok(progress);
     }
 
     private async Task<bool> CanAccessCourseAsync(Guid courseId, CancellationToken cancellationToken)
