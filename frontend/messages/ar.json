@@ -361,6 +361,74 @@
       "review": "النشر والمراجعة"
     }
   },
+  "studentCoursesLearningHub": {
+    "eyebrow": "مركز التعلّم من BETCCO",
+    "title": "دوراتي",
+    "description": "ابحث في دوراتك المسجل بها، وراجع تقدم الدروس المحفوظ، وارجع إلى التعلّم من مساحة واحدة مركزة.",
+    "compactTitle": "تابع التعلّم",
+    "compactDescription": "{count} دورات منشورة مسجل بها",
+    "viewAll": "عرض جميع الدورات",
+    "loading": "جارٍ تحميل دوراتك…",
+    "updating": "جارٍ تحديث الدورات…",
+    "loadError": "تعذر تحميل دوراتك.",
+    "retry": "إعادة المحاولة",
+    "summary": {
+      "total": "الدورات المسجل بها",
+      "notStarted": "لم تبدأ",
+      "inProgress": "قيد التقدم",
+      "completed": "مكتملة"
+    },
+    "searchLabel": "البحث في الدورات",
+    "searchPlaceholder": "ابحث في عناوين الدورات العربية أو الإنجليزية",
+    "clearSearch": "مسح بحث الدورات",
+    "filterLabel": "تصفية الدورات حسب التقدم",
+    "filters": {
+      "All": "الكل",
+      "NotStarted": "لم تبدأ",
+      "InProgress": "قيد التقدم",
+      "Completed": "مكتملة"
+    },
+    "sortLabel": "ترتيب الدورات",
+    "sort": {
+      "recent": "أحدث تقدم محفوظ",
+      "progress": "الأعلى تقدمًا أولًا",
+      "title": "العنوان"
+    },
+    "results": "{count} دورات مطابقة",
+    "courseListLabel": "دورات الطالب",
+    "statuses": {
+      "NotStarted": "لم تبدأ",
+      "InProgress": "قيد التقدم",
+      "Completed": "مكتملة"
+    },
+    "actions": {
+      "NotStarted": "ابدأ التعلّم",
+      "InProgress": "تابع التعلّم",
+      "Completed": "راجع الدورة"
+    },
+    "courseActionLabel": "{action}: {title}",
+    "progressLabel": "تقدم الدورة",
+    "lessons": "اكتمل {completed}/{total} من الدروس",
+    "modules": "{count} وحدات منشورة",
+    "coverAlt": "غلاف {title}",
+    "coverFallback": "غلاف الدورة غير متاح",
+    "access": {
+      "unavailable": "الوصول إلى التعلّم غير متاح حاليًا",
+      "availableAt": "متاحة في {date}"
+    },
+    "empty": {
+      "noCourses": "لست مسجلًا في دورة منشورة بعد.",
+      "noMatches": "لا توجد دورات تطابق البحث وتصفية التقدم المحددين."
+    },
+    "showAll": "عرض جميع الدورات",
+    "exploreCourses": "استكشف الدورات",
+    "pagination": {
+      "label": "صفحات الدورات",
+      "previous": "السابق",
+      "next": "التالي",
+      "page": "الصفحة {page} من {pageCount}"
+    }
+  },
   "auditLog": {
     "title": "سجل التدقيق",
     "description": "راجع العمليات الإدارية والحساسة المسجلة. السجل للقراءة فقط ومتاح للأدمن فقط.",

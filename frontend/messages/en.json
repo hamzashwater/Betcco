@@ -361,6 +361,74 @@
       "review": "Publishing & review"
     }
   },
+  "studentCoursesLearningHub": {
+    "eyebrow": "BETCCO learning hub",
+    "title": "My courses",
+    "description": "Find your enrolled courses, check saved lesson progress, and return to learning from one focused workspace.",
+    "compactTitle": "Continue learning",
+    "compactDescription": "{count} enrolled published courses",
+    "viewAll": "View all courses",
+    "loading": "Loading your courses…",
+    "updating": "Updating courses…",
+    "loadError": "Your courses could not be loaded.",
+    "retry": "Try again",
+    "summary": {
+      "total": "Enrolled courses",
+      "notStarted": "Not started",
+      "inProgress": "In progress",
+      "completed": "Completed"
+    },
+    "searchLabel": "Search courses",
+    "searchPlaceholder": "Search Arabic or English course titles",
+    "clearSearch": "Clear course search",
+    "filterLabel": "Filter courses by progress",
+    "filters": {
+      "All": "All",
+      "NotStarted": "Not started",
+      "InProgress": "In progress",
+      "Completed": "Completed"
+    },
+    "sortLabel": "Sort courses",
+    "sort": {
+      "recent": "Recent saved progress",
+      "progress": "Highest progress first",
+      "title": "Title"
+    },
+    "results": "{count} matching courses",
+    "courseListLabel": "Student courses",
+    "statuses": {
+      "NotStarted": "Not started",
+      "InProgress": "In progress",
+      "Completed": "Completed"
+    },
+    "actions": {
+      "NotStarted": "Start learning",
+      "InProgress": "Continue learning",
+      "Completed": "Review course"
+    },
+    "courseActionLabel": "{action}: {title}",
+    "progressLabel": "Course progress",
+    "lessons": "{completed}/{total} lessons completed",
+    "modules": "{count} published modules",
+    "coverAlt": "Cover for {title}",
+    "coverFallback": "Course cover not available",
+    "access": {
+      "unavailable": "Learning access is currently unavailable",
+      "availableAt": "Available {date}"
+    },
+    "empty": {
+      "noCourses": "You are not enrolled in a published course yet.",
+      "noMatches": "No courses match the selected search and progress filter."
+    },
+    "showAll": "Show all courses",
+    "exploreCourses": "Explore courses",
+    "pagination": {
+      "label": "Course pages",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {page} of {pageCount}"
+    }
+  },
   "auditLog": {
     "title": "Audit logs",
     "description": "Review recorded administrative and sensitive operations. The log is read-only and available only to administrators.",

@@ -1,12 +1,5 @@
 namespace Betcco.Application.Learning;
 
-public enum StudentCourseProgressState
-{
-    NotStarted,
-    InProgress,
-    Completed
-}
-
 public enum StudentCourseProgressFilter
 {
     All,
@@ -39,7 +32,7 @@ public sealed record StudentCourseLearningHubItem(
     int TotalLessons,
     int PublishedModuleCount,
     decimal ProgressPercent,
-    StudentCourseProgressState ProgressState,
+    string ProgressState,
     bool HasCover,
     string? TeacherName,
     DateTimeOffset EnrolledAtUtc,
@@ -52,7 +45,10 @@ public sealed record StudentCoursesLearningHubSummary(
     int TotalCourses,
     int NotStarted,
     int InProgress,
-    int Completed);
+    int Completed,
+    int CompletedLessons,
+    int TotalLessons,
+    decimal ProgressPercent);
 
 public sealed record StudentCoursesLearningHubResult(
     IReadOnlyList<StudentCourseLearningHubItem> Items,

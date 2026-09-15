@@ -64,11 +64,13 @@ test("student completes the verified course purchase and starts learning", async
   await page.getByRole("button", { name: "Complete test payment" }).click();
   await expect(page).toHaveURL(/\/en\/student\/courses$/);
   await expect(
-    page.getByRole("link", { name: "BTEC Programming Foundations" }),
+    page.getByRole("heading", { name: "BTEC Programming Foundations" }),
   ).toBeVisible();
 
   await page
-    .getByRole("link", { name: "BTEC Programming Foundations" })
+    .getByRole("link", {
+      name: "Start learning: BTEC Programming Foundations",
+    })
     .click();
   await page.getByRole("button", { name: "Mark complete" }).click();
   await expect(
