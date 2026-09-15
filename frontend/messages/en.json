@@ -230,6 +230,18 @@
     "taxConfirm": "Update the sales tax for future payments?",
     "requestFailed": "The request could not be completed."
   },
+  "teacherCourseWorkspace": {
+    "navigation": {
+      "label": "Course workspace sections",
+      "details": "Course setup",
+      "access": "Access & availability",
+      "announcements": "Announcements",
+      "curriculum": "Curriculum",
+      "assignments": "Assignments & gradebook",
+      "quizzes": "Quizzes",
+      "review": "Publishing & review"
+    }
+  },
   "auditLog": {
     "title": "Audit logs",
     "description": "Review recorded administrative and sensitive operations. The log is read-only and available only to administrators.",
