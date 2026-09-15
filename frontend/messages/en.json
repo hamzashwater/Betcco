@@ -284,6 +284,71 @@
       "rejected": "No rejected courses."
     }
   },
+  "teacherStudentFollowUp": {
+    "eyebrow": "BETCCO Teacher Workspace",
+    "title": "Student follow-up",
+    "description": "Review server-generated signals for students who may need timely support across your courses.",
+    "disclaimer": "These are support signals for teacher follow-up, not final academic judgements.",
+    "navigation": "Student follow-up",
+    "dashboardTitle": "Students requiring attention",
+    "dashboardDescription": "A compact preview of server-generated follow-up signals.",
+    "viewAll": "View all follow-up students",
+    "previewProgress": "Progress: {progress}%",
+    "previewCount": "Showing {visible} of {total} follow-up students.",
+    "loading": "Loading follow-up signals…",
+    "loadError": "Follow-up signals could not be loaded.",
+    "retry": "Try again",
+    "searchLabel": "Search students",
+    "searchPlaceholder": "Search by student name",
+    "clearSearch": "Clear student search",
+    "attentionFilterLabel": "Filter students by attention level",
+    "reasonFilterLabel": "Filter by follow-up reason",
+    "sortLabel": "Sort follow-up students",
+    "studentListLabel": "Students requiring follow-up",
+    "results": "Showing {from}–{to} of {count} matching students",
+    "filters": {
+      "All": "All",
+      "High": "High",
+      "Medium": "Medium"
+    },
+    "attention": {
+      "High": "High attention",
+      "Medium": "Follow-up needed"
+    },
+    "reasons": {
+      "All": "All reasons",
+      "LowProgress": "Low progress",
+      "MissedAssignments": "Missed assignments",
+      "LowQuizScore": "Low quiz score",
+      "Inactive14Days": "Inactive for 14 days"
+    },
+    "sort": {
+      "priority": "Attention priority",
+      "progress": "Lowest progress first",
+      "missedAssignments": "Most missed assignments",
+      "quizAverage": "Lowest quiz average",
+      "lastActivity": "Oldest activity first"
+    },
+    "fields": {
+      "progress": "Progress",
+      "missedAssignments": "Missed assignments",
+      "quizAverage": "Quiz average",
+      "lastActivity": "Last activity"
+    },
+    "unavailable": "Not available",
+    "paginationLabel": "Student follow-up pages",
+    "previous": "Previous",
+    "next": "Next",
+    "currentPage": "Page {page} of {totalPages}",
+    "reset": "Clear search and filters",
+    "empty": {
+      "noFollowUp": "There are no follow-up signals at the moment.",
+      "noSearch": "No follow-up students match this name.",
+      "noAttention": "No students match this attention level.",
+      "noReason": "No students match this follow-up reason.",
+      "noResults": "No follow-up students match the selected options."
+    }
+  },
   "teacherCourseWorkspace": {
     "navigation": {
       "label": "Course workspace sections",

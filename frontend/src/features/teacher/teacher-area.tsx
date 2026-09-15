@@ -7,6 +7,11 @@ import {
   TeacherCoursesManagement,
   type TeacherCourse,
 } from "@/features/teacher/teacher-courses-management";
+import {
+  TeacherFollowUpPreview,
+  TeacherStudentFollowUp,
+  type TeacherAnalytics,
+} from "@/features/teacher/teacher-student-follow-up";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
@@ -29,32 +34,13 @@ import Link from "next/link";
 import { useLocale } from "next-intl";
 import { useRef, useState } from "react";
 
-type TeacherAnalytics = {
-  courses: number;
-  students: number;
-  pendingReviews: number;
-  quizAttempts: number;
-  averageQuizScore: number;
-  averageLessonProgress: number;
-  studentsAtRisk: {
-    studentUserId: string;
-    studentName: string;
-    riskLevel: "Medium" | "High";
-    reasons: string[];
-    progressPercent: number;
-    missedAssignments: number;
-    averageQuizScore?: number;
-    lastActiveAtUtc?: string;
-  }[];
-  studentsAtRiskCount: number;
-};
-
 export function TeacherArea({ segment }: { segment: string[] }) {
   const current = segment.join("/") || "dashboard";
   if (current === "courses/new") return <CourseEditor />;
   if (current.startsWith("courses/") && segment[1])
     return <CourseEditor courseId={segment[1]} />;
   if (current === "courses") return <TeacherCoursesManagement />;
+  if (current === "students") return <TeacherStudentFollowUp />;
   if (current === "wallet") return <TeacherWallet />;
   if (current === "security") return <AccountSecurity />;
   if (current === "evaluations") return <TeacherEvaluations />;
@@ -190,10 +176,10 @@ function TeacherDashboard() {
           tone="warm"
         />
       </div>
-      <StudentsAtRisk
-        locale={locale}
+      <TeacherFollowUpPreview
         pending={analytics.isPending}
         students={analytics.data?.studentsAtRisk ?? []}
+        totalCount={analytics.data?.studentsAtRiskCount ?? 0}
       />
       <div className="mt-5 grid gap-4 md:grid-cols-3">
         <AreaLink
@@ -240,99 +226,6 @@ function TeacherDashboard() {
       <div className="mt-8">
         <TeacherCoursesManagement variant="compact" />
       </div>
-    </section>
-  );
-}
-
-function StudentsAtRisk({
-  locale,
-  pending,
-  students,
-}: {
-  locale: string;
-  pending: boolean;
-  students: TeacherAnalytics["studentsAtRisk"];
-}) {
-  const reasonLabel = (reason: string) => {
-    const labels: Record<string, [string, string]> = {
-      LowProgress: ["تقدم منخفض", "Low progress"],
-      MissedAssignments: ["مهمة متأخرة", "Missed assignment"],
-      LowQuizScore: ["نتيجة اختبار منخفضة", "Low quiz score"],
-      Inactive14Days: ["غير نشط منذ 14 يومًا", "Inactive for 14 days"],
-    };
-    return labels[reason]?.[locale === "ar" ? 0 : 1] ?? reason;
-  };
-  return (
-    <section className="card mt-5 p-5">
-      <div className="flex items-start gap-3">
-        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-300">
-          <AlertTriangle size={20} aria-hidden="true" />
-        </span>
-        <div>
-          <h2 className="font-black text-foreground">
-            {locale === "ar"
-              ? "طلاب يحتاجون إلى متابعة"
-              : "Students requiring attention"}
-          </h2>
-          <p className="mt-1 text-sm text-muted">
-            {locale === "ar"
-              ? "مؤشرات مساعدة للمتابعة وليست حكمًا أكاديميًا نهائيًا."
-              : "Support signals for follow-up, not a final academic judgement."}
-          </p>
-        </div>
-      </div>
-      {pending ? (
-        <p className="mt-4 text-sm text-muted">…</p>
-      ) : students.length ? (
-        <div className="mt-4 grid gap-3 md:grid-cols-2">
-          {students.map((student) => (
-            <article
-              key={student.studentUserId}
-              className="rounded-xl border border-border bg-white/5 p-4"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <p className="font-black text-foreground">
-                  {student.studentName}
-                </p>
-                <span
-                  className={`rounded-full px-2.5 py-1 text-xs font-black ${student.riskLevel === "High" ? "bg-red-500/15 text-red-600 dark:text-red-300" : "bg-amber-500/15 text-amber-700 dark:text-amber-300"}`}
-                >
-                  {student.riskLevel === "High"
-                    ? locale === "ar"
-                      ? "متابعة عالية"
-                      : "High attention"
-                    : locale === "ar"
-                      ? "متابعة مطلوبة"
-                      : "Follow up"}
-                </span>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {student.reasons.map((reason) => (
-                  <span
-                    key={reason}
-                    className="rounded-full border border-border px-2 py-1 text-xs text-muted"
-                  >
-                    {reasonLabel(reason)}
-                  </span>
-                ))}
-              </div>
-              <p className="mt-3 text-xs text-muted">
-                {locale === "ar" ? "التقدم: " : "Progress: "}
-                {student.progressPercent}%
-                {student.averageQuizScore !== undefined
-                  ? ` · ${locale === "ar" ? "متوسط الاختبارات" : "Quiz average"}: ${student.averageQuizScore}%`
-                  : ""}
-              </p>
-            </article>
-          ))}
-        </div>
-      ) : (
-        <p className="mt-4 rounded-xl border border-dashed border-border px-4 py-5 text-sm text-muted">
-          {locale === "ar"
-            ? "لا توجد مؤشرات متابعة حالياً."
-            : "There are no follow-up signals at the moment."}
-        </p>
-      )}
     </section>
   );
 }

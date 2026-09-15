@@ -236,6 +236,10 @@ export function SiteNavigation() {
             label: locale === "ar" ? "دوراتي" : "My courses",
           },
           {
+            href: `/${locale}/teacher/students`,
+            label: t("teacherStudentFollowUp.navigation"),
+          },
+          {
             href: `/${locale}/teacher/evaluations`,
             label: locale === "ar" ? "التقييمات" : "Evaluations",
           },
