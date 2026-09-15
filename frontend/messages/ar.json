@@ -284,6 +284,71 @@
       "rejected": "لا توجد دورات مرفوضة."
     }
   },
+  "teacherStudentFollowUp": {
+    "eyebrow": "مساحة عمل معلم BETCCO",
+    "title": "متابعة الطلاب",
+    "description": "راجع المؤشرات التي أنشأها الخادم للطلاب الذين قد يحتاجون إلى دعم في الوقت المناسب عبر دوراتك.",
+    "disclaimer": "هذه مؤشرات مساعدة لمتابعة المعلم وليست أحكامًا أكاديمية نهائية.",
+    "navigation": "متابعة الطلاب",
+    "dashboardTitle": "طلاب يحتاجون إلى متابعة",
+    "dashboardDescription": "معاينة مختصرة لمؤشرات المتابعة التي أنشأها الخادم.",
+    "viewAll": "عرض جميع طلاب المتابعة",
+    "previewProgress": "التقدم: {progress}%",
+    "previewCount": "عرض {visible} من أصل {total} طلاب يحتاجون إلى متابعة.",
+    "loading": "جارٍ تحميل مؤشرات المتابعة…",
+    "loadError": "تعذر تحميل مؤشرات المتابعة.",
+    "retry": "إعادة المحاولة",
+    "searchLabel": "البحث عن الطلاب",
+    "searchPlaceholder": "ابحث باسم الطالب",
+    "clearSearch": "مسح البحث عن الطالب",
+    "attentionFilterLabel": "تصفية الطلاب حسب مستوى المتابعة",
+    "reasonFilterLabel": "تصفية حسب سبب المتابعة",
+    "sortLabel": "ترتيب طلاب المتابعة",
+    "studentListLabel": "الطلاب الذين يحتاجون إلى متابعة",
+    "results": "عرض {from}–{to} من أصل {count} طالب مطابق",
+    "filters": {
+      "All": "الكل",
+      "High": "عالية",
+      "Medium": "متوسطة"
+    },
+    "attention": {
+      "High": "متابعة عالية",
+      "Medium": "تحتاج متابعة"
+    },
+    "reasons": {
+      "All": "جميع الأسباب",
+      "LowProgress": "تقدم منخفض",
+      "MissedAssignments": "مهام فائتة",
+      "LowQuizScore": "نتيجة اختبار منخفضة",
+      "Inactive14Days": "غير نشط منذ 14 يومًا"
+    },
+    "sort": {
+      "priority": "أولوية المتابعة",
+      "progress": "الأقل تقدمًا أولًا",
+      "missedAssignments": "الأكثر في المهام الفائتة",
+      "quizAverage": "الأقل في متوسط الاختبارات",
+      "lastActivity": "النشاط الأقدم أولًا"
+    },
+    "fields": {
+      "progress": "التقدم",
+      "missedAssignments": "المهام الفائتة",
+      "quizAverage": "متوسط الاختبارات",
+      "lastActivity": "آخر نشاط"
+    },
+    "unavailable": "غير متوفر",
+    "paginationLabel": "صفحات متابعة الطلاب",
+    "previous": "السابق",
+    "next": "التالي",
+    "currentPage": "الصفحة {page} من {totalPages}",
+    "reset": "مسح البحث والفلاتر",
+    "empty": {
+      "noFollowUp": "لا توجد مؤشرات متابعة حاليًا.",
+      "noSearch": "لا يوجد طلاب متابعة يطابقون هذا الاسم.",
+      "noAttention": "لا يوجد طلاب يطابقون مستوى المتابعة هذا.",
+      "noReason": "لا يوجد طلاب يطابقون سبب المتابعة هذا.",
+      "noResults": "لا يوجد طلاب متابعة يطابقون الخيارات المحددة."
+    }
+  },
   "teacherCourseWorkspace": {
     "navigation": {
       "label": "أقسام مساحة عمل الدورة",
