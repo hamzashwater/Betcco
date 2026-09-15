@@ -7,7 +7,7 @@ import {
   within,
 } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import arMessages from "../messages/ar.json";
 import enMessages from "../messages/en.json";
 import {
@@ -71,6 +71,42 @@ describe("CourseWorkspaceNavigation", () => {
     expect(
       screen.getByRole("link", { name: "Course setup" }),
     ).not.toHaveAttribute("aria-current");
+  });
+
+  it("scrolls a deep-linked section into view after the workspace mounts", async () => {
+    const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
+    const scrollIntoView = vi.fn();
+    Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
+      configurable: true,
+      value: scrollIntoView,
+      writable: true,
+    });
+    window.history.replaceState(
+      null,
+      "",
+      "/en/teacher/courses/course-id#curriculum",
+    );
+
+    try {
+      render(
+        <NextIntlClientProvider locale="en" messages={enMessages}>
+          <CourseWorkspaceNavigation />
+          <CourseWorkspaceSection id="curriculum">
+            <p>Curriculum content</p>
+          </CourseWorkspaceSection>
+        </NextIntlClientProvider>,
+      );
+
+      await waitFor(() =>
+        expect(scrollIntoView).toHaveBeenCalledWith({ block: "start" }),
+      );
+    } finally {
+      Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
+        configurable: true,
+        value: originalScrollIntoView,
+        writable: true,
+      });
+    }
   });
 
   it("updates the visible active state when a section link is selected", () => {

@@ -32,8 +32,23 @@ export function CourseWorkspaceNavigation() {
   useEffect(() => {
     const syncActiveSection = () => setActiveSection(sectionFromHash());
     syncActiveSection();
+
+    const initialSection = window.location.hash.slice(1);
+    const scrollTimer = courseWorkspaceSections.includes(
+      initialSection as CourseWorkspaceSectionId,
+    )
+      ? window.setTimeout(() => {
+          document
+            .getElementById(initialSection)
+            ?.scrollIntoView({ block: "start" });
+        }, 0)
+      : undefined;
+
     window.addEventListener("hashchange", syncActiveSection);
-    return () => window.removeEventListener("hashchange", syncActiveSection);
+    return () => {
+      if (scrollTimer !== undefined) window.clearTimeout(scrollTimer);
+      window.removeEventListener("hashchange", syncActiveSection);
+    };
   }, []);
 
   return (
@@ -75,7 +90,7 @@ export function CourseWorkspaceSection({
   children: ReactNode;
 }) {
   return (
-    <div id={id} className="scroll-mt-[11rem]">
+    <div id={id} className="min-w-0 scroll-mt-[11rem]">
       {children}
     </div>
   );

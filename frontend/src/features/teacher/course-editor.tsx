@@ -779,7 +779,7 @@ function ExistingCourseEditor({ courseId }: { courseId: string }) {
       </div>
       <CourseWorkspaceNavigation />
       <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
-        <div className="grid gap-6">
+        <div className="grid min-w-0 gap-6">
           <CourseWorkspaceSection id="details">
             <CourseDetailsForm course={course.data} disabled={!editable} />
           </CourseWorkspaceSection>
@@ -814,7 +814,7 @@ function ExistingCourseEditor({ courseId }: { courseId: string }) {
             />
           </CourseWorkspaceSection>
         </div>
-        <aside className="grid h-fit gap-5 xl:sticky xl:top-24">
+        <aside className="grid h-fit min-w-0 gap-5 xl:sticky xl:top-[11rem] xl:max-h-[calc(100vh-12rem)] xl:overflow-y-auto xl:pe-1">
           <CoverManager course={course.data} disabled={!editable} />
           <OutcomesEditor course={course.data} disabled={!editable} />
           <CourseWorkspaceSection id="review">
@@ -1445,7 +1445,7 @@ function LearningAccessEditor({
               value={targetKey}
               onChange={(event) => chooseTarget(event.target.value)}
               disabled={disabled}
-              className="rounded-xl border border-border bg-transparent p-3 text-foreground disabled:opacity-50"
+              className="min-w-0 rounded-xl border border-border bg-transparent p-3 text-foreground disabled:opacity-50"
             >
               <option value="">
                 {locale === "ar"
