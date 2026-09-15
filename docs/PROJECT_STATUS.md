@@ -3,21 +3,21 @@
 ## Metadata
 
 - Last updated: 2026-09-15
-- Verified implementation baseline SHA: `1ba6a419aa7e69c6479c6605923470a4a28118b6`
-- Status generated/verified against origin/main: `1ba6a419aa7e69c6479c6605923470a4a28118b6`
-- Baseline branch used for status generation: `docs/status-after-teacher-courses-management`
+- Verified implementation baseline SHA: `33f14b66f52906dcb1c9782ec9123de587483639`
+- Status generated/verified against origin/main: `33f14b66f52906dcb1c9782ec9123de587483639`
+- Baseline branch used for status generation: `docs/status-after-teacher-student-follow-up`
 - Working tree state during status generation: clean
-- Latest verified CI state: GREEN for PR #10 at feature head `b83505c1b8256cfb16bc4ad0a240525916d7fbab` — Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully.
+- Latest verified CI state: GREEN for PR #12 at feature head `65e54249cf5d50fb0f3dba18786072901c63e222` — Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
 ## Last Merged Task
 
-- Task: Teacher Courses Management UX
-- Merge/commit SHA: `1ba6a419aa7e69c6479c6605923470a4a28118b6`
-- Pull Request: #10
-- Outcome: Added a dedicated Teacher courses management workspace with Arabic/English title search, status filters, deterministic client-side sorting, course metadata presentation, responsive desktop/mobile behavior, Arabic RTL and English LTR support, keyboard accessibility, a compact Teacher dashboard presentation, and a Show all courses action that resets both search and status filtering. This is a scoped course-management slice, not completion of the broader Teacher UX roadmap.
-- Verification evidence: Focused tests (21) and the full frontend suite (32) passed. Format, lint, typecheck, production build, English and Arabic desktop/mobile browser validation, keyboard accessibility, RTL/LTR behavior, and horizontal-overflow checks passed. Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully for the PR #10 feature head.
+- Task: Teacher Student Follow-up Workspace
+- Merge/commit SHA: `33f14b66f52906dcb1c9782ec9123de587483639`
+- Pull Request: #12
+- Outcome: Added a dedicated localized Teacher `/students` workspace for existing server-generated follow-up signals, with bounded retrieval and pagination, server-side student-name search, High/Medium attention filtering, the four existing reason filters, deterministic server-side sorting, a compact dashboard preview, and a Teacher navigation destination. The bilingual Arabic RTL and English LTR experience is responsive on desktop and mobile, supports keyboard access, and avoids horizontal overflow. Teacher ownership isolation remains enforced; the frontend does not calculate risk, and the academic risk thresholds were not changed. This is a Teacher follow-up UX/retrieval slice. It is not completion of Teacher UX and is not an Early Warning engine.
+- Verification evidence: Focused backend integration tests (23), the backend suite (12 unit and 349 integration), focused/affected frontend tests (48), and the full frontend suite (53) passed. Format, lint, typecheck, backend and production frontend builds, English and Arabic desktop/mobile browser validation, keyboard accessibility, RTL/LTR behavior, and horizontal-overflow checks passed. Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully for the PR #12 feature head.
 
 ## Completed
 
@@ -27,6 +27,7 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - Durable private-storage foundation — merged in `3bad612`.
 - Teacher Course Workspace Navigation — merged through PR #8 in `f4b1b73`.
 - Teacher Courses Management UX — merged through PR #10 in `1ba6a41`.
+- Teacher Student Follow-up Workspace — merged through PR #12 in `33f14b6`.
 
 These entries are merged repository evidence only; new behavior changes still require targeted validation and review.
 
@@ -68,9 +69,13 @@ Remaining: Live payment and payout providers, JoFotara, production reconciliatio
 
 ### Teacher and student experience
 
-Done: Main contains BTEC result views, internal-verification and appeal workspaces, protected privacy surfaces, the Teacher Course Workspace Navigation slice with responsive navigation, stable deep links, active state, Arabic RTL/English LTR behavior, keyboard accessibility, mobile overflow handling, and usable sticky review/sidebar behavior, plus the Teacher Courses Management UX slice with bilingual title search, status filters, deterministic sorting, course metadata, responsive management and compact dashboard presentations, and consistent Show all courses reset behavior.
+Done: Main contains BTEC result views, internal-verification and appeal workspaces, protected privacy surfaces, and these three Teacher slices:
 
-Remaining: The broader Teacher and Student course lifecycle, learning experience, and full teacher/student UX roadmap remain incomplete.
+1. Teacher Course Workspace Navigation, with responsive navigation, stable deep links, active state, Arabic RTL/English LTR behavior, keyboard accessibility, mobile overflow handling, and usable sticky review/sidebar behavior.
+2. Teacher Courses Management UX, with bilingual title search, status filters, deterministic sorting, course metadata, responsive management and compact dashboard presentations, and consistent Show all courses reset behavior.
+3. Teacher Student Follow-up Workspace, with server-owned follow-up signals, a dedicated workspace, bounded complete-result server-side search/filter/sort/pagination, a compact dashboard preview, and bilingual responsive UX.
+
+Remaining: Broader Teacher UX remains incomplete. Student UX remains incomplete. The broader course lifecycle and learning experience remain incomplete.
 
 ## Active Workstreams
 
@@ -81,7 +86,7 @@ Maximum active implementation workstreams: **2**
 ### Workstream A
 
 Task: Formal BTEC Assessment PDF Reporting
-Owner: Account 1 / Device 1
+Owner: Lenovo
 Branch: `feature/btec-assessment-pdf-report`
 Pull Request: #6
 Status: IN PROGRESS
@@ -97,21 +102,21 @@ Merged into main: **NO**
 
 ### Workstream B
 
-Last task: Teacher Courses Management UX
-Owner: Account 2 / Device 2
-Branch: `feature/teacher-courses-management-ux`
-Pull Request: #10
+Last task: Teacher Student Follow-up Workspace
+Owner: ASUS
+Branch: `feature/teacher-student-follow-up-ux`
+Pull Request: #12
 Task status: MERGED
-Merged into main: **YES** — `1ba6a419aa7e69c6479c6605923470a4a28118b6`
+Merged into main: **YES** — `33f14b66f52906dcb1c9782ec9123de587483639`
 Capacity status: AVAILABLE
-Purpose: Reserved parallel capacity for one future explicitly scoped independent task.
+Purpose: Available for one future explicitly scoped independent task.
 
 No new Workstream B branch, owner, task, or implementation is invented here. Workstream B becomes ACTIVE only after a scoped task is selected, a dedicated branch is created, and a Draft PR records its ownership and reserved scope.
 
 ## Next Actions
 
-- Workstream A: Continue PR #6 when Account 1 / Device 1 resumes, including its required review and validation before merge.
-- Workstream B capacity: AVAILABLE for one future explicitly scoped independent task; this reconciliation does not select or invent that task.
+- Workstream A: Continue PR #6 when Lenovo resumes. Before implementation, fetch the latest `main` and synchronize safely according to the repository workflow; do not rebase or force-push.
+- Workstream B / ASUS capacity: AVAILABLE for one future explicitly scoped independent task; this reconciliation does not select or invent that task.
 
 Definition of Done for each workstream: implementation is reviewed, required CI is green, its PR is merged into `main`, and this document is reconciled with the new merged state.
 
@@ -153,7 +158,7 @@ Do not reopen these areas merely because a later account lacks conversation memo
 ## Known Risks
 
 - Workstream A / PR #6 is unmerged and must not be represented as completed until it reaches `main` with targeted verification, review, and required CI green.
-- PR #10's required CI was verified GREEN for feature head `b83505c1b8256cfb16bc4ad0a240525916d7fbab`: Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully. Future workstreams must still verify their own current remote CI before claiming completion.
+- PR #12's required CI was verified GREEN for feature head `65e54249cf5d50fb0f3dba18786072901c63e222`: Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully. Future workstreams must still verify their own current remote CI before claiming completion.
 - Production S3, SMTP, ClamAV, Data Protection certificate, hosting, monitoring, backup/restore, payment, payout, and fiscal integrations require external configuration or validation.
 - Full UAT, capacity testing, launch hardening, retention decisions, and final legal review remain outstanding.
 
