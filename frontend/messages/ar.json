@@ -230,6 +230,60 @@
     "taxConfirm": "هل تريد تحديث ضريبة المبيعات للدفعات القادمة؟",
     "requestFailed": "تعذر تنفيذ الطلب."
   },
+  "teacherCoursesManagement": {
+    "title": "دوراتي",
+    "description": "أدِر محتوى دوراتك وتابع حالة كل دورة خلال المراجعة والنشر.",
+    "addCourse": "إضافة دورة",
+    "loading": "جارٍ تحميل الدورات…",
+    "loadError": "تعذر تحميل دوراتك.",
+    "retry": "إعادة المحاولة",
+    "searchLabel": "البحث في الدورات",
+    "searchPlaceholder": "ابحث في العناوين العربية أو الإنجليزية",
+    "clearSearch": "مسح البحث",
+    "showAllCourses": "عرض كل الدورات",
+    "sortLabel": "ترتيب الدورات",
+    "filterLabel": "تصفية الدورات حسب الحالة",
+    "courseListLabel": "دورات المعلم",
+    "results": "عرض {visible} من أصل {total} دورة",
+    "filters": {
+      "All": "الكل",
+      "Draft": "مسودة",
+      "SubmittedForReview": "مرسلة للمراجعة",
+      "Published": "منشورة",
+      "Rejected": "مرفوضة"
+    },
+    "sort": {
+      "title": "العنوان",
+      "status": "الحالة",
+      "content": "الأكثر محتوى أولًا"
+    },
+    "statuses": {
+      "Draft": "مسودة",
+      "SubmittedForReview": "مرسلة للمراجعة",
+      "Approved": "معتمدة بانتظار النشر",
+      "Rejected": "مرفوضة",
+      "Published": "منشورة",
+      "Archived": "مؤرشفة",
+      "Scheduled": "مجدولة"
+    },
+    "modules": "{count, plural, =0 {لا وحدات} one {وحدة واحدة} two {وحدتان} few {# وحدات} many {# وحدة} other {# وحدة}}",
+    "lessons": "{count, plural, =0 {لا دروس} one {درس واحد} two {درسان} few {# دروس} many {# درسًا} other {# درس}}",
+    "free": "مجانية",
+    "paid": "مدفوعة",
+    "coverReady": "الغلاف متوفر",
+    "noCover": "بلا غلاف",
+    "edit": "تحرير",
+    "view": "عرض",
+    "courseActionLabel": "{action} {title}",
+    "empty": {
+      "noCourses": "لا توجد دورات لديك بعد. ابدأ بإضافة أول دورة مسودة.",
+      "noSearchResults": "لا توجد دورات تطابق بحثك.",
+      "draft": "لا توجد دورات مسودة.",
+      "submittedForReview": "لا توجد دورات مرسلة للمراجعة.",
+      "published": "لا توجد دورات منشورة.",
+      "rejected": "لا توجد دورات مرفوضة."
+    }
+  },
   "teacherCourseWorkspace": {
     "navigation": {
       "label": "أقسام مساحة عمل الدورة",
