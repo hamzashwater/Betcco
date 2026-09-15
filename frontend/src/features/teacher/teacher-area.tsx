@@ -238,7 +238,7 @@ function TeacherDashboard() {
         />
       </div>
       <div className="mt-8">
-        <TeacherCoursesManagement />
+        <TeacherCoursesManagement variant="compact" />
       </div>
     </section>
   );

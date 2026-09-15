@@ -75,7 +75,13 @@ function isEditable(course: TeacherCourse) {
   return course.status === "Draft" || course.status === "Rejected";
 }
 
-export function TeacherCoursesManagement() {
+type TeacherCoursesManagementProps = {
+  variant?: "management" | "compact";
+};
+
+export function TeacherCoursesManagement({
+  variant = "management",
+}: TeacherCoursesManagementProps) {
   const locale = useLocale();
   const t = useTranslations("teacherCoursesManagement");
   const [search, setSearch] = useState("");
@@ -159,6 +165,94 @@ export function TeacherCoursesManagement() {
   }
 
   const courses = result.data;
+  const heading = (
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 id="teacher-courses-heading" className="text-xl font-black">
+          {t("title")}
+        </h2>
+        <p className="mt-1 text-sm text-muted">{t("description")}</p>
+      </div>
+      <Link
+        href={`/${locale}/teacher/courses/new`}
+        className="focus-ring inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-slate-950"
+      >
+        <Plus size={18} aria-hidden="true" />
+        {t("addCourse")}
+      </Link>
+    </div>
+  );
+  const emptyState = (
+    <div className="card mt-5 p-5 text-sm text-muted">
+      <p>{t("empty.noCourses")}</p>
+      <Link
+        href={`/${locale}/teacher/courses/new`}
+        className="focus-ring mt-3 inline-flex items-center gap-2 font-bold text-primary underline"
+      >
+        <Plus size={16} aria-hidden="true" />
+        {t("addCourse")}
+      </Link>
+    </div>
+  );
+
+  if (variant === "compact") {
+    return (
+      <section
+        className="min-w-0"
+        dir={locale === "ar" ? "rtl" : "ltr"}
+        aria-labelledby="teacher-courses-heading"
+      >
+        {heading}
+        {!courses.length ? (
+          emptyState
+        ) : (
+          <ul
+            className="mt-4 grid min-w-0 gap-3"
+            aria-label={t("courseListLabel")}
+          >
+            {courses.map((course) => {
+              const title = localizedTitle(course, locale);
+              const editable = isEditable(course);
+              const action = editable ? t("edit") : t("view");
+              return (
+                <li key={course.id} className="min-w-0">
+                  <Link
+                    href={`/${locale}/teacher/courses/${course.id}`}
+                    aria-label={t("courseActionLabel", { action, title })}
+                    className="card focus-ring flex min-w-0 flex-wrap items-center justify-between gap-3 p-4"
+                    data-interactive
+                  >
+                    <div className="min-w-0">
+                      <h3 className="break-words font-black text-foreground">
+                        {title}
+                      </h3>
+                      <p className="mt-1 text-xs font-semibold text-muted">
+                        {t("modules", { count: course.moduleCount })} ·{" "}
+                        {t("lessons", { count: course.lessonCount })}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-3">
+                      <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
+                        {t(`statuses.${course.status}`)}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 font-black text-primary">
+                        {action}
+                        <ArrowUpRight
+                          size={17}
+                          className="rtl:-scale-x-100"
+                          aria-hidden="true"
+                        />
+                      </span>
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+    );
+  }
 
   return (
     <section
@@ -166,33 +260,10 @@ export function TeacherCoursesManagement() {
       dir={locale === "ar" ? "rtl" : "ltr"}
       aria-labelledby="teacher-courses-heading"
     >
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 id="teacher-courses-heading" className="text-xl font-black">
-            {t("title")}
-          </h2>
-          <p className="mt-1 text-sm text-muted">{t("description")}</p>
-        </div>
-        <Link
-          href={`/${locale}/teacher/courses/new`}
-          className="focus-ring inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-slate-950"
-        >
-          <Plus size={18} aria-hidden="true" />
-          {t("addCourse")}
-        </Link>
-      </div>
+      {heading}
 
       {!courses.length ? (
-        <div className="card mt-5 p-5 text-sm text-muted">
-          <p>{t("empty.noCourses")}</p>
-          <Link
-            href={`/${locale}/teacher/courses/new`}
-            className="focus-ring mt-3 inline-flex items-center gap-2 font-bold text-primary underline"
-          >
-            <Plus size={16} aria-hidden="true" />
-            {t("addCourse")}
-          </Link>
-        </div>
+        emptyState
       ) : (
         <>
           <div className="card mt-5 p-4 sm:p-5">
@@ -371,7 +442,10 @@ export function TeacherCoursesManagement() {
               {normalizedSearch && (
                 <button
                   type="button"
-                  onClick={() => setSearch("")}
+                  onClick={() => {
+                    setSearch("");
+                    setFilter("All");
+                  }}
                   className="focus-ring mt-3 rounded-xl border border-border px-4 py-2 text-sm font-bold text-primary"
                 >
                   {t("showAllCourses")}

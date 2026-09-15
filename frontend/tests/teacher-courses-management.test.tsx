@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import arMessages from "../messages/ar.json";
 import enMessages from "../messages/en.json";
+import { TeacherArea } from "@/features/teacher/teacher-area";
 import {
   TeacherCoursesManagement,
   type TeacherCourse,
@@ -90,7 +91,10 @@ const courses: TeacherCourse[] = [
   },
 ];
 
-function renderCourses(locale: "ar" | "en" = "en") {
+function renderWithProviders(
+  content: React.ReactNode,
+  locale: "ar" | "en" = "en",
+) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -98,10 +102,18 @@ function renderCourses(locale: "ar" | "en" = "en") {
   return render(
     <QueryClientProvider client={client}>
       <NextIntlClientProvider locale={locale} messages={messages}>
-        <TeacherCoursesManagement />
+        {content}
       </NextIntlClientProvider>
     </QueryClientProvider>,
   );
+}
+
+function renderCourses(locale: "ar" | "en" = "en") {
+  return renderWithProviders(<TeacherCoursesManagement />, locale);
+}
+
+function renderTeacherArea(segment: string[], locale: "ar" | "en" = "en") {
+  return renderWithProviders(<TeacherArea segment={segment} />, locale);
 }
 
 async function courseTitles(listName = "Teacher courses") {
@@ -116,11 +128,27 @@ describe("TeacherCoursesManagement", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(
-        async () =>
-          new Response(JSON.stringify(courses), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          }),
+        async (input) =>
+          new Response(
+            JSON.stringify(
+              String(input).endsWith("/teacher/analytics")
+                ? {
+                    courses: courses.length,
+                    students: 0,
+                    pendingReviews: 0,
+                    quizAttempts: 0,
+                    averageQuizScore: 0,
+                    averageLessonProgress: 0,
+                    studentsAtRisk: [],
+                    studentsAtRiskCount: 0,
+                  }
+                : courses,
+            ),
+            {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            },
+          ),
       ),
     );
   });
@@ -128,6 +156,36 @@ describe("TeacherCoursesManagement", () => {
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
+  });
+
+  it("keeps the teacher dashboard course summary compact", async () => {
+    renderTeacherArea([]);
+    expect(
+      await screen.findByRole("heading", { name: "Teacher dashboard" }),
+    ).toBeVisible();
+    expect(await screen.findByText("Alpha course")).toBeVisible();
+    expect(
+      screen.queryByRole("searchbox", { name: "Search courses" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("combobox", { name: "Sort courses" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("group", { name: "Filter courses by status" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("keeps the full management controls on the dedicated courses page", async () => {
+    renderTeacherArea(["courses"]);
+    expect(
+      await screen.findByRole("searchbox", { name: "Search courses" }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("combobox", { name: "Sort courses" }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("group", { name: "Filter courses by status" }),
+    ).toBeVisible();
   });
 
   it("renders existing course metadata", async () => {
@@ -306,6 +364,26 @@ describe("TeacherCoursesManagement", () => {
     expect(
       screen.getByRole("button", { name: "Show all courses" }),
     ).toBeVisible();
+  });
+
+  it("shows all courses by clearing search and resetting the active filter", async () => {
+    const user = userEvent.setup();
+    renderCourses();
+    await screen.findByText("Alpha course");
+    const search = screen.getByRole("searchbox", { name: "Search courses" });
+    const draftFilter = screen.getByRole("button", { name: "Draft" });
+    const allFilter = screen.getByRole("button", { name: "All" });
+
+    await user.click(draftFilter);
+    await user.type(search, "beta");
+    expect(screen.getByText("No courses match your search.")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Show all courses" }));
+
+    expect(search).toHaveValue("");
+    expect(allFilter).toHaveAttribute("aria-pressed", "true");
+    expect(draftFilter).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByText("Alpha course")).toBeVisible();
+    expect(screen.getByText("Beta review")).toBeVisible();
   });
 
   it("shows a filter-specific no-results state", async () => {
