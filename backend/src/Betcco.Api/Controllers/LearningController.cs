@@ -12,27 +12,37 @@ namespace Betcco.Api.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/v1/learning")]
-public sealed class LearningController(BetccoDbContext db, IFileStorage storage, IContentAccessService contentAccess) : ControllerBase
+public sealed class LearningController(
+    BetccoDbContext db,
+    IFileStorage storage,
+    IContentAccessService contentAccess,
+    IStudentCoursesLearningHubService learningHub) : ControllerBase
 {
     [Authorize(Policy = "Student")]
     [HttpGet("my-courses")]
-    public async Task<IActionResult> MyCourses([FromQuery] string locale = "ar", CancellationToken cancellationToken = default)
+    public async Task<IActionResult> MyCourses(
+        [FromQuery] string locale = "ar",
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 12,
+        [FromQuery] string? search = null,
+        [FromQuery] string progress = "All",
+        [FromQuery] string sort = "Recent",
+        CancellationToken cancellationToken = default)
     {
-        var userId = UserId!;
-        var enrollments = await db.Enrollments.Include(x => x.Course!).ThenInclude(x => x.Modules).ThenInclude(x => x.Lessons).AsNoTracking().Where(x => x.StudentUserId == userId && (x.AccessEndsAtUtc == null || x.AccessEndsAtUtc > DateTimeOffset.UtcNow)).OrderByDescending(x => x.EnrolledAtUtc).ToListAsync(cancellationToken);
-        var lessonIds = enrollments
-            .SelectMany(enrollment => enrollment.Course!.Modules.Where(module => module.IsPublished))
-            .SelectMany(module => module.Lessons.Where(lesson => lesson.IsPublished))
-            .Select(lesson => lesson.Id)
-            .ToArray();
-        var completedLessonIds = (await db.LessonProgresses.AsNoTracking().Where(x => x.StudentUserId == userId && x.IsCompleted && lessonIds.Contains(x.LessonId)).Select(x => x.LessonId).ToListAsync(cancellationToken)).ToHashSet();
-        return Ok(enrollments.Select(enrollment => new
+        if (page < 1 || page > 100_000 || pageSize is < 1 or > 50 || search?.Length > 200
+            || !Enum.TryParse<StudentCourseProgressFilter>(progress, true, out var progressFilter)
+            || !Enum.TryParse<StudentCourseSort>(sort, true, out var sortMode))
         {
-            enrollment.CourseId,
-            title = Localize(locale, enrollment.Course!.ArabicTitle, enrollment.Course.EnglishTitle),
-            completed = enrollment.Course.Modules.Where(module => module.IsPublished).SelectMany(module => module.Lessons).Count(lesson => lesson.IsPublished && completedLessonIds.Contains(lesson.Id)),
-            total = enrollment.Course.Modules.Where(module => module.IsPublished).SelectMany(module => module.Lessons).Count(lesson => lesson.IsPublished)
-        }));
+            return BadRequest(new
+            {
+                message = "Use page between 1 and 100000, pageSize between 1 and 50, a search up to 200 characters, and supported progress/sort values."
+            });
+        }
+
+        return Ok(await learningHub.GetAsync(
+            UserId!,
+            new StudentCoursesLearningHubQuery(locale, page, pageSize, search, progressFilter, sortMode),
+            cancellationToken));
     }
     [HttpGet("courses/{courseId:guid}/player")]
     public async Task<IActionResult> Player(Guid courseId, [FromQuery] string locale = "ar", CancellationToken cancellationToken = default)

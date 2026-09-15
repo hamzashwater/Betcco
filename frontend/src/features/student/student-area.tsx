@@ -10,6 +10,10 @@ import { AccountSecurity } from "@/features/auth/account-security";
 import { SupportCenter } from "@/features/support/support-center";
 import { EvaluationAppeals } from "@/features/student/evaluation-appeals";
 import {
+  compactStudentCoursesQueryOptions,
+  StudentCoursesLearningHub,
+} from "@/features/student/student-courses-learning-hub";
+import {
   ArrowLeft,
   ArrowRight,
   Bookmark,
@@ -38,7 +42,6 @@ import {
   ActionCard,
   DashboardHeader,
   MetricCard,
-  ProgressBar,
 } from "@/components/dashboard/dashboard-ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
@@ -46,12 +49,6 @@ import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { type ReactNode, useState } from "react";
 
-type EnrolledCourse = {
-  courseId: string;
-  title: string;
-  completed: number;
-  total: number;
-};
 type EvaluationOptions = {
   grades: { id: string; arabicName: string; englishName: string }[];
   specializations: { id: string; arabicName: string; englishName: string }[];
@@ -74,7 +71,7 @@ type EvaluationOptions = {
 export function StudentArea({ segment }: { segment: string[] }) {
   const current = segment.join("/") || "dashboard";
   let content: ReactNode = <StudentDashboard />;
-  if (current === "courses") content = <MyCourses />;
+  if (current === "courses") content = <StudentCoursesLearningHub />;
   if (current.startsWith("learn/") && segment[1])
     content = <CoursePlayer courseId={segment[1]} />;
   if (current === "evaluations/new") content = <EvaluationWizard />;
@@ -145,27 +142,17 @@ function StudentWorkspaceNav({ current }: { current: string }) {
 
 function StudentDashboard() {
   const locale = useLocale();
-  const courses = useQuery({
-    queryKey: ["my-courses", locale],
-    queryFn: () =>
-      api<EnrolledCourse[]>(`/learning/my-courses?locale=${locale}`),
-  });
+  const courses = useQuery(compactStudentCoursesQueryOptions(locale));
   const overview = useQuery({
     queryKey: ["student-learning-overview", locale],
     queryFn: () =>
       api<LearningOverview>(`/student-tools/overview?locale=${locale}`),
   });
-  const enrolled = courses.data ?? [];
+  const courseSummary = courses.data?.summary;
   const upcomingAssignments = overview.data?.upcomingAssignments ?? [];
-  const completedLessons = enrolled.reduce(
-    (total, course) => total + course.completed,
-    0,
-  );
-  const allLessons = enrolled.reduce(
-    (total, course) => total + course.total,
-    0,
-  );
-  const progress = allLessons ? (completedLessons / allLessons) * 100 : 0;
+  const completedLessons = courseSummary?.completedLessons ?? 0;
+  const allLessons = courseSummary?.totalLessons ?? 0;
+  const progress = courseSummary?.progressPercent ?? 0;
   const achievements = overview.data?.achievements ?? [];
   return (
     <section className="shell py-10">
@@ -190,7 +177,7 @@ function StudentDashboard() {
       <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <MetricCard
           label={locale === "ar" ? "الدورات المسجل بها" : "Enrolled courses"}
-          value={courses.isPending ? "—" : enrolled.length}
+          value={courses.isPending ? "—" : (courseSummary?.totalCourses ?? 0)}
           detail={
             locale === "ar"
               ? "من سجلات التسجيل الفعلية"
@@ -438,7 +425,7 @@ function StudentDashboard() {
         />
       </div>
       <div className="mt-8">
-        <MyCourses />
+        <StudentCoursesLearningHub variant="compact" />
       </div>
     </section>
   );
@@ -974,86 +961,6 @@ function StudentPurchases() {
         </div>
       )}
     </section>
-  );
-}
-
-function MyCourses() {
-  const locale = useLocale();
-  const result = useQuery({
-    queryKey: ["my-courses", locale],
-    queryFn: () =>
-      api<EnrolledCourse[]>(`/learning/my-courses?locale=${locale}`),
-  });
-  if (result.isPending)
-    return (
-      <div className="card p-5" aria-busy>
-        …
-      </div>
-    );
-  if (result.isError)
-    return (
-      <p role="alert" className="card p-5">
-        {locale === "ar"
-          ? "سجّل الدخول لرؤية دوراتك."
-          : "Sign in to see your courses."}
-      </p>
-    );
-  return (
-    <div>
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">
-            {locale === "ar" ? "مساحة التعلّم" : "Learning space"}
-          </p>
-          <h2 className="mt-1 text-xl font-black">
-            {locale === "ar" ? "دوراتي" : "My courses"}
-          </h2>
-        </div>
-        <ListVideo className="text-primary" aria-hidden="true" />
-      </div>
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
-        {result.data.length ? (
-          result.data.map((course) => (
-            <Link
-              key={course.courseId}
-              href={`/${locale}/student/learn/${course.courseId}`}
-              className="card focus-ring block p-5"
-              data-interactive
-            >
-              <h3 className="font-bold">{course.title}</h3>
-              <p className="mt-3 text-sm text-muted">
-                {course.completed}/{course.total}{" "}
-                {locale === "ar" ? "دروس مكتملة" : "lessons complete"}
-              </p>
-              <ProgressBar
-                className="mt-4"
-                label={locale === "ar" ? "تقدم الدورة" : "Course progress"}
-                value={
-                  course.total ? (course.completed / course.total) * 100 : 0
-                }
-              />
-            </Link>
-          ))
-        ) : (
-          <p className="card p-5 text-muted">
-            {locale === "ar"
-              ? "لا توجد دورات مسجل بها بعد."
-              : "You are not enrolled in a course yet."}
-            <Link
-              href={`/${locale}/courses`}
-              className="focus-ring mt-4 inline-flex items-center gap-1 text-sm font-black text-primary"
-            >
-              {locale === "ar" ? "استكشف الدورات" : "Explore courses"}
-              <ArrowLeft
-                size={16}
-                className="rtl:rotate-180"
-                aria-hidden="true"
-              />
-            </Link>
-          </p>
-        )}
-      </div>
-    </div>
   );
 }
 
@@ -1628,7 +1535,8 @@ function CoursePlayer({ courseId }: { courseId: string }) {
           markCompleted: true,
         }),
       }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["my-courses"] }),
+    onSuccess: () =>
+      client.invalidateQueries({ queryKey: ["student-courses-learning-hub"] }),
   });
   const certificate = useMutation({
     mutationFn: () =>
