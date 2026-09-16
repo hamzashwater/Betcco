@@ -2,22 +2,22 @@
 
 ## Metadata
 
-- Last updated: 2026-09-15
-- Verified implementation baseline SHA: `533b3f93bfaf091d9e2c5c0976cf40153bb31330`
-- Status generated/verified against origin/main: `533b3f93bfaf091d9e2c5c0976cf40153bb31330`
-- Baseline branch used for status generation: `docs/status-after-student-courses-learning-hub`
+- Last updated: 2026-09-16
+- Verified implementation baseline SHA: `8770901ad78c172cbe0ed33e1235bfc78f739f07`
+- Status generated/verified against origin/main: `8770901ad78c172cbe0ed33e1235bfc78f739f07`
+- Baseline branch used for status generation: `docs/status-after-student-course-player-resume`
 - Working tree state during status generation: clean
-- Latest verified CI state: GREEN for PR #14 at feature head `431d12efe70236872173f66677d88d484b4348b4` — Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully.
+- Latest verified CI state: GREEN for PR #16 at feature head `939e5e7a6431f25ae4f0d14868a220c74bd4e9ce` — Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
 ## Last Merged Task
 
-- Task: Student Courses Learning Hub
-- Merge/commit SHA: `533b3f93bfaf091d9e2c5c0976cf40153bb31330`
-- Pull Request: #14
-- Outcome: Added a dedicated localized Student `/student/courses` workspace backed by bounded, server-authoritative course retrieval. The merged slice provides pagination, bilingual title search, progress filters, deterministic sorting, published-course and enrollment-access enforcement, server-owned progress/completion state, safe cover and teacher-name support, and a compact dashboard preview. Arabic RTL and English LTR were validated on desktop and mobile with keyboard accessibility and no document-level horizontal overflow. Existing CoursePlayer navigation was preserved; exact Resume/Next Lesson behavior was not introduced, and no migration was added.
-- Verification evidence: Focused backend integration tests (25), the backend suite (12 unit and 375 integration), focused frontend tests (21), the full frontend suite (74), and the focused Playwright Student flow passed. Format, lint, typecheck, backend and production frontend builds, English and Arabic desktop/mobile browser validation, CoursePlayer regression smoke, progress save/readback, keyboard accessibility, RTL/LTR behavior, and horizontal-overflow checks passed. Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully for the PR #14 feature head.
+- Task: Student Course Player + Resume Learning
+- Merge/commit SHA: `8770901ad78c172cbe0ed33e1235bfc78f739f07`
+- Pull Request: #16
+- Outcome: Added a server-authoritative resume/current lesson flow for the Student Course Player, with authorized deep links, saved position restoration, server-owned completion, the existing 80% video threshold, accessible previous/next navigation, and Course Hub Continue integration. EN/AR desktop/mobile/keyboard behavior and mobile overflow were validated. No migration was added.
+- Verification evidence: Focused backend integration tests (33) and focused frontend tests (26) passed. Full frontend validation passed (79 tests, lint, typecheck, format, and build). Required CI passed the full backend suite (12 unit and 383 integration), frontend checks, Application quality, Dependency review, and CodeQL (csharp/javascript-typescript). English and Arabic desktop/mobile browser validation, keyboard accessibility, RTL/LTR behavior, resume persistence, protected navigation, and horizontal-overflow checks passed.
 
 ## Completed
 
@@ -29,6 +29,7 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - Teacher Courses Management UX — merged through PR #10 in `1ba6a41`.
 - Teacher Student Follow-up Workspace — merged through PR #12 in `33f14b6`.
 - Student Courses Learning Hub — merged through PR #14 in `533b3f9`.
+- Student Course Player + Resume Learning — merged through PR #16 in `8770901`.
 
 These entries are merged repository evidence only; new behavior changes still require targeted validation and review.
 
@@ -76,8 +77,9 @@ Done: Main contains BTEC result views, internal-verification and appeal workspac
 2. Teacher Courses Management UX, with bilingual title search, status filters, deterministic sorting, course metadata, responsive management and compact dashboard presentations, and consistent Show all courses reset behavior.
 3. Teacher Student Follow-up Workspace, with server-owned follow-up signals, a dedicated workspace, bounded complete-result server-side search/filter/sort/pagination, a compact dashboard preview, and bilingual responsive UX.
 4. Student Courses Learning Hub, with a dedicated course workspace, bounded server-authoritative retrieval, bilingual search, progress filters, deterministic sorting, pagination, published-course and access enforcement, server-owned progress/completion state, safe cover and teacher-name handling, a compact dashboard preview, and bilingual responsive/accessibility validation.
+5. Student Course Player + Resume Learning, with server-authoritative resume/current lesson selection, authorized deep links, saved position restoration, server-owned completion, preserved video threshold, accessible navigation, Course Hub Continue integration, and EN/AR responsive/accessibility validation.
 
-Remaining: Broader Teacher UX remains incomplete. Student UX remains partial: broader Student learning lifecycle and CoursePlayer improvements remain. The broader course lifecycle and learning experience remain incomplete.
+Remaining: Broader Teacher UX remains incomplete. Student UX remains partial: the broader Student learning lifecycle remains. The broader course lifecycle and learning experience remain incomplete.
 
 ## Active Workstreams
 
@@ -104,12 +106,12 @@ Merged into main: **NO**
 
 ### Workstream B
 
-Last task: Student Courses Learning Hub
+Last task: Student Course Player + Resume Learning
 Owner: ASUS
-Branch: `feature/student-courses-learning-hub`
-Pull Request: #14
+Branch: `feature/student-course-player-resume`
+Pull Request: #16
 Task status: MERGED
-Merged into main: **YES** — `533b3f93bfaf091d9e2c5c0976cf40153bb31330`
+Merged into main: **YES** — `8770901ad78c172cbe0ed33e1235bfc78f739f07`
 Capacity status: AVAILABLE
 Purpose: Available for one future explicitly scoped independent task.
 
@@ -119,6 +121,7 @@ No new Workstream B branch, owner, task, or implementation is invented here. Wor
 
 - Workstream A: Continue PR #6 when Lenovo resumes. Before implementation, fetch the latest `main` and synchronize safely according to the repository workflow; do not rebase or force-push.
 - Workstream B / ASUS capacity: AVAILABLE for one future explicitly scoped independent task; this reconciliation does not select or invent that task.
+- Task 6: NOT STARTED. No Task 6 scope or branch has been created.
 
 Definition of Done for each workstream: implementation is reviewed, required CI is green, its PR is merged into `main`, and this document is reconciled with the new merged state.
 
@@ -160,6 +163,7 @@ Do not reopen these areas merely because a later account lacks conversation memo
 ## Known Risks
 
 - Workstream A / PR #6 is unmerged and must not be represented as completed until it reaches `main` with targeted verification, review, and required CI green.
+- PR #16 is merged into `main` at `8770901ad78c172cbe0ed33e1235bfc78f739f07` with required CI green; the Student Course Player + Resume Learning task is complete.
 - PR #14's required CI was verified GREEN for feature head `431d12efe70236872173f66677d88d484b4348b4`: Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully. Future workstreams must still verify their own current remote CI before claiming completion.
 - Production S3, SMTP, ClamAV, Data Protection certificate, hosting, monitoring, backup/restore, payment, payout, and fiscal integrations require external configuration or validation.
 - Full UAT, capacity testing, launch hardening, retention decisions, and final legal review remain outstanding.
