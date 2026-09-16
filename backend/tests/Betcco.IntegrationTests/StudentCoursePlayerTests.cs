@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Betcco.Api.Controllers;
+using Betcco.Application.Common;
 using Betcco.Application.Learning;
 using Betcco.Domain.Common;
 using Betcco.Domain.Learning;
@@ -8,6 +9,7 @@ using Betcco.Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Betcco.IntegrationTests;
 
@@ -148,6 +150,97 @@ public sealed class StudentCoursePlayerTests
             fixture.Second.Id,
             50,
             false));
+    }
+
+    [Fact]
+    public async Task Video_stream_enforces_student_access_publication_and_range_delivery()
+    {
+        await using var fixture = await PlayerFixture.CreateAsync();
+        var storage = new RecordingVideoStorage();
+        var student = VideoController(fixture, storage, PlayerFixture.StudentId, "Student");
+
+        var file = Assert.IsType<FileStreamResult>(await student.StreamLessonVideo(fixture.Second.Id, default));
+        Assert.Equal("video/mp4", file.ContentType);
+        Assert.True(file.EnableRangeProcessing);
+        Assert.True(file.FileStream.CanSeek);
+        Assert.Equal(1, storage.Reads);
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddMvcCore();
+        using var provider = services.BuildServiceProvider();
+        student.HttpContext.RequestServices = provider;
+        student.HttpContext.Request.Method = HttpMethods.Get;
+        student.HttpContext.Request.Headers.Range = "bytes=1-2";
+        student.HttpContext.Response.Body = new MemoryStream();
+        await file.ExecuteResultAsync(student.ControllerContext);
+        Assert.Equal(StatusCodes.Status206PartialContent, student.HttpContext.Response.StatusCode);
+        Assert.Equal("bytes 1-2/4", student.HttpContext.Response.Headers.ContentRange.ToString());
+        Assert.Equal(2, student.HttpContext.Response.ContentLength);
+        Assert.Equal([2, 3], ((MemoryStream)student.HttpContext.Response.Body).ToArray());
+
+        var foreign = VideoController(fixture, storage, "foreign-student", "Student");
+        Assert.IsType<NotFoundResult>(await foreign.StreamLessonVideo(fixture.Second.Id, default));
+        Assert.Equal(1, storage.Reads);
+
+        fixture.Locked.VideoReference = fixture.Second.VideoReference;
+        Assert.IsType<NotFoundResult>(await student.StreamLessonVideo(fixture.Locked.Id, default));
+        Assert.Equal(1, storage.Reads);
+
+        fixture.Enrollment.AccessEndsAtUtc = DateTimeOffset.UtcNow.AddMinutes(-1);
+        await fixture.Db.SaveChangesAsync();
+        Assert.IsType<NotFoundResult>(await student.StreamLessonVideo(fixture.Second.Id, default));
+        fixture.Enrollment.AccessEndsAtUtc = null;
+        fixture.Course.Status = CourseStatus.Draft;
+        await fixture.Db.SaveChangesAsync();
+        Assert.IsType<NotFoundResult>(await student.StreamLessonVideo(fixture.Second.Id, default));
+        Assert.Equal(1, storage.Reads);
+    }
+
+    [Fact]
+    public async Task Teacher_preview_requires_course_ownership()
+    {
+        await using var fixture = await PlayerFixture.CreateAsync();
+        fixture.Course.TeacherUserId = "owner";
+        await fixture.Db.SaveChangesAsync();
+        var storage = new RecordingVideoStorage();
+        var foreign = new CourseAuthoringController(null!, storage, null!, null!, fixture.Db)
+        {
+            ControllerContext = UserContext("foreign-teacher", "Teacher")
+        };
+        var owner = new CourseAuthoringController(null!, storage, null!, null!, fixture.Db)
+        {
+            ControllerContext = UserContext("owner", "Teacher")
+        };
+
+        Assert.IsType<NotFoundResult>(await foreign.StreamLessonVideo(fixture.Second.Id, default));
+        var file = Assert.IsType<FileStreamResult>(await owner.StreamLessonVideo(fixture.Second.Id, default));
+        Assert.Equal("video/mp4", file.ContentType);
+        Assert.True(file.EnableRangeProcessing);
+        Assert.Equal(1, storage.Reads);
+        await file.FileStream.DisposeAsync();
+    }
+
+    private static LearningController VideoController(PlayerFixture fixture, IFileStorage storage, string userId, string role) =>
+        new(fixture.Db, storage, fixture.Access, null!, fixture.Service) { ControllerContext = UserContext(userId, role) };
+
+    private static ControllerContext UserContext(string userId, string role) => new()
+    {
+        HttpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim(ClaimTypes.NameIdentifier, userId), new Claim(ClaimTypes.Role, role)], "Test"))
+        }
+    };
+
+    private sealed class RecordingVideoStorage : IFileStorage
+    {
+        public int Reads { get; private set; }
+        public Task<string> SavePrivateAsync(Stream content, string contentType, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<Stream?> OpenPrivateReadAsync(string storageKey, CancellationToken cancellationToken = default)
+        {
+            Reads++;
+            return Task.FromResult<Stream?>(new MemoryStream([1, 2, 3, 4]));
+        }
     }
 
     private sealed class PlayerFixture : IAsyncDisposable

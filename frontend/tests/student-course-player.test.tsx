@@ -7,6 +7,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import arMessages from "../messages/ar.json";
 import enMessages from "../messages/en.json";
@@ -238,6 +239,30 @@ describe("Student course player resume", () => {
     expect(region).not.toBeNull();
     expect(region!).toHaveAttribute("dir", "rtl");
   });
+
+  it.each(["en", "ar"] as const)(
+    "shows %s video loading, playback error, and a keyboard usable retry",
+    async (locale) => {
+      installFetch();
+      const { container } = renderPlayer(locale);
+      const loading =
+        locale === "ar" ? "جارٍ تحميل الفيديو…" : "Loading video…";
+      const retry = locale === "ar" ? "إعادة المحاولة" : "Retry video";
+      expect(await screen.findByRole("status")).toHaveTextContent(loading);
+      const firstVideo = container.querySelector("video")!;
+      fireEvent.error(firstVideo);
+      expect(screen.getByRole("alert")).toBeVisible();
+      const retryButton = screen.getByRole("button", { name: retry });
+      retryButton.focus();
+      await userEvent.setup().keyboard("{Enter}");
+      expect(screen.getByRole("status")).toHaveTextContent(loading);
+      const retriedVideo = container.querySelector("video")!;
+      expect(retriedVideo).not.toBe(firstVideo);
+      expect(retriedVideo.getAttribute("src")).toContain("retry=1");
+      fireEvent.canPlay(retriedVideo);
+      expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    },
+  );
 });
 
 function progressCalls(fetchMock: ReturnType<typeof vi.fn>) {

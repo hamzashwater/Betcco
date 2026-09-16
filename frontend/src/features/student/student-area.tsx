@@ -1971,6 +1971,10 @@ function LessonVideo({
 }) {
   const lastSubmittedPosition = useRef(lesson.lastPositionSeconds);
   const lastSubmittedAt = useRef(0);
+  const [playbackState, setPlaybackState] = useState<
+    "loading" | "ready" | "error"
+  >("loading");
+  const [retryCount, setRetryCount] = useState(0);
 
   const save = (
     video: HTMLVideoElement,
@@ -2008,10 +2012,17 @@ function LessonVideo({
   return (
     <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl">
       <video
+        key={retryCount}
         controls
         preload="metadata"
         className="aspect-video w-full"
-        src={`/api/v1/learning/lessons/${lesson.id}/video`}
+        aria-label={
+          locale === "ar" ? `فيديو ${lesson.title}` : `${lesson.title} video`
+        }
+        src={`/api/v1/learning/lessons/${lesson.id}/video?retry=${retryCount}`}
+        onCanPlay={() => setPlaybackState("ready")}
+        onWaiting={() => setPlaybackState("loading")}
+        onError={() => setPlaybackState("error")}
         onLoadedMetadata={(event) => {
           const video = event.currentTarget;
           const mediaDuration =
@@ -2034,6 +2045,33 @@ function LessonVideo({
           ? "المتصفح لا يدعم تشغيل الفيديو."
           : "Your browser does not support video playback."}
       </video>
+      {playbackState === "loading" ? (
+        <p role="status" className="px-4 py-2 text-sm text-slate-300">
+          {locale === "ar" ? "جارٍ تحميل الفيديو…" : "Loading video…"}
+        </p>
+      ) : null}
+      {playbackState === "error" ? (
+        <div
+          role="alert"
+          className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm text-white"
+        >
+          <span>
+            {locale === "ar"
+              ? "تعذر تشغيل الفيديو. حاول مجددًا أو تواصل مع الدعم."
+              : "Video unavailable. Try again or contact support."}
+          </span>
+          <button
+            type="button"
+            className="focus-ring rounded-lg border border-white/40 px-3 py-1.5 font-bold"
+            onClick={() => {
+              setPlaybackState("loading");
+              setRetryCount((count) => count + 1);
+            }}
+          >
+            {locale === "ar" ? "إعادة المحاولة" : "Retry video"}
+          </button>
+        </div>
+      ) : null}
       <div className="border-t border-white/10 bg-[#0b1735] px-4 py-3 text-white">
         <p className="font-black">{lesson.title}</p>
         <p className="mt-1 flex items-center gap-2 text-xs text-slate-300">

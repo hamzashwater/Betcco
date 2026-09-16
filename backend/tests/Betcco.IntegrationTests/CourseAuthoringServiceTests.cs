@@ -1,6 +1,7 @@
 using Betcco.Application.Courses;
 using Betcco.Domain.Common;
 using Betcco.Domain.Learning;
+using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Persistence;
 using Betcco.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -314,17 +315,108 @@ public sealed class CourseAuthoringServiceTests
         var authoring = new CourseAuthoringService(db);
 
         Assert.Null(await authoring.AddLessonVideoAsync("teacher-2", new AddLessonVideoCommand(lesson.Id, "lesson.mp4", "2026/08/video", "video/mp4")));
-        var videoId = await authoring.AddLessonVideoAsync("teacher-1", new AddLessonVideoCommand(lesson.Id, "lesson.mp4", "2026/08/video", "video/mp4"));
+        var video = await authoring.AddLessonVideoAsync("teacher-1", new AddLessonVideoCommand(lesson.Id, "lesson.mp4", "2026/08/video", "video/mp4"));
 
-        Assert.NotNull(videoId);
+        Assert.NotNull(video);
+        Assert.Empty(video.DeletionOperationIds);
         var persistedLesson = await db.Lessons.Include(item => item.Resources).SingleAsync(item => item.Id == lesson.Id);
         var resource = Assert.Single(persistedLesson.Resources);
         Assert.Equal(LessonType.Video, persistedLesson.Type);
-        Assert.Equal(videoId.Value.ToString(), persistedLesson.VideoReference);
-        Assert.Equal(videoId.Value, resource.Id);
+        Assert.Equal(video.VideoId!.Value.ToString(), persistedLesson.VideoReference);
+        Assert.Equal(video.VideoId, resource.Id);
         Assert.False(resource.IsDownloadable);
         Assert.Equal("video/mp4", resource.ContentType);
         Assert.Contains(db.AuditLogs, item => item.Action == "CourseLessonVideoUploaded" && item.ActorUserId == "teacher-1");
+    }
+
+    [Fact]
+    public async Task Replacing_and_removing_video_preserves_shared_copies_until_the_last_reference_is_removed()
+    {
+        await using var db = CreateDb();
+        var course = new Course
+        {
+            Slug = "video-lifecycle",
+            ArabicTitle = "دورة",
+            EnglishTitle = "Course",
+            ArabicDescription = "وصف",
+            EnglishDescription = "Description",
+            LearningTrackId = Guid.NewGuid(),
+            TeacherUserId = "owner",
+            Status = CourseStatus.Draft,
+            IsFree = true
+        };
+        var module = new CourseModule { Course = course, ArabicTitle = "وحدة", EnglishTitle = "Unit" };
+        var lesson = new Lesson { CourseModule = module, ArabicTitle = "درس", EnglishTitle = "Lesson", Type = LessonType.Text };
+        db.AddRange(course, module, lesson);
+        await db.SaveChangesAsync();
+        var authoring = new CourseAuthoringService(db);
+
+        var first = Assert.IsType<LessonVideoChangeResult>(await authoring.AddLessonVideoAsync("owner",
+            new AddLessonVideoCommand(lesson.Id, "first.mp4", "objects/first", "video/mp4")));
+        var copy = new Lesson { CourseModule = module, ArabicTitle = "نسخة", EnglishTitle = "Copy", Type = LessonType.Video };
+        var copiedVideo = new LessonResource
+        {
+            Lesson = copy,
+            DisplayName = "first.mp4",
+            StorageKey = "objects/first",
+            ContentType = "video/mp4",
+            ScanStatus = UploadScanStatus.Clean,
+            IsDownloadable = false
+        };
+        copy.Resources.Add(copiedVideo);
+        copy.VideoReference = copiedVideo.Id.ToString();
+        db.Lessons.Add(copy);
+        await db.SaveChangesAsync();
+
+        Assert.Null(await authoring.AddLessonVideoAsync("foreign",
+            new AddLessonVideoCommand(lesson.Id, "foreign.mp4", "objects/foreign", "video/mp4")));
+        Assert.Null(await authoring.RemoveLessonVideoAsync("foreign", lesson.Id));
+        var replacement = Assert.IsType<LessonVideoChangeResult>(await authoring.AddLessonVideoAsync("owner",
+            new AddLessonVideoCommand(lesson.Id, "second.webm", "objects/second", "video/webm")));
+        Assert.Empty(replacement.DeletionOperationIds);
+        Assert.Equal(replacement.VideoId!.Value.ToString(), lesson.VideoReference);
+        Assert.DoesNotContain(db.LessonResources, item => item.Id == first.VideoId);
+
+        var removedCopy = Assert.IsType<LessonVideoChangeResult>(await authoring.RemoveLessonVideoAsync("owner", copy.Id));
+        Assert.Single(removedCopy.DeletionOperationIds);
+        Assert.Contains(db.StorageLifecycleOperations, item => item.Id == removedCopy.DeletionOperationIds[0]
+            && item.StorageKey == "objects/first" && item.Action == StorageLifecycleAction.Delete);
+
+        var removed = Assert.IsType<LessonVideoChangeResult>(await authoring.RemoveLessonVideoAsync("owner", lesson.Id));
+        Assert.Single(removed.DeletionOperationIds);
+        Assert.Contains(db.StorageLifecycleOperations, item => item.Id == removed.DeletionOperationIds[0]
+            && item.StorageKey == "objects/second" && item.Action == StorageLifecycleAction.Delete);
+        Assert.Null(lesson.VideoReference);
+        Assert.Equal(LessonType.Text, lesson.Type);
+    }
+
+    [Fact]
+    public async Task Deleting_a_lesson_queues_its_unshared_video_for_private_storage_cleanup()
+    {
+        await using var db = CreateDb();
+        var course = new Course
+        {
+            Slug = "delete-video-lesson",
+            ArabicTitle = "دورة",
+            EnglishTitle = "Course",
+            ArabicDescription = "وصف",
+            EnglishDescription = "Description",
+            LearningTrackId = Guid.NewGuid(),
+            TeacherUserId = "owner",
+            Status = CourseStatus.Draft,
+            IsFree = true
+        };
+        var module = new CourseModule { Course = course, ArabicTitle = "وحدة", EnglishTitle = "Unit" };
+        var lesson = new Lesson { CourseModule = module, ArabicTitle = "درس", EnglishTitle = "Lesson", Type = LessonType.Video };
+        db.AddRange(course, module, lesson);
+        await db.SaveChangesAsync();
+        var authoring = new CourseAuthoringService(db);
+        Assert.NotNull(await authoring.AddLessonVideoAsync("owner", new AddLessonVideoCommand(lesson.Id, "first.mp4", "objects/lesson", "video/mp4")));
+
+        Assert.False(await authoring.DeleteLessonAsync("foreign", lesson.Id));
+        Assert.True(await authoring.DeleteLessonAsync("owner", lesson.Id));
+        Assert.Contains(db.StorageLifecycleOperations, item => item.StorageKey == "objects/lesson"
+            && item.Action == StorageLifecycleAction.Delete && item.Status == StorageLifecycleStatus.Pending);
     }
 
     private static BetccoDbContext CreateDb() => new(
