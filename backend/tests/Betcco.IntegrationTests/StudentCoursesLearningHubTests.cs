@@ -318,7 +318,8 @@ public sealed class StudentCoursesLearningHubTests
 
             var access = new ContentAccessService(db);
             var hub = new StudentCoursesLearningHubService(db, access);
-            var controller = new LearningController(db, null!, access, hub)
+            var player = new StudentCoursePlayerService(db, access);
+            var controller = new LearningController(db, null!, access, hub, player)
             {
                 ControllerContext = new ControllerContext
                 {
