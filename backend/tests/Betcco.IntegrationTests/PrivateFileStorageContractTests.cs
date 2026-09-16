@@ -27,6 +27,13 @@ public abstract class PrivateFileStorageContractTests
         Assert.True(await fixture.Storage.ExistsPrivateAsync(staged.StorageKey));
         await using var stored = await fixture.Storage.OpenPrivateReadAsync(staged.StorageKey);
         Assert.NotNull(stored);
+        Assert.True(stored.CanSeek);
+        Assert.Equal(expected.Length, stored.Length);
+        stored.Seek(512, SeekOrigin.Begin);
+        var middle = new byte[16];
+        Assert.Equal(middle.Length, await stored.ReadAsync(middle));
+        Assert.Equal(expected.Skip(512).Take(16), middle);
+        stored.Seek(0, SeekOrigin.Begin);
         await using var copy = new MemoryStream();
         await stored.CopyToAsync(copy);
         Assert.Equal(expected, copy.ToArray());

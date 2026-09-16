@@ -39,7 +39,7 @@ public static class FileUploadValidation
                 ".jpg" or ".jpeg" when StartsWith(prefix, 0xFF, 0xD8, 0xFF) => FileUploadValidationResult.Accept("image/jpeg"),
                 ".webp" when IsWebp(prefix) => FileUploadValidationResult.Accept("image/webp"),
                 ".mp4" when IsMp4(prefix) => FileUploadValidationResult.Accept("video/mp4"),
-                ".webm" when StartsWith(prefix, 0x1A, 0x45, 0xDF, 0xA3) => FileUploadValidationResult.Accept("video/webm"),
+                ".webm" when IsWebm(prefix) => FileUploadValidationResult.Accept("video/webm"),
                 ".txt" when IsPlainText(prefix) => FileUploadValidationResult.Accept("text/plain"),
                 ".zip" or ".docx" or ".xlsx" or ".pptx" => ValidateZip(content, extension),
                 _ => FileUploadValidationResult.Reject("UPLOAD_FILE_SIGNATURE_INVALID")
@@ -127,9 +127,44 @@ public static class FileUploadValidation
         && bytes.Count >= 12
         && bytes[8] == 0x57 && bytes[9] == 0x45 && bytes[10] == 0x42 && bytes[11] == 0x50;
 
-    private static bool IsMp4(IReadOnlyList<byte> bytes) =>
-        bytes.Count >= 12
-        && bytes[4] == 0x66 && bytes[5] == 0x74 && bytes[6] == 0x79 && bytes[7] == 0x70;
+    private static bool IsMp4(IReadOnlyList<byte> bytes)
+    {
+        if (bytes.Count < 24 || !StartsWithAt(bytes, 4, "ftyp"u8)) return false;
+        var brand = System.Text.Encoding.ASCII.GetString(bytes.Skip(8).Take(4).ToArray());
+        if (brand is not ("isom" or "iso2" or "iso4" or "iso5" or "iso6" or "mp41" or "mp42" or "avc1" or "M4V " or "dash")) return false;
+        var ftypSize = ReadBigEndianUInt32(bytes, 0);
+        if (ftypSize < 16 || ftypSize > (uint)(bytes.Count - 8)) return false;
+        var nextOffset = (int)ftypSize;
+        var nextSize = ReadBigEndianUInt32(bytes, nextOffset);
+        return nextSize >= 8 && (StartsWithAt(bytes, nextOffset + 4, "moov"u8)
+            || StartsWithAt(bytes, nextOffset + 4, "mdat"u8)
+            || StartsWithAt(bytes, nextOffset + 4, "free"u8)
+            || StartsWithAt(bytes, nextOffset + 4, "wide"u8)
+            || StartsWithAt(bytes, nextOffset + 4, "sidx"u8));
+    }
+
+    private static bool IsWebm(IReadOnlyList<byte> bytes) =>
+        StartsWith(bytes, 0x1A, 0x45, 0xDF, 0xA3)
+        && ContainsSequence(bytes, [0x42, 0x82, 0x84, 0x77, 0x65, 0x62, 0x6D])
+        && ContainsSequence(bytes, [0x18, 0x53, 0x80, 0x67]);
+
+    private static bool StartsWithAt(IReadOnlyList<byte> bytes, int offset, ReadOnlySpan<byte> expected)
+    {
+        if (offset < 0 || bytes.Count - offset < expected.Length) return false;
+        for (var index = 0; index < expected.Length; index++)
+            if (bytes[offset + index] != expected[index]) return false;
+        return true;
+    }
+
+    private static uint ReadBigEndianUInt32(IReadOnlyList<byte> bytes, int offset) =>
+        ((uint)bytes[offset] << 24) | ((uint)bytes[offset + 1] << 16) | ((uint)bytes[offset + 2] << 8) | bytes[offset + 3];
+
+    private static bool ContainsSequence(IReadOnlyList<byte> bytes, byte[] expected)
+    {
+        for (var offset = 0; offset <= bytes.Count - expected.Length; offset++)
+            if (expected.Select((value, index) => bytes[offset + index] == value).All(match => match)) return true;
+        return false;
+    }
 
     private static bool IsPlainText(IReadOnlyList<byte> bytes) => !bytes.Contains((byte)0);
 

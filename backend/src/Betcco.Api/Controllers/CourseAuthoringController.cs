@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Betcco.Application.Common;
 using Betcco.Application.Courses;
+using Betcco.Domain.Common;
 using Betcco.Domain.Platform;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -214,6 +215,13 @@ public sealed class CourseAuthoringController(ICourseAuthoringService courses, I
         if (file.Length is <= 0 or > MaxCourseVideoBytes || !TryGetVideoContentType(file.FileName, out var contentType))
             return BadRequest(new { message = "Use an MP4 or WEBM video no larger than 500 MB." });
 
+        // Reject non-owners before reading, scanning, or staging a large upload.
+        if (!await db.Lessons.AsNoTracking().AnyAsync(item => item.Id == lessonId
+            && item.CourseModule!.Course!.TeacherUserId == UserId
+            && (item.CourseModule.Course.Status == CourseStatus.Draft
+                || item.CourseModule.Course.Status == CourseStatus.Rejected), cancellationToken))
+            return NotFound();
+
         await using var stream = file.OpenReadStream();
         if (!FileUploadValidation.TryValidate(stream, file.FileName, out var validation)
             || !string.Equals(contentType, validation.DetectedContentType, StringComparison.Ordinal))
@@ -227,15 +235,61 @@ public sealed class CourseAuthoringController(ICourseAuthoringService courses, I
 
         var staged = await storage.StagePrivateAsync(stream, validation.DetectedContentType!, cancellationToken);
         var finalization = storageLifecycle.EnqueueFinalization(staged);
-        var videoId = await courses.AddLessonVideoAsync(UserId,
-            new AddLessonVideoCommand(lessonId, Path.GetFileName(file.FileName), staged.StorageKey, validation.DetectedContentType!), cancellationToken);
-        if (videoId is not { } id)
+        try
         {
-            await storageLifecycle.DiscardStagedAsync(staged, cancellationToken);
-            return Forbid();
+            await db.SaveChangesAsync(cancellationToken);
         }
-        await storageLifecycle.TryProcessNowAsync(finalization.Id, cancellationToken);
-        return Ok(new { id });
+        catch
+        {
+            await storageLifecycle.DiscardStagedAsync(staged, CancellationToken.None);
+            throw;
+        }
+        if (!await storageLifecycle.TryProcessNowAsync(finalization.Id, cancellationToken))
+        {
+            await QueueAbandonedVideoCleanupAsync(staged, waitForFinalization: true, cancellationToken);
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = "The video could not be prepared. The previous video remains available; try again later." });
+        }
+
+        LessonVideoChangeResult? change;
+        try
+        {
+            change = await courses.AddLessonVideoAsync(UserId,
+                new AddLessonVideoCommand(lessonId, Path.GetFileName(file.FileName), staged.StorageKey, validation.DetectedContentType!), cancellationToken);
+        }
+        catch
+        {
+            db.ChangeTracker.Clear();
+            await QueueAbandonedVideoCleanupAsync(staged, waitForFinalization: false, CancellationToken.None);
+            throw;
+        }
+        if (change is null)
+        {
+            await QueueAbandonedVideoCleanupAsync(staged, waitForFinalization: false, cancellationToken);
+            return NotFound();
+        }
+        foreach (var deletionId in change.DeletionOperationIds)
+            await storageLifecycle.TryProcessNowAsync(deletionId, cancellationToken);
+        return Ok(new { id = change.VideoId });
+    }
+
+    private async Task QueueAbandonedVideoCleanupAsync(StagedPrivateFile staged, bool waitForFinalization, CancellationToken cancellationToken)
+    {
+        var cleanup = storageLifecycle.EnqueueDeletion(staged.StorageKey);
+        // The final key doubles as a dependency marker for cleanup after a pending copy.
+        if (waitForFinalization) cleanup.StagingKey = staged.StorageKey;
+        await db.SaveChangesAsync(cancellationToken);
+        if (!waitForFinalization) await storageLifecycle.TryProcessNowAsync(cleanup.Id, cancellationToken);
+    }
+
+    [HttpDelete("lessons/{lessonId:guid}/video")]
+    [EnableRateLimiting("write")]
+    public async Task<IActionResult> RemoveLessonVideo(Guid lessonId, CancellationToken cancellationToken)
+    {
+        var change = await courses.RemoveLessonVideoAsync(UserId, lessonId, cancellationToken);
+        if (change is null) return NotFound();
+        foreach (var deletionId in change.DeletionOperationIds)
+            await storageLifecycle.TryProcessNowAsync(deletionId, cancellationToken);
+        return NoContent();
     }
 
     [HttpGet("lessons/{lessonId:guid}/video")]

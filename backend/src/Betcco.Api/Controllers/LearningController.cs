@@ -127,9 +127,10 @@ public sealed class LearningController(
     public async Task<IActionResult> StreamLessonVideo(Guid lessonId, CancellationToken cancellationToken)
     {
         var lesson = await db.Lessons.AsNoTracking()
-            .Include(item => item.CourseModule)
+            .Include(item => item.CourseModule).ThenInclude(item => item!.Course)
             .Include(item => item.Resources)
-            .SingleOrDefaultAsync(item => item.Id == lessonId && item.IsPublished && item.CourseModule!.IsPublished, cancellationToken);
+            .SingleOrDefaultAsync(item => item.Id == lessonId && item.IsPublished && item.CourseModule!.IsPublished
+                && item.CourseModule.Course!.Status == CourseStatus.Published, cancellationToken);
         if (lesson is null || !await CanAccessCourseAsync(lesson.CourseModule!.CourseId, cancellationToken)
             || !(await StudentAccessAsync(lesson.CourseModule.CourseId, LearningContentType.Lesson, lessonId, cancellationToken)).IsAvailable)
             return NotFound();

@@ -57,6 +57,13 @@ public sealed class StorageLifecycleCoordinator(
             }
             else
             {
+                // A cleanup operation may depend on an unfinished finalization.
+                // This prevents deleting an object before a retry copies its staged bytes.
+                if (operation.StagingKey is not null && await db.StorageLifecycleOperations.AsNoTracking()
+                    .AnyAsync(item => item.Action == StorageLifecycleAction.Finalize
+                        && item.StorageKey == operation.StagingKey
+                        && item.Status != StorageLifecycleStatus.Completed, cancellationToken))
+                    return false;
                 await storage.DeletePrivateAsync(operation.StorageKey, cancellationToken);
             }
 
