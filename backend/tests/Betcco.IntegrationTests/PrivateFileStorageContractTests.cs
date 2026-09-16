@@ -31,7 +31,7 @@ public abstract class PrivateFileStorageContractTests
         Assert.Equal(expected.Length, stored.Length);
         stored.Seek(512, SeekOrigin.Begin);
         var middle = new byte[16];
-        Assert.Equal(middle.Length, await stored.ReadAsync(middle));
+        await stored.ReadExactlyAsync(middle);
         Assert.Equal(expected.Skip(512).Take(16), middle);
         stored.Seek(0, SeekOrigin.Begin);
         await using var copy = new MemoryStream();
