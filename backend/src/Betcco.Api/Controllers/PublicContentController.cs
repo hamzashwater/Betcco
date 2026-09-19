@@ -372,9 +372,8 @@ public sealed class AdminContentController(BetccoDbContext db, UserManager<Appli
 
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
     private AuditLog Audit(string action, string entityType, Guid id) => new() { ActorUserId = UserId, Action = action, EntityType = entityType, EntityId = id.ToString(), Outcome = "Success" };
-    private static bool IsValid(UpsertBlogPostRequest request) => IsSlug(request.Slug) && Within(request.ArabicTitle, 180) && Within(request.EnglishTitle, 180) && Within(request.ArabicExcerpt, 600) && Within(request.EnglishExcerpt, 600) && Within(request.ArabicBody, 25000) && Within(request.EnglishBody, 25000);
-    private static bool IsValid(UpsertPackageRequest request) => IsSlug(request.Slug) && Within(request.ArabicTitle, 180) && Within(request.EnglishTitle, 180) && Within(request.ArabicDescription, 2500) && Within(request.EnglishDescription, 2500);
-    private static bool IsSlug(string? value) => !string.IsNullOrWhiteSpace(value) && value.Length <= 120 && System.Text.RegularExpressions.Regex.IsMatch(value, "^[a-z0-9]+(?:-[a-z0-9]+)*$");
+    private static bool IsValid(UpsertBlogPostRequest request) => SlugValidation.IsAsciiKebabCase(request.Slug) && Within(request.ArabicTitle, 180) && Within(request.EnglishTitle, 180) && Within(request.ArabicExcerpt, 600) && Within(request.EnglishExcerpt, 600) && Within(request.ArabicBody, 25000) && Within(request.EnglishBody, 25000);
+    private static bool IsValid(UpsertPackageRequest request) => SlugValidation.IsAsciiKebabCase(request.Slug) && Within(request.ArabicTitle, 180) && Within(request.EnglishTitle, 180) && Within(request.ArabicDescription, 2500) && Within(request.EnglishDescription, 2500);
     private static bool Within(string? value, int maximum) => !string.IsNullOrWhiteSpace(value) && value.Trim().Length <= maximum;
     private static string? Trim(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }
