@@ -42,7 +42,7 @@ public sealed class QuestPdfAssessmentReportRenderer(string fontFamily) : IAsses
 
             page.Content().Decoration(decoration =>
             {
-                decoration.Before().Height(64).PaddingBottom(8).Column(header => ReportHeader(header, report));
+                decoration.Before().MinHeight(64).PaddingBottom(8).Column(header => ReportHeader(header, report));
                 decoration.Content().PaddingVertical(8).Column(column =>
                 {
                     AssessmentIdentity(column, report);
