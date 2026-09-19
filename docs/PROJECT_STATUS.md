@@ -2,12 +2,12 @@
 
 ## Metadata
 
-- Last updated: 2026-09-16
-- Verified implementation baseline SHA: `719b10e39b4370c709350dae64a1db80481872ed`
-- Status generated/verified against origin/main: `719b10e39b4370c709350dae64a1db80481872ed`
-- Baseline branch used for status generation: `docs/status-after-media-video-foundation`
+- Last updated: 2026-09-20
+- Verified implementation baseline SHA: `2fb3545604fb618019471076e4e0da587dfcea33`
+- Status generated/verified against origin/main: `2fb3545604fb618019471076e4e0da587dfcea33`
+- Baseline branch used for status generation: `docs/status-after-assessment-pdf`
 - Working tree state during status generation: clean
-- Latest verified CI state: GREEN for PR #18 at feature head `6896ff4805d56feb3e3f88afb0e7da3161341765` — Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully.
+- Latest verified CI state: GREEN for PR #6 at feature head `2555a7916144037e1fb75630bc7f784d6f8fba32` before merge — Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
@@ -26,6 +26,12 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - Roadmap status: FOUNDATION COMPLETE. Advanced HLS/DASH/transcoding, CDN/provider integration, DRM, live streaming, captions/transcription, and advanced media analytics remain outside this foundation.
 - Verification evidence: Required CI green, including frontend validation, full backend tests with PostgreSQL/S3, production build/image checks, Docker validation, Dependency review, and CodeQL (csharp/javascript-typescript).
 
+- Task: Formal BTEC Assessment PDF Reporting
+- Merge/commit SHA: `2fb3545604fb618019471076e4e0da587dfcea33`
+- Pull Request: #6
+- Outcome: DONE. Formal visual PDF reporting is complete on main, with persisted assignment/task, submission/evidence, assessor/internal-verifier/lead-internal-verifier/appeal-review, and academic audit/history context. Sensitive storage keys and internal user IDs are excluded, neutral/non-official BTEC wording is retained, and Arabic/English plus multipage rendering is verified across Linux/Windows font metrics. No migration was added.
+- Verification evidence: Targeted Assessment PDF tests 11/11 passed; Linux QuestPDF reproduction and font-layout fix were verified; English PDF, Arabic PDF, and multipage PDF visual verification passed; required CI was green; final engineering review passed with no blocking findings.
+
 ## Completed
 
 - Git and repository engineering baseline — merged through `8f290c2`, `55668f1`, and `a579895`.
@@ -37,6 +43,7 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - Teacher Student Follow-up Workspace — merged through PR #12 in `33f14b6`.
 - Student Courses Learning Hub — merged through PR #14 in `533b3f9`.
 - Student Course Player + Resume Learning — merged through PR #16 in `8770901`.
+- Formal BTEC Assessment PDF Reporting — merged through PR #6 in `2fb3545`.
 
 These entries are merged repository evidence only; new behavior changes still require targeted validation and review.
 
@@ -44,9 +51,9 @@ These entries are merged repository evidence only; new behavior changes still re
 
 ### BTEC assessment correctness core
 
-Done: Main contains the versioned criterion/rule and qualification snapshot foundations, authenticity declarations, authorised resubmission records, internal-verification sampling, appeals, and structured assessment-audit export documented in the implementation record.
+Done: Main contains the versioned criterion/rule and qualification snapshot foundations, authenticity declarations, authorised resubmission records, internal-verification sampling, appeals, structured assessment-audit export, and formal visual PDF reporting. The PDF includes assignment/task, submission/evidence, assessor/internal-verifier/lead-internal-verifier/appeal-review, and academic audit/history context; excludes sensitive storage/internal IDs; retains neutral/non-official BTEC wording; and has verified Arabic/English, multipage, and Linux/Windows font-layout compatibility with required CI green.
 
-Remaining: The formal visual PDF reporting slice is not verified as complete on `main`; the active related feature work remains unmerged and must not be treated as complete.
+Remaining: No remaining item in this formal PDF reporting slice is recorded here. Broader assessment capabilities remain governed by the roadmap below.
 
 ### Privacy and compliance workflow core
 
@@ -101,7 +108,7 @@ Task: Formal BTEC Assessment PDF Reporting
 Owner: Lenovo
 Branch: `feature/btec-assessment-pdf-report`
 Pull Request: #6
-Status: IN PROGRESS
+Status: MERGED / CLOSED
 Scope: BTEC assessment PDF backend/reporting and PDF-specific validation.
 Reserved areas:
 
@@ -110,7 +117,8 @@ Reserved areas:
 - `AssessmentPdfReportTests`
 - PDF-specific deployment documentation
 
-Merged into main: **NO**
+Merged into main: **YES** — `2fb3545604fb618019471076e4e0da587dfcea33`
+Capacity status: AVAILABLE
 
 ### Workstream B
 
@@ -127,7 +135,7 @@ No new Workstream B branch, owner, task, or implementation is invented here. Wor
 
 ## Next Actions
 
-- Workstream A: Continue PR #6 when Lenovo resumes. Before implementation, fetch the latest `main` and synchronize safely according to the repository workflow; do not rebase or force-push.
+- Workstream A / Lenovo capacity: AVAILABLE after PR #6 merged into main; this reconciliation does not select or invent a new task.
 - Workstream B / ASUS capacity: AVAILABLE for one future explicitly scoped independent task; this reconciliation does not select or invent that task.
 - Task 6: DONE — Media / Video Foundation + Secure Delivery. PR #18 merged with required CI green.
 - Task 7: NOT STARTED.
@@ -171,7 +179,7 @@ Do not reopen these areas merely because a later account lacks conversation memo
 
 ## Known Risks
 
-- Workstream A / PR #6 is unmerged and must not be represented as completed until it reaches `main` with targeted verification, review, and required CI green.
+- PR #6 is merged into `main` at `2fb3545604fb618019471076e4e0da587dfcea33` with targeted Assessment PDF verification, required CI green, and final engineering review passed; the formal BTEC assessment PDF reporting slice is complete.
 - PR #16 is merged into `main` at `8770901ad78c172cbe0ed33e1235bfc78f739f07` with required CI green; the Student Course Player + Resume Learning task is complete.
 - PR #18 is merged into `main` at `719b10e39b4370c709350dae64a1db80481872ed` with required CI green; Media/Video is FOUNDATION COMPLETE. Advanced media work remains deferred as documented above.
 - PR #14's required CI was verified GREEN for feature head `431d12efe70236872173f66677d88d484b4348b4`: Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully. Future workstreams must still verify their own current remote CI before claiming completion.
