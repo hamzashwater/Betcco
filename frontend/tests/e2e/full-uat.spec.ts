@@ -112,7 +112,7 @@ test("full-stack UAT across public, student, admin and teacher workspaces", asyn
 
   const resetUrl = await waitForTeacherResetUrl(request, teacherEmail);
   const teacherPassword = `Teacher!Uat${Date.now()}A`;
-  await page.goto(resetUrl);
+  await page.goto(resetUrl.replace("/ar/", "/en/"));
   await page.getByLabel("New password").fill(teacherPassword);
   await page.getByLabel("Confirm password").fill(teacherPassword);
   await page.getByRole("button", { name: "Save password" }).click();
