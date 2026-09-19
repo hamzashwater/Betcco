@@ -1,0 +1,110 @@
+name: Full UAT Matrix
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  uat:
+    name: Full-stack browser UAT
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: betcco_uat
+          POSTGRES_USER: betcco_uat
+          POSTGRES_PASSWORD: uat-${{ github.run_id }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U betcco_uat -d betcco_uat"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+      mailpit:
+        image: axllent/mailpit:latest
+        ports:
+          - 1025:1025
+          - 8025:8025
+
+    env:
+      ConnectionStrings__Postgres: Host=localhost;Port=5432;Database=betcco_uat;Username=betcco_uat;Password=uat-${{ github.run_id }}
+      ASPNETCORE_ENVIRONMENT: Development
+      BETCCO_API_URL: http://127.0.0.1:5085
+      BETCCO_NEXT_DIST_DIR: .next-uat
+      BETCCO_E2E_API: "1"
+      SEED_ADMIN_EMAIL: admin-uat@betcco.test
+      SEED_ADMIN_PASSWORD: UatAdmin-${{ github.run_id }}-Aa!
+      APP_PUBLIC_URL: http://localhost:3000
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.19.0
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install frontend dependencies
+        run: pnpm --dir frontend install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm --dir frontend exec playwright install --with-deps chromium firefox webkit
+
+      - name: Restore and build API
+        run: |
+          dotnet tool restore
+          dotnet restore backend/Betcco.sln
+          dotnet build backend/Betcco.sln --no-restore
+
+      - name: Start development API with seeded UAT data
+        run: |
+          nohup dotnet run --project backend/src/Betcco.Api --no-build --urls http://127.0.0.1:5085 > /tmp/betcco-api.log 2>&1 &
+          echo $! > /tmp/betcco-api.pid
+          for attempt in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:5085/health/ready >/dev/null; then break; fi
+            if [ "$attempt" = 60 ]; then cat /tmp/betcco-api.log; exit 1; fi
+            sleep 2
+          done
+
+      - name: Enable seeded administrator for UAT sign-in
+        run: |
+          docker run --rm --network host \
+            -e PGPASSWORD="uat-${{ github.run_id }}" \
+            postgres:16 \
+            psql -h 127.0.0.1 -U betcco_uat -d betcco_uat \
+            -c "UPDATE \"AspNetUsers\" SET \"MustChangePassword\" = false WHERE \"Email\" = 'admin-uat@betcco.test';"
+
+      - name: Build production frontend
+        run: pnpm --dir frontend build
+
+      - name: Prepare standalone frontend
+        run: |
+          cp -R frontend/public frontend/.next-uat/standalone/public
+          mkdir -p frontend/.next-uat/standalone/.next-uat
+          cp -R frontend/.next-uat/static frontend/.next-uat/standalone/.next-uat/static
+
+      - name: Run full UAT browser matrix
+        run: pnpm --dir frontend exec playwright test --config=playwright.uat.config.ts tests/e2e/full-uat.spec.ts
+
+      - name: Upload UAT report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: betcco-full-uat-report
+          path: |
+            frontend/playwright-report
+            frontend/test-results
+            /tmp/betcco-api.log
+          if-no-files-found: ignore
+          retention-days: 14
