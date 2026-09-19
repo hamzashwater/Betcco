@@ -86,8 +86,8 @@ public sealed class S3CompatiblePrivateFileStorage(IAmazonS3 client, IConfigurat
         ValidateKey(storageKey, allowStaging: false);
         try
         {
-            var response = await client.GetObjectAsync(_bucket, storageKey, cancellationToken);
-            return response.ResponseStream;
+            var metadata = await client.GetObjectMetadataAsync(_bucket, storageKey, cancellationToken);
+            return new S3RangeReadStream(client, _bucket, storageKey, metadata.Headers.ContentLength);
         }
         catch (AmazonS3Exception exception) when (exception.StatusCode == HttpStatusCode.NotFound)
         {

@@ -230,6 +230,205 @@
     "taxConfirm": "هل تريد تحديث ضريبة المبيعات للدفعات القادمة؟",
     "requestFailed": "تعذر تنفيذ الطلب."
   },
+  "teacherCoursesManagement": {
+    "title": "دوراتي",
+    "description": "أدِر محتوى دوراتك وتابع حالة كل دورة خلال المراجعة والنشر.",
+    "addCourse": "إضافة دورة",
+    "loading": "جارٍ تحميل الدورات…",
+    "loadError": "تعذر تحميل دوراتك.",
+    "retry": "إعادة المحاولة",
+    "searchLabel": "البحث في الدورات",
+    "searchPlaceholder": "ابحث في العناوين العربية أو الإنجليزية",
+    "clearSearch": "مسح البحث",
+    "showAllCourses": "عرض كل الدورات",
+    "sortLabel": "ترتيب الدورات",
+    "filterLabel": "تصفية الدورات حسب الحالة",
+    "courseListLabel": "دورات المعلم",
+    "results": "عرض {visible} من أصل {total} دورة",
+    "filters": {
+      "All": "الكل",
+      "Draft": "مسودة",
+      "SubmittedForReview": "مرسلة للمراجعة",
+      "Published": "منشورة",
+      "Rejected": "مرفوضة"
+    },
+    "sort": {
+      "title": "العنوان",
+      "status": "الحالة",
+      "content": "الأكثر محتوى أولًا"
+    },
+    "statuses": {
+      "Draft": "مسودة",
+      "SubmittedForReview": "مرسلة للمراجعة",
+      "Approved": "معتمدة بانتظار النشر",
+      "Rejected": "مرفوضة",
+      "Published": "منشورة",
+      "Archived": "مؤرشفة",
+      "Scheduled": "مجدولة"
+    },
+    "modules": "{count, plural, =0 {لا وحدات} one {وحدة واحدة} two {وحدتان} few {# وحدات} many {# وحدة} other {# وحدة}}",
+    "lessons": "{count, plural, =0 {لا دروس} one {درس واحد} two {درسان} few {# دروس} many {# درسًا} other {# درس}}",
+    "free": "مجانية",
+    "paid": "مدفوعة",
+    "coverReady": "الغلاف متوفر",
+    "noCover": "بلا غلاف",
+    "edit": "تحرير",
+    "view": "عرض",
+    "courseActionLabel": "{action} {title}",
+    "empty": {
+      "noCourses": "لا توجد دورات لديك بعد. ابدأ بإضافة أول دورة مسودة.",
+      "noSearchResults": "لا توجد دورات تطابق بحثك.",
+      "draft": "لا توجد دورات مسودة.",
+      "submittedForReview": "لا توجد دورات مرسلة للمراجعة.",
+      "published": "لا توجد دورات منشورة.",
+      "rejected": "لا توجد دورات مرفوضة."
+    }
+  },
+  "teacherStudentFollowUp": {
+    "eyebrow": "مساحة عمل معلم BETCCO",
+    "title": "متابعة الطلاب",
+    "description": "راجع المؤشرات التي أنشأها الخادم للطلاب الذين قد يحتاجون إلى دعم في الوقت المناسب عبر دوراتك.",
+    "disclaimer": "هذه مؤشرات مساعدة لمتابعة المعلم وليست أحكامًا أكاديمية نهائية.",
+    "navigation": "متابعة الطلاب",
+    "dashboardTitle": "طلاب يحتاجون إلى متابعة",
+    "dashboardDescription": "معاينة مختصرة لمؤشرات المتابعة التي أنشأها الخادم.",
+    "viewAll": "عرض جميع طلاب المتابعة",
+    "previewProgress": "التقدم: {progress}%",
+    "previewCount": "عرض {visible} من أصل {total} طلاب يحتاجون إلى متابعة.",
+    "loading": "جارٍ تحميل مؤشرات المتابعة…",
+    "loadError": "تعذر تحميل مؤشرات المتابعة.",
+    "retry": "إعادة المحاولة",
+    "searchLabel": "البحث عن الطلاب",
+    "searchPlaceholder": "ابحث باسم الطالب",
+    "clearSearch": "مسح البحث عن الطالب",
+    "attentionFilterLabel": "تصفية الطلاب حسب مستوى المتابعة",
+    "reasonFilterLabel": "تصفية حسب سبب المتابعة",
+    "sortLabel": "ترتيب طلاب المتابعة",
+    "studentListLabel": "الطلاب الذين يحتاجون إلى متابعة",
+    "results": "عرض {from}–{to} من أصل {count} طالب مطابق",
+    "filters": {
+      "All": "الكل",
+      "High": "عالية",
+      "Medium": "متوسطة"
+    },
+    "attention": {
+      "High": "متابعة عالية",
+      "Medium": "تحتاج متابعة"
+    },
+    "reasons": {
+      "All": "جميع الأسباب",
+      "LowProgress": "تقدم منخفض",
+      "MissedAssignments": "مهام فائتة",
+      "LowQuizScore": "نتيجة اختبار منخفضة",
+      "Inactive14Days": "غير نشط منذ 14 يومًا"
+    },
+    "sort": {
+      "priority": "أولوية المتابعة",
+      "progress": "الأقل تقدمًا أولًا",
+      "missedAssignments": "الأكثر في المهام الفائتة",
+      "quizAverage": "الأقل في متوسط الاختبارات",
+      "lastActivity": "النشاط الأقدم أولًا"
+    },
+    "fields": {
+      "progress": "التقدم",
+      "missedAssignments": "المهام الفائتة",
+      "quizAverage": "متوسط الاختبارات",
+      "lastActivity": "آخر نشاط"
+    },
+    "unavailable": "غير متوفر",
+    "paginationLabel": "صفحات متابعة الطلاب",
+    "previous": "السابق",
+    "next": "التالي",
+    "currentPage": "الصفحة {page} من {totalPages}",
+    "reset": "مسح البحث والفلاتر",
+    "empty": {
+      "noFollowUp": "لا توجد مؤشرات متابعة حاليًا.",
+      "noSearch": "لا يوجد طلاب متابعة يطابقون هذا الاسم.",
+      "noAttention": "لا يوجد طلاب يطابقون مستوى المتابعة هذا.",
+      "noReason": "لا يوجد طلاب يطابقون سبب المتابعة هذا.",
+      "noResults": "لا يوجد طلاب متابعة يطابقون الخيارات المحددة."
+    }
+  },
+  "teacherCourseWorkspace": {
+    "navigation": {
+      "label": "أقسام مساحة عمل الدورة",
+      "details": "إعداد الدورة",
+      "access": "الوصول والإتاحة",
+      "announcements": "الإعلانات",
+      "curriculum": "المنهج",
+      "assignments": "المهام وسجل الدرجات",
+      "quizzes": "الاختبارات",
+      "review": "النشر والمراجعة"
+    }
+  },
+  "studentCoursesLearningHub": {
+    "eyebrow": "مركز التعلّم من BETCCO",
+    "title": "دوراتي",
+    "description": "ابحث في دوراتك المسجل بها، وراجع تقدم الدروس المحفوظ، وارجع إلى التعلّم من مساحة واحدة مركزة.",
+    "compactTitle": "تابع التعلّم",
+    "compactDescription": "{count} دورات منشورة مسجل بها",
+    "viewAll": "عرض جميع الدورات",
+    "loading": "جارٍ تحميل دوراتك…",
+    "updating": "جارٍ تحديث الدورات…",
+    "loadError": "تعذر تحميل دوراتك.",
+    "retry": "إعادة المحاولة",
+    "summary": {
+      "total": "الدورات المسجل بها",
+      "notStarted": "لم تبدأ",
+      "inProgress": "قيد التقدم",
+      "completed": "مكتملة"
+    },
+    "searchLabel": "البحث في الدورات",
+    "searchPlaceholder": "ابحث في عناوين الدورات العربية أو الإنجليزية",
+    "clearSearch": "مسح بحث الدورات",
+    "filterLabel": "تصفية الدورات حسب التقدم",
+    "filters": {
+      "All": "الكل",
+      "NotStarted": "لم تبدأ",
+      "InProgress": "قيد التقدم",
+      "Completed": "مكتملة"
+    },
+    "sortLabel": "ترتيب الدورات",
+    "sort": {
+      "recent": "أحدث تقدم محفوظ",
+      "progress": "الأعلى تقدمًا أولًا",
+      "title": "العنوان"
+    },
+    "results": "{count} دورات مطابقة",
+    "courseListLabel": "دورات الطالب",
+    "statuses": {
+      "NotStarted": "لم تبدأ",
+      "InProgress": "قيد التقدم",
+      "Completed": "مكتملة"
+    },
+    "actions": {
+      "NotStarted": "ابدأ التعلّم",
+      "InProgress": "تابع التعلّم",
+      "Completed": "راجع الدورة"
+    },
+    "courseActionLabel": "{action}: {title}",
+    "progressLabel": "تقدم الدورة",
+    "lessons": "اكتمل {completed}/{total} من الدروس",
+    "modules": "{count} وحدات منشورة",
+    "coverAlt": "غلاف {title}",
+    "coverFallback": "غلاف الدورة غير متاح",
+    "access": {
+      "unavailable": "الوصول إلى التعلّم غير متاح حاليًا",
+      "availableAt": "متاحة في {date}"
+    },
+    "empty": {
+      "noCourses": "لست مسجلًا في دورة منشورة بعد.",
+      "noMatches": "لا توجد دورات تطابق البحث وتصفية التقدم المحددين."
+    },
+    "showAll": "عرض جميع الدورات",
+    "exploreCourses": "استكشف الدورات",
+    "pagination": {
+      "label": "صفحات الدورات",
+      "previous": "السابق",
+      "next": "التالي",
+      "page": "الصفحة {page} من {pageCount}"
+    }
+  },
   "auditLog": {
     "title": "سجل التدقيق",
     "description": "راجع العمليات الإدارية والحساسة المسجلة. السجل للقراءة فقط ومتاح للأدمن فقط.",

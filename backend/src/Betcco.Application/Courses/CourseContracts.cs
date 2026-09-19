@@ -139,6 +139,7 @@ public sealed record AddLessonResourceCommand(Guid LessonId, string DisplayName,
 /// learner's enrollment and lesson-release access.
 /// </summary>
 public sealed record AddLessonVideoCommand(Guid LessonId, string DisplayName, string StorageKey, string ContentType);
+public sealed record LessonVideoChangeResult(Guid? VideoId, IReadOnlyList<Guid> DeletionOperationIds);
 public sealed record AddLessonResourceLinkCommand(Guid LessonId, string DisplayName, string ExternalUrl);
 public sealed record AddOutcomeCommand(Guid CourseId, string ArabicText, string EnglishText, int SortOrder);
 public sealed record QualityGateResult(bool Passed, IReadOnlyCollection<string> Reasons);
@@ -165,7 +166,8 @@ public interface ICourseAuthoringService
     Task<bool> DeleteLessonAsync(string teacherUserId, Guid lessonId, CancellationToken cancellationToken = default);
     Task<Guid?> DuplicateLessonAsync(string teacherUserId, Guid lessonId, CancellationToken cancellationToken = default);
     Task<bool> AddLessonResourceAsync(string teacherUserId, AddLessonResourceCommand command, CancellationToken cancellationToken = default);
-    Task<Guid?> AddLessonVideoAsync(string teacherUserId, AddLessonVideoCommand command, CancellationToken cancellationToken = default);
+    Task<LessonVideoChangeResult?> AddLessonVideoAsync(string teacherUserId, AddLessonVideoCommand command, CancellationToken cancellationToken = default);
+    Task<LessonVideoChangeResult?> RemoveLessonVideoAsync(string teacherUserId, Guid lessonId, CancellationToken cancellationToken = default);
     Task<bool> AddLessonResourceLinkAsync(string teacherUserId, AddLessonResourceLinkCommand command, CancellationToken cancellationToken = default);
     Task<bool> SetPresentationAsync(string teacherUserId, SetCoursePresentationCommand command, CancellationToken cancellationToken = default);
     Task<bool> AddOutcomeAsync(string teacherUserId, AddOutcomeCommand command, CancellationToken cancellationToken = default);

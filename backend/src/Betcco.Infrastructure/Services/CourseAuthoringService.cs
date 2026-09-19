@@ -125,6 +125,15 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
     {
         var module = await db.CourseModules.Include(x => x.Course).SingleOrDefaultAsync(x => x.Id == moduleId && x.Course!.TeacherUserId == teacherUserId, cancellationToken);
         if (module is null || !IsEditable(module.Course!.Status)) return false;
+        var lessonIds = await db.Lessons.Where(item => item.CourseModuleId == moduleId).Select(item => item.Id).ToArrayAsync(cancellationToken);
+        var videoKeys = await db.LessonResources
+            .Where(item => lessonIds.Contains(item.LessonId) && (item.ContentType == "video/mp4" || item.ContentType == "video/webm"))
+            .Select(item => item.StorageKey).Distinct().ToArrayAsync(cancellationToken);
+        foreach (var key in videoKeys)
+        {
+            if (await db.LessonResources.AnyAsync(item => item.StorageKey == key && !lessonIds.Contains(item.LessonId), cancellationToken)) continue;
+            EnqueueVideoDeletion(key);
+        }
         db.CourseModules.Remove(module);
         db.AuditLogs.Add(Audit(teacherUserId, "CourseUnitDeleted", nameof(CourseModule), moduleId.ToString()));
         await db.SaveChangesAsync(cancellationToken);
@@ -504,6 +513,14 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
     {
         var lesson = await db.Lessons.Include(x => x.CourseModule).ThenInclude(x => x!.Course).SingleOrDefaultAsync(x => x.Id == lessonId && x.CourseModule!.Course!.TeacherUserId == teacherUserId, cancellationToken);
         if (lesson is null || !IsEditable(lesson.CourseModule!.Course!.Status)) return false;
+        var videoKeys = await db.LessonResources
+            .Where(item => item.LessonId == lessonId && (item.ContentType == "video/mp4" || item.ContentType == "video/webm"))
+            .Select(item => item.StorageKey).Distinct().ToArrayAsync(cancellationToken);
+        foreach (var key in videoKeys)
+        {
+            if (!await db.LessonResources.AnyAsync(item => item.StorageKey == key && item.LessonId != lessonId, cancellationToken))
+                EnqueueVideoDeletion(key);
+        }
         db.Lessons.Remove(lesson);
         db.AuditLogs.Add(Audit(teacherUserId, "CourseLessonDeleted", nameof(Lesson), lessonId.ToString()));
         await db.SaveChangesAsync(cancellationToken);
@@ -573,16 +590,26 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
         return true;
     }
 
-    public async Task<Guid?> AddLessonVideoAsync(string teacherUserId, AddLessonVideoCommand command, CancellationToken cancellationToken = default)
+    public async Task<LessonVideoChangeResult?> AddLessonVideoAsync(string teacherUserId, AddLessonVideoCommand command, CancellationToken cancellationToken = default)
     {
         var lesson = await db.Lessons
             .Include(x => x.CourseModule).ThenInclude(x => x!.Course)
+            .Include(x => x.Resources)
             .SingleOrDefaultAsync(x => x.Id == command.LessonId && x.CourseModule!.Course!.TeacherUserId == teacherUserId, cancellationToken);
         if (lesson is null || !IsEditable(lesson.CourseModule!.Course!.Status)
             || string.IsNullOrWhiteSpace(command.DisplayName) || command.DisplayName.Trim().Length > 240
             || string.IsNullOrWhiteSpace(command.StorageKey)
             || command.ContentType is not ("video/mp4" or "video/webm"))
             return null;
+
+        var deletions = new List<Guid>();
+        var previous = CurrentVideo(lesson);
+        if (previous is not null)
+        {
+            db.LessonResources.Remove(previous);
+            if (!await db.LessonResources.AnyAsync(item => item.StorageKey == previous.StorageKey && item.Id != previous.Id, cancellationToken))
+                deletions.Add(EnqueueVideoDeletion(previous.StorageKey));
+        }
 
         var video = new LessonResource
         {
@@ -598,9 +625,47 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
         db.LessonResources.Add(video);
         lesson.Type = LessonType.Video;
         lesson.VideoReference = video.Id.ToString();
-        db.AuditLogs.Add(Audit(teacherUserId, "CourseLessonVideoUploaded", nameof(LessonResource), video.Id.ToString(), lesson.Id.ToString()));
+        db.AuditLogs.Add(Audit(teacherUserId, previous is null ? "CourseLessonVideoUploaded" : "CourseLessonVideoReplaced", nameof(LessonResource), video.Id.ToString(), lesson.Id.ToString()));
         await db.SaveChangesAsync(cancellationToken);
-        return video.Id;
+        return new LessonVideoChangeResult(video.Id, deletions);
+    }
+
+    public async Task<LessonVideoChangeResult?> RemoveLessonVideoAsync(string teacherUserId, Guid lessonId, CancellationToken cancellationToken = default)
+    {
+        var lesson = await db.Lessons
+            .Include(item => item.CourseModule).ThenInclude(item => item!.Course)
+            .Include(item => item.Resources)
+            .SingleOrDefaultAsync(item => item.Id == lessonId && item.CourseModule!.Course!.TeacherUserId == teacherUserId, cancellationToken);
+        if (lesson is null || !IsEditable(lesson.CourseModule!.Course!.Status)) return null;
+        var previous = CurrentVideo(lesson);
+        if (previous is null) return null;
+
+        var deletions = new List<Guid>();
+        db.LessonResources.Remove(previous);
+        lesson.VideoReference = null;
+        lesson.Type = LessonType.Text;
+        if (!await db.LessonResources.AnyAsync(item => item.StorageKey == previous.StorageKey && item.Id != previous.Id, cancellationToken))
+            deletions.Add(EnqueueVideoDeletion(previous.StorageKey));
+        db.AuditLogs.Add(Audit(teacherUserId, "CourseLessonVideoRemoved", nameof(LessonResource), previous.Id.ToString(), lesson.Id.ToString()));
+        await db.SaveChangesAsync(cancellationToken);
+        return new LessonVideoChangeResult(null, deletions);
+    }
+
+    private static LessonResource? CurrentVideo(Lesson lesson) =>
+        Guid.TryParse(lesson.VideoReference, out var videoId)
+            ? lesson.Resources.SingleOrDefault(item => item.Id == videoId
+                && item.ContentType is "video/mp4" or "video/webm")
+            : null;
+
+    private Guid EnqueueVideoDeletion(string storageKey)
+    {
+        var operation = new StorageLifecycleOperation
+        {
+            Action = StorageLifecycleAction.Delete,
+            StorageKey = storageKey
+        };
+        db.StorageLifecycleOperations.Add(operation);
+        return operation.Id;
     }
 
     public async Task<bool> AddLessonResourceLinkAsync(string teacherUserId, AddLessonResourceLinkCommand command, CancellationToken cancellationToken = default)

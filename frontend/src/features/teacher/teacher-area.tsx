@@ -3,6 +3,15 @@
 import { api } from "@/lib/api";
 import { AccountSecurity } from "@/features/auth/account-security";
 import { CourseEditor } from "@/features/teacher/course-editor";
+import {
+  TeacherCoursesManagement,
+  type TeacherCourse,
+} from "@/features/teacher/teacher-courses-management";
+import {
+  TeacherFollowUpPreview,
+  TeacherStudentFollowUp,
+  type TeacherAnalytics,
+} from "@/features/teacher/teacher-student-follow-up";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
@@ -25,44 +34,13 @@ import Link from "next/link";
 import { useLocale } from "next-intl";
 import { useRef, useState } from "react";
 
-type TeacherCourse = {
-  id: string;
-  arabicTitle: string;
-  englishTitle: string;
-  status: string;
-  price: number;
-  isFree: boolean;
-  hasCover: boolean;
-  moduleCount: number;
-  lessonCount: number;
-};
-
-type TeacherAnalytics = {
-  courses: number;
-  students: number;
-  pendingReviews: number;
-  quizAttempts: number;
-  averageQuizScore: number;
-  averageLessonProgress: number;
-  studentsAtRisk: {
-    studentUserId: string;
-    studentName: string;
-    riskLevel: "Medium" | "High";
-    reasons: string[];
-    progressPercent: number;
-    missedAssignments: number;
-    averageQuizScore?: number;
-    lastActiveAtUtc?: string;
-  }[];
-  studentsAtRiskCount: number;
-};
-
 export function TeacherArea({ segment }: { segment: string[] }) {
   const current = segment.join("/") || "dashboard";
   if (current === "courses/new") return <CourseEditor />;
   if (current.startsWith("courses/") && segment[1])
     return <CourseEditor courseId={segment[1]} />;
-  if (current === "courses") return <TeacherCourses />;
+  if (current === "courses") return <TeacherCoursesManagement />;
+  if (current === "students") return <TeacherStudentFollowUp />;
   if (current === "wallet") return <TeacherWallet />;
   if (current === "security") return <AccountSecurity />;
   if (current === "evaluations") return <TeacherEvaluations />;
@@ -198,10 +176,10 @@ function TeacherDashboard() {
           tone="warm"
         />
       </div>
-      <StudentsAtRisk
-        locale={locale}
+      <TeacherFollowUpPreview
         pending={analytics.isPending}
         students={analytics.data?.studentsAtRisk ?? []}
+        totalCount={analytics.data?.studentsAtRiskCount ?? 0}
       />
       <div className="mt-5 grid gap-4 md:grid-cols-3">
         <AreaLink
@@ -246,101 +224,8 @@ function TeacherDashboard() {
         />
       </div>
       <div className="mt-8">
-        <TeacherCourses />
+        <TeacherCoursesManagement variant="compact" />
       </div>
-    </section>
-  );
-}
-
-function StudentsAtRisk({
-  locale,
-  pending,
-  students,
-}: {
-  locale: string;
-  pending: boolean;
-  students: TeacherAnalytics["studentsAtRisk"];
-}) {
-  const reasonLabel = (reason: string) => {
-    const labels: Record<string, [string, string]> = {
-      LowProgress: ["تقدم منخفض", "Low progress"],
-      MissedAssignments: ["مهمة متأخرة", "Missed assignment"],
-      LowQuizScore: ["نتيجة اختبار منخفضة", "Low quiz score"],
-      Inactive14Days: ["غير نشط منذ 14 يومًا", "Inactive for 14 days"],
-    };
-    return labels[reason]?.[locale === "ar" ? 0 : 1] ?? reason;
-  };
-  return (
-    <section className="card mt-5 p-5">
-      <div className="flex items-start gap-3">
-        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-300">
-          <AlertTriangle size={20} aria-hidden="true" />
-        </span>
-        <div>
-          <h2 className="font-black text-foreground">
-            {locale === "ar"
-              ? "طلاب يحتاجون إلى متابعة"
-              : "Students requiring attention"}
-          </h2>
-          <p className="mt-1 text-sm text-muted">
-            {locale === "ar"
-              ? "مؤشرات مساعدة للمتابعة وليست حكمًا أكاديميًا نهائيًا."
-              : "Support signals for follow-up, not a final academic judgement."}
-          </p>
-        </div>
-      </div>
-      {pending ? (
-        <p className="mt-4 text-sm text-muted">…</p>
-      ) : students.length ? (
-        <div className="mt-4 grid gap-3 md:grid-cols-2">
-          {students.map((student) => (
-            <article
-              key={student.studentUserId}
-              className="rounded-xl border border-border bg-white/5 p-4"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <p className="font-black text-foreground">
-                  {student.studentName}
-                </p>
-                <span
-                  className={`rounded-full px-2.5 py-1 text-xs font-black ${student.riskLevel === "High" ? "bg-red-500/15 text-red-600 dark:text-red-300" : "bg-amber-500/15 text-amber-700 dark:text-amber-300"}`}
-                >
-                  {student.riskLevel === "High"
-                    ? locale === "ar"
-                      ? "متابعة عالية"
-                      : "High attention"
-                    : locale === "ar"
-                      ? "متابعة مطلوبة"
-                      : "Follow up"}
-                </span>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {student.reasons.map((reason) => (
-                  <span
-                    key={reason}
-                    className="rounded-full border border-border px-2 py-1 text-xs text-muted"
-                  >
-                    {reasonLabel(reason)}
-                  </span>
-                ))}
-              </div>
-              <p className="mt-3 text-xs text-muted">
-                {locale === "ar" ? "التقدم: " : "Progress: "}
-                {student.progressPercent}%
-                {student.averageQuizScore !== undefined
-                  ? ` · ${locale === "ar" ? "متوسط الاختبارات" : "Quiz average"}: ${student.averageQuizScore}%`
-                  : ""}
-              </p>
-            </article>
-          ))}
-        </div>
-      ) : (
-        <p className="mt-4 rounded-xl border border-dashed border-border px-4 py-5 text-sm text-muted">
-          {locale === "ar"
-            ? "لا توجد مؤشرات متابعة حالياً."
-            : "There are no follow-up signals at the moment."}
-        </p>
-      )}
     </section>
   );
 }
@@ -656,97 +541,6 @@ function AreaLink({
     </Link>
   );
 }
-function TeacherCourses() {
-  const locale = useLocale();
-  const result = useQuery({
-    queryKey: ["teacher-courses"],
-    queryFn: () => api<TeacherCourse[]>("/teacher/courses"),
-  });
-  if (result.isPending)
-    return (
-      <div className="card p-5" aria-busy>
-        …
-      </div>
-    );
-  if (result.isError)
-    return (
-      <p className="card p-5">
-        {locale === "ar"
-          ? "سجّل الدخول كمعلم لرؤية الدورات."
-          : "Sign in as a teacher to view courses."}
-      </p>
-    );
-  return (
-    <div>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-black">
-            {locale === "ar" ? "دوراتي" : "My courses"}
-          </h2>
-          <p className="mt-1 text-sm text-muted">
-            {locale === "ar"
-              ? "تظل الدورة مسودة ولا تظهر للطلاب حتى يعتمدها الأدمن وينشرها."
-              : "A course stays private until an administrator approves and publishes it."}
-          </p>
-        </div>
-        <Link
-          href={`/${locale}/teacher/courses/new`}
-          className="focus-ring inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white"
-        >
-          <Plus size={18} aria-hidden="true" />
-          {locale === "ar" ? "إضافة دورة" : "Add course"}
-        </Link>
-      </div>
-      <div className="mt-4 grid gap-3">
-        {result.data.map((course) => (
-          <Link
-            key={course.id}
-            href={`/${locale}/teacher/courses/${course.id}`}
-            className="card flex items-center justify-between gap-3 p-4"
-            data-interactive
-          >
-            <span>
-              <span className="block font-bold">
-                {locale === "ar" ? course.arabicTitle : course.englishTitle}
-              </span>
-              <span className="mt-1 block text-xs text-muted">
-                {course.moduleCount} {locale === "ar" ? "وحدات" : "modules"} ·{" "}
-                {course.lessonCount} {locale === "ar" ? "دروس" : "lessons"}
-              </span>
-            </span>
-            <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
-              {course.status === "Draft" || course.status === "Rejected"
-                ? locale === "ar"
-                  ? "تحرير · "
-                  : "Edit · "
-                : locale === "ar"
-                  ? "عرض · "
-                  : "View · "}
-              {courseStatusLabel(course.status, locale)}
-            </span>
-          </Link>
-        ))}
-        {!result.data.length && (
-          <div className="card p-5 text-sm text-muted">
-            <p>
-              {locale === "ar"
-                ? "لا توجد دورات لديك بعد. ابدأ بإضافة أول دورة مسودة."
-                : "You do not have any courses yet. Start by creating your first draft."}
-            </p>
-            <Link
-              href={`/${locale}/teacher/courses/new`}
-              className="focus-ring mt-3 inline-flex items-center gap-2 font-bold text-primary underline"
-            >
-              <Plus size={16} aria-hidden="true" />
-              {locale === "ar" ? "إضافة دورة" : "Add course"}
-            </Link>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
 type AssignedEvaluation = {
   id: string;
   status: string;
@@ -1403,24 +1197,4 @@ function criterionGroupLabel(family: string, locale: string) {
       ? "معايير D (Distinction)"
       : "D (Distinction) criteria";
   return locale === "ar" ? "معايير إضافية" : "Additional criteria";
-}
-
-function courseStatusLabel(status: string, locale: string) {
-  const arabic: Record<string, string> = {
-    Draft: "مسودة",
-    SubmittedForReview: "بانتظار مراجعة الأدمن",
-    Approved: "معتمدة بانتظار النشر",
-    Rejected: "مرفوضة",
-    Published: "منشورة",
-    Archived: "مؤرشفة",
-  };
-  const english: Record<string, string> = {
-    Draft: "Draft",
-    SubmittedForReview: "Awaiting admin review",
-    Approved: "Approved, awaiting publication",
-    Rejected: "Rejected",
-    Published: "Published",
-    Archived: "Archived",
-  };
-  return (locale === "ar" ? arabic : english)[status] ?? status;
 }

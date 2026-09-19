@@ -4,6 +4,10 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { FilePicker } from "@/components/forms/file-picker";
+import {
+  CourseWorkspaceNavigation,
+  CourseWorkspaceSection,
+} from "@/features/teacher/course-workspace-navigation";
 import { api } from "@/lib/api";
 import { defaultBrand } from "@/lib/brand";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -773,32 +777,49 @@ function ExistingCourseEditor({ courseId }: { courseId: string }) {
           {statusLabel(course.data.status, locale)}
         </span>
       </div>
+      <CourseWorkspaceNavigation />
       <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
-        <div className="grid gap-6">
-          <CourseDetailsForm course={course.data} disabled={!editable} />
-          <LearningAccessEditor
-            course={course.data}
-            disabled={!assignmentsEditable}
-          />
-          <CourseAnnouncementsEditor
-            course={course.data}
-            disabled={!assignmentsEditable}
-          />
-          <CurriculumEditor course={course.data} disabled={!editable} />
-          <CourseAssignmentsEditor
-            course={course.data}
-            disabled={!assignmentsEditable}
-          />
-          <TeacherCourseGradebook course={course.data} />
-          <CourseQuizzesEditor
-            course={course.data}
-            disabled={!assignmentsEditable}
-          />
+        <div className="grid min-w-0 gap-6">
+          <CourseWorkspaceSection id="details">
+            <CourseDetailsForm course={course.data} disabled={!editable} />
+          </CourseWorkspaceSection>
+          <CourseWorkspaceSection id="access">
+            <LearningAccessEditor
+              course={course.data}
+              disabled={!assignmentsEditable}
+            />
+          </CourseWorkspaceSection>
+          <CourseWorkspaceSection id="announcements">
+            <CourseAnnouncementsEditor
+              course={course.data}
+              disabled={!assignmentsEditable}
+            />
+          </CourseWorkspaceSection>
+          <CourseWorkspaceSection id="curriculum">
+            <CurriculumEditor course={course.data} disabled={!editable} />
+          </CourseWorkspaceSection>
+          <CourseWorkspaceSection id="assignments">
+            <div className="grid gap-6">
+              <CourseAssignmentsEditor
+                course={course.data}
+                disabled={!assignmentsEditable}
+              />
+              <TeacherCourseGradebook course={course.data} />
+            </div>
+          </CourseWorkspaceSection>
+          <CourseWorkspaceSection id="quizzes">
+            <CourseQuizzesEditor
+              course={course.data}
+              disabled={!assignmentsEditable}
+            />
+          </CourseWorkspaceSection>
         </div>
-        <aside className="grid h-fit gap-5 xl:sticky xl:top-24">
+        <aside className="grid h-fit min-w-0 gap-5 xl:sticky xl:top-[11rem] xl:max-h-[calc(100vh-12rem)] xl:overflow-y-auto xl:pe-1">
           <CoverManager course={course.data} disabled={!editable} />
           <OutcomesEditor course={course.data} disabled={!editable} />
-          <ReviewSubmission course={course.data} disabled={!editable} />
+          <CourseWorkspaceSection id="review">
+            <ReviewSubmission course={course.data} disabled={!editable} />
+          </CourseWorkspaceSection>
         </aside>
       </div>
     </section>
@@ -1424,7 +1445,7 @@ function LearningAccessEditor({
               value={targetKey}
               onChange={(event) => chooseTarget(event.target.value)}
               disabled={disabled}
-              className="rounded-xl border border-border bg-transparent p-3 text-foreground disabled:opacity-50"
+              className="min-w-0 rounded-xl border border-border bg-transparent p-3 text-foreground disabled:opacity-50"
             >
               <option value="">
                 {locale === "ar"
@@ -3152,6 +3173,10 @@ function LessonEditor({
   });
   const [files, setFiles] = useState<File[]>([]);
   const [videoFiles, setVideoFiles] = useState<File[]>([]);
+  const [videoPlaybackState, setVideoPlaybackState] = useState<
+    "loading" | "ready" | "error"
+  >("loading");
+  const [videoRetryCount, setVideoRetryCount] = useState(0);
   const [resourceLink, setResourceLink] = useState({
     displayName: "",
     externalUrl: "",
@@ -3204,6 +3229,17 @@ function LessonEditor({
     },
     onSuccess: () => {
       setVideoFiles([]);
+      setVideoPlaybackState("loading");
+      refresh();
+    },
+  });
+  const removeVideo = useMutation({
+    mutationFn: () =>
+      api(`/teacher/courses/lessons/${lesson.id}/video`, {
+        method: "DELETE",
+      }),
+    onSuccess: () => {
+      setVideoPlaybackState("loading");
       refresh();
     },
   });
@@ -3473,21 +3509,76 @@ function LessonEditor({
         {lesson.video ? (
           <div className="mb-4 overflow-hidden rounded-xl border border-primary/35 bg-black">
             <video
+              key={`${lesson.video.id}-${videoRetryCount}`}
               controls
               preload="metadata"
               className="aspect-video w-full"
-              src={`/api/v1/teacher/courses/lessons/${lesson.id}/video`}
+              aria-label={
+                locale === "ar"
+                  ? `معاينة فيديو ${lesson.arabicTitle}`
+                  : `Preview ${lesson.englishTitle} video`
+              }
+              src={`/api/v1/teacher/courses/lessons/${lesson.id}/video?retry=${videoRetryCount}`}
+              onCanPlay={() => setVideoPlaybackState("ready")}
+              onWaiting={() => setVideoPlaybackState("loading")}
+              onError={() => setVideoPlaybackState("error")}
             >
               {locale === "ar"
                 ? "المتصفح لا يدعم تشغيل الفيديو."
                 : "Your browser does not support video playback."}
             </video>
+            {videoPlaybackState === "loading" ? (
+              <p role="status" className="px-3 py-2 text-sm text-white/80">
+                {locale === "ar" ? "جارٍ تحميل الفيديو…" : "Loading video…"}
+              </p>
+            ) : null}
+            {videoPlaybackState === "error" ? (
+              <div
+                role="alert"
+                className="flex flex-wrap items-center gap-3 px-3 py-2 text-sm text-white"
+              >
+                <span>
+                  {locale === "ar"
+                    ? "تعذر تشغيل الفيديو."
+                    : "Video unavailable."}
+                </span>
+                <button
+                  type="button"
+                  className="focus-ring rounded-lg border border-white/40 px-3 py-1.5"
+                  onClick={() => {
+                    setVideoPlaybackState("loading");
+                    setVideoRetryCount((count) => count + 1);
+                  }}
+                >
+                  {locale === "ar" ? "إعادة المحاولة" : "Retry video"}
+                </button>
+              </div>
+            ) : null}
             <p className="border-t border-white/10 px-3 py-2 text-xs font-bold text-white/80">
               {locale === "ar"
                 ? "فيديو الدرس الحالي: "
                 : "Current lesson video: "}
               {lesson.video.displayName}
             </p>
+            {!disabled ? (
+              <div className="px-3 pb-3">
+                <button
+                  type="button"
+                  onClick={() => removeVideo.mutate()}
+                  disabled={removeVideo.isPending || uploadVideo.isPending}
+                  className="focus-ring rounded-lg border border-red-400/50 px-3 py-2 text-xs font-bold text-red-200 disabled:opacity-50"
+                >
+                  {removeVideo.isPending
+                    ? locale === "ar"
+                      ? "جارٍ إزالة الفيديو…"
+                      : "Removing video…"
+                    : locale === "ar"
+                      ? "إزالة الفيديو"
+                      : "Remove video"}
+                </button>
+                <RequestError error={removeVideo.error} />
+              </div>
+            ) : null}
           </div>
         ) : null}
         {!disabled ? (
@@ -3510,14 +3601,18 @@ function LessonEditor({
               }
               helpText={
                 locale === "ar"
-                  ? "حتى 500MB. بعد الرفع يُربط الفيديو بالدرس تلقائيًا ويُعرض فقط للطلاب المسجّلين بعد نشر الدورة."
-                  : "Up to 500MB. After upload, the video is linked to this lesson and streams only to enrolled learners after publication."
+                  ? "حتى 500MB. رفع فيديو جديد يستبدل الفيديو الحالي. يُعرض للطلاب المصرّح لهم بعد النشر."
+                  : "Up to 500MB. Uploading a new video replaces the current one. Authorized learners can stream it after publication."
               }
             />
             <button
               type="button"
               onClick={() => uploadVideo.mutate()}
-              disabled={!videoFiles.length || uploadVideo.isPending}
+              disabled={
+                !videoFiles.length ||
+                uploadVideo.isPending ||
+                removeVideo.isPending
+              }
               className="focus-ring mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
             >
               <Upload size={17} aria-hidden="true" />
@@ -3526,9 +3621,18 @@ function LessonEditor({
                   ? "جارٍ رفع الفيديو…"
                   : "Uploading video…"
                 : locale === "ar"
-                  ? "رفع وربط فيديو الدرس"
-                  : "Upload and attach lesson video"}
+                  ? lesson.video
+                    ? "استبدال فيديو الدرس"
+                    : "رفع وربط فيديو الدرس"
+                  : lesson.video
+                    ? "Replace lesson video"
+                    : "Upload and attach lesson video"}
             </button>
+            {uploadVideo.isSuccess ? (
+              <p role="status" className="mt-2 text-xs text-primary">
+                {locale === "ar" ? "تم حفظ الفيديو." : "Video saved."}
+              </p>
+            ) : null}
             <RequestError error={uploadVideo.error} />
           </div>
         ) : null}

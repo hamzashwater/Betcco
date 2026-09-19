@@ -230,6 +230,205 @@
     "taxConfirm": "Update the sales tax for future payments?",
     "requestFailed": "The request could not be completed."
   },
+  "teacherCoursesManagement": {
+    "title": "My courses",
+    "description": "Manage course content and track each course through review and publishing.",
+    "addCourse": "Add course",
+    "loading": "Loading courses…",
+    "loadError": "Your courses could not be loaded.",
+    "retry": "Try again",
+    "searchLabel": "Search courses",
+    "searchPlaceholder": "Search Arabic or English titles",
+    "clearSearch": "Clear search",
+    "showAllCourses": "Show all courses",
+    "sortLabel": "Sort courses",
+    "filterLabel": "Filter courses by status",
+    "courseListLabel": "Teacher courses",
+    "results": "Showing {visible} of {total} courses",
+    "filters": {
+      "All": "All",
+      "Draft": "Draft",
+      "SubmittedForReview": "Submitted for review",
+      "Published": "Published",
+      "Rejected": "Rejected"
+    },
+    "sort": {
+      "title": "Title",
+      "status": "Status",
+      "content": "Most content first"
+    },
+    "statuses": {
+      "Draft": "Draft",
+      "SubmittedForReview": "Submitted for review",
+      "Approved": "Approved, awaiting publication",
+      "Rejected": "Rejected",
+      "Published": "Published",
+      "Archived": "Archived",
+      "Scheduled": "Scheduled"
+    },
+    "modules": "{count, plural, one {# module} other {# modules}}",
+    "lessons": "{count, plural, one {# lesson} other {# lessons}}",
+    "free": "Free",
+    "paid": "Paid",
+    "coverReady": "Cover ready",
+    "noCover": "No cover",
+    "edit": "Edit",
+    "view": "View",
+    "courseActionLabel": "{action} {title}",
+    "empty": {
+      "noCourses": "You do not have any courses yet. Start by creating your first draft.",
+      "noSearchResults": "No courses match your search.",
+      "draft": "No draft courses.",
+      "submittedForReview": "No courses submitted for review.",
+      "published": "No published courses.",
+      "rejected": "No rejected courses."
+    }
+  },
+  "teacherStudentFollowUp": {
+    "eyebrow": "BETCCO Teacher Workspace",
+    "title": "Student follow-up",
+    "description": "Review server-generated signals for students who may need timely support across your courses.",
+    "disclaimer": "These are support signals for teacher follow-up, not final academic judgements.",
+    "navigation": "Student follow-up",
+    "dashboardTitle": "Students requiring attention",
+    "dashboardDescription": "A compact preview of server-generated follow-up signals.",
+    "viewAll": "View all follow-up students",
+    "previewProgress": "Progress: {progress}%",
+    "previewCount": "Showing {visible} of {total} follow-up students.",
+    "loading": "Loading follow-up signals…",
+    "loadError": "Follow-up signals could not be loaded.",
+    "retry": "Try again",
+    "searchLabel": "Search students",
+    "searchPlaceholder": "Search by student name",
+    "clearSearch": "Clear student search",
+    "attentionFilterLabel": "Filter students by attention level",
+    "reasonFilterLabel": "Filter by follow-up reason",
+    "sortLabel": "Sort follow-up students",
+    "studentListLabel": "Students requiring follow-up",
+    "results": "Showing {from}–{to} of {count} matching students",
+    "filters": {
+      "All": "All",
+      "High": "High",
+      "Medium": "Medium"
+    },
+    "attention": {
+      "High": "High attention",
+      "Medium": "Follow-up needed"
+    },
+    "reasons": {
+      "All": "All reasons",
+      "LowProgress": "Low progress",
+      "MissedAssignments": "Missed assignments",
+      "LowQuizScore": "Low quiz score",
+      "Inactive14Days": "Inactive for 14 days"
+    },
+    "sort": {
+      "priority": "Attention priority",
+      "progress": "Lowest progress first",
+      "missedAssignments": "Most missed assignments",
+      "quizAverage": "Lowest quiz average",
+      "lastActivity": "Oldest activity first"
+    },
+    "fields": {
+      "progress": "Progress",
+      "missedAssignments": "Missed assignments",
+      "quizAverage": "Quiz average",
+      "lastActivity": "Last activity"
+    },
+    "unavailable": "Not available",
+    "paginationLabel": "Student follow-up pages",
+    "previous": "Previous",
+    "next": "Next",
+    "currentPage": "Page {page} of {totalPages}",
+    "reset": "Clear search and filters",
+    "empty": {
+      "noFollowUp": "There are no follow-up signals at the moment.",
+      "noSearch": "No follow-up students match this name.",
+      "noAttention": "No students match this attention level.",
+      "noReason": "No students match this follow-up reason.",
+      "noResults": "No follow-up students match the selected options."
+    }
+  },
+  "teacherCourseWorkspace": {
+    "navigation": {
+      "label": "Course workspace sections",
+      "details": "Course setup",
+      "access": "Access & availability",
+      "announcements": "Announcements",
+      "curriculum": "Curriculum",
+      "assignments": "Assignments & gradebook",
+      "quizzes": "Quizzes",
+      "review": "Publishing & review"
+    }
+  },
+  "studentCoursesLearningHub": {
+    "eyebrow": "BETCCO learning hub",
+    "title": "My courses",
+    "description": "Find your enrolled courses, check saved lesson progress, and return to learning from one focused workspace.",
+    "compactTitle": "Continue learning",
+    "compactDescription": "{count} enrolled published courses",
+    "viewAll": "View all courses",
+    "loading": "Loading your courses…",
+    "updating": "Updating courses…",
+    "loadError": "Your courses could not be loaded.",
+    "retry": "Try again",
+    "summary": {
+      "total": "Enrolled courses",
+      "notStarted": "Not started",
+      "inProgress": "In progress",
+      "completed": "Completed"
+    },
+    "searchLabel": "Search courses",
+    "searchPlaceholder": "Search Arabic or English course titles",
+    "clearSearch": "Clear course search",
+    "filterLabel": "Filter courses by progress",
+    "filters": {
+      "All": "All",
+      "NotStarted": "Not started",
+      "InProgress": "In progress",
+      "Completed": "Completed"
+    },
+    "sortLabel": "Sort courses",
+    "sort": {
+      "recent": "Recent saved progress",
+      "progress": "Highest progress first",
+      "title": "Title"
+    },
+    "results": "{count} matching courses",
+    "courseListLabel": "Student courses",
+    "statuses": {
+      "NotStarted": "Not started",
+      "InProgress": "In progress",
+      "Completed": "Completed"
+    },
+    "actions": {
+      "NotStarted": "Start learning",
+      "InProgress": "Continue learning",
+      "Completed": "Review course"
+    },
+    "courseActionLabel": "{action}: {title}",
+    "progressLabel": "Course progress",
+    "lessons": "{completed}/{total} lessons completed",
+    "modules": "{count} published modules",
+    "coverAlt": "Cover for {title}",
+    "coverFallback": "Course cover not available",
+    "access": {
+      "unavailable": "Learning access is currently unavailable",
+      "availableAt": "Available {date}"
+    },
+    "empty": {
+      "noCourses": "You are not enrolled in a published course yet.",
+      "noMatches": "No courses match the selected search and progress filter."
+    },
+    "showAll": "Show all courses",
+    "exploreCourses": "Explore courses",
+    "pagination": {
+      "label": "Course pages",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {page} of {pageCount}"
+    }
+  },
   "auditLog": {
     "title": "Audit logs",
     "description": "Review recorded administrative and sensitive operations. The log is read-only and available only to administrators.",

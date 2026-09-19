@@ -387,6 +387,8 @@ builder.Services.AddSingleton<IPayoutProvider>(serviceProvider =>
 builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<ICourseAuthoringService, CourseAuthoringService>();
 builder.Services.AddScoped<IContentAccessService, ContentAccessService>();
+builder.Services.AddScoped<IStudentCoursesLearningHubService, StudentCoursesLearningHubService>();
+builder.Services.AddScoped<IStudentCoursePlayerService, StudentCoursePlayerService>();
 builder.Services.AddScoped<ICourseAssignmentService, CourseAssignmentService>();
 builder.Services.AddScoped<ICourseGradebookService, CourseGradebookService>();
 builder.Services.AddScoped<IQuizAuthoringService, QuizAuthoringService>();

@@ -10,6 +10,10 @@ import { AccountSecurity } from "@/features/auth/account-security";
 import { SupportCenter } from "@/features/support/support-center";
 import { EvaluationAppeals } from "@/features/student/evaluation-appeals";
 import {
+  compactStudentCoursesQueryOptions,
+  StudentCoursesLearningHub,
+} from "@/features/student/student-courses-learning-hub";
+import {
   ArrowLeft,
   ArrowRight,
   Bookmark,
@@ -38,20 +42,13 @@ import {
   ActionCard,
   DashboardHeader,
   MetricCard,
-  ProgressBar,
 } from "@/components/dashboard/dashboard-ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useRef, useState } from "react";
 
-type EnrolledCourse = {
-  courseId: string;
-  title: string;
-  completed: number;
-  total: number;
-};
 type EvaluationOptions = {
   grades: { id: string; arabicName: string; englishName: string }[];
   specializations: { id: string; arabicName: string; englishName: string }[];
@@ -71,12 +68,23 @@ type EvaluationOptions = {
   }[];
 };
 
-export function StudentArea({ segment }: { segment: string[] }) {
+export function StudentArea({
+  segment,
+  requestedLessonId,
+}: {
+  segment: string[];
+  requestedLessonId?: string;
+}) {
   const current = segment.join("/") || "dashboard";
   let content: ReactNode = <StudentDashboard />;
-  if (current === "courses") content = <MyCourses />;
+  if (current === "courses") content = <StudentCoursesLearningHub />;
   if (current.startsWith("learn/") && segment[1])
-    content = <CoursePlayer courseId={segment[1]} />;
+    content = (
+      <CoursePlayer
+        courseId={segment[1]}
+        requestedLessonId={requestedLessonId}
+      />
+    );
   if (current === "evaluations/new") content = <EvaluationWizard />;
   if (current === "evaluations") content = <MyEvaluations />;
   if (current === "appeals") content = <EvaluationAppeals />;
@@ -145,27 +153,17 @@ function StudentWorkspaceNav({ current }: { current: string }) {
 
 function StudentDashboard() {
   const locale = useLocale();
-  const courses = useQuery({
-    queryKey: ["my-courses", locale],
-    queryFn: () =>
-      api<EnrolledCourse[]>(`/learning/my-courses?locale=${locale}`),
-  });
+  const courses = useQuery(compactStudentCoursesQueryOptions(locale));
   const overview = useQuery({
     queryKey: ["student-learning-overview", locale],
     queryFn: () =>
       api<LearningOverview>(`/student-tools/overview?locale=${locale}`),
   });
-  const enrolled = courses.data ?? [];
+  const courseSummary = courses.data?.summary;
   const upcomingAssignments = overview.data?.upcomingAssignments ?? [];
-  const completedLessons = enrolled.reduce(
-    (total, course) => total + course.completed,
-    0,
-  );
-  const allLessons = enrolled.reduce(
-    (total, course) => total + course.total,
-    0,
-  );
-  const progress = allLessons ? (completedLessons / allLessons) * 100 : 0;
+  const completedLessons = courseSummary?.completedLessons ?? 0;
+  const allLessons = courseSummary?.totalLessons ?? 0;
+  const progress = courseSummary?.progressPercent ?? 0;
   const achievements = overview.data?.achievements ?? [];
   return (
     <section className="shell py-10">
@@ -190,7 +188,7 @@ function StudentDashboard() {
       <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <MetricCard
           label={locale === "ar" ? "الدورات المسجل بها" : "Enrolled courses"}
-          value={courses.isPending ? "—" : enrolled.length}
+          value={courses.isPending ? "—" : (courseSummary?.totalCourses ?? 0)}
           detail={
             locale === "ar"
               ? "من سجلات التسجيل الفعلية"
@@ -438,7 +436,7 @@ function StudentDashboard() {
         />
       </div>
       <div className="mt-8">
-        <MyCourses />
+        <StudentCoursesLearningHub variant="compact" />
       </div>
     </section>
   );
@@ -977,86 +975,6 @@ function StudentPurchases() {
   );
 }
 
-function MyCourses() {
-  const locale = useLocale();
-  const result = useQuery({
-    queryKey: ["my-courses", locale],
-    queryFn: () =>
-      api<EnrolledCourse[]>(`/learning/my-courses?locale=${locale}`),
-  });
-  if (result.isPending)
-    return (
-      <div className="card p-5" aria-busy>
-        …
-      </div>
-    );
-  if (result.isError)
-    return (
-      <p role="alert" className="card p-5">
-        {locale === "ar"
-          ? "سجّل الدخول لرؤية دوراتك."
-          : "Sign in to see your courses."}
-      </p>
-    );
-  return (
-    <div>
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">
-            {locale === "ar" ? "مساحة التعلّم" : "Learning space"}
-          </p>
-          <h2 className="mt-1 text-xl font-black">
-            {locale === "ar" ? "دوراتي" : "My courses"}
-          </h2>
-        </div>
-        <ListVideo className="text-primary" aria-hidden="true" />
-      </div>
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
-        {result.data.length ? (
-          result.data.map((course) => (
-            <Link
-              key={course.courseId}
-              href={`/${locale}/student/learn/${course.courseId}`}
-              className="card focus-ring block p-5"
-              data-interactive
-            >
-              <h3 className="font-bold">{course.title}</h3>
-              <p className="mt-3 text-sm text-muted">
-                {course.completed}/{course.total}{" "}
-                {locale === "ar" ? "دروس مكتملة" : "lessons complete"}
-              </p>
-              <ProgressBar
-                className="mt-4"
-                label={locale === "ar" ? "تقدم الدورة" : "Course progress"}
-                value={
-                  course.total ? (course.completed / course.total) * 100 : 0
-                }
-              />
-            </Link>
-          ))
-        ) : (
-          <p className="card p-5 text-muted">
-            {locale === "ar"
-              ? "لا توجد دورات مسجل بها بعد."
-              : "You are not enrolled in a course yet."}
-            <Link
-              href={`/${locale}/courses`}
-              className="focus-ring mt-4 inline-flex items-center gap-1 text-sm font-black text-primary"
-            >
-              {locale === "ar" ? "استكشف الدورات" : "Explore courses"}
-              <ArrowLeft
-                size={16}
-                className="rtl:rotate-180"
-                aria-hidden="true"
-              />
-            </Link>
-          </p>
-        )}
-      </div>
-    </div>
-  );
-}
-
 type LearningOverview = {
   notes: {
     id: string;
@@ -1561,74 +1479,121 @@ function CertificateDocument({
   );
 }
 
-function CoursePlayer({ courseId }: { courseId: string }) {
-  const locale = useLocale();
-  const client = useQueryClient();
-  const [activeLesson, setActiveLesson] = useState<{
+type StudentCoursePlayerLesson = {
+  id: string;
+  title: string;
+  body?: string | null;
+  durationSeconds: number;
+  type: string;
+  isLocked: boolean;
+  lockReason?: string;
+  availableAtUtc?: string;
+  video?: {
+    id: string;
+    displayName: string;
+    contentType: string;
+  } | null;
+  resources: {
+    id: string;
+    displayName: string;
+    contentType: string;
+    externalUrl?: string;
+  }[];
+  isCompleted: boolean;
+  lastPositionSeconds: number;
+  lastVisitedAtUtc?: string | null;
+};
+
+type StudentCoursePlayerResult = {
+  id: string;
+  title: string;
+  resumeLessonId?: string | null;
+  currentLessonId?: string | null;
+  previousLessonId?: string | null;
+  nextLessonId?: string | null;
+  requestedLessonRejected: boolean;
+  modules: {
     id: string;
     title: string;
-    body?: string | null;
-    durationSeconds: number;
-    type: string;
-    isLocked?: boolean;
+    isLocked: boolean;
     lockReason?: string;
     availableAtUtc?: string;
-    video?: {
-      id: string;
-      displayName: string;
-      contentType: string;
-    } | null;
-    resources: {
-      id: string;
-      displayName: string;
-      contentType: string;
-      externalUrl?: string;
-    }[];
-  }>();
+    lessons: StudentCoursePlayerLesson[];
+  }[];
+};
+
+type StudentLessonProgressResult = {
+  isCompleted: boolean;
+  lastPositionSeconds: number;
+  lastVisitedAtUtc: string;
+};
+
+function CoursePlayer({
+  courseId,
+  requestedLessonId,
+}: {
+  courseId: string;
+  requestedLessonId?: string;
+}) {
+  const locale = useLocale();
+  const client = useQueryClient();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const result = useQuery({
-    queryKey: ["player", courseId, locale],
-    queryFn: () =>
-      api<{
-        id: string;
-        title: string;
-        modules: {
-          id: string;
-          title: string;
-          lessons: {
-            id: string;
-            title: string;
-            body?: string | null;
-            durationSeconds: number;
-            type: string;
-            isLocked?: boolean;
-            lockReason?: string;
-            availableAtUtc?: string;
-            video?: {
-              id: string;
-              displayName: string;
-              contentType: string;
-            } | null;
-            resources: {
-              id: string;
-              displayName: string;
-              contentType: string;
-              externalUrl?: string;
-            }[];
-          }[];
-        }[];
-      }>(`/learning/courses/${courseId}/player?locale=${locale}`),
+    queryKey: ["player", courseId, locale, requestedLessonId],
+    queryFn: () => {
+      const params = new URLSearchParams({ locale });
+      if (requestedLessonId) params.set("lessonId", requestedLessonId);
+      return api<StudentCoursePlayerResult>(
+        `/learning/courses/${courseId}/player?${params.toString()}`,
+      );
+    },
   });
   const progress = useMutation({
-    mutationFn: (lesson: { id: string; durationSeconds: number }) =>
-      api(`/learning/lessons/${lesson.id}/progress`, {
-        method: "POST",
-        body: JSON.stringify({
-          lastPositionSeconds: lesson.durationSeconds,
-          markCompleted: true,
-        }),
-      }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["my-courses"] }),
+    mutationFn: (request: {
+      lessonId: string;
+      lastPositionSeconds: number;
+      markCompleted: boolean;
+    }) =>
+      api<StudentLessonProgressResult>(
+        `/learning/lessons/${request.lessonId}/progress`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            lastPositionSeconds: request.lastPositionSeconds,
+            markCompleted: request.markCompleted,
+          }),
+        },
+      ),
+    onSuccess: (saved, request) => {
+      client.setQueriesData<StudentCoursePlayerResult>(
+        { queryKey: ["player", courseId] },
+        (current) =>
+          current
+            ? {
+                ...current,
+                modules: current.modules.map((module) => ({
+                  ...module,
+                  lessons: module.lessons.map((lesson) =>
+                    lesson.id === request.lessonId
+                      ? {
+                          ...lesson,
+                          isCompleted: saved.isCompleted,
+                          lastPositionSeconds: saved.lastPositionSeconds,
+                          lastVisitedAtUtc: saved.lastVisitedAtUtc,
+                        }
+                      : lesson,
+                  ),
+                })),
+              }
+            : current,
+      );
+      if (request.markCompleted) {
+        void client.invalidateQueries({ queryKey: ["player", courseId] });
+        void client.invalidateQueries({
+          queryKey: ["student-courses-learning-hub"],
+        });
+      }
+    },
   });
   const certificate = useMutation({
     mutationFn: () =>
@@ -1658,19 +1623,20 @@ function CoursePlayer({ courseId }: { courseId: string }) {
       </section>
     );
   const allLessons = result.data.modules.flatMap((module) => module.lessons);
-  const firstLesson = allLessons.find((item) => !item.isLocked);
-  const lesson = activeLesson ?? firstLesson;
-  const currentLessonIndex = lesson
-    ? allLessons.findIndex((item) => item.id === lesson.id)
-    : -1;
-  const previousLesson =
-    currentLessonIndex > 0 ? allLessons[currentLessonIndex - 1] : undefined;
-  const nextLesson =
-    currentLessonIndex >= 0 && currentLessonIndex < allLessons.length - 1
-      ? allLessons[currentLessonIndex + 1]
-      : undefined;
+  const lesson = allLessons.find(
+    (item) => item.id === result.data.currentLessonId,
+  );
+  const previousLesson = allLessons.find(
+    (item) => item.id === result.data.previousLessonId,
+  );
+  const nextLesson = allLessons.find(
+    (item) => item.id === result.data.nextLessonId,
+  );
+  const lessonHref = (lessonId: string) =>
+    `/${locale}/student/learn/${courseId}?lessonId=${encodeURIComponent(lessonId)}`;
   return (
     <section
+      dir={locale === "ar" ? "rtl" : "ltr"}
       className={`shell grid gap-6 py-10 ${sidebarOpen ? "lg:grid-cols-[minmax(0,1fr)_340px]" : "lg:grid-cols-1"}`}
     >
       <div className="card p-5 sm:p-7">
@@ -1706,30 +1672,32 @@ function CoursePlayer({ courseId }: { courseId: string }) {
                 : "Show content"}
           </button>
         </div>
+        {result.data.requestedLessonRejected ? (
+          <p
+            role="alert"
+            className="mt-5 rounded-xl border border-amber-400/35 bg-amber-400/10 px-4 py-3 text-sm font-semibold text-amber-200"
+          >
+            {locale === "ar"
+              ? "الدرس المطلوب غير متاح. تمت إعادتك إلى موضع التعلّم المسموح به."
+              : "That lesson is unavailable. You were returned to your authorized learning position."}
+          </p>
+        ) : null}
         {lesson ? (
           <>
             {lesson.video && !lesson.isLocked ? (
-              <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl">
-                <video
-                  controls
-                  preload="metadata"
-                  className="aspect-video w-full"
-                  src={`/api/v1/learning/lessons/${lesson.id}/video`}
-                >
-                  {locale === "ar"
-                    ? "المتصفح لا يدعم تشغيل الفيديو."
-                    : "Your browser does not support video playback."}
-                </video>
-                <div className="border-t border-white/10 bg-[#0b1735] px-4 py-3 text-white">
-                  <p className="font-black">{lesson.title}</p>
-                  <p className="mt-1 flex items-center gap-2 text-xs text-slate-300">
-                    <Timer size={14} aria-hidden="true" />
-                    {lesson.video.displayName} ·{" "}
-                    {Math.round(lesson.durationSeconds / 60)}{" "}
-                    {locale === "ar" ? "دقيقة" : "min"}
-                  </p>
-                </div>
-              </div>
+              <LessonVideo
+                key={`video-${lesson.id}`}
+                lesson={lesson}
+                locale={locale}
+                savePending={progress.isPending}
+                onSave={(lastPositionSeconds, markCompleted) =>
+                  progress.mutate({
+                    lessonId: lesson.id,
+                    lastPositionSeconds,
+                    markCompleted,
+                  })
+                }
+              />
             ) : (
               <div className="relative mt-6 aspect-video overflow-hidden rounded-2xl border border-white/10 bg-[radial-gradient(circle_at_75%_20%,rgba(38,211,199,.22),transparent_30%),linear-gradient(135deg,#101e42,#080f24)] p-6 text-white shadow-2xl sm:p-8">
                 <span className="absolute -end-14 -top-14 size-48 rounded-full border border-primary/25" />
@@ -1789,12 +1757,34 @@ function CoursePlayer({ courseId }: { courseId: string }) {
             <CourseResourceCenter courseId={courseId} />
             <CourseAnnouncementsPanel courseId={courseId} />
             <button
-              onClick={() => progress.mutate(lesson)}
-              disabled={progress.isPending || lesson.isLocked}
+              type="button"
+              onClick={() =>
+                progress.mutate({
+                  lessonId: lesson.id,
+                  lastPositionSeconds: lesson.lastPositionSeconds,
+                  markCompleted: true,
+                })
+              }
+              disabled={
+                progress.isPending ||
+                lesson.isLocked ||
+                lesson.isCompleted ||
+                lesson.type === "Video"
+              }
               className="focus-ring mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 font-bold text-slate-950"
             >
               <CircleCheckBig size={18} aria-hidden="true" />
-              {locale === "ar" ? "تمييز كمكتمل" : "Mark complete"}
+              {lesson.isCompleted
+                ? locale === "ar"
+                  ? "مكتمل"
+                  : "Completed"
+                : lesson.type === "Video"
+                  ? locale === "ar"
+                    ? "يكتمل بعد مشاهدة 80%"
+                    : "Completes after 80% watched"
+                  : locale === "ar"
+                    ? "تمييز كمكتمل"
+                    : "Mark complete"}
             </button>
             <button
               type="button"
@@ -1824,6 +1814,18 @@ function CoursePlayer({ courseId }: { courseId: string }) {
                     : "Complete all lessons first."}
               </p>
             ) : null}
+            {progress.isSuccess ? (
+              <p role="status" className="mt-3 text-sm text-primary">
+                {locale === "ar" ? "تم حفظ تقدمك." : "Your progress was saved."}
+              </p>
+            ) : null}
+            {progress.isError ? (
+              <p role="alert" className="mt-3 text-sm text-red-400">
+                {locale === "ar"
+                  ? "تعذر حفظ التقدم. حاول مرة أخرى."
+                  : "Progress could not be saved. Try again."}
+              </p>
+            ) : null}
             <MotivationCard variant="player" className="mt-5" />
             <StudentCourseGradebookPanel courseId={courseId} />
             <LessonWorkspace
@@ -1833,34 +1835,50 @@ function CoursePlayer({ courseId }: { courseId: string }) {
             />
             <AiTutorPanel courseId={courseId} lessonId={lesson.id} />
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
-              <button
-                type="button"
-                disabled={!previousLesson}
-                onClick={() =>
-                  previousLesson && setActiveLesson(previousLesson)
-                }
-                className="focus-ring inline-flex items-center gap-1 rounded-xl border border-border px-3 py-2.5 text-sm font-bold text-muted hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <ArrowLeft
-                  size={16}
-                  className="rtl:rotate-180"
-                  aria-hidden="true"
-                />
-                {locale === "ar" ? "الدرس السابق" : "Previous lesson"}
-              </button>
-              <button
-                type="button"
-                disabled={!nextLesson}
-                onClick={() => nextLesson && setActiveLesson(nextLesson)}
-                className="focus-ring inline-flex items-center gap-1 rounded-xl bg-primary px-3 py-2.5 text-sm font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                {locale === "ar" ? "الدرس التالي" : "Next lesson"}
-                <ArrowRight
-                  size={16}
-                  className="rtl:rotate-180"
-                  aria-hidden="true"
-                />
-              </button>
+              {previousLesson ? (
+                <Link
+                  href={lessonHref(previousLesson.id)}
+                  className="focus-ring inline-flex items-center gap-1 rounded-xl border border-border px-3 py-2.5 text-sm font-bold text-muted hover:bg-white/5"
+                >
+                  <ArrowLeft
+                    size={16}
+                    className="rtl:rotate-180"
+                    aria-hidden="true"
+                  />
+                  {locale === "ar" ? "الدرس السابق" : "Previous lesson"}
+                </Link>
+              ) : (
+                <span className="inline-flex cursor-not-allowed items-center gap-1 rounded-xl border border-border px-3 py-2.5 text-sm font-bold text-muted opacity-40">
+                  <ArrowLeft
+                    size={16}
+                    className="rtl:rotate-180"
+                    aria-hidden="true"
+                  />
+                  {locale === "ar" ? "الدرس السابق" : "Previous lesson"}
+                </span>
+              )}
+              {nextLesson ? (
+                <Link
+                  href={lessonHref(nextLesson.id)}
+                  className="focus-ring inline-flex items-center gap-1 rounded-xl bg-primary px-3 py-2.5 text-sm font-black text-slate-950"
+                >
+                  {locale === "ar" ? "الدرس التالي" : "Next lesson"}
+                  <ArrowRight
+                    size={16}
+                    className="rtl:rotate-180"
+                    aria-hidden="true"
+                  />
+                </Link>
+              ) : (
+                <span className="inline-flex cursor-not-allowed items-center gap-1 rounded-xl bg-primary px-3 py-2.5 text-sm font-black text-slate-950 opacity-40">
+                  {locale === "ar" ? "الدرس التالي" : "Next lesson"}
+                  <ArrowRight
+                    size={16}
+                    className="rtl:rotate-180"
+                    aria-hidden="true"
+                  />
+                </span>
+              )}
             </div>
             {lesson.type === "Assignment" ? (
               <>
@@ -1897,34 +1915,173 @@ function CoursePlayer({ courseId }: { courseId: string }) {
             <div key={module.id}>
               <p className="text-sm font-bold">{module.title}</p>
               <div className="mt-2 grid gap-1">
-                {module.lessons.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => !item.isLocked && setActiveLesson(item)}
-                    disabled={item.isLocked}
-                    title={
-                      item.isLocked
-                        ? lockedContentMessage(
-                            locale,
-                            item.lockReason,
-                            item.availableAtUtc,
-                          )
-                        : undefined
-                    }
-                    className={`focus-ring flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-start text-sm transition-colors ${lesson?.id === item.id ? "bg-primary/15 font-bold text-primary" : "text-muted hover:bg-white/5 hover:text-foreground"} disabled:cursor-not-allowed disabled:opacity-55`}
-                  >
-                    <span>{item.title}</span>
-                    {item.isLocked ? (
+                {module.lessons.map((item) =>
+                  item.isLocked ? (
+                    <button
+                      key={item.id}
+                      type="button"
+                      disabled
+                      title={lockedContentMessage(
+                        locale,
+                        item.lockReason,
+                        item.availableAtUtc,
+                      )}
+                      className="focus-ring flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-start text-sm text-muted opacity-55 disabled:cursor-not-allowed"
+                    >
+                      <span>{item.title}</span>
                       <LockKeyhole size={14} aria-hidden="true" />
-                    ) : null}
-                  </button>
-                ))}
+                    </button>
+                  ) : (
+                    <Link
+                      key={item.id}
+                      href={lessonHref(item.id)}
+                      aria-current={lesson?.id === item.id ? "page" : undefined}
+                      className={`focus-ring flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-start text-sm transition-colors motion-reduce:transition-none ${lesson?.id === item.id ? "bg-primary/15 font-bold text-primary" : "text-muted hover:bg-white/5 hover:text-foreground"}`}
+                    >
+                      <span>{item.title}</span>
+                      {item.isCompleted ? (
+                        <CircleCheckBig
+                          size={15}
+                          className="shrink-0 text-emerald-400"
+                          aria-label={locale === "ar" ? "مكتمل" : "Completed"}
+                        />
+                      ) : null}
+                    </Link>
+                  ),
+                )}
               </div>
             </div>
           ))}
         </div>
       </aside>
     </section>
+  );
+}
+
+function LessonVideo({
+  lesson,
+  locale,
+  savePending,
+  onSave,
+}: {
+  lesson: StudentCoursePlayerLesson;
+  locale: string;
+  savePending: boolean;
+  onSave: (lastPositionSeconds: number, markCompleted: boolean) => void;
+}) {
+  const lastSubmittedPosition = useRef(lesson.lastPositionSeconds);
+  const lastSubmittedAt = useRef(0);
+  const [playbackState, setPlaybackState] = useState<
+    "loading" | "ready" | "error"
+  >("loading");
+  const [retryCount, setRetryCount] = useState(0);
+
+  const save = (
+    video: HTMLVideoElement,
+    options: { force?: boolean; complete?: boolean } = {},
+  ) => {
+    if (savePending) return;
+    const position = Math.max(0, Math.floor(video.currentTime || 0));
+    const now = Date.now();
+    const completionReached =
+      !lesson.isCompleted &&
+      lesson.durationSeconds > 0 &&
+      position >= Math.floor(lesson.durationSeconds * 0.8);
+    const markCompleted = Boolean(options.complete || completionReached);
+    if (markCompleted && lesson.isCompleted) return;
+    if (!markCompleted && !options.force) {
+      if (
+        now - lastSubmittedAt.current < 15_000 ||
+        Math.abs(position - lastSubmittedPosition.current) < 15
+      )
+        return;
+    }
+    if (
+      !markCompleted &&
+      options.force &&
+      (now - lastSubmittedAt.current < 5_000 ||
+        Math.abs(position - lastSubmittedPosition.current) < 5)
+    )
+      return;
+
+    lastSubmittedPosition.current = position;
+    lastSubmittedAt.current = now;
+    onSave(position, markCompleted);
+  };
+
+  return (
+    <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl">
+      <video
+        key={retryCount}
+        controls
+        preload="metadata"
+        className="aspect-video w-full"
+        aria-label={
+          locale === "ar" ? `فيديو ${lesson.title}` : `${lesson.title} video`
+        }
+        src={`/api/v1/learning/lessons/${lesson.id}/video?retry=${retryCount}`}
+        onCanPlay={() => setPlaybackState("ready")}
+        onWaiting={() => setPlaybackState("loading")}
+        onError={() => setPlaybackState("error")}
+        onLoadedMetadata={(event) => {
+          const video = event.currentTarget;
+          const mediaDuration =
+            Number.isFinite(video.duration) && video.duration > 0
+              ? video.duration
+              : lesson.durationSeconds;
+          const safeMaximum = Math.max(0, mediaDuration - 1);
+          video.currentTime = Math.min(
+            Math.max(0, lesson.lastPositionSeconds),
+            safeMaximum,
+          );
+        }}
+        onTimeUpdate={(event) => save(event.currentTarget)}
+        onPause={(event) => save(event.currentTarget, { force: true })}
+        onEnded={(event) =>
+          save(event.currentTarget, { force: true, complete: true })
+        }
+      >
+        {locale === "ar"
+          ? "المتصفح لا يدعم تشغيل الفيديو."
+          : "Your browser does not support video playback."}
+      </video>
+      {playbackState === "loading" ? (
+        <p role="status" className="px-4 py-2 text-sm text-slate-300">
+          {locale === "ar" ? "جارٍ تحميل الفيديو…" : "Loading video…"}
+        </p>
+      ) : null}
+      {playbackState === "error" ? (
+        <div
+          role="alert"
+          className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm text-white"
+        >
+          <span>
+            {locale === "ar"
+              ? "تعذر تشغيل الفيديو. حاول مجددًا أو تواصل مع الدعم."
+              : "Video unavailable. Try again or contact support."}
+          </span>
+          <button
+            type="button"
+            className="focus-ring rounded-lg border border-white/40 px-3 py-1.5 font-bold"
+            onClick={() => {
+              setPlaybackState("loading");
+              setRetryCount((count) => count + 1);
+            }}
+          >
+            {locale === "ar" ? "إعادة المحاولة" : "Retry video"}
+          </button>
+        </div>
+      ) : null}
+      <div className="border-t border-white/10 bg-[#0b1735] px-4 py-3 text-white">
+        <p className="font-black">{lesson.title}</p>
+        <p className="mt-1 flex items-center gap-2 text-xs text-slate-300">
+          <Timer size={14} aria-hidden="true" />
+          {lesson.video?.displayName} ·{" "}
+          {Math.round(lesson.durationSeconds / 60)}{" "}
+          {locale === "ar" ? "دقيقة" : "min"}
+        </p>
+      </div>
+    </div>
   );
 }
 

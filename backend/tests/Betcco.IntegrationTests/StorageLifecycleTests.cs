@@ -53,6 +53,28 @@ public sealed class StorageLifecycleTests
     }
 
     [Fact]
+    public async Task Abandoned_video_cleanup_waits_for_the_pending_finalization()
+    {
+        await using var db = Database();
+        var storage = new FlakyLifecycleStorage(failFinalizeOnce: true);
+        var coordinator = new StorageLifecycleCoordinator(db, storage, NullLogger<StorageLifecycleCoordinator>.Instance);
+        var staged = new StagedPrivateFile("staging/2026/09/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "objects/2026/09/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "video/mp4", 24, DateTimeOffset.UtcNow);
+        var finalization = coordinator.EnqueueFinalization(staged);
+        await db.SaveChangesAsync();
+        Assert.False(await coordinator.TryProcessNowAsync(finalization.Id));
+
+        var cleanup = coordinator.EnqueueDeletion(staged.StorageKey);
+        cleanup.StagingKey = staged.StorageKey;
+        await db.SaveChangesAsync();
+        Assert.False(await coordinator.TryProcessNowAsync(cleanup.Id));
+        Assert.Equal(0, storage.DeleteAttempts);
+
+        Assert.True(await coordinator.TryProcessNowAsync(finalization.Id));
+        Assert.True(await coordinator.TryProcessNowAsync(cleanup.Id));
+        Assert.Equal(1, storage.DeleteAttempts);
+    }
+
+    [Fact]
     public async Task Old_staging_object_without_committed_operation_is_cleaned()
     {
         await using var db = Database();

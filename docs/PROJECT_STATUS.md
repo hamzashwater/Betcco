@@ -2,22 +2,29 @@
 
 ## Metadata
 
-- Last updated: 2026-09-14
-- Verified implementation baseline SHA: `c9e6f3662a282402e332ed13940fb5456d875d89`
-- Status generated/verified against origin/main: `37f0bc02fc07bc2a5ba19d085754b343b18a5074`
-- Baseline branch used for status generation: `docs/parallel-workstream-governance`
+- Last updated: 2026-09-16
+- Verified implementation baseline SHA: `719b10e39b4370c709350dae64a1db80481872ed`
+- Status generated/verified against origin/main: `719b10e39b4370c709350dae64a1db80481872ed`
+- Baseline branch used for status generation: `docs/status-after-media-video-foundation`
 - Working tree state during status generation: clean
-- Latest verified CI state: UNKNOWN — no live GitHub Actions result was available in the local repository evidence. The repository contains `quality.yml` and `security.yml` workflow definitions, but their latest run was not verified here.
+- Latest verified CI state: GREEN for PR #18 at feature head `6896ff4805d56feb3e3f88afb0e7da3161341765` — Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
 ## Last Merged Task
 
-- Task: Production/Staging deployment foundation
-- Merge/commit SHA: `c9e6f3662a282402e332ed13940fb5456d875d89`
-- Pull Request: #4
-- Outcome: Added the provider-neutral deployment stack, deployment environment contract, controlled migration command, health checks, startup validation, and rollback/runbook documentation. External production services remain configuration and validation responsibilities.
-- Verification evidence: The merge commit is on `main` and contains `compose.deploy.yml`, `deploy.env.example`, the deployment validation changes, the two GitHub Actions workflow definitions, and `docs/DEPLOYMENT.md`. A live CI result was not available in this local checkout.
+- Task: Student Course Player + Resume Learning
+- Merge/commit SHA: `8770901ad78c172cbe0ed33e1235bfc78f739f07`
+- Pull Request: #16
+- Outcome: Added a server-authoritative resume/current lesson flow for the Student Course Player, with authorized deep links, saved position restoration, server-owned completion, the existing 80% video threshold, accessible previous/next navigation, and Course Hub Continue integration. EN/AR desktop/mobile/keyboard behavior and mobile overflow were validated. No migration was added.
+- Verification evidence: Focused backend integration tests (33) and focused frontend tests (26) passed. Full frontend validation passed (79 tests, lint, typecheck, format, and build). Required CI passed the full backend suite (12 unit and 383 integration), frontend checks, Application quality, Dependency review, and CodeQL (csharp/javascript-typescript). English and Arabic desktop/mobile browser validation, keyboard accessibility, RTL/LTR behavior, resume persistence, protected navigation, and horizontal-overflow checks passed.
+
+- Task: Media / Video Foundation + Secure Delivery
+- Merge/commit SHA: `719b10e39b4370c709350dae64a1db80481872ed`
+- Pull Request: #18
+- Outcome: DONE. Existing private storage foundation reused for secure MP4/WEBM upload, safe replacement/removal lifecycle, orphan/shared-key protection, fail-closed malware/security scanning, teacher ownership enforcement, student enrollment/content authorization, private delivery, S3/local range/seek support, and CoursePlayer loading/error/retry behavior. Task 5 progress/completion behavior was preserved. No migration was added.
+- Roadmap status: FOUNDATION COMPLETE. Advanced HLS/DASH/transcoding, CDN/provider integration, DRM, live streaming, captions/transcription, and advanced media analytics remain outside this foundation.
+- Verification evidence: Required CI green, including frontend validation, full backend tests with PostgreSQL/S3, production build/image checks, Docker validation, Dependency review, and CodeQL (csharp/javascript-typescript).
 
 ## Completed
 
@@ -25,6 +32,11 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - Frontend dependency security remediation — merged in `fc5e20d`.
 - Next.js route type-generation fix — merged in `d8649d5`.
 - Durable private-storage foundation — merged in `3bad612`.
+- Teacher Course Workspace Navigation — merged through PR #8 in `f4b1b73`.
+- Teacher Courses Management UX — merged through PR #10 in `1ba6a41`.
+- Teacher Student Follow-up Workspace — merged through PR #12 in `33f14b6`.
+- Student Courses Learning Hub — merged through PR #14 in `533b3f9`.
+- Student Course Player + Resume Learning — merged through PR #16 in `8770901`.
 
 These entries are merged repository evidence only; new behavior changes still require targeted validation and review.
 
@@ -66,9 +78,16 @@ Remaining: Live payment and payout providers, JoFotara, production reconciliatio
 
 ### Teacher and student experience
 
-Done: Main contains BTEC result views, internal-verification and appeal workspaces, and protected privacy surfaces.
+Done: Main contains BTEC result views, internal-verification and appeal workspaces, protected privacy surfaces, these three Teacher slices, and one completed Student learning slice:
 
-Remaining: The broader course lifecycle, learning experience, and full teacher/student UX roadmap remain incomplete.
+1. Teacher Course Workspace Navigation, with responsive navigation, stable deep links, active state, Arabic RTL/English LTR behavior, keyboard accessibility, mobile overflow handling, and usable sticky review/sidebar behavior.
+2. Teacher Courses Management UX, with bilingual title search, status filters, deterministic sorting, course metadata, responsive management and compact dashboard presentations, and consistent Show all courses reset behavior.
+3. Teacher Student Follow-up Workspace, with server-owned follow-up signals, a dedicated workspace, bounded complete-result server-side search/filter/sort/pagination, a compact dashboard preview, and bilingual responsive UX.
+4. Student Courses Learning Hub, with a dedicated course workspace, bounded server-authoritative retrieval, bilingual search, progress filters, deterministic sorting, pagination, published-course and access enforcement, server-owned progress/completion state, safe cover and teacher-name handling, a compact dashboard preview, and bilingual responsive/accessibility validation.
+5. Student Course Player + Resume Learning, with server-authoritative resume/current lesson selection, authorized deep links, saved position restoration, server-owned completion, preserved video threshold, accessible navigation, Course Hub Continue integration, and EN/AR responsive/accessibility validation.
+6. Media / Video Foundation + Secure Delivery, with secure private MP4/WEBM upload, replacement/removal lifecycle handling, authorization, range/seek delivery, and resilient CoursePlayer media states. FOUNDATION COMPLETE; advanced media platform work remains outside this slice.
+
+Remaining: Broader Teacher UX remains incomplete. Student UX remains partial: the broader Student learning lifecycle remains. The broader course lifecycle and learning experience remain incomplete.
 
 ## Active Workstreams
 
@@ -79,7 +98,7 @@ Maximum active implementation workstreams: **2**
 ### Workstream A
 
 Task: Formal BTEC Assessment PDF Reporting
-Owner: Account 1 / Device 1
+Owner: Lenovo
 Branch: `feature/btec-assessment-pdf-report`
 Pull Request: #6
 Status: IN PROGRESS
@@ -95,15 +114,23 @@ Merged into main: **NO**
 
 ### Workstream B
 
-Status: AVAILABLE
-Purpose: Reserved parallel capacity for one independent task.
+Last task: Media / Video Foundation + Secure Delivery
+Owner: ASUS
+Branch: `feature/media-video-foundation`
+Pull Request: #18
+Task status: MERGED
+Merged into main: **YES** — `719b10e39b4370c709350dae64a1db80481872ed`
+Capacity status: AVAILABLE
+Purpose: Available for one future explicitly scoped independent task.
 
-No branch, owner, or implementation is invented yet. Workstream B becomes ACTIVE only after a scoped task is selected, a dedicated branch is created, and a Draft PR records its ownership and reserved scope.
+No new Workstream B branch, owner, task, or implementation is invented here. Workstream B becomes ACTIVE only after a scoped task is selected, a dedicated branch is created, and a Draft PR records its ownership and reserved scope.
 
 ## Next Actions
 
-- Workstream A: Complete, review, validate, and merge the current BTEC assessment PDF workstream.
-- Workstream B: Remains available for one sufficiently independent, explicitly scoped task; it must not overlap Workstream A's reserved areas.
+- Workstream A: Continue PR #6 when Lenovo resumes. Before implementation, fetch the latest `main` and synchronize safely according to the repository workflow; do not rebase or force-push.
+- Workstream B / ASUS capacity: AVAILABLE for one future explicitly scoped independent task; this reconciliation does not select or invent that task.
+- Task 6: DONE — Media / Video Foundation + Secure Delivery. PR #18 merged with required CI green.
+- Task 7: NOT STARTED.
 
 Definition of Done for each workstream: implementation is reviewed, required CI is green, its PR is merged into `main`, and this document is reconciled with the new merged state.
 
@@ -130,7 +157,7 @@ Do not reopen these areas merely because a later account lacks conversation memo
 | Privacy/Compliance | TECHNICAL CORE COMPLETE |
 | Payments/Finance | PARTIAL |
 | Storage | FOUNDATION COMPLETE |
-| Media/Video | NOT STARTED |
+| Media/Video | FOUNDATION COMPLETE |
 | Operations/Deployment | FOUNDATION COMPLETE |
 | Teacher UX | PARTIAL |
 | Student UX | PARTIAL |
@@ -145,7 +172,9 @@ Do not reopen these areas merely because a later account lacks conversation memo
 ## Known Risks
 
 - Workstream A / PR #6 is unmerged and must not be represented as completed until it reaches `main` with targeted verification, review, and required CI green.
-- The latest GitHub Actions result was not verified in this local checkout; do not claim current green CI without checking the remote result.
+- PR #16 is merged into `main` at `8770901ad78c172cbe0ed33e1235bfc78f739f07` with required CI green; the Student Course Player + Resume Learning task is complete.
+- PR #18 is merged into `main` at `719b10e39b4370c709350dae64a1db80481872ed` with required CI green; Media/Video is FOUNDATION COMPLETE. Advanced media work remains deferred as documented above.
+- PR #14's required CI was verified GREEN for feature head `431d12efe70236872173f66677d88d484b4348b4`: Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully. Future workstreams must still verify their own current remote CI before claiming completion.
 - Production S3, SMTP, ClamAV, Data Protection certificate, hosting, monitoring, backup/restore, payment, payout, and fiscal integrations require external configuration or validation.
 - Full UAT, capacity testing, launch hardening, retention decisions, and final legal review remain outstanding.
 

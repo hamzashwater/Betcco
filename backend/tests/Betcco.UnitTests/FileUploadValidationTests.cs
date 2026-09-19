@@ -51,6 +51,35 @@ public sealed class FileUploadValidationTests
         Assert.Equal("UPLOAD_ARCHIVE_ENTRY_INVALID", result.ErrorCode);
     }
 
+    [Fact]
+    public void Accepts_structured_mp4_and_webm_headers_without_trusting_the_browser_type()
+    {
+        using var mp4 = new MemoryStream([
+            0, 0, 0, 16, 0x66, 0x74, 0x79, 0x70, 0x69, 0x73, 0x6F, 0x6D, 0, 0, 0, 0,
+            0, 0, 0, 8, 0x6D, 0x64, 0x61, 0x74
+        ]);
+        using var webm = new MemoryStream([
+            0x1A, 0x45, 0xDF, 0xA3, 0x8B, 0x42, 0x82, 0x84, 0x77, 0x65, 0x62, 0x6D,
+            0x18, 0x53, 0x80, 0x67, 0x80
+        ]);
+
+        Assert.True(FileUploadValidation.TryValidate(mp4, "lesson.mp4", out var mp4Result));
+        Assert.Equal("video/mp4", mp4Result.DetectedContentType);
+        Assert.True(FileUploadValidation.TryValidate(webm, "lesson.webm", out var webmResult));
+        Assert.Equal("video/webm", webmResult.DetectedContentType);
+    }
+
+    [Theory]
+    [InlineData("spoof.mp4", new byte[] { 0, 0, 0, 16, 0x66, 0x74, 0x79, 0x70, 0x69, 0x73, 0x6F, 0x6D })]
+    [InlineData("spoof.webm", new byte[] { 0x1A, 0x45, 0xDF, 0xA3, 0x81, 0x00 })]
+    [InlineData("wrong.mp4", new byte[] { 0x1A, 0x45, 0xDF, 0xA3, 0x81, 0x00 })]
+    public void Rejects_truncated_or_spoofed_video_headers(string fileName, byte[] content)
+    {
+        using var stream = new MemoryStream(content);
+        Assert.False(FileUploadValidation.TryValidate(stream, fileName, out var result));
+        Assert.Equal("UPLOAD_FILE_SIGNATURE_INVALID", result.ErrorCode);
+    }
+
     private static MemoryStream OfficeDocument(string officeEntry)
     {
         var stream = Archive("[Content_Types].xml", officeEntry);
