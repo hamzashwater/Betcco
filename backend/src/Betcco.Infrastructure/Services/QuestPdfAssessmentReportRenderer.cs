@@ -40,44 +40,52 @@ public sealed class QuestPdfAssessmentReportRenderer(string fontFamily) : IAsses
             if (report.IsArabic) page.ContentFromRightToLeft();
             else page.ContentFromLeftToRight();
 
-            page.Header().Height(65).Column(header => ReportHeader(header, report));
-
-            page.Content().PaddingVertical(16).Column(column =>
+            page.Content().Decoration(decoration =>
             {
-                AssessmentIdentity(column, report);
-                Qualification(column, report);
-                Criteria(column, report);
-                Declarations(column, report);
-                InternalVerification(column, report);
-                Resubmissions(column, report);
-                Appeals(column, report);
-            });
-
-            page.Footer().Row(row =>
-            {
-                row.RelativeItem().Text(report.IsArabic
-                    ? "BETCCO - سجل تقييم سري ومضبوط"
-                    : "BETCCO - confidential controlled assessment record").FontSize(8).FontColor(Colors.Grey.Darken1);
-                row.ConstantItem(110).AlignRight().Text(text =>
+                decoration.Before().Height(64).PaddingBottom(8).Column(header => ReportHeader(header, report));
+                decoration.Content().PaddingVertical(8).Column(column =>
                 {
-                    text.DefaultTextStyle(style => style.FontSize(8).FontColor(Colors.Grey.Darken1));
-                    text.Span(report.IsArabic ? "صفحة " : "Page ");
-                    text.CurrentPageNumber();
-                    text.Span(report.IsArabic ? " من " : " of ");
-                    text.TotalPages();
+                    AssessmentIdentity(column, report);
+                    TaskAndAssessorIdentity(column, report);
+                    Qualification(column, report);
+                    SubmissionsAndEvidence(column, report);
+                    Criteria(column, report);
+                    Declarations(column, report);
+                    InternalVerification(column, report);
+                    Resubmissions(column, report);
+                    Appeals(column, report);
+                    AuditTrail(column, report);
                 });
             });
+
+            page.Footer().Height(22).PaddingTop(6).Element(container => ReportFooter(container, report));
         });
     });
 
     private static void ReportHeader(ColumnDescriptor column, AssessmentPdfReportModel report)
     {
         column.Item().Text("BETCCO").FontSize(20).Bold().FontColor(Colors.Blue.Darken3);
-        column.Item().Text(report.IsArabic ? "تقرير تقييم BTEC الرسمي" : "Formal BTEC assessment report").FontSize(15).SemiBold();
+        column.Item().Text(report.IsArabic ? "تقرير تقييم صادر عن BETCCO" : "BETCCO assessment report").FontSize(15).SemiBold();
         column.Item().PaddingTop(4).Text(report.IsArabic
-            ? "سجل أكاديمي مضبوط للتقييم والتحقق الداخلي"
-            : "Controlled academic record for assessment and internal verification").FontColor(Colors.Grey.Darken1);
+            ? "سجل أكاديمي لدعم تقديم برامج BTEC والتقييم والتحقق الداخلي"
+            : "Academic record supporting BTEC programme delivery, assessment, and internal verification").FontColor(Colors.Grey.Darken1);
     }
+
+    private static void ReportFooter(IContainer container, AssessmentPdfReportModel report) =>
+        container.BorderTop(1).BorderColor(Colors.Grey.Lighten2).PaddingTop(4).Row(row =>
+        {
+            row.RelativeItem().Text(report.IsArabic
+                ? "BETCCO - سجل تقييم سري ومضبوط"
+                : "BETCCO - confidential controlled assessment record").FontSize(8).FontColor(Colors.Grey.Darken1);
+            row.ConstantItem(150).AlignRight().Text(text =>
+            {
+                text.DefaultTextStyle(style => style.FontSize(8).FontColor(Colors.Grey.Darken1));
+                text.Span(report.IsArabic ? "صفحة " : "Page ");
+                text.CurrentPageNumber();
+                text.Span(report.IsArabic ? " من " : " of ");
+                text.TotalPages();
+            });
+        });
 
     private static void AssessmentIdentity(ColumnDescriptor column, AssessmentPdfReportModel report) =>
         Section(column, report.IsArabic ? "هوية التقييم" : "Assessment identity", section =>
@@ -90,6 +98,37 @@ public sealed class QuestPdfAssessmentReportRenderer(string fontFamily) : IAsses
             Field(section, report.IsArabic ? "إصدار قواعد التقييم" : "Assessment rule-set version", report.AssessmentRuleSetVersion, leftToRight: true);
             Field(section, report.IsArabic ? "تاريخ إنشاء سجل التقييم" : "Assessment record created", FormatDate(report.CreatedAtUtc), leftToRight: true);
             Field(section, report.IsArabic ? "تاريخ تصدير التقرير" : "Report exported", FormatDate(report.ExportedAtUtc), leftToRight: true);
+            Field(section, report.IsArabic ? "صدّر بواسطة" : "Exported by", report.ExportedByDisplayName ?? Empty(report));
+        });
+
+    private static void TaskAndAssessorIdentity(ColumnDescriptor column, AssessmentPdfReportModel report) =>
+        Section(column, report.IsArabic ? "المهمة والتقييم" : "Task and assessment", section =>
+        {
+            var taskType = report.IsArabic
+                ? report.TaskIdentity.TaskTypeArabicName ?? report.TaskIdentity.TaskTypeEnglishName
+                : report.TaskIdentity.TaskTypeEnglishName ?? report.TaskIdentity.TaskTypeArabicName;
+            var rubric = report.IsArabic
+                ? report.TaskIdentity.RubricArabicTitle ?? report.TaskIdentity.RubricEnglishTitle
+                : report.TaskIdentity.RubricEnglishTitle ?? report.TaskIdentity.RubricArabicTitle;
+            Field(section, report.IsArabic ? "نوع المهمة المسجل حاليًا" : "Current registered task type", taskType ?? Empty(report));
+            Field(section, report.IsArabic ? "قالب التقييم المسجل حاليًا" : "Current registered rubric", rubric ?? Empty(report));
+            Field(section, report.IsArabic ? "إصدار قالب التقييم" : "Rubric version", report.TaskIdentity.RubricVersion?.ToString() ?? Empty(report), leftToRight: true);
+
+            if (report.AssessorAssignments.Count == 0)
+            {
+                section.Item().PaddingTop(4).Text(report.IsArabic ? "لا يوجد تعيين مقيّم مسجل." : "No assessor assignment is recorded.");
+                return;
+            }
+
+            foreach (var assignment in report.AssessorAssignments)
+            {
+                section.Item().EnsureSpace(60).PaddingTop(4).Column(record =>
+                {
+                    Field(record, report.IsArabic ? "المقيّم" : "Assessor", assignment.AssessorDisplayName ?? Empty(report));
+                    Field(record, report.IsArabic ? "عيّن بواسطة" : "Assigned by", assignment.AssignedByDisplayName ?? Empty(report));
+                    Field(record, report.IsArabic ? "تاريخ التعيين" : "Assigned", FormatDate(assignment.AssignedAtUtc), leftToRight: true);
+                });
+            }
         });
 
     private static void Qualification(ColumnDescriptor column, AssessmentPdfReportModel report)
@@ -122,6 +161,46 @@ public sealed class QuestPdfAssessmentReportRenderer(string fontFamily) : IAsses
             OptionalField(section, report.IsArabic ? "ساري حتى" : "Effective until", FormatDate(report.Qualification.EffectiveUntilUtc), leftToRight: true);
         });
     }
+
+    private static void SubmissionsAndEvidence(ColumnDescriptor column, AssessmentPdfReportModel report) =>
+        Section(column, report.IsArabic ? "مراجع التسليم والأدلة" : "Submission and evidence references", section =>
+        {
+            if (report.Submissions.Count == 0)
+            {
+                section.Item().Text(report.IsArabic ? "لا توجد ملفات تسليم مسجلة." : "No submission files are recorded.");
+            }
+            else
+            {
+                foreach (var submission in report.Submissions)
+                {
+                    section.Item().EnsureSpace(75).PaddingTop(4).Column(record =>
+                    {
+                        record.Item().Text(submission.OriginalFileName).Bold();
+                        Field(record, report.IsArabic ? "نوع المحتوى" : "Content type", submission.ContentType, leftToRight: true);
+                        Field(record, report.IsArabic ? "الحجم" : "Size", FormatFileSize(submission.LengthBytes), leftToRight: true);
+                        Field(record, report.IsArabic ? "حالة الفحص" : "Scan status", LocalizeValue(submission.ScanStatus, report.IsArabic));
+                        Field(record, report.IsArabic ? "تاريخ التسجيل" : "Recorded", FormatDate(submission.SubmittedAtUtc), leftToRight: true);
+                    });
+                }
+            }
+
+            if (report.EvidenceItems.Count == 0)
+            {
+                section.Item().PaddingTop(4).Text(report.IsArabic ? "لا توجد مراجع أدلة إضافية مسجلة." : "No additional evidence references are recorded.");
+                return;
+            }
+
+            section.Item().PaddingTop(6).Text(report.IsArabic ? "أدلة مرتبطة بالمعايير" : "Criterion-linked evidence").SemiBold();
+            foreach (var evidence in report.EvidenceItems)
+            {
+                section.Item().EnsureSpace(55).PaddingTop(4).Column(record =>
+                {
+                    Field(record, report.IsArabic ? "المعيار" : "Criterion", evidence.CriterionCode, leftToRight: true);
+                    Field(record, report.IsArabic ? "وصف الدليل" : "Evidence narrative", evidence.Narrative);
+                    Field(record, report.IsArabic ? "تاريخ التسجيل" : "Recorded", FormatDate(evidence.RecordedAtUtc), leftToRight: true);
+                });
+            }
+        });
 
     private static void Criteria(ColumnDescriptor column, AssessmentPdfReportModel report) =>
         Section(column, report.IsArabic ? "قرارات المعايير" : "Criterion decisions", section =>
@@ -203,6 +282,7 @@ public sealed class QuestPdfAssessmentReportRenderer(string fontFamily) : IAsses
                 section.Item().EnsureSpace(50).PaddingTop(4).Column(record =>
                 {
                     record.Item().Text(LocalizeValue(verification.Decision, report.IsArabic)).Bold();
+                    Field(record, report.IsArabic ? "المتحقق" : "Verifier", verification.VerifierDisplayName ?? Empty(report));
                     OptionalField(record, report.IsArabic ? "الملاحظة" : "Comment", verification.Comment);
                     Field(record, report.IsArabic ? "تاريخ القرار" : "Decision recorded", FormatDate(verification.VerifiedAtUtc), leftToRight: true);
                 });
@@ -213,6 +293,8 @@ public sealed class QuestPdfAssessmentReportRenderer(string fontFamily) : IAsses
                 section.Item().EnsureSpace(100).PaddingTop(4).Column(record =>
                 {
                     record.Item().Text($"{(report.IsArabic ? "عينة المحاولة" : "Attempt sample")} {sample.AttemptNumber}").Bold();
+                    Field(record, report.IsArabic ? "اختيرت بواسطة" : "Selected by", sample.SelectedByDisplayName ?? Empty(report));
+                    Field(record, report.IsArabic ? "المتحقق المعيّن" : "Assigned verifier", sample.AssignedVerifierDisplayName ?? Empty(report));
                     Field(record, report.IsArabic ? "حالة العينة" : "Sample status", LocalizeValue(sample.Status, report.IsArabic));
                     Field(record, report.IsArabic ? "مبرر الاختيار" : "Selection rationale", sample.SelectionRationale);
                     OptionalField(record, report.IsArabic ? "ملاحظة القرار" : "Decision comment", sample.DecisionComment);
@@ -237,6 +319,7 @@ public sealed class QuestPdfAssessmentReportRenderer(string fontFamily) : IAsses
                 section.Item().EnsureSpace(120).PaddingTop(4).Column(record =>
                 {
                     record.Item().Text($"{(report.IsArabic ? "تفويض المحاولة" : "Attempt authorization")} {resubmission.AttemptNumber}").Bold();
+                    Field(record, report.IsArabic ? "المفوّض" : "Authorized by", resubmission.AuthorizedByDisplayName ?? Empty(report));
                     Field(record, report.IsArabic ? "إصدار القواعد" : "Rule-set version", resubmission.RuleSetVersion, leftToRight: true);
                     Field(record, report.IsArabic ? "السبب" : "Reason", resubmission.Reason);
                     Field(record, report.IsArabic ? "تاريخ التفويض" : "Authorized", FormatDate(resubmission.AuthorizedAtUtc), leftToRight: true);
@@ -261,10 +344,39 @@ public sealed class QuestPdfAssessmentReportRenderer(string fontFamily) : IAsses
                 section.Item().EnsureSpace(90).PaddingTop(4).Column(record =>
                 {
                     record.Item().Text(LocalizeValue(appeal.Status, report.IsArabic)).Bold();
+                    OptionalField(record, report.IsArabic ? "راجع بواسطة" : "Reviewed by", appeal.ReviewedByDisplayName);
                     Field(record, report.IsArabic ? "سبب الاستئناف" : "Appeal reason", appeal.Reason);
                     OptionalField(record, report.IsArabic ? "مبرر القرار" : "Decision rationale", appeal.DecisionRationale);
                     Field(record, report.IsArabic ? "تاريخ التقديم" : "Submitted", FormatDate(appeal.CreatedAtUtc), leftToRight: true);
                     OptionalField(record, report.IsArabic ? "تاريخ المراجعة" : "Reviewed", FormatDate(appeal.ReviewedAtUtc), leftToRight: true);
+                });
+            }
+        });
+
+    private static void AuditTrail(ColumnDescriptor column, AssessmentPdfReportModel report) =>
+        Section(column, report.IsArabic ? "سجل التقييم والإصدارات" : "Assessment audit and version history", section =>
+        {
+            if (report.AuditTrail.Count == 0)
+            {
+                section.Item().Text(report.IsArabic ? "لا توجد أحداث أكاديمية مسجلة." : "No academic audit events are recorded.");
+                return;
+            }
+
+            foreach (var auditEvent in report.AuditTrail)
+            {
+                section.Item().EnsureSpace(85).PaddingTop(4).Column(record =>
+                {
+                    record.Item().Text(LocalizeValue(auditEvent.EventType, report.IsArabic)).Bold();
+                    OptionalField(record, report.IsArabic ? "المنفذ" : "Actor", auditEvent.ActorDisplayName);
+                    if (!string.IsNullOrWhiteSpace(auditEvent.FromStatus) || !string.IsNullOrWhiteSpace(auditEvent.ToStatus))
+                    {
+                        Field(record, report.IsArabic ? "تغير الحالة" : "Status change",
+                            $"{LocalizeValue(auditEvent.FromStatus, report.IsArabic)} → {LocalizeValue(auditEvent.ToStatus, report.IsArabic)}");
+                    }
+                    if (auditEvent.AttemptNumber.HasValue)
+                        Field(record, report.IsArabic ? "رقم المحاولة" : "Attempt number", auditEvent.AttemptNumber.Value.ToString(), leftToRight: true);
+                    OptionalField(record, report.IsArabic ? "السبب" : "Reason", auditEvent.Reason);
+                    Field(record, report.IsArabic ? "وقت الحدث" : "Occurred", FormatDate(auditEvent.OccurredAtUtc), leftToRight: true);
                 });
             }
         });
@@ -299,6 +411,7 @@ public sealed class QuestPdfAssessmentReportRenderer(string fontFamily) : IAsses
 
     private static string FormatDate(DateTimeOffset value) => value.UtcDateTime.ToString("yyyy-MM-dd HH:mm 'UTC'");
     private static string? FormatDate(DateTimeOffset? value) => value.HasValue ? FormatDate(value.Value) : null;
+    private static string FormatFileSize(long lengthBytes) => $"{lengthBytes:N0} bytes";
 
     private static string LocalizeValue(string? value, bool isArabic)
     {
@@ -371,11 +484,19 @@ public static class AssessmentPdfRendererFactory
 
         var fontDirectory = configuration["AssessmentReports:FontDirectory"];
         var fontFamily = configuration["AssessmentReports:FontFamily"];
-        if (string.IsNullOrWhiteSpace(fontDirectory)
-            || !Directory.Exists(fontDirectory)
-            || string.IsNullOrWhiteSpace(fontFamily)
-            || !Directory.EnumerateFiles(fontDirectory, "*", SearchOption.TopDirectoryOnly).Any(IsSupportedFontFile))
+        if (string.IsNullOrWhiteSpace(fontDirectory) || string.IsNullOrWhiteSpace(fontFamily))
             return new DisabledAssessmentPdfRenderer("An accessible deployment font directory containing fonts and an Arabic-capable font family are required before PDF reporting can be enabled.");
+
+        try
+        {
+            if (!Directory.Exists(fontDirectory)
+                || !Directory.EnumerateFiles(fontDirectory, "*", SearchOption.TopDirectoryOnly).Any(IsSupportedFontFile))
+                return new DisabledAssessmentPdfRenderer("An accessible deployment font directory containing fonts and an Arabic-capable font family are required before PDF reporting can be enabled.");
+        }
+        catch
+        {
+            return new DisabledAssessmentPdfRenderer("The configured deployment font directory could not be accessed safely.");
+        }
 
         try
         {

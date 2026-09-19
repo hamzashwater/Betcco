@@ -33,6 +33,12 @@ public sealed class AssessmentPdfReportServiceTests
             UserName = "student@betcco.test",
             DisplayName = "Student Example"
         };
+        var leadVerifier = User("Lead Verifier");
+        var assessor = User("Assigned Assessor");
+        var assigner = User("Assessment Administrator");
+        var verifier = User("Internal Verifier");
+        var liv = User("Lead Internal Verifier");
+        var appealReviewer = User("Appeal Reviewer");
         var request = Request(student.Id.ToString());
         request.Status = EvaluationStatus.Completed;
         request.CalculatedGrade = EvaluationGrade.Distinction;
@@ -40,6 +46,33 @@ public sealed class AssessmentPdfReportServiceTests
         request.QualificationVersionSnapshotJson = """
             {"qualificationCode":"BTEC-L3-IT","versionCode":"2026","sourceReference":"SR-2026","effectiveFromUtc":"2026-01-01T00:00:00+00:00"}
             """;
+        var taskType = new TaskType
+        {
+            Id = request.TaskTypeId,
+            ArabicName = "مهمة برمجية",
+            EnglishName = "Programming assignment"
+        };
+        var rubric = new RubricTemplate
+        {
+            Id = request.RubricTemplateId,
+            ArabicTitle = "معايير البرمجة",
+            EnglishTitle = "Programming criteria",
+            Version = 3,
+            AssessmentRuleSetJson = "{}"
+        };
+        request.SubmissionFiles.Add(new SubmissionFile
+        {
+            OriginalFileName = "student-work.pdf",
+            StorageKey = "private/never-export-this-key",
+            ContentType = "application/pdf",
+            LengthBytes = 4096,
+            ScanStatus = UploadScanStatus.Clean
+        });
+        request.EvidenceItems.Add(new EvaluationEvidence
+        {
+            CriterionCode = "P1",
+            Narrative = "Repository history and executed test evidence."
+        });
         request.CriterionResults.Add(new CriterionResult
         {
             CriterionCode = "P1",
@@ -56,7 +89,7 @@ public sealed class AssessmentPdfReportServiceTests
         });
         request.InternalVerifications.Add(new InternalVerification
         {
-            VerifierUserId = Guid.NewGuid().ToString(),
+            VerifierUserId = verifier.Id.ToString(),
             Decision = "Accepted",
             Comment = "Decision checked"
         });
@@ -65,8 +98,8 @@ public sealed class AssessmentPdfReportServiceTests
         {
             InternalVerificationPlan = plan,
             SubmissionAttemptNumber = 2,
-            SelectedByUserId = Guid.NewGuid().ToString(),
-            AssignedVerifierUserId = Guid.NewGuid().ToString(),
+            SelectedByUserId = liv.Id.ToString(),
+            AssignedVerifierUserId = verifier.Id.ToString(),
             SelectionRationale = "Representative completed assessment",
             Status = InternalVerificationSampleStatus.Accepted,
             DecisionComment = "Sample accepted",
@@ -74,7 +107,7 @@ public sealed class AssessmentPdfReportServiceTests
         });
         request.ResubmissionAuthorizations.Add(new ResubmissionAuthorization
         {
-            AuthorizedByUserId = Guid.NewGuid().ToString(),
+            AuthorizedByUserId = liv.Id.ToString(),
             AttemptNumber = 2,
             RuleSetVersion = request.AssessmentRuleSetVersion,
             Reason = "One further submission was authorized.",
@@ -86,35 +119,68 @@ public sealed class AssessmentPdfReportServiceTests
             StudentUserId = student.Id.ToString(),
             Reason = "Please review the criterion decision.",
             Status = EvaluationAppealStatus.Upheld,
+            ReviewedByUserId = appealReviewer.Id.ToString(),
             DecisionRationale = "Evidence supported the appeal.",
             ReviewedAtUtc = DateTimeOffset.UtcNow
         });
-        db.AddRange(student, request);
+        request.AssessmentAuditEvents.Add(new AssessmentAuditEvent
+        {
+            ActorUserId = assessor.Id.ToString(),
+            EventType = "AssessmentCompleted",
+            FromStatus = "UnderReview",
+            ToStatus = "Completed",
+            Reason = "Persisted assessment decision completed.",
+            AttemptNumber = 2
+        });
+        var assignment = new EvaluatorAssignment
+        {
+            EvaluationRequestId = request.Id,
+            EvaluatorUserId = assessor.Id.ToString(),
+            AssignedByUserId = assigner.Id.ToString()
+        };
+        db.AddRange(student, leadVerifier, assessor, assigner, verifier, liv, appealReviewer, taskType, rubric, request, assignment);
         await db.SaveChangesAsync();
         var renderer = new CapturingRenderer();
         var service = new AssessmentPdfReportService(db, new Eligibility(isLeadVerifier: true), renderer);
 
-        var result = await service.CreateAsync("lead-verifier", request.Id, "en-GB");
+        var result = await service.CreateAsync(leadVerifier.Id.ToString(), request.Id, "en-GB");
 
         Assert.NotNull(result);
         Assert.Equal("%PDF-test", Encoding.ASCII.GetString(result.Content));
         var rendered = Assert.IsType<AssessmentPdfReportModel>(renderer.Report);
         Assert.False(rendered.IsArabic);
         Assert.Equal("Student Example", rendered.StudentDisplayName);
+        Assert.Equal("Lead Verifier", rendered.ExportedByDisplayName);
         Assert.Equal("Distinction", rendered.OverallOutcome);
+        Assert.Equal("Programming assignment", rendered.TaskIdentity.TaskTypeEnglishName);
+        Assert.Equal("Programming criteria", rendered.TaskIdentity.RubricEnglishTitle);
+        Assert.Equal(3, rendered.TaskIdentity.RubricVersion);
+        var renderedAssignment = Assert.Single(rendered.AssessorAssignments);
+        Assert.Equal("Assigned Assessor", renderedAssignment.AssessorDisplayName);
+        Assert.Equal("Assessment Administrator", renderedAssignment.AssignedByDisplayName);
+        var submission = Assert.Single(rendered.Submissions);
+        Assert.Equal("student-work.pdf", submission.OriginalFileName);
+        var renderedContent = rendered.ToString();
+        Assert.DoesNotContain("private/", renderedContent, StringComparison.Ordinal);
+        foreach (var internalUserId in new[] { student.Id, leadVerifier.Id, assessor.Id, assigner.Id, verifier.Id, liv.Id, appealReviewer.Id })
+            Assert.DoesNotContain(internalUserId.ToString(), renderedContent, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal("Repository history and executed test evidence.", Assert.Single(rendered.EvidenceItems).Narrative);
         Assert.Equal("NotAchieved", Assert.Single(rendered.Criteria).Achievement);
         Assert.Equal("BTEC-L3-IT", rendered.Qualification?.Code);
         Assert.Equal("2026", rendered.Qualification?.VersionCode);
         Assert.Equal(AssessmentPdfQualificationSnapshotStatus.Available, rendered.Qualification?.SnapshotStatus);
         Assert.Equal("I confirm this is my own work.", Assert.Single(rendered.Declarations).Statement);
-        Assert.Single(rendered.Verifications);
-        Assert.Single(rendered.VerificationSamples);
-        Assert.Single(rendered.Resubmissions);
-        Assert.Single(rendered.Appeals);
+        Assert.Equal("Internal Verifier", Assert.Single(rendered.Verifications).VerifierDisplayName);
+        var sample = Assert.Single(rendered.VerificationSamples);
+        Assert.Equal("Lead Internal Verifier", sample.SelectedByDisplayName);
+        Assert.Equal("Internal Verifier", sample.AssignedVerifierDisplayName);
+        Assert.Equal("Lead Internal Verifier", Assert.Single(rendered.Resubmissions).AuthorizedByDisplayName);
+        Assert.Equal("Appeal Reviewer", Assert.Single(rendered.Appeals).ReviewedByDisplayName);
+        Assert.Equal("Assigned Assessor", Assert.Single(rendered.AuditTrail).ActorDisplayName);
         Assert.DoesNotContain(student.Id.ToString(), rendered.StudentDisplayName ?? string.Empty);
 
         var audit = Assert.Single(await db.AuditLogs.Where(item => item.Action == "AssessmentPdfReportExported").ToListAsync());
-        Assert.Equal("lead-verifier", audit.ActorUserId);
+        Assert.Equal(leadVerifier.Id.ToString(), audit.ActorUserId);
         Assert.Equal("EvaluationRequest", audit.EntityType);
         Assert.Equal(request.Id.ToString(), audit.EntityId);
         Assert.Equal("Success", audit.Outcome);
@@ -210,6 +276,13 @@ public sealed class AssessmentPdfReportServiceTests
         RubricTemplateId = Guid.NewGuid(),
         AssessmentRuleSetVersion = "btec-rule-v3",
         AssessmentRuleSetSnapshotJson = "{}"
+    };
+
+    private static ApplicationUser User(string displayName) => new()
+    {
+        Id = Guid.NewGuid(),
+        UserName = $"{Guid.NewGuid():N}@betcco.test",
+        DisplayName = displayName
     };
 
     private sealed class Eligibility(bool isLeadVerifier) : IAssessorEligibilityService
@@ -324,10 +397,17 @@ public sealed partial class QuestPdfAssessmentReportRendererTests
             isArabic,
             Guid.Parse("4ba8fcad-a192-44d1-aee8-6127f3f91f42"),
             isArabic ? "الطالب التجريبي" : "Example Student",
+            isArabic ? "قائد التحقق الداخلي" : "Lead Internal Verifier",
             "Completed",
             "Merit",
             2,
             "btec-rule-v3",
+            new AssessmentPdfTaskIdentity(
+                "مهمة برمجية",
+                "Programming assignment",
+                "معايير مهمة البرمجة",
+                "Programming assignment criteria",
+                3),
             new AssessmentPdfQualification(
                 AssessmentPdfQualificationSnapshotStatus.Available,
                 "BTEC-L3-IT",
@@ -339,6 +419,9 @@ public sealed partial class QuestPdfAssessmentReportRendererTests
                 null),
             now.AddDays(-30),
             now,
+            new[] { new AssessmentPdfAssessorAssignment(isArabic ? "المقيّم التجريبي" : "Example Assessor", isArabic ? "مسؤول التقييم" : "Assessment Administrator", now.AddDays(-29)) },
+            new[] { new AssessmentPdfSubmission("student-work.pdf", "application/pdf", 4096, "Clean", now.AddDays(-20)) },
+            new[] { new AssessmentPdfEvidence("P1", isArabic ? "مرجع دليل محفوظ." : "Stored evidence reference.", now.AddDays(-19)) },
             Enumerable.Range(1, criterionCount)
                 .Select(index => new AssessmentPdfCriterion(
                     $"{(index % 3 == 0 ? "D" : index % 2 == 0 ? "M" : "P")}{index}",
@@ -350,16 +433,19 @@ public sealed partial class QuestPdfAssessmentReportRendererTests
                 .Select(index => new AssessmentPdfDeclaration(index, "auth-v2", isArabic ? "أقر بأن هذا العمل من إنجازي." : "I confirm this is my own work.", now.AddDays(-index)))
                 .ToArray(),
             Enumerable.Range(1, relatedRecordCount)
-                .Select(index => new AssessmentPdfVerification(index % 2 == 0 ? "ReturnedToAssessor" : "Accepted", isArabic ? "ملاحظة تحقق محفوظة." : "Stored verification comment.", now.AddDays(-index)))
+                .Select(index => new AssessmentPdfVerification(isArabic ? "المتحقق التجريبي" : "Example Verifier", index % 2 == 0 ? "ReturnedToAssessor" : "Accepted", isArabic ? "ملاحظة تحقق محفوظة." : "Stored verification comment.", now.AddDays(-index)))
                 .ToArray(),
             Enumerable.Range(1, relatedRecordCount)
-                .Select(index => new AssessmentPdfVerificationSample(index, isArabic ? "عينة تمثيلية." : "Representative sample.", "Accepted", "Checked", now.AddDays(-index), now.AddDays(-index + 1)))
+                .Select(index => new AssessmentPdfVerificationSample(index, isArabic ? "قائد التحقق الداخلي" : "Lead Internal Verifier", isArabic ? "المتحقق التجريبي" : "Example Verifier", isArabic ? "عينة تمثيلية." : "Representative sample.", "Accepted", "Checked", now.AddDays(-index), now.AddDays(-index + 1)))
                 .ToArray(),
             Enumerable.Range(1, relatedRecordCount)
-                .Select(index => new AssessmentPdfResubmission(index + 1, "btec-rule-v3", isArabic ? "تفويض موثق لإعادة التسليم." : "Documented resubmission authorization.", now.AddDays(-index), now.AddDays(index), now, null))
+                .Select(index => new AssessmentPdfResubmission(index + 1, isArabic ? "قائد التحقق الداخلي" : "Lead Internal Verifier", "btec-rule-v3", isArabic ? "تفويض موثق لإعادة التسليم." : "Documented resubmission authorization.", now.AddDays(-index), now.AddDays(index), now, null))
                 .ToArray(),
             Enumerable.Range(1, relatedRecordCount)
-                .Select(index => new AssessmentPdfAppeal(index % 2 == 0 ? "Rejected" : "Upheld", isArabic ? "سبب استئناف أكاديمي." : "Academic appeal reason.", isArabic ? "مبرر قرار الاستئناف." : "Appeal decision rationale.", now.AddDays(-index), now))
+                .Select(index => new AssessmentPdfAppeal(isArabic ? "مراجع الاستئناف" : "Appeal Reviewer", index % 2 == 0 ? "Rejected" : "Upheld", isArabic ? "سبب استئناف أكاديمي." : "Academic appeal reason.", isArabic ? "مبرر قرار الاستئناف." : "Appeal decision rationale.", now.AddDays(-index), now))
+                .ToArray(),
+            Enumerable.Range(1, relatedRecordCount)
+                .Select(index => new AssessmentPdfAuditEvent(isArabic ? "المقيّم التجريبي" : "Example Assessor", "AssessmentCompleted", "UnderReview", "Completed", isArabic ? "اكتمل القرار المحفوظ." : "Persisted decision completed.", index, now.AddDays(-index)))
                 .ToArray());
     }
 
