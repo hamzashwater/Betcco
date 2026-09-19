@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Betcco.Application.Common;
 using Betcco.Domain.Common;
 using Betcco.Domain.Commerce;
 using Betcco.Domain.Platform;
@@ -166,13 +167,12 @@ public sealed class AdminCommerceCatalogController(BetccoDbContext db) : Control
         if (unique.Length == 0) return unique;
         return unique.Length > 100 ? null : await PublishedCourseIdsAsync(unique, cancellationToken);
     }
-    private static bool Valid(UpsertMembershipPlanRequest request) => ValidSlug(request.Slug) && Text(request.ArabicTitle, 180) && Text(request.EnglishTitle, 180) && Text(request.ArabicDescription, 2500) && Text(request.EnglishDescription, 2500) && request.Price >= 0 && Enum.IsDefined(request.Interval);
+    private static bool Valid(UpsertMembershipPlanRequest request) => SlugValidation.IsAsciiKebabCase(request.Slug) && Text(request.ArabicTitle, 180) && Text(request.EnglishTitle, 180) && Text(request.ArabicDescription, 2500) && Text(request.EnglishDescription, 2500) && request.Price >= 0 && Enum.IsDefined(request.Interval);
     private static bool Valid(UpsertCourseSubscriptionPlanRequest request) => Text(request.ArabicTitle, 180) && Text(request.EnglishTitle, 180) && request.Price >= 0 && Enum.IsDefined(request.Interval);
     private static bool Valid(UpsertCouponRequest request) => !string.IsNullOrWhiteSpace(request.Code) && request.Code.Trim().Length is <= 50 and > 0 && Regex.IsMatch(request.Code.Trim(), "^[A-Za-z0-9-]+$")
         && ((request.PercentageOff is > 0 and <= 100 && request.FixedAmountOff is null) || (request.FixedAmountOff is > 0 && request.PercentageOff == 0))
         && (request.StartsAtUtc is null || request.EndsAtUtc is null || request.StartsAtUtc < request.EndsAtUtc)
         && (request.MaxRedemptions is null || request.MaxRedemptions > 0) && (request.MaxRedemptionsPerUser is null || request.MaxRedemptionsPerUser > 0) && (request.MinimumPurchaseAmount is null || request.MinimumPurchaseAmount >= 0);
-    private static bool ValidSlug(string? value) => !string.IsNullOrWhiteSpace(value) && value.Length <= 120 && Regex.IsMatch(value, "^[a-z0-9]+(?:-[a-z0-9]+)*$");
     private static bool Text(string? value, int max) => !string.IsNullOrWhiteSpace(value) && value.Trim().Length <= max;
     private static string[] NormalizeFeatures(IReadOnlyCollection<string>? values) => (values ?? []).Select(value => value?.Trim() ?? string.Empty).Where(value => value.Length > 0).Distinct(StringComparer.Ordinal).Take(30).ToArray();
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;

@@ -13,6 +13,40 @@ namespace Betcco.IntegrationTests;
 public sealed class CoursePackageAdminControllerTests
 {
     [Fact]
+    public async Task Invalid_blog_slug_is_rejected_without_persistence()
+    {
+        await using var db = CreateDb(Guid.NewGuid().ToString());
+        var controller = AdminContentController(db);
+
+        var result = await controller.CreateBlog(new UpsertBlogPostRequest(
+            "invalid-blog\n", "مقال", "Article", "ملخص", "Excerpt", "المحتوى", "Content", false),
+            CancellationToken.None);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.False(await db.BlogPosts.AnyAsync());
+        Assert.False(await db.AuditLogs.AnyAsync());
+    }
+
+    [Fact]
+    public async Task Invalid_package_slug_is_rejected_without_persistence()
+    {
+        await using var db = CreateDb(Guid.NewGuid().ToString());
+        var track = new LearningTrack { Slug = "btec", ArabicName = "BTEC", EnglishName = "BTEC", IsBtecFocused = true };
+        var course = Course(track, "published-course", "دورة", "Course");
+        db.AddRange(track, course);
+        await db.SaveChangesAsync();
+        var controller = AdminContentController(db);
+
+        var result = await controller.CreatePackage(new UpsertPackageRequest(
+            "invalid-package\n", "باقة", "Package", "وصف", "Description", 20m, false, [course.Id]),
+            CancellationToken.None);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.False(await db.CoursePackages.AnyAsync());
+        Assert.False(await db.AuditLogs.AnyAsync());
+    }
+
+    [Fact]
     public async Task Administrator_can_update_a_package_without_recreating_its_course_links()
     {
         var databaseName = Guid.NewGuid().ToString();
@@ -56,6 +90,17 @@ public sealed class CoursePackageAdminControllerTests
     private static BetccoDbContext CreateDb(string databaseName) => new(new DbContextOptionsBuilder<BetccoDbContext>()
         .UseInMemoryDatabase(databaseName)
         .Options);
+
+    private static AdminContentController AdminContentController(BetccoDbContext db) => new(db, null!, null!)
+    {
+        ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "admin")], "test"))
+            }
+        }
+    };
 
     private static Course Course(LearningTrack track, string slug, string arabicTitle, string englishTitle) => new()
     {
