@@ -172,7 +172,7 @@ async function assertNoHorizontalOverflow(page: Page) {
     viewport: document.documentElement.clientWidth,
     scroll: document.documentElement.scrollWidth,
   }));
-  expect(dimensions.scroll, `horizontal overflow: scroll=${dimensions.scroll}, viewport=${dimensions.viewport}`)
+  expect.soft(dimensions.scroll, `horizontal overflow: scroll=${dimensions.scroll}, viewport=${dimensions.viewport}`)
     .toBeLessThanOrEqual(dimensions.viewport + 1);
 }
 
