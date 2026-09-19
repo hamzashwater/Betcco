@@ -3,11 +3,11 @@
 ## Metadata
 
 - Last updated: 2026-09-20
-- Verified implementation baseline SHA: `2fb3545604fb618019471076e4e0da587dfcea33`
-- Status generated/verified against origin/main: `2fb3545604fb618019471076e4e0da587dfcea33`
-- Baseline branch used for status generation: `docs/status-after-assessment-pdf`
+- Verified implementation baseline SHA: `9995034b6c27ef3ea27cee8264575c2667718e23`
+- Status generated/verified against origin/main: `9995034b6c27ef3ea27cee8264575c2667718e23`
+- Baseline branch used for status generation: `docs/reconcile-security-status`
 - Working tree state during status generation: clean
-- Latest verified CI state: GREEN for PR #6 at feature head `2555a7916144037e1fb75630bc7f784d6f8fba32` before merge — Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully.
+- Latest verified CI state: GREEN after PR #22 merged — Application quality, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully; Dependency review passed on the PR.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
@@ -32,6 +32,12 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - Outcome: DONE. Formal visual PDF reporting is complete on main, with persisted assignment/task, submission/evidence, assessor/internal-verifier/lead-internal-verifier/appeal-review, and academic audit/history context. Sensitive storage keys and internal user IDs are excluded, neutral/non-official BTEC wording is retained, and Arabic/English plus multipage rendering is verified across Linux/Windows font metrics. No migration was added.
 - Verification evidence: Targeted Assessment PDF tests 11/11 passed; Linux QuestPDF reproduction and font-layout fix were verified; English PDF, Arabic PDF, and multipage PDF visual verification passed; required CI was green; final engineering review passed with no blocking findings.
 
+- Task: CodeQL Slug Validation Security Remediation
+- Merge/commit SHA: `9995034b6c27ef3ea27cee8264575c2667718e23`
+- Pull Request: #22
+- Outcome: DONE. Replaced the two CodeQL-flagged slug regex validators with one deterministic shared ASCII kebab-case validator. Both ReDoS findings are closed. The gradebook `cs/user-controlled-bypass` finding was revalidated and dismissed as a documented false positive; no production code was changed for that finding. The security remediation workstream is closed.
+- Verification evidence: Post-merge Application quality, CodeQL (csharp), and CodeQL (javascript-typescript) passed; 0 remaining open CodeQL alerts.
+
 ## Completed
 
 - Git and repository engineering baseline — merged through `8f290c2`, `55668f1`, and `a579895`.
@@ -44,6 +50,7 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - Student Courses Learning Hub — merged through PR #14 in `533b3f9`.
 - Student Course Player + Resume Learning — merged through PR #16 in `8770901`.
 - Formal BTEC Assessment PDF Reporting — merged through PR #6 in `2fb3545`.
+- CodeQL slug validation security remediation — merged through PR #22 in `9995034`.
 
 These entries are merged repository evidence only; new behavior changes still require targeted validation and review.
 
@@ -182,6 +189,7 @@ Do not reopen these areas merely because a later account lacks conversation memo
 - PR #6 is merged into `main` at `2fb3545604fb618019471076e4e0da587dfcea33` with targeted Assessment PDF verification, required CI green, and final engineering review passed; the formal BTEC assessment PDF reporting slice is complete.
 - PR #16 is merged into `main` at `8770901ad78c172cbe0ed33e1235bfc78f739f07` with required CI green; the Student Course Player + Resume Learning task is complete.
 - PR #18 is merged into `main` at `719b10e39b4370c709350dae64a1db80481872ed` with required CI green; Media/Video is FOUNDATION COMPLETE. Advanced media work remains deferred as documented above.
+- PR #22 is merged into `main` at `9995034b6c27ef3ea27cee8264575c2667718e23`; both ReDoS CodeQL findings are closed, the gradebook finding is dismissed as a documented false positive, 0 CodeQL alerts remain open, and the security remediation workstream is closed.
 - PR #14's required CI was verified GREEN for feature head `431d12efe70236872173f66677d88d484b4348b4`: Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully. Future workstreams must still verify their own current remote CI before claiming completion.
 - Production S3, SMTP, ClamAV, Data Protection certificate, hosting, monitoring, backup/restore, payment, payout, and fiscal integrations require external configuration or validation.
 - Full UAT, capacity testing, launch hardening, retention decisions, and final legal review remain outstanding.
