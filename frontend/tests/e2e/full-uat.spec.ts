@@ -98,7 +98,8 @@ test("full-stack UAT across public, student, admin and teacher workspaces", asyn
   await expect(page.getByRole("button", { name: "Mark complete" })).toBeVisible();
   await assertNoHorizontalOverflow(page);
 
-  await page.getByRole("button", { name: "Log out" }).click();
+  await page.context().clearCookies();
+  await page.goto("/en/login");
   await signIn(page, adminEmail, adminPassword, /\/en\/admin\/dashboard$/);
 
   for (const route of adminRoutes) await assertRouteUsable(page, route);
