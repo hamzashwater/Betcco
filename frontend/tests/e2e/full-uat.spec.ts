@@ -1,9 +1,11 @@
-import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
+import {
+  expect,
+  test,
+  type APIRequestContext,
+  type Page,
+} from "@playwright/test";
 
 test.describe.configure({ mode: "serial" });
-
-const adminEmail = requiredEnv("SEED_ADMIN_EMAIL");
-const adminPassword = requiredEnv("SEED_ADMIN_PASSWORD");
 
 const publicRoutes = [
   "/en",
@@ -70,23 +72,44 @@ const adminRoutes = [
   "/en/admin/security",
 ];
 
-test("full-stack UAT across public, student, admin and teacher workspaces", async ({ page, request }, testInfo) => {
+test("@public-matrix public pages remain usable in English LTR and Arabic RTL", async ({
+  page,
+}) => {
   const pageErrors: string[] = [];
   page.on("pageerror", (error) => pageErrors.push(error.message));
 
   for (const route of publicRoutes) await assertRouteUsable(page, route);
+
+  expect(pageErrors).toEqual([]);
+});
+
+test("@golden-path full-stack student, admin and teacher journey", async ({
+  page,
+  request,
+}, testInfo) => {
+  const pageErrors: string[] = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  const adminEmail = requiredEnv("SEED_ADMIN_EMAIL");
+  const adminPassword = requiredEnv("SEED_ADMIN_PASSWORD");
 
   const suffix = `${testInfo.project.name.replace(/[^a-z0-9]/gi, "-")}-${Date.now()}`;
   const studentEmail = `uat-student-${suffix}@betcco.test`;
   const studentPassword = `Aa!${Date.now()}StudentUat`;
 
   await registerStudent(page, studentEmail, studentPassword);
-  await signIn(page, studentEmail, studentPassword, /\/en\/student\/dashboard$/);
+  await signIn(
+    page,
+    studentEmail,
+    studentPassword,
+    /\/en\/student\/dashboard$/,
+  );
 
   for (const route of studentRoutes) await assertRouteUsable(page, route);
 
   await page.goto("/en/courses/btec-programming-foundations");
-  await expect(page.getByRole("heading", { name: "BTEC Programming Foundations" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "BTEC Programming Foundations" }),
+  ).toBeVisible();
   await page.getByRole("button", { name: "Add to cart" }).click();
   await expect(page.getByRole("status")).toContainText("Course added to cart");
   await page.goto("/en/cart");
@@ -94,8 +117,12 @@ test("full-stack UAT across public, student, admin and teacher workspaces", asyn
   await page.getByRole("button", { name: "Create checkout session" }).click();
   await page.getByRole("button", { name: "Complete test payment" }).click();
   await expect(page).toHaveURL(/\/en\/student\/courses$/);
-  await page.getByRole("link", { name: "Start learning: BTEC Programming Foundations" }).click();
-  await expect(page.getByRole("button", { name: "Mark complete" })).toBeVisible();
+  await page
+    .getByRole("link", { name: "Start learning: BTEC Programming Foundations" })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Mark complete" }),
+  ).toBeVisible();
   await assertNoHorizontalOverflow(page);
 
   await page.context().clearCookies();
@@ -113,14 +140,49 @@ test("full-stack UAT across public, student, admin and teacher workspaces", asyn
 
   const resetUrl = await waitForTeacherResetUrl(request, teacherEmail);
   const teacherPassword = `Teacher!Uat${Date.now()}A`;
-  await page.goto(resetUrl.replace("/ar/", "/en/"));
+  const localizedResetUrl = new URL(resetUrl);
+  localizedResetUrl.pathname = "/en/reset-password";
+  await page.goto(localizedResetUrl.toString());
   await page.getByLabel("New password").fill(teacherPassword);
   await page.getByLabel("Confirm password").fill(teacherPassword);
+  const resetResponse = page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/v1/auth/reset-password") &&
+      response.request().method() === "POST",
+  );
   await page.getByRole("button", { name: "Save password" }).click();
+  expect((await resetResponse).status()).toBe(200);
   await expect(page).toHaveURL(/\/en\/login$/);
 
-  await signIn(page, teacherEmail, teacherPassword, /\/en\/teacher\/dashboard$/);
+  await signIn(
+    page,
+    teacherEmail,
+    teacherPassword,
+    /\/en\/teacher\/dashboard$/,
+  );
   for (const route of teacherRoutes) await assertRouteUsable(page, route);
+
+  expect(pageErrors).toEqual([]);
+});
+
+test("@mobile-student student workspace remains usable on mobile", async ({
+  page,
+}, testInfo) => {
+  const pageErrors: string[] = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+
+  const suffix = `${testInfo.project.name.replace(/[^a-z0-9]/gi, "-")}-${Date.now()}`;
+  const studentEmail = `uat-student-${suffix}@betcco.test`;
+  const studentPassword = `Aa!${Date.now()}StudentUat`;
+
+  await registerStudent(page, studentEmail, studentPassword);
+  await signIn(
+    page,
+    studentEmail,
+    studentPassword,
+    /\/en\/student\/dashboard$/,
+  );
+  for (const route of studentRoutes) await assertRouteUsable(page, route);
 
   expect(pageErrors).toEqual([]);
 });
@@ -137,7 +199,9 @@ async function registerStudent(page: Page, email: string, password: string) {
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByLabel("Confirm password").fill(password);
   await page.locator('input[name="termsAccepted"]').check();
-  await page.getByRole("button", { name: "Create account" }).click();
+  const createAccount = page.getByRole("button", { name: "Create account" });
+  await expect(createAccount).toBeEnabled();
+  await createAccount.click();
   await expect(page.getByRole("status")).toContainText("Account created");
 
   const status = await page.evaluate(async (studentEmail) => {
@@ -151,32 +215,58 @@ async function registerStudent(page: Page, email: string, password: string) {
   expect(status).toBe(200);
 }
 
-async function signIn(page: Page, email: string, password: string, target: RegExp) {
+async function signIn(
+  page: Page,
+  email: string,
+  password: string,
+  target: RegExp,
+) {
   await page.goto("/en/login");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
+  const loginResponse = page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/v1/auth/login") &&
+      response.request().method() === "POST",
+  );
   await page.getByRole("button", { name: "Sign in" }).click();
+  expect((await loginResponse).status()).toBe(200);
   await expect(page).toHaveURL(target);
 }
 
 async function assertRouteUsable(page: Page, route: string) {
   const response = await page.goto(route, { waitUntil: "domcontentloaded" });
   expect(response, `No navigation response for ${route}`).not.toBeNull();
-  expect(response!.status(), `Unexpected HTTP status for ${route}`).toBeLessThan(400);
+  expect(
+    response!.status(),
+    `Unexpected HTTP status for ${route}`,
+  ).toBeLessThan(400);
   await expect(page.locator("body")).toBeVisible();
-  await assertNoHorizontalOverflow(page);
+  const locale = route.split("/")[1];
+  const direction = locale === "ar" ? "rtl" : "ltr";
+  await expect(
+    page.locator(`[lang="${locale}"][dir="${direction}"]`).first(),
+  ).toBeVisible();
+  await assertNoHorizontalOverflow(page, route);
 }
 
-async function assertNoHorizontalOverflow(page: Page) {
+async function assertNoHorizontalOverflow(page: Page, route = page.url()) {
   const dimensions = await page.evaluate(() => ({
     viewport: document.documentElement.clientWidth,
     scroll: document.documentElement.scrollWidth,
   }));
-  expect.soft(dimensions.scroll, `horizontal overflow: scroll=${dimensions.scroll}, viewport=${dimensions.viewport}`)
+  expect
+    .soft(
+      dimensions.scroll,
+      `${route} horizontal overflow: scroll=${dimensions.scroll}, viewport=${dimensions.viewport}`,
+    )
     .toBeLessThanOrEqual(dimensions.viewport + 1);
 }
 
-async function waitForTeacherResetUrl(request: APIRequestContext, email: string) {
+async function waitForTeacherResetUrl(
+  request: APIRequestContext,
+  email: string,
+) {
   for (let attempt = 0; attempt < 30; attempt += 1) {
     const list = await request.get("http://127.0.0.1:8025/api/v1/messages");
     if (list.ok()) {
@@ -187,11 +277,18 @@ async function waitForTeacherResetUrl(request: APIRequestContext, email: string)
         if (!recipients.includes(email)) continue;
         const id = message.ID ?? message.Id ?? message.id;
         if (!id) continue;
-        const detailResponse = await request.get(`http://127.0.0.1:8025/api/v1/message/${id}`);
+        const detailResponse = await request.get(
+          `http://127.0.0.1:8025/api/v1/message/${id}`,
+        );
         if (!detailResponse.ok()) continue;
         const detail = await detailResponse.json();
-        const body = JSON.stringify(detail).replaceAll("&amp;", "&");
-        const match = body.match(/http:\/\/localhost:3000\/ar\/reset-password\?userId=[^"\\s<]+&token=[^"\\s<]+/);
+        const body = JSON.stringify(detail)
+          .replaceAll("&amp;", "&")
+          .replaceAll("=\\r\\n", "")
+          .replaceAll("=\\n", "");
+        const match = body.match(
+          /https?:\/\/localhost:3000\/ar\/reset-password\?userId=[^"\s<]+&token=[^"\\\s<]+/,
+        );
         if (match) return match[0];
       }
     }
@@ -202,6 +299,7 @@ async function waitForTeacherResetUrl(request: APIRequestContext, email: string)
 
 function requiredEnv(name: string) {
   const value = process.env[name];
-  if (!value) throw new Error(`Missing required UAT environment variable: ${name}`);
+  if (!value)
+    throw new Error(`Missing required UAT environment variable: ${name}`);
   return value;
 }
