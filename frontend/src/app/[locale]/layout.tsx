@@ -7,7 +7,9 @@ import { AnalyticsTracker } from "@/components/analytics-tracker";
 import { PwaRegister } from "@/components/pwa-register";
 import { Providers } from "@/components/providers";
 import { routing } from "@/i18n/routing";
-import { defaultBrand } from "@/lib/brand";
+import { defaultBrand, publicBrandSettingsQueryKey } from "@/lib/brand";
+import { getPublicBrandSettings } from "@/lib/public-brand-settings.server";
+import { QueryClient, dehydrate } from "@tanstack/react-query";
 import type { Metadata } from "next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
@@ -53,7 +55,12 @@ export default async function LocaleLayout({ children, params }: Props) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
-  const messages = await getMessages();
+  const [messages, brandSettings] = await Promise.all([
+    getMessages(),
+    getPublicBrandSettings(locale),
+  ]);
+  const queryClient = new QueryClient();
+  queryClient.setQueryData(publicBrandSettingsQueryKey(locale), brandSettings);
   const publicBase =
     process.env.NEXT_PUBLIC_APP_URL ?? process.env.APP_PUBLIC_URL;
   const structuredData = JSON.stringify({
@@ -68,7 +75,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   }).replace(/</g, "\\u003c");
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
-      <Providers>
+      <Providers dehydratedState={dehydrate(queryClient)}>
         <DeepSpaceBackground />
         <div
           dir={locale === "ar" ? "rtl" : "ltr"}

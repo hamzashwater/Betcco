@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import { api } from "@/lib/api";
-import { defaultBrand, type BrandSettings } from "@/lib/brand";
+import {
+  publicBrandSettingsQueryKey,
+  resolveBrandSettings,
+  type BrandSettings,
+} from "@/lib/brand";
 import { BrandLogo } from "@/components/brand-logo";
 import { useQuery } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
@@ -11,11 +15,11 @@ export function SiteFooter() {
   const locale = useLocale();
   const t = useTranslations();
   const settings = useQuery({
-    queryKey: ["settings", locale],
+    queryKey: publicBrandSettingsQueryKey(locale),
     queryFn: () => api<BrandSettings>(`/settings/public?locale=${locale}`),
     staleTime: 60_000,
   });
-  const brand = { ...defaultBrand, ...settings.data };
+  const brand = resolveBrandSettings(locale, settings.data);
   return (
     <footer className="elevated-surface mt-auto border-t border-border backdrop-blur-xl">
       <div className="shell grid gap-8 py-10 md:grid-cols-[0.9fr_1fr_1.25fr]">
