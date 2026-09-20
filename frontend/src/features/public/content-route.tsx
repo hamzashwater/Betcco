@@ -10,7 +10,11 @@ import {
 } from "@/features/public/public-content";
 import { PlatformRatingPage } from "@/features/public/platform-rating";
 import { api } from "@/lib/api";
-import { defaultBrand, type BrandSettings } from "@/lib/brand";
+import {
+  publicBrandSettingsQueryKey,
+  resolveBrandSettings,
+  type BrandSettings,
+} from "@/lib/brand";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useLocale } from "next-intl";
@@ -54,10 +58,10 @@ export function ContentRoute({ segments }: { segments: string[] }) {
   const key = segments[0] ?? "about";
   const title = labels[key]?.[language] ?? "BETCCO";
   const settings = useQuery({
-    queryKey: ["settings", locale],
+    queryKey: publicBrandSettingsQueryKey(locale),
     queryFn: () => api<BrandSettings>(`/settings/public?locale=${locale}`),
   });
-  const brand = { ...defaultBrand, ...settings.data };
+  const brand = resolveBrandSettings(locale, settings.data);
   const isLegalDocument = new Set([
     "terms",
     "privacy",
@@ -370,7 +374,7 @@ type LegalDocument = {
 function LegalDocumentPage({ slug }: { slug: string }) {
   const locale = useLocale();
   const settings = useQuery({
-    queryKey: ["settings", locale],
+    queryKey: publicBrandSettingsQueryKey(locale),
     queryFn: () => api<BrandSettings>(`/settings/public?locale=${locale}`),
     staleTime: 60_000,
   });
@@ -379,7 +383,7 @@ function LegalDocumentPage({ slug }: { slug: string }) {
     queryFn: () => api<LegalDocument>(`/legal/${slug}?locale=${locale}`),
     staleTime: 60_000,
   });
-  const brand = { ...defaultBrand, ...settings.data };
+  const brand = resolveBrandSettings(locale, settings.data);
   if (document.isPending)
     return (
       <section className="shell py-12">
