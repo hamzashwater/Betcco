@@ -64,8 +64,9 @@ public sealed class EvaluationAppealServiceTests
         var paymentId = Guid.Parse("55555555-5555-5555-5555-555555555555");
         var assessor = User("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "Assigned Assessor");
         var assigner = User("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "Assessment Administrator");
-        var verifier = User("cccccccc-cccc-cccc-cccc-cccccccccccc", "Internal Verifier");
+        var verifier = User("cccccccc-cccc-cccc-cccc-cccccccccccc", "Regular Internal Verifier");
         var leadVerifier = User("dddddddd-dddd-dddd-dddd-dddddddddddd", "Lead Internal Verifier");
+        var legacyAdmin = User("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee", "Legacy Admin Verifier");
         var request = new EvaluationRequest
         {
             Id = requestId,
@@ -117,7 +118,25 @@ public sealed class EvaluationAppealServiceTests
         request.FeedbackItems.Add(new EvaluationFeedback
         {
             AuthorUserId = assessor.Id.ToString(),
-            Body = "The submitted evidence meets A.P1.",
+            Body = "The assigned assessor documented the criterion decision.",
+            RequestsResubmission = false
+        });
+        request.FeedbackItems.Add(new EvaluationFeedback
+        {
+            AuthorUserId = verifier.Id.ToString(),
+            Body = "The regular internal verifier confirmed the evidence.",
+            RequestsResubmission = false
+        });
+        request.FeedbackItems.Add(new EvaluationFeedback
+        {
+            AuthorUserId = leadVerifier.Id.ToString(),
+            Body = "The lead internal verifier confirmed the evidence.",
+            RequestsResubmission = false
+        });
+        request.FeedbackItems.Add(new EvaluationFeedback
+        {
+            AuthorUserId = legacyAdmin.Id.ToString(),
+            Body = "The legacy admin acted through the verifier workflow.",
             RequestsResubmission = false
         });
         request.InternalVerifications.Add(new InternalVerification
@@ -140,10 +159,26 @@ public sealed class EvaluationAppealServiceTests
         });
         request.ResubmissionAuthorizations.Add(new ResubmissionAuthorization
         {
-            AuthorizedByUserId = leadVerifier.Id.ToString(),
+            AuthorizedByUserId = verifier.Id.ToString(),
             AttemptNumber = 1,
             RuleSetVersion = request.AssessmentRuleSetVersion,
-            Reason = "One further submission was authorized.",
+            Reason = "The regular internal verifier authorized a further submission.",
+            DueAtUtc = DateTimeOffset.UtcNow.AddDays(7)
+        });
+        request.ResubmissionAuthorizations.Add(new ResubmissionAuthorization
+        {
+            AuthorizedByUserId = leadVerifier.Id.ToString(),
+            AttemptNumber = 2,
+            RuleSetVersion = request.AssessmentRuleSetVersion,
+            Reason = "The lead internal verifier authorized a further submission.",
+            DueAtUtc = DateTimeOffset.UtcNow.AddDays(7)
+        });
+        request.ResubmissionAuthorizations.Add(new ResubmissionAuthorization
+        {
+            AuthorizedByUserId = legacyAdmin.Id.ToString(),
+            AttemptNumber = 3,
+            RuleSetVersion = request.AssessmentRuleSetVersion,
+            Reason = "The legacy admin acted through the verifier workflow.",
             DueAtUtc = DateTimeOffset.UtcNow.AddDays(7)
         });
         request.Appeals.Add(new EvaluationAppeal
@@ -179,7 +214,7 @@ public sealed class EvaluationAppealServiceTests
             EvaluatorUserId = assessor.Id.ToString(),
             AssignedByUserId = assigner.Id.ToString()
         };
-        db.AddRange(assessor, assigner, verifier, leadVerifier, request, assignment);
+        db.AddRange(assessor, assigner, verifier, leadVerifier, legacyAdmin, request, assignment);
         await db.SaveChangesAsync();
 
         var exports = new AssessmentAuditExportService(db, new AcademicStaff());
@@ -205,8 +240,15 @@ public sealed class EvaluationAppealServiceTests
         Assert.Equal("Assigned Assessor", payload.GetProperty("evaluatorAssignments")[0].GetProperty("assessor").GetProperty("displayName").GetString());
         Assert.Equal("2026", payload.GetProperty("evaluation").GetProperty("qualification").GetProperty("versionCode").GetString());
         Assert.Equal("Assessor", payload.GetProperty("academicAuditTrail")[0].GetProperty("actor").GetProperty("role").GetString());
-        Assert.Equal("Internal Verifier", payload.GetProperty("internalVerification").GetProperty("decisions")[0].GetProperty("verifier").GetProperty("displayName").GetString());
+        Assert.Equal("Regular Internal Verifier", payload.GetProperty("internalVerification").GetProperty("decisions")[0].GetProperty("verifier").GetProperty("displayName").GetString());
         Assert.NotEqual(default, payload.GetProperty("academicAuditTrail")[0].GetProperty("occurredAtUtc").GetDateTimeOffset());
+        AssertActor(payload.GetProperty("feedback"), "author", "Assigned Assessor", "Assessor");
+        AssertActor(payload.GetProperty("feedback"), "author", "Regular Internal Verifier", "InternalVerifier");
+        AssertActor(payload.GetProperty("feedback"), "author", "Lead Internal Verifier", "InternalVerifier");
+        AssertActor(payload.GetProperty("feedback"), "author", "Legacy Admin Verifier", "InternalVerifier");
+        AssertActor(payload.GetProperty("resubmissionAuthorizations"), "authorizedBy", "Regular Internal Verifier", "InternalVerifier");
+        AssertActor(payload.GetProperty("resubmissionAuthorizations"), "authorizedBy", "Lead Internal Verifier", "InternalVerifier");
+        AssertActor(payload.GetProperty("resubmissionAuthorizations"), "authorizedBy", "Legacy Admin Verifier", "InternalVerifier");
 
         AssertJsonHasNoProperties(json.RootElement,
             "id", "evaluationRequestId", "qualificationVersionId", "evaluatorUserId", "assignedByUserId",
@@ -214,7 +256,7 @@ public sealed class EvaluationAppealServiceTests
             "reviewedByUserId", "actorUserId", "studentUserId", "storageKey", "ipAddress", "userAgent", "correlationId");
         AssertJsonHasNoStringValues(json.RootElement,
             requestId.ToString(), submissionId.ToString(), qualificationVersionId.ToString(), auditEventId.ToString(), paymentId.ToString(),
-            assessor.Id.ToString(), assigner.Id.ToString(), verifier.Id.ToString(), leadVerifier.Id.ToString(),
+            assessor.Id.ToString(), assigner.Id.ToString(), verifier.Id.ToString(), leadVerifier.Id.ToString(), legacyAdmin.Id.ToString(),
             "student-id-sentinel", "private/internal/storage-key-sentinel", "203.0.113.77", "SentinelUserAgent/9.9", "secret-token-sentinel");
         Assert.Contains(await db.AuditLogs.ToListAsync(), item => item.Action == "AssessmentAuditExported" && item.ActorUserId == "lead");
     }
@@ -233,6 +275,15 @@ public sealed class EvaluationAppealServiceTests
         UserName = $"{displayName.Replace(" ", ".", StringComparison.Ordinal).ToLowerInvariant()}@betcco.test",
         DisplayName = displayName
     };
+
+    private static void AssertActor(JsonElement collection, string actorProperty, string displayName, string expectedRole)
+    {
+        var actor = collection.EnumerateArray()
+            .Select(item => item.GetProperty(actorProperty))
+            .Single(item => item.GetProperty("displayName").GetString() == displayName);
+
+        Assert.Equal(expectedRole, actor.GetProperty("role").GetString());
+    }
 
     private static void AssertJsonHasNoProperties(JsonElement root, params string[] forbiddenProperties)
     {

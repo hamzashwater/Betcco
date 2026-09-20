@@ -70,6 +70,10 @@ public sealed class AssessmentAuditExportService(
             .ToDictionaryAsync(user => user.Id, user => user.DisplayName, cancellationToken);
         string? DisplayName(string? userId) =>
             Guid.TryParse(userId, out var id) ? displayNames.GetValueOrDefault(id) : null;
+        string FeedbackAuthorRole(string userId) => assignments.Any(item =>
+            string.Equals(item.EvaluatorUserId, userId, StringComparison.OrdinalIgnoreCase))
+                ? "Assessor"
+                : "InternalVerifier";
 
         var exportedAtUtc = DateTimeOffset.UtcNow;
         var payload = new AssessmentAuditPayload(
@@ -125,7 +129,7 @@ public sealed class AssessmentAuditExportService(
                 .ToArray(),
             request.FeedbackItems.OrderBy(item => item.CreatedAtUtc)
                 .Select(item => new AssessmentAuditFeedback(
-                    new AssessmentAuditActor("Assessor", DisplayName(item.AuthorUserId)),
+                    new AssessmentAuditActor(FeedbackAuthorRole(item.AuthorUserId), DisplayName(item.AuthorUserId)),
                     item.Body,
                     item.RequestsResubmission,
                     item.CreatedAtUtc))
@@ -157,7 +161,7 @@ public sealed class AssessmentAuditExportService(
                     .ToArray()),
             request.ResubmissionAuthorizations.OrderBy(item => item.AttemptNumber)
                 .Select(item => new AssessmentAuditResubmissionAuthorization(
-                    new AssessmentAuditActor("LeadInternalVerifier", DisplayName(item.AuthorizedByUserId)),
+                    new AssessmentAuditActor("InternalVerifier", DisplayName(item.AuthorizedByUserId)),
                     item.AttemptNumber,
                     item.RuleSetVersion,
                     item.Reason,
