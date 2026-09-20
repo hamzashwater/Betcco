@@ -70,6 +70,21 @@ Copy `deploy.env.example` to a secure location outside the repository. Restrict 
 
 Development continues to use `.env` and `docker-compose.yml`. CI/Test uses disposable credentials in GitHub Actions. Staging and Production use `compose.deploy.yml` and a secret environment file outside Git.
 
+### Assessment PDF reporting
+
+Assessment PDF reporting remains an explicit deployment opt-in. Before enabling it, confirm the applicable QuestPDF license tier and deploy an Arabic-capable TrueType or OpenType font with the API image or as a read-only mount. Configure all four values together:
+
+```text
+AssessmentReports__PdfProvider=QuestPdf
+AssessmentReports__QuestPdfLicense=Community|Professional|Enterprise
+AssessmentReports__FontDirectory=/absolute/path/to/deployed/fonts
+AssessmentReports__FontFamily=<exact registered family name>
+```
+
+The API disables the renderer when the provider, license, directory, font files, or configured family is unavailable. Startup probes the configured family with English and Arabic text while environment-font discovery is disabled, so a host-installed fallback cannot make one deployment behave differently from another. The download endpoint remains restricted to the Lead Internal Verifier policy and records a successful-export audit only after PDF generation succeeds.
+
+`compose.deploy.yml` deliberately pins the provider to `Disabled` and does not mount a font directory. Enabling reports in staging or production therefore requires a separate reviewed deployment change that supplies the font files and these settings; do not place licensed font binaries or secret deployment configuration in source control without an explicit distribution review.
+
 ## Build
 
 From the exact reviewed Git commit:
