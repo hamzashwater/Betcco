@@ -3,15 +3,21 @@
 ## Metadata
 
 - Last updated: 2026-09-20
-- Verified implementation baseline SHA: `9995034b6c27ef3ea27cee8264575c2667718e23`
-- Status generated/verified against origin/main: `9995034b6c27ef3ea27cee8264575c2667718e23`
-- Baseline branch used for status generation: `docs/reconcile-security-status`
+- Verified implementation baseline SHA: `7ab8c8ef428fbbce4724f8b94fe920b3fb9c775a`
+- Status generated/verified against origin/main: `7ab8c8ef428fbbce4724f8b94fe920b3fb9c775a`
+- Baseline branch used for status generation: `docs/reconcile-assessment-audit-export-status`
 - Working tree state during status generation: clean
-- Latest verified CI state: GREEN after PR #22 merged — Application quality, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully; Dependency review passed on the PR.
+- Latest verified CI state: GREEN after PR #24 merged — Application quality, CodeQL (csharp), CodeQL (javascript-typescript), and Dependency review completed successfully.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
 ## Last Merged Task
+
+- Task: Structured Assessment Audit Export Identifier Minimization
+- Merge/commit SHA: `7ab8c8ef428fbbce4724f8b94fe920b3fb9c775a`
+- Pull Request: #24
+- Outcome: DONE. Structured BTEC assessment audit export uses a safe explicit v2 contract. Raw internal identifiers and sensitive implementation metadata are structurally excluded; academic traceability is preserved; actor-role attribution is corrected without fabricating unsupported historical RBAC precision; and deterministic SHA-256 integrity is preserved. No database migration, frontend change, or Assessment PDF change was introduced.
+- Verification evidence: Required post-merge CI GREEN — Application quality, Dependency review, CodeQL, CodeQL (csharp), and CodeQL (javascript-typescript).
 
 - Task: Student Course Player + Resume Learning
 - Merge/commit SHA: `8770901ad78c172cbe0ed33e1235bfc78f739f07`
@@ -51,6 +57,7 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - Student Course Player + Resume Learning — merged through PR #16 in `8770901`.
 - Formal BTEC Assessment PDF Reporting — merged through PR #6 in `2fb3545`.
 - CodeQL slug validation security remediation — merged through PR #22 in `9995034`.
+- Structured Assessment Audit Export Identifier Minimization — merged through PR #24 in `7ab8c8e`.
 
 These entries are merged repository evidence only; new behavior changes still require targeted validation and review.
 
@@ -58,7 +65,7 @@ These entries are merged repository evidence only; new behavior changes still re
 
 ### BTEC assessment correctness core
 
-Done: Main contains the versioned criterion/rule and qualification snapshot foundations, authenticity declarations, authorised resubmission records, internal-verification sampling, appeals, structured assessment-audit export, and formal visual PDF reporting. The PDF includes assignment/task, submission/evidence, assessor/internal-verifier/lead-internal-verifier/appeal-review, and academic audit/history context; excludes sensitive storage/internal IDs; retains neutral/non-official BTEC wording; and has verified Arabic/English, multipage, and Linux/Windows font-layout compatibility with required CI green.
+Done: Main contains the versioned criterion/rule and qualification snapshot foundations, authenticity declarations, authorised resubmission records, internal-verification sampling, appeals, structured assessment-audit export, and formal visual PDF reporting. The structured audit export now uses the safe v2 contract: raw internal identifiers and sensitive implementation metadata are structurally excluded, academic traceability is preserved, actor-role attribution is corrected, unsupported historical RBAC precision is not fabricated, and deterministic SHA-256 integrity is preserved. The PDF includes assignment/task, submission/evidence, assessor/internal-verifier/lead-internal-verifier/appeal-review, and academic audit/history context; excludes sensitive storage/internal IDs; retains neutral/non-official BTEC wording; and has verified Arabic/English, multipage, and Linux/Windows font-layout compatibility with required CI green.
 
 Remaining: No remaining item in this formal PDF reporting slice is recorded here. Broader assessment capabilities remain governed by the roadmap below.
 
@@ -190,9 +197,20 @@ Do not reopen these areas merely because a later account lacks conversation memo
 - PR #16 is merged into `main` at `8770901ad78c172cbe0ed33e1235bfc78f739f07` with required CI green; the Student Course Player + Resume Learning task is complete.
 - PR #18 is merged into `main` at `719b10e39b4370c709350dae64a1db80481872ed` with required CI green; Media/Video is FOUNDATION COMPLETE. Advanced media work remains deferred as documented above.
 - PR #22 is merged into `main` at `9995034b6c27ef3ea27cee8264575c2667718e23`; both ReDoS CodeQL findings are closed, the gradebook finding is dismissed as a documented false positive, 0 CodeQL alerts remain open, and the security remediation workstream is closed.
+- PR #24 is merged into `main` at `7ab8c8ef428fbbce4724f8b94fe920b3fb9c775a`; assessment-audit export identifier minimization is DONE, the safe v2 contract excludes raw internal identifiers and sensitive implementation metadata, actor-role attribution is corrected, and required post-merge CI is GREEN.
 - PR #14's required CI was verified GREEN for feature head `431d12efe70236872173f66677d88d484b4348b4`: Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully. Future workstreams must still verify their own current remote CI before claiming completion.
 - Production S3, SMTP, ClamAV, Data Protection certificate, hosting, monitoring, backup/restore, payment, payout, and fiscal integrations require external configuration or validation.
 - Full UAT, capacity testing, launch hardening, retention decisions, and final legal review remain outstanding.
+
+### Remaining P0 items
+
+- PR #20 / full-stack UAT remains open and unresolved.
+- Reasonable-adjustment and extension workflow remains unresolved.
+- Retake/resit policy and workflow remains unresolved.
+- Staff MFA decision and enforcement remains unresolved.
+- Secret-scanning verification remains unresolved.
+- External BTEC/specification/policy dependencies remain unresolved.
+- Payments, legal, and accounting external blockers remain unresolved.
 
 ## Important Decisions
 
