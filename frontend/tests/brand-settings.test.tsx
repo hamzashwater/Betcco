@@ -5,7 +5,10 @@ import {
   resolveBrandSettings,
   type BrandSettings,
 } from "@/lib/brand";
-import { getPublicBrandSettings } from "@/lib/public-brand-settings.server";
+import {
+  getPublicBrandSettings,
+  PUBLIC_BRAND_SETTINGS_TIMEOUT_MS,
+} from "@/lib/public-brand-settings.server";
 import { QueryClient, dehydrate, useQuery } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -16,6 +19,7 @@ const arabicSecondary =
   "من الدرس إلى المهمة، ومن المهمة إلى تحقيق المعايير — كل ما يحتاجه طالب BTEC في مكان واحد.";
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
 });
@@ -57,12 +61,98 @@ describe("locale-aware brand settings", () => {
 
     expect(fetchMock).toHaveBeenCalledWith(
       "http://api.betcco.test/api/v1/settings/public?locale=en",
-      { cache: "no-store" },
+      {
+        cache: "no-store",
+        signal: expect.any(AbortSignal) as AbortSignal,
+      },
     );
     expect(brand.BrandSecondaryMessage).toBe("Configured English message");
     expect(brand.BtecDisclaimer).toMatch(
       /^BETCCO is an independent educational platform/,
     );
+  });
+
+  test("uses the localized fallback for a non-success response", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn<typeof fetch>()
+        .mockResolvedValue(new Response(null, { status: 503 })),
+    );
+
+    const brand = await getPublicBrandSettings("ar-JO");
+
+    expect(brand.BrandSecondaryMessage).toBe(arabicSecondary);
+    expect(brand.BrandTagline).toBe("BETCCO — تعلّم. طبّق. حقق المعايير.");
+  });
+
+  test("uses the localized fallback when the response contains malformed JSON", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn<typeof fetch>().mockResolvedValue(
+        new Response("{", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
+    await expect(getPublicBrandSettings("en")).resolves.toMatchObject({
+      BrandSecondaryMessage: englishSecondary,
+      BrandTagline: "BETCCO — Learn. Apply. Achieve.",
+    });
+  });
+
+  test("merges valid partial settings without accepting invalid or cross-locale fallback values", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn<typeof fetch>().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            BrandSecondaryMessage: "Configured English message",
+            BrandTagline: null,
+            BtecDisclaimer: 42,
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    );
+
+    const brand = await getPublicBrandSettings("en-US");
+
+    expect(brand.BrandSecondaryMessage).toBe("Configured English message");
+    expect(brand.BrandTagline).toBe("BETCCO — Learn. Apply. Achieve.");
+    expect(brand.BtecDisclaimer).toMatch(
+      /^BETCCO is an independent educational platform/,
+    );
+    expect(brand.BtecDisclaimer).not.toMatch(/^BETCCO منصة تعليمية مستقلة/);
+  });
+
+  test("aborts a stalled request and returns the localized fallback", async () => {
+    vi.useFakeTimers();
+    let requestSignal: AbortSignal | undefined;
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockImplementation((_input, init) => {
+        requestSignal = init?.signal ?? undefined;
+        return new Promise<Response>((_resolve, reject) => {
+          requestSignal?.addEventListener(
+            "abort",
+            () => reject(requestSignal?.reason),
+            { once: true },
+          );
+        });
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const brandPromise = getPublicBrandSettings("ar");
+    await vi.advanceTimersByTimeAsync(PUBLIC_BRAND_SETTINGS_TIMEOUT_MS);
+
+    await expect(brandPromise).resolves.toMatchObject({
+      BrandSecondaryMessage: arabicSecondary,
+      BrandTagline: "BETCCO — تعلّم. طبّق. حقق المعايير.",
+    });
+    expect(requestSignal?.aborted).toBe(true);
   });
 
   test.each([

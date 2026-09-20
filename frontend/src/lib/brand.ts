@@ -60,9 +60,15 @@ export function getDefaultBrand(locale: string): BrandSettings {
 
 export function resolveBrandSettings(
   locale: string,
-  settings?: BrandSettings,
+  settings?: Record<string, unknown>,
 ): BrandSettings {
-  return { ...getDefaultBrand(locale), ...settings };
+  const validSettings = Object.fromEntries(
+    Object.entries(settings ?? {}).filter(
+      (entry): entry is [string, string] => typeof entry[1] === "string",
+    ),
+  );
+
+  return { ...getDefaultBrand(locale), ...validSettings };
 }
 
 export function publicBrandSettingsQueryKey(locale: string) {
