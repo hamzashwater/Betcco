@@ -247,6 +247,7 @@ async function assertRouteUsable(page: Page, route: string) {
   await expect(
     page.locator(`[lang="${locale}"][dir="${direction}"]`).first(),
   ).toBeVisible();
+  await page.waitForLoadState("networkidle");
   await assertNoHorizontalOverflow(page, route);
 }
 
