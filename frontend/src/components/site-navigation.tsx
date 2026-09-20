@@ -4,7 +4,11 @@ import { CommandPalette } from "@/components/navigation/command-palette";
 import { NotificationCenter } from "@/components/navigation/notification-center";
 import { BrandLogo } from "@/components/brand-logo";
 import { ApiError, api, invalidateCsrfToken } from "@/lib/api";
-import { defaultBrand, type BrandSettings } from "@/lib/brand";
+import {
+  publicBrandSettingsQueryKey,
+  resolveBrandSettings,
+  type BrandSettings,
+} from "@/lib/brand";
 import { getGsap, motionIsReduced } from "@/lib/gsap";
 import { useGSAP } from "@gsap/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -72,7 +76,7 @@ export function SiteNavigation() {
     staleTime: 60_000,
   });
   const settings = useQuery({
-    queryKey: ["settings", locale],
+    queryKey: publicBrandSettingsQueryKey(locale),
     queryFn: () => api<BrandSettings>(`/settings/public?locale=${locale}`),
     staleTime: 60_000,
   });
@@ -91,7 +95,7 @@ export function SiteNavigation() {
       if (error instanceof ApiError && error.status === 401) completeLogout();
     },
   });
-  const brand = { ...defaultBrand, ...settings.data };
+  const brand = resolveBrandSettings(locale, settings.data);
   const isSignedIn = Boolean(user.data);
   const isStudent = user.data?.roles.includes("Student") ?? false;
   const authResolved = !user.isPending;
