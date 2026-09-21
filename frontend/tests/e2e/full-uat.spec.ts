@@ -2,6 +2,7 @@ import {
   expect,
   test,
   type APIRequestContext,
+  type ConsoleMessage,
   type Page,
 } from "@playwright/test";
 
@@ -81,6 +82,51 @@ test("@public-matrix public pages remain usable in English LTR and Arabic RTL", 
   for (const route of publicRoutes) await assertRouteUsable(page, route);
 
   expect(pageErrors).toEqual([]);
+});
+
+test("@about-hydration /en/about keeps English SSR and hydrated content aligned", async ({
+  page,
+}) => {
+  const englishSecondary =
+    "From learning to assignments and assessment criteria — everything a BTEC student needs in one place.";
+  const arabicSecondary =
+    "من الدرس إلى المهمة، ومن المهمة إلى تحقيق المعايير — كل ما يحتاجه طالب BTEC في مكان واحد.";
+  const pageErrors: string[] = [];
+  const hydrationConsoleErrors: string[] = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  page.on("console", (message: ConsoleMessage) => {
+    if (
+      message.type() === "error" &&
+      /hydration|react error #418|server rendered html/i.test(message.text())
+    )
+      hydrationConsoleErrors.push(message.text());
+  });
+
+  const response = await page.goto("/en/about", { waitUntil: "load" });
+  expect(response).not.toBeNull();
+  expect(response!.status()).toBeLessThan(400);
+  const serverHtml = await response!.text();
+  expect(serverHtml).toContain(englishSecondary);
+  expect(serverHtml).not.toContain(arabicSecondary);
+
+  await expect(
+    page.getByRole("heading", {
+      name: "Clear learning built around application",
+    }),
+  ).toBeVisible();
+  await expect(
+    page.locator("#main-content").getByText(englishSecondary, { exact: true }),
+  ).toBeVisible();
+  await expect(page.locator('[lang="en"][dir="ltr"]')).toBeVisible();
+  await page.waitForLoadState("networkidle");
+
+  const dimensions = await page.evaluate(() => ({
+    viewport: document.documentElement.clientWidth,
+    scroll: document.documentElement.scrollWidth,
+  }));
+  expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.viewport);
+  expect(pageErrors).toEqual([]);
+  expect(hydrationConsoleErrors).toEqual([]);
 });
 
 test("@golden-path full-stack student, admin and teacher journey", async ({

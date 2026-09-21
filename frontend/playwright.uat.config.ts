@@ -69,7 +69,7 @@ export default defineConfig({
     },
     {
       name: "webkit-iphone-14",
-      grep: /@public-matrix/,
+      grep: /@public-matrix|@about-hydration/,
       use: { ...devices["iPhone 14"] },
     },
   ],
