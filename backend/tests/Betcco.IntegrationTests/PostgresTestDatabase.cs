@@ -2,6 +2,8 @@ using System.Text.RegularExpressions;
 using Betcco.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql;
 
 namespace Betcco.IntegrationTests;
@@ -21,7 +23,7 @@ internal sealed partial class PostgresTestDatabase : IAsyncDisposable
 
     public string ConnectionString { get; }
 
-    public static async Task<PostgresTestDatabase> CreateAsync(string scope, CancellationToken cancellationToken = default)
+    public static async Task<PostgresTestDatabase> CreateAsync(string scope, CancellationToken cancellationToken = default, string? targetMigration = null)
     {
         var adminConnectionString = Environment.GetEnvironmentVariable("BETCCO_TEST_POSTGRES_ADMIN");
         if (string.IsNullOrWhiteSpace(adminConnectionString))
@@ -55,7 +57,7 @@ internal sealed partial class PostgresTestDatabase : IAsyncDisposable
         try
         {
             await using var setup = database.CreateContext();
-            await setup.Database.MigrateAsync(cancellationToken);
+            await setup.GetService<IMigrator>().MigrateAsync(targetMigration, cancellationToken);
             return database;
         }
         catch
