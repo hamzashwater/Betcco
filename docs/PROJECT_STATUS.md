@@ -2,16 +2,24 @@
 
 ## Metadata
 
-- Last updated: 2026-09-21
-- Verified implementation baseline SHA: `25b25e30e3dc1e6a63025d4308073545e00412e9`
-- Status generated/verified against origin/main: `25b25e30e3dc1e6a63025d4308073545e00412e9`
-- Baseline branch used for status generation: `docs/reconcile-p0-status`
+- Last updated: 2026-09-22
+- Verified implementation baseline SHA: `be2b275b02a5c1f31aaead68c2fe32784d50bc11`
+- Status generated/verified against origin/main: `be2b275b02a5c1f31aaead68c2fe32784d50bc11`
+- Baseline branch used for status generation: `docs/reconcile-assessment-identity-status`
 - Working tree state during status generation: clean
-- Latest verified CI state: GREEN on current main — Application quality, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully. Dependency review may be skipped on direct push/merge commits; PR #20 Full-stack UAT was green before merge (7 passed / 0 failed / 0 skipped).
+- Latest verified CI state: GREEN on current main — Application quality, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully after PR #28. Dependency review was skipped on push as expected by workflow configuration; PR #28's pre-merge Dependency review passed.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
-## Last Merged Task
+## Latest Merged Task
+
+- Task: ASSESS Academic Identity Foundation
+- Merge/commit SHA: `be2b275b02a5c1f31aaead68c2fe32784d50bc11`
+- Pull Request: #28
+- Outcome: DONE. Added `UnitDefinition` under `QualificationVersion`, `AssessmentDefinition` under `UnitDefinition`, and `AssessmentScope` under `AssessmentDefinition`, with Grade, Specialization, and existing `RubricTemplate` bindings. Added nullable `EvaluationRequest.AssessmentScopeId` and `EvaluationRequest.AssessmentScopeSnapshotJson` through an additive migration. Historic EvaluationRequests were preserved without backfill; all new foreign keys use `RESTRICT`. Scope selection, scope snapshot population, complete academic authoring, evaluator-specialism routing, Assessment Coordinator capabilities, and Reasonable Adjustments remain future work. LEARN and ASSESS remain separate; `EvaluationRequest` remains the ASSESS aggregate root and `CourseModule` remains unchanged.
+- Verification evidence: Focused PostgreSQL identity/migration tests 3/3, targeted integration suite 31/31, focused BTEC unit tests 4/4, backend build with 0 warnings and 0 errors, formatting verification, git diff verification, PR full-stack browser UAT, Application quality, Dependency review, and CodeQL passed. Post-merge Application quality and both CodeQL workflows succeeded; Dependency review was skipped on push as expected by workflow configuration.
+
+## Previous Merged Tasks
 
 - Task: Structured Assessment Audit Export Identifier Minimization
 - Merge/commit SHA: `7ab8c8ef428fbbce4724f8b94fe920b3fb9c775a`
@@ -72,6 +80,7 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - Structured Assessment Audit Export Identifier Minimization — merged through PR #24 in `7ab8c8e`.
 - `/en/about` brand hydration locale defect — merged through PR #26 in `23ff9d3`.
 - Full-stack UAT browser matrix — merged through PR #20 in `25b25e3`.
+- ASSESS academic identity foundation — merged through PR #28 in `be2b275b`.
 
 These entries are merged repository evidence only; new behavior changes still require targeted validation and review.
 
@@ -79,9 +88,9 @@ These entries are merged repository evidence only; new behavior changes still re
 
 ### BTEC assessment correctness core
 
-Done: Main contains the versioned criterion/rule and qualification snapshot foundations, authenticity declarations, authorised resubmission records, internal-verification sampling, appeals, structured assessment-audit export, and formal visual PDF reporting. The structured audit export now uses the safe v2 contract: raw internal identifiers and sensitive implementation metadata are structurally excluded, academic traceability is preserved, actor-role attribution is corrected, unsupported historical RBAC precision is not fabricated, and deterministic SHA-256 integrity is preserved. The PDF includes assignment/task, submission/evidence, assessor/internal-verifier/lead-internal-verifier/appeal-review, and academic audit/history context; excludes sensitive storage/internal IDs; retains neutral/non-official BTEC wording; and has verified Arabic/English, multipage, and Linux/Windows font-layout compatibility with required CI green.
+Done: Main contains the versioned criterion/rule and qualification snapshot foundations, the additive ASSESS academic identity foundation from PR #28 (`UnitDefinition`, `AssessmentDefinition`, `AssessmentScope`, and the nullable `EvaluationRequest` bridge), authenticity declarations, authorised resubmission records, internal-verification sampling, appeals, structured assessment-audit export, and formal visual PDF reporting. The structured audit export now uses the safe v2 contract: raw internal identifiers and sensitive implementation metadata are structurally excluded, academic traceability is preserved, actor-role attribution is corrected, unsupported historical RBAC precision is not fabricated, and deterministic SHA-256 integrity is preserved. The PDF includes assignment/task, submission/evidence, assessor/internal-verifier/lead-internal-verifier/appeal-review, and academic audit/history context; excludes sensitive storage/internal IDs; retains neutral/non-official BTEC wording; and has verified Arabic/English, multipage, and Linux/Windows font-layout compatibility with required CI green.
 
-Remaining: No remaining item in this formal PDF reporting slice is recorded here. Broader assessment capabilities remain governed by the roadmap below.
+Remaining: Slice 2 is pending: versioned Learning Aims and canonical Criteria, AssessmentDefinition publication/source mapping, and Qualification/Rubric compatibility enforcement. AssessmentScope is not yet student-selectable and scope snapshots are not yet populated by the existing EvaluationRequest workflow. Evaluator-specialism routing, Assessment Coordinator capabilities, and Reasonable Adjustments remain unresolved.
 
 ### Privacy and compliance workflow core
 
@@ -166,7 +175,8 @@ No new Workstream B branch, owner, task, or implementation is invented here. Wor
 - Workstream A / Lenovo capacity: AVAILABLE after PR #6 merged into main; this reconciliation does not select or invent a new task.
 - Workstream B / ASUS capacity: AVAILABLE for one future explicitly scoped independent task; this reconciliation does not select or invent that task.
 - Task 6: DONE — Media / Video Foundation + Secure Delivery. PR #18 merged with required CI green.
-- Task 7: NOT STARTED.
+- Slice 1: DONE — ASSESS academic identity foundation. PR #28 merged with required CI green.
+- Slice 2: NEXT — Versioned Learning Aims / Criteria + AssessmentDefinition publication/source mapping + Qualification/Rubric compatibility enforcement.
 
 Definition of Done for each workstream: implementation is reviewed, required CI is green, its PR is merged into `main`, and this document is reconciled with the new merged state.
 
@@ -214,6 +224,7 @@ Do not reopen these areas merely because a later account lacks conversation memo
 - PR #24 is merged into `main` at `7ab8c8ef428fbbce4724f8b94fe920b3fb9c775a`; assessment-audit export identifier minimization is DONE, the safe v2 contract excludes raw internal identifiers and sensitive implementation metadata, actor-role attribution is corrected, and required post-merge CI is GREEN.
 - PR #26 is merged into `main` at `23ff9d3926a079d72871e68a4950805a5cd947e2`; the `/en/about` WebKit React #418 hydration mismatch is resolved with consistent locale-aware server/client settings, seeded React Query hydration, and a bounded 3000ms server fetch timeout with localized fallbacks. Unit verification was 9/9 and production HTTPS browser verification was 4/4.
 - PR #20 is merged into `main` at `25b25e30e3dc1e6a63025d4308073545e00412e9`; full-stack browser UAT completed 7/7 with required `/en/about` WebKit iPhone 14 regression coverage, strict page-error and overflow assertions, and no production or database changes.
+- PR #28 is merged into `main` at `be2b275b02a5c1f31aaead68c2fe32784d50bc11`; the ASSESS academic identity foundation is DONE with additive `UnitDefinition`, `AssessmentDefinition`, `AssessmentScope`, and a nullable `EvaluationRequest` bridge. No historic backfill or destructive migration was performed. Scope selection, scope snapshots, complete academic authoring, evaluator-specialism routing, Assessment Coordinator capabilities, and Reasonable Adjustments remain future work.
 - PR #14's required CI was verified GREEN for feature head `431d12efe70236872173f66677d88d484b4348b4`: Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully. Future workstreams must still verify their own current remote CI before claiming completion.
 - Production S3, SMTP, ClamAV, Data Protection certificate, hosting, monitoring, backup/restore, payment, payout, and fiscal integrations require external configuration or validation.
 - Broader capacity testing, launch hardening, retention decisions, and final legal review remain outstanding; the dedicated PR #20 full-stack browser UAT matrix is complete.
