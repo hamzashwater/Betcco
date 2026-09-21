@@ -2,12 +2,12 @@
 
 ## Metadata
 
-- Last updated: 2026-09-20
-- Verified implementation baseline SHA: `7ab8c8ef428fbbce4724f8b94fe920b3fb9c775a`
-- Status generated/verified against origin/main: `7ab8c8ef428fbbce4724f8b94fe920b3fb9c775a`
-- Baseline branch used for status generation: `docs/reconcile-assessment-audit-export-status`
+- Last updated: 2026-09-21
+- Verified implementation baseline SHA: `25b25e30e3dc1e6a63025d4308073545e00412e9`
+- Status generated/verified against origin/main: `25b25e30e3dc1e6a63025d4308073545e00412e9`
+- Baseline branch used for status generation: `docs/reconcile-p0-status`
 - Working tree state during status generation: clean
-- Latest verified CI state: GREEN after PR #24 merged — Application quality, CodeQL (csharp), CodeQL (javascript-typescript), and Dependency review completed successfully.
+- Latest verified CI state: GREEN on current main — Application quality, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully. Dependency review may be skipped on direct push/merge commits; PR #20 Full-stack UAT was green before merge (7 passed / 0 failed / 0 skipped).
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
@@ -18,6 +18,18 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - Pull Request: #24
 - Outcome: DONE. Structured BTEC assessment audit export uses a safe explicit v2 contract. Raw internal identifiers and sensitive implementation metadata are structurally excluded; academic traceability is preserved; actor-role attribution is corrected without fabricating unsupported historical RBAC precision; and deterministic SHA-256 integrity is preserved. No database migration, frontend change, or Assessment PDF change was introduced.
 - Verification evidence: Required post-merge CI GREEN — Application quality, Dependency review, CodeQL, CodeQL (csharp), and CodeQL (javascript-typescript).
+
+- Task: Brand hydration locale consistency / `/en/about` WebKit hydration remediation
+- Merge/commit SHA: `23ff9d3926a079d72871e68a4950805a5cd947e2`
+- Pull Request: #26
+- Outcome: DONE. Server/client locale-aware public brand settings are consistent, React Query hydration is seeded consistently, and a bounded 3000ms AbortController timeout with localized fallback handles timeout/abort, non-2xx, malformed JSON, and partial responses. No backend or database migration changes were introduced.
+- Verification evidence: Unit verification 9/9 passed; production HTTPS browser verification 4/4 passed across Chromium/WebKit, English/Arabic, and 390x664 mobile, with no hydration errors or horizontal overflow.
+
+- Task: Full-stack UAT Browser Matrix
+- Merge/commit SHA: `25b25e30e3dc1e6a63025d4308073545e00412e9`
+- Pull Request: #20
+- Outcome: DONE. Dedicated browser UAT covers Chromium desktop/mobile, Firefox tablet, WebKit iPhone 14, English LTR, Arabic RTL, public routes, Student/Admin/Teacher golden paths, mobile Student coverage, responsive overflow assertions, strict page-error checks, and a production-style local HTTPS proxy. No production code or database migration was changed.
+- Verification evidence: 7 passed / 0 failed / 0 skipped. Required `/en/about` WebKit iPhone 14 regression coverage asserts English SSR content, excludes the opposite Arabic content, verifies hydrated English DOM with `lang=en` and `dir=ltr`, and checks no page errors, React #418/hydration console errors, or horizontal overflow.
 
 - Task: Student Course Player + Resume Learning
 - Merge/commit SHA: `8770901ad78c172cbe0ed33e1235bfc78f739f07`
@@ -58,6 +70,8 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - Formal BTEC Assessment PDF Reporting — merged through PR #6 in `2fb3545`.
 - CodeQL slug validation security remediation — merged through PR #22 in `9995034`.
 - Structured Assessment Audit Export Identifier Minimization — merged through PR #24 in `7ab8c8e`.
+- `/en/about` brand hydration locale defect — merged through PR #26 in `23ff9d3`.
+- Full-stack UAT browser matrix — merged through PR #20 in `25b25e3`.
 
 These entries are merged repository evidence only; new behavior changes still require targeted validation and review.
 
@@ -198,19 +212,32 @@ Do not reopen these areas merely because a later account lacks conversation memo
 - PR #18 is merged into `main` at `719b10e39b4370c709350dae64a1db80481872ed` with required CI green; Media/Video is FOUNDATION COMPLETE. Advanced media work remains deferred as documented above.
 - PR #22 is merged into `main` at `9995034b6c27ef3ea27cee8264575c2667718e23`; both ReDoS CodeQL findings are closed, the gradebook finding is dismissed as a documented false positive, 0 CodeQL alerts remain open, and the security remediation workstream is closed.
 - PR #24 is merged into `main` at `7ab8c8ef428fbbce4724f8b94fe920b3fb9c775a`; assessment-audit export identifier minimization is DONE, the safe v2 contract excludes raw internal identifiers and sensitive implementation metadata, actor-role attribution is corrected, and required post-merge CI is GREEN.
+- PR #26 is merged into `main` at `23ff9d3926a079d72871e68a4950805a5cd947e2`; the `/en/about` WebKit React #418 hydration mismatch is resolved with consistent locale-aware server/client settings, seeded React Query hydration, and a bounded 3000ms server fetch timeout with localized fallbacks. Unit verification was 9/9 and production HTTPS browser verification was 4/4.
+- PR #20 is merged into `main` at `25b25e30e3dc1e6a63025d4308073545e00412e9`; full-stack browser UAT completed 7/7 with required `/en/about` WebKit iPhone 14 regression coverage, strict page-error and overflow assertions, and no production or database changes.
 - PR #14's required CI was verified GREEN for feature head `431d12efe70236872173f66677d88d484b4348b4`: Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully. Future workstreams must still verify their own current remote CI before claiming completion.
 - Production S3, SMTP, ClamAV, Data Protection certificate, hosting, monitoring, backup/restore, payment, payout, and fiscal integrations require external configuration or validation.
-- Full UAT, capacity testing, launch hardening, retention decisions, and final legal review remain outstanding.
+- Broader capacity testing, launch hardening, retention decisions, and final legal review remain outstanding; the dedicated PR #20 full-stack browser UAT matrix is complete.
 
 ### Remaining P0 items
 
-- PR #20 / full-stack UAT remains open and unresolved.
 - Reasonable-adjustment and extension workflow remains unresolved.
 - Retake/resit policy and workflow remains unresolved.
 - Staff MFA decision and enforcement remains unresolved.
-- Secret-scanning verification remains unresolved.
+- Secret-scanning and push-protection verification remains unresolved.
 - External BTEC/specification/policy dependencies remain unresolved.
 - Payments, legal, and accounting external blockers remain unresolved.
+
+### Non-blocking follow-up
+
+- CI reproducibility hardening remains future work: pin moving container tags and moving GitHub Action references. This is not part of the completed UAT workstream.
+
+### Deferred P1 work
+
+- Production Operations.
+- Task 7 responsive/accessibility/i18n/performance baseline (NOT STARTED).
+- Teacher Authoring Lifecycle.
+- Student Lifecycle Closure.
+- Advanced Media.
 
 ## Important Decisions
 
