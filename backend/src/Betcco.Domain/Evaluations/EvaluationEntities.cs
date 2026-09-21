@@ -62,6 +62,10 @@ public sealed class EvaluationRequest : Entity
     public string AssessmentRuleSetSnapshotJson { get; set; } = "";
     public Guid? QualificationVersionId { get; set; }
     public string? QualificationVersionSnapshotJson { get; set; }
+    // Null denotes a legacy request whose academic scope is unknown.
+    public Guid? AssessmentScopeId { get; set; }
+    public AssessmentScope? AssessmentScope { get; set; }
+    public string? AssessmentScopeSnapshotJson { get; set; }
     // These values are set only by the assessment service. They are intentionally
     // not accepted from the browser so a teacher cannot alter the final award.
     public EvaluationGrade? CalculatedGrade { get; set; }
@@ -115,6 +119,45 @@ public sealed class QualificationVersion : Entity
     public DateTimeOffset? EffectiveUntilUtc { get; set; }
     public bool IsActive { get; set; } = true;
     public ICollection<RubricTemplate> RubricTemplates { get; } = new List<RubricTemplate>();
+    public ICollection<UnitDefinition> UnitDefinitions { get; } = new List<UnitDefinition>();
+}
+
+/// <summary>A course-independent academic unit in one qualification version.</summary>
+public sealed class UnitDefinition : Entity
+{
+    public Guid QualificationVersionId { get; set; }
+    public QualificationVersion? QualificationVersion { get; set; }
+    public required string Code { get; set; }
+    public required string EnglishTitle { get; set; }
+    public required string ArabicTitle { get; set; }
+    public bool IsActive { get; set; }
+    public ICollection<AssessmentDefinition> AssessmentDefinitions { get; } = new List<AssessmentDefinition>();
+}
+
+/// <summary>A versioned academic task definition; evaluation requests remain separate.</summary>
+public sealed class AssessmentDefinition : Entity
+{
+    public Guid UnitDefinitionId { get; set; }
+    public UnitDefinition? UnitDefinition { get; set; }
+    public required string Code { get; set; }
+    public int Version { get; set; } = 1;
+    public required string EnglishTitle { get; set; }
+    public required string ArabicTitle { get; set; }
+    public bool IsActive { get; set; }
+    public ICollection<AssessmentScope> Scopes { get; } = new List<AssessmentScope>();
+}
+
+/// <summary>An inactive-by-default ASSESS offering; no student selection is enabled yet.</summary>
+public sealed class AssessmentScope : Entity
+{
+    public Guid AssessmentDefinitionId { get; set; }
+    public AssessmentDefinition? AssessmentDefinition { get; set; }
+    public Guid GradeId { get; set; }
+    public Guid SpecializationId { get; set; }
+    public Guid RubricTemplateId { get; set; }
+    public int Version { get; set; } = 1;
+    public bool IsActive { get; set; }
+    public ICollection<EvaluationRequest> EvaluationRequests { get; } = new List<EvaluationRequest>();
 }
 
 public sealed class SubmissionFile : Entity
