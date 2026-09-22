@@ -6,7 +6,33 @@ namespace Betcco.Application.Evaluations;
 // Legacy compatibility path; new requests from the Student UI use ScopedEvaluationCommand.
 public sealed record CreateEvaluationCommand(Guid GradeId, Guid SpecializationId, Guid TaskTypeId, Guid RubricTemplateId, string? StudentComment);
 public sealed record EvaluationView(Guid Id, string Status, decimal Price, string Currency, string? StudentComment, IReadOnlyCollection<string> Criteria,
-    AssessmentAcademicSummary? Academic = null);
+    AssessmentAcademicSummary? Academic = null, bool IsRetake = false, Guid? RetakeOfEvaluationRequestId = null);
+
+public static class AssessmentPricing
+{
+    // Slice 1 deliberately uses the current server-owned standard assessment
+    // price. This boundary can accept a Retake pricing context later without
+    // changing the Retake lifecycle or trusting a browser-provided amount.
+    public const decimal StandardEvaluationPrice = 5m;
+}
+
+public sealed record AuthorizeRetakeCommand(Guid RetakeAssessmentScopeId, string Reason);
+public sealed record RetakeScopeOption(Guid AssessmentScopeId, string AssessmentCode,
+    string AssessmentArabicTitle, string AssessmentEnglishTitle, IReadOnlyList<string> CriterionCodes);
+public sealed record RetakeEligibilityView(Guid OriginalEvaluationRequestId, string StudentUserId,
+    AssessmentAcademicSummary Academic, IReadOnlyList<string> UnmetPassCriteria,
+    IReadOnlyList<RetakeScopeOption> AvailableScopes);
+public sealed record RetakeAuthorizationView(Guid AuthorizationId, Guid OriginalEvaluationRequestId,
+    Guid RetakeEvaluationRequestId, Guid RetakeAssessmentScopeId, DateTimeOffset AuthorizedAtUtc);
+public enum RetakeAuthorizationStatus { Created, Forbidden, NotEligible, InvalidScope, Conflict }
+public sealed record RetakeAuthorizationResult(RetakeAuthorizationStatus Status, RetakeAuthorizationView? Authorization = null);
+
+public interface IRetakeService
+{
+    Task<IReadOnlyList<RetakeEligibilityView>> ListEligibleAsync(string leadVerifierUserId, CancellationToken cancellationToken = default);
+    Task<RetakeAuthorizationResult> AuthorizeAsync(string leadVerifierUserId, Guid originalEvaluationRequestId,
+        AuthorizeRetakeCommand command, CancellationToken cancellationToken = default);
+}
 // BTEC assessment accepts a criterion decision and evidence only. A numeric
 // score must never be sent by a client or used to grant an academic outcome.
 public sealed record CriterionSubmission(string CriterionCode, string Achievement, string? Evidence, string? Comment);

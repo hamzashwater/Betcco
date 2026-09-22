@@ -4316,6 +4316,9 @@ function MyEvaluations() {
           status: string;
           price: number;
           currency: string;
+          isRetake: boolean;
+          retakeOfEvaluationRequestId: string | null;
+          criteria: string[];
           academic: AssessmentAcademicSummary | null;
           selectedCriteria: string[];
           calculatedGrade: string | null;
@@ -4355,6 +4358,18 @@ function MyEvaluations() {
       <div className="mt-6 space-y-3">
         {result.data.map((item) => (
           <article key={item.id} className="card grid gap-4 p-4">
+            {item.isRetake ? (
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3">
+                <strong className="text-primary">
+                  {locale === "ar" ? "طلب Retake" : "Retake evaluation"}
+                </strong>
+                <span className="text-xs text-muted">
+                  {locale === "ar"
+                    ? "النتيجة محدودة بـ Pass"
+                    : "Pass-only outcome"}
+                </span>
+              </div>
+            ) : null}
             <AcademicIdentity academic={item.academic} locale={locale} />
             <div className="flex flex-wrap items-center justify-between gap-3">
               <span className="font-bold">{item.status}</span>
@@ -4467,9 +4482,172 @@ function MyEvaluations() {
             {item.status === "NeedsRevision" ? (
               <EvaluationResubmission requestId={item.id} />
             ) : null}
+            {item.isRetake && item.status === "Draft" ? (
+              <RetakePayment requestId={item.id} criteria={item.criteria} />
+            ) : null}
           </article>
         ))}
       </div>
+    </section>
+  );
+}
+
+function RetakePayment({
+  requestId,
+  criteria,
+}: {
+  requestId: string;
+  criteria: string[];
+}) {
+  const locale = useLocale();
+  const client = useQueryClient();
+  const [files, setFiles] = useState<File[]>([]);
+  const [paymentMethod, setPaymentMethod] = useState("Card");
+  const [authenticityConfirmed, setAuthenticityConfirmed] = useState(false);
+  const [evidence, setEvidence] = useState<Record<string, string>>({});
+  const checkout = useMutation({
+    mutationFn: async () => {
+      if (!files.length)
+        throw new Error(
+          locale === "ar"
+            ? "اختر ملف Retake واحدًا على الأقل."
+            : "Choose at least one Retake file.",
+        );
+      if (!authenticityConfirmed)
+        throw new Error(
+          locale === "ar"
+            ? "أكد إقرار أصالة العمل قبل الدفع."
+            : "Confirm the originality declaration before payment.",
+        );
+      for (const file of files) {
+        const form = new FormData();
+        form.set("file", file);
+        await api(`/evaluations/${requestId}/files`, {
+          method: "POST",
+          body: form,
+        });
+      }
+      await Promise.all(
+        Object.entries(evidence)
+          .filter(([, narrative]) => narrative.trim())
+          .map(([criterionCode, narrative]) =>
+            api(`/evaluations/${requestId}/evidence`, {
+              method: "POST",
+              body: JSON.stringify({ criterionCode, narrative }),
+            }),
+          ),
+      );
+      await api(`/evaluations/${requestId}/authenticity-declaration`, {
+        method: "POST",
+      });
+      return api<{ paymentId: string }>(`/evaluations/${requestId}/checkout`, {
+        method: "POST",
+        headers: { "Idempotency-Key": crypto.randomUUID() },
+        body: JSON.stringify({ paymentMethod }),
+      });
+    },
+    onSuccess: async (payment) => {
+      await api("/payments/fake/confirm", {
+        method: "POST",
+        body: JSON.stringify({
+          paymentId: payment.paymentId,
+          providerEventId: `test_${crypto.randomUUID()}`,
+        }),
+      });
+      await client.invalidateQueries({ queryKey: ["evaluations"] });
+    },
+  });
+  return (
+    <section className="grid min-w-0 gap-4 rounded-xl border border-primary/30 bg-primary/5 p-4">
+      <div>
+        <h2 className="font-black">
+          {locale === "ar" ? "تسليم ودفع Retake" : "Submit and pay for Retake"}
+        </h2>
+        <p className="mt-1 text-sm text-muted">
+          {locale === "ar"
+            ? "هذا طلب مستقل بملفاته وأدلته وإقرار الأصالة والدفع الخاص به."
+            : "This request has its own files, evidence, authenticity declaration, and payment."}
+        </p>
+      </div>
+      <FilePicker
+        label={locale === "ar" ? "ملفات Retake" : "Retake files"}
+        files={files}
+        onFilesChange={setFiles}
+        locale={locale}
+        accept=".pdf,.docx,.xlsx,.txt,.jpg,.jpeg,.png,.webp"
+        multiple
+        maxFileBytes={100 * 1024 * 1024}
+        chooseLabel={locale === "ar" ? "اختيار الملفات" : "Choose files"}
+      />
+      {criteria.map((criterion) => (
+        <label
+          key={criterion}
+          className="grid min-w-0 gap-1 text-sm font-semibold"
+        >
+          {locale === "ar" ? `دليل ${criterion}` : `Evidence for ${criterion}`}
+          <textarea
+            className="min-h-20 min-w-0 rounded-xl border border-border bg-transparent p-3"
+            maxLength={4000}
+            value={evidence[criterion] ?? ""}
+            onChange={(event) =>
+              setEvidence((current) => ({
+                ...current,
+                [criterion]: event.target.value,
+              }))
+            }
+          />
+        </label>
+      ))}
+      <label className="grid gap-1 text-sm font-semibold">
+        {locale === "ar" ? "طريقة الدفع" : "Payment method"}
+        <select
+          className="min-w-0 rounded-xl border border-border bg-transparent p-3"
+          value={paymentMethod}
+          onChange={(event) => setPaymentMethod(event.target.value)}
+        >
+          <option value="Card">
+            {locale === "ar" ? "بطاقة بنكية" : "Bank card"}
+          </option>
+          <option value="BankTransfer">
+            {locale === "ar" ? "تحويل بنكي" : "Bank transfer"}
+          </option>
+          <option value="EWallet">
+            {locale === "ar" ? "محفظة إلكترونية" : "E-wallet"}
+          </option>
+        </select>
+      </label>
+      <label className="flex items-start gap-3 text-sm leading-6">
+        <input
+          type="checkbox"
+          className="focus-ring mt-1 size-4 accent-primary"
+          checked={authenticityConfirmed}
+          onChange={(event) => setAuthenticityConfirmed(event.target.checked)}
+        />
+        <span>
+          {locale === "ar"
+            ? "أقر بأن ملفات وأدلة Retake المقدمة تخصني."
+            : "I declare that the submitted Retake files and evidence are my own."}
+        </span>
+      </label>
+      <button
+        type="button"
+        className="focus-ring rounded-xl bg-primary px-4 py-3 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
+        disabled={checkout.isPending || !files.length || !authenticityConfirmed}
+        onClick={() => checkout.mutate()}
+      >
+        {checkout.isPending
+          ? "…"
+          : locale === "ar"
+            ? "رفع الملفات والدفع"
+            : "Upload files and pay"}
+      </button>
+      {checkout.isError ? (
+        <p className="text-sm text-red-500" role="alert">
+          {checkout.error instanceof Error
+            ? checkout.error.message
+            : "Request failed."}
+        </p>
+      ) : null}
     </section>
   );
 }

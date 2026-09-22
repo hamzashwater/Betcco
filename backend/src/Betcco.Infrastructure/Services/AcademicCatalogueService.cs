@@ -59,7 +59,7 @@ public sealed class AcademicCatalogueService(BetccoDbContext db) : IAcademicCata
                     return new AcademicScopeView(scope.Id, scope.Version, scope.GradeId, grade?.ArabicName ?? "", grade?.EnglishName ?? "",
                         scope.SpecializationId, specialization?.ArabicName ?? "", specialization?.EnglishName ?? "",
                         scope.RubricTemplateId, rubric?.ArabicTitle ?? "", rubric?.EnglishTitle ?? "", scope.IsActive,
-                        scope.PublishedAtUtc, scopeIssues);
+                        scope.PublishedAtUtc, scopeIssues, scope.IsRetakeOnly);
                 }).ToArray();
                 return new AcademicDefinitionView(definition.Id, definition.Code, definition.Version, definition.ArabicTitle,
                     definition.EnglishTitle, definition.SourceReference, definition.IsActive, definition.PublishedAtUtc,
@@ -245,6 +245,7 @@ public sealed class AcademicCatalogueService(BetccoDbContext db) : IAcademicCata
         scope.SpecializationId = command.SpecializationId;
         scope.RubricTemplateId = command.RubricTemplateId;
         scope.Version = command.Version;
+        scope.IsRetakeOnly = command.IsRetakeOnly;
         if (id is null) db.AssessmentScopes.Add(scope);
         await SaveAsync(actorId, id is null ? "AssessmentScopeCreated" : "AssessmentScopeUpdated", scope, cancellationToken);
         return scope.Id;

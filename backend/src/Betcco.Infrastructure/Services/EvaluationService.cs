@@ -37,7 +37,7 @@ public sealed class EvaluationService(
             rubric.QualificationVersion.EffectiveFromUtc,
             rubric.QualificationVersion.EffectiveUntilUtc
         });
-        var request = new EvaluationRequest { StudentUserId = studentUserId, GradeId = command.GradeId, SpecializationId = command.SpecializationId, TaskTypeId = command.TaskTypeId, RubricTemplateId = rubric.Id, Price = 5m, StudentComment = command.StudentComment?.Trim(), CriteriaSnapshotJson = JsonSerializer.Serialize(criteria), AssessmentRuleSetVersion = ruleSet.Version, AssessmentRuleSetSnapshotJson = JsonSerializer.Serialize(ruleSet), QualificationVersionId = rubric.QualificationVersionId, QualificationVersionSnapshotJson = qualificationSnapshot };
+        var request = new EvaluationRequest { StudentUserId = studentUserId, GradeId = command.GradeId, SpecializationId = command.SpecializationId, TaskTypeId = command.TaskTypeId, RubricTemplateId = rubric.Id, Price = AssessmentPricing.StandardEvaluationPrice, StudentComment = command.StudentComment?.Trim(), CriteriaSnapshotJson = JsonSerializer.Serialize(criteria), AssessmentRuleSetVersion = ruleSet.Version, AssessmentRuleSetSnapshotJson = JsonSerializer.Serialize(ruleSet), QualificationVersionId = rubric.QualificationVersionId, QualificationVersionSnapshotJson = qualificationSnapshot };
         db.EvaluationRequests.Add(request);
         RecordAssessmentEvent(request, studentUserId, "DraftCreated", null, request.Status, null, request.SubmissionAttemptNumber, null);
         db.AuditLogs.Add(Audit(studentUserId, "EvaluationDraftCreated", nameof(EvaluationRequest), request.Id.ToString()));
@@ -180,6 +180,9 @@ public sealed class EvaluationService(
         if (!BtecAssessmentRuleSet.TryRead(request.AssessmentRuleSetSnapshotJson, out var ruleSet)) return false;
         if (selectedCodes.Length == 0
             || selectedCodes.Any(code => !availableCodes.Contains(code, StringComparer.OrdinalIgnoreCase))
+            || (request.RetakeOfEvaluationRequestId is not null
+                && (selectedCodes.Length != availableCodes.Length
+                    || availableCodes.Any(code => !selectedCodes.Contains(code, StringComparer.OrdinalIgnoreCase))))
             || !ruleSet.HasValidPlan(selectedCodes)) return false;
 
         request.EvaluatorCriteriaPlanJson = JsonSerializer.Serialize(selectedCodes);
@@ -199,6 +202,9 @@ public sealed class EvaluationService(
         if (!BtecAssessmentRuleSet.TryRead(request.AssessmentRuleSetSnapshotJson, out var ruleSet)) return false;
         if (selectedCodes.Length == 0 || results.Count != selectedCodes.Length || results.Select(x => x.CriterionCode).Distinct(StringComparer.OrdinalIgnoreCase).Count() != results.Count) return false;
         if (results.Any(x => !validCodes.Contains(x.CriterionCode, StringComparer.OrdinalIgnoreCase) || !selectedCodes.Contains(x.CriterionCode, StringComparer.OrdinalIgnoreCase) || !Enum.TryParse<CriterionAchievement>(x.Achievement, true, out _))) return false;
+        if (request.RetakeOfEvaluationRequestId is not null
+            && (validCodes.Any(code => !string.Equals(EvaluationAssessmentCalculator.Describe(code).Band, "P", StringComparison.OrdinalIgnoreCase))
+                || selectedCodes.Length != validCodes.Length)) return false;
         if (request.Status == EvaluationStatus.Assigned && !EvaluationWorkflow.CanTransition(request.Status, EvaluationStatus.UnderReview)) return false;
 
         // BTEC outcomes are derived from criterion decisions and this request's
@@ -210,6 +216,7 @@ public sealed class EvaluationService(
             return new CriterionSubmission(code, achievement.ToString(), item.Evidence?.Trim(), item.Comment?.Trim());
         }).ToArray();
         var calculation = EvaluationAssessmentCalculator.Calculate(normalizedResults, ruleSet);
+        if (request.RetakeOfEvaluationRequestId is not null && calculation.Grade > EvaluationGrade.Pass) return false;
         var existing = await db.CriterionResults.Where(x => x.EvaluationRequestId == requestId).ToListAsync(cancellationToken);
         db.CriterionResults.RemoveRange(existing);
         foreach (var item in normalizedResults)

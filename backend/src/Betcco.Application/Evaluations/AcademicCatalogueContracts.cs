@@ -16,7 +16,7 @@ public sealed record AcademicDefinitionView(Guid Id, string Code, int Version, s
 public sealed record AcademicScopeView(Guid Id, int Version, Guid GradeId, string GradeArabicName, string GradeEnglishName,
     Guid SpecializationId, string SpecializationArabicName, string SpecializationEnglishName,
     Guid RubricTemplateId, string RubricArabicTitle, string RubricEnglishTitle, bool IsActive,
-    DateTimeOffset? PublishedAtUtc, IReadOnlyList<string> Validation);
+    DateTimeOffset? PublishedAtUtc, IReadOnlyList<string> Validation, bool IsRetakeOnly = false);
 
 public sealed record SaveAcademicUnit(Guid QualificationVersionId, string Code, string ArabicTitle, string EnglishTitle, string? SourceReference);
 public sealed record SaveAcademicAim(Guid UnitDefinitionId, string Code, string ArabicTitle, string EnglishTitle,
@@ -26,7 +26,8 @@ public sealed record SaveAcademicCriterion(Guid LearningAimDefinitionId, string 
 public sealed record SaveAcademicDefinition(Guid UnitDefinitionId, string Code, int Version, string ArabicTitle, string EnglishTitle,
     string? SourceReference);
 public sealed record SaveAcademicMappings(IReadOnlyList<Guid> AimIds, IReadOnlyList<Guid> CriterionIds);
-public sealed record SaveAcademicScope(Guid AssessmentDefinitionId, Guid GradeId, Guid SpecializationId, Guid RubricTemplateId, int Version);
+public sealed record SaveAcademicScope(Guid AssessmentDefinitionId, Guid GradeId, Guid SpecializationId, Guid RubricTemplateId, int Version,
+    bool IsRetakeOnly = false);
 
 public sealed class AcademicCatalogueException(string code) : Exception(code);
 
