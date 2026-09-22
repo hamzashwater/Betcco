@@ -4271,7 +4271,7 @@ function Select({
         disabled={disabled}
         onChange={(event) => setValue(event.target.value)}
         required
-        className="min-w-0 w-full max-w-full rounded-lg border bg-transparent p-3"
+        className="focus-ring min-w-0 w-full max-w-full rounded-lg border bg-transparent p-3"
       >
         <option value="">—</option>
         {items.map((item) => (
