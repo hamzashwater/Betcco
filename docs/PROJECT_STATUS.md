@@ -7,7 +7,7 @@
 - Status generated/verified against origin/main: `5321baa7f64eb06c6affd9e0bac94f28a52dc825`
 - Baseline branch used for status generation: `docs/reconcile-assessment-scope-snapshot-status`
 - Working tree state during status generation: clean
-- Latest verified CI state: GREEN on current main — Application quality, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully after PR #30. Dependency review was skipped on push as expected by workflow configuration; PR #30's pre-merge Dependency review passed.
+- Latest verified CI state: GREEN on current main after PR #32 — Application quality, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully. Dependency review was skipped on push as expected by workflow configuration; PR #32's pre-merge Dependency review and Full-stack browser UAT passed.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
@@ -23,7 +23,7 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - Merge/commit SHA: `5321baa7f64eb06c6affd9e0bac94f28a52dc825`
 - Pull Request: #32
 - Outcome: DONE. New ASSESS requests can select a canonical `AssessmentScope`; the server persists the scope identity and creates an immutable academic snapshot containing server-derived grade, specialization, rubric, task type, qualification version, criteria, and rule-set data. Legacy requests remain compatible when the nullable bridge is absent, and scope creation does not require CourseModule enrollment. LEARN remains separate: `CourseModule` / `BtecLearningAim` is unchanged; ASSESS remains rooted at `EvaluationRequest`. No migration or historical backfill was introduced.
-- Verification evidence: Required CI and production full-stack browser UAT passed, including English/Arabic desktop and mobile coverage, scope selection/checkout, academic-detail and authenticity flows, and no relevant page or hydration errors. Development-preview CSP inline script/style console messages were observed but were not changed by Slice 3 and remain a separate follow-up.
+- Verification evidence: Required PR CI passed. The Full-stack browser UAT passed against the production-built application, covering the browser matrix and route usability. Separate real local browser verification covered English desktop, Arabic desktop, mobile, canonical `AssessmentScope` selection, scoped request creation, academic detail, authenticity flow, and checkout/test-payment flow; no relevant page or hydration errors were observed in that local scoped-flow verification. Development-preview CSP inline script/style messages remain a separate non-blocking follow-up.
 
 - Task: ASSESS Academic Identity Foundation
 - Merge/commit SHA: `be2b275b02a5c1f31aaead68c2fe32784d50bc11`
