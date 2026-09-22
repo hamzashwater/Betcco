@@ -48,6 +48,7 @@ public sealed class QuestPdfAssessmentReportRenderer(string fontFamily) : IAsses
                     AssessmentIdentity(column, report);
                     TaskAndAssessorIdentity(column, report);
                     Qualification(column, report);
+                    AcademicScope(column, report);
                     SubmissionsAndEvidence(column, report);
                     Criteria(column, report);
                     Declarations(column, report);
@@ -159,6 +160,28 @@ public sealed class QuestPdfAssessmentReportRenderer(string fontFamily) : IAsses
             OptionalField(section, report.IsArabic ? "مرجع المصدر" : "Source reference", report.Qualification.SourceReference, leftToRight: true);
             OptionalField(section, report.IsArabic ? "ساري من" : "Effective from", FormatDate(report.Qualification.EffectiveFromUtc), leftToRight: true);
             OptionalField(section, report.IsArabic ? "ساري حتى" : "Effective until", FormatDate(report.Qualification.EffectiveUntilUtc), leftToRight: true);
+        });
+    }
+
+    private static void AcademicScope(ColumnDescriptor column, AssessmentPdfReportModel report)
+    {
+        var academic = report.Academic;
+        if (academic is null) return; // Legacy requests have no invented academic identity.
+        Section(column, report.IsArabic ? "النطاق الأكاديمي المحفوظ" : "Stored academic scope", section =>
+        {
+            Field(section, report.IsArabic ? "المؤهل" : "Qualification",
+                report.IsArabic ? academic.QualificationArabicName : academic.QualificationEnglishName);
+            Field(section, report.IsArabic ? "الإصدار" : "Version", academic.QualificationVersionCode, leftToRight: true);
+            Field(section, report.IsArabic ? "الصف" : "Grade", report.IsArabic ? academic.GradeArabicName : academic.GradeEnglishName);
+            Field(section, report.IsArabic ? "التخصص" : "Specialization",
+                report.IsArabic ? academic.SpecializationArabicName : academic.SpecializationEnglishName);
+            Field(section, report.IsArabic ? "الوحدة" : "Unit",
+                $"{academic.UnitCode} · {(report.IsArabic ? academic.UnitArabicTitle : academic.UnitEnglishTitle)}");
+            Field(section, report.IsArabic ? "التقييم" : "Assessment",
+                $"{academic.AssessmentCode} v{academic.AssessmentVersion} · {(report.IsArabic ? academic.AssessmentArabicTitle : academic.AssessmentEnglishTitle)}");
+            Field(section, report.IsArabic ? "أهداف التعلم" : "Learning aims", string.Join(", ", academic.LearningAimCodes), leftToRight: true);
+            Field(section, report.IsArabic ? "المعايير" : "Canonical criteria",
+                string.Join(", ", academic.Criteria.Select(x => $"{x.Code} ({x.Band})")), leftToRight: true);
         });
     }
 

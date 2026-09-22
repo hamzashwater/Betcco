@@ -35,7 +35,10 @@ public sealed record AssessmentPdfReportModel(
     IReadOnlyCollection<AssessmentPdfVerificationSample> VerificationSamples,
     IReadOnlyCollection<AssessmentPdfResubmission> Resubmissions,
     IReadOnlyCollection<AssessmentPdfAppeal> Appeals,
-    IReadOnlyCollection<AssessmentPdfAuditEvent> AuditTrail);
+    IReadOnlyCollection<AssessmentPdfAuditEvent> AuditTrail)
+{
+    public AssessmentAcademicSummary? Academic { get; init; }
+}
 
 public sealed record AssessmentPdfTaskIdentity(
     string? TaskTypeArabicName,
@@ -161,6 +164,7 @@ public sealed class AssessmentPdfReportService(
             Guid.TryParse(userId, out var id) ? displayNames.GetValueOrDefault(id) : null;
 
         var exportedAtUtc = DateTimeOffset.UtcNow;
+        var academicSnapshot = AssessmentScopeSnapshotReader.Read(request.AssessmentScopeSnapshotJson);
 
         var report = new AssessmentPdfReportModel(
             locale?.StartsWith("ar", StringComparison.OrdinalIgnoreCase) == true,
@@ -174,9 +178,9 @@ public sealed class AssessmentPdfReportService(
             new AssessmentPdfTaskIdentity(
                 taskType?.ArabicName,
                 taskType?.EnglishName,
-                rubric?.ArabicTitle,
-                rubric?.EnglishTitle,
-                rubric?.Version),
+                academicSnapshot?.Rubric.ArabicTitle ?? rubric?.ArabicTitle,
+                academicSnapshot?.Rubric.EnglishTitle ?? rubric?.EnglishTitle,
+                academicSnapshot?.Rubric.Version ?? rubric?.Version),
             ParseQualificationSnapshot(request.QualificationVersionSnapshotJson),
             request.CreatedAtUtc,
             exportedAtUtc,
@@ -239,7 +243,10 @@ public sealed class AssessmentPdfReportService(
                     item.Reason,
                     item.AttemptNumber,
                     item.OccurredAtUtc))
-                .ToArray());
+                .ToArray())
+        {
+            Academic = academicSnapshot?.Summary()
+        };
         var content = renderer.Render(report);
         db.AuditLogs.Add(new AuditLog
         {

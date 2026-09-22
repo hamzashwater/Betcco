@@ -316,7 +316,7 @@ public sealed class AcademicCatalogueService(BetccoDbContext db) : IAcademicCata
         return unit;
     }
 
-    private static string[] DefinitionIssues(QualificationVersion version, UnitDefinition unit,
+    internal static string[] DefinitionIssues(QualificationVersion version, UnitDefinition unit,
         AssessmentDefinition definition, IReadOnlyDictionary<Guid, AssessmentCriterionDefinition> criteria)
     {
         var issues = new List<string>();
@@ -341,7 +341,7 @@ public sealed class AcademicCatalogueService(BetccoDbContext db) : IAcademicCata
         return issues.Distinct().ToArray();
     }
 
-    private static string[] ScopeIssues(QualificationVersion version, AssessmentDefinition definition, AssessmentScope scope,
+    internal static string[] ScopeIssues(QualificationVersion version, AssessmentDefinition definition, AssessmentScope scope,
         RubricTemplate? rubric, IReadOnlySet<string> selectedCodes, IReadOnlyList<string> definitionIssues)
     {
         var issues = new List<string>(definitionIssues);

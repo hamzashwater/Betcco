@@ -85,7 +85,7 @@ export function FilePicker({
 
   return (
     <section
-      className="rounded-2xl border border-border bg-surface-solid/55 p-4"
+      className="min-w-0 rounded-2xl border border-border bg-surface-solid/55 p-4"
       aria-labelledby={`${inputId}-label`}
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -108,7 +108,7 @@ export function FilePicker({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={disabled}
-          className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-xl border border-primary/45 bg-primary/15 px-4 py-2.5 text-sm font-black text-primary hover:bg-primary/25 disabled:cursor-not-allowed disabled:opacity-55"
+          className="focus-ring inline-flex min-h-11 max-w-full items-center gap-2 rounded-xl border border-primary/45 bg-primary/15 px-4 py-2.5 text-sm font-black text-primary hover:bg-primary/25 disabled:cursor-not-allowed disabled:opacity-55"
         >
           <FileUp size={18} aria-hidden="true" />
           {chooseLabel ?? defaultChooseLabel}

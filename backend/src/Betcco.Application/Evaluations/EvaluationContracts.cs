@@ -3,8 +3,10 @@ using Betcco.Domain.Common;
 
 namespace Betcco.Application.Evaluations;
 
+// Legacy compatibility path; new requests from the Student UI use ScopedEvaluationCommand.
 public sealed record CreateEvaluationCommand(Guid GradeId, Guid SpecializationId, Guid TaskTypeId, Guid RubricTemplateId, string? StudentComment);
-public sealed record EvaluationView(Guid Id, string Status, decimal Price, string Currency, string? StudentComment, IReadOnlyCollection<string> Criteria);
+public sealed record EvaluationView(Guid Id, string Status, decimal Price, string Currency, string? StudentComment, IReadOnlyCollection<string> Criteria,
+    AssessmentAcademicSummary? Academic = null);
 // BTEC assessment accepts a criterion decision and evidence only. A numeric
 // score must never be sent by a client or used to grant an academic outcome.
 public sealed record CriterionSubmission(string CriterionCode, string Achievement, string? Evidence, string? Comment);

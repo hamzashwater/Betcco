@@ -329,6 +329,21 @@ public sealed partial class QuestPdfAssessmentReportRendererTests
         WriteVisualArtifact(outputFileName, pdf);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Scoped_academic_identity_renders_in_both_locales(bool isArabic)
+    {
+        var report = Report(isArabic) with
+        {
+            Academic = new AssessmentAcademicSummary("Q", "مؤهل", "Qualification", "V1",
+                "صف", "Grade", "تخصص", "Specialization", "U1", "وحدة", "Unit",
+                "ASSIGNMENT", 1, "مهمة", "Assignment", 2, ["A"],
+                [new AssessmentCriterionDisplay("A.P1", "Pass")])
+        };
+        AssertPdf(CreateConfiguredRenderer().Render(report));
+    }
+
     [Fact]
     public void Content_heavy_report_renders_across_multiple_pages_without_layout_failure()
     {

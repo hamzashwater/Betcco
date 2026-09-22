@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Betcco.Application.Evaluations;
 using Betcco.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -86,6 +87,7 @@ public sealed class AssessmentAuditExportService(
                 request.AssessmentRuleSetVersion,
                 ParseRuleSetSnapshot(request.AssessmentRuleSetSnapshotJson),
                 ParseQualificationSnapshot(request.QualificationVersionSnapshotJson),
+                AssessmentScopeSnapshotReader.Summary(request.AssessmentScopeSnapshotJson),
                 ParseStringArray(request.CriteriaSnapshotJson),
                 ParseStringArray(request.EvaluatorCriteriaPlanJson),
                 ParseSectionResults(request.SectionResultsJson),
@@ -331,6 +333,7 @@ public sealed class AssessmentAuditExportService(
         string AssessmentRuleSetVersion,
         AssessmentAuditRuleSet? AssessmentRuleSet,
         AssessmentAuditQualification? Qualification,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] AssessmentAcademicSummary? Academic,
         IReadOnlyCollection<string> Criteria,
         IReadOnlyCollection<string> EvaluatorCriteriaPlan,
         IReadOnlyCollection<EvaluationSectionResult> SectionResults,
