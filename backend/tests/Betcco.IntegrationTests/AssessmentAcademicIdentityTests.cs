@@ -20,9 +20,13 @@ public sealed class AssessmentAcademicIdentityTests
         Assert.Empty(await db.UnitDefinitions.ToListAsync());
         Assert.Empty(await db.AssessmentDefinitions.ToListAsync());
         Assert.Empty(await db.AssessmentScopes.ToListAsync());
+        Assert.Empty(await db.LearningAimDefinitions.ToListAsync());
+        Assert.Empty(await db.AssessmentCriterionDefinitions.ToListAsync());
 
         var migrations = db.Database.GetMigrations().ToArray();
-        await db.GetService<IMigrator>().MigrateAsync(migrations[^2]);
+        var sliceOne = Array.FindIndex(migrations, x => x.EndsWith("_AddAssessmentAcademicIdentity", StringComparison.Ordinal));
+        Assert.True(sliceOne > 0);
+        await db.GetService<IMigrator>().MigrateAsync(migrations[sliceOne - 1]);
         Assert.DoesNotContain(db.Database.GetAppliedMigrations(), x => x.EndsWith("_AddAssessmentAcademicIdentity", StringComparison.Ordinal));
         await db.GetService<IMigrator>().MigrateAsync();
         Assert.False(db.Database.HasPendingModelChanges());
@@ -37,9 +41,10 @@ public sealed class AssessmentAcademicIdentityTests
             new DbContextOptionsBuilder<Betcco.Infrastructure.Persistence.BetccoDbContext>()
                 .UseNpgsql("Host=localhost;Database=design_only")
                 .Options).Database.GetMigrations().ToArray();
-        Assert.EndsWith(migrationSuffix, migrations[^1], StringComparison.Ordinal);
+        var sliceOne = Array.FindIndex(migrations, x => x.EndsWith(migrationSuffix, StringComparison.Ordinal));
+        Assert.True(sliceOne > 0);
 
-        await using var database = await PostgresTestDatabase.CreateAsync("academic_legacy", targetMigration: migrations[^2]);
+        await using var database = await PostgresTestDatabase.CreateAsync("academic_legacy", targetMigration: migrations[sliceOne - 1]);
         var requestId = Guid.NewGuid();
         await using (var before = database.CreateContext())
         {

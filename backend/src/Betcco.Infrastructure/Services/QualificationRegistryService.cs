@@ -118,6 +118,9 @@ public sealed partial class QualificationRegistryService(BetccoDbContext db) : I
             .Include(item => item.Qualification)
             .SingleOrDefaultAsync(item => item.Id == qualificationVersionId && item.IsActive && item.Qualification!.IsActive, cancellationToken);
         if (rubric is null || version is null) return false;
+        // A published formal scope must retain its approved rubric/version identity.
+        if (await db.AssessmentScopes.AnyAsync(x => x.RubricTemplateId == rubric.Id && (x.PublishedAtUtc != null || x.IsActive), cancellationToken))
+            return false;
 
         rubric.QualificationVersionId = version.Id;
         db.AuditLogs.Add(Audit(actorUserId, "RubricQualificationVersionAssigned", nameof(RubricTemplate), rubric.Id.ToString(), new

@@ -186,6 +186,10 @@ export function SiteNavigation() {
             label: locale === "ar" ? "المؤهلات" : "Qualifications",
           },
           {
+            href: `/${locale}/admin/academic-catalogue`,
+            label: t("academicCatalogue.title"),
+          },
+          {
             href: `/${locale}/admin/wallet`,
             label: locale === "ar" ? "المحفظة" : "Wallet",
           },
