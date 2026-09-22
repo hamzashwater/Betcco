@@ -142,6 +142,7 @@ public sealed class BetccoDbContext(
     public DbSet<QuizAttempt> QuizAttempts => Set<QuizAttempt>();
     public DbSet<QuizAttemptQuestionGrade> QuizAttemptQuestionGrades => Set<QuizAttemptQuestionGrade>();
     public DbSet<CourseAssignment> CourseAssignments => Set<CourseAssignment>();
+    public DbSet<CourseAssignmentDeadlineExtension> CourseAssignmentDeadlineExtensions => Set<CourseAssignmentDeadlineExtension>();
     public DbSet<CourseAssignmentCriterion> CourseAssignmentCriteria => Set<CourseAssignmentCriterion>();
     public DbSet<CourseAssignmentResource> CourseAssignmentResources => Set<CourseAssignmentResource>();
     public DbSet<CourseAssignmentSubmission> CourseAssignmentSubmissions => Set<CourseAssignmentSubmission>();
@@ -1184,6 +1185,13 @@ public sealed class BetccoDbContext(
         builder.Entity<CourseAssignment>().HasIndex(x => new { x.CourseId, x.IsPublished, x.DueAtUtc });
         builder.Entity<CourseAssignment>().HasIndex(x => new { x.CourseId, x.PublicationStatus, x.AvailableFromUtc });
         builder.Entity<CourseAssignment>().HasIndex(x => x.LessonId).IsUnique().HasFilter("\"LessonId\" IS NOT NULL");
+        builder.Entity<CourseAssignmentDeadlineExtension>().Property(x => x.StudentUserId).HasMaxLength(64);
+        builder.Entity<CourseAssignmentDeadlineExtension>().Property(x => x.GrantedByUserId).HasMaxLength(64);
+        builder.Entity<CourseAssignmentDeadlineExtension>().Property(x => x.RevokedByUserId).HasMaxLength(64);
+        builder.Entity<CourseAssignmentDeadlineExtension>().Property(x => x.Reason).HasMaxLength(500);
+        builder.Entity<CourseAssignmentDeadlineExtension>().Property(x => x.RevocationReason).HasMaxLength(500);
+        builder.Entity<CourseAssignmentDeadlineExtension>().HasOne(x => x.CourseAssignment).WithMany(x => x.DeadlineExtensions).HasForeignKey(x => x.CourseAssignmentId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<CourseAssignmentDeadlineExtension>().HasIndex(x => new { x.CourseAssignmentId, x.StudentUserId }).IsUnique().HasFilter("\"RevokedAtUtc\" IS NULL");
         builder.Entity<CourseAssignmentCriterion>().HasIndex(x => new { x.CourseAssignmentId, x.Code }).IsUnique();
         builder.Entity<CourseAssignmentResource>().HasIndex(x => new { x.CourseAssignmentId, x.DisplayName });
         builder.Entity<CourseAssignmentSubmission>().HasIndex(x => new { x.CourseAssignmentId, x.StudentUserId }).IsUnique();

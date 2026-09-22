@@ -20,7 +20,9 @@ public sealed class CourseAssignmentsController(
     IStorageLifecycleCoordinator storageLifecycle,
     IFileSecurityScanner scanner,
     BetccoDbContext db,
-    IContentAccessService contentAccess) : ControllerBase
+    IContentAccessService contentAccess,
+    ICourseAssignmentDeadlineResolver deadlineResolver,
+    ICourseAssignmentDeadlineExtensionService deadlineExtensions) : ControllerBase
 {
     [Authorize(Policy = "Teacher")]
     [HttpGet("teacher/courses/{courseId:guid}/assignments")]
@@ -32,13 +34,7 @@ public sealed class CourseAssignmentsController(
             .Where(assignment => assignment.CourseId == courseId && assignment.Course!.TeacherUserId == UserId)
             .OrderBy(assignment => assignment.DueAtUtc)
             .ToListAsync(cancellationToken);
-        var visible = new List<Betcco.Domain.Assessments.CourseAssignment>();
-        foreach (var assignment in rows)
-        {
-            if ((await contentAccess.CanAccessAsync(UserId, courseId, LearningContentType.Assignment, assignment.Id, cancellationToken)).IsAvailable)
-                visible.Add(assignment);
-        }
-        return Ok(visible.Select(AssignmentView));
+        return Ok(rows.Select(assignment => AssignmentView(assignment)));
     }
 
     [Authorize(Policy = "Teacher")]
@@ -56,6 +52,38 @@ public sealed class CourseAssignmentsController(
     [Authorize(Policy = "Teacher")]
     [HttpDelete("teacher/assignments/{assignmentId:guid}")]
     public async Task<IActionResult> Delete(Guid assignmentId, CancellationToken cancellationToken) => await assignments.DeleteAsync(UserId, assignmentId, cancellationToken) ? NoContent() : BadRequest(new { message = "Only an unpublished assignment without student work can be deleted." });
+
+    [Authorize(Policy = "Teacher")]
+    [HttpGet("teacher/assignments/{assignmentId:guid}/deadline-extensions")]
+    public async Task<IActionResult> DeadlineExtensionHistory(Guid assignmentId, CancellationToken cancellationToken)
+    {
+        var history = await deadlineExtensions.HistoryAsync(UserId, assignmentId, cancellationToken);
+        return history is null ? NotFound() : Ok(history);
+    }
+
+    [Authorize(Policy = "Teacher")]
+    [HttpGet("teacher/assignments/{assignmentId:guid}/deadline-extensions/eligible-students")]
+    public async Task<IActionResult> DeadlineExtensionEligibleStudents(Guid assignmentId, CancellationToken cancellationToken)
+    {
+        var students = await deadlineExtensions.EligibleStudentsAsync(UserId, assignmentId, cancellationToken);
+        return students is null ? NotFound() : Ok(students);
+    }
+
+    [Authorize(Policy = "Teacher")]
+    [HttpPost("teacher/assignments/{assignmentId:guid}/deadline-extensions")]
+    public async Task<IActionResult> GrantDeadlineExtension(Guid assignmentId, GrantCourseAssignmentDeadlineExtension request, CancellationToken cancellationToken)
+    {
+        var result = await deadlineExtensions.GrantAsync(UserId, assignmentId, request, cancellationToken);
+        return DeadlineExtensionResponse(result);
+    }
+
+    [Authorize(Policy = "Teacher")]
+    [HttpPost("teacher/assignments/{assignmentId:guid}/deadline-extensions/{extensionId:guid}/revoke")]
+    public async Task<IActionResult> RevokeDeadlineExtension(Guid assignmentId, Guid extensionId, RevokeCourseAssignmentDeadlineExtension request, CancellationToken cancellationToken)
+    {
+        var result = await deadlineExtensions.RevokeAsync(UserId, assignmentId, extensionId, request, cancellationToken);
+        return DeadlineExtensionResponse(result);
+    }
 
     [Authorize(Policy = "Teacher")]
     [HttpPost("teacher/assignments/criteria")]
@@ -160,7 +188,8 @@ public sealed class CourseAssignmentsController(
             .Where(assignment => assignment.CourseId == courseId && assignment.IsPublished && assignment.PublicationStatus == ContentPublicationStatus.Published)
             .OrderBy(assignment => assignment.DueAtUtc)
             .ToListAsync(cancellationToken);
-        return Ok(rows.Select(AssignmentView));
+        var deadlines = await deadlineResolver.ResolveManyAsync(rows.Select(row => new CourseAssignmentDeadlineTarget(row.Id, UserId, row.DueAtUtc)).ToArray(), cancellationToken);
+        return Ok(rows.Select(row => AssignmentView(row, deadlines[(row.Id, UserId)])));
     }
 
     [Authorize(Policy = "Student")]
@@ -263,7 +292,15 @@ public sealed class CourseAssignmentsController(
 
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-    private static object AssignmentView(Betcco.Domain.Assessments.CourseAssignment assignment) => new
+    private static IActionResult DeadlineExtensionResponse(DeadlineExtensionWriteResult result) => result.Status switch
+    {
+        DeadlineExtensionWriteStatus.Success => new OkObjectResult(result.Extension),
+        DeadlineExtensionWriteStatus.NotFound => new NotFoundResult(),
+        DeadlineExtensionWriteStatus.Conflict => new ConflictObjectResult(new { message = "An active extension already exists or this extension has already been revoked." }),
+        _ => new BadRequestObjectResult(new { message = "Use an enrolled student, an assignment with a deadline, a later extension date, and a staff rationale of at most 500 characters." })
+    };
+
+    private static object AssignmentView(Betcco.Domain.Assessments.CourseAssignment assignment, CourseAssignmentDeadlineValue? deadline = null) => new
     {
         assignment.Id,
         assignment.CourseId,
@@ -276,6 +313,9 @@ public sealed class CourseAssignmentsController(
         assignment.EnglishInstructions,
         assignment.AvailableFromUtc,
         assignment.DueAtUtc,
+        baseDueAtUtc = assignment.DueAtUtc,
+        effectiveDueAtUtc = deadline?.EffectiveDueAtUtc ?? assignment.DueAtUtc,
+        hasDeadlineExtension = deadline?.HasDeadlineExtension ?? false,
         assignment.MaxSubmissionAttempts,
         assignment.AllowResubmission,
         assignment.MaxFileSizeBytes,

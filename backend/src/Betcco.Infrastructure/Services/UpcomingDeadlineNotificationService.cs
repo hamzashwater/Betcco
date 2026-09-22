@@ -1,4 +1,5 @@
 using Betcco.Application.Common;
+using Betcco.Application.Assignments;
 using Betcco.Domain.Assessments;
 using Betcco.Domain.Common;
 using Betcco.Domain.Platform;
@@ -17,8 +18,10 @@ namespace Betcco.Infrastructure.Services;
 /// </summary>
 public sealed class UpcomingDeadlineNotificationService(
     BetccoDbContext db,
-    IEmailNotificationService emailNotifications) : IUpcomingDeadlineNotificationService
+    IEmailNotificationService emailNotifications,
+    ICourseAssignmentDeadlineResolver? deadlineResolver = null) : IUpcomingDeadlineNotificationService
 {
+    private readonly ICourseAssignmentDeadlineResolver deadlineResolverService = deadlineResolver ?? new CourseAssignmentDeadlineResolver(db);
     public async Task<int> DispatchAsync(CancellationToken cancellationToken = default)
     {
         var now = DateTimeOffset.UtcNow;
@@ -31,8 +34,10 @@ public sealed class UpcomingDeadlineNotificationService(
                 && assignment.IsPublished
                 && assignment.PublicationStatus == ContentPublicationStatus.Published
                 && assignment.DueAtUtc != null
-                && assignment.DueAtUtc > now
-                && assignment.DueAtUtc <= cutoff
+                && ((assignment.DueAtUtc > now && assignment.DueAtUtc <= cutoff)
+                    || db.CourseAssignmentDeadlineExtensions.Any(extension => extension.CourseAssignmentId == assignment.Id
+                        && extension.StudentUserId == enrollment.StudentUserId && extension.RevokedAtUtc == null
+                        && extension.ExtendedDueAtUtc > now && extension.ExtendedDueAtUtc <= cutoff))
                 && (enrollment.AccessEndsAtUtc == null || enrollment.AccessEndsAtUtc > now)
             select new DeadlineCandidate(
                 assignment.Id,
@@ -43,7 +48,10 @@ public sealed class UpcomingDeadlineNotificationService(
                 enrollment.StudentUserId))
             .ToListAsync(cancellationToken);
 
-        candidates = candidates
+        var deadlines = await deadlineResolverService.ResolveManyAsync(candidates
+            .Select(item => new CourseAssignmentDeadlineTarget(item.AssignmentId, item.StudentUserId, item.DueAtUtc)).ToArray(), cancellationToken);
+        candidates = candidates.Select(item => item with
+        { DueAtUtc = deadlines[(item.AssignmentId, item.StudentUserId)].EffectiveDueAtUtc!.Value })
             .Where(item => item.DueAtUtc > now && item.DueAtUtc <= cutoff)
             .GroupBy(item => new { item.StudentUserId, item.AssignmentId, item.DueAtUtc })
             .Select(group => group.First())
@@ -53,10 +61,10 @@ public sealed class UpcomingDeadlineNotificationService(
         var keys = candidates.Select(item => item.DeduplicationKey).ToArray();
         var sent = await db.Notifications.AsNoTracking()
             .Where(item => item.DeduplicationKey != null && keys.Contains(item.DeduplicationKey))
-            .Select(item => item.DeduplicationKey!)
+            .Select(item => new { item.UserId, item.DeduplicationKey })
             .ToListAsync(cancellationToken);
-        var sentSet = sent.ToHashSet(StringComparer.Ordinal);
-        var pending = candidates.Where(item => !sentSet.Contains(item.DeduplicationKey)).ToArray();
+        var sentSet = sent.Select(item => (item.UserId, item.DeduplicationKey)).ToHashSet();
+        var pending = candidates.Where(item => !sentSet.Contains((item.StudentUserId, item.DeduplicationKey))).ToArray();
         if (pending.Length == 0) return 0;
 
         foreach (var item in pending)

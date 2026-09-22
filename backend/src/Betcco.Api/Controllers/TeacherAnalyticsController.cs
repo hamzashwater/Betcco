@@ -1,6 +1,8 @@
 using System.Security.Claims;
+using Betcco.Application.Assignments;
 using Betcco.Domain.Common;
 using Betcco.Infrastructure.Persistence;
+using Betcco.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,8 +12,9 @@ namespace Betcco.Api.Controllers;
 [ApiController]
 [Authorize(Policy = "Teacher")]
 [Route("api/v1/teacher/analytics")]
-public sealed class TeacherAnalyticsController(BetccoDbContext db) : ControllerBase
+public sealed class TeacherAnalyticsController(BetccoDbContext db, ICourseAssignmentDeadlineResolver? deadlineResolver = null) : ControllerBase
 {
+    private readonly ICourseAssignmentDeadlineResolver deadlineResolverService = deadlineResolver ?? new CourseAssignmentDeadlineResolver(db);
     [HttpGet]
     public async Task<IActionResult> Get(
         CancellationToken cancellationToken,
@@ -90,10 +93,15 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db) : ControllerB
             .Where(attempt => quizIds.Contains(attempt.QuizId) && attempt.SubmittedAtUtc != null && !attempt.RequiresManualReview && studentUserIds.Contains(attempt.StudentUserId))
             .Select(attempt => new { attempt.StudentUserId, attempt.ScorePercent })
             .ToListAsync(cancellationToken);
+        var now = DateTimeOffset.UtcNow;
         var overdueAssignments = await db.CourseAssignments.AsNoTracking()
-            .Where(assignment => courseIds.Contains(assignment.CourseId) && assignment.IsPublished && assignment.DueAtUtc < DateTimeOffset.UtcNow)
-            .Select(assignment => new { assignment.Id, assignment.CourseId })
+            .Where(assignment => courseIds.Contains(assignment.CourseId) && assignment.IsPublished && assignment.DueAtUtc < now)
+            .Select(assignment => new { assignment.Id, assignment.CourseId, assignment.DueAtUtc })
             .ToListAsync(cancellationToken);
+        var assignmentDeadlines = await deadlineResolverService.ResolveManyAsync(overdueAssignments
+            .SelectMany(assignment => enrollments.Where(enrollment => enrollment.CourseId == assignment.CourseId)
+                .Select(enrollment => new CourseAssignmentDeadlineTarget(assignment.Id, enrollment.StudentUserId, assignment.DueAtUtc)))
+            .ToArray(), cancellationToken);
         var overdueAssignmentIds = overdueAssignments.Select(assignment => assignment.Id).ToArray();
         var assignmentSubmissions = overdueAssignmentIds.Length == 0
             ? []
@@ -121,7 +129,6 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db) : ControllerB
         var submissionByStudentAndAssignment = assignmentSubmissions.ToDictionary(
             submission => (submission.StudentUserId, submission.CourseAssignmentId),
             submission => submission.Status);
-        var now = DateTimeOffset.UtcNow;
         var studentsAtRisk = studentUserIds.Select(studentUserId =>
         {
             var enrolledCourseIds = enrolledCoursesByStudent.GetValueOrDefault(studentUserId, []);
@@ -129,6 +136,7 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db) : ControllerB
             var completedLessons = completedLessonsByStudent.GetValueOrDefault(studentUserId, []).Count(lessonId => lessonCourseById.ContainsKey(lessonId) && enrolledCourseIds.Contains(lessonCourseById[lessonId]));
             var progressPercent = expectedLessons == 0 ? 0m : Math.Round(completedLessons * 100m / expectedLessons, 2);
             var missedAssignments = overdueAssignments.Count(assignment => enrolledCourseIds.Contains(assignment.CourseId)
+                && assignmentDeadlines[(assignment.Id, studentUserId)].EffectiveDueAtUtc < now
                 && (!submissionByStudentAndAssignment.TryGetValue((studentUserId, assignment.Id), out var status)
                     || status is CourseAssignmentSubmissionStatus.Draft or CourseAssignmentSubmissionStatus.NeedsRevision));
             var quizScores = quizScoresByStudent.GetValueOrDefault(studentUserId, []);

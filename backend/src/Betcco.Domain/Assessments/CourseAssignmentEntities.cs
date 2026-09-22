@@ -41,6 +41,23 @@ public sealed class CourseAssignment : Entity
     public ICollection<CourseAssignmentCriterion> Criteria { get; } = new List<CourseAssignmentCriterion>();
     public ICollection<CourseAssignmentResource> Resources { get; } = new List<CourseAssignmentResource>();
     public ICollection<CourseAssignmentSubmission> Submissions { get; } = new List<CourseAssignmentSubmission>();
+    public ICollection<CourseAssignmentDeadlineExtension> DeadlineExtensions { get; } = new List<CourseAssignmentDeadlineExtension>();
+}
+
+/// <summary>A historical, student-specific coursework deadline grant. Revocation retains the original grant.</summary>
+public sealed class CourseAssignmentDeadlineExtension : Entity
+{
+    public Guid CourseAssignmentId { get; set; }
+    public CourseAssignment? CourseAssignment { get; set; }
+    public required string StudentUserId { get; set; }
+    public DateTimeOffset BaseDueAtUtcSnapshot { get; set; }
+    public DateTimeOffset ExtendedDueAtUtc { get; set; }
+    public required string GrantedByUserId { get; set; }
+    public DateTimeOffset GrantedAtUtc { get; set; }
+    public required string Reason { get; set; }
+    public DateTimeOffset? RevokedAtUtc { get; set; }
+    public string? RevokedByUserId { get; set; }
+    public string? RevocationReason { get; set; }
 }
 
 /// <summary>

@@ -12,6 +12,35 @@ namespace Betcco.IntegrationTests;
 public sealed class UpcomingDeadlineNotificationServiceTests
 {
     [Fact]
+    public async Task Student_specific_reminders_use_effective_deadlines_without_cross_student_deduplication()
+    {
+        await using var db = new BetccoDbContext(new DbContextOptionsBuilder<BetccoDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+        var now = DateTimeOffset.UtcNow;
+        var studentA = new ApplicationUser { Id = Guid.NewGuid(), UserName = "a@betcco.test", Email = "a@betcco.test", EmailConfirmed = true, DisplayName = "A" };
+        var studentB = new ApplicationUser { Id = Guid.NewGuid(), UserName = "b@betcco.test", Email = "b@betcco.test", EmailConfirmed = true, DisplayName = "B" };
+        var course = new Course { Slug = "individual-deadlines", ArabicTitle = "دورة", EnglishTitle = "Course", ArabicDescription = "وصف", EnglishDescription = "Description", TeacherUserId = "teacher", IsFree = true, Status = CourseStatus.Published };
+        var futureBase = new CourseAssignment { Course = course, ArabicTitle = "قريب", EnglishTitle = "Soon", ArabicInstructions = "تعليمات", EnglishInstructions = "Instructions", DueAtUtc = now.AddHours(6), IsPublished = true, PublicationStatus = ContentPublicationStatus.Published };
+        var pastBase = new CourseAssignment { Course = course, ArabicTitle = "مضى", EnglishTitle = "Past", ArabicInstructions = "تعليمات", EnglishInstructions = "Instructions", DueAtUtc = now.AddHours(-1), IsPublished = true, PublicationStatus = ContentPublicationStatus.Published };
+        db.AddRange(course, studentA, studentB, futureBase, pastBase,
+            new Enrollment { StudentUserId = studentA.Id.ToString(), Course = course },
+            new Enrollment { StudentUserId = studentB.Id.ToString(), Course = course },
+            new CourseAssignmentDeadlineExtension { CourseAssignment = futureBase, StudentUserId = studentA.Id.ToString(), BaseDueAtUtcSnapshot = futureBase.DueAtUtc!.Value, ExtendedDueAtUtc = now.AddHours(36), GrantedByUserId = "teacher", GrantedAtUtc = now, Reason = "Operational" },
+            new CourseAssignmentDeadlineExtension { CourseAssignment = pastBase, StudentUserId = studentA.Id.ToString(), BaseDueAtUtcSnapshot = pastBase.DueAtUtc!.Value, ExtendedDueAtUtc = now.AddHours(12), GrantedByUserId = "teacher", GrantedAtUtc = now, Reason = "Operational" });
+        await db.SaveChangesAsync();
+
+        var email = new RecordingEmailNotifications();
+        var service = new UpcomingDeadlineNotificationService(db, email);
+        Assert.Equal(2, await service.DispatchAsync());
+        var notifications = await db.Notifications.ToListAsync();
+        Assert.Contains(notifications, item => item.UserId == studentB.Id.ToString() && item.DeduplicationKey!.StartsWith($"deadline:{futureBase.Id:N}:"));
+        Assert.Contains(notifications, item => item.UserId == studentA.Id.ToString() && item.DeduplicationKey!.StartsWith($"deadline:{pastBase.Id:N}:"));
+        Assert.DoesNotContain(notifications, item => item.UserId == studentA.Id.ToString() && item.DeduplicationKey!.StartsWith($"deadline:{futureBase.Id:N}:"));
+        Assert.Equal(0, await service.DispatchAsync());
+        Assert.Equal(2, email.Events.Count);
+    }
+
+    [Fact]
     public async Task Published_coursework_due_within_twenty_four_hours_sends_one_in_app_and_email_reminder()
     {
         await using var db = new BetccoDbContext(new DbContextOptionsBuilder<BetccoDbContext>()
