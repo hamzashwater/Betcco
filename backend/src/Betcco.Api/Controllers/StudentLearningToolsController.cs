@@ -1,10 +1,12 @@
 using System.Security.Claims;
+using Betcco.Application.Assignments;
 using Betcco.Application.Common;
 using Betcco.Domain.Common;
 using Betcco.Domain.Learning;
 using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Identity;
 using Betcco.Infrastructure.Persistence;
+using Betcco.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -19,8 +21,10 @@ namespace Betcco.Api.Controllers;
 public sealed class StudentLearningToolsController(
     BetccoDbContext db,
     UserManager<ApplicationUser> users,
-    IEmailNotificationService emailNotifications) : ControllerBase
+    IEmailNotificationService emailNotifications,
+    ICourseAssignmentDeadlineResolver? deadlineResolver = null) : ControllerBase
 {
+    private readonly ICourseAssignmentDeadlineResolver deadlineResolverService = deadlineResolver ?? new CourseAssignmentDeadlineResolver(db);
     [HttpGet("overview")]
     public async Task<IActionResult> Overview([FromQuery] string locale = "ar", CancellationToken cancellationToken = default)
     {
@@ -44,7 +48,7 @@ public sealed class StudentLearningToolsController(
         }).ToListAsync(cancellationToken);
         var courseIds = await db.Enrollments.AsNoTracking().Where(x => x.StudentUserId == studentId && (x.AccessEndsAtUtc == null || x.AccessEndsAtUtc > DateTimeOffset.UtcNow)).Select(x => x.CourseId).ToArrayAsync(cancellationToken);
         var now = DateTimeOffset.UtcNow;
-        var upcomingAssignments = await (
+        var assignmentRows = await (
             from assignment in db.CourseAssignments.AsNoTracking()
             join course in db.Courses.AsNoTracking() on assignment.CourseId equals course.Id
             join submission in db.CourseAssignmentSubmissions.AsNoTracking().Where(item => item.StudentUserId == studentId)
@@ -54,9 +58,8 @@ public sealed class StudentLearningToolsController(
                 && course.Status == CourseStatus.Published
                 && assignment.IsPublished
                 && (!assignment.AvailableFromUtc.HasValue || assignment.AvailableFromUtc <= now)
+                && assignment.PublicationStatus == ContentPublicationStatus.Published
                 && assignment.DueAtUtc.HasValue
-                && assignment.DueAtUtc >= now
-            orderby assignment.DueAtUtc
             select new
             {
                 assignment.Id,
@@ -67,8 +70,23 @@ public sealed class StudentLearningToolsController(
                 assignment.DueAtUtc,
                 submissionStatus = submission == null ? null : submission.Status.ToString()
             })
-            .Take(6)
             .ToListAsync(cancellationToken);
+        var assignmentDeadlines = await deadlineResolverService.ResolveManyAsync(assignmentRows
+            .Select(item => new CourseAssignmentDeadlineTarget(item.Id, studentId, item.DueAtUtc)).ToArray(), cancellationToken);
+        var upcomingAssignments = assignmentRows
+            .Select(item => new
+            {
+                item.Id,
+                item.CourseId,
+                item.LessonId,
+                item.title,
+                item.courseTitle,
+                dueAtUtc = assignmentDeadlines[(item.Id, studentId)].EffectiveDueAtUtc,
+                item.submissionStatus
+            })
+            .Where(item => item.dueAtUtc >= now)
+            .OrderBy(item => item.dueAtUtc)
+            .Take(6).ToArray();
         var unreadNotifications = await db.Notifications.AsNoTracking()
             .CountAsync(notification => notification.UserId == studentId && notification.ReadAtUtc == null, cancellationToken);
         var personalEntries = await db.PersonalCalendarEntries.AsNoTracking().Where(x => x.StudentUserId == studentId).OrderBy(x => x.StartsAtUtc).Select(x => new { id = $"personal:{x.Id}", personalEntryId = (Guid?)x.Id, title = x.Title, details = (string?)x.Details, x.StartsAtUtc, endsAtUtc = x.EndsAtUtc, isLiveSession = false, eventType = "Personal" }).ToListAsync(cancellationToken);
@@ -83,7 +101,7 @@ public sealed class StudentLearningToolsController(
             isLiveSession = true,
             eventType = "LiveSession"
         }).ToListAsync(cancellationToken);
-        var assignmentEvents = await (
+        var calendarAssignments = await (
             from assignment in db.CourseAssignments.AsNoTracking()
             join course in db.Courses.AsNoTracking() on assignment.CourseId equals course.Id
             where courseIds.Contains(assignment.CourseId)
@@ -92,15 +110,24 @@ public sealed class StudentLearningToolsController(
                 && assignment.DueAtUtc != null
             select new
             {
-                id = $"assignment:{assignment.Id}",
-                personalEntryId = (Guid?)null,
+                assignment.Id,
                 title = Localize(locale, assignment.ArabicTitle, assignment.EnglishTitle),
-                details = (string?)Localize(locale, course.ArabicTitle, course.EnglishTitle),
-                StartsAtUtc = assignment.DueAtUtc!.Value,
-                endsAtUtc = (DateTimeOffset?)null,
-                isLiveSession = false,
-                eventType = "Assignment"
+                courseTitle = Localize(locale, course.ArabicTitle, course.EnglishTitle),
+                assignment.DueAtUtc
             }).ToListAsync(cancellationToken);
+        var calendarDeadlines = await deadlineResolverService.ResolveManyAsync(calendarAssignments
+            .Select(item => new CourseAssignmentDeadlineTarget(item.Id, studentId, item.DueAtUtc)).ToArray(), cancellationToken);
+        var assignmentEvents = calendarAssignments.Select(assignment => new
+        {
+            id = $"assignment:{assignment.Id}",
+            personalEntryId = (Guid?)null,
+            title = assignment.title,
+            details = (string?)assignment.courseTitle,
+            StartsAtUtc = calendarDeadlines[(assignment.Id, studentId)].EffectiveDueAtUtc!.Value,
+            endsAtUtc = (DateTimeOffset?)null,
+            isLiveSession = false,
+            eventType = "Assignment"
+        }).ToArray();
         var quizEvents = await db.Quizzes.AsNoTracking()
             .Where(quiz => courseIds.Contains(quiz.CourseId) && quiz.IsPublished && (quiz.AvailableFromUtc != null || quiz.AvailableUntilUtc != null))
             .Select(quiz => new

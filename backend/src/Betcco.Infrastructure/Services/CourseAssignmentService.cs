@@ -18,8 +18,10 @@ public sealed class CourseAssignmentService(
     IFileSecurityScanner scanner,
     IEmailNotificationService emailNotifications,
     IContentAccessService contentAccess,
-    IStorageLifecycleCoordinator? storageLifecycle = null) : ICourseAssignmentService
+    IStorageLifecycleCoordinator? storageLifecycle = null,
+    ICourseAssignmentDeadlineResolver? deadlineResolver = null) : ICourseAssignmentService
 {
+    private readonly ICourseAssignmentDeadlineResolver deadlineResolverService = deadlineResolver ?? new CourseAssignmentDeadlineResolver(db);
     public async Task<Guid?> CreateAsync(string teacherUserId, CreateCourseAssignmentCommand command, CancellationToken cancellationToken = default)
     {
         var course = await db.Courses.SingleOrDefaultAsync(course => course.Id == command.CourseId && course.TeacherUserId == teacherUserId, cancellationToken);
@@ -76,6 +78,7 @@ public sealed class CourseAssignmentService(
             || command.MaxScore is null or <= 0
             || command.AvailableFromUtc is { } startsAt && command.DueAtUtc is { } dueAt && startsAt >= dueAt
             || !TryNormalizeUploadPolicy(command.MaxFileSizeBytes, command.AllowedFileExtensions, out var allowedExtensions)
+            || assignment.DueAtUtc != command.DueAtUtc && await db.CourseAssignmentDeadlineExtensions.AnyAsync(extension => extension.CourseAssignmentId == assignmentId && extension.RevokedAtUtc == null, cancellationToken)
             || !await HasValidContextAsync(assignment.CourseId, command.ModuleId, command.LessonId, command.LearningAimId, cancellationToken)) return false;
         assignment.CourseModuleId = command.ModuleId;
         assignment.LessonId = command.LessonId;
@@ -99,7 +102,9 @@ public sealed class CourseAssignmentService(
     public async Task<bool> DeleteAsync(string teacherUserId, Guid assignmentId, CancellationToken cancellationToken = default)
     {
         var assignment = await OwnedAssignmentAsync(teacherUserId, assignmentId, cancellationToken);
-        if (assignment is null || assignment.PublicationStatus != ContentPublicationStatus.Draft || await db.CourseAssignmentSubmissions.AnyAsync(submission => submission.CourseAssignmentId == assignmentId, cancellationToken)) return false;
+        if (assignment is null || assignment.PublicationStatus != ContentPublicationStatus.Draft
+            || await db.CourseAssignmentSubmissions.AnyAsync(submission => submission.CourseAssignmentId == assignmentId, cancellationToken)
+            || await db.CourseAssignmentDeadlineExtensions.AnyAsync(extension => extension.CourseAssignmentId == assignmentId, cancellationToken)) return false;
         db.CourseAssignments.Remove(assignment);
         db.AuditLogs.Add(Audit(teacherUserId, "CourseAssignmentDeleted", nameof(CourseAssignment), assignmentId.ToString()));
         await db.SaveChangesAsync(cancellationToken);
@@ -225,9 +230,10 @@ public sealed class CourseAssignmentService(
     public async Task<CourseAssignmentSubmissionView?> StartSubmissionAsync(string studentUserId, Guid assignmentId, string? comment, CancellationToken cancellationToken = default)
     {
         var assignment = await db.CourseAssignments.AsNoTracking().SingleOrDefaultAsync(item => item.Id == assignmentId && item.PublicationStatus == ContentPublicationStatus.Published && item.IsPublished, cancellationToken);
-        if (assignment is null
-            || assignment.AvailableFromUtc > DateTimeOffset.UtcNow
-            || assignment.DueAtUtc < DateTimeOffset.UtcNow
+        if (assignment is null) return null;
+        var deadline = await deadlineResolverService.ResolveAsync(assignment.Id, studentUserId, assignment.DueAtUtc, cancellationToken);
+        if (assignment.AvailableFromUtc > DateTimeOffset.UtcNow
+            || deadline.EffectiveDueAtUtc < DateTimeOffset.UtcNow
             || !await db.Enrollments.AnyAsync(enrollment => enrollment.CourseId == assignment.CourseId && enrollment.StudentUserId == studentUserId && (enrollment.AccessEndsAtUtc == null || enrollment.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken)) return null;
         if (!(await contentAccess.CanAccessAsync(studentUserId, assignment.CourseId, LearningContentType.Assignment, assignmentId, cancellationToken)).IsAvailable) return null;
         var submission = await db.CourseAssignmentSubmissions.Include(item => item.Versions).SingleOrDefaultAsync(item => item.CourseAssignmentId == assignmentId && item.StudentUserId == studentUserId, cancellationToken);
@@ -338,23 +344,29 @@ public sealed class CourseAssignmentService(
             .Include(item => item.CourseAssignment).ThenInclude(item => item!.Course)
             .Include(item => item.Versions).ThenInclude(item => item.Files)
             .SingleOrDefaultAsync(item => item.Id == submissionId && item.StudentUserId == studentUserId && item.Status == CourseAssignmentSubmissionStatus.Draft, cancellationToken);
-        if (submission is null || submission.CourseAssignment!.DueAtUtc < DateTimeOffset.UtcNow) return false;
+        if (submission is null) return false;
+        var assignment = submission.CourseAssignment!;
+        var deadline = await deadlineResolverService.ResolveAsync(assignment.Id, studentUserId, assignment.DueAtUtc, cancellationToken);
+        if (deadline.EffectiveDueAtUtc < DateTimeOffset.UtcNow
+            || !await db.Enrollments.AnyAsync(enrollment => enrollment.CourseId == assignment.CourseId && enrollment.StudentUserId == studentUserId && (enrollment.AccessEndsAtUtc == null || enrollment.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken)
+            || !(await contentAccess.CanAccessAsync(studentUserId, assignment.CourseId, LearningContentType.Assignment, assignment.Id, cancellationToken)).IsAvailable) return false;
         var version = submission.Versions.Single(item => item.VersionNumber == submission.CurrentVersionNumber);
         if (!version.Files.Any(file => file.ScanStatus == UploadScanStatus.Clean)) return false;
         var now = DateTimeOffset.UtcNow;
         version.SubmittedAtUtc = now;
         submission.SubmittedAtUtc = now;
         submission.Status = CourseAssignmentSubmissionStatus.Submitted;
-        if (!string.IsNullOrWhiteSpace(submission.CourseAssignment.Course!.TeacherUserId))
+        var teacherUserId = assignment.Course?.TeacherUserId;
+        if (!string.IsNullOrWhiteSpace(teacherUserId))
         {
-            db.Notifications.Add(new Notification { UserId = submission.CourseAssignment.Course.TeacherUserId, Title = "Assignment submission ready", Body = "A student submitted coursework for review.", Type = NotificationType.Course, DeepLink = "/teacher/courses" });
+            db.Notifications.Add(new Notification { UserId = teacherUserId, Title = "Assignment submission ready", Body = "A student submitted coursework for review.", Type = NotificationType.Course, DeepLink = "/teacher/courses" });
         }
         db.AuditLogs.Add(Audit(studentUserId, "CourseAssignmentSubmitted", nameof(CourseAssignmentSubmission), submission.Id.ToString(), submission.CurrentVersionNumber.ToString()));
         await db.SaveChangesAsync(cancellationToken);
-        if (!string.IsNullOrWhiteSpace(submission.CourseAssignment.Course!.TeacherUserId))
+        if (!string.IsNullOrWhiteSpace(teacherUserId))
         {
             await SendEmailToUserAsync(
-                submission.CourseAssignment.Course.TeacherUserId,
+                teacherUserId,
                 "AssignmentSubmitted",
                 "BETCCO coursework submitted",
                 "Coursework is ready for review",

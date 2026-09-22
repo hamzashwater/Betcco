@@ -2646,6 +2646,9 @@ type StudentCourseAssignment = {
   englishInstructions: string;
   availableFromUtc?: string;
   dueAtUtc?: string;
+  baseDueAtUtc?: string;
+  effectiveDueAtUtc?: string;
+  hasDeadlineExtension: boolean;
   maxSubmissionAttempts: number;
   allowResubmission: boolean;
   maxFileSizeBytes: number;
@@ -2950,7 +2953,7 @@ function criterionStatusLabel(status: string, locale: string) {
   return labels[status]?.[locale === "ar" ? 0 : 1] ?? status;
 }
 
-function CourseAssignmentPanel({
+export function CourseAssignmentPanel({
   courseId,
   lessonId,
 }: {
@@ -3065,6 +3068,10 @@ function CourseAssignmentPanel({
           assignment.availableFromUtc &&
           new Date(assignment.availableFromUtc) > new Date(),
         );
+        const deadlinePassed = Boolean(
+          assignment.effectiveDueAtUtc &&
+          new Date(assignment.effectiveDueAtUtc) < new Date(),
+        );
         return (
           <article
             key={assignment.id}
@@ -3082,12 +3089,19 @@ function CourseAssignmentPanel({
                     ? assignment.arabicInstructions
                     : assignment.englishInstructions}
                 </p>
-                {assignment.dueAtUtc ? (
+                {assignment.effectiveDueAtUtc ? (
                   <p className="mt-2 text-xs text-muted">
                     {locale === "ar" ? "الموعد النهائي: " : "Due: "}
-                    {new Date(assignment.dueAtUtc).toLocaleString(
+                    {new Date(assignment.effectiveDueAtUtc).toLocaleString(
                       locale === "ar" ? "ar-JO" : "en-US",
                     )}
+                  </p>
+                ) : null}
+                {assignment.hasDeadlineExtension ? (
+                  <p className="mt-1 text-xs font-bold text-primary">
+                    {locale === "ar"
+                      ? "تمديد فردي لموعد التسليم"
+                      : "Individual deadline adjustment"}
                   </p>
                 ) : null}
                 {assignment.availableFromUtc ? (
@@ -3204,31 +3218,36 @@ function CourseAssignmentPanel({
                     disabled={
                       start.isPending ||
                       opensInFuture ||
+                      deadlinePassed ||
                       (submission?.status === "NeedsRevision" &&
                         !assignment.allowResubmission)
                     }
                     className="focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
                   >
-                    {opensInFuture
+                    {deadlinePassed
                       ? locale === "ar"
-                        ? "المهمة لم تُفتح بعد"
-                        : "This coursework is not open yet"
-                      : submission?.status === "NeedsRevision" &&
-                          !assignment.allowResubmission
+                        ? "انتهى موعد التسليم"
+                        : "Submission deadline passed"
+                      : opensInFuture
                         ? locale === "ar"
-                          ? "إعادة التسليم غير متاحة"
-                          : "Resubmission is unavailable"
-                        : submission?.status === "NeedsRevision"
+                          ? "المهمة لم تُفتح بعد"
+                          : "This coursework is not open yet"
+                        : submission?.status === "NeedsRevision" &&
+                            !assignment.allowResubmission
                           ? locale === "ar"
-                            ? "بدء إعادة التسليم"
-                            : "Start resubmission"
-                          : submission?.status === "Draft"
+                            ? "إعادة التسليم غير متاحة"
+                            : "Resubmission is unavailable"
+                          : submission?.status === "NeedsRevision"
                             ? locale === "ar"
-                              ? "متابعة المسودة"
-                              : "Continue draft"
-                            : locale === "ar"
-                              ? "بدء التسليم"
-                              : "Start submission"}
+                              ? "بدء إعادة التسليم"
+                              : "Start resubmission"
+                            : submission?.status === "Draft"
+                              ? locale === "ar"
+                                ? "متابعة المسودة"
+                                : "Continue draft"
+                              : locale === "ar"
+                                ? "بدء التسليم"
+                                : "Start submission"}
                   </button>
                 ) : (
                   <div className="grid gap-3">
@@ -3266,7 +3285,7 @@ function CourseAssignmentPanel({
                       <button
                         type="button"
                         onClick={() => start.mutate(assignment.id)}
-                        disabled={start.isPending}
+                        disabled={start.isPending || deadlinePassed}
                         className="focus-ring rounded-xl border border-border px-4 py-2.5 text-sm font-bold text-muted disabled:opacity-50"
                       >
                         {locale === "ar" ? "حفظ الملاحظة" : "Save note"}
@@ -3274,7 +3293,9 @@ function CourseAssignmentPanel({
                       <button
                         type="button"
                         onClick={() => upload.mutate()}
-                        disabled={!files.length || upload.isPending}
+                        disabled={
+                          !files.length || upload.isPending || deadlinePassed
+                        }
                         className="focus-ring rounded-xl border border-primary/40 px-4 py-2.5 text-sm font-bold text-primary disabled:opacity-50"
                       >
                         {locale === "ar" ? "رفع الملفات" : "Upload files"}
@@ -3282,7 +3303,7 @@ function CourseAssignmentPanel({
                       <button
                         type="button"
                         onClick={() => submit.mutate()}
-                        disabled={submit.isPending}
+                        disabled={submit.isPending || deadlinePassed}
                         className="focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
                       >
                         {locale === "ar" ? "تسليم للمعلم" : "Submit to teacher"}

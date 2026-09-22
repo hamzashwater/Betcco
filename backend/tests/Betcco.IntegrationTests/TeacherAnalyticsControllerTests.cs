@@ -181,6 +181,30 @@ public sealed class TeacherAnalyticsControllerTests
             student.GetProperty("reasons").EnumerateArray().Select(item => item.GetString()!).ToArray());
     }
 
+    [Fact]
+    public async Task Active_student_extension_does_not_count_as_a_missed_assignment_in_teacher_follow_up()
+    {
+        await using var fixture = await AnalyticsFixture.CreateAsync();
+        var assignment = await fixture.Db.CourseAssignments.OrderBy(item => item.EnglishTitle).FirstAsync();
+        var student = await fixture.Db.Users.SingleAsync(item => item.DisplayName == "Alice high");
+        fixture.Db.CourseAssignmentDeadlineExtensions.Add(new CourseAssignmentDeadlineExtension
+        {
+            CourseAssignmentId = assignment.Id,
+            StudentUserId = student.Id.ToString(),
+            BaseDueAtUtcSnapshot = assignment.DueAtUtc!.Value,
+            ExtendedDueAtUtc = DateTimeOffset.UtcNow.AddDays(1),
+            GrantedByUserId = "teacher-1",
+            GrantedAtUtc = DateTimeOffset.UtcNow,
+            Reason = "Operational adjustment"
+        });
+        await fixture.Db.SaveChangesAsync();
+
+        var json = await GetJsonAsync(fixture.Controller, followUp: true, search: "Alice");
+        var row = json.GetProperty("studentsAtRisk")[0];
+        Assert.Equal(0, row.GetProperty("missedAssignments").GetInt32());
+        Assert.DoesNotContain(row.GetProperty("reasons").EnumerateArray(), reason => reason.GetString() == "MissedAssignments");
+    }
+
     private static async Task<JsonElement> GetJsonAsync(
         TeacherAnalyticsController controller,
         bool followUp = false,

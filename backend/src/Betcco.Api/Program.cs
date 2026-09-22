@@ -390,6 +390,8 @@ builder.Services.AddScoped<IContentAccessService, ContentAccessService>();
 builder.Services.AddScoped<IStudentCoursesLearningHubService, StudentCoursesLearningHubService>();
 builder.Services.AddScoped<IStudentCoursePlayerService, StudentCoursePlayerService>();
 builder.Services.AddScoped<ICourseAssignmentService, CourseAssignmentService>();
+builder.Services.AddScoped<ICourseAssignmentDeadlineResolver, CourseAssignmentDeadlineResolver>();
+builder.Services.AddScoped<ICourseAssignmentDeadlineExtensionService, CourseAssignmentDeadlineExtensionService>();
 builder.Services.AddScoped<ICourseGradebookService, CourseGradebookService>();
 builder.Services.AddScoped<IQuizAuthoringService, QuizAuthoringService>();
 builder.Services.AddScoped<IQuestionBankService, QuestionBankService>();

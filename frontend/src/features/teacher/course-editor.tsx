@@ -182,6 +182,17 @@ type CourseAssignmentData = {
   }[];
 };
 
+type CourseworkDeadlineExtension = {
+  id: string;
+  studentUserId: string;
+  baseDueAtUtcSnapshot: string;
+  extendedDueAtUtc: string;
+  grantedAtUtc: string;
+  reason: string;
+  revokedAtUtc?: string | null;
+  revocationReason?: string | null;
+};
+
 type LearningAccessItem = {
   type: "Course" | "Unit" | "Lesson" | "Quiz" | "Assignment";
   id: string;
@@ -6280,6 +6291,269 @@ function TeacherCourseGradebook({ course }: { course: CourseEditorData }) {
   );
 }
 
+export function CourseworkDeadlineExtensionPanel({
+  assignment,
+  disabled,
+}: {
+  assignment: CourseAssignmentData;
+  disabled: boolean;
+}) {
+  const locale = useLocale();
+  const client = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [studentUserId, setStudentUserId] = useState("");
+  const [extendedDueAt, setExtendedDueAt] = useState("");
+  const [reason, setReason] = useState("");
+  const historyKey = ["coursework-deadline-extensions", assignment.id];
+  const history = useQuery({
+    queryKey: historyKey,
+    queryFn: () =>
+      api<CourseworkDeadlineExtension[]>(
+        `/teacher/assignments/${assignment.id}/deadline-extensions`,
+      ),
+    enabled: open,
+  });
+  const students = useQuery({
+    queryKey: ["coursework-extension-eligible-students", assignment.id],
+    queryFn: () =>
+      api<{ studentUserId: string; displayName: string }[]>(
+        `/teacher/assignments/${assignment.id}/deadline-extensions/eligible-students`,
+      ),
+    enabled: open,
+  });
+  const active = (history.data ?? []).filter((item) => !item.revokedAtUtc);
+  const selectedHasExtension = active.some(
+    (item) => item.studentUserId === studentUserId,
+  );
+  const date = extendedDueAt ? new Date(extendedDueAt) : null;
+  const canGrant = Boolean(
+    assignment.dueAtUtc &&
+    studentUserId &&
+    !selectedHasExtension &&
+    date &&
+    !Number.isNaN(date.getTime()) &&
+    date > new Date(assignment.dueAtUtc) &&
+    reason.trim().length > 0 &&
+    reason.trim().length <= 500,
+  );
+  const grant = useMutation({
+    mutationFn: () =>
+      api(`/teacher/assignments/${assignment.id}/deadline-extensions`, {
+        method: "POST",
+        body: JSON.stringify({
+          studentUserId,
+          extendedDueAtUtc: date!.toISOString(),
+          reason: reason.trim(),
+        }),
+      }),
+    onSuccess: () => {
+      setStudentUserId("");
+      setExtendedDueAt("");
+      setReason("");
+      client.invalidateQueries({ queryKey: historyKey });
+    },
+  });
+  const revoke = useMutation({
+    mutationFn: (id: string) =>
+      api(
+        `/teacher/assignments/${assignment.id}/deadline-extensions/${id}/revoke`,
+        { method: "POST", body: JSON.stringify({ reason: null }) },
+      ),
+    onSuccess: () => client.invalidateQueries({ queryKey: historyKey }),
+  });
+  return (
+    <section className="mt-4 rounded-xl border border-border p-3">
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+        className="focus-ring text-sm font-bold text-primary"
+      >
+        {locale === "ar"
+          ? "تمديدات مواعيد الطلاب"
+          : "Student deadline extensions"}
+      </button>
+      {open ? (
+        <div className="mt-3 grid gap-3">
+          <p className="text-sm text-muted">
+            {locale === "ar" ? "الموعد الأساسي: " : "Base deadline: "}
+            {assignment.dueAtUtc
+              ? new Date(assignment.dueAtUtc).toLocaleString(
+                  locale === "ar" ? "ar-JO" : "en-US",
+                )
+              : locale === "ar"
+                ? "لا يوجد"
+                : "None"}
+          </p>
+          {history.isPending || students.isPending ? (
+            <p aria-busy className="text-sm text-muted">
+              {locale === "ar" ? "جارٍ التحميل…" : "Loading…"}
+            </p>
+          ) : null}
+          {history.isError || students.isError ? (
+            <p role="alert" className="text-sm text-red-400">
+              {locale === "ar"
+                ? "تعذر تحميل بيانات التمديد. تحقق من صلاحية الوصول وحاول مجددًا."
+                : "Could not load extension data. Check access and try again."}
+            </p>
+          ) : null}
+          {!history.isPending && !history.data?.length ? (
+            <p className="text-sm text-muted">
+              {locale === "ar"
+                ? "لا توجد تمديدات مسجلة."
+                : "No extensions recorded."}
+            </p>
+          ) : null}
+          {history.data?.map((item) => (
+            <div
+              key={item.id}
+              className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-2 text-xs"
+            >
+              <div>
+                <p className="font-bold">
+                  {students.data?.find(
+                    (student) => student.studentUserId === item.studentUserId,
+                  )?.displayName ?? item.studentUserId}
+                </p>
+                <p>
+                  {new Date(item.extendedDueAtUtc).toLocaleString(
+                    locale === "ar" ? "ar-JO" : "en-US",
+                  )}
+                </p>
+                <p className="text-muted">
+                  {item.revokedAtUtc
+                    ? locale === "ar"
+                      ? "ملغى"
+                      : "Revoked"
+                    : locale === "ar"
+                      ? "نشط"
+                      : "Active"}
+                </p>
+                <p className="text-muted">
+                  {locale === "ar" ? "مُنح: " : "Granted: "}
+                  {new Date(item.grantedAtUtc).toLocaleString(
+                    locale === "ar" ? "ar-JO" : "en-US",
+                  )}
+                  {item.revokedAtUtc
+                    ? `${locale === "ar" ? " · أُلغي: " : " · Revoked: "}${new Date(item.revokedAtUtc).toLocaleString(locale === "ar" ? "ar-JO" : "en-US")}`
+                    : ""}
+                </p>
+                <p className="text-muted">
+                  {locale === "ar" ? "مبرر الموظف: " : "Staff rationale: "}
+                  {item.reason}
+                </p>
+              </div>
+              {!item.revokedAtUtc && !disabled ? (
+                <button
+                  type="button"
+                  disabled={revoke.isPending}
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        locale === "ar"
+                          ? "هل تريد إلغاء هذا التمديد؟"
+                          : "Revoke this extension?",
+                      )
+                    )
+                      revoke.mutate(item.id);
+                  }}
+                  className="focus-ring rounded-lg border border-red-400/40 px-3 py-2 font-bold text-red-400 disabled:opacity-50"
+                >
+                  {locale === "ar" ? "إلغاء التمديد" : "Revoke"}
+                </button>
+              ) : null}
+            </div>
+          ))}
+          {assignment.dueAtUtc && !disabled ? (
+            <form
+              className="grid gap-2 rounded-lg border border-border p-3"
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (canGrant && !grant.isPending) grant.mutate();
+              }}
+            >
+              <label className="grid gap-1 text-sm font-bold">
+                {locale === "ar" ? "الطالب المسجل" : "Enrolled student"}
+                <select
+                  className="focus-ring rounded-lg border border-border bg-page p-2"
+                  value={studentUserId}
+                  onChange={(event) => setStudentUserId(event.target.value)}
+                  required
+                >
+                  <option value="">
+                    {locale === "ar" ? "اختر طالبًا" : "Choose a student"}
+                  </option>
+                  {students.data?.map((student) => (
+                    <option
+                      key={student.studentUserId}
+                      value={student.studentUserId}
+                      disabled={active.some(
+                        (item) => item.studentUserId === student.studentUserId,
+                      )}
+                    >
+                      {student.displayName}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="grid gap-1 text-sm font-bold">
+                {locale === "ar" ? "الموعد الممدد" : "Extended deadline"}
+                <input
+                  className="focus-ring rounded-lg border border-border bg-page p-2"
+                  type="datetime-local"
+                  value={extendedDueAt}
+                  onChange={(event) => setExtendedDueAt(event.target.value)}
+                  required
+                />
+              </label>
+              <label className="grid gap-1 text-sm font-bold">
+                {locale === "ar" ? "المبرر الإداري" : "Staff rationale"}
+                <textarea
+                  className="focus-ring min-h-20 rounded-lg border border-border bg-page p-2"
+                  value={reason}
+                  onChange={(event) => setReason(event.target.value)}
+                  maxLength={500}
+                  required
+                />
+              </label>
+              <p className="text-xs text-muted">
+                {locale === "ar"
+                  ? "اكتب سببًا إداريًا مختصرًا. لا تكتب تشخيصًا طبيًا أو معلومات شخصية حساسة غير ضرورية."
+                  : "Enter a brief operational reason. Do not enter medical diagnoses or unnecessary sensitive personal information."}
+              </p>
+              <button
+                type="submit"
+                disabled={!canGrant || grant.isPending}
+                className="focus-ring w-fit rounded-lg bg-primary px-4 py-2 text-sm font-bold text-slate-950 disabled:opacity-50"
+              >
+                {grant.isPending
+                  ? locale === "ar"
+                    ? "جارٍ الحفظ…"
+                    : "Saving…"
+                  : locale === "ar"
+                    ? "منح التمديد"
+                    : "Grant extension"}
+              </button>
+            </form>
+          ) : null}
+          {grant.isSuccess || revoke.isSuccess ? (
+            <p role="status" className="text-sm text-primary">
+              {locale === "ar" ? "تم تحديث التمديد." : "Extension updated."}
+            </p>
+          ) : null}
+          {grant.isError || revoke.isError ? (
+            <p role="alert" className="text-sm text-red-400">
+              {locale === "ar"
+                ? "تعذر تحديث التمديد. تحقق من البيانات والصلاحيات."
+                : "Could not update the extension. Check the details and access."}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
 function CourseAssignmentCard({
   assignment,
   course,
@@ -6560,6 +6834,10 @@ function CourseAssignmentCard({
           </div>
         ) : null}
       </div>
+      <CourseworkDeadlineExtensionPanel
+        assignment={assignment}
+        disabled={disabled}
+      />
       <div className="mt-4 grid gap-3 border-t border-border pt-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="font-bold">
