@@ -3,15 +3,21 @@
 ## Metadata
 
 - Last updated: 2026-09-22
-- Verified implementation baseline SHA: `5321baa7f64eb06c6affd9e0bac94f28a52dc825`
-- Status generated/verified against origin/main: `5321baa7f64eb06c6affd9e0bac94f28a52dc825`
-- Baseline branch used for status generation: `docs/reconcile-assessment-scope-snapshot-status`
-- Working tree state during status generation: clean
-- Latest verified CI state: GREEN on current main after PR #32 — Application quality, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully. Dependency review was skipped on push as expected by workflow configuration; PR #32's pre-merge Dependency review and Full-stack browser UAT passed.
+- Verified implementation baseline SHA: `ab4ace6ef4b1774f3c752c7b7bd5e688531330f1`
+- Status generated/verified against origin/main: `ab4ace6ef4b1774f3c752c7b7bd5e688531330f1`
+- Baseline branch used for status generation: `docs/reconcile-coursework-deadline-extensions-status`
+- Working tree state at verified baseline: clean
+- Latest verified CI state: GREEN on current main after PR #34 — [Quality](https://github.com/hamzashwater/Betcco/actions/runs/35755866298) and [Security analysis](https://github.com/hamzashwater/Betcco/actions/runs/35755866133) completed successfully on `ab4ace6ef4b1774f3c752c7b7bd5e688531330f1`.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
 ## Latest Merged Task
+
+- Task: Reasonable Adjustments Slice 1 — student-specific LEARN coursework deadline extensions
+- Merge/commit SHA: `ab4ace6ef4b1774f3c752c7b7bd5e688531330f1`
+- Pull Request: [#34 — feat: add student-specific coursework deadline extensions](https://github.com/hamzashwater/Betcco/pull/34)
+- Outcome: DONE. `CourseAssignmentDeadlineExtension` records teacher grants and revocations with retained history; a partial unique index prevents multiple active extensions for one student and assignment. `CourseAssignmentDeadlineResolver` supplies the effective student deadline without changing other students' assignment deadline. Start Submission, Submit, student dashboard/calendar, reminders, and Teacher Analytics use the effective deadline where applicable. Teachers can grant, review history, and revoke in the UI; students see their adjusted deadline without the private administrative reason. Migration `20260922114919_AddCourseAssignmentDeadlineExtensions` is additive, with no backfill or destructive schema operation. `EvaluationRequest` and `ResubmissionAuthorization.DueAtUtc` semantics were not changed; LEARN and ASSESS remain separate.
+- Verification evidence: Focused PostgreSQL and backend regression tests 32/32, backend Release build, frontend tests 6/6, format/typecheck/lint/production build, English desktop, Arabic RTL desktop, and 390px mobile browser checks passed. Post-merge Quality and Security analysis succeeded on main. Production migration and production smoke verification have **not** been executed.
 
 - Task: Versioned Academic Authoring + Assessment Definition Mapping
 - Merge/commit SHA: `689b87280ecf27b1d4f825092e8f814066e9ccd4`
@@ -28,7 +34,7 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - Task: ASSESS Academic Identity Foundation
 - Merge/commit SHA: `be2b275b02a5c1f31aaead68c2fe32784d50bc11`
 - Pull Request: #28
-- Outcome: DONE. Added `UnitDefinition` under `QualificationVersion`, `AssessmentDefinition` under `UnitDefinition`, and `AssessmentScope` under `AssessmentDefinition`, with Grade, Specialization, and existing `RubricTemplate` bindings. Added nullable `EvaluationRequest.AssessmentScopeId` and `EvaluationRequest.AssessmentScopeSnapshotJson` through an additive migration. Historic EvaluationRequests were preserved without backfill; all new foreign keys use `RESTRICT`. Scope selection, scope snapshot population, complete academic authoring, evaluator-specialism routing, Assessment Coordinator capabilities, and Reasonable Adjustments remain future work. LEARN and ASSESS remain separate; `EvaluationRequest` remains the ASSESS aggregate root and `CourseModule` remains unchanged.
+- Outcome: DONE. Added `UnitDefinition` under `QualificationVersion`, `AssessmentDefinition` under `UnitDefinition`, and `AssessmentScope` under `AssessmentDefinition`, with Grade, Specialization, and existing `RubricTemplate` bindings. Added nullable `EvaluationRequest.AssessmentScopeId` and `EvaluationRequest.AssessmentScopeSnapshotJson` through an additive migration. Historic EvaluationRequests were preserved without backfill; all new foreign keys use `RESTRICT`. Subsequent PRs #30 and #32 completed academic authoring, scope selection, and snapshots; PR #34 completed LEARN coursework deadline extensions. Evaluator-specialism routing and Assessment Coordinator capabilities remain future work. LEARN and ASSESS remain separate; `EvaluationRequest` remains the ASSESS aggregate root and `CourseModule` remains unchanged.
 - Verification evidence: Focused PostgreSQL identity/migration tests 3/3, targeted integration suite 31/31, focused BTEC unit tests 4/4, backend build with 0 warnings and 0 errors, formatting verification, git diff verification, PR full-stack browser UAT, Application quality, Dependency review, and CodeQL passed. Post-merge Application quality and both CodeQL workflows succeeded; Dependency review was skipped on push as expected by workflow configuration.
 
 ## Previous Merged Tasks
@@ -94,6 +100,8 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - Full-stack UAT browser matrix — merged through PR #20 in `25b25e3`.
 - ASSESS academic identity foundation — merged through PR #28 in `be2b275b`.
 - Versioned academic authoring and assessment definition mapping — merged through PR #30 in `689b872`.
+- ASSESS AssessmentScope selection and immutable academic snapshot — merged through PR #32 in `5321baa7`.
+- Reasonable Adjustments Slice 1, student-specific LEARN coursework deadline extensions — merged through PR #34 in `ab4ace6`.
 
 These entries are merged repository evidence only; new behavior changes still require targeted validation and review.
 
@@ -101,9 +109,9 @@ These entries are merged repository evidence only; new behavior changes still re
 
 ### BTEC assessment correctness core
 
-Done: Main contains the versioned criterion/rule and qualification snapshot foundations, the additive ASSESS academic identity foundation from PR #28 (`UnitDefinition`, `AssessmentDefinition`, `AssessmentScope`, and the nullable `EvaluationRequest` bridge), authenticity declarations, authorised resubmission records, internal-verification sampling, appeals, structured assessment-audit export, and formal visual PDF reporting. The structured audit export now uses the safe v2 contract: raw internal identifiers and sensitive implementation metadata are structurally excluded, academic traceability is preserved, actor-role attribution is corrected, unsupported historical RBAC precision is not fabricated, and deterministic SHA-256 integrity is preserved. The PDF includes assignment/task, submission/evidence, assessor/internal-verifier/lead-internal-verifier/appeal-review, and academic audit/history context; excludes sensitive storage/internal IDs; retains neutral/non-official BTEC wording; and has verified Arabic/English, multipage, and Linux/Windows font-layout compatibility with required CI green.
+Done: Main contains the versioned criterion/rule and qualification snapshot foundations, the additive ASSESS academic identity foundation from PR #28 (`UnitDefinition`, `AssessmentDefinition`, `AssessmentScope`, and the nullable `EvaluationRequest` bridge), authenticity declarations, authorised resubmission records, internal-verification sampling, appeals, structured assessment-audit export, and formal visual PDF reporting. ASSESS Slices 1–3 are DONE: the canonical academic chain is `QualificationVersion` → `UnitDefinition` → `LearningAimDefinition` → `AssessmentCriterionDefinition`, with `AssessmentDefinition` → `AssessmentScope`; `EvaluationRequest` remains the ASSESS aggregate root. The structured audit export now uses the safe v2 contract: raw internal identifiers and sensitive implementation metadata are structurally excluded, academic traceability is preserved, actor-role attribution is corrected, unsupported historical RBAC precision is not fabricated, and deterministic SHA-256 integrity is preserved. The PDF includes assignment/task, submission/evidence, assessor/internal-verifier/lead-internal-verifier/appeal-review, and academic audit/history context; excludes sensitive storage/internal IDs; retains neutral/non-official BTEC wording; and has verified Arabic/English, multipage, and Linux/Windows font-layout compatibility with required CI green. PR #34 separately completed student-specific LEARN coursework deadline extensions without changing `EvaluationRequest` or `ResubmissionAuthorization.DueAtUtc`.
 
-Remaining: Reasonable Adjustments/extensions, Retake/Resit, evaluator-specialism routing, Assessment Coordinator capabilities, SLA/expected completion workflow, AcademicYear/Term/DeliveryPlan, and CourseModule migration remain unresolved.
+Remaining: Retake/Resit, broader ASSESS reasonable adjustments beyond the completed LEARN coursework deadline slice, evaluator-specialism routing, Assessment Coordinator capabilities, SLA/expected completion workflow, AcademicYear/Term/DeliveryPlan, and CourseModule migration remain unresolved.
 
 ### Privacy and compliance workflow core
 
@@ -143,6 +151,7 @@ Done: Main contains BTEC result views, internal-verification and appeal workspac
 4. Student Courses Learning Hub, with a dedicated course workspace, bounded server-authoritative retrieval, bilingual search, progress filters, deterministic sorting, pagination, published-course and access enforcement, server-owned progress/completion state, safe cover and teacher-name handling, a compact dashboard preview, and bilingual responsive/accessibility validation.
 5. Student Course Player + Resume Learning, with server-authoritative resume/current lesson selection, authorized deep links, saved position restoration, server-owned completion, preserved video threshold, accessible navigation, Course Hub Continue integration, and EN/AR responsive/accessibility validation.
 6. Media / Video Foundation + Secure Delivery, with secure private MP4/WEBM upload, replacement/removal lifecycle handling, authorization, range/seek delivery, and resilient CoursePlayer media states. FOUNDATION COMPLETE; advanced media platform work remains outside this slice.
+7. Reasonable Adjustments Slice 1, with teacher grant/revoke/history UI and student-specific LEARN coursework deadlines shown without the private staff rationale; other students retain the shared deadline.
 
 Remaining: Broader Teacher UX remains incomplete. Student UX remains partial: the broader Student learning lifecycle remains. The broader course lifecycle and learning experience remain incomplete.
 
@@ -190,7 +199,9 @@ No new Workstream B branch, owner, task, or implementation is invented here. Wor
 - Task 6: DONE — Media / Video Foundation + Secure Delivery. PR #18 merged with required CI green.
 - Slice 1: DONE — ASSESS academic identity foundation. PR #28 merged with required CI green.
 - Slice 2: DONE — Versioned Learning Aims / Criteria + AssessmentDefinition publication/source mapping + Qualification/Rubric compatibility enforcement. PR #30 merged with required CI green.
-- Slice 3: DONE — EvaluationRequest + AssessmentScope selection + immutable academic snapshot. PR #32 merged with required CI and production full-stack browser UAT green. Reasonable Adjustments/extensions is the next focused implementation step.
+- Slice 3: DONE — EvaluationRequest + AssessmentScope selection + immutable academic snapshot. PR #32 merged with required CI and production full-stack browser UAT green.
+- Reasonable Adjustments Slice 1: DONE — student-specific LEARN coursework deadline extensions. PR #34 merged with post-merge CI green; production migration and smoke verification remain outstanding.
+- Next implementation slice: Retake / Resit. No Retake / Resit implementation is included in this reconciliation.
 
 Definition of Done for each workstream: implementation is reviewed, required CI is green, its PR is merged into `main`, and this document is reconciled with the new merged state.
 
@@ -238,16 +249,16 @@ Do not reopen these areas merely because a later account lacks conversation memo
 - PR #24 is merged into `main` at `7ab8c8ef428fbbce4724f8b94fe920b3fb9c775a`; assessment-audit export identifier minimization is DONE, the safe v2 contract excludes raw internal identifiers and sensitive implementation metadata, actor-role attribution is corrected, and required post-merge CI is GREEN.
 - PR #26 is merged into `main` at `23ff9d3926a079d72871e68a4950805a5cd947e2`; the `/en/about` WebKit React #418 hydration mismatch is resolved with consistent locale-aware server/client settings, seeded React Query hydration, and a bounded 3000ms server fetch timeout with localized fallbacks. Unit verification was 9/9 and production HTTPS browser verification was 4/4.
 - PR #20 is merged into `main` at `25b25e30e3dc1e6a63025d4308073545e00412e9`; full-stack browser UAT completed 7/7 with required `/en/about` WebKit iPhone 14 regression coverage, strict page-error and overflow assertions, and no production or database changes.
-- PR #28 is merged into `main` at `be2b275b02a5c1f31aaead68c2fe32784d50bc11`; the ASSESS academic identity foundation is DONE with additive `UnitDefinition`, `AssessmentDefinition`, `AssessmentScope`, and a nullable `EvaluationRequest` bridge. No historic backfill or destructive migration was performed. Scope selection, scope snapshots, complete academic authoring, evaluator-specialism routing, Assessment Coordinator capabilities, and Reasonable Adjustments remain future work.
-- PR #30 is merged into `main` at `689b87280ecf27b1d4f825092e8f814066e9ccd4`; versioned academic authoring, canonical aims and criteria, definition mappings, source/publication rules, qualification/rubric compatibility, and the bilingual Admin Academic Catalogue are DONE. Slice 3 subsequently completed AssessmentScope selection and the immutable EvaluationRequest academic snapshot; Reasonable Adjustments/extensions, Retake/Resit, evaluator-specialism routing, Assessment Coordinator capability, SLA workflow, AcademicYear/Term/DeliveryPlan, and CourseModule migration remain future work.
+- PR #28 is merged into `main` at `be2b275b02a5c1f31aaead68c2fe32784d50bc11`; the ASSESS academic identity foundation is DONE with additive `UnitDefinition`, `AssessmentDefinition`, `AssessmentScope`, and a nullable `EvaluationRequest` bridge. No historic backfill or destructive migration was performed. Subsequent PRs #30 and #32 completed academic authoring, scope selection, and snapshots; evaluator-specialism routing and Assessment Coordinator capabilities remain future work.
+- PR #30 is merged into `main` at `689b87280ecf27b1d4f825092e8f814066e9ccd4`; versioned academic authoring, canonical aims and criteria, definition mappings, source/publication rules, qualification/rubric compatibility, and the bilingual Admin Academic Catalogue are DONE. Slice 3 subsequently completed AssessmentScope selection and the immutable EvaluationRequest academic snapshot; PR #34 completed LEARN coursework deadline extensions. Retake/Resit, evaluator-specialism routing, Assessment Coordinator capability, SLA workflow, AcademicYear/Term/DeliveryPlan, and CourseModule migration remain future work.
 - PR #32 is merged into `main` at `5321baa7f64eb06c6affd9e0bac94f28a52dc825`; AssessmentScope selection and immutable academic snapshot creation are DONE. The nullable legacy bridge remains supported, with no historical backfill or destructive migration. The transitional `TaskTypeId` dependency remains explicit follow-up work where canonical task-type ownership is not yet fully migrated.
+- PR #34 is merged into `main` at `ab4ace6ef4b1774f3c752c7b7bd5e688531330f1`; Reasonable Adjustments Slice 1 for LEARN coursework deadlines is DONE with an additive migration, no backfill, and no destructive schema operation. Production migration and production smoke verification have not been executed.
 - PR #14's required CI was verified GREEN for feature head `431d12efe70236872173f66677d88d484b4348b4`: Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully. Future workstreams must still verify their own current remote CI before claiming completion.
 - Production S3, SMTP, ClamAV, Data Protection certificate, hosting, monitoring, backup/restore, payment, payout, and fiscal integrations require external configuration or validation.
 - Broader capacity testing, launch hardening, retention decisions, and final legal review remain outstanding; the dedicated PR #20 full-stack browser UAT matrix is complete.
 
 ### Remaining P0 items
 
-- Reasonable-adjustment and extension workflow remains unresolved.
 - Retake/resit policy and workflow remains unresolved.
 - Staff MFA decision and enforcement remains unresolved.
 - Secret-scanning and push-protection verification remains unresolved.
