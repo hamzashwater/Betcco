@@ -406,6 +406,7 @@ builder.Services.AddScoped<IFiscalSubmissionService, FiscalSubmissionService>();
 builder.Services.AddScoped<IWalletService, WalletService>();
 builder.Services.AddScoped<IEvaluationService, EvaluationService>();
 builder.Services.AddScoped<IScopedAssessmentService, ScopedAssessmentService>();
+builder.Services.AddScoped<IRetakeService, RetakeService>();
 builder.Services.AddScoped<IInternalVerificationSamplingService, InternalVerificationSamplingService>();
 builder.Services.AddScoped<IEvaluationAppealService, EvaluationAppealService>();
 builder.Services.AddScoped<IAssessmentAuditExportService, AssessmentAuditExportService>();

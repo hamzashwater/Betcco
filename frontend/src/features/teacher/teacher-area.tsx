@@ -548,6 +548,8 @@ type AssignedEvaluation = {
   filesCount: number;
   criteria: string[];
   selectedCriteria: string[];
+  isRetake: boolean;
+  retakeOfEvaluationRequestId: string | null;
 };
 
 function TeacherEvaluations() {
@@ -598,7 +600,13 @@ function TeacherEvaluations() {
                 <div className="flex items-center gap-2 text-primary">
                   <ClipboardCheck size={18} aria-hidden="true" />
                   <span className="text-sm font-black">
-                    {locale === "ar" ? "طلب تقييم مسند" : "Assigned evaluation"}
+                    {evaluation.isRetake
+                      ? locale === "ar"
+                        ? "Retake مسند · Pass فقط"
+                        : "Assigned Retake · Pass only"
+                      : locale === "ar"
+                        ? "طلب تقييم مسند"
+                        : "Assigned evaluation"}
                   </span>
                 </div>
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">
@@ -647,6 +655,8 @@ function TeacherEvaluations() {
 type EvaluationDetail = {
   id: string;
   status: string;
+  isRetake: boolean;
+  retakeOfEvaluationRequestId: string | null;
   studentComment?: string;
   criteria: string[];
   selectedCriteria: string[];
@@ -788,7 +798,9 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
           }}
         >
           <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">
-            BETCCO Evaluation
+            {evaluation.data.isRetake
+              ? "BETCCO Retake · Pass only"
+              : "BETCCO Evaluation"}
           </p>
           <h1 className="mt-2 text-3xl font-black">
             {locale === "ar" ? "تقييم المعايير" : "Criterion assessment"}

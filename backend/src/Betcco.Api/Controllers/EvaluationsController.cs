@@ -119,6 +119,7 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
                 x.EvaluationRequest.CriteriaSnapshotJson,
                 x.EvaluationRequest.EvaluatorCriteriaPlanJson,
                 x.EvaluationRequest.AssessmentScopeSnapshotJson,
+                x.EvaluationRequest.RetakeOfEvaluationRequestId,
                 filesCount = x.EvaluationRequest.SubmissionFiles.Count
             })
             .ToListAsync(cancellationToken);
@@ -129,6 +130,8 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             x.status,
             x.StudentComment,
             x.filesCount,
+            isRetake = x.RetakeOfEvaluationRequestId != null,
+            x.RetakeOfEvaluationRequestId,
             criteria = JsonSerializer.Deserialize<string[]>(x.CriteriaSnapshotJson) ?? [],
             selectedCriteria = JsonSerializer.Deserialize<string[]>(x.EvaluatorCriteriaPlanJson) ?? [],
             academic = AssessmentScopeSnapshotReader.Summary(x.AssessmentScopeSnapshotJson)
@@ -149,7 +152,8 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
                 x.StudentComment,
                 filesCount = x.SubmissionFiles.Count,
                 x.CriteriaSnapshotJson,
-                x.AssessmentScopeSnapshotJson
+                x.AssessmentScopeSnapshotJson,
+                x.RetakeOfEvaluationRequestId
             })
             .ToListAsync(cancellationToken);
 
@@ -159,6 +163,8 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             x.status,
             x.StudentComment,
             x.filesCount,
+            isRetake = x.RetakeOfEvaluationRequestId != null,
+            x.RetakeOfEvaluationRequestId,
             criteria = JsonSerializer.Deserialize<string[]>(x.CriteriaSnapshotJson) ?? [],
             academic = AssessmentScopeSnapshotReader.Summary(x.AssessmentScopeSnapshotJson)
         }));
@@ -191,6 +197,8 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
         {
             request.Id,
             request.StudentComment,
+            isRetake = request.RetakeOfEvaluationRequestId != null,
+            request.RetakeOfEvaluationRequestId,
             academic = AssessmentScopeSnapshotReader.Summary(request.AssessmentScopeSnapshotJson),
             filesCount = request.SubmissionFiles.Count,
             calculatedGrade = request.CalculatedGrade?.ToString(),
@@ -242,7 +250,10 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             request.Price,
             request.Currency,
             request.StudentComment,
+            isRetake = request.RetakeOfEvaluationRequestId != null,
+            request.RetakeOfEvaluationRequestId,
             academic = AssessmentScopeSnapshotReader.Summary(request.AssessmentScopeSnapshotJson),
+            criteria = JsonSerializer.Deserialize<string[]>(request.CriteriaSnapshotJson) ?? [],
             selectedCriteria = JsonSerializer.Deserialize<string[]>(request.EvaluatorCriteriaPlanJson) ?? [],
             evidence = request.EvidenceItems.OrderBy(x => x.CriterionCode).Select(x => new { x.CriterionCode, x.Narrative }),
             feedback = request.FeedbackItems.OrderBy(x => x.CreatedAtUtc).Select(x => new { x.Body, x.RequestsResubmission, x.CreatedAtUtc }),
@@ -279,6 +290,8 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             request.Price,
             request.Currency,
             request.StudentComment,
+            isRetake = request.RetakeOfEvaluationRequestId != null,
+            request.RetakeOfEvaluationRequestId,
             academic = AssessmentScopeSnapshotReader.Summary(request.AssessmentScopeSnapshotJson),
             criteria = JsonSerializer.Deserialize<string[]>(request.CriteriaSnapshotJson) ?? [],
             selectedCriteria = JsonSerializer.Deserialize<string[]>(request.EvaluatorCriteriaPlanJson) ?? [],

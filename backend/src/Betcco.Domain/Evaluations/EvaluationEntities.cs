@@ -77,6 +77,13 @@ public sealed class EvaluationRequest : Entity
     // academic attempt and therefore needs its own authenticity declaration.
     public int SubmissionAttemptNumber { get; set; } = 1;
     public Guid? PaymentId { get; set; }
+    // A Retake is a new aggregate with its own payment, evidence and result.
+    // This nullable self-reference is the only link back to the immutable
+    // original evaluation; a database unique index prevents Retake chains and
+    // more than one Retake for the same original.
+    public Guid? RetakeOfEvaluationRequestId { get; set; }
+    public EvaluationRequest? RetakeOfEvaluationRequest { get; set; }
+    public ICollection<EvaluationRequest> Retakes { get; } = new List<EvaluationRequest>();
     public ICollection<SubmissionFile> SubmissionFiles { get; } = new List<SubmissionFile>();
     public ICollection<CriterionResult> CriterionResults { get; } = new List<CriterionResult>();
     public ICollection<EvaluationEvidence> EvidenceItems { get; } = new List<EvaluationEvidence>();
@@ -87,6 +94,25 @@ public sealed class EvaluationRequest : Entity
     public ICollection<AuthenticityDeclaration> AuthenticityDeclarations { get; } = new List<AuthenticityDeclaration>();
     public ICollection<AssessmentAuditEvent> AssessmentAuditEvents { get; } = new List<AssessmentAuditEvent>();
     public ICollection<ResubmissionAuthorization> ResubmissionAuthorizations { get; } = new List<ResubmissionAuthorization>();
+    public RetakeAuthorization? RetakeAuthorization { get; set; }
+}
+
+/// <summary>
+/// A Lead Internal Verifier's staff-only approval of one Retake. The created
+/// request is separate from the original and this rationale is never included
+/// in student evaluation projections.
+/// </summary>
+public sealed class RetakeAuthorization : Entity
+{
+    public Guid OriginalEvaluationRequestId { get; set; }
+    public EvaluationRequest? OriginalEvaluationRequest { get; set; }
+    public Guid RetakeAssessmentScopeId { get; set; }
+    public AssessmentScope? RetakeAssessmentScope { get; set; }
+    public Guid RetakeEvaluationRequestId { get; set; }
+    public EvaluationRequest? RetakeEvaluationRequest { get; set; }
+    public required string AuthorizedByUserId { get; set; }
+    public DateTimeOffset AuthorizedAtUtc { get; set; } = DateTimeOffset.UtcNow;
+    public required string Reason { get; set; }
 }
 
 /// <summary>
@@ -167,6 +193,7 @@ public sealed class AssessmentScope : Entity
     public int Version { get; set; } = 1;
     public DateTimeOffset? PublishedAtUtc { get; set; }
     public bool IsActive { get; set; }
+    public bool IsRetakeOnly { get; set; }
     public ICollection<EvaluationRequest> EvaluationRequests { get; } = new List<EvaluationRequest>();
 }
 

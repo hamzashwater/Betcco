@@ -17,6 +17,7 @@ import { InternalVerificationPlanManagement } from "@/features/admin/internal-ve
 import { EvaluationAppealManagement } from "@/features/admin/evaluation-appeal-management";
 import { QualificationRegistryManagement } from "@/features/admin/qualification-registry-management";
 import { AcademicCatalogue } from "@/features/admin/academic-catalogue";
+import { RetakeManagement } from "@/features/admin/retake-management";
 import { SupportCenter } from "@/features/support/support-center";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -145,6 +146,7 @@ export function AdminArea({ segment }: { segment: string[] }) {
   if (current === "teachers") return <TeacherInvites />;
   if (current === "course-approvals") return <CourseApprovals />;
   if (current === "evaluations") return <AdminEvaluations />;
+  if (current === "retakes") return <RetakeManagement />;
   if (current === "wallet" || current === "accounting") return <AdminWallet />;
   if (current === "security") return <AccountSecurity />;
   if (current === "content") return <ContentStudio />;

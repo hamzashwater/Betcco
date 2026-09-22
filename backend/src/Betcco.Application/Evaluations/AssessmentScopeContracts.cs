@@ -76,5 +76,15 @@ public sealed record RubricAcademicSnapshot(string ArabicTitle, string EnglishTi
 public interface IScopedAssessmentService
 {
     Task<IReadOnlyList<AssessmentScopeOption>> ListOptionsAsync(CancellationToken cancellationToken);
+    Task<IReadOnlyList<AssessmentScopeOption>> ListRetakeOptionsAsync(CancellationToken cancellationToken);
     Task<EvaluationView?> CreateAsync(string studentUserId, ScopedEvaluationCommand command, CancellationToken cancellationToken);
+    Task<ResolvedAssessmentScope?> ResolveAsync(Guid assessmentScopeId, CancellationToken cancellationToken);
 }
+
+public sealed record ResolvedAssessmentScope(
+    Guid AssessmentScopeId, Guid AssessmentDefinitionId, Guid UnitDefinitionId, Guid QualificationVersionId,
+    Guid GradeId, Guid SpecializationId, Guid TaskTypeId, Guid RubricTemplateId,
+    bool IsRetakeOnly,
+    string QualificationVersionSnapshotJson, AssessmentScopeSnapshot Snapshot,
+    IReadOnlyList<string> CriterionCodes, string AssessmentRuleSetVersion,
+    string AssessmentRuleSetSnapshotJson, AssessmentScopeOption Option);

@@ -102,6 +102,7 @@ public sealed class BetccoDbContext(
     public DbSet<AuthenticityDeclaration> AuthenticityDeclarations => Set<AuthenticityDeclaration>();
     public DbSet<AssessmentAuditEvent> AssessmentAuditEvents => Set<AssessmentAuditEvent>();
     public DbSet<ResubmissionAuthorization> ResubmissionAuthorizations => Set<ResubmissionAuthorization>();
+    public DbSet<RetakeAuthorization> RetakeAuthorizations => Set<RetakeAuthorization>();
     public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
     public DbSet<LegalDocument> LegalDocuments => Set<LegalDocument>();
     public DbSet<LegalAcceptance> LegalAcceptances => Set<LegalAcceptance>();
@@ -1266,6 +1267,10 @@ public sealed class BetccoDbContext(
         builder.Entity<EvaluationRequest>().Property(x => x.QualificationVersionSnapshotJson).HasMaxLength(8_000);
         builder.Entity<EvaluationRequest>().HasOne(x => x.AssessmentScope).WithMany(x => x.EvaluationRequests).HasForeignKey(x => x.AssessmentScopeId).OnDelete(DeleteBehavior.Restrict);
         builder.Entity<EvaluationRequest>().HasIndex(x => x.QualificationVersionId);
+        builder.Entity<EvaluationRequest>().HasOne(x => x.RetakeOfEvaluationRequest).WithMany(x => x.Retakes)
+            .HasForeignKey(x => x.RetakeOfEvaluationRequestId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<EvaluationRequest>().HasIndex(x => x.RetakeOfEvaluationRequestId).IsUnique()
+            .HasFilter("\"RetakeOfEvaluationRequestId\" IS NOT NULL");
         builder.Entity<CourseAssignmentFeedback>().HasIndex(x => new { x.CourseAssignmentSubmissionId, x.CreatedAtUtc });
         builder.Entity<EvaluatorAssignment>().HasIndex(x => x.EvaluationRequestId).IsUnique();
         builder.Entity<SubmissionFile>().HasIndex(x => new { x.EvaluationRequestId, x.StorageKey }).IsUnique();
@@ -1297,6 +1302,16 @@ public sealed class BetccoDbContext(
         builder.Entity<AssessmentAuditEvent>().HasIndex(x => new { x.ActorUserId, x.OccurredAtUtc });
         builder.Entity<ResubmissionAuthorization>().HasIndex(x => new { x.EvaluationRequestId, x.AttemptNumber }).IsUnique();
         builder.Entity<ResubmissionAuthorization>().HasIndex(x => new { x.DueAtUtc, x.SubmittedAtUtc, x.RevokedAtUtc });
+        builder.Entity<RetakeAuthorization>().Property(x => x.AuthorizedByUserId).HasMaxLength(128);
+        builder.Entity<RetakeAuthorization>().Property(x => x.Reason).HasMaxLength(2_000);
+        builder.Entity<RetakeAuthorization>().HasIndex(x => x.OriginalEvaluationRequestId).IsUnique();
+        builder.Entity<RetakeAuthorization>().HasIndex(x => x.RetakeEvaluationRequestId).IsUnique();
+        builder.Entity<RetakeAuthorization>().HasOne(x => x.OriginalEvaluationRequest).WithOne(x => x.RetakeAuthorization)
+            .HasForeignKey<RetakeAuthorization>(x => x.OriginalEvaluationRequestId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<RetakeAuthorization>().HasOne(x => x.RetakeEvaluationRequest).WithMany()
+            .HasForeignKey(x => x.RetakeEvaluationRequestId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<RetakeAuthorization>().HasOne(x => x.RetakeAssessmentScope).WithMany()
+            .HasForeignKey(x => x.RetakeAssessmentScopeId).OnDelete(DeleteBehavior.Restrict);
 
         foreach (var entity in builder.Model.GetEntityTypes().Where(type => type.ClrType.Namespace?.StartsWith("Betcco.Domain", StringComparison.Ordinal) == true))
         {

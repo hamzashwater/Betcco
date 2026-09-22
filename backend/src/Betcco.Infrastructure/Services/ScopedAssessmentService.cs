@@ -12,7 +12,19 @@ public sealed class ScopedAssessmentService(BetccoDbContext db) : IScopedAssessm
 {
     public async Task<IReadOnlyList<AssessmentScopeOption>> ListOptionsAsync(CancellationToken cancellationToken)
     {
-        var scopes = await LoadScopes(null, cancellationToken);
+        var scopes = await LoadScopes(null, cancellationToken, includeRetakeOnly: false);
+        return await Options(scopes, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<AssessmentScopeOption>> ListRetakeOptionsAsync(CancellationToken cancellationToken)
+    {
+        var scopes = (await LoadScopes(null, cancellationToken, includeRetakeOnly: true))
+            .Where(x => x.IsRetakeOnly).ToArray();
+        return await Options(scopes, cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<AssessmentScopeOption>> Options(AssessmentScope[] scopes, CancellationToken cancellationToken)
+    {
         var bindings = await LoadBindings(scopes, cancellationToken);
         return scopes.Select(scope => Resolve(scope, bindings))
             .Where(x => x is not null)
@@ -32,39 +44,26 @@ public sealed class ScopedAssessmentService(BetccoDbContext db) : IScopedAssessm
         await using var transaction = db.Database.IsRelational()
             ? await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken)
             : null;
-        var scopes = await LoadScopes(command.AssessmentScopeId, cancellationToken);
-        var bindings = await LoadBindings(scopes, cancellationToken);
-        var resolved = scopes.Select(scope => Resolve(scope, bindings)).SingleOrDefault();
-        if (resolved is null) return null;
+        var resolved = await ResolveAsync(command.AssessmentScopeId, cancellationToken);
+        if (resolved is null || resolved.IsRetakeOnly) return null;
 
-        var scope = resolved.Scope;
-        var rubric = resolved.Rubric;
-        var version = scope.AssessmentDefinition!.UnitDefinition!.QualificationVersion!;
-        var ruleSet = resolved.RuleSet;
-        var codes = resolved.RubricCodes;
+        var codes = resolved.CriterionCodes;
         var snapshot = resolved.Snapshot;
         var request = new EvaluationRequest
         {
             StudentUserId = studentUserId,
-            GradeId = scope.GradeId,
-            SpecializationId = scope.SpecializationId,
-            TaskTypeId = rubric.TaskTypeId!.Value,
-            RubricTemplateId = rubric.Id,
-            QualificationVersionId = version.Id,
-            QualificationVersionSnapshotJson = JsonSerializer.Serialize(new
-            {
-                qualificationCode = version.Qualification!.Code,
-                version.VersionCode,
-                version.SourceReference,
-                version.EffectiveFromUtc,
-                version.EffectiveUntilUtc
-            }),
-            AssessmentScopeId = scope.Id,
+            GradeId = resolved.GradeId,
+            SpecializationId = resolved.SpecializationId,
+            TaskTypeId = resolved.TaskTypeId,
+            RubricTemplateId = resolved.RubricTemplateId,
+            QualificationVersionId = resolved.QualificationVersionId,
+            QualificationVersionSnapshotJson = resolved.QualificationVersionSnapshotJson,
+            AssessmentScopeId = resolved.AssessmentScopeId,
             AssessmentScopeSnapshotJson = JsonSerializer.Serialize(snapshot),
             CriteriaSnapshotJson = JsonSerializer.Serialize(codes),
-            AssessmentRuleSetVersion = ruleSet.Version,
-            AssessmentRuleSetSnapshotJson = JsonSerializer.Serialize(ruleSet),
-            Price = 5m,
+            AssessmentRuleSetVersion = resolved.AssessmentRuleSetVersion,
+            AssessmentRuleSetSnapshotJson = resolved.AssessmentRuleSetSnapshotJson,
+            Price = AssessmentPricing.StandardEvaluationPrice,
             StudentComment = command.StudentComment?.Trim()
         };
         db.EvaluationRequests.Add(request);
@@ -90,9 +89,38 @@ public sealed class ScopedAssessmentService(BetccoDbContext db) : IScopedAssessm
             request.StudentComment, codes, snapshot.Summary());
     }
 
-    private async Task<AssessmentScope[]> LoadScopes(Guid? id, CancellationToken cancellationToken) =>
+    public async Task<ResolvedAssessmentScope?> ResolveAsync(Guid assessmentScopeId, CancellationToken cancellationToken)
+    {
+        if (assessmentScopeId == Guid.Empty) return null;
+        var scopes = await LoadScopes(assessmentScopeId, cancellationToken, includeRetakeOnly: true);
+        var bindings = await LoadBindings(scopes, cancellationToken);
+        var resolved = scopes.Select(scope => Resolve(scope, bindings)).SingleOrDefault();
+        if (resolved is null) return null;
+
+        var scope = resolved.Scope;
+        var definition = scope.AssessmentDefinition!;
+        var unit = definition.UnitDefinition!;
+        var version = unit.QualificationVersion!;
+        var qualificationSnapshot = JsonSerializer.Serialize(new
+        {
+            qualificationCode = version.Qualification!.Code,
+            version.VersionCode,
+            version.SourceReference,
+            version.EffectiveFromUtc,
+            version.EffectiveUntilUtc
+        });
+        return new ResolvedAssessmentScope(scope.Id, definition.Id, unit.Id, version.Id,
+            scope.GradeId, scope.SpecializationId, resolved.Rubric.TaskTypeId!.Value, resolved.Rubric.Id,
+            scope.IsRetakeOnly,
+            qualificationSnapshot, resolved.Snapshot, resolved.RubricCodes,
+            resolved.RuleSet.Version, JsonSerializer.Serialize(resolved.RuleSet), resolved.Option);
+    }
+
+    private async Task<AssessmentScope[]> LoadScopes(Guid? id, CancellationToken cancellationToken, bool includeRetakeOnly = true) =>
         await db.AssessmentScopes.AsNoTracking()
-            .Where(x => x.IsActive && x.PublishedAtUtc != null && (id == null || x.Id == id))
+            .Where(x => x.IsActive && x.PublishedAtUtc != null
+                && (includeRetakeOnly || !x.IsRetakeOnly)
+                && (id == null || x.Id == id))
             .Include(x => x.AssessmentDefinition).ThenInclude(x => x!.UnitDefinition).ThenInclude(x => x!.QualificationVersion).ThenInclude(x => x!.Qualification)
             .Include(x => x.AssessmentDefinition).ThenInclude(x => x!.UnitDefinition).ThenInclude(x => x!.LearningAims).ThenInclude(x => x.Criteria)
             .Include(x => x.AssessmentDefinition).ThenInclude(x => x!.AimMappings)

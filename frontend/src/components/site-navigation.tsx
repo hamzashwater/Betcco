@@ -103,15 +103,22 @@ export function SiteNavigation() {
   const brandDestination = isWorkspace
     ? `/${locale}/${workspace}/dashboard`
     : `/${locale}`;
-  const dashboardRole = user.data?.roles.includes("Admin")
-    ? "admin"
-    : user.data?.roles.includes("Teacher")
-      ? "teacher"
-      : "student";
+  const isLeadVerifier = user.data?.roles.includes("LeadInternalVerifier");
+  const dashboardRole =
+    user.data?.roles.includes("Admin") || isLeadVerifier
+      ? "admin"
+      : user.data?.roles.includes("Teacher")
+        ? "teacher"
+        : "student";
   // Inside a protected workspace, keep both the logo and account shortcut
   // anchored to that workspace even if the browser has a stale profile cache.
   const visibleAccountRole = workspace ?? dashboardRole;
-  const accountDestination = `/${locale}/${visibleAccountRole}/dashboard`;
+  const accountDestination =
+    visibleAccountRole === "admin" &&
+    isLeadVerifier &&
+    !user.data?.roles.includes("Admin")
+      ? `/${locale}/admin/retakes`
+      : `/${locale}/${visibleAccountRole}/dashboard`;
   const accountLabel =
     visibleAccountRole === "admin"
       ? locale === "ar"
@@ -172,6 +179,10 @@ export function SiteNavigation() {
           {
             href: `/${locale}/admin/evaluations`,
             label: locale === "ar" ? "التقييمات" : "Evaluations",
+          },
+          {
+            href: `/${locale}/admin/retakes`,
+            label: locale === "ar" ? "إعادات التقييم" : "Retakes",
           },
           {
             href: `/${locale}/admin/internal-verification`,
