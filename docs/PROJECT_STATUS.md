@@ -2,16 +2,22 @@
 
 ## Metadata
 
-- Last updated: 2026-09-22
-- Verified implementation baseline SHA: `ab4ace6ef4b1774f3c752c7b7bd5e688531330f1`
-- Status generated/verified against origin/main: `ab4ace6ef4b1774f3c752c7b7bd5e688531330f1`
-- Baseline branch used for status generation: `docs/reconcile-coursework-deadline-extensions-status`
+- Last updated: 2026-09-23
+- Verified implementation baseline SHA: `717ddd5b81e2825cdf45dda80bfb4fcac7d7da93`
+- Status generated/verified against origin/main: `717ddd5b81e2825cdf45dda80bfb4fcac7d7da93`
+- Baseline branch used for status generation: `docs/reconcile-retake-slice1-status`
 - Working tree state at verified baseline: clean
-- Latest verified CI state: GREEN on current main after PR #34 — [Quality](https://github.com/hamzashwater/Betcco/actions/runs/35755866298) and [Security analysis](https://github.com/hamzashwater/Betcco/actions/runs/35755866133) completed successfully on `ab4ace6ef4b1774f3c752c7b7bd5e688531330f1`.
+- Latest verified CI state: GREEN on current main after PR #36 — [Quality](https://github.com/hamzashwater/Betcco/actions/runs/35788124071) and [Security analysis](https://github.com/hamzashwater/Betcco/actions/runs/35788124070) completed successfully on `717ddd5b81e2825cdf45dda80bfb4fcac7d7da93`.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
 ## Latest Merged Task
+
+- Task: Retake Slice 1 — authorised paid assessment retakes
+- Merge/commit SHA: `717ddd5b81e2825cdf45dda80bfb4fcac7d7da93`
+- Pull Request: [#36 — feat: add authorised paid assessment retakes](https://github.com/hamzashwater/Betcco/pull/36)
+- Outcome: DONE. Retake is distinct from Resubmission and creates a new `EvaluationRequest` linked to the immutable original. A server-verified Lead Internal Verifier approval is required; `RetakeAuthorization` retains the private staff rationale and approval history. One Retake is allowed per original assessment, Retakes cannot chain, and Retake-only `AssessmentDefinition` / `AssessmentScope` records are excluded from normal student assessment creation. Only eligible unmet Pass criteria are covered; Merit/Distinction criteria are prohibited and the result is Pass-only. Files, authenticity, evaluator results, audit history, and payment lifecycle are independent, while original financial records remain unchanged. Slice 1 uses the server-owned standard assessment price and the client cannot choose it. Migration `20260922182302_AddAssessmentRetakes` is additive, has no historical backfill or destructive operation, preserves the nullable original/Retake relationship, adds Retake authorization and `IsRetakeOnly`, protects uniqueness, and uses `RESTRICT` foreign keys. Production migration and production smoke verification have not been executed.
+- Verification evidence: Retake PostgreSQL tests 4/4 and related PostgreSQL/regression suite 23/23 passed; backend Release build passed with 0 warnings/errors; frontend Vitest 107/107, format, typecheck, lint, and production build passed; migration SQL safety review and `git diff --check` passed. Browser verification covered English desktop, Arabic RTL desktop, 390px mobile, Lead Internal Verifier authorization, unauthorized Assessor rejection, hiding Retake-only scopes from normal student creation, private rationale privacy, and relevant layout/overflow checks. PR checks passed: Application Quality, Full-stack browser UAT, Dependency Review, CodeQL C#, and CodeQL JavaScript/TypeScript. Post-merge main checks passed: Quality and Security analysis.
 
 - Task: Reasonable Adjustments Slice 1 — student-specific LEARN coursework deadline extensions
 - Merge/commit SHA: `ab4ace6ef4b1774f3c752c7b7bd5e688531330f1`
@@ -102,6 +108,7 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - Versioned academic authoring and assessment definition mapping — merged through PR #30 in `689b872`.
 - ASSESS AssessmentScope selection and immutable academic snapshot — merged through PR #32 in `5321baa7`.
 - Reasonable Adjustments Slice 1, student-specific LEARN coursework deadline extensions — merged through PR #34 in `ab4ace6`.
+- Retake Slice 1, authorised paid assessment Retakes — merged through PR #36 in `717ddd5`.
 
 These entries are merged repository evidence only; new behavior changes still require targeted validation and review.
 
@@ -109,9 +116,9 @@ These entries are merged repository evidence only; new behavior changes still re
 
 ### BTEC assessment correctness core
 
-Done: Main contains the versioned criterion/rule and qualification snapshot foundations, the additive ASSESS academic identity foundation from PR #28 (`UnitDefinition`, `AssessmentDefinition`, `AssessmentScope`, and the nullable `EvaluationRequest` bridge), authenticity declarations, authorised resubmission records, internal-verification sampling, appeals, structured assessment-audit export, and formal visual PDF reporting. ASSESS Slices 1–3 are DONE: the canonical academic chain is `QualificationVersion` → `UnitDefinition` → `LearningAimDefinition` → `AssessmentCriterionDefinition`, with `AssessmentDefinition` → `AssessmentScope`; `EvaluationRequest` remains the ASSESS aggregate root. The structured audit export now uses the safe v2 contract: raw internal identifiers and sensitive implementation metadata are structurally excluded, academic traceability is preserved, actor-role attribution is corrected, unsupported historical RBAC precision is not fabricated, and deterministic SHA-256 integrity is preserved. The PDF includes assignment/task, submission/evidence, assessor/internal-verifier/lead-internal-verifier/appeal-review, and academic audit/history context; excludes sensitive storage/internal IDs; retains neutral/non-official BTEC wording; and has verified Arabic/English, multipage, and Linux/Windows font-layout compatibility with required CI green. PR #34 separately completed student-specific LEARN coursework deadline extensions without changing `EvaluationRequest` or `ResubmissionAuthorization.DueAtUtc`.
+Done: Main contains the versioned criterion/rule and qualification snapshot foundations, the additive ASSESS academic identity foundation from PR #28 (`UnitDefinition`, `AssessmentDefinition`, `AssessmentScope`, and the nullable `EvaluationRequest` bridge), authenticity declarations, authorised resubmission records, internal-verification sampling, appeals, structured assessment-audit export, formal visual PDF reporting, and authorised paid Retakes from PR #36. ASSESS Slices 1–3 are DONE: the canonical academic chain is `QualificationVersion` → `UnitDefinition` → `LearningAimDefinition` → `AssessmentCriterionDefinition`, with `AssessmentDefinition` → `AssessmentScope`; `EvaluationRequest` remains the ASSESS aggregate root and a Retake is another new linked `EvaluationRequest`. The structured audit export now uses the safe v2 contract: raw internal identifiers and sensitive implementation metadata are structurally excluded, academic traceability is preserved, actor-role attribution is corrected, unsupported historical RBAC precision is not fabricated, and deterministic SHA-256 integrity is preserved. The PDF includes assignment/task, submission/evidence, assessor/internal-verifier/lead-internal-verifier/appeal-review, and academic audit/history context; excludes sensitive storage/internal IDs; retains neutral/non-official BTEC wording; and has verified Arabic/English, multipage, and Linux/Windows font-layout compatibility with required CI green. PR #34 separately completed student-specific LEARN coursework deadline extensions without changing `EvaluationRequest` or `ResubmissionAuthorization.DueAtUtc`; LEARN remains separate from ASSESS.
 
-Remaining: Retake/Resit, broader ASSESS reasonable adjustments beyond the completed LEARN coursework deadline slice, evaluator-specialism routing, Assessment Coordinator capabilities, SLA/expected completion workflow, AcademicYear/Term/DeliveryPlan, and CourseModule migration remain unresolved.
+Remaining: Resit, admin-configurable Retake pricing, automatic Appeal → Retake, broader ASSESS reasonable adjustments beyond the completed LEARN coursework deadline slice, evaluator-specialism routing, Assessment Coordinator capabilities, SLA/expected completion workflow, AcademicYear/Term/DeliveryPlan, and CourseModule migration remain unresolved. Production payment/provider validation and production operations remain outstanding.
 
 ### Privacy and compliance workflow core
 
@@ -137,9 +144,9 @@ Remaining: Hosting, domain, certificate, S3, SMTP, ClamAV, monitoring, backup/re
 
 ### Payments and finance
 
-Done: Main contains server-owned financial state, append-only wallet/allocation records, and payment/coupon/session-recovery foundations.
+Done: Main contains server-owned financial state, append-only wallet/allocation records, payment/coupon/session-recovery foundations, and the Slice 1 Retake payment lifecycle using the standard server-owned assessment price.
 
-Remaining: Live payment and payout providers, JoFotara, production reconciliation, and external-provider validation remain disabled or deferred.
+Remaining: Admin-configurable Retake pricing, live payment and payout providers, JoFotara, production reconciliation, production migration/smoke execution, and external-provider validation remain disabled or deferred.
 
 ### Teacher and student experience
 
@@ -201,7 +208,8 @@ No new Workstream B branch, owner, task, or implementation is invented here. Wor
 - Slice 2: DONE — Versioned Learning Aims / Criteria + AssessmentDefinition publication/source mapping + Qualification/Rubric compatibility enforcement. PR #30 merged with required CI green.
 - Slice 3: DONE — EvaluationRequest + AssessmentScope selection + immutable academic snapshot. PR #32 merged with required CI and production full-stack browser UAT green.
 - Reasonable Adjustments Slice 1: DONE — student-specific LEARN coursework deadline extensions. PR #34 merged with post-merge CI green; production migration and smoke verification remain outstanding.
-- Next implementation slice: Retake / Resit. No Retake / Resit implementation is included in this reconciliation.
+- Retake Slice 1: DONE — authorised paid assessment Retakes. PR #36 merged with post-merge Quality and Security analysis green; production migration and smoke verification remain outstanding.
+- Next implementation area: Evaluator-specialism routing. Later roadmap areas are Assessment Coordinator, SLA / expected completion, AcademicYear / Term / DeliveryPlan, and CourseModule migration to the canonical Unit model. Resit remains unimplemented.
 
 Definition of Done for each workstream: implementation is reviewed, required CI is green, its PR is merged into `main`, and this document is reconciled with the new merged state.
 
@@ -250,16 +258,17 @@ Do not reopen these areas merely because a later account lacks conversation memo
 - PR #26 is merged into `main` at `23ff9d3926a079d72871e68a4950805a5cd947e2`; the `/en/about` WebKit React #418 hydration mismatch is resolved with consistent locale-aware server/client settings, seeded React Query hydration, and a bounded 3000ms server fetch timeout with localized fallbacks. Unit verification was 9/9 and production HTTPS browser verification was 4/4.
 - PR #20 is merged into `main` at `25b25e30e3dc1e6a63025d4308073545e00412e9`; full-stack browser UAT completed 7/7 with required `/en/about` WebKit iPhone 14 regression coverage, strict page-error and overflow assertions, and no production or database changes.
 - PR #28 is merged into `main` at `be2b275b02a5c1f31aaead68c2fe32784d50bc11`; the ASSESS academic identity foundation is DONE with additive `UnitDefinition`, `AssessmentDefinition`, `AssessmentScope`, and a nullable `EvaluationRequest` bridge. No historic backfill or destructive migration was performed. Subsequent PRs #30 and #32 completed academic authoring, scope selection, and snapshots; evaluator-specialism routing and Assessment Coordinator capabilities remain future work.
-- PR #30 is merged into `main` at `689b87280ecf27b1d4f825092e8f814066e9ccd4`; versioned academic authoring, canonical aims and criteria, definition mappings, source/publication rules, qualification/rubric compatibility, and the bilingual Admin Academic Catalogue are DONE. Slice 3 subsequently completed AssessmentScope selection and the immutable EvaluationRequest academic snapshot; PR #34 completed LEARN coursework deadline extensions. Retake/Resit, evaluator-specialism routing, Assessment Coordinator capability, SLA workflow, AcademicYear/Term/DeliveryPlan, and CourseModule migration remain future work.
+- PR #30 is merged into `main` at `689b87280ecf27b1d4f825092e8f814066e9ccd4`; versioned academic authoring, canonical aims and criteria, definition mappings, source/publication rules, qualification/rubric compatibility, and the bilingual Admin Academic Catalogue are DONE. Slice 3 subsequently completed AssessmentScope selection and the immutable EvaluationRequest academic snapshot; PR #34 completed LEARN coursework deadline extensions; PR #36 completed authorised paid assessment Retakes. Resit, admin-configurable Retake pricing, automatic Appeal → Retake, evaluator-specialism routing, Assessment Coordinator capability, SLA workflow, AcademicYear/Term/DeliveryPlan, and CourseModule migration remain future work.
 - PR #32 is merged into `main` at `5321baa7f64eb06c6affd9e0bac94f28a52dc825`; AssessmentScope selection and immutable academic snapshot creation are DONE. The nullable legacy bridge remains supported, with no historical backfill or destructive migration. The transitional `TaskTypeId` dependency remains explicit follow-up work where canonical task-type ownership is not yet fully migrated.
 - PR #34 is merged into `main` at `ab4ace6ef4b1774f3c752c7b7bd5e688531330f1`; Reasonable Adjustments Slice 1 for LEARN coursework deadlines is DONE with an additive migration, no backfill, and no destructive schema operation. Production migration and production smoke verification have not been executed.
+- PR #36 is merged into `main` at `717ddd5b81e2825cdf45dda80bfb4fcac7d7da93`; Retake Slice 1 is DONE with additive migration `20260922182302_AddAssessmentRetakes`, no historical backfill, no destructive schema operation, retained approval history, Retake-only scope protection, one-Retake uniqueness, and `RESTRICT` foreign keys. ResubmissionAuthorization semantics, including `ResubmissionAuthorization.DueAtUtc`, were not changed; LEARN remains separate from ASSESS. Resit, admin-configurable Retake pricing, automatic Appeal → Retake, production migration, production smoke verification, and production payment/provider validation remain outstanding.
 - PR #14's required CI was verified GREEN for feature head `431d12efe70236872173f66677d88d484b4348b4`: Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully. Future workstreams must still verify their own current remote CI before claiming completion.
 - Production S3, SMTP, ClamAV, Data Protection certificate, hosting, monitoring, backup/restore, payment, payout, and fiscal integrations require external configuration or validation.
 - Broader capacity testing, launch hardening, retention decisions, and final legal review remain outstanding; the dedicated PR #20 full-stack browser UAT matrix is complete.
 
 ### Remaining P0 items
 
-- Retake/resit policy and workflow remains unresolved.
+- Resit policy and workflow remains unresolved; broader Retake policy beyond Slice 1 remains unresolved.
 - Staff MFA decision and enforcement remains unresolved.
 - Secret-scanning and push-protection verification remains unresolved.
 - External BTEC/specification/policy dependencies remain unresolved.
