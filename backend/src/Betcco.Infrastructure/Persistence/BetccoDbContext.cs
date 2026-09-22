@@ -82,6 +82,10 @@ public sealed class BetccoDbContext(
     public DbSet<Qualification> Qualifications => Set<Qualification>();
     public DbSet<QualificationVersion> QualificationVersions => Set<QualificationVersion>();
     public DbSet<UnitDefinition> UnitDefinitions => Set<UnitDefinition>();
+    public DbSet<LearningAimDefinition> LearningAimDefinitions => Set<LearningAimDefinition>();
+    public DbSet<AssessmentCriterionDefinition> AssessmentCriterionDefinitions => Set<AssessmentCriterionDefinition>();
+    public DbSet<AssessmentDefinitionAim> AssessmentDefinitionAims => Set<AssessmentDefinitionAim>();
+    public DbSet<AssessmentDefinitionCriterion> AssessmentDefinitionCriteria => Set<AssessmentDefinitionCriterion>();
     public DbSet<AssessmentDefinition> AssessmentDefinitions => Set<AssessmentDefinition>();
     public DbSet<AssessmentScope> AssessmentScopes => Set<AssessmentScope>();
     public DbSet<RubricCriterion> RubricCriteria => Set<RubricCriterion>();
@@ -1198,13 +1202,50 @@ public sealed class BetccoDbContext(
         builder.Entity<UnitDefinition>().Property(x => x.Code).HasMaxLength(64);
         builder.Entity<UnitDefinition>().Property(x => x.EnglishTitle).HasMaxLength(256);
         builder.Entity<UnitDefinition>().Property(x => x.ArabicTitle).HasMaxLength(256);
+        builder.Entity<UnitDefinition>().Property(x => x.SourceReference).HasMaxLength(2_048);
         builder.Entity<UnitDefinition>().HasIndex(x => new { x.QualificationVersionId, x.Code }).IsUnique();
         builder.Entity<UnitDefinition>().HasOne(x => x.QualificationVersion).WithMany(x => x.UnitDefinitions).HasForeignKey(x => x.QualificationVersionId).OnDelete(DeleteBehavior.Restrict);
         builder.Entity<AssessmentDefinition>().Property(x => x.Code).HasMaxLength(64);
         builder.Entity<AssessmentDefinition>().Property(x => x.EnglishTitle).HasMaxLength(256);
         builder.Entity<AssessmentDefinition>().Property(x => x.ArabicTitle).HasMaxLength(256);
+        builder.Entity<AssessmentDefinition>().Property(x => x.SourceReference).HasMaxLength(2_048);
         builder.Entity<AssessmentDefinition>().HasIndex(x => new { x.UnitDefinitionId, x.Code, x.Version }).IsUnique();
         builder.Entity<AssessmentDefinition>().HasOne(x => x.UnitDefinition).WithMany(x => x.AssessmentDefinitions).HasForeignKey(x => x.UnitDefinitionId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<LearningAimDefinition>().Property(x => x.Code).HasMaxLength(64);
+        builder.Entity<LearningAimDefinition>().Property(x => x.ArabicTitle).HasMaxLength(256);
+        builder.Entity<LearningAimDefinition>().Property(x => x.EnglishTitle).HasMaxLength(256);
+        builder.Entity<LearningAimDefinition>().Property(x => x.ArabicDescription).HasMaxLength(4_000);
+        builder.Entity<LearningAimDefinition>().Property(x => x.EnglishDescription).HasMaxLength(4_000);
+        builder.Entity<LearningAimDefinition>().Property(x => x.SourceReference).HasMaxLength(2_048);
+        builder.Entity<LearningAimDefinition>().HasIndex(x => new { x.UnitDefinitionId, x.Code }).IsUnique();
+        builder.Entity<LearningAimDefinition>().HasAlternateKey(x => new { x.Id, x.UnitDefinitionId });
+        builder.Entity<LearningAimDefinition>().HasOne(x => x.UnitDefinition).WithMany(x => x.LearningAims).HasForeignKey(x => x.UnitDefinitionId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<AssessmentCriterionDefinition>().Property(x => x.Code).HasMaxLength(64);
+        builder.Entity<AssessmentCriterionDefinition>().Property(x => x.ArabicDescription).HasMaxLength(4_000);
+        builder.Entity<AssessmentCriterionDefinition>().Property(x => x.EnglishDescription).HasMaxLength(4_000);
+        builder.Entity<AssessmentCriterionDefinition>().Property(x => x.SourceReference).HasMaxLength(2_048);
+        builder.Entity<AssessmentCriterionDefinition>().Property(x => x.Band).HasConversion<string>().HasMaxLength(24);
+        builder.Entity<AssessmentCriterionDefinition>().ToTable(table => table.HasCheckConstraint("CK_AssessmentCriterionDefinitions_Band", "\"Band\" IN ('Pass', 'Merit', 'Distinction')"));
+        builder.Entity<AssessmentCriterionDefinition>().HasIndex(x => new { x.LearningAimDefinitionId, x.Code }).IsUnique();
+        builder.Entity<AssessmentCriterionDefinition>().HasAlternateKey(x => new { x.Id, x.LearningAimDefinitionId });
+        builder.Entity<AssessmentCriterionDefinition>().HasOne(x => x.LearningAimDefinition).WithMany(x => x.Criteria).HasForeignKey(x => x.LearningAimDefinitionId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<AssessmentDefinition>().HasAlternateKey(x => new { x.Id, x.UnitDefinitionId });
+        builder.Entity<AssessmentDefinitionAim>().HasKey(x => new { x.AssessmentDefinitionId, x.LearningAimDefinitionId });
+        builder.Entity<AssessmentDefinitionAim>().HasOne<AssessmentDefinition>().WithMany(x => x.AimMappings)
+            .HasForeignKey(x => new { x.AssessmentDefinitionId, x.UnitDefinitionId })
+            .HasPrincipalKey(x => new { x.Id, x.UnitDefinitionId }).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<AssessmentDefinitionAim>().HasOne<LearningAimDefinition>().WithMany()
+            .HasForeignKey(x => new { x.LearningAimDefinitionId, x.UnitDefinitionId })
+            .HasPrincipalKey(x => new { x.Id, x.UnitDefinitionId }).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<AssessmentDefinitionCriterion>().HasKey(x => new { x.AssessmentDefinitionId, x.AssessmentCriterionDefinitionId });
+        builder.Entity<AssessmentDefinitionCriterion>().HasOne<AssessmentDefinition>().WithMany(x => x.CriterionMappings)
+            .HasForeignKey(x => x.AssessmentDefinitionId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<AssessmentDefinitionCriterion>().HasOne<AssessmentDefinitionAim>().WithMany()
+            .HasForeignKey(x => new { x.AssessmentDefinitionId, x.LearningAimDefinitionId })
+            .HasPrincipalKey(x => new { x.AssessmentDefinitionId, x.LearningAimDefinitionId }).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<AssessmentDefinitionCriterion>().HasOne<AssessmentCriterionDefinition>().WithMany()
+            .HasForeignKey(x => new { x.AssessmentCriterionDefinitionId, x.LearningAimDefinitionId })
+            .HasPrincipalKey(x => new { x.Id, x.LearningAimDefinitionId }).OnDelete(DeleteBehavior.Restrict);
         builder.Entity<AssessmentScope>().HasIndex(x => new { x.AssessmentDefinitionId, x.GradeId, x.SpecializationId, x.Version }).IsUnique();
         builder.Entity<AssessmentScope>().HasIndex(x => x.GradeId);
         builder.Entity<AssessmentScope>().HasIndex(x => x.SpecializationId);

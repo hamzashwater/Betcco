@@ -16,6 +16,7 @@ import { SecurityIncidentManagement } from "@/features/admin/security-incident-m
 import { InternalVerificationPlanManagement } from "@/features/admin/internal-verification-plan-management";
 import { EvaluationAppealManagement } from "@/features/admin/evaluation-appeal-management";
 import { QualificationRegistryManagement } from "@/features/admin/qualification-registry-management";
+import { AcademicCatalogue } from "@/features/admin/academic-catalogue";
 import { SupportCenter } from "@/features/support/support-center";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -42,7 +43,7 @@ import {
   MetricCard,
 } from "@/components/dashboard/dashboard-ui";
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 type Dashboard = {
@@ -158,6 +159,7 @@ export function AdminArea({ segment }: { segment: string[] }) {
   if (current === "evaluation-appeals") return <EvaluationAppealManagement />;
   if (current === "qualification-registry")
     return <QualificationRegistryManagement />;
+  if (current === "academic-catalogue") return <AcademicCatalogue />;
   if (current === "support") return <SupportCenter mode="admin" />;
   if (current === "integrations") return <SchoolIntegrations />;
   return <AdminDashboard />;
@@ -169,6 +171,7 @@ function DateInputValue(date: Date) {
 
 function AdminDashboard() {
   const locale = useLocale();
+  const academicT = useTranslations("academicCatalogue");
   const [period, setPeriod] = useState("30d");
   const [customFrom, setCustomFrom] = useState(() =>
     DateInputValue(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)),
@@ -466,6 +469,12 @@ function AdminDashboard() {
               : "Register sourced qualification versions and bind them to new assessment rubrics."
           }
           icon={Network}
+        />
+        <AdminLink
+          href="academic-catalogue"
+          label={academicT("title")}
+          text={academicT("description")}
+          icon={BookOpenCheck}
         />
         <AdminLink
           href="gradebook"

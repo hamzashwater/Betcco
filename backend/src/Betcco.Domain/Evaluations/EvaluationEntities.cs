@@ -130,7 +130,11 @@ public sealed class UnitDefinition : Entity
     public required string Code { get; set; }
     public required string EnglishTitle { get; set; }
     public required string ArabicTitle { get; set; }
+    public string? SourceReference { get; set; }
+    // A unit is frozen after its first assessment definition is published.
+    public DateTimeOffset? PublishedAtUtc { get; set; }
     public bool IsActive { get; set; }
+    public ICollection<LearningAimDefinition> LearningAims { get; } = new List<LearningAimDefinition>();
     public ICollection<AssessmentDefinition> AssessmentDefinitions { get; } = new List<AssessmentDefinition>();
 }
 
@@ -143,7 +147,12 @@ public sealed class AssessmentDefinition : Entity
     public int Version { get; set; } = 1;
     public required string EnglishTitle { get; set; }
     public required string ArabicTitle { get; set; }
+    public string? SourceReference { get; set; }
+    // Publication is permanent even if the offering is later retired.
+    public DateTimeOffset? PublishedAtUtc { get; set; }
     public bool IsActive { get; set; }
+    public ICollection<AssessmentDefinitionAim> AimMappings { get; } = new List<AssessmentDefinitionAim>();
+    public ICollection<AssessmentDefinitionCriterion> CriterionMappings { get; } = new List<AssessmentDefinitionCriterion>();
     public ICollection<AssessmentScope> Scopes { get; } = new List<AssessmentScope>();
 }
 
@@ -156,6 +165,7 @@ public sealed class AssessmentScope : Entity
     public Guid SpecializationId { get; set; }
     public Guid RubricTemplateId { get; set; }
     public int Version { get; set; } = 1;
+    public DateTimeOffset? PublishedAtUtc { get; set; }
     public bool IsActive { get; set; }
     public ICollection<EvaluationRequest> EvaluationRequests { get; } = new List<EvaluationRequest>();
 }
