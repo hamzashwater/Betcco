@@ -3,9 +3,9 @@
 ## Metadata
 
 - Last updated: 2026-09-22
-- Verified implementation baseline SHA: `689b87280ecf27b1d4f825092e8f814066e9ccd4`
-- Status generated/verified against origin/main: `689b87280ecf27b1d4f825092e8f814066e9ccd4`
-- Baseline branch used for status generation: `docs/reconcile-academic-authoring-status`
+- Verified implementation baseline SHA: `5321baa7f64eb06c6affd9e0bac94f28a52dc825`
+- Status generated/verified against origin/main: `5321baa7f64eb06c6affd9e0bac94f28a52dc825`
+- Baseline branch used for status generation: `docs/reconcile-assessment-scope-snapshot-status`
 - Working tree state during status generation: clean
 - Latest verified CI state: GREEN on current main — Application quality, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully after PR #30. Dependency review was skipped on push as expected by workflow configuration; PR #30's pre-merge Dependency review passed.
 
@@ -18,6 +18,12 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - Pull Request: #30
 - Outcome: DONE. Added canonical versioned academic authoring under `QualificationVersion` → `UnitDefinition`, with `LearningAimDefinition`, `AssessmentCriterionDefinition`, controlled Pass/Merit/Distinction bands, explicit `AssessmentDefinition` aim and criterion mappings, source/provenance references, publication and immutability guards, rubric/qualification-version compatibility validation, and canonical criterion-code compatibility validation. Added the Admin Academic Catalogue API and bilingual English/Arabic Admin UI with real browser verification. The additive migration introduced the academic authoring and mapping tables without historic backfill or destructive data rewrite. LEARN remains separate: existing `CourseModule` / `BtecLearningAim` is unchanged. ASSESS remains rooted at `EvaluationRequest`; the new catalogue supports future ASSESS scope selection and snapshots.
 - Verification evidence: Targeted backend integration/regression tests 30/30, frontend tests 95/95, backend build, frontend format/typecheck/lint/build, migration SQL review, real browser English/Arabic desktop and Arabic mobile verification, and post-merge Application quality and CodeQL checks passed. Dependency review was skipped on push as expected; the PR check passed before merge.
+
+- Task: ASSESS Slice 3 — AssessmentScope selection + immutable academic snapshot
+- Merge/commit SHA: `5321baa7f64eb06c6affd9e0bac94f28a52dc825`
+- Pull Request: #32
+- Outcome: DONE. New ASSESS requests can select a canonical `AssessmentScope`; the server persists the scope identity and creates an immutable academic snapshot containing server-derived grade, specialization, rubric, task type, qualification version, criteria, and rule-set data. Legacy requests remain compatible when the nullable bridge is absent, and scope creation does not require CourseModule enrollment. LEARN remains separate: `CourseModule` / `BtecLearningAim` is unchanged; ASSESS remains rooted at `EvaluationRequest`. No migration or historical backfill was introduced.
+- Verification evidence: Required CI and production full-stack browser UAT passed, including English/Arabic desktop and mobile coverage, scope selection/checkout, academic-detail and authenticity flows, and no relevant page or hydration errors. Development-preview CSP inline script/style console messages were observed but were not changed by Slice 3 and remain a separate follow-up.
 
 - Task: ASSESS Academic Identity Foundation
 - Merge/commit SHA: `be2b275b02a5c1f31aaead68c2fe32784d50bc11`
@@ -97,7 +103,7 @@ These entries are merged repository evidence only; new behavior changes still re
 
 Done: Main contains the versioned criterion/rule and qualification snapshot foundations, the additive ASSESS academic identity foundation from PR #28 (`UnitDefinition`, `AssessmentDefinition`, `AssessmentScope`, and the nullable `EvaluationRequest` bridge), authenticity declarations, authorised resubmission records, internal-verification sampling, appeals, structured assessment-audit export, and formal visual PDF reporting. The structured audit export now uses the safe v2 contract: raw internal identifiers and sensitive implementation metadata are structurally excluded, academic traceability is preserved, actor-role attribution is corrected, unsupported historical RBAC precision is not fabricated, and deterministic SHA-256 integrity is preserved. The PDF includes assignment/task, submission/evidence, assessor/internal-verifier/lead-internal-verifier/appeal-review, and academic audit/history context; excludes sensitive storage/internal IDs; retains neutral/non-official BTEC wording; and has verified Arabic/English, multipage, and Linux/Windows font-layout compatibility with required CI green.
 
-Remaining: Slice 3 is next: AssessmentScope is not yet student-selectable and immutable academic snapshots are not yet populated by the existing EvaluationRequest workflow. Reasonable Adjustments/extensions, Retake/Resit, evaluator-specialism routing, Assessment Coordinator capabilities, SLA/expected completion workflow, AcademicYear/Term/DeliveryPlan, and CourseModule migration remain unresolved.
+Remaining: Reasonable Adjustments/extensions, Retake/Resit, evaluator-specialism routing, Assessment Coordinator capabilities, SLA/expected completion workflow, AcademicYear/Term/DeliveryPlan, and CourseModule migration remain unresolved.
 
 ### Privacy and compliance workflow core
 
@@ -184,7 +190,7 @@ No new Workstream B branch, owner, task, or implementation is invented here. Wor
 - Task 6: DONE — Media / Video Foundation + Secure Delivery. PR #18 merged with required CI green.
 - Slice 1: DONE — ASSESS academic identity foundation. PR #28 merged with required CI green.
 - Slice 2: DONE — Versioned Learning Aims / Criteria + AssessmentDefinition publication/source mapping + Qualification/Rubric compatibility enforcement. PR #30 merged with required CI green.
-- Slice 3: NEXT — EvaluationRequest + AssessmentScope selection + immutable academic snapshot. The slice will allow a new ASSESS request to select a canonical `AssessmentScope`, persist `AssessmentScopeId`, create a self-contained immutable academic snapshot at request creation, preserve legacy compatibility when the nullable bridge is absent, and continue without requiring course enrollment. Reasonable Adjustments comes after Slice 3.
+- Slice 3: DONE — EvaluationRequest + AssessmentScope selection + immutable academic snapshot. PR #32 merged with required CI and production full-stack browser UAT green. Reasonable Adjustments/extensions is the next focused implementation step.
 
 Definition of Done for each workstream: implementation is reviewed, required CI is green, its PR is merged into `main`, and this document is reconciled with the new merged state.
 
@@ -233,7 +239,8 @@ Do not reopen these areas merely because a later account lacks conversation memo
 - PR #26 is merged into `main` at `23ff9d3926a079d72871e68a4950805a5cd947e2`; the `/en/about` WebKit React #418 hydration mismatch is resolved with consistent locale-aware server/client settings, seeded React Query hydration, and a bounded 3000ms server fetch timeout with localized fallbacks. Unit verification was 9/9 and production HTTPS browser verification was 4/4.
 - PR #20 is merged into `main` at `25b25e30e3dc1e6a63025d4308073545e00412e9`; full-stack browser UAT completed 7/7 with required `/en/about` WebKit iPhone 14 regression coverage, strict page-error and overflow assertions, and no production or database changes.
 - PR #28 is merged into `main` at `be2b275b02a5c1f31aaead68c2fe32784d50bc11`; the ASSESS academic identity foundation is DONE with additive `UnitDefinition`, `AssessmentDefinition`, `AssessmentScope`, and a nullable `EvaluationRequest` bridge. No historic backfill or destructive migration was performed. Scope selection, scope snapshots, complete academic authoring, evaluator-specialism routing, Assessment Coordinator capabilities, and Reasonable Adjustments remain future work.
-- PR #30 is merged into `main` at `689b87280ecf27b1d4f825092e8f814066e9ccd4`; versioned academic authoring, canonical aims and criteria, definition mappings, source/publication rules, qualification/rubric compatibility, and the bilingual Admin Academic Catalogue are DONE. Student AssessmentScope selection, the full immutable EvaluationRequest academic snapshot, Reasonable Adjustments/extensions, Retake/Resit, evaluator-specialism routing, Assessment Coordinator capability, SLA workflow, AcademicYear/Term/DeliveryPlan, and CourseModule migration remain future work.
+- PR #30 is merged into `main` at `689b87280ecf27b1d4f825092e8f814066e9ccd4`; versioned academic authoring, canonical aims and criteria, definition mappings, source/publication rules, qualification/rubric compatibility, and the bilingual Admin Academic Catalogue are DONE. Slice 3 subsequently completed AssessmentScope selection and the immutable EvaluationRequest academic snapshot; Reasonable Adjustments/extensions, Retake/Resit, evaluator-specialism routing, Assessment Coordinator capability, SLA workflow, AcademicYear/Term/DeliveryPlan, and CourseModule migration remain future work.
+- PR #32 is merged into `main` at `5321baa7f64eb06c6affd9e0bac94f28a52dc825`; AssessmentScope selection and immutable academic snapshot creation are DONE. The nullable legacy bridge remains supported, with no historical backfill or destructive migration. The transitional `TaskTypeId` dependency remains explicit follow-up work where canonical task-type ownership is not yet fully migrated.
 - PR #14's required CI was verified GREEN for feature head `431d12efe70236872173f66677d88d484b4348b4`: Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully. Future workstreams must still verify their own current remote CI before claiming completion.
 - Production S3, SMTP, ClamAV, Data Protection certificate, hosting, monitoring, backup/restore, payment, payout, and fiscal integrations require external configuration or validation.
 - Broader capacity testing, launch hardening, retention decisions, and final legal review remain outstanding; the dedicated PR #20 full-stack browser UAT matrix is complete.
@@ -250,6 +257,7 @@ Do not reopen these areas merely because a later account lacks conversation memo
 ### Non-blocking follow-up
 
 - CI reproducibility hardening remains future work: pin moving container tags and moving GitHub Action references. This is not part of the completed UAT workstream.
+- Development-preview CSP inline script/style console messages remain a non-blocking follow-up; Slice 3 did not change CSP, and production full-stack browser UAT passed. Reassess only if reproduced against production/main.
 
 ### Deferred P1 work
 
