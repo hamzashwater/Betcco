@@ -49,24 +49,79 @@ import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { type ReactNode, useRef, useState } from "react";
 
-type EvaluationOptions = {
-  grades: { id: string; arabicName: string; englishName: string }[];
-  specializations: { id: string; arabicName: string; englishName: string }[];
-  taskTypes: { id: string; arabicName: string; englishName: string }[];
-  rubrics: {
-    id: string;
-    gradeId: string;
-    specializationId: string;
-    taskTypeId: string;
-    arabicTitle: string;
-    englishTitle: string;
-    criteria: {
-      code: string;
-      arabicDescription: string;
-      englishDescription: string;
-    }[];
-  }[];
+type AssessmentScopeOption = {
+  assessmentScopeId: string;
+  qualificationCode: string;
+  qualificationArabicName: string;
+  qualificationEnglishName: string;
+  qualificationVersionCode: string;
+  gradeCode: string;
+  gradeArabicName: string;
+  gradeEnglishName: string;
+  specializationCode: string;
+  specializationArabicName: string;
+  specializationEnglishName: string;
+  unitCode: string;
+  unitArabicTitle: string;
+  unitEnglishTitle: string;
+  assessmentCode: string;
+  assessmentVersion: number;
+  assessmentArabicTitle: string;
+  assessmentEnglishTitle: string;
+  scopeVersion: number;
+  learningAimCodes: string[];
+  criteria: { code: string; band: string }[];
 };
+
+type AssessmentAcademicSummary = {
+  qualificationCode: string;
+  qualificationArabicName: string;
+  qualificationEnglishName: string;
+  qualificationVersionCode: string;
+  unitCode: string;
+  unitArabicTitle: string;
+  unitEnglishTitle: string;
+  assessmentCode: string;
+  assessmentVersion: number;
+  assessmentArabicTitle: string;
+  assessmentEnglishTitle: string;
+  learningAimCodes: string[];
+};
+
+function AcademicIdentity({
+  academic,
+  locale,
+}: {
+  academic: AssessmentAcademicSummary | null;
+  locale: string;
+}) {
+  if (!academic) return null;
+  return (
+    <div className="min-w-0 rounded-xl border border-border/70 bg-page/40 p-3 text-sm">
+      <p className="font-bold">
+        {academic.qualificationCode} ·{" "}
+        {locale === "ar"
+          ? academic.qualificationArabicName
+          : academic.qualificationEnglishName}{" "}
+        ({academic.qualificationVersionCode})
+      </p>
+      <p>
+        {academic.unitCode} ·{" "}
+        {locale === "ar" ? academic.unitArabicTitle : academic.unitEnglishTitle}
+      </p>
+      <p>
+        {academic.assessmentCode} v{academic.assessmentVersion} ·{" "}
+        {locale === "ar"
+          ? academic.assessmentArabicTitle
+          : academic.assessmentEnglishTitle}
+      </p>
+      <p className="text-muted">
+        {locale === "ar" ? "أهداف التعلم" : "Learning aims"}:{" "}
+        {academic.learningAimCodes.join(", ")}
+      </p>
+    </div>
+  );
+}
 
 export function StudentArea({
   segment,
@@ -3755,10 +3810,11 @@ function EvaluationWizard() {
   const locale = useLocale();
   const router = useRouter();
   const [selected, setSelected] = useState({
-    gradeId: "",
-    specializationId: "",
-    taskTypeId: "",
-    rubricTemplateId: "",
+    qualification: "",
+    grade: "",
+    specialization: "",
+    unit: "",
+    assessmentScopeId: "",
     comment: "",
   });
   const [files, setFiles] = useState<File[]>([]);
@@ -3789,14 +3845,18 @@ function EvaluationWizard() {
     setUploadedFileKeys((current) => [...new Set([...current, ...newKeys])]);
   };
   const options = useQuery({
-    queryKey: ["evaluation-options"],
-    queryFn: () => api<EvaluationOptions>("/taxonomy/evaluation-options"),
+    queryKey: ["assessment-scopes"],
+    queryFn: () =>
+      api<AssessmentScopeOption[]>("/evaluations/assessment-scopes"),
   });
   const create = useMutation({
     mutationFn: () =>
-      api<{ id: string; criteria: string[] }>("/evaluations", {
+      api<{ id: string; criteria: string[] }>("/evaluations/scoped", {
         method: "POST",
-        body: JSON.stringify(selected),
+        body: JSON.stringify({
+          assessmentScopeId: selected.assessmentScopeId,
+          studentComment: selected.comment,
+        }),
       }),
     onSuccess: async (response) => {
       setEvaluationId(response.id);
@@ -3868,21 +3928,71 @@ function EvaluationWizard() {
       <section className="shell py-10">
         <p className="card p-6">
           {locale === "ar"
-            ? "سجّل الدخول لطلب تقييم."
-            : "Sign in to request an evaluation."}
+            ? "تعذر تحميل التقييمات المتاحة. حاول مجددًا."
+            : "Unable to load available assessments. Please try again."}
         </p>
       </section>
     );
-  const text = (item: { arabicName: string; englishName: string }) =>
-    locale === "ar" ? item.arabicName : item.englishName;
+  const scopes = options.data;
+  const qualificationKey = (item: AssessmentScopeOption) =>
+    `${item.qualificationCode}:${item.qualificationVersionCode}`;
+  const unique = (
+    rows: AssessmentScopeOption[],
+    key: (item: AssessmentScopeOption) => string,
+    label: (item: AssessmentScopeOption) => string,
+  ) => [
+    ...new Map(
+      rows.map((item) => [key(item), { id: key(item), label: label(item) }]),
+    ).values(),
+  ];
+  const qualifications = unique(
+    scopes,
+    qualificationKey,
+    (item) =>
+      `${item.qualificationCode} · ${locale === "ar" ? item.qualificationArabicName : item.qualificationEnglishName} (${item.qualificationVersionCode})`,
+  );
+  const forQualification = scopes.filter(
+    (item) => qualificationKey(item) === selected.qualification,
+  );
+  const grades = unique(
+    forQualification,
+    (item) => item.gradeCode,
+    (item) => (locale === "ar" ? item.gradeArabicName : item.gradeEnglishName),
+  );
+  const forGrade = forQualification.filter(
+    (item) => item.gradeCode === selected.grade,
+  );
+  const specializations = unique(
+    forGrade,
+    (item) => item.specializationCode,
+    (item) =>
+      locale === "ar"
+        ? item.specializationArabicName
+        : item.specializationEnglishName,
+  );
+  const forSpecialization = forGrade.filter(
+    (item) => item.specializationCode === selected.specialization,
+  );
+  const units = unique(
+    forSpecialization,
+    (item) => item.unitCode,
+    (item) =>
+      `${item.unitCode} · ${locale === "ar" ? item.unitArabicTitle : item.unitEnglishTitle}`,
+  );
+  const forUnit = forSpecialization.filter(
+    (item) => item.unitCode === selected.unit,
+  );
+  const currentScope = scopes.find(
+    (item) => item.assessmentScopeId === selected.assessmentScopeId,
+  );
   return (
     <section className="shell py-10">
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          create.mutate();
+          if (!create.isPending && selected.assessmentScopeId) create.mutate();
         }}
-        className="card mx-auto grid max-w-2xl gap-4 p-6"
+        className="card mx-auto grid min-w-0 max-w-2xl grid-cols-[minmax(0,1fr)] gap-4 p-6"
       >
         <p className="font-bold text-primary">BETCCO BTEC Evaluation</p>
         <h1 className="text-3xl font-black">
@@ -3890,53 +4000,108 @@ function EvaluationWizard() {
             ? "اكتشف المعايير التي حققتها"
             : "Discover the criteria you achieved"}
         </h1>
+        {scopes.length === 0 ? (
+          <p role="status" className="text-muted">
+            {locale === "ar"
+              ? "لا توجد تقييمات منشورة متاحة الآن. يُرجى المحاولة لاحقًا."
+              : "No published assessments are available right now. Please check back later."}
+          </p>
+        ) : null}
+        <Select
+          label={
+            locale === "ar" ? "المؤهل والإصدار" : "Qualification and version"
+          }
+          value={selected.qualification}
+          setValue={(value) =>
+            setSelected({
+              ...selected,
+              qualification: value,
+              grade: "",
+              specialization: "",
+              unit: "",
+              assessmentScopeId: "",
+            })
+          }
+          items={qualifications}
+          disabled={Boolean(evaluationId)}
+        />
         <Select
           label={locale === "ar" ? "الصف" : "Grade"}
-          value={selected.gradeId}
-          setValue={(value) => setSelected({ ...selected, gradeId: value })}
-          items={options.data.grades.map((item) => ({
-            id: item.id,
-            label: text(item),
-          }))}
+          value={selected.grade}
+          setValue={(value) =>
+            setSelected({
+              ...selected,
+              grade: value,
+              specialization: "",
+              unit: "",
+              assessmentScopeId: "",
+            })
+          }
+          items={grades}
+          disabled={!selected.qualification || Boolean(evaluationId)}
         />
         <Select
           label={locale === "ar" ? "التخصص" : "Specialization"}
-          value={selected.specializationId}
+          value={selected.specialization}
           setValue={(value) =>
-            setSelected({ ...selected, specializationId: value })
+            setSelected({
+              ...selected,
+              specialization: value,
+              unit: "",
+              assessmentScopeId: "",
+            })
           }
-          items={options.data.specializations.map((item) => ({
-            id: item.id,
-            label: text(item),
-          }))}
+          items={specializations}
+          disabled={!selected.grade || Boolean(evaluationId)}
         />
         <Select
-          label={locale === "ar" ? "نوع المهمة" : "Task type"}
-          value={selected.taskTypeId}
-          setValue={(value) => setSelected({ ...selected, taskTypeId: value })}
-          items={options.data.taskTypes.map((item) => ({
-            id: item.id,
-            label: text(item),
-          }))}
+          label={locale === "ar" ? "الوحدة" : "Unit"}
+          value={selected.unit}
+          setValue={(value) =>
+            setSelected({ ...selected, unit: value, assessmentScopeId: "" })
+          }
+          items={units}
+          disabled={!selected.specialization || Boolean(evaluationId)}
         />
         <Select
-          label="Rubric"
-          value={selected.rubricTemplateId}
-          setValue={(value) =>
-            setSelected({ ...selected, rubricTemplateId: value })
+          label={
+            locale === "ar" ? "التقييم أو المهمة" : "Assessment or assignment"
           }
-          items={options.data.rubrics
-            .filter(
-              (item) =>
-                item.gradeId === selected.gradeId &&
-                item.specializationId === selected.specializationId &&
-                item.taskTypeId === selected.taskTypeId,
-            )
-            .map((item) => ({
-              id: item.id,
-              label: locale === "ar" ? item.arabicTitle : item.englishTitle,
-            }))}
+          value={selected.assessmentScopeId}
+          setValue={(value) =>
+            setSelected({ ...selected, assessmentScopeId: value })
+          }
+          items={forUnit.map((item) => ({
+            id: item.assessmentScopeId,
+            label: `${item.assessmentCode} · ${locale === "ar" ? item.assessmentArabicTitle : item.assessmentEnglishTitle} (v${item.assessmentVersion}${forUnit.length > 1 ? ` · ${locale === "ar" ? "النطاق" : "scope"} ${item.scopeVersion}` : ""})`,
+          }))}
+          disabled={!selected.unit || Boolean(evaluationId)}
         />
+        {currentScope ? (
+          <div
+            className="rounded-xl border border-border bg-surface-solid/60 p-4 text-sm"
+            role="status"
+          >
+            <p className="font-bold">
+              {locale === "ar" ? "نطاق التقييم" : "Assessment coverage"}
+            </p>
+            <p className="mt-2">
+              {locale === "ar" ? "أهداف التعلم" : "Learning aims"}:{" "}
+              {currentScope.learningAimCodes.join(", ")}
+            </p>
+            <p className="mt-1">
+              {locale === "ar" ? "المعايير" : "Criteria"}:{" "}
+              {currentScope.criteria
+                .map((item) => `${item.code} (${item.band})`)
+                .join(", ")}
+            </p>
+            <p className="mt-2 text-muted">
+              {locale === "ar"
+                ? "تقييم ومراجعة BETCCO؛ ليس درجة رسمية من Pearson."
+                : "BETCCO evaluation and review; not an official Pearson grade."}
+            </p>
+          </div>
+        ) : null}
         <FilePicker
           label={locale === "ar" ? "ملفات المهمة" : "Assignment files"}
           files={files}
@@ -4052,7 +4217,11 @@ function EvaluationWizard() {
         )}
         {!evaluationId ? (
           <button
-            disabled={create.isPending}
+            disabled={
+              create.isPending ||
+              !selected.assessmentScopeId ||
+              scopes.length === 0
+            }
             className="focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-white"
           >
             {locale === "ar" ? "حفظ ومراجعة الطلب" : "Save and review"}
@@ -4086,20 +4255,23 @@ function Select({
   value,
   setValue,
   items,
+  disabled = false,
 }: {
   label: string;
   value: string;
   setValue: (value: string) => void;
   items: { id: string; label: string }[];
+  disabled?: boolean;
 }) {
   return (
-    <label className="grid gap-1 text-sm font-semibold">
+    <label className="grid min-w-0 gap-1 text-sm font-semibold">
       {label}
       <select
         value={value}
+        disabled={disabled}
         onChange={(event) => setValue(event.target.value)}
         required
-        className="rounded-lg border bg-transparent p-3"
+        className="min-w-0 w-full max-w-full rounded-lg border bg-transparent p-3"
       >
         <option value="">—</option>
         {items.map((item) => (
@@ -4123,6 +4295,7 @@ function MyEvaluations() {
           status: string;
           price: number;
           currency: string;
+          academic: AssessmentAcademicSummary | null;
           selectedCriteria: string[];
           calculatedGrade: string | null;
           sectionResults: { section: string; grade: string }[];
@@ -4161,6 +4334,7 @@ function MyEvaluations() {
       <div className="mt-6 space-y-3">
         {result.data.map((item) => (
           <article key={item.id} className="card grid gap-4 p-4">
+            <AcademicIdentity academic={item.academic} locale={locale} />
             <div className="flex flex-wrap items-center justify-between gap-3">
               <span className="font-bold">{item.status}</span>
               <span>
