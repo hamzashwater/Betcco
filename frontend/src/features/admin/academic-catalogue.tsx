@@ -297,7 +297,9 @@ export function AcademicCatalogue() {
                                       ? definition.arabicTitle
                                       : definition.englishTitle}{" "}
                                     <span className="text-muted">
-                                      {t("versionLabel", { version: definition.version })}
+                                      {t("versionLabel", {
+                                        version: definition.version,
+                                      })}
                                     </span>
                                   </h4>
                                   <Badge
@@ -381,7 +383,10 @@ export function AcademicCatalogue() {
                                             {ar
                                               ? scope.rubricArabicTitle
                                               : scope.rubricEnglishTitle}{" "}
-                                            · {t("versionLabel", { version: scope.version })}
+                                            ·{" "}
+                                            {t("versionLabel", {
+                                              version: scope.version,
+                                            })}
                                           </p>
                                           {scope.validation.length === 0 &&
                                             !scope.isActive && (
