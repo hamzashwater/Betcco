@@ -104,8 +104,11 @@ export function SiteNavigation() {
     ? `/${locale}/${workspace}/dashboard`
     : `/${locale}`;
   const isLeadVerifier = user.data?.roles.includes("LeadInternalVerifier");
+  const canManageEvaluatorSpecialisms = user.data?.roles.some(
+    (role) => role === "Admin" || role === "SystemAdmin",
+  );
   const dashboardRole =
-    user.data?.roles.includes("Admin") || isLeadVerifier
+    canManageEvaluatorSpecialisms || isLeadVerifier
       ? "admin"
       : user.data?.roles.includes("Teacher")
         ? "teacher"
@@ -116,7 +119,7 @@ export function SiteNavigation() {
   const accountDestination =
     visibleAccountRole === "admin" &&
     isLeadVerifier &&
-    !user.data?.roles.includes("Admin")
+    !canManageEvaluatorSpecialisms
       ? `/${locale}/admin/retakes`
       : `/${locale}/${visibleAccountRole}/dashboard`;
   const accountLabel =
@@ -180,6 +183,17 @@ export function SiteNavigation() {
             href: `/${locale}/admin/evaluations`,
             label: locale === "ar" ? "التقييمات" : "Evaluations",
           },
+          ...(canManageEvaluatorSpecialisms
+            ? [
+                {
+                  href: `/${locale}/admin/evaluator-specialisms`,
+                  label:
+                    locale === "ar"
+                      ? "اختصاصات المقيمين"
+                      : "Evaluator specialisms",
+                },
+              ]
+            : []),
           {
             href: `/${locale}/admin/retakes`,
             label: locale === "ar" ? "إعادات التقييم" : "Retakes",

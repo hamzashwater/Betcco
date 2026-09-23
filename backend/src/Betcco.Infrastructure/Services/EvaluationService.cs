@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Data;
 using Betcco.Application.Common;
 using Betcco.Application.Evaluations;
 using Betcco.Domain.Common;
@@ -6,6 +7,7 @@ using Betcco.Domain.Evaluations;
 using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace Betcco.Infrastructure.Services;
 
@@ -153,16 +155,80 @@ public sealed class EvaluationService(
 
     public async Task<bool> AssignAsync(string adminUserId, Guid requestId, string teacherUserId, CancellationToken cancellationToken = default)
     {
-        var request = await db.EvaluationRequests.SingleOrDefaultAsync(x => x.Id == requestId && x.Status == EvaluationStatus.PendingAssignment, cancellationToken);
-        if (request is null || (assessorEligibility is not null && !await assessorEligibility.IsEligibleAsync(teacherUserId, cancellationToken))) return false;
-        db.EvaluatorAssignments.Add(new EvaluatorAssignment { EvaluationRequestId = requestId, EvaluatorUserId = teacherUserId, AssignedByUserId = adminUserId });
-        if (!EvaluationWorkflow.CanTransition(request.Status, EvaluationStatus.Assigned)) return false;
-        var previousStatus = request.Status;
-        request.Status = EvaluationStatus.Assigned;
-        RecordAssessmentEvent(request, adminUserId, "AssessorAssigned", previousStatus, request.Status, null, request.SubmissionAttemptNumber, null);
-        db.AuditLogs.Add(Audit(adminUserId, "EvaluatorAssigned", nameof(EvaluationRequest), requestId.ToString()));
-        await db.SaveChangesAsync(cancellationToken);
-        return true;
+        return await AssignWithOutcomeAsync(adminUserId, requestId, teacherUserId, cancellationToken)
+            == AssignmentResult.Success;
+    }
+
+    public async Task<AssignmentResult> AssignWithOutcomeAsync(string adminUserId, Guid requestId,
+        string evaluatorUserId, CancellationToken cancellationToken = default)
+    {
+        if (!Guid.TryParse(evaluatorUserId, out var evaluatorId)) return AssignmentResult.EvaluatorNotEligible;
+        await using var transaction = db.Database.IsRelational()
+            ? await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken)
+            : null;
+        try
+        {
+            var request = await db.EvaluationRequests.SingleOrDefaultAsync(x => x.Id == requestId
+                && x.Status == EvaluationStatus.PendingAssignment, cancellationToken);
+            if (request is null) return AssignmentResult.RequestNotAssignable;
+            var unitId = await EvaluatorSpecialismService.ResolveUnitIdAsync(db, request, cancellationToken);
+            if (unitId is null) return AssignmentResult.AcademicMappingRequired;
+            var eligible = await (from user in db.Users.AsNoTracking()
+                                  join membership in db.UserRoles.AsNoTracking() on user.Id equals membership.UserId
+                                  join role in db.Roles.AsNoTracking() on membership.RoleId equals role.Id
+                                  where user.Id == evaluatorId && !user.IsFrozen
+                                      && (role.Name == PlatformRoles.Teacher || role.Name == PlatformRoles.Assessor)
+                                  select user.Id).AnyAsync(cancellationToken);
+            if (!eligible) return AssignmentResult.EvaluatorNotEligible;
+
+            // A shared row lock serializes revocation with the final grant check.
+            // It is held until the assignment and its grant evidence commit.
+            var grant = db.Database.IsRelational()
+                ? (await db.EvaluatorUnitSpecialisms.FromSqlInterpolated($"""
+                    SELECT * FROM "EvaluatorUnitSpecialisms"
+                    WHERE "EvaluatorUserId" = {evaluatorId}
+                      AND "UnitDefinitionId" = {unitId.Value}
+                      AND "RevokedAtUtc" IS NULL
+                    FOR SHARE
+                    """).ToListAsync(cancellationToken)).SingleOrDefault()
+                : await db.EvaluatorUnitSpecialisms.SingleOrDefaultAsync(x => x.EvaluatorUserId == evaluatorId
+                    && x.UnitDefinitionId == unitId && x.RevokedAtUtc == null, cancellationToken);
+            if (grant is null) return AssignmentResult.UnitSpecialismRequired;
+            if (!EvaluationWorkflow.CanTransition(request.Status, EvaluationStatus.Assigned))
+                return AssignmentResult.RequestNotAssignable;
+            db.EvaluatorAssignments.Add(new EvaluatorAssignment
+            {
+                EvaluationRequestId = requestId,
+                EvaluatorUserId = evaluatorId.ToString(),
+                AssignedByUserId = adminUserId,
+                EvaluatorUnitSpecialismId = grant.Id
+            });
+            var previousStatus = request.Status;
+            request.Status = EvaluationStatus.Assigned;
+            RecordAssessmentEvent(request, adminUserId, "AssessorAssigned", previousStatus, request.Status,
+                null, request.SubmissionAttemptNumber, null);
+            db.AuditLogs.Add(Audit(adminUserId, "EvaluatorAssigned", nameof(EvaluationRequest), requestId.ToString()));
+            await db.SaveChangesAsync(cancellationToken);
+            if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+            return AssignmentResult.Success;
+        }
+        catch (Exception error) when (IsAssignmentRace(error))
+        {
+            db.ChangeTracker.Clear();
+            return AssignmentResult.Conflict;
+        }
+    }
+
+    private static bool IsAssignmentRace(Exception error)
+    {
+        for (Exception? current = error; current is not null; current = current.InnerException)
+        {
+            if (current is not PostgresException postgres) continue;
+            if (postgres.SqlState == PostgresErrorCodes.SerializationFailure) return true;
+            if (postgres.SqlState == PostgresErrorCodes.UniqueViolation
+                && postgres.ConstraintName == "IX_EvaluatorAssignments_EvaluationRequestId") return true;
+        }
+        return false;
     }
 
     public async Task<bool> SetCriteriaPlanAsync(string teacherUserId, Guid requestId, IReadOnlyCollection<string> criterionCodes, CancellationToken cancellationToken = default)

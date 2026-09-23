@@ -247,6 +247,8 @@ public interface IEvaluationService
     Task<bool> DeclareAuthenticityAsync(string studentUserId, Guid requestId, string locale, string? ipAddress, string? userAgent, string? correlationId, CancellationToken cancellationToken = default);
     Task<bool> MarkPaidAsync(Guid requestId, Guid paymentId, CancellationToken cancellationToken = default);
     Task<bool> AssignAsync(string adminUserId, Guid requestId, string teacherUserId, CancellationToken cancellationToken = default);
+    Task<AssignmentResult> AssignWithOutcomeAsync(string adminUserId, Guid requestId, string evaluatorUserId,
+        CancellationToken cancellationToken = default);
     Task<bool> SetCriteriaPlanAsync(string teacherUserId, Guid requestId, IReadOnlyCollection<string> criterionCodes, CancellationToken cancellationToken = default);
     Task<bool> SubmitResultsAsync(string teacherUserId, Guid requestId, IReadOnlyCollection<CriterionSubmission> results, CancellationToken cancellationToken = default);
     Task<bool> CompleteAsync(string adminUserId, Guid requestId, CancellationToken cancellationToken = default);

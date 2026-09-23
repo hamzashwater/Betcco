@@ -212,9 +212,25 @@ public sealed class EvaluatorAssignment : Entity
 {
     public Guid EvaluationRequestId { get; set; }
     public EvaluationRequest? EvaluationRequest { get; set; }
+    // Null only for assignments created before Unit specialism routing.
+    public Guid? EvaluatorUnitSpecialismId { get; set; }
+    public EvaluatorUnitSpecialism? EvaluatorUnitSpecialism { get; set; }
     public required string EvaluatorUserId { get; set; }
     public required string AssignedByUserId { get; set; }
     public DateTimeOffset AssignedAtUtc { get; set; } = DateTimeOffset.UtcNow;
+}
+
+/// <summary>A historical grant of eligibility to evaluate one canonical academic Unit.</summary>
+public sealed class EvaluatorUnitSpecialism : Entity
+{
+    public Guid EvaluatorUserId { get; set; }
+    public Guid UnitDefinitionId { get; set; }
+    public UnitDefinition? UnitDefinition { get; set; }
+    public Guid GrantedByUserId { get; set; }
+    public DateTimeOffset GrantedAtUtc { get; set; } = DateTimeOffset.UtcNow;
+    public Guid? RevokedByUserId { get; set; }
+    public DateTimeOffset? RevokedAtUtc { get; set; }
+    public string? RevokeReason { get; set; }
 }
 
 public sealed class CriterionResult : Entity

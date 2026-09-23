@@ -18,6 +18,8 @@ import { EvaluationAppealManagement } from "@/features/admin/evaluation-appeal-m
 import { QualificationRegistryManagement } from "@/features/admin/qualification-registry-management";
 import { AcademicCatalogue } from "@/features/admin/academic-catalogue";
 import { RetakeManagement } from "@/features/admin/retake-management";
+import { EvaluatorSpecialismManagement } from "@/features/admin/evaluator-specialism-management";
+import { EligibleEvaluatorAssignment } from "@/features/admin/eligible-evaluator-assignment";
 import { SupportCenter } from "@/features/support/support-center";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -146,6 +148,8 @@ export function AdminArea({ segment }: { segment: string[] }) {
   if (current === "teachers") return <TeacherInvites />;
   if (current === "course-approvals") return <CourseApprovals />;
   if (current === "evaluations") return <AdminEvaluations />;
+  if (current === "evaluator-specialisms")
+    return <EvaluatorSpecialismManagement />;
   if (current === "retakes") return <RetakeManagement />;
   if (current === "wallet" || current === "accounting") return <AdminWallet />;
   if (current === "security") return <AccountSecurity />;
@@ -1719,9 +1723,16 @@ type TeacherInvitation = {
 function AdminEvaluations() {
   const locale = useLocale();
   const client = useQueryClient();
-  const [assignedTeacher, setAssignedTeacher] = useState<
-    Record<string, string>
-  >({});
+  const [lastAssigned, setLastAssigned] = useState(false);
+  const currentUser = useQuery({
+    queryKey: ["current-user"],
+    queryFn: () => api<{ roles: string[] }>("/auth/me"),
+    retry: false,
+  });
+  const canVerify =
+    currentUser.data?.roles.some((role) =>
+      ["Admin", "InternalVerifier", "LeadInternalVerifier"].includes(role),
+    ) ?? false;
   const pending = useQuery({
     queryKey: ["pending-evaluations"],
     queryFn: () => api<PendingEvaluation[]>("/evaluations/pending-assignment"),
@@ -1730,6 +1741,7 @@ function AdminEvaluations() {
     queryKey: ["under-review-evaluations"],
     queryFn: () => api<UnderReviewEvaluation[]>("/evaluations/under-review"),
     refetchInterval: 10_000,
+    enabled: canVerify,
   });
   const [verificationNotes, setVerificationNotes] = useState<
     Record<string, string>
@@ -1737,28 +1749,6 @@ function AdminEvaluations() {
   const [resubmissionDueDates, setResubmissionDueDates] = useState<
     Record<string, string>
   >({});
-  const teachers = useQuery({
-    queryKey: ["teachers-for-evaluation"],
-    queryFn: () =>
-      api<{ items: Teacher[] }>("/admin/users?role=Teacher&pageSize=100"),
-  });
-  const assign = useMutation({
-    mutationFn: ({
-      requestId,
-      teacherUserId,
-    }: {
-      requestId: string;
-      teacherUserId: string;
-    }) =>
-      api(`/evaluations/${requestId}/assign`, {
-        method: "POST",
-        body: JSON.stringify({ teacherUserId }),
-      }),
-    onSuccess: () => {
-      client.invalidateQueries({ queryKey: ["pending-evaluations"] });
-      client.invalidateQueries({ queryKey: ["admin-dashboard"] });
-    },
-  });
   const verify = useMutation({
     mutationFn: ({
       requestId,
@@ -1784,7 +1774,11 @@ function AdminEvaluations() {
       client.invalidateQueries({ queryKey: ["admin-dashboard"] });
     },
   });
-  if (pending.isPending || underReview.isPending || teachers.isPending)
+  if (
+    currentUser.isPending ||
+    pending.isPending ||
+    (canVerify && underReview.isPending)
+  )
     return (
       <section className="shell py-10">
         <div className="card p-6" aria-busy>
@@ -1792,7 +1786,11 @@ function AdminEvaluations() {
         </div>
       </section>
     );
-  if (pending.isError || underReview.isError || teachers.isError)
+  if (
+    currentUser.isError ||
+    pending.isError ||
+    (canVerify && underReview.isError)
+  )
     return (
       <section className="shell py-10">
         <p className="card p-6" role="alert">
@@ -1802,9 +1800,6 @@ function AdminEvaluations() {
         </p>
       </section>
     );
-  const activeTeachers = (teachers.data?.items ?? []).filter(
-    (teacher) => !teacher.isFrozen,
-  );
   return (
     <section className="shell py-10">
       <DashboardHeader
@@ -1812,83 +1807,27 @@ function AdminEvaluations() {
         title={locale === "ar" ? "إسناد التقييمات" : "Assign evaluations"}
         description={
           locale === "ar"
-            ? "اختر معلمًا نشطًا لكل طلب مدفوع. بعد الإسناد لا يظهر الطلب إلا للمعلم المحدد."
-            : "Choose an active teacher for each paid request. Once assigned, the request is visible only to that teacher."
+            ? "اختر مقيّمًا مؤهلاً لوحدة الطلب. يتحقق الخادم من الأهلية عند الإسناد."
+            : "Choose an evaluator eligible for the request's Unit. The server rechecks eligibility on assignment."
         }
       />
+      {lastAssigned && (
+        <p className="mt-4 text-sm text-green-700" role="status">
+          {locale === "ar" ? "تم إسناد التقييم." : "Evaluation assigned."}
+        </p>
+      )}
       <div className="mt-5 grid gap-4">
-        {pending.data?.map((evaluation) => {
-          const selectedTeacher = assignedTeacher[evaluation.id] ?? "";
-          return (
-            <article key={evaluation.id} className="card p-5">
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <p className="flex items-center gap-2 text-sm font-black text-primary">
-                    <ClipboardCheck size={18} aria-hidden="true" />
-                    {locale === "ar"
-                      ? "طلب بانتظار الإسناد"
-                      : "Request awaiting assignment"}
-                  </p>
-                  <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">
-                    {evaluation.studentComment ||
-                      (locale === "ar"
-                        ? "لا توجد ملاحظة من الطالب."
-                        : "No student note was provided.")}
-                  </p>
-                  <p className="mt-3 text-xs text-muted">
-                    {evaluation.filesCount}{" "}
-                    {locale === "ar" ? "ملفات" : "files"} ·{" "}
-                    {evaluation.criteria.length}{" "}
-                    {locale === "ar" ? "معايير" : "criteria"}
-                  </p>
-                </div>
-                <span className="rounded-full border border-border bg-white/5 px-3 py-1 text-xs font-bold text-muted">
-                  {evaluation.status}
-                </span>
-              </div>
-              <div className="mt-5 flex flex-wrap gap-2">
-                <select
-                  value={selectedTeacher}
-                  onChange={(event) =>
-                    setAssignedTeacher((current) => ({
-                      ...current,
-                      [evaluation.id]: event.target.value,
-                    }))
-                  }
-                  className="focus-ring min-w-56 flex-1 rounded-xl border border-border bg-transparent px-3 py-2.5 text-sm text-foreground"
-                  aria-label={
-                    locale === "ar" ? "اختر المعلم" : "Select teacher"
-                  }
-                >
-                  <option value="">
-                    {locale === "ar"
-                      ? "اختر معلمًا نشطًا"
-                      : "Select an active teacher"}
-                  </option>
-                  {activeTeachers.map((teacher) => (
-                    <option key={teacher.id} value={teacher.id}>
-                      {teacher.displayName} — {teacher.email}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  type="button"
-                  disabled={!selectedTeacher || assign.isPending}
-                  onClick={() =>
-                    assign.mutate({
-                      requestId: evaluation.id,
-                      teacherUserId: selectedTeacher,
-                    })
-                  }
-                  className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <UserRoundCheck size={17} aria-hidden="true" />
-                  {locale === "ar" ? "إسناد" : "Assign"}
-                </button>
-              </div>
-            </article>
-          );
-        })}
+        {pending.data?.map((evaluation) => (
+          <EligibleEvaluatorAssignment
+            key={evaluation.id}
+            evaluation={evaluation}
+            onAssigned={() => {
+              setLastAssigned(true);
+              client.invalidateQueries({ queryKey: ["pending-evaluations"] });
+              client.invalidateQueries({ queryKey: ["admin-dashboard"] });
+            }}
+          />
+        ))}
         {!pending.data?.length && (
           <div className="card p-6 text-sm leading-6 text-muted">
             {locale === "ar"
@@ -1897,7 +1836,7 @@ function AdminEvaluations() {
           </div>
         )}
       </div>
-      <section className="mt-10">
+      <section className="mt-10" hidden={!canVerify}>
         <div className="mb-4">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">
             {locale === "ar" ? "المراجعة الداخلية" : "Internal verification"}
@@ -2036,7 +1975,10 @@ function AdminEvaluations() {
                 <button
                   type="button"
                   onClick={() =>
-                    verify.mutate({ requestId: evaluation.id, approve: false })
+                    verify.mutate({
+                      requestId: evaluation.id,
+                      approve: false,
+                    })
                   }
                   disabled={
                     verify.isPending ||
@@ -2059,13 +2001,6 @@ function AdminEvaluations() {
           ) : null}
         </div>
       </section>
-      {assign.isError && (
-        <p role="alert" className="mt-4 text-sm text-red-500">
-          {assign.error instanceof Error
-            ? assign.error.message
-            : "Request failed."}
-        </p>
-      )}
       {verify.isError && (
         <p role="alert" className="mt-4 text-sm text-red-500">
           {verify.error instanceof Error
