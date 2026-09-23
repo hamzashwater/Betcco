@@ -7,7 +7,7 @@
 - Status generated/verified against origin/main: `62e5e5a1d9158c11104c3496e088a7ead36a7fa5`
 - Baseline branch used for status generation: `docs/reconcile-assessment-coordinator-ci-status`
 - Working tree state at verified baseline: clean
-- Latest verified CI state: PR #40 required checks were GREEN on synchronized head `2985efee3ab1348fda27663e9db04476aed383a3`; post-merge `main` verification on `62e5e5a1d9158c11104c3496e088a7ead36a7fa5` has CodeQL C# and JavaScript/TypeScript GREEN, while Application Quality was still in progress when this reconciliation branch was created. Dependency review is skipped on push as expected.
+- Latest verified CI state: GREEN on current main `62e5e5a1d9158c11104c3496e088a7ead36a7fa5` — Application Quality, CodeQL C#, and CodeQL JavaScript/TypeScript completed successfully. Dependency review is skipped on push as expected.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
