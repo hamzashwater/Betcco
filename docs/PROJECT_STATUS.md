@@ -3,26 +3,30 @@
 ## Metadata
 
 - Last updated: 2026-09-23
-- Verified implementation baseline SHA: `9f0b6126f1a3d7b0d746717bef135dd93b30fa47`
-- Status generated/verified against origin/main: `9f0b6126f1a3d7b0d746717bef135dd93b30fa47`
-- Baseline branch used for status generation: `feature/academic-year-term-delivery-plan`
-- Working tree state at verified baseline: clean
-- Latest verified CI state: GREEN on current main `9f0b6126f1a3d7b0d746717bef135dd93b30fa47` — Quality and Security analysis completed successfully on the post-status-merge push; dependency review is skipped on push as expected.
+- Verified implementation baseline SHA: `e48f727426ec649c3d9b9792d26d12a435afc846`
+- Status verified against origin/main: `e48f727426ec649c3d9b9792d26d12a435afc846`
+- Local branch: `feature/canonical-learn-unit-migration` (Lenovo; not pushed)
+- Remote CI for this local branch: NOT RUN; user-managed push, PR, review, and merge remain pending.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
-## Current Feature Completion
+## Current Local Feature
+
+- Task: COURSEMODULE → UNITDEFINITION canonical LEARN unit migration.
+- Status: Local implementation and validation complete; remote CI pending user-managed push. This branch has no PR and is not merged into `main`.
+- Design: `UnitDefinition` is the academic unit authority. `CourseModule` remains the per-course delivery container for lessons, sequencing, progress, and coursework. New BTEC delivery selects an active published canonical unit; its aims and criteria are linked to canonical definitions. The server binds each course to one qualification version, rejects another version or qualification, and prevents duplicate delivery of the same canonical unit within one course.
+- Legacy data: all existing module, lesson, progress, assignment, submission, adjustment, and assessment history rows remain untouched by the additive migration. Legacy modules have nullable academic links and remain readable. Unmapped modules with legacy aims, criteria, or coursework criteria require explicit academic reconciliation; no title/code guess or automated backfill is performed.
+- Migration: `20260923155147_AddCanonicalLearnUnitLinks` adds nullable course/version, module/unit, aim/definition, and criterion/definition links, with restrictive foreign keys and filtered uniqueness indexes. `CourseModule` and legacy columns remain physically present.
+- Local validation: affected backend regression tests 26/26, including PostgreSQL migration chain, canonical delivery persistence, concurrent version selection, and pending-model verification; adjacent academic catalogue, delivery planning, and student access tests 36/36; backend Release build and format verification; focused frontend Vitest 3/3, typecheck, lint, Prettier, Next.js production build; and mocked-API browser teacher authoring and student player journeys 6/6 (English, Arabic RTL, 390px mobile) passed. Browser checks did not exercise a live authenticated backend.
+- Development seed: the existing BTEC demonstration course still creates an unmapped delivery module on an empty Development database. It contains no academic unit code, aims, or criteria; it is legacy sample content, not a teacher authoring path.
+- Deferred: manual reconciliation of ambiguous historical modules, user-managed PR/remote CI/review/merge, and any later physical cleanup of legacy columns.
+
+## Recent Merged Tasks
 
 - Task: Academic Year / Term / Delivery Plan — Slice 1
+- Merge/commit SHA: `e48f727426ec649c3d9b9792d26d12a435afc846`
 - Pull Request: [#45 — feat: add academic year term and delivery planning](https://github.com/hamzashwater/Betcco/pull/45)
-- Implementation status: DONE on the feature branch; the PR remains OPEN / DRAFT and unmerged until its exact final head passes required CI.
-- Design: each `DeliveryPlan` belongs to one canonical `QualificationVersion` and one flexible, centre-defined `AcademicYear`; ordered `DeliveryPlanEntry` records reference canonical `UnitDefinition` and an `AcademicTerm` from the same year. Active terms cannot overlap, one Unit may appear only once per plan, and server validation blocks cross-version Units and cross-year Terms. Plans use only the minimal Active/Inactive editability state; a publication or approval workflow is deliberately deferred because the repository has no downstream consumer that requires a frozen plan in this slice.
-- Boundaries: `CourseModule` and all LEARN lessons, authoring, enrolment, progress, and completion data are unchanged. ASSESS scope, request, evidence/history, SLA, Retake, Resubmission, Appeal, IV, and LIV semantics are unchanged. No role was added; the API uses the existing `SystemAdmin` capability and server-derived actor identity.
-- Migration: `20260923142325_AddAcademicDeliveryPlanning` creates only `AcademicYears`, `AcademicTerms`, `DeliveryPlans`, and `DeliveryPlanEntries`, with bounded fields, date/order checks, meaningful unique indexes, and restrictive foreign keys. It performs no historical backfill, table rewrite, or existing-data mutation.
-- Verified feature-level validation: 19 related backend tests, 120 frontend tests, backend Release build with 0 warnings/errors, .NET format verification, EF pending-model verification, frontend formatting/typecheck/lint/production build, dependency vulnerability checks, and 3/3 browser scenarios covering English desktop, Arabic RTL desktop, and 390px mobile passed locally. The PostgreSQL-backed feature/migration tests are committed for Application Quality; local PostgreSQL was unavailable, so local database application was not claimed.
-- CI note: the exact final PR head created by this status update must complete required GitHub checks before the PR can become Ready for Review. No later documentation-only PR is required.
-
-## Latest Merged Task
+- Outcome: MERGED. `DeliveryPlanEntry` references canonical `UnitDefinition` under `QualificationVersion`; the additive migration `20260923142325_AddAcademicDeliveryPlanning` is part of `main`. Delivery planning does not automatically create courses or delivery modules.
 
 - Task: SLA / Expected Completion Workflow — Slice 1
 - Merge/commit SHA: `708326e4bd55e59d981238e1d5dce68e4a7fa5dd`
@@ -155,7 +159,7 @@ These entries are merged repository evidence only; new behavior changes still re
 
 Done: Main contains the versioned criterion/rule and qualification snapshot foundations, the additive ASSESS academic identity foundation from PR #28 (`UnitDefinition`, `AssessmentDefinition`, `AssessmentScope`, and the nullable `EvaluationRequest` bridge), authenticity declarations, authorised resubmission records, internal-verification sampling, appeals, structured assessment-audit export, formal visual PDF reporting, authorised paid Retakes from PR #36, and Evaluator-specialism routing Slice 1 from PR #38. ASSESS Slices 1–3 are DONE: the canonical academic chain is `QualificationVersion` → `UnitDefinition` → `LearningAimDefinition` → `AssessmentCriterionDefinition`, with `AssessmentDefinition` → `AssessmentScope`; `EvaluationRequest` remains the ASSESS aggregate root and a Retake is another new linked `EvaluationRequest`. Evaluator assignment requires an active UnitDefinition specialism grant checked server-side, and each new assignment retains the exact grant evidence. The structured audit export now uses the safe v2 contract: raw internal identifiers and sensitive implementation metadata are structurally excluded, academic traceability is preserved, actor-role attribution is corrected, unsupported historical RBAC precision is not fabricated, and deterministic SHA-256 integrity is preserved. The PDF includes assignment/task, submission/evidence, assessor/internal-verifier/lead-internal-verifier/appeal-review, and academic audit/history context; excludes sensitive storage/internal IDs; retains neutral/non-official BTEC wording; and has verified Arabic/English, multipage, and Linux/Windows font-layout compatibility with required CI green. PR #34 separately completed student-specific LEARN coursework deadline extensions without changing `EvaluationRequest` or `ResubmissionAuthorization.DueAtUtc`; LEARN remains separate from ASSESS.
 
-Remaining: Resit, admin-configurable Retake pricing, automatic Appeal → Retake, broader ASSESS reasonable adjustments beyond the completed LEARN coursework deadline slice, and CourseModule migration remain unresolved. AcademicYear/Term/DeliveryPlan Slice 1 is implemented in open PR #45 and becomes merged repository state only after approval and merge. Production payment/provider validation and production operations remain outstanding.
+Remaining: Resit, admin-configurable Retake pricing, automatic Appeal → Retake, broader ASSESS reasonable adjustments beyond the completed LEARN coursework deadline slice, and the unmerged canonical LEARN unit branch remain unresolved on `main`. AcademicYear/Term/DeliveryPlan Slice 1 is merged through PR #45. Production payment/provider validation and production operations remain outstanding.
 
 ### Privacy and compliance workflow core
 
@@ -205,44 +209,11 @@ Live progress is tracked in OPEN Draft PRs, and repository evidence wins over co
 
 Maximum active implementation workstreams: **2**
 
-One OPEN Draft implementation PR is present: PR #45 on ASUS. It is the migration-producing workstream. The second capacity remains available only for an independent task that requires no database migration while PR #45 is open.
-
-### Workstream A
-
-Task: Formal BTEC Assessment PDF Reporting
-Owner: Lenovo
-Branch: `feature/btec-assessment-pdf-report`
-Pull Request: #6
-Status: MERGED / CLOSED
-Scope: BTEC assessment PDF backend/reporting and PDF-specific validation.
-Reserved areas:
-
-- `AssessmentPdfReportService`
-- `QuestPdfAssessmentReportRenderer`
-- `AssessmentPdfReportTests`
-- PDF-specific deployment documentation
-
-Merged into main: **YES** — `2fb3545604fb618019471076e4e0da587dfcea33`
-Capacity status: AVAILABLE
-
-### Workstream B
-
-Task: Academic Year / Term / Delivery Plan — Slice 1
-Owner: ASUS
-Branch: `feature/academic-year-term-delivery-plan`
-Pull Request: #45
-Task status: IMPLEMENTATION DONE / OPEN DRAFT / FINAL CI REQUIRED
-Merged into main: **NO**
-Migration ownership: ASUS owns the single migration `20260923142325_AddAcademicDeliveryPlanning` while this PR is open.
-Capacity status: ACTIVE
-Reserved scope: AcademicYear, AcademicTerm, DeliveryPlan, DeliveryPlanEntry, directly related contracts/service/API/Admin UI/tests, `BetccoDbContext`, its snapshot, the single migration, and this same-PR status reconciliation.
-
-LENOVO state: no second OPEN implementation PR was present at the latest collision check. Until PR #45 closes, any LENOVO workstream must be independent and require no database migration.
+At the 2026-09-23 preflight, GitHub reported no OPEN PRs; PR #45 was already merged. Lenovo's `feature/canonical-learn-unit-migration` is local only. ASUS may have independent local work that is not visible through GitHub; reconcile shared hotspots and migration order before either device pushes.
 
 ## Next Actions
 
-- Implementation capacity A: AVAILABLE; this reconciliation does not select or invent a new task.
-- Implementation capacity B: ACTIVE on PR #45 (ASUS); migration ownership is reserved there.
+- Lenovo next action: user-managed push of `feature/canonical-learn-unit-migration`, then PR, remote CI, review, and merge. Recheck ASUS changes and migration order before push.
 - Task 6: DONE — Media / Video Foundation + Secure Delivery. PR #18 merged with required CI green.
 - Slice 1: DONE — ASSESS academic identity foundation. PR #28 merged with required CI green.
 - Slice 2: DONE — Versioned Learning Aims / Criteria + AssessmentDefinition publication/source mapping + Qualification/Rubric compatibility enforcement. PR #30 merged with required CI green.
@@ -253,8 +224,8 @@ LENOVO state: no second OPEN implementation PR was present at the latest collisi
 - Assessment Coordinator capabilities Slice 1: DONE — bounded read-only ASSESS coordination queue with existing CourseReviewer authority and server-authoritative evaluator-specialism enforcement. PR #40 merged; no migration or new role was added.
 - CI reproducibility hardening Slice 1: DONE — GitHub Actions and direct workflow container references are pinned to verified immutable identifiers in the three CI workflows. PR #41 merged without changing CI semantics.
 - SLA / Expected Completion Workflow Slice 1: DONE — append-only server-owned operational targets with NotSet/OnTrack/Overdue coordination state. PR #43 merged; no fixed SLA duration was introduced.
-- AcademicYear / Term / DeliveryPlan Slice 1: DONE on open PR #45 — one centre-defined calendar hierarchy and canonical Unit delivery plan foundation, with no CourseModule or assessment-history migration. Merge remains user-controlled after final CI.
-- Next evidence-supported implementation area after PR #45 merges: plan and execute the separate CourseModule-to-canonical-Unit migration workstream, including explicit historical-data risk review before any migration. Resit remains unimplemented. Admin-configurable Retake pricing and broader ASSESS reasonable adjustments remain unresolved.
+- AcademicYear / Term / DeliveryPlan Slice 1: DONE and merged through PR #45; planning and course delivery remain separate.
+- Canonical LEARN unit migration: locally implemented in this branch; ambiguous historical modules need explicit evidence-backed reconciliation after integration. Resit remains unimplemented. Admin-configurable Retake pricing and broader ASSESS reasonable adjustments remain unresolved.
 
 Definition of Done for each workstream: implementation is reviewed, required CI is green, its PR is merged into `main`, and this document is reconciled with the new merged state.
 
@@ -303,7 +274,7 @@ Do not reopen these areas merely because a later account lacks conversation memo
 - PR #26 is merged into `main` at `23ff9d3926a079d72871e68a4950805a5cd947e2`; the `/en/about` WebKit React #418 hydration mismatch is resolved with consistent locale-aware server/client settings, seeded React Query hydration, and a bounded 3000ms server fetch timeout with localized fallbacks. Unit verification was 9/9 and production HTTPS browser verification was 4/4.
 - PR #20 is merged into `main` at `25b25e30e3dc1e6a63025d4308073545e00412e9`; full-stack browser UAT completed 7/7 with required `/en/about` WebKit iPhone 14 regression coverage, strict page-error and overflow assertions, and no production or database changes.
 - PR #28 is merged into `main` at `be2b275b02a5c1f31aaead68c2fe32784d50bc11`; the ASSESS academic identity foundation is DONE with additive `UnitDefinition`, `AssessmentDefinition`, `AssessmentScope`, and a nullable `EvaluationRequest` bridge. No historic backfill or destructive migration was performed. Subsequent PRs #30 and #32 completed academic authoring, scope selection, and snapshots; PR #38 completed evaluator-specialism routing. Assessment Coordinator capabilities Slice 1 was completed by PR #40.
-- PR #30 is merged into `main` at `689b87280ecf27b1d4f825092e8f814066e9ccd4`; versioned academic authoring, canonical aims and criteria, definition mappings, source/publication rules, qualification/rubric compatibility, and the bilingual Admin Academic Catalogue are DONE. Slice 3 subsequently completed AssessmentScope selection and the immutable EvaluationRequest academic snapshot; PR #34 completed LEARN coursework deadline extensions; PR #36 completed authorised paid assessment Retakes; PR #38 completed evaluator-specialism routing; AcademicYear/Term/DeliveryPlan Slice 1 is implemented in open PR #45. Resit, admin-configurable Retake pricing, automatic Appeal → Retake, and CourseModule migration remain future work.
+- PR #30 is merged into `main` at `689b87280ecf27b1d4f825092e8f814066e9ccd4`; versioned academic authoring, canonical aims and criteria, definition mappings, source/publication rules, qualification/rubric compatibility, and the bilingual Admin Academic Catalogue are DONE. Slice 3 subsequently completed AssessmentScope selection and the immutable EvaluationRequest academic snapshot; PR #34 completed LEARN coursework deadline extensions; PR #36 completed authorised paid assessment Retakes; PR #38 completed evaluator-specialism routing; PR #45 completed AcademicYear/Term/DeliveryPlan Slice 1. Resit, admin-configurable Retake pricing, and automatic Appeal → Retake remain future work. Canonical LEARN unit work is local and unmerged.
 - PR #32 is merged into `main` at `5321baa7f64eb06c6affd9e0bac94f28a52dc825`; AssessmentScope selection and immutable academic snapshot creation are DONE. The nullable legacy bridge remains supported, with no historical backfill or destructive migration. The transitional `TaskTypeId` dependency remains explicit follow-up work where canonical task-type ownership is not yet fully migrated.
 - PR #34 is merged into `main` at `ab4ace6ef4b1774f3c752c7b7bd5e688531330f1`; Reasonable Adjustments Slice 1 for LEARN coursework deadlines is DONE with an additive migration, no backfill, and no destructive schema operation. Production migration and production smoke verification have not been executed.
 - PR #36 is merged into `main` at `717ddd5b81e2825cdf45dda80bfb4fcac7d7da93`; Retake Slice 1 is DONE with additive migration `20260922182302_AddAssessmentRetakes`, no historical backfill, no destructive schema operation, retained approval history, Retake-only scope protection, one-Retake uniqueness, and `RESTRICT` foreign keys. ResubmissionAuthorization semantics, including `ResubmissionAuthorization.DueAtUtc`, were not changed; LEARN remains separate from ASSESS. Resit, admin-configurable Retake pricing, automatic Appeal → Retake, production migration, production smoke verification, and production payment/provider validation remain outstanding.
