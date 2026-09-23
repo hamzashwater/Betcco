@@ -1,6 +1,7 @@
 "use client";
 
 import { api } from "@/lib/api";
+import { academicText } from "@/lib/academic-localization";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
 import { useState } from "react";
@@ -190,9 +191,11 @@ export function AssessmentCoordinationQueue() {
               const label = statuses.find(
                 (option) => option.value === item.status,
               );
-              const unitTitle = ar
-                ? item.unitArabicTitle
-                : item.unitEnglishTitle;
+              const unitTitle = academicText(
+                locale,
+                item.unitArabicTitle,
+                item.unitEnglishTitle,
+              );
               const blocker =
                 item.blockerCode === "AcademicMappingRequired"
                   ? ar

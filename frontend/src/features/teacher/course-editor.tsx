@@ -9,6 +9,7 @@ import {
   CourseWorkspaceSection,
 } from "@/features/teacher/course-workspace-navigation";
 import { api } from "@/lib/api";
+import { academicText, academicUnitLabel } from "@/lib/academic-localization";
 import { defaultBrand } from "@/lib/brand";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -105,6 +106,8 @@ type AvailableDeliveryPlan = {
   academicYearId: string;
   academicYearCode: string;
   qualificationCode: string;
+  qualificationArabicName?: string;
+  qualificationEnglishName?: string;
   versionCode: string;
   specializationId: string;
   specializationEnglishName: string;
@@ -396,7 +399,8 @@ type ManualQuizReviewData = {
 type CourseAnnouncementData = {
   id: string;
   courseModuleId?: string;
-  unitTitle?: string;
+  unitArabicTitle?: string;
+  unitEnglishTitle?: string;
   arabicTitle: string;
   englishTitle: string;
   arabicBody: string;
@@ -524,7 +528,7 @@ function CreateCourse() {
     )
     .map((plan) => ({
       id: plan.id,
-      name: `${plan.qualificationCode} · ${plan.versionCode}`,
+      name: `${academicText(locale, plan.qualificationArabicName, plan.qualificationEnglishName) || plan.qualificationCode} · ${plan.versionCode}`,
     }));
   const create = useMutation({
     mutationFn: () =>
@@ -1140,7 +1144,7 @@ function CourseAnnouncementsEditor({
                       ? `طلاب محددون: ${announcement.selectedStudentIds.length}`
                       : `Selected learners: ${announcement.selectedStudentIds.length}`
                     : announcement.audience === "Unit"
-                      ? `${locale === "ar" ? "وحدة" : "Unit"}: ${announcement.unitTitle ?? "—"}`
+                      ? `${locale === "ar" ? "وحدة" : "Unit"}: ${academicText(locale, announcement.unitArabicTitle, announcement.unitEnglishTitle) || "—"}`
                       : locale === "ar"
                         ? "كل طلاب الدورة"
                         : "All course learners"}
@@ -1294,9 +1298,11 @@ function CourseAnnouncementsEditor({
                   </option>
                   {course.modules.map((module) => (
                     <option key={module.id} value={module.id}>
-                      {locale === "ar"
-                        ? module.arabicTitle
-                        : module.englishTitle}
+                      {academicText(
+                        locale,
+                        module.arabicTitle,
+                        module.englishTitle,
+                      )}
                     </option>
                   ))}
                 </select>
@@ -2126,14 +2132,14 @@ export function CurriculumEditor({
           </h3>
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             {course.isBtecFocused ? (
-              <label className="grid gap-1 text-sm font-bold md:col-span-2">
+              <label className="grid min-w-0 gap-1 text-sm font-bold md:col-span-2">
                 {locale === "ar" ? "الوحدة الأكاديمية" : "Academic unit"}
                 <select
                   value={deliveryPlanEntryId}
                   onChange={(event) =>
                     setDeliveryPlanEntryId(event.target.value)
                   }
-                  className="rounded-xl border border-border bg-surface-solid p-3"
+                  className="min-w-0 max-w-full rounded-xl border border-border bg-surface-solid p-3"
                   aria-label={
                     locale === "ar" ? "الوحدة الأكاديمية" : "Academic unit"
                   }
@@ -2149,8 +2155,13 @@ export function CurriculumEditor({
                       value={unit.deliveryPlanEntryId ?? ""}
                     >
                       {unit.termCode} · {unit.qualificationCode} /{" "}
-                      {unit.versionCode} · {unit.code} ·{" "}
-                      {locale === "ar" ? unit.arabicTitle : unit.englishTitle}
+                      {unit.versionCode} ·{" "}
+                      {academicUnitLabel(
+                        locale,
+                        unit.code,
+                        unit.arabicTitle,
+                        unit.englishTitle,
+                      )}
                     </option>
                   ))}
                 </select>
@@ -2346,7 +2357,7 @@ function ModuleEditor({
     <article className="rounded-2xl border border-border bg-black/5 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="font-black">
-          {locale === "ar" ? module.arabicTitle : module.englishTitle}
+          {academicText(locale, module.arabicTitle, module.englishTitle)}
         </h3>
         {!disabled ? (
           <div className="flex flex-wrap items-center gap-2">
@@ -2409,8 +2420,13 @@ function ModuleEditor({
                 </option>
                 {academicUnits.map((unit) => (
                   <option key={unit.id} value={unit.id}>
-                    {unit.qualificationCode} / {unit.versionCode} · {unit.code}{" "}
-                    · {locale === "ar" ? unit.arabicTitle : unit.englishTitle}
+                    {unit.qualificationCode} / {unit.versionCode} ·{" "}
+                    {academicUnitLabel(
+                      locale,
+                      unit.code,
+                      unit.arabicTitle,
+                      unit.englishTitle,
+                    )}
                   </option>
                 ))}
               </select>
@@ -4633,7 +4649,7 @@ function QuestionBankPanel({
         )
         .map((resource) => ({
           id: resource.id,
-          name: `${locale === "ar" ? module.arabicTitle : module.englishTitle} — ${resource.displayName}`,
+          name: `${academicText(locale, module.arabicTitle, module.englishTitle)} — ${resource.displayName}`,
         })),
     ),
   );
@@ -4745,7 +4761,11 @@ function QuestionBankPanel({
                 </option>
                 {moduleOptions.map((module) => (
                   <option key={module.id} value={module.id}>
-                    {locale === "ar" ? module.arabicTitle : module.englishTitle}
+                    {academicText(
+                      locale,
+                      module.arabicTitle,
+                      module.englishTitle,
+                    )}
                   </option>
                 ))}
               </select>
@@ -4998,7 +5018,11 @@ function QuestionBankPanel({
                 </option>
                 {moduleOptions.map((module) => (
                   <option key={module.id} value={module.id}>
-                    {locale === "ar" ? module.arabicTitle : module.englishTitle}
+                    {academicText(
+                      locale,
+                      module.arabicTitle,
+                      module.englishTitle,
+                    )}
                   </option>
                 ))}
               </select>
@@ -6254,7 +6278,11 @@ function CourseAssignmentsEditor({
               {course.modules.map((module) => (
                 <option key={module.id} value={module.id}>
                   {module.unitCode ? `${module.unitCode} — ` : ""}
-                  {locale === "ar" ? module.arabicTitle : module.englishTitle}
+                  {academicText(
+                    locale,
+                    module.arabicTitle,
+                    module.englishTitle,
+                  )}
                 </option>
               ))}
             </select>

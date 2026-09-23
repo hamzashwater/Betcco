@@ -83,6 +83,8 @@ public sealed class CourseAuthoringController(ICourseAuthoringService courses, I
                 academicYearCode = x.AcademicYear!.Code,
                 x.QualificationVersionId,
                 qualificationCode = x.QualificationVersion!.Qualification!.Code,
+                qualificationEnglishName = x.QualificationVersion.Qualification.EnglishName,
+                qualificationArabicName = x.QualificationVersion.Qualification.ArabicName,
                 versionCode = x.QualificationVersion.VersionCode,
                 specializationId = x.QualificationVersion.Qualification.SpecializationId,
                 specializationEnglishName = x.QualificationVersion.Qualification.Specialization!.EnglishName,

@@ -9,6 +9,8 @@ import { AcademicCatalogue } from "@/features/admin/academic-catalogue";
 const version = {
   id: "version-1",
   qualificationCode: "Q1",
+  qualificationArabicName: "مؤهل الاختبار",
+  qualificationEnglishName: "Test qualification",
   versionCode: "2026",
   isActive: true,
 };
@@ -20,6 +22,8 @@ const catalogue = {
       code: "U1",
       arabicTitle: "وحدة الاختبار",
       englishTitle: "Test unit",
+      source: "PearsonOfficial",
+      arabicTitleSource: "BetccoLocalized",
       isActive: true,
       aims: [
         {
@@ -142,10 +146,15 @@ describe("AcademicCatalogue", () => {
       );
       renderCatalogue(locale);
       expect(
-        await screen.findByText(
-          locale === "ar" ? /وحدة الاختبار/ : /Test unit/,
-        ),
+        await screen.findByRole("heading", {
+          name:
+            locale === "ar"
+              ? "الوحدة U1 — وحدة الاختبار"
+              : "Unit U1 — Test unit",
+        }),
       ).toBeVisible();
+      expect(screen.getByText("English: Test unit")).toBeVisible();
+      expect(screen.getByText("العربية: وحدة الاختبار")).toBeVisible();
       expect(screen.getByText("A.P1")).toBeVisible();
       expect(
         screen.getByText(

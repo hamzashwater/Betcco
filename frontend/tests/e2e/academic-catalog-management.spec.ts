@@ -12,6 +12,7 @@ for (const scenario of [
     const pageErrors: string[] = [];
     page.on("pageerror", (error) => pageErrors.push(error.message));
     let postedSpecialization: Record<string, unknown> | undefined;
+    let postedArabicLocalization: Record<string, unknown> | undefined;
     await page.route("**/api/v1/**", (route) => {
       const path = new URL(route.request().url()).pathname;
       const json = (value: unknown) => route.fulfill({ json: value });
@@ -19,11 +20,19 @@ for (const scenario of [
         return json({ id: "admin-1", roles: ["Admin"], displayName: "Admin" });
       if (path.endsWith("/security/antiforgery"))
         return json({ token: "test-token" });
+      if (path.endsWith("/academic-records/units/unit-1/arabic-localization")) {
+        postedArabicLocalization = route.request().postDataJSON();
+        return route.fulfill({ status: 204 });
+      }
       if (path.endsWith("/academic-catalogue/versions"))
         return json([
           {
             id: "version-1",
             qualificationCode: "BTEC-L3-IT",
+            qualificationArabicName:
+              "مؤهل بيرسون BTEC الدولي للمستوى الثالث في تكنولوجيا المعلومات",
+            qualificationEnglishName:
+              "Pearson BTEC International Level 3 Information Technology",
             versionCode: "ISSUE-4",
             isActive: true,
           },
@@ -33,6 +42,10 @@ for (const scenario of [
           version: {
             id: "version-1",
             qualificationCode: "BTEC-L3-IT",
+            qualificationArabicName:
+              "مؤهل بيرسون BTEC الدولي للمستوى الثالث في تكنولوجيا المعلومات",
+            qualificationEnglishName:
+              "Pearson BTEC International Level 3 Information Technology",
             versionCode: "ISSUE-4",
             isActive: true,
           },
@@ -40,9 +53,10 @@ for (const scenario of [
             {
               id: "unit-1",
               code: "6",
-              arabicTitle: "Website Development",
+              arabicTitle: "تطوير المواقع الإلكترونية",
               englishTitle: "Website Development",
               source: "PearsonOfficial",
+              arabicTitleSource: "BetccoLocalized",
               isActive: true,
               aims: [],
               definitions: [],
@@ -99,7 +113,29 @@ for (const scenario of [
 
     await page.goto(`/${scenario.locale}/admin/academic-catalogue`);
     await expect(page.getByText("PearsonOfficial").first()).toBeVisible();
-    await expect(page.getByText(/Website Development/).first()).toBeVisible();
+    await expect(
+      page.getByRole("heading", {
+        name:
+          scenario.locale === "ar"
+            ? "الوحدة 6 — تطوير المواقع الإلكترونية"
+            : "Unit 6 — Website Development",
+      }),
+    ).toBeVisible();
+    await expect(page.getByText("English: Website Development")).toBeVisible();
+    await expect(
+      page.getByText("العربية: تطوير المواقع الإلكترونية"),
+    ).toBeVisible();
+    if (scenario.locale === "en" && scenario.width === 1280) {
+      await page
+        .getByRole("textbox", { name: "BETCCO Arabic display title" })
+        .fill("تطوير مواقع الويب");
+      await page
+        .getByRole("button", { name: "Save Arabic display title" })
+        .click();
+      await expect
+        .poll(() => postedArabicLocalization?.arabicTitle)
+        .toBe("تطوير مواقع الويب");
+    }
     await page
       .getByRole("textbox", { name: "Specialization slug" })
       .fill("engineering");

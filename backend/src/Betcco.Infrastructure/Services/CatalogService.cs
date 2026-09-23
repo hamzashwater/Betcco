@@ -107,6 +107,9 @@ public sealed class CatalogService(BetccoDbContext db, IMemoryCache cache) : ICa
             course.Price, course.Currency, course.IsFree, lessons.Length, lessons.Sum(x => x.DurationSeconds) / 60, course.CoverImageKey, teacherName);
     }
 
-    private static string Localize(string locale, string arabic, string english) => locale.StartsWith("ar", StringComparison.OrdinalIgnoreCase) ? arabic : english;
+    private static string Localize(string locale, string arabic, string english) =>
+        locale.StartsWith("ar", StringComparison.OrdinalIgnoreCase)
+            ? string.IsNullOrWhiteSpace(arabic) ? english : arabic
+            : string.IsNullOrWhiteSpace(english) ? arabic : english;
     private static string Normalize(string? value) => value?.Trim().ToLowerInvariant() ?? string.Empty;
 }

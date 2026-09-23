@@ -4,8 +4,10 @@ using Microsoft.EntityFrameworkCore;
 namespace Betcco.Infrastructure.Persistence;
 
 /// <summary>
-/// Trusted, non-destructive Pearson identity import. ArabicTitle is an English display fallback,
-/// not a Pearson Arabic title. No delivery plan or grade allocation is inferred from these lists.
+/// Trusted Pearson identity import. Arabic display text comes from BETCCO localization,
+/// not Pearson. Existing English fallback values are localized without changing canonical
+/// English identity or overwriting distinct administrator-provided Arabic text.
+/// No delivery plan or grade allocation is inferred from these lists.
 /// </summary>
 public static class PearsonAcademicCatalogueSeed
 {
@@ -156,17 +158,22 @@ public static class PearsonAcademicCatalogueSeed
             if (qualification is not null && (qualification.Source != AcademicSource.PearsonOfficial
                 || qualification.EnglishName != spec.Name || qualification.SpecializationId != specialization.Id))
                 throw new InvalidOperationException($"Pearson seed conflict: {spec.Code}");
+            var arabicQualificationName = PearsonAcademicArabicLocalization.QualificationName(spec.Code);
             if (qualification is null)
             {
                 qualification = new Qualification
                 {
                     Code = spec.Code,
                     EnglishName = spec.Name,
-                    ArabicName = spec.Name,
+                    ArabicName = arabicQualificationName,
                     SpecializationId = specialization.Id,
                     Source = AcademicSource.PearsonOfficial
                 };
                 db.Qualifications.Add(qualification);
+            }
+            else if (string.IsNullOrWhiteSpace(qualification.ArabicName) || qualification.ArabicName == spec.Name)
+            {
+                qualification.ArabicName = arabicQualificationName;
             }
 
             var version = await db.QualificationVersions.SingleOrDefaultAsync(
@@ -194,10 +201,16 @@ public static class PearsonAcademicCatalogueSeed
                 .ToDictionaryAsync(x => x.Code, cancellationToken);
             foreach (var (code, title) in rows)
             {
+                var arabicTitle = PearsonAcademicArabicLocalization.UnitTitle(spec.Code, code);
+                if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(arabicTitle)
+                    || string.Equals(title, arabicTitle, StringComparison.Ordinal))
+                    throw new InvalidOperationException($"Incomplete BETCCO academic localization: {spec.Code}/{code}");
                 if (existing.TryGetValue(code, out var unit))
                 {
                     if (unit.Source != AcademicSource.PearsonOfficial || unit.EnglishTitle != title || unit.SourceReference != spec.Url)
                         throw new InvalidOperationException($"Pearson seed conflict: {spec.Code}/{code}");
+                    if (string.IsNullOrWhiteSpace(unit.ArabicTitle) || unit.ArabicTitle == title)
+                        unit.ArabicTitle = arabicTitle;
                     continue;
                 }
                 db.UnitDefinitions.Add(new UnitDefinition
@@ -205,7 +218,7 @@ public static class PearsonAcademicCatalogueSeed
                     QualificationVersionId = version.Id,
                     Code = code,
                     EnglishTitle = title,
-                    ArabicTitle = title,
+                    ArabicTitle = arabicTitle,
                     SourceReference = spec.Url,
                     Source = AcademicSource.PearsonOfficial,
                     IsActive = true,

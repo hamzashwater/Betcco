@@ -52,9 +52,9 @@ for (const scenario of [
             id: "unit-1",
             deliveryPlanEntryId: "entry-1",
             termCode: "T1",
-            code: "U1",
-            arabicTitle: "الوحدة الأولى",
-            englishTitle: "Unit one",
+            code: "1",
+            arabicTitle: "أنظمة تكنولوجيا المعلومات",
+            englishTitle: "Information Technology Systems",
             qualificationVersionId: "version-1",
             qualificationCode: "Q",
             versionCode: "2026",
@@ -92,6 +92,11 @@ for (const scenario of [
     });
     await expect(selector).toBeVisible();
     await expect(selector.locator("option[value='entry-1']")).toBeAttached();
+    await expect(selector.locator("option[value='entry-1']")).toHaveText(
+      scenario.locale === "ar"
+        ? /الوحدة 1 — أنظمة تكنولوجيا المعلومات/
+        : /Unit 1 — Information Technology Systems/,
+    );
     await selector.selectOption("entry-1");
     await page
       .getByRole("button", {
@@ -115,9 +120,9 @@ for (const scenario of [
 }
 
 for (const scenario of [
-  { locale: "en", width: 1280, title: "Canonical unit" },
-  { locale: "ar", width: 1280, title: "الوحدة المعتمدة" },
-  { locale: "en", width: 390, title: "Canonical unit" },
+  { locale: "en", width: 1280, title: "Information Technology Systems" },
+  { locale: "ar", width: 1280, title: "أنظمة تكنولوجيا المعلومات" },
+  { locale: "en", width: 390, title: "Information Technology Systems" },
 ]) {
   test(`student sees canonical unit delivery in ${scenario.locale} at ${scenario.width}px`, async ({
     page,

@@ -14,7 +14,7 @@ public sealed class AcademicCatalogueService(BetccoDbContext db) : IAcademicCata
         await db.QualificationVersions.AsNoTracking()
             .OrderBy(x => x.Qualification!.Code).ThenBy(x => x.VersionCode)
             .Select(x => new AcademicVersionView(x.Id, x.Qualification!.Code, x.VersionCode,
-                x.IsActive && x.Qualification.IsActive)).ToListAsync(cancellationToken);
+                x.IsActive && x.Qualification.IsActive, x.Qualification.ArabicName, x.Qualification.EnglishName)).ToListAsync(cancellationToken);
 
     public async Task<AcademicCatalogueView?> GetVersionAsync(Guid versionId, CancellationToken cancellationToken)
     {
@@ -67,10 +67,12 @@ public sealed class AcademicCatalogueService(BetccoDbContext db) : IAcademicCata
                     definition.CriterionMappings.Select(x => x.AssessmentCriterionDefinitionId).ToArray(), issues, scopes);
             }).ToArray();
             return new AcademicUnitView(unit.Id, unit.Code, unit.ArabicTitle, unit.EnglishTitle, unit.SourceReference,
-                unit.IsActive, aims, definitions, unit.Source.ToString());
+                unit.IsActive, aims, definitions, unit.Source.ToString(),
+                unit.Source == AcademicSource.PearsonOfficial ? "BetccoLocalized" : unit.Source.ToString());
         }).ToArray();
         return new AcademicCatalogueView(new AcademicVersionView(version.Id, version.Qualification.Code, version.VersionCode,
-            version.IsActive && version.Qualification.IsActive), units);
+            version.IsActive && version.Qualification.IsActive, version.Qualification.ArabicName,
+            version.Qualification.EnglishName), units);
     }
 
     public async Task<Guid> SaveUnitAsync(Guid? id, SaveAcademicUnit command, string actorId, CancellationToken cancellationToken)

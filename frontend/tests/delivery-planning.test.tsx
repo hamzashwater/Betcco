@@ -25,6 +25,8 @@ const term = {
 const version = {
   id: "version-1",
   qualificationCode: "BTEC-L3-IT",
+  qualificationArabicName: "بيرسون بيتيك المستوى الثالث في تكنولوجيا المعلومات",
+  qualificationEnglishName: "Pearson BTEC Level 3 Information Technology",
   versionCode: "2026",
   isActive: true,
 };
@@ -41,9 +43,9 @@ const summary = {
 const entry = {
   id: "entry-1",
   unitDefinitionId: "unit-1",
-  unitCode: "U1",
-  unitArabicTitle: "الوحدة الأولى",
-  unitEnglishTitle: "Unit one",
+  unitCode: "1",
+  unitArabicTitle: "أنظمة تكنولوجيا المعلومات",
+  unitEnglishTitle: "Information Technology Systems",
   academicTermId: term.id,
   termCode: term.code,
   sortOrder: 10,
@@ -118,9 +120,16 @@ describe("DeliveryPlanning", () => {
               page([
                 {
                   id: "unit-1",
-                  code: "U1",
-                  arabicTitle: "الوحدة الأولى",
-                  englishTitle: "Unit one",
+                  code: "1",
+                  arabicTitle: "أنظمة تكنولوجيا المعلومات",
+                  englishTitle: "Information Technology Systems",
+                  isActive: true,
+                },
+                {
+                  id: "unit-2",
+                  code: "2",
+                  arabicTitle: "إنشاء الأنظمة لإدارة المعلومات",
+                  englishTitle: "Creating Systems to Manage Information",
                   isActive: true,
                 },
               ]),
@@ -145,12 +154,22 @@ describe("DeliveryPlanning", () => {
       ).toBeVisible();
       expect(await screen.findByText("AY-FLEX")).toBeVisible();
       expect(await screen.findByText(/BLOCK-A/)).toBeVisible();
+      const localizedUnit =
+        locale === "ar"
+          ? "الوحدة 1 — أنظمة تكنولوجيا المعلومات"
+          : "Unit 1 — Information Technology Systems";
+      expect(await screen.findByText(new RegExp(localizedUnit))).toBeVisible();
       expect(
-        await screen.findByText(locale === "ar" ? /الوحدة الأولى/ : /Unit one/),
-      ).toBeVisible();
+        screen.getByRole("option", {
+          name:
+            locale === "ar"
+              ? "الوحدة 2 — إنشاء الأنظمة لإدارة المعلومات"
+              : "Unit 2 — Creating Systems to Manage Information",
+        }),
+      ).toHaveValue("unit-2");
       expect(
         screen.getByRole("button", {
-          name: locale === "ar" ? "نقل U1 إلى أعلى" : "Move U1 up",
+          name: locale === "ar" ? "نقل 1 إلى أعلى" : "Move 1 up",
         }),
       ).toBeDisabled();
     },

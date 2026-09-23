@@ -124,7 +124,8 @@ public sealed partial class DeliveryPlanningService(BetccoDbContext db) : IDeliv
         return new(await query.Skip((page - 1) * pageSize).Take(pageSize).Select(x => new DeliveryPlanningQualificationVersionView(
             x.Id, x.Qualification!.Code, x.VersionCode, x.IsActive && x.Qualification.IsActive,
             x.Qualification.SpecializationId, x.Qualification.Specialization != null ? x.Qualification.Specialization.EnglishName : null,
-            x.Qualification.Specialization != null ? x.Qualification.Specialization.ArabicName : null)).ToArrayAsync(cancellationToken),
+            x.Qualification.Specialization != null ? x.Qualification.Specialization.ArabicName : null,
+            x.Qualification.EnglishName, x.Qualification.ArabicName)).ToArrayAsync(cancellationToken),
             page, pageSize, await query.CountAsync(cancellationToken));
     }
 
@@ -151,7 +152,8 @@ public sealed partial class DeliveryPlanningService(BetccoDbContext db) : IDeliv
                 x.GradeId, x.Grade != null ? x.Grade.EnglishName : null, x.Grade != null ? x.Grade.ArabicName : null,
                 x.QualificationVersion.Qualification.SpecializationId,
                 x.QualificationVersion.Qualification.Specialization != null ? x.QualificationVersion.Qualification.Specialization.EnglishName : null,
-                x.QualificationVersion.Qualification.Specialization != null ? x.QualificationVersion.Qualification.Specialization.ArabicName : null)).ToArrayAsync(cancellationToken),
+                x.QualificationVersion.Qualification.Specialization != null ? x.QualificationVersion.Qualification.Specialization.ArabicName : null,
+                x.QualificationVersion.Qualification.EnglishName, x.QualificationVersion.Qualification.ArabicName)).ToArrayAsync(cancellationToken),
             page, pageSize, await query.CountAsync(cancellationToken));
     }
 
@@ -309,7 +311,9 @@ public sealed partial class DeliveryPlanningService(BetccoDbContext db) : IDeliv
         plan.GradeId, plan.Grade?.EnglishName, plan.Grade?.ArabicName,
         plan.QualificationVersion.Qualification.SpecializationId,
         plan.QualificationVersion.Qualification.Specialization?.EnglishName,
-        plan.QualificationVersion.Qualification.Specialization?.ArabicName);
+        plan.QualificationVersion.Qualification.Specialization?.ArabicName,
+        plan.QualificationVersion.Qualification.EnglishName,
+        plan.QualificationVersion.Qualification.ArabicName);
     private static AcademicYearView YearView(AcademicYear year) => new(year.Id, year.Code, year.StartDate, year.EndDate, year.IsActive);
     private static AcademicTermView TermView(AcademicTerm term) => new(term.Id, term.AcademicYearId, term.Code, term.StartDate, term.EndDate, term.SortOrder, term.IsActive);
 

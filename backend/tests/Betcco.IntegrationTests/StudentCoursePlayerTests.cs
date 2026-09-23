@@ -3,6 +3,7 @@ using Betcco.Api.Controllers;
 using Betcco.Application.Common;
 using Betcco.Application.Learning;
 using Betcco.Domain.Common;
+using Betcco.Domain.Evaluations;
 using Betcco.Domain.Learning;
 using Betcco.Infrastructure.Persistence;
 using Betcco.Infrastructure.Services;
@@ -15,6 +16,36 @@ namespace Betcco.IntegrationTests;
 
 public sealed class StudentCoursePlayerTests
 {
+    [Fact]
+    public async Task Canonical_unit_changes_display_language_without_changing_identity_or_progress()
+    {
+        await using var fixture = await PlayerFixture.CreateAsync();
+        var qualification = new Qualification { Code = "TEST", ArabicName = "مؤهل", EnglishName = "Qualification" };
+        var version = new QualificationVersion { QualificationId = qualification.Id, VersionCode = "V1", SourceReference = "Test specification" };
+        var unit = new UnitDefinition
+        {
+            QualificationVersionId = version.Id,
+            Code = "6",
+            ArabicTitle = "تطوير المواقع الإلكترونية",
+            EnglishTitle = "Website Development"
+        };
+        var module = Assert.Single(fixture.Course.Modules);
+        module.UnitDefinitionId = unit.Id;
+        fixture.Db.AddRange(qualification, version, unit);
+        await fixture.Db.SaveChangesAsync();
+
+        var arabic = Assert.IsType<StudentCoursePlayerResult>(
+            await fixture.Service.GetAsync(PlayerFixture.StudentId, fixture.Course.Id, "ar", null));
+        var english = Assert.IsType<StudentCoursePlayerResult>(
+            await fixture.Service.GetAsync(PlayerFixture.StudentId, fixture.Course.Id, "en", null));
+        Assert.Equal("تطوير المواقع الإلكترونية", Assert.Single(arabic.Modules).Title);
+        Assert.Equal("Website Development", Assert.Single(english.Modules).Title);
+        Assert.Equal(Assert.Single(arabic.Modules).Id, Assert.Single(english.Modules).Id);
+        Assert.Equal(unit.Id, (await fixture.Db.CourseModules.SingleAsync()).UnitDefinitionId);
+        Assert.Equal(arabic.ResumeLessonId, english.ResumeLessonId);
+        Assert.Equal(arabic.CurrentLessonId, english.CurrentLessonId);
+    }
+
     [Fact]
     public async Task Resume_target_and_progress_are_owned_by_the_server_and_scoped_to_the_student()
     {

@@ -57,6 +57,33 @@ public sealed class AdminAcademicStatusController(BetccoDbContext db) : Controll
         return NoContent();
     }
 
+    [HttpPut("units/{id:guid}/arabic-localization")]
+    public async Task<IActionResult> UnitArabicLocalization(Guid id, AcademicArabicLocalizationRequest request, CancellationToken cancellationToken)
+    {
+        var unit = await db.UnitDefinitions.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+        if (unit is null) return NotFound();
+        // Pearson source ownership applies to code, English identity and reference.
+        // The Arabic display field is BETCCO-localized and may be corrected by SystemAdmin.
+        var title = request.ArabicTitle?.Trim() ?? string.Empty;
+        if (unit.Source != AcademicSource.PearsonOfficial || title.Length is < 3 or > 256
+            || title == unit.EnglishTitle || !title.Any(ch => ch is >= '\u0621' and <= '\u064A'))
+            return BadRequest(new ProblemDetails { Status = 400, Title = "Invalid BETCCO Arabic localization" });
+        if (unit.ArabicTitle == title) return NoContent();
+        var previousTitle = unit.ArabicTitle;
+        unit.ArabicTitle = title;
+        db.AuditLogs.Add(new AuditLog
+        {
+            ActorUserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+            Action = "OfficialUnitArabicLocalizationChanged",
+            EntityType = nameof(UnitDefinition),
+            EntityId = unit.Id.ToString(),
+            Outcome = "Success",
+            MetadataJson = JsonSerializer.Serialize(new { previousTitle, arabicTitle = title })
+        });
+        await db.SaveChangesAsync(cancellationToken);
+        return NoContent();
+    }
+
     private void Audit(string action, Guid id, bool isActive) => db.AuditLogs.Add(new AuditLog
     {
         ActorUserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
@@ -74,3 +101,4 @@ public sealed class AdminAcademicStatusController(BetccoDbContext db) : Controll
 }
 
 public sealed record AcademicRecordStatusRequest(bool IsActive);
+public sealed record AcademicArabicLocalizationRequest(string ArabicTitle);

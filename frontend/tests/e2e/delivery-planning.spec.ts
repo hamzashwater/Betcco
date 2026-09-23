@@ -88,6 +88,10 @@ for (const scenario of [
             {
               id: "version-1",
               qualificationCode: "BTEC-L3-IT",
+              qualificationArabicName:
+                "بيرسون بيتيك المستوى الثالث في تكنولوجيا المعلومات",
+              qualificationEnglishName:
+                "Pearson BTEC Level 3 Information Technology",
               versionCode: "2026",
               isActive: true,
               specializationId: "spec-1",
@@ -97,6 +101,10 @@ for (const scenario of [
             {
               id: "version-2",
               qualificationCode: "BTEC-L2-IT",
+              qualificationArabicName:
+                "بيرسون بيتيك المستوى الثاني في تكنولوجيا المعلومات",
+              qualificationEnglishName:
+                "Pearson BTEC Level 2 Information Technology",
               versionCode: "ISSUE-1",
               isActive: true,
               specializationId: "spec-1",
@@ -110,9 +118,16 @@ for (const scenario of [
           json: paged([
             {
               id: "unit-1",
-              code: "U1",
-              arabicTitle: "الوحدة الأولى",
-              englishTitle: "Unit one",
+              code: "1",
+              arabicTitle: "أنظمة تكنولوجيا المعلومات",
+              englishTitle: "Information Technology Systems",
+              isActive: true,
+            },
+            {
+              id: "unit-2",
+              code: "2",
+              arabicTitle: "إنشاء الأنظمة لإدارة المعلومات",
+              englishTitle: "Creating Systems to Manage Information",
               isActive: true,
             },
           ]),
@@ -124,6 +139,10 @@ for (const scenario of [
               id: "plan-1",
               qualificationVersionId: "version-1",
               qualificationCode: "BTEC-L3-IT",
+              qualificationArabicName:
+                "بيرسون بيتيك المستوى الثالث في تكنولوجيا المعلومات",
+              qualificationEnglishName:
+                "Pearson BTEC Level 3 Information Technology",
               qualificationVersionCode: "2026",
               academicYearId: "year-1",
               academicYearCode: "AY-FLEX",
@@ -137,9 +156,9 @@ for (const scenario of [
               {
                 id: "entry-1",
                 unitDefinitionId: "unit-1",
-                unitCode: "U1",
-                unitArabicTitle: "الوحدة الأولى",
-                unitEnglishTitle: "Unit one",
+                unitCode: "1",
+                unitArabicTitle: "أنظمة تكنولوجيا المعلومات",
+                unitEnglishTitle: "Information Technology Systems",
                 academicTermId: "term-1",
                 termCode: "BLOCK-A",
                 sortOrder: 10,
@@ -158,6 +177,10 @@ for (const scenario of [
               id: "plan-1",
               qualificationVersionId: "version-1",
               qualificationCode: "BTEC-L3-IT",
+              qualificationArabicName:
+                "بيرسون بيتيك المستوى الثالث في تكنولوجيا المعلومات",
+              qualificationEnglishName:
+                "Pearson BTEC Level 3 Information Technology",
               qualificationVersionCode: "2026",
               academicYearId: "year-1",
               academicYearCode: "AY-FLEX",
@@ -183,8 +206,26 @@ for (const scenario of [
     ).toBeVisible();
     await expect(page.getByText("AY-FLEX").first()).toBeVisible();
     await expect(
-      page.getByText(scenario.locale === "ar" ? /الوحدة الأولى/ : /Unit one/),
+      page.getByText(
+        scenario.locale === "ar"
+          ? /الوحدة 1 — أنظمة تكنولوجيا المعلومات/
+          : /Unit 1 — Information Technology Systems/,
+      ),
     ).toBeVisible();
+    await expect(
+      page
+        .getByRole("combobox", {
+          name:
+            scenario.locale === "ar"
+              ? "وحدة BTEC القانونية"
+              : "Canonical BTEC Unit",
+        })
+        .locator("option[value='unit-2']"),
+    ).toHaveText(
+      scenario.locale === "ar"
+        ? "الوحدة 2 — إنشاء الأنظمة لإدارة المعلومات"
+        : "Unit 2 — Creating Systems to Manage Information",
+    );
     if (scenario.locale === "en" && scenario.width === 1280) {
       await page
         .getByRole("combobox", { name: "Qualification version" })

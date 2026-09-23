@@ -2,10 +2,12 @@ using Betcco.Domain.Common;
 
 namespace Betcco.Application.Evaluations;
 
-public sealed record AcademicVersionView(Guid Id, string QualificationCode, string VersionCode, bool IsActive);
+public sealed record AcademicVersionView(Guid Id, string QualificationCode, string VersionCode, bool IsActive,
+    string? QualificationArabicName = null, string? QualificationEnglishName = null);
 public sealed record AcademicCatalogueView(AcademicVersionView Version, IReadOnlyList<AcademicUnitView> Units);
 public sealed record AcademicUnitView(Guid Id, string Code, string ArabicTitle, string EnglishTitle, string? SourceReference, bool IsActive,
-    IReadOnlyList<AcademicAimView> Aims, IReadOnlyList<AcademicDefinitionView> Definitions, string Source = "Unknown");
+    IReadOnlyList<AcademicAimView> Aims, IReadOnlyList<AcademicDefinitionView> Definitions, string Source = "Unknown",
+    string ArabicTitleSource = "Unknown");
 public sealed record AcademicAimView(Guid Id, string Code, string ArabicTitle, string EnglishTitle, string ArabicDescription, string EnglishDescription,
     string SourceReference, int SortOrder, IReadOnlyList<AcademicCriterionView> Criteria);
 public sealed record AcademicCriterionView(Guid Id, string Code, string Band, string ArabicDescription, string EnglishDescription,

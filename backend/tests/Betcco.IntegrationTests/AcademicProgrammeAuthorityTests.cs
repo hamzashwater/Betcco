@@ -15,26 +15,35 @@ namespace Betcco.IntegrationTests;
 public sealed class AcademicProgrammeAuthorityTests
 {
     [Fact]
-    public async Task Admin_can_create_and_archive_a_custom_specialization()
+    public async Task Clean_seed_adds_only_it_and_business_and_admin_can_create_future_specializations()
     {
         await using var db = Context();
         var track = BtecTrack();
         db.LearningTracks.Add(track);
         await db.SaveChangesAsync();
+        await DatabaseInitializer.EnsureSchoolTaxonomyAsync(db);
+        Assert.Equal(["business", "information-technology"],
+            await db.Specializations.OrderBy(x => x.Slug).Select(x => x.Slug).ToArrayAsync());
+        Assert.False(await db.Specializations.AnyAsync(x => x.Slug == "engineering"));
         var controller = new AdminAcademicTaxonomyController(db)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
         controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
             [new Claim(ClaimTypes.NameIdentifier, "admin")], "test"));
+        var engineering = new SaveAcademicTaxonomyRequest(track.Id, "engineering", "الهندسة", "Engineering", 3);
+        Assert.IsType<CreatedResult>(await controller.CreateSpecialization(engineering, default));
         var request = new SaveAcademicTaxonomyRequest(track.Id, "hospitality", "الضيافة", "Hospitality", 10);
         Assert.IsType<CreatedResult>(await controller.CreateSpecialization(request, default));
-        var item = await db.Specializations.SingleAsync();
+        var item = await db.Specializations.SingleAsync(x => x.Slug == "hospitality");
         Assert.Equal("hospitality", item.Slug);
         Assert.IsType<BadRequestObjectResult>(await controller.CreateSpecialization(request, default));
         Assert.IsType<NoContentResult>(await controller.UpdateSpecialization(item.Id,
             request with { IsVisible = false }, default));
-        Assert.False((await db.Specializations.SingleAsync()).IsVisible);
+        await DatabaseInitializer.EnsureSchoolTaxonomyAsync(db);
+        Assert.False((await db.Specializations.SingleAsync(x => x.Slug == "hospitality")).IsVisible);
+        Assert.True(await db.Specializations.AnyAsync(x => x.Slug == "engineering"));
+        Assert.Equal(4, await db.Specializations.CountAsync());
     }
 
     [Fact]
@@ -52,9 +61,47 @@ public sealed class AcademicProgrammeAuthorityTests
         Assert.Equal(4, await db.Qualifications.CountAsync());
         Assert.Equal(4, await db.QualificationVersions.CountAsync());
         Assert.Equal(101, await db.UnitDefinitions.CountAsync());
-        Assert.All(await db.UnitDefinitions.ToArrayAsync(), x => Assert.Equal(AcademicSource.PearsonOfficial, x.Source));
+        Assert.All(await db.Qualifications.ToArrayAsync(), x =>
+        {
+            Assert.False(string.IsNullOrWhiteSpace(x.ArabicName));
+            Assert.NotEqual(x.EnglishName, x.ArabicName);
+        });
+        Assert.All(await db.UnitDefinitions.ToArrayAsync(), x =>
+        {
+            Assert.Equal(AcademicSource.PearsonOfficial, x.Source);
+            Assert.False(string.IsNullOrWhiteSpace(x.EnglishTitle));
+            Assert.False(string.IsNullOrWhiteSpace(x.ArabicTitle));
+            Assert.NotEqual(x.EnglishTitle, x.ArabicTitle);
+            Assert.Contains(x.ArabicTitle, ch => ch is >= '\u0621' and <= '\u064A');
+        });
         var unit = await db.UnitDefinitions.SingleAsync(x => x.Code == "6" && x.QualificationVersion!.Qualification!.Code == "BTEC-INT-L3-IT");
         Assert.Equal("Website Development", unit.EnglishTitle);
+        Assert.Equal("تطوير المواقع الإلكترونية", unit.ArabicTitle);
+        var originalSource = unit.SourceReference;
+        var untouchedUnit = await db.UnitDefinitions.SingleAsync(x => x.Code == "7" && x.QualificationVersionId == unit.QualificationVersionId);
+        untouchedUnit.ArabicTitle = "صياغة عربية راجعها المسؤول";
+        unit.ArabicTitle = unit.EnglishTitle; // Previous Slice's English fallback.
+        await db.SaveChangesAsync();
+        await PearsonAcademicCatalogueSeed.ApplyAsync(db);
+        Assert.Equal("تطوير المواقع الإلكترونية", unit.ArabicTitle);
+        Assert.Equal("صياغة عربية راجعها المسؤول", untouchedUnit.ArabicTitle);
+        Assert.Equal(101, await db.UnitDefinitions.CountAsync());
+        var controller = new AdminAcademicStatusController(db)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+        controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim(ClaimTypes.NameIdentifier, "admin")], "test"));
+        Assert.IsType<BadRequestObjectResult>(await controller.UnitArabicLocalization(unit.Id,
+            new AcademicArabicLocalizationRequest(unit.EnglishTitle), default));
+        Assert.IsType<NoContentResult>(await controller.UnitArabicLocalization(unit.Id,
+            new AcademicArabicLocalizationRequest("تطوير مواقع الإنترنت"), default));
+        await PearsonAcademicCatalogueSeed.ApplyAsync(db);
+        Assert.Equal("تطوير مواقع الإنترنت", unit.ArabicTitle);
+        Assert.Equal("Website Development", unit.EnglishTitle);
+        Assert.Equal("6", unit.Code);
+        Assert.Equal(originalSource, unit.SourceReference);
+        Assert.Equal(101, await db.UnitDefinitions.CountAsync());
         await Assert.ThrowsAsync<AcademicCatalogueException>(() => new AcademicCatalogueService(db).SaveUnitAsync(unit.Id,
             new(unit.QualificationVersionId, unit.Code, "اسم آخر", "Arbitrary name", "Unverified"), "admin", default));
         await Assert.ThrowsAsync<AcademicCatalogueException>(() => new AcademicCatalogueService(db).SaveUnitAsync(null,

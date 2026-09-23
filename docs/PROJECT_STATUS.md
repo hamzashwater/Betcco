@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- Last updated: 2026-09-23
+- Last updated: 2026-09-24
 - Verified implementation baseline SHA: `641ab55f695a87d380a59c288fbbc3fcc1bbd184`
 - Status verified against origin/main: `641ab55f695a87d380a59c288fbbc3fcc1bbd184`
 - Local branch: `feature/academic-catalog-programme-planning` (ASUS; not pushed)
@@ -13,13 +13,15 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 ## Current Local Feature
 
 - Task: Pearson academic catalogue authority and Admin programme planning — Slice 1.
-- Status: Local implementation and validation complete; remote CI pending user-managed push. This branch has no PR and is not merged into `main`.
+- Status: Local implementation, bilingual catalogue follow-up, and validation complete; remote CI pending user-managed push. This branch has no PR and is not merged into `main`.
 - Design: Trusted seed imports 101 exact Unit numbers and English titles from four Pearson BTEC International Level 2/3 IT and Business specifications, with `PearsonOfficial` provenance and source URLs. New Admin records are `AdminCustom`; activating a custom Unit publishes and locks its identity. Pearson academic identity is immutable through Admin authoring. Existing `Specialization` is reused, and new qualifications require a valid BTEC specialization. Admin can manage specializations and grades without startup seed resetting those edits.
+- Initial taxonomy seed creates only Information Technology and Business specializations. Engineering, Hospitality, and future sectors are SystemAdmin-creatable; previously created Engineering rows are retained. The 101 supported Pearson Units now have distinct English canonical and BETCCO-localized Arabic titles. The Arabic wording is platform localization, not a claim of official Pearson Arabic publication. The seed replaces only blank or English-copied Arabic placeholders and preserves distinct administrator-edited Arabic titles, Unit IDs, codes, English titles, and source references.
+- Localization: catalogue and planning APIs expose persisted Arabic and English qualification/Unit names, while locale-aware API services select the student-facing language. Admin and Teacher UI selectors choose from those API fields. The Admin catalogue shows both Unit titles and allows SystemAdmin to correct the BETCCO Arabic display title without changing Pearson English identity. Missing translations use a controlled opposite-language fallback.
 - Planning: `DeliveryPlan` now binds qualification version, academic year, and grade, with specialization derived from the qualification. Grade-scoped uniqueness is `(QualificationVersionId, AcademicYearId, GradeId)`; legacy null-grade plans retain their former version/year uniqueness. Entries retain term binding and ordering; mapped entries cannot be removed or moved while course modules reference them. No grade/term distribution is seeded.
 - Teacher authoring: new BTEC drafts require an active Admin plan; grade, specialization, and qualification version are derived or checked on the server. New BTEC `CourseModule` rows require a plan entry; canonical Unit code/title and term come from that entry. Non-BTEC modules remain free form. Legacy BTEC courses and their existing modules remain readable, and existing explicit reconciliation is limited to legacy courses.
 - Legacy data: nullable links and `Unknown` source preserve historical qualifications, plans, courses, modules, lessons, progress, enrollments, assignments, submissions, and gradebook data. No title-based mapping or destructive backfill occurs.
 - Migration: `20260923183826_AddAcademicProgrammeAuthority` adds source and nullable specialization/grade/plan/entry bindings, restrictive foreign keys, and filtered unique indexes. Its Up path is additive; rollback drops the new columns and would discard values created after this migration, so rollback requires separate data planning.
-- Local validation: focused backend integration/regression tests 27/27 (including full empty PostgreSQL migration chain and EF pending-model check), backend unit tests 34/34, frontend Vitest 123/123, Release build, .NET format, frontend typecheck/lint/Prettier and Next.js production build passed. Mocked-API browser checks covered Admin catalogue/planning, Teacher plan and Unit selection, English desktop, Arabic RTL, and 390px mobile with no page errors or horizontal overflow. They did not exercise a live authenticated backend.
+- Local validation: the original Slice passed focused backend integration/regression tests 27/27 (including full empty PostgreSQL migration chain and EF pending-model check) and backend unit tests 34/34. This follow-up passed 36/36 affected backend integration tests including PostgreSQL, frontend Vitest 123/123, Release build, .NET format verification, frontend typecheck/lint/Prettier, and Next.js production build. Mocked-API browser checks passed 12/12 for Admin catalogue/planning, Teacher and Student Units, English desktop, Arabic RTL, and 390px mobile with no page errors or horizontal overflow. They did not exercise a live authenticated backend.
 - Deferred: production migration and smoke verification, manual reconciliation of ambiguous historical modules, user-managed PR/remote CI/review/merge, and any later physical cleanup of legacy columns.
 
 ## Recent Merged Tasks

@@ -1,6 +1,7 @@
 "use client";
 
 import { api, ApiError } from "@/lib/api";
+import { academicText, academicUnitLabel } from "@/lib/academic-localization";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { type FormEvent, type ReactNode, useMemo, useState } from "react";
@@ -30,6 +31,8 @@ type Version = {
   specializationId?: string;
   specializationEnglishName?: string;
   specializationArabicName?: string;
+  qualificationEnglishName?: string;
+  qualificationArabicName?: string;
 };
 type Grade = {
   id: string;
@@ -64,6 +67,8 @@ type PlanSummary = {
   gradeArabicName?: string;
   specializationEnglishName?: string;
   specializationArabicName?: string;
+  qualificationEnglishName?: string;
+  qualificationArabicName?: string;
 };
 type PlanEntry = {
   id: string;
@@ -652,7 +657,7 @@ export function DeliveryPlanning() {
           <div className="mt-4 flex min-w-0 flex-col gap-3 sm:flex-row sm:items-end">
             <Field label={t("qualificationVersion")}>
               <select
-                className="input"
+                className="input min-w-0 max-w-full"
                 value={versionId}
                 onChange={(e) => {
                   setVersionId(e.target.value);
@@ -666,7 +671,13 @@ export function DeliveryPlanning() {
                   )
                   .map((item) => (
                     <option key={item.id} value={item.id}>
-                      {item.qualificationCode} · {item.versionCode}
+                      {item.qualificationCode} ·{" "}
+                      {academicText(
+                        locale,
+                        item.qualificationArabicName,
+                        item.qualificationEnglishName,
+                      ) || item.qualificationCode}{" "}
+                      · {item.versionCode}
                     </option>
                   ))}
               </select>
@@ -689,16 +700,18 @@ export function DeliveryPlanning() {
                   )
                   .map((item) => (
                     <option key={item.id} value={item.id}>
-                      {locale === "ar" ? item.arabicName : item.englishName}
+                      {academicText(locale, item.arabicName, item.englishName)}
                     </option>
                   ))}
               </select>
             </Field>
             <p className="text-sm text-muted">
               {locale === "ar" ? "التخصص: " : "Specialization: "}
-              {locale === "ar"
-                ? selectedVersion?.specializationArabicName
-                : selectedVersion?.specializationEnglishName}
+              {academicText(
+                locale,
+                selectedVersion?.specializationArabicName,
+                selectedVersion?.specializationEnglishName,
+              )}
             </p>
             <button
               type="button"
@@ -741,10 +754,17 @@ export function DeliveryPlanning() {
                   className={`focus-ring min-w-0 rounded-lg border px-3 py-2 text-sm ${currentPlanId === item.id ? "border-primary bg-primary/5" : "border-border"}`}
                 >
                   <span className="break-words font-bold">
-                    {item.qualificationCode} · {item.qualificationVersionCode} ·{" "}
-                    {locale === "ar"
-                      ? item.gradeArabicName
-                      : item.gradeEnglishName}
+                    {academicText(
+                      locale,
+                      item.qualificationArabicName,
+                      item.qualificationEnglishName,
+                    ) || item.qualificationCode}{" "}
+                    · {item.qualificationVersionCode} ·{" "}
+                    {academicText(
+                      locale,
+                      item.gradeArabicName,
+                      item.gradeEnglishName,
+                    )}
                   </span>{" "}
                   <span className="text-muted">({item.entryCount})</span>
                 </button>
@@ -767,8 +787,12 @@ export function DeliveryPlanning() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h2 className="break-words text-xl font-bold">
-                    {plan.data.plan.qualificationCode} ·{" "}
-                    {plan.data.plan.qualificationVersionCode} ·{" "}
+                    {academicText(
+                      locale,
+                      plan.data.plan.qualificationArabicName,
+                      plan.data.plan.qualificationEnglishName,
+                    ) || plan.data.plan.qualificationCode}{" "}
+                    · {plan.data.plan.qualificationVersionCode} ·{" "}
                     {plan.data.plan.academicYearCode}
                   </h2>
                   <p className="mt-1 text-sm text-muted">
@@ -790,17 +814,19 @@ export function DeliveryPlanning() {
                 <div className="mt-5 grid min-w-0 gap-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_auto] sm:items-end">
                   <Field label={t("canonicalUnit")}>
                     <select
-                      className="input"
+                      className="input min-w-0 max-w-full"
                       value={unitId}
                       onChange={(e) => setUnitId(e.target.value)}
                     >
                       <option value="">{t("chooseUnit")}</option>
                       {availableUnits.map((item) => (
                         <option key={item.id} value={item.id}>
-                          {item.code} ·{" "}
-                          {locale === "ar"
-                            ? item.arabicTitle
-                            : item.englishTitle}
+                          {academicUnitLabel(
+                            locale,
+                            item.code,
+                            item.arabicTitle,
+                            item.englishTitle,
+                          )}
                         </option>
                       ))}
                     </select>
@@ -843,10 +869,13 @@ export function DeliveryPlanning() {
                       <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center">
                         <div className="min-w-0 flex-1">
                           <strong className="break-words">
-                            {index + 1}. {entry.unitCode} ·{" "}
-                            {locale === "ar"
-                              ? entry.unitArabicTitle
-                              : entry.unitEnglishTitle}
+                            {index + 1}.{" "}
+                            {academicUnitLabel(
+                              locale,
+                              entry.unitCode,
+                              entry.unitArabicTitle,
+                              entry.unitEnglishTitle,
+                            )}
                           </strong>
                         </div>
                         <label className="grid gap-1 text-sm font-semibold">

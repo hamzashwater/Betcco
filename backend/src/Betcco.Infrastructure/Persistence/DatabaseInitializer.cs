@@ -69,7 +69,7 @@ public sealed class DatabaseInitializer(
         }
 
         await db.SaveChangesAsync(cancellationToken);
-        await EnsureSchoolTaxonomyAsync(cancellationToken);
+        await EnsureSchoolTaxonomyAsync(db, cancellationToken);
         await PearsonAcademicCatalogueSeed.ApplyAsync(db, cancellationToken);
         var rubric = await db.RubricTemplates.Include(x => x.Criteria).SingleOrDefaultAsync(x => x.ArabicTitle == "معايير مهمة البرمجة", cancellationToken);
         if (rubric is null)
@@ -163,7 +163,7 @@ public sealed class DatabaseInitializer(
         return criteria;
     }
 
-    private async Task EnsureSchoolTaxonomyAsync(CancellationToken cancellationToken)
+    public static async Task EnsureSchoolTaxonomyAsync(BetccoDbContext db, CancellationToken cancellationToken = default)
     {
         var tracks = await db.LearningTracks
             .Where(x => x.Slug == "btec" || x.Slug == "academic")
@@ -171,19 +171,18 @@ public sealed class DatabaseInitializer(
 
         foreach (var track in tracks)
         {
-            await EnsureGradeAsync(track, "grade-10", "العاشر", "Grade 10", 1, cancellationToken);
-            await EnsureGradeAsync(track, "first-secondary", "الأول الثانوي", "First Secondary", 2, cancellationToken);
-            await EnsureGradeAsync(track, "tawjihi", "الثاني الثانوي (التوجيهي)", "Tawjihi", 3, cancellationToken);
+            await EnsureGradeAsync(db, track, "grade-10", "العاشر", "Grade 10", 1, cancellationToken);
+            await EnsureGradeAsync(db, track, "first-secondary", "الأول الثانوي", "First Secondary", 2, cancellationToken);
+            await EnsureGradeAsync(db, track, "tawjihi", "الثاني الثانوي (التوجيهي)", "Tawjihi", 3, cancellationToken);
 
-            await EnsureSpecializationAsync(track, "information-technology", "تكنولوجيا المعلومات (IT)", "Information Technology (IT)", "#22d3ee", 1, cancellationToken);
-            await EnsureSpecializationAsync(track, "business", "الأعمال", "Business", "#f59e0b", 2, cancellationToken);
-            await EnsureSpecializationAsync(track, "engineering", "الهندسة", "Engineering", "#f97316", 3, cancellationToken);
+            await EnsureSpecializationAsync(db, track, "information-technology", "تكنولوجيا المعلومات (IT)", "Information Technology (IT)", "#22d3ee", 1, cancellationToken);
+            await EnsureSpecializationAsync(db, track, "business", "الأعمال", "Business", "#f59e0b", 2, cancellationToken);
         }
 
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    private async Task EnsureGradeAsync(LearningTrack track, string slug, string arabicName, string englishName, int sortOrder, CancellationToken cancellationToken)
+    private static async Task EnsureGradeAsync(BetccoDbContext db, LearningTrack track, string slug, string arabicName, string englishName, int sortOrder, CancellationToken cancellationToken)
     {
         var grade = await db.Grades.SingleOrDefaultAsync(x => x.LearningTrackId == track.Id && x.Slug == slug, cancellationToken);
         if (grade is null)
@@ -195,7 +194,7 @@ public sealed class DatabaseInitializer(
         // Preserve administrator edits and archival on subsequent startups.
     }
 
-    private async Task EnsureSpecializationAsync(LearningTrack track, string slug, string arabicName, string englishName, string accentColor, int sortOrder, CancellationToken cancellationToken)
+    private static async Task EnsureSpecializationAsync(BetccoDbContext db, LearningTrack track, string slug, string arabicName, string englishName, string accentColor, int sortOrder, CancellationToken cancellationToken)
     {
         var specialization = await db.Specializations.SingleOrDefaultAsync(x => x.LearningTrackId == track.Id && x.Slug == slug, cancellationToken);
         if (specialization is null)

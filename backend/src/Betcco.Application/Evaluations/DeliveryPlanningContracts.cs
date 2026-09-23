@@ -28,7 +28,9 @@ public sealed record DeliveryPlanningQualificationVersionView(
     bool IsActive,
     Guid? SpecializationId = null,
     string? SpecializationEnglishName = null,
-    string? SpecializationArabicName = null);
+    string? SpecializationArabicName = null,
+    string? QualificationEnglishName = null,
+    string? QualificationArabicName = null);
 public sealed record DeliveryPlanningUnitView(Guid Id, string Code, string ArabicTitle, string EnglishTitle, bool IsActive);
 
 public sealed record DeliveryPlanSummaryView(
@@ -45,7 +47,9 @@ public sealed record DeliveryPlanSummaryView(
     string? GradeArabicName = null,
     Guid? SpecializationId = null,
     string? SpecializationEnglishName = null,
-    string? SpecializationArabicName = null);
+    string? SpecializationArabicName = null,
+    string? QualificationEnglishName = null,
+    string? QualificationArabicName = null);
 public sealed record DeliveryPlanEntryView(
     Guid Id,
     Guid UnitDefinitionId,

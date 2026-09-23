@@ -41,9 +41,9 @@ describe("canonical BTEC unit selection", () => {
               id: "unit-1",
               deliveryPlanEntryId: "entry-1",
               termCode: "T1",
-              code: "U1",
-              arabicTitle: "الوحدة الأولى",
-              englishTitle: "Unit one",
+              code: "1",
+              arabicTitle: "أنظمة تكنولوجيا المعلومات",
+              englishTitle: "Information Technology Systems",
               qualificationVersionId: "version-1",
               qualificationCode: "Q",
               versionCode: "2026",
@@ -73,9 +73,13 @@ describe("canonical BTEC unit selection", () => {
         name: locale === "ar" ? "إضافة الوحدة" : "Add module",
       });
       expect(add).toBeDisabled();
-      await screen.findByRole("option", {
-        name: locale === "ar" ? /الوحدة الأولى/ : /Unit one/,
+      const option = await screen.findByRole("option", {
+        name:
+          locale === "ar"
+            ? /الوحدة 1 — أنظمة تكنولوجيا المعلومات/
+            : /Unit 1 — Information Technology Systems/,
       });
+      expect(option).toHaveValue("entry-1");
       await userEvent.selectOptions(selector, "entry-1");
       await userEvent.click(add);
       await waitFor(() =>

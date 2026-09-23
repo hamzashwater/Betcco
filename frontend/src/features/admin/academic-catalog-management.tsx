@@ -1,6 +1,7 @@
 "use client";
 
 import { api } from "@/lib/api";
+import { academicText } from "@/lib/academic-localization";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
 import { useState } from "react";
@@ -106,7 +107,7 @@ export function AcademicCatalogManagement() {
         .filter((v) => v.source === "AdminCustom")
         .map((v) => ({
           id: v.id,
-          name: `${item.code} · ${v.versionCode}`,
+          name: `${academicText(locale, item.arabicName, item.englishName)} · ${v.versionCode}`,
         })),
     ) ?? [];
   const refresh = async () => {
@@ -463,7 +464,8 @@ export function AcademicCatalogManagement() {
               ?.filter((item) => item.isActive && item.source === "AdminCustom")
               .map((item) => (
                 <option key={item.id} value={item.id}>
-                  {item.code}
+                  {item.code} ·{" "}
+                  {academicText(locale, item.arabicName, item.englishName)}
                 </option>
               ))}
           </select>
@@ -595,8 +597,15 @@ export function AcademicCatalogManagement() {
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="break-words font-bold">
-                  {item.code} · {ar ? item.arabicName : item.englishName} ·{" "}
+                  {item.code} ·{" "}
+                  {academicText(locale, item.arabicName, item.englishName)} ·{" "}
                   {item.source}
+                  <span
+                    className="mt-1 block text-xs font-normal text-muted"
+                    lang={ar ? "en" : "ar"}
+                  >
+                    {ar ? item.englishName : item.arabicName}
+                  </span>
                 </span>
                 <button
                   type="button"
