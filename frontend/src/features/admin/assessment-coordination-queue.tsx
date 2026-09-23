@@ -1,7 +1,7 @@
 "use client";
 
 import { api } from "@/lib/api";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
 import { useState } from "react";
 
@@ -24,6 +24,8 @@ type CoordinationItem = {
   hasEligibleEvaluator: boolean | null;
   blockerCode:
     "AcademicMappingRequired" | "NoEligibleEvaluator" | "StateChanged" | null;
+  expectedCompletionAtUtc: string | null;
+  expectedCompletionState: "NotSet" | "OnTrack" | "Overdue";
 };
 
 type CoordinationPage = {
@@ -48,16 +50,62 @@ const statuses: { value: CoordinationStatus; en: string; ar: string }[] = [
 export function AssessmentCoordinationQueue() {
   const locale = useLocale();
   const ar = locale === "ar";
+  const queryClient = useQueryClient();
   const [status, setStatus] = useState<CoordinationStatus | "">("");
+  const [expectedState, setExpectedState] = useState<
+    "" | CoordinationItem["expectedCompletionState"]
+  >("");
   const [page, setPage] = useState(1);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [targetLocal, setTargetLocal] = useState("");
+  const [reason, setReason] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
+  const [savedId, setSavedId] = useState<string | null>(null);
   const queue = useQuery({
-    queryKey: ["assessment-coordination", status, page],
+    queryKey: ["assessment-coordination", status, expectedState, page],
     queryFn: () =>
       api<CoordinationPage>(
-        `/assessment-coordination/queue?page=${page}&pageSize=${pageSize}${status ? `&status=${status}` : ""}`,
+        `/assessment-coordination/queue?page=${page}&pageSize=${pageSize}${status ? `&status=${status}` : ""}${expectedState ? `&expectedCompletionState=${expectedState}` : ""}`,
       ),
+    refetchInterval: 60_000,
     retry: false,
   });
+
+  async function saveExpectedCompletion(id: string) {
+    const parsed = new Date(targetLocal);
+    if (
+      !Number.isFinite(parsed.getTime()) ||
+      !reason.trim() ||
+      reason.trim().length > 500
+    ) {
+      setSaveError(true);
+      return;
+    }
+    setSaving(true);
+    setSaveError(false);
+    setSavedId(null);
+    try {
+      await api<void>(`/assessment-coordination/${id}/expected-completion`, {
+        method: "PUT",
+        body: JSON.stringify({
+          expectedCompletionAtUtc: parsed.toISOString(),
+          reason: reason.trim(),
+        }),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["assessment-coordination"],
+      });
+      setEditingId(null);
+      setTargetLocal("");
+      setReason("");
+      setSavedId(id);
+    } catch {
+      setSaveError(true);
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <section
@@ -75,26 +123,48 @@ export function AssessmentCoordinationQueue() {
               : "Active request states, recorded academic context, and current assignments."}
           </p>
         </div>
-        <label className="grid gap-1 text-sm font-bold">
-          <span>{ar ? "تصفية حسب الحالة" : "Filter by status"}</span>
-          <select
-            className="focus-ring min-w-0 rounded-xl border border-border bg-surface-solid px-3 py-2 text-foreground"
-            value={status}
-            onChange={(event) => {
-              setStatus(event.target.value as CoordinationStatus | "");
-              setPage(1);
-            }}
-          >
-            <option value="">
-              {ar ? "كل الحالات النشطة" : "All active states"}
-            </option>
-            {statuses.map((option) => (
-              <option key={option.value} value={option.value}>
-                {ar ? option.ar : option.en}
+        <div className="flex flex-wrap gap-3">
+          <label className="grid gap-1 text-sm font-bold">
+            <span>{ar ? "تصفية حسب الحالة" : "Filter by status"}</span>
+            <select
+              className="focus-ring min-w-0 rounded-xl border border-border bg-surface-solid px-3 py-2 text-foreground"
+              value={status}
+              onChange={(event) => {
+                setStatus(event.target.value as CoordinationStatus | "");
+                setPage(1);
+              }}
+            >
+              <option value="">
+                {ar ? "كل الحالات النشطة" : "All active states"}
               </option>
-            ))}
-          </select>
-        </label>
+              {statuses.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {ar ? option.ar : option.en}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="grid gap-1 text-sm font-bold">
+            <span>
+              {ar ? "تصفية حسب موعد الإنجاز" : "Filter by completion target"}
+            </span>
+            <select
+              className="focus-ring min-w-0 rounded-xl border border-border bg-surface-solid px-3 py-2 text-foreground"
+              value={expectedState}
+              onChange={(event) => {
+                setExpectedState(event.target.value as typeof expectedState);
+                setPage(1);
+              }}
+            >
+              <option value="">
+                {ar ? "كل مواعيد الإنجاز" : "All completion targets"}
+              </option>
+              <option value="NotSet">{ar ? "غير محدد" : "Not set"}</option>
+              <option value="OnTrack">{ar ? "ضمن الموعد" : "On track"}</option>
+              <option value="Overdue">{ar ? "متأخر" : "Overdue"}</option>
+            </select>
+          </label>
+        </div>
       </div>
 
       {queue.isPending ? (
@@ -181,6 +251,107 @@ export function AssessmentCoordinationQueue() {
                       ar ? "ar-JO" : "en-GB",
                     )}
                   </p>
+                  <p
+                    className={`mt-3 text-sm font-semibold ${item.expectedCompletionState === "Overdue" ? "text-red-700" : "text-muted"}`}
+                    role={
+                      item.expectedCompletionState === "Overdue"
+                        ? "status"
+                        : undefined
+                    }
+                  >
+                    {item.expectedCompletionState === "Overdue"
+                      ? ar
+                        ? "متأخر"
+                        : "Overdue"
+                      : item.expectedCompletionState === "OnTrack"
+                        ? ar
+                          ? "ضمن الموعد"
+                          : "On track"
+                        : ar
+                          ? "موعد الإنجاز غير محدد"
+                          : "Completion target not set"}
+                    {item.expectedCompletionAtUtc
+                      ? ` · ${new Date(item.expectedCompletionAtUtc).toLocaleString(ar ? "ar-JO" : "en-GB")}`
+                      : ""}
+                  </p>
+                  <button
+                    type="button"
+                    className="focus-ring mt-3 rounded-xl border border-border px-3 py-2 text-sm font-bold"
+                    onClick={() => {
+                      setEditingId(editingId === item.id ? null : item.id);
+                      setTargetLocal("");
+                      setReason("");
+                      setSaveError(false);
+                    }}
+                  >
+                    {item.expectedCompletionAtUtc
+                      ? ar
+                        ? "تعديل موعد الإنجاز"
+                        : "Revise completion target"
+                      : ar
+                        ? "تحديد موعد الإنجاز"
+                        : "Set completion target"}
+                  </button>
+                  {savedId === item.id && (
+                    <p className="mt-2 text-sm text-green-700" role="status">
+                      {ar ? "تم حفظ موعد الإنجاز." : "Completion target saved."}
+                    </p>
+                  )}
+                  {editingId === item.id && (
+                    <form
+                      className="mt-3 grid max-w-lg gap-3"
+                      onSubmit={(event) => {
+                        event.preventDefault();
+                        void saveExpectedCompletion(item.id);
+                      }}
+                    >
+                      <label className="grid gap-1 text-sm font-bold">
+                        <span>
+                          {ar ? "موعد الإنجاز المتوقع" : "Expected completion"}
+                        </span>
+                        <input
+                          className="focus-ring min-w-0 rounded-xl border border-border bg-surface-solid px-3 py-2"
+                          type="datetime-local"
+                          required
+                          value={targetLocal}
+                          onChange={(event) =>
+                            setTargetLocal(event.target.value)
+                          }
+                        />
+                      </label>
+                      <label className="grid gap-1 text-sm font-bold">
+                        <span>{ar ? "سبب داخلي" : "Internal reason"}</span>
+                        <textarea
+                          className="focus-ring min-w-0 rounded-xl border border-border bg-surface-solid px-3 py-2"
+                          required
+                          maxLength={500}
+                          rows={3}
+                          value={reason}
+                          onChange={(event) => setReason(event.target.value)}
+                        />
+                      </label>
+                      {saveError && (
+                        <p className="text-sm text-red-700" role="alert">
+                          {ar
+                            ? "تعذر حفظ الموعد. تحقق من الوقت والسبب ثم حاول مجددًا."
+                            : "Could not save the target. Check the time and reason, then try again."}
+                        </p>
+                      )}
+                      <button
+                        type="submit"
+                        disabled={saving}
+                        className="focus-ring w-fit rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
+                      >
+                        {saving
+                          ? ar
+                            ? "جارٍ الحفظ…"
+                            : "Saving…"
+                          : ar
+                            ? "حفظ الموعد"
+                            : "Save target"}
+                      </button>
+                    </form>
+                  )}
                   {item.hasEligibleEvaluator &&
                     item.status === "PendingAssignment" && (
                       <p className="mt-3 text-sm text-green-700" role="status">
