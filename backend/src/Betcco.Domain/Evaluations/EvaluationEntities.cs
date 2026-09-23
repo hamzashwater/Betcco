@@ -93,8 +93,24 @@ public sealed class EvaluationRequest : Entity
     public ICollection<EvaluationAppeal> Appeals { get; } = new List<EvaluationAppeal>();
     public ICollection<AuthenticityDeclaration> AuthenticityDeclarations { get; } = new List<AuthenticityDeclaration>();
     public ICollection<AssessmentAuditEvent> AssessmentAuditEvents { get; } = new List<AssessmentAuditEvent>();
+    public ICollection<EvaluationExpectedCompletionRevision> ExpectedCompletionRevisions { get; } = new List<EvaluationExpectedCompletionRevision>();
     public ICollection<ResubmissionAuthorization> ResubmissionAuthorizations { get; } = new List<ResubmissionAuthorization>();
     public RetakeAuthorization? RetakeAuthorization { get; set; }
+}
+
+/// <summary>
+/// Staff-only operational target history. Each revision is an independent,
+/// immutable record; it is not a learner submission or resubmission deadline.
+/// </summary>
+public sealed class EvaluationExpectedCompletionRevision : Entity
+{
+    public Guid EvaluationRequestId { get; set; }
+    public EvaluationRequest? EvaluationRequest { get; set; }
+    public int RevisionNumber { get; set; }
+    public DateTimeOffset ExpectedCompletionAtUtc { get; set; }
+    public required string Reason { get; set; }
+    public Guid RecordedByUserId { get; set; }
+    public DateTimeOffset RecordedAtUtc { get; set; }
 }
 
 /// <summary>

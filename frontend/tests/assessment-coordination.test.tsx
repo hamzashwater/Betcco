@@ -36,6 +36,76 @@ afterEach(() => {
 });
 
 describe("Assessment coordination queue", () => {
+  it("sets a future target with an internal reason and filters overdue requests", async () => {
+    apiMock.mockImplementation((path: string, options?: RequestInit) => {
+      if (options?.method === "PUT") return Promise.resolve(undefined);
+      return Promise.resolve({
+        items: path.includes("expectedCompletionState=Overdue")
+          ? []
+          : [
+              {
+                id: "12345678-1111-2222-3333-444444444444",
+                status: "Assigned",
+                updatedAtUtc: "2026-09-23T10:00:00Z",
+                isRetake: false,
+                qualificationCode: "Q",
+                qualificationVersionCode: "V1",
+                unitCode: "U1",
+                unitEnglishTitle: "Unit",
+                unitArabicTitle: "وحدة",
+                evaluatorDisplayName: null,
+                hasEligibleEvaluator: null,
+                blockerCode: null,
+                expectedCompletionAtUtc: null,
+                expectedCompletionState: "NotSet",
+              },
+            ],
+        page: 1,
+        pageSize: 10,
+        totalCount: path.includes("expectedCompletionState=Overdue") ? 0 : 1,
+      });
+    });
+    renderQueue();
+    const user = userEvent.setup();
+    expect(await screen.findByText("Completion target not set")).toBeVisible();
+    await user.click(
+      screen.getByRole("button", { name: "Set completion target" }),
+    );
+    await user.type(
+      screen.getByLabelText("Expected completion"),
+      "2030-12-31T12:00",
+    );
+    await user.type(
+      screen.getByLabelText("Internal reason"),
+      "Coordination review",
+    );
+    await user.click(screen.getByRole("button", { name: "Save target" }));
+    await waitFor(() =>
+      expect(apiMock).toHaveBeenCalledWith(
+        "/assessment-coordination/12345678-1111-2222-3333-444444444444/expected-completion",
+        expect.objectContaining({ method: "PUT" }),
+      ),
+    );
+    const write = apiMock.mock.calls.find(
+      ([, options]) => options?.method === "PUT",
+    );
+    expect(JSON.parse(write?.[1].body as string)).toEqual(
+      expect.objectContaining({
+        reason: "Coordination review",
+      }),
+    );
+    expect(await screen.findByText("Completion target saved.")).toBeVisible();
+    await user.selectOptions(
+      screen.getByLabelText("Filter by completion target"),
+      "Overdue",
+    );
+    await waitFor(() =>
+      expect(apiMock).toHaveBeenCalledWith(
+        "/assessment-coordination/queue?page=1&pageSize=10&expectedCompletionState=Overdue",
+      ),
+    );
+  });
+
   it("shows bounded requests and uses a server-side status filter", async () => {
     apiMock.mockImplementation((path: string) =>
       Promise.resolve({

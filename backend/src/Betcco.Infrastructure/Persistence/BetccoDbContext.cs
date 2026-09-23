@@ -102,6 +102,7 @@ public sealed class BetccoDbContext(
     public DbSet<EvaluationAppeal> EvaluationAppeals => Set<EvaluationAppeal>();
     public DbSet<AuthenticityDeclaration> AuthenticityDeclarations => Set<AuthenticityDeclaration>();
     public DbSet<AssessmentAuditEvent> AssessmentAuditEvents => Set<AssessmentAuditEvent>();
+    public DbSet<EvaluationExpectedCompletionRevision> EvaluationExpectedCompletionRevisions => Set<EvaluationExpectedCompletionRevision>();
     public DbSet<ResubmissionAuthorization> ResubmissionAuthorizations => Set<ResubmissionAuthorization>();
     public DbSet<RetakeAuthorization> RetakeAuthorizations => Set<RetakeAuthorization>();
     public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
@@ -156,6 +157,7 @@ public sealed class BetccoDbContext(
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
         EnsureAssessmentAuditEventsAreAppendOnly();
+        EnsureExpectedCompletionRevisionsAreAppendOnly();
         EnsureConsentRecordsAreAppendOnly();
         EnsureGuardianConsentsAreAppendOnly();
         EnsureDataSubjectFulfillmentsAreControlled();
@@ -209,6 +211,14 @@ public sealed class BetccoDbContext(
             .FirstOrDefault(entry => entry.State is EntityState.Modified or EntityState.Deleted);
         if (invalidChange is not null)
             throw new InvalidOperationException("Assessment audit events are append-only and cannot be changed or deleted.");
+    }
+
+    private void EnsureExpectedCompletionRevisionsAreAppendOnly()
+    {
+        var invalidChange = ChangeTracker.Entries<EvaluationExpectedCompletionRevision>()
+            .FirstOrDefault(entry => entry.State is EntityState.Modified or EntityState.Deleted);
+        if (invalidChange is not null)
+            throw new InvalidOperationException("Expected-completion revisions are append-only.");
     }
 
     private void EnsureConsentRecordsAreAppendOnly()
@@ -1316,6 +1326,14 @@ public sealed class BetccoDbContext(
         builder.Entity<AuthenticityDeclaration>().HasIndex(x => new { x.StudentUserId, x.DeclaredAtUtc });
         builder.Entity<AssessmentAuditEvent>().HasIndex(x => new { x.EvaluationRequestId, x.OccurredAtUtc });
         builder.Entity<AssessmentAuditEvent>().HasIndex(x => new { x.ActorUserId, x.OccurredAtUtc });
+        builder.Entity<EvaluationExpectedCompletionRevision>().Property(x => x.Reason).HasMaxLength(500);
+        builder.Entity<EvaluationExpectedCompletionRevision>().HasOne(x => x.EvaluationRequest)
+            .WithMany(x => x.ExpectedCompletionRevisions).HasForeignKey(x => x.EvaluationRequestId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<EvaluationExpectedCompletionRevision>().HasOne<ApplicationUser>().WithMany()
+            .HasForeignKey(x => x.RecordedByUserId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<EvaluationExpectedCompletionRevision>()
+            .HasIndex(x => new { x.EvaluationRequestId, x.RevisionNumber }).IsUnique();
         builder.Entity<ResubmissionAuthorization>().HasIndex(x => new { x.EvaluationRequestId, x.AttemptNumber }).IsUnique();
         builder.Entity<ResubmissionAuthorization>().HasIndex(x => new { x.DueAtUtc, x.SubmittedAtUtc, x.RevokedAtUtc });
         builder.Entity<RetakeAuthorization>().Property(x => x.AuthorizedByUserId).HasMaxLength(128);
@@ -1339,6 +1357,7 @@ public sealed class BetccoDbContext(
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         EnsureAssessmentAuditEventsAreAppendOnly();
+        EnsureExpectedCompletionRevisionsAreAppendOnly();
         EnsureConsentRecordsAreAppendOnly();
         EnsureGuardianConsentsAreAppendOnly();
         EnsureDataSubjectFulfillmentsAreControlled();
