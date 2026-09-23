@@ -12,6 +12,7 @@ vi.mock("@/lib/api", () => ({ api: apiMock }));
 const course = {
   id: "course-1",
   isBtecFocused: true,
+  deliveryPlanId: "plan-1",
   arabicTitle: "دورة",
   englishTitle: "Course",
   arabicDescription: "وصف",
@@ -31,13 +32,15 @@ afterEach(() => {
 
 describe("canonical BTEC unit selection", () => {
   it.each(["en", "ar"] as const)(
-    "sends only a selected UnitDefinition ID for %s authoring",
+    "sends the selected delivery plan entry for %s authoring",
     async (locale) => {
       apiMock.mockImplementation(async (path: string) => {
         if (path.endsWith("/academic-units"))
           return [
             {
               id: "unit-1",
+              deliveryPlanEntryId: "entry-1",
+              termCode: "T1",
               code: "U1",
               arabicTitle: "الوحدة الأولى",
               englishTitle: "Unit one",
@@ -73,14 +76,14 @@ describe("canonical BTEC unit selection", () => {
       await screen.findByRole("option", {
         name: locale === "ar" ? /الوحدة الأولى/ : /Unit one/,
       });
-      await userEvent.selectOptions(selector, "unit-1");
+      await userEvent.selectOptions(selector, "entry-1");
       await userEvent.click(add);
       await waitFor(() =>
         expect(apiMock).toHaveBeenCalledWith(
           "/teacher/courses/modules",
           expect.objectContaining({
             method: "POST",
-            body: expect.stringContaining('"unitDefinitionId":"unit-1"'),
+            body: expect.stringContaining('"deliveryPlanEntryId":"entry-1"'),
           }),
         ),
       );

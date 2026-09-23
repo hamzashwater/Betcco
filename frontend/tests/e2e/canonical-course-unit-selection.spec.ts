@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 const course = {
   id: "course-1",
   isBtecFocused: true,
+  deliveryPlanId: "plan-1",
   qualificationVersionId: null,
   arabicTitle: "دورة تجريبية",
   englishTitle: "Example course",
@@ -27,7 +28,7 @@ for (const scenario of [
     await page.setViewportSize({ width: scenario.width, height: 844 });
     const pageErrors: string[] = [];
     page.on("pageerror", (error) => pageErrors.push(error.message));
-    let postedUnitId: string | undefined;
+    let postedEntryId: string | undefined;
     await page.route("**/api/v1/**", async (route) => {
       const path = new URL(route.request().url()).pathname;
       const json = (value: unknown) =>
@@ -49,6 +50,8 @@ for (const scenario of [
         return json([
           {
             id: "unit-1",
+            deliveryPlanEntryId: "entry-1",
+            termCode: "T1",
             code: "U1",
             arabicTitle: "الوحدة الأولى",
             englishTitle: "Unit one",
@@ -61,7 +64,7 @@ for (const scenario of [
         path === "/api/v1/teacher/courses/modules" &&
         route.request().method() === "POST"
       ) {
-        postedUnitId = route.request().postDataJSON().unitDefinitionId;
+        postedEntryId = route.request().postDataJSON().deliveryPlanEntryId;
         return json({ id: "delivery-1" });
       }
       if (path.endsWith("/learning-access"))
@@ -88,14 +91,14 @@ for (const scenario of [
       name: scenario.locale === "ar" ? "الوحدة الأكاديمية" : "Academic unit",
     });
     await expect(selector).toBeVisible();
-    await expect(selector.locator("option[value='unit-1']")).toBeAttached();
-    await selector.selectOption("unit-1");
+    await expect(selector.locator("option[value='entry-1']")).toBeAttached();
+    await selector.selectOption("entry-1");
     await page
       .getByRole("button", {
         name: scenario.locale === "ar" ? "إضافة الوحدة" : "Add module",
       })
       .click();
-    await expect.poll(() => postedUnitId).toBe("unit-1");
+    await expect.poll(() => postedEntryId).toBe("entry-1");
     expect(pageErrors).toEqual([]);
     expect(
       await page.evaluate(

@@ -15,17 +15,21 @@ public sealed class QualificationRegistryServiceTests
     {
         await using var db = new BetccoDbContext(new DbContextOptionsBuilder<BetccoDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+        var track = new LearningTrack { Slug = "btec", ArabicName = "بيتك", EnglishName = "BTEC", IsBtecFocused = true };
+        var specialization = new Specialization { Slug = "it", ArabicName = "تقنية المعلومات", EnglishName = "Information Technology", LearningTrackId = track.Id };
+        db.AddRange(track, specialization);
+        await db.SaveChangesAsync();
         var registry = new QualificationRegistryService(db);
         var qualification = await registry.CreateQualificationAsync("system-admin", new CreateQualificationCommand(
             "BTEC-L3-IT",
             "بيتك المستوى الثالث في تقنية المعلومات",
-            "BTEC Level 3 Information Technology"));
+            "BTEC Level 3 Information Technology", specialization.Id));
 
         Assert.NotNull(qualification);
         Assert.Null(await registry.CreateQualificationAsync("system-admin", new CreateQualificationCommand(
             "BTEC-L3-IT",
             "اسم مختلف",
-            "Different name")));
+            "Different name", specialization.Id)));
         Assert.Null(await registry.CreateVersionAsync("system-admin", new CreateQualificationVersionCommand(
             qualification!.Id,
             "2026",
@@ -40,25 +44,11 @@ public sealed class QualificationRegistryServiceTests
             null));
 
         Assert.NotNull(version);
-        var track = new LearningTrack
-        {
-            Slug = "btec",
-            ArabicName = "بيتك",
-            EnglishName = "BTEC",
-            IsBtecFocused = true
-        };
         var grade = new Grade
         {
             Slug = "grade",
             ArabicName = "الصف",
             EnglishName = "Grade",
-            LearningTrackId = track.Id
-        };
-        var specialization = new Specialization
-        {
-            Slug = "it",
-            ArabicName = "تقنية المعلومات",
-            EnglishName = "Information Technology",
             LearningTrackId = track.Id
         };
         var taskType = new TaskType { ArabicName = "مهمة", EnglishName = "Assignment" };
@@ -71,7 +61,7 @@ public sealed class QualificationRegistryServiceTests
             TaskTypeId = taskType.Id,
             AssessmentRuleSetJson = BtecAssessmentRuleSet.DefaultJson
         };
-        db.AddRange(track, grade, specialization, taskType, rubric);
+        db.AddRange(grade, taskType, rubric);
         await db.SaveChangesAsync();
 
         Assert.True(await registry.AssignToRubricAsync("system-admin", rubric.Id, version!.Id));

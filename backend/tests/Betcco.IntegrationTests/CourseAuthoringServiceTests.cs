@@ -193,14 +193,15 @@ public sealed class CourseAuthoringServiceTests
         db.LearningTracks.Add(track);
         var unit = AddPublishedUnit(db);
         await db.SaveChangesAsync();
+        var (grade, specialization, planId, entryId) = await PlanForUnitAsync(db, track, unit);
         var authoring = new CourseAuthoringService(db);
         var courseId = await authoring.CreateDraftAsync("teacher-1", new CreateCourseCommand(
-            "دورة BTEC", "BTEC course", "وصف عربي", "Course description", track.Id, null, null, null, 0m, true));
+            "دورة BTEC", "BTEC course", "وصف عربي", "Course description", track.Id, grade.Id, specialization.Id, null, 0m, true, planId));
 
         Assert.Null(await authoring.AddModuleAsync("teacher-1", new CreateModuleCommand(
             courseId, "وحدة حرة", "Free unit", 1, "FREE")));
         var moduleId = await authoring.AddModuleAsync("teacher-1", new CreateModuleCommand(
-            courseId, "ignored", "ignored", 1, "WRONG", UnitDefinitionId: unit.Id));
+            courseId, "ignored", "ignored", 1, "WRONG", DeliveryPlanEntryId: entryId));
         Assert.NotNull(moduleId);
         var delivery = await db.CourseModules.Include(x => x.LearningAims).Include(x => x.Criteria)
             .SingleAsync(x => x.Id == moduleId);
@@ -245,18 +246,19 @@ public sealed class CourseAuthoringServiceTests
         var otherVersion = AddPublishedUnit(db, "UNIT-2", "2027", "QUAL");
         var otherQualification = AddPublishedUnit(db, "UNIT-3", "2026", "OTHER");
         await db.SaveChangesAsync();
+        var (grade, specialization, planId, entryId) = await PlanForUnitAsync(db, track, first);
         var authoring = new CourseAuthoringService(db);
         var courseId = await authoring.CreateDraftAsync("teacher-1", new CreateCourseCommand(
-            "دورة", "Course", "وصف", "Description", track.Id, null, null, null, 0, true));
+            "دورة", "Course", "وصف", "Description", track.Id, grade.Id, specialization.Id, null, 0, true, planId));
         var secondCourseId = await authoring.CreateDraftAsync("teacher-1", new CreateCourseCommand(
-            "دورة أخرى", "Other course", "وصف", "Description", track.Id, null, null, null, 0, true));
+            "دورة أخرى", "Other course", "وصف", "Description", track.Id, grade.Id, specialization.Id, null, 0, true, planId));
 
         Assert.Null(await authoring.AddModuleAsync("teacher-1", new CreateModuleCommand(courseId, "", "", 1, UnitDefinitionId: Guid.NewGuid())));
         Assert.Null(await authoring.AddModuleAsync("teacher-2", new CreateModuleCommand(courseId, "", "", 1, UnitDefinitionId: first.Id)));
-        Assert.NotNull(await authoring.AddModuleAsync("teacher-1", new CreateModuleCommand(courseId, "", "", 1, UnitDefinitionId: first.Id)));
+        Assert.NotNull(await authoring.AddModuleAsync("teacher-1", new CreateModuleCommand(courseId, "", "", 1, DeliveryPlanEntryId: entryId)));
         Assert.Null(await authoring.AddModuleAsync("teacher-1", new CreateModuleCommand(courseId, "", "", 2, UnitDefinitionId: otherVersion.Id)));
         Assert.Null(await authoring.AddModuleAsync("teacher-1", new CreateModuleCommand(courseId, "", "", 2, UnitDefinitionId: otherQualification.Id)));
-        Assert.NotNull(await authoring.AddModuleAsync("teacher-1", new CreateModuleCommand(secondCourseId, "", "", 1, UnitDefinitionId: first.Id)));
+        Assert.NotNull(await authoring.AddModuleAsync("teacher-1", new CreateModuleCommand(secondCourseId, "", "", 1, DeliveryPlanEntryId: entryId)));
         Assert.Equal(first.QualificationVersionId, (await db.Courses.SingleAsync(x => x.Id == courseId)).QualificationVersionId);
     }
 
@@ -546,6 +548,22 @@ public sealed class CourseAuthoringServiceTests
         };
         db.AddRange(qualification, version, unit, aim, criterion);
         return unit;
+    }
+
+    private static async Task<(Grade Grade, Specialization Specialization, Guid PlanId, Guid EntryId)> PlanForUnitAsync(
+        BetccoDbContext db, LearningTrack track, UnitDefinition unit)
+    {
+        var specialization = new Specialization { LearningTrackId = track.Id, Slug = "it", ArabicName = "تقنية المعلومات", EnglishName = "IT" };
+        var grade = new Grade { LearningTrackId = track.Id, Slug = "g11", ArabicName = "الحادي عشر", EnglishName = "Grade 11" };
+        db.AddRange(specialization, grade);
+        unit.QualificationVersion!.Qualification!.SpecializationId = specialization.Id;
+        await db.SaveChangesAsync();
+        var planning = new DeliveryPlanningService(db);
+        var year = await planning.CreateAcademicYearAsync(new("AY-2026", new(2026, 1, 1), new(2026, 12, 31)), "admin");
+        var term = await planning.CreateTermAsync(new(year.Id, "T1", new(2026, 1, 1), new(2026, 6, 30), 10), "admin");
+        var plan = await planning.CreatePlanAsync(new(unit.QualificationVersionId, year.Id, grade.Id), "admin");
+        plan = await planning.AddEntryAsync(plan.Plan.Id, new(unit.Id, term.Id), "admin");
+        return (grade, specialization, plan.Plan.Id, Assert.Single(plan.Entries).Id);
     }
 
     private static BetccoDbContext CreateDb() => new(
