@@ -15,7 +15,7 @@ jobs:
     timeout-minutes: 45
     services:
       postgres:
-        image: pgvector/pgvector:pg16
+        image: pgvector/pgvector:pg16@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b
         env:
           POSTGRES_DB: betcco_uat
           POSTGRES_USER: betcco_uat
@@ -28,7 +28,7 @@ jobs:
           --health-timeout 5s
           --health-retries 20
       mailpit:
-        image: axllent/mailpit:latest
+        image: axllent/mailpit:latest@sha256:74d609a42ec279aa63c6b4622a6fa9b5408d1ad5b1d76a1c4be40a265ce0863d
         ports:
           - 1025:1025
           - 8025:8025
@@ -47,16 +47,16 @@ jobs:
       BETCCO_UAT_TLS_KEY: /tmp/betcco-uat.key
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
         with:
           version: 11.19.0
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 24.19.0
           cache: pnpm
           cache-dependency-path: frontend/pnpm-lock.yaml
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
         with:
           dotnet-version: 10.0.x
 
@@ -86,7 +86,7 @@ jobs:
         run: |
           docker run --rm --network host \
             -e PGPASSWORD="uat-${{ github.run_id }}" \
-            postgres:16 \
+            postgres:16@sha256:a3b7f434b2dc57ce85a67e171163eb8ab1a1ebcb39d27484661f26b1dfbe30d6 \
             psql -h 127.0.0.1 -U betcco_uat -d betcco_uat \
             -c "UPDATE \"AspNetUsers\" SET \"MustChangePassword\" = false WHERE \"Email\" = 'admin-uat@betcco.test';"
 
@@ -113,7 +113,7 @@ jobs:
 
       - name: Upload UAT report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: betcco-full-uat-report
           path: |
