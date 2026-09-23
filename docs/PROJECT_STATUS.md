@@ -3,15 +3,22 @@
 ## Metadata
 
 - Last updated: 2026-09-23
-- Verified implementation baseline SHA: `62e5e5a1d9158c11104c3496e088a7ead36a7fa5`
-- Status generated/verified against origin/main: `62e5e5a1d9158c11104c3496e088a7ead36a7fa5`
-- Baseline branch used for status generation: `docs/reconcile-assessment-coordinator-ci-status`
+- Verified implementation baseline SHA: `708326e4bd55e59d981238e1d5dce68e4a7fa5dd`
+- Status generated/verified against origin/main: `708326e4bd55e59d981238e1d5dce68e4a7fa5dd`
+- Baseline branch used for status generation: `docs/reconcile-expected-completion-status`
 - Working tree state at verified baseline: clean
-- Latest verified CI state: GREEN on current main `62e5e5a1d9158c11104c3496e088a7ead36a7fa5` — Application Quality, CodeQL C#, and CodeQL JavaScript/TypeScript completed successfully. Dependency review is skipped on push as expected.
+- Latest verified CI state: PR #43 required checks were GREEN on feature head `c06416af37facd46e2183dbb5c52b2a52fbc2602`; post-merge Quality and Security analysis on current main `708326e4bd55e59d981238e1d5dce68e4a7fa5dd` were still in progress when this reconciliation branch was created.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
 ## Latest Merged Task
+
+- Task: SLA / Expected Completion Workflow — Slice 1
+- Merge/commit SHA: `708326e4bd55e59d981238e1d5dce68e4a7fa5dd`
+- Pull Request: [#43 — feat: add assessment expected completion workflow](https://github.com/hamzashwater/Betcco/pull/43)
+- Outcome: DONE. Added server-owned expected-completion oversight for active ASSESS requests under existing CourseReviewer authority. Each EvaluationRequest has append-only expected-completion revision history with actor, timestamp, bounded private reason, and a unique per-request revision sequence. The coordination queue derives `NotSet`, `OnTrack`, and `Overdue` on the server from the latest revision and supports bounded filtering without exposing student identity, comments, evidence, results, or the private operational reason. No fixed BTEC/Pearson SLA duration, working-day calendar, holiday rule, automatic reassignment, or academic consequence was invented. Retakes remain independent EvaluationRequests with independent targets; `ResubmissionAuthorization.DueAtUtc`, IV/LIV, appeal, and Retake-authorization semantics remain unchanged.
+- Migration: `20260923125104_AddEvaluationExpectedCompletionRevisions` is additive, performs no historical target backfill or destructive rewrite, uses restrictive foreign keys, and preserves existing requests as `NotSet`.
+- Verification evidence: 18 related backend tests, 3 focused frontend tests, Release build, formatting, typecheck, lint, production frontend build, and English/Arabic/390px browser checks passed locally. PR checks passed: Application Quality, Full-stack browser UAT, Dependency Review, CodeQL C#, and CodeQL JavaScript/TypeScript. Application Quality applied migrations to an empty PostgreSQL database and ran PostgreSQL-backed tests successfully.
 
 - Task: Assessment Coordinator capabilities — Slice 1
 - Merge/commit SHA: `62e5e5a1d9158c11104c3496e088a7ead36a7fa5`
@@ -137,7 +144,7 @@ These entries are merged repository evidence only; new behavior changes still re
 
 Done: Main contains the versioned criterion/rule and qualification snapshot foundations, the additive ASSESS academic identity foundation from PR #28 (`UnitDefinition`, `AssessmentDefinition`, `AssessmentScope`, and the nullable `EvaluationRequest` bridge), authenticity declarations, authorised resubmission records, internal-verification sampling, appeals, structured assessment-audit export, formal visual PDF reporting, authorised paid Retakes from PR #36, and Evaluator-specialism routing Slice 1 from PR #38. ASSESS Slices 1–3 are DONE: the canonical academic chain is `QualificationVersion` → `UnitDefinition` → `LearningAimDefinition` → `AssessmentCriterionDefinition`, with `AssessmentDefinition` → `AssessmentScope`; `EvaluationRequest` remains the ASSESS aggregate root and a Retake is another new linked `EvaluationRequest`. Evaluator assignment requires an active UnitDefinition specialism grant checked server-side, and each new assignment retains the exact grant evidence. The structured audit export now uses the safe v2 contract: raw internal identifiers and sensitive implementation metadata are structurally excluded, academic traceability is preserved, actor-role attribution is corrected, unsupported historical RBAC precision is not fabricated, and deterministic SHA-256 integrity is preserved. The PDF includes assignment/task, submission/evidence, assessor/internal-verifier/lead-internal-verifier/appeal-review, and academic audit/history context; excludes sensitive storage/internal IDs; retains neutral/non-official BTEC wording; and has verified Arabic/English, multipage, and Linux/Windows font-layout compatibility with required CI green. PR #34 separately completed student-specific LEARN coursework deadline extensions without changing `EvaluationRequest` or `ResubmissionAuthorization.DueAtUtc`; LEARN remains separate from ASSESS.
 
-Remaining: Resit, admin-configurable Retake pricing, automatic Appeal → Retake, broader ASSESS reasonable adjustments beyond the completed LEARN coursework deadline slice, SLA/expected completion workflow, AcademicYear/Term/DeliveryPlan, and CourseModule migration remain unresolved. Production payment/provider validation and production operations remain outstanding.
+Remaining: Resit, admin-configurable Retake pricing, automatic Appeal → Retake, broader ASSESS reasonable adjustments beyond the completed LEARN coursework deadline slice, AcademicYear/Term/DeliveryPlan, and CourseModule migration remain unresolved. Production payment/provider validation and production operations remain outstanding.
 
 ### Privacy and compliance workflow core
 
@@ -233,7 +240,8 @@ No new Workstream B branch, owner, task, or implementation is invented here. Wor
 - Evaluator-specialism routing Slice 1: DONE — UnitDefinition-level specialism grants and server-enforced manual assignment. PR #38 merged with PR and post-merge CI green; production migration and smoke verification remain outstanding.
 - Assessment Coordinator capabilities Slice 1: DONE — bounded read-only ASSESS coordination queue with existing CourseReviewer authority and server-authoritative evaluator-specialism enforcement. PR #40 merged; no migration or new role was added.
 - CI reproducibility hardening Slice 1: DONE — GitHub Actions and direct workflow container references are pinned to verified immutable identifiers in the three CI workflows. PR #41 merged without changing CI semantics.
-- Next implementation area: SLA / expected completion workflow. Later roadmap areas are AcademicYear / Term / DeliveryPlan and CourseModule migration to the canonical Unit model. Resit remains unimplemented. Admin-configurable Retake pricing and broader ASSESS reasonable adjustments remain unresolved.
+- SLA / Expected Completion Workflow Slice 1: DONE — append-only server-owned operational targets with NotSet/OnTrack/Overdue coordination state. PR #43 merged; no fixed SLA duration was introduced.
+- Next implementation area: AcademicYear / Term / DeliveryPlan. Later roadmap work includes CourseModule migration to the canonical Unit model. Resit remains unimplemented. Admin-configurable Retake pricing and broader ASSESS reasonable adjustments remain unresolved.
 
 Definition of Done for each workstream: implementation is reviewed, required CI is green, its PR is merged into `main`, and this document is reconciled with the new merged state.
 
@@ -289,6 +297,7 @@ Do not reopen these areas merely because a later account lacks conversation memo
 - PR #38 is merged into `main` at `8bce145f94cc1dc87ef7bda1aef8eae25da2d2f3`; Evaluator-specialism routing Slice 1 is DONE with additive migration `20260923081757_AddEvaluatorUnitSpecialisms`, exact grant evidence on new assignments, no historical backfill, and no destructive data rewrite. Retake policy, Resubmission, and IV/LIV behavior were not redesigned; LEARN remains separate from ASSESS. PR checks and post-merge Quality/Security analysis passed. Production migration and production smoke verification have not been executed.
 - PR #41 is merged into `main` at `8ec295f071a2711486ecc2c8827c332eac0a60c8`; CI reproducibility hardening Slice 1 is DONE. The three existing workflows now use immutable upstream-verified Action SHAs and direct container digests while preserving workflow semantics.
 - PR #40 is merged into `main` at `62e5e5a1d9158c11104c3496e088a7ead36a7fa5`; Assessment Coordinator capabilities Slice 1 is DONE. Coordination visibility is bounded and privacy-minimized, uses existing CourseReviewer authority, reuses evaluator-specialism eligibility, adds no migration or new role, and preserves Retake, Resubmission, IV/LIV, and LEARN/ASSESS boundaries.
+- PR #43 is merged into `main` at `708326e4bd55e59d981238e1d5dce68e4a7fa5dd`; SLA / Expected Completion Workflow Slice 1 is DONE with additive migration `20260923125104_AddEvaluationExpectedCompletionRevisions`, append-only operational target history, no historical backfill, and no destructive rewrite. No fixed SLA duration was introduced; Retake, Resubmission, IV/LIV, and LEARN/ASSESS boundaries remain unchanged.
 - PR #14's required CI was verified GREEN for feature head `431d12efe70236872173f66677d88d484b4348b4`: Application quality, Dependency review, CodeQL (csharp), and CodeQL (javascript-typescript) completed successfully. Future workstreams must still verify their own current remote CI before claiming completion.
 - Production S3, SMTP, ClamAV, Data Protection certificate, hosting, monitoring, backup/restore, payment, payout, and fiscal integrations require external configuration or validation.
 - Broader capacity testing, launch hardening, retention decisions, and final legal review remain outstanding; the dedicated PR #20 full-stack browser UAT matrix is complete.
