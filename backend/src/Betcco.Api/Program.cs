@@ -417,6 +417,7 @@ builder.Services.AddSingleton<IAssessmentPdfRenderer>(serviceProvider =>
 builder.Services.AddScoped<IAssessmentPdfReportService, AssessmentPdfReportService>();
 builder.Services.AddScoped<IQualificationRegistryService, QualificationRegistryService>();
 builder.Services.AddScoped<IAcademicCatalogueService, AcademicCatalogueService>();
+builder.Services.AddScoped<IDeliveryPlanningService, DeliveryPlanningService>();
 builder.Services.AddScoped<DatabaseInitializer>();
 
 var app = builder.Build();
