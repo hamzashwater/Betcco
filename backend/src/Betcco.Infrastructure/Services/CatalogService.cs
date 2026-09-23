@@ -73,10 +73,11 @@ public sealed class CatalogService(BetccoDbContext db, IMemoryCache cache) : ICa
             .Include(x => x.LearningTrack).Include(x => x.Grade).Include(x => x.Specialization).Include(x => x.Subject)
             .Include(x => x.LearningOutcomes).Include(x => x.Skills)
             .Include(x => x.Modules).ThenInclude(x => x.Lessons)
+            .Include(x => x.Modules).ThenInclude(x => x.UnitDefinition)
             .SingleOrDefaultAsync(x => x.Slug == slug && x.Status == CourseStatus.Published, cancellationToken);
         if (course is null) return null;
         var modules = course.Modules.Where(x => x.IsPublished).OrderBy(x => x.SortOrder).Select(module =>
-            new ModuleDetail(module.Id, Localize(locale, module.ArabicTitle, module.EnglishTitle), module.Lessons.Where(x => x.IsPublished || x.IsPreview)
+            new ModuleDetail(module.Id, Localize(locale, module.UnitDefinition?.ArabicTitle ?? module.ArabicTitle, module.UnitDefinition?.EnglishTitle ?? module.EnglishTitle), module.Lessons.Where(x => x.IsPublished || x.IsPreview)
                 .OrderBy(x => x.SortOrder).Select(lesson => new LessonDetail(lesson.Id, Localize(locale, lesson.ArabicTitle, lesson.EnglishTitle), lesson.DurationSeconds, lesson.IsPreview, lesson.Type.ToString())).ToArray())).ToArray();
         var teacherNames = await GetTeacherNamesAsync([course.TeacherUserId], cancellationToken);
         var teacherName = course.TeacherUserId is not null && teacherNames.TryGetValue(course.TeacherUserId, out var value) ? value : null;

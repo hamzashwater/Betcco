@@ -826,13 +826,27 @@ public sealed class BetccoDbContext(
         builder.Entity<Course>().HasIndex(x => x.Slug).IsUnique();
         builder.Entity<Course>().HasIndex(x => new { x.Status, x.PublishedAtUtc });
         builder.Entity<Course>().HasIndex(x => new { x.Status, x.ScheduledPublishAtUtc });
+        builder.Entity<Course>().HasOne(x => x.QualificationVersion).WithMany()
+            .HasForeignKey(x => x.QualificationVersionId).OnDelete(DeleteBehavior.Restrict);
         builder.Entity<CourseModule>().HasIndex(x => new { x.CourseId, x.SortOrder });
         builder.Entity<CourseModule>().HasIndex(x => new { x.CourseId, x.UnitCode }).IsUnique().HasFilter("\"UnitCode\" IS NOT NULL");
+        builder.Entity<CourseModule>().HasIndex(x => new { x.CourseId, x.UnitDefinitionId }).IsUnique()
+            .HasFilter("\"UnitDefinitionId\" IS NOT NULL");
+        builder.Entity<CourseModule>().HasOne(x => x.UnitDefinition).WithMany()
+            .HasForeignKey(x => x.UnitDefinitionId).OnDelete(DeleteBehavior.Restrict);
         builder.Entity<BtecLearningAim>().HasIndex(x => new { x.CourseModuleId, x.Code }).IsUnique();
         builder.Entity<BtecLearningAim>().HasIndex(x => new { x.CourseModuleId, x.SortOrder });
+        builder.Entity<BtecLearningAim>().HasIndex(x => new { x.CourseModuleId, x.LearningAimDefinitionId }).IsUnique()
+            .HasFilter("\"LearningAimDefinitionId\" IS NOT NULL");
+        builder.Entity<BtecLearningAim>().HasOne(x => x.LearningAimDefinition).WithMany()
+            .HasForeignKey(x => x.LearningAimDefinitionId).OnDelete(DeleteBehavior.Restrict);
         builder.Entity<BtecTopic>().HasIndex(x => new { x.BtecLearningAimId, x.SortOrder });
         builder.Entity<BtecCriterion>().HasIndex(x => new { x.CourseModuleId, x.Code }).IsUnique();
         builder.Entity<BtecCriterion>().HasIndex(x => new { x.BtecLearningAimId, x.SortOrder });
+        builder.Entity<BtecCriterion>().HasIndex(x => new { x.CourseModuleId, x.AssessmentCriterionDefinitionId }).IsUnique()
+            .HasFilter("\"AssessmentCriterionDefinitionId\" IS NOT NULL");
+        builder.Entity<BtecCriterion>().HasOne(x => x.AssessmentCriterionDefinition).WithMany()
+            .HasForeignKey(x => x.AssessmentCriterionDefinitionId).OnDelete(DeleteBehavior.Restrict);
         builder.Entity<Enrollment>().HasIndex(x => new { x.StudentUserId, x.CourseId }).IsUnique();
         builder.Entity<Enrollment>().HasIndex(x => new { x.StudentUserId, x.AccessEndsAtUtc });
         builder.Entity<ContentAccessRule>().HasIndex(x => new { x.CourseId, x.TargetType, x.TargetId }).IsUnique();

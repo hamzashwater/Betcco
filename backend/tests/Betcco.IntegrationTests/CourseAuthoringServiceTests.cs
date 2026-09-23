@@ -1,5 +1,7 @@
 using Betcco.Application.Courses;
+using Betcco.Domain.Assessments;
 using Betcco.Domain.Common;
+using Betcco.Domain.Evaluations;
 using Betcco.Domain.Learning;
 using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Persistence;
@@ -19,7 +21,7 @@ public sealed class CourseAuthoringServiceTests
             Slug = "btec",
             ArabicName = "BTEC",
             EnglishName = "BTEC",
-            IsBtecFocused = true
+            IsBtecFocused = false
         };
         var specialization = new Specialization
         {
@@ -189,25 +191,35 @@ public sealed class CourseAuthoringServiceTests
             IsBtecFocused = true
         };
         db.LearningTracks.Add(track);
+        var unit = AddPublishedUnit(db);
         await db.SaveChangesAsync();
         var authoring = new CourseAuthoringService(db);
         var courseId = await authoring.CreateDraftAsync("teacher-1", new CreateCourseCommand(
             "دورة BTEC", "BTEC course", "وصف عربي", "Course description", track.Id, null, null, null, 0m, true));
 
+        Assert.Null(await authoring.AddModuleAsync("teacher-1", new CreateModuleCommand(
+            courseId, "وحدة حرة", "Free unit", 1, "FREE")));
         var moduleId = await authoring.AddModuleAsync("teacher-1", new CreateModuleCommand(
-            courseId, "الوحدة أ", "Unit A", 1, "UNIT-1", "وصف الوحدة", "Unit description", 30, 3, "Level 3"));
+            courseId, "ignored", "ignored", 1, "WRONG", UnitDefinitionId: unit.Id));
         Assert.NotNull(moduleId);
-        var aimId = await authoring.AddLearningAimAsync("teacher-1", new CreateLearningAimCommand(
-            moduleId!.Value, "A", "هدف التعلم أ", "Learning aim A", "وصف", "Description", 1));
-        Assert.NotNull(aimId);
-        var topicId = await authoring.AddTopicAsync("teacher-1", new CreateTopicCommand(
-            aimId!.Value, "موضوع أ.1", "Topic A.1", "وصف", "Description", 1));
-        Assert.NotNull(topicId);
-        var criterionId = await authoring.AddCriterionAsync("teacher-1", new CreateBtecCriterionCommand(
-            moduleId.Value, aimId.Value, "A.P1", "Pass", "يطبق المهارة", "Applies the skill", "دليل عربي", "English evidence", 1));
-        Assert.NotNull(criterionId);
+        var delivery = await db.CourseModules.Include(x => x.LearningAims).Include(x => x.Criteria)
+            .SingleAsync(x => x.Id == moduleId);
+        Assert.Equal(unit.Id, delivery.UnitDefinitionId);
+        Assert.Equal(unit.Code, delivery.UnitCode);
+        Assert.Equal(unit.ArabicTitle, delivery.ArabicTitle);
+        Assert.Equal(unit.EnglishTitle, delivery.EnglishTitle);
+        Assert.Single(delivery.LearningAims);
+        Assert.Single(delivery.Criteria);
+        Assert.Equal(unit.LearningAims.Single().Id, delivery.LearningAims.Single().LearningAimDefinitionId);
+        Assert.Equal(unit.LearningAims.Single().Criteria.Single().Id, delivery.Criteria.Single().AssessmentCriterionDefinitionId);
+        var aimId = delivery.LearningAims.Single().Id;
+        Assert.Null(await authoring.AddLearningAimAsync("teacher-1", new CreateLearningAimCommand(
+            moduleId!.Value, "B", "هدف", "Aim", null, null, 2)));
         Assert.Null(await authoring.AddCriterionAsync("teacher-1", new CreateBtecCriterionCommand(
-            moduleId.Value, aimId.Value, "A.P2", "Merit", "وصف", "Description", null, null, 2)));
+            moduleId.Value, aimId, "A.P2", "Pass", "وصف", "Description", null, null, 2)));
+        var topicId = await authoring.AddTopicAsync("teacher-1", new CreateTopicCommand(
+            aimId, "موضوع أ.1", "Topic A.1", "وصف", "Description", 1));
+        Assert.NotNull(topicId);
 
         var lessonId = await authoring.AddLessonAsync("teacher-1", new CreateLessonCommand(
             moduleId.Value, "درس مرتبط", "Linked lesson", "النص", "Body", "Text", 300, false, 1, aimId, topicId));
@@ -217,20 +229,95 @@ public sealed class CourseAuthoringServiceTests
 
         var lessonAfterTopicDeletion = await db.Lessons.SingleAsync(item => item.Id == lessonId.Value);
         Assert.Null(lessonAfterTopicDeletion.BtecTopicId);
-        var duplicateUnitId = await authoring.DuplicateModuleAsync("teacher-1", moduleId.Value);
-        Assert.NotNull(duplicateUnitId);
+        Assert.Null(await authoring.DuplicateModuleAsync("teacher-1", moduleId.Value));
+        Assert.Null(await authoring.AddModuleAsync("teacher-1", new CreateModuleCommand(
+            courseId, "", "", 2, UnitDefinitionId: unit.Id)));
+        Assert.Equal(moduleId.Value, (await db.Lessons.SingleAsync(x => x.Id == lessonId)).CourseModuleId);
+    }
 
-        var clonedUnit = await db.CourseModules
-            .Include(item => item.LearningAims).ThenInclude(item => item.Topics)
-            .Include(item => item.Criteria)
-            .Include(item => item.Lessons)
-            .SingleAsync(item => item.Id == duplicateUnitId!.Value);
-        Assert.Equal(ContentPublicationStatus.Draft, clonedUnit.PublicationStatus);
-        Assert.False(clonedUnit.IsPublished);
-        Assert.Single(clonedUnit.LearningAims);
-        Assert.Single(clonedUnit.Criteria);
-        Assert.Single(clonedUnit.Lessons);
-        Assert.Equal(ContentPublicationStatus.Draft, clonedUnit.Lessons.Single().PublicationStatus);
+    [Fact]
+    public async Task Canonical_units_are_version_bound_and_can_be_delivered_in_different_courses()
+    {
+        await using var db = CreateDb();
+        var track = new LearningTrack { Slug = "canonical", ArabicName = "BTEC", EnglishName = "BTEC", IsBtecFocused = true };
+        db.LearningTracks.Add(track);
+        var first = AddPublishedUnit(db);
+        var otherVersion = AddPublishedUnit(db, "UNIT-2", "2027", "QUAL");
+        var otherQualification = AddPublishedUnit(db, "UNIT-3", "2026", "OTHER");
+        await db.SaveChangesAsync();
+        var authoring = new CourseAuthoringService(db);
+        var courseId = await authoring.CreateDraftAsync("teacher-1", new CreateCourseCommand(
+            "دورة", "Course", "وصف", "Description", track.Id, null, null, null, 0, true));
+        var secondCourseId = await authoring.CreateDraftAsync("teacher-1", new CreateCourseCommand(
+            "دورة أخرى", "Other course", "وصف", "Description", track.Id, null, null, null, 0, true));
+
+        Assert.Null(await authoring.AddModuleAsync("teacher-1", new CreateModuleCommand(courseId, "", "", 1, UnitDefinitionId: Guid.NewGuid())));
+        Assert.Null(await authoring.AddModuleAsync("teacher-2", new CreateModuleCommand(courseId, "", "", 1, UnitDefinitionId: first.Id)));
+        Assert.NotNull(await authoring.AddModuleAsync("teacher-1", new CreateModuleCommand(courseId, "", "", 1, UnitDefinitionId: first.Id)));
+        Assert.Null(await authoring.AddModuleAsync("teacher-1", new CreateModuleCommand(courseId, "", "", 2, UnitDefinitionId: otherVersion.Id)));
+        Assert.Null(await authoring.AddModuleAsync("teacher-1", new CreateModuleCommand(courseId, "", "", 2, UnitDefinitionId: otherQualification.Id)));
+        Assert.NotNull(await authoring.AddModuleAsync("teacher-1", new CreateModuleCommand(secondCourseId, "", "", 1, UnitDefinitionId: first.Id)));
+        Assert.Equal(first.QualificationVersionId, (await db.Courses.SingleAsync(x => x.Id == courseId)).QualificationVersionId);
+    }
+
+    [Fact]
+    public async Task Legacy_link_preserves_lesson_identity_and_rejects_ambiguous_structure()
+    {
+        await using var db = CreateDb();
+        var track = new LearningTrack { Slug = "legacy-link", ArabicName = "BTEC", EnglishName = "BTEC", IsBtecFocused = true };
+        var unit = AddPublishedUnit(db);
+        var course = new Course
+        {
+            Slug = "legacy-course",
+            ArabicTitle = "دورة",
+            EnglishTitle = "Course",
+            ArabicDescription = "وصف",
+            EnglishDescription = "Description",
+            LearningTrack = track,
+            TeacherUserId = "teacher-1",
+            IsFree = true
+        };
+        var module = new CourseModule { Course = course, ArabicTitle = "قديم", EnglishTitle = "Legacy", UnitCode = "OLD" };
+        var lesson = new Lesson { CourseModule = module, ArabicTitle = "درس", EnglishTitle = "Lesson", Type = LessonType.Text };
+        var progress = new LessonProgress { LessonId = lesson.Id, StudentUserId = "student-1", IsCompleted = true, LastPositionSeconds = 80 };
+        var assignment = new CourseAssignment
+        {
+            Course = course,
+            CourseModule = module,
+            ArabicTitle = "واجب",
+            EnglishTitle = "Assignment",
+            ArabicInstructions = "تعليمات",
+            EnglishInstructions = "Instructions",
+            DueAtUtc = DateTimeOffset.UtcNow.AddDays(7)
+        };
+        var submission = new CourseAssignmentSubmission { CourseAssignment = assignment, StudentUserId = "student-1" };
+        var extension = new CourseAssignmentDeadlineExtension
+        {
+            CourseAssignment = assignment,
+            StudentUserId = "student-1",
+            GrantedByUserId = "teacher-1",
+            GrantedAtUtc = DateTimeOffset.UtcNow,
+            Reason = "Approved accommodation",
+            BaseDueAtUtcSnapshot = assignment.DueAtUtc!.Value,
+            ExtendedDueAtUtc = assignment.DueAtUtc.Value.AddDays(2)
+        };
+        var ambiguous = new CourseModule { Course = course, ArabicTitle = "آخر", EnglishTitle = "Other" };
+        var legacyAim = new BtecLearningAim { CourseModule = ambiguous, Code = "A", ArabicTitle = "قديم", EnglishTitle = "Legacy" };
+        db.AddRange(track, course, module, lesson, progress, assignment, submission, extension, ambiguous, legacyAim);
+        await db.SaveChangesAsync();
+        var authoring = new CourseAuthoringService(db);
+
+        Assert.False(await authoring.LinkModuleToUnitAsync("teacher-2", module.Id, unit.Id));
+        Assert.False(await authoring.LinkModuleToUnitAsync("teacher-1", ambiguous.Id, unit.Id));
+        Assert.True(await authoring.LinkModuleToUnitAsync("teacher-1", module.Id, unit.Id));
+        Assert.Equal(unit.Id, (await db.CourseModules.SingleAsync(x => x.Id == module.Id)).UnitDefinitionId);
+        Assert.Equal(module.Id, (await db.Lessons.SingleAsync(x => x.Id == lesson.Id)).CourseModuleId);
+        Assert.True((await db.LessonProgresses.SingleAsync(x => x.Id == progress.Id)).IsCompleted);
+        Assert.Equal(module.Id, (await db.CourseAssignments.SingleAsync(x => x.Id == assignment.Id)).CourseModuleId);
+        Assert.Equal(assignment.Id, (await db.CourseAssignmentSubmissions.SingleAsync(x => x.Id == submission.Id)).CourseAssignmentId);
+        Assert.Equal(extension.ExtendedDueAtUtc, (await db.CourseAssignmentDeadlineExtensions.SingleAsync(x => x.Id == extension.Id)).ExtendedDueAtUtc);
+        Assert.Null((await db.CourseModules.SingleAsync(x => x.Id == ambiguous.Id)).UnitDefinitionId);
+        Assert.Single(await db.BtecLearningAims.Where(x => x.CourseModuleId == module.Id).ToListAsync());
     }
 
     [Fact]
@@ -267,7 +354,7 @@ public sealed class CourseAuthoringServiceTests
     public async Task Quality_gate_accepts_course_essentials_without_optional_btec_or_english_fields()
     {
         await using var db = CreateDb();
-        var track = new LearningTrack { Slug = "btec-essentials", ArabicName = "BTEC", EnglishName = "BTEC", IsBtecFocused = true };
+        var track = new LearningTrack { Slug = "btec-essentials", ArabicName = "BTEC", EnglishName = "BTEC", IsBtecFocused = false };
         db.LearningTracks.Add(track);
         await db.SaveChangesAsync();
         var authoring = new CourseAuthoringService(db);
@@ -417,6 +504,48 @@ public sealed class CourseAuthoringServiceTests
         Assert.True(await authoring.DeleteLessonAsync("owner", lesson.Id));
         Assert.Contains(db.StorageLifecycleOperations, item => item.StorageKey == "objects/lesson"
             && item.Action == StorageLifecycleAction.Delete && item.Status == StorageLifecycleStatus.Pending);
+    }
+
+    private static UnitDefinition AddPublishedUnit(BetccoDbContext db, string code = "UNIT-1", string versionCode = "2026", string qualificationCode = "QUAL")
+    {
+        var qualification = new Qualification { Code = qualificationCode, ArabicName = "مؤهل", EnglishName = "Qualification" };
+        var version = new QualificationVersion
+        {
+            Qualification = qualification,
+            VersionCode = versionCode,
+            SourceReference = "Approved specification",
+            EffectiveFromUtc = DateTimeOffset.UtcNow
+        };
+        var unit = new UnitDefinition
+        {
+            QualificationVersion = version,
+            Code = code,
+            ArabicTitle = "الوحدة المعتمدة",
+            EnglishTitle = "Canonical unit",
+            IsActive = true,
+            PublishedAtUtc = DateTimeOffset.UtcNow
+        };
+        var aim = new LearningAimDefinition
+        {
+            UnitDefinition = unit,
+            Code = "A",
+            ArabicTitle = "هدف معتمد",
+            EnglishTitle = "Canonical aim",
+            ArabicDescription = "وصف",
+            EnglishDescription = "Description",
+            SourceReference = "Approved specification"
+        };
+        var criterion = new AssessmentCriterionDefinition
+        {
+            LearningAimDefinition = aim,
+            Code = "A.P1",
+            Band = BtecCriterionBand.Pass,
+            ArabicDescription = "معيار معتمد",
+            EnglishDescription = "Canonical criterion",
+            SourceReference = "Approved specification"
+        };
+        db.AddRange(qualification, version, unit, aim, criterion);
+        return unit;
     }
 
     private static BetccoDbContext CreateDb() => new(

@@ -1,9 +1,12 @@
+using System.Data;
 using Betcco.Application.Courses;
 using Betcco.Domain.Common;
+using Betcco.Domain.Evaluations;
 using Betcco.Domain.Learning;
 using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace Betcco.Infrastructure.Services;
 
@@ -60,22 +63,40 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
     }
 
     public async Task<Guid?> AddModuleAsync(string teacherUserId, CreateModuleCommand command, CancellationToken cancellationToken = default)
+        => await InCanonicalTransactionAsync(
+            () => AddModuleCoreAsync(teacherUserId, command, cancellationToken),
+            (Guid?)null,
+            cancellationToken);
+
+    private async Task<Guid?> AddModuleCoreAsync(string teacherUserId, CreateModuleCommand command, CancellationToken cancellationToken)
     {
-        var course = await OwnedCourseAsync(teacherUserId, command.CourseId, cancellationToken);
+        var course = await db.Courses.Include(x => x.LearningTrack)
+            .SingleOrDefaultAsync(x => x.Id == command.CourseId && x.TeacherUserId == teacherUserId, cancellationToken);
         var arabicTitle = OptionalText(command.ArabicTitle);
         if (course is null
             || !IsEditable(course.Status)
-            || arabicTitle is null
             || !TryPublicationStatus(command.PublicationStatus, command.AvailableFromUtc, out var publicationStatus)) return null;
+
+        var isBtec = course.LearningTrack?.IsBtecFocused == true;
+        if (isBtec != command.UnitDefinitionId.HasValue || (!isBtec && arabicTitle is null)) return null;
+        UnitDefinition? unit = null;
+        if (command.UnitDefinitionId is { } unitId)
+        {
+            unit = await CanonicalUnitAsync(unitId, cancellationToken);
+            if (unit is null || !CanUseVersion(course, unit)) return null;
+            if (await db.CourseModules.AnyAsync(x => x.CourseId == course.Id && x.UnitDefinitionId == unit.Id, cancellationToken)) return null;
+        }
         var englishTitle = OptionalText(command.EnglishTitle) ?? arabicTitle;
 
-        var unitCode = NormalizeOptionalCode(command.UnitCode);
+        var unitCode = unit?.Code ?? NormalizeOptionalCode(command.UnitCode);
         if (unitCode is not null && await db.CourseModules.AnyAsync(x => x.CourseId == course.Id && x.UnitCode == unitCode, cancellationToken)) return null;
+        if (unit is not null) course.QualificationVersionId ??= unit.QualificationVersionId;
         var module = new CourseModule
         {
             CourseId = course.Id,
-            ArabicTitle = arabicTitle,
-            EnglishTitle = englishTitle,
+            UnitDefinitionId = unit?.Id,
+            ArabicTitle = unit?.ArabicTitle ?? arabicTitle!,
+            EnglishTitle = unit?.EnglishTitle ?? englishTitle!,
             UnitCode = unitCode,
             ArabicDescription = TrimOrNull(command.ArabicDescription),
             EnglishDescription = TrimOrNull(command.EnglishDescription),
@@ -87,10 +108,41 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
             AvailableFromUtc = command.AvailableFromUtc,
             IsPublished = publicationStatus == ContentPublicationStatus.Published
         };
+        if (unit is not null) AddCanonicalStructure(module, unit);
         db.CourseModules.Add(module);
         db.AuditLogs.Add(Audit(teacherUserId, "CourseUnitAdded", nameof(CourseModule), module.Id.ToString()));
         await db.SaveChangesAsync(cancellationToken);
         return module.Id;
+    }
+
+    public async Task<bool> LinkModuleToUnitAsync(string teacherUserId, Guid moduleId, Guid unitDefinitionId, CancellationToken cancellationToken = default)
+        => await InCanonicalTransactionAsync(
+            () => LinkModuleToUnitCoreAsync(teacherUserId, moduleId, unitDefinitionId, cancellationToken),
+            false,
+            cancellationToken);
+
+    private async Task<bool> LinkModuleToUnitCoreAsync(string teacherUserId, Guid moduleId, Guid unitDefinitionId, CancellationToken cancellationToken)
+    {
+        var module = await db.CourseModules.Include(x => x.Course).ThenInclude(x => x!.LearningTrack)
+            .SingleOrDefaultAsync(x => x.Id == moduleId && x.Course!.TeacherUserId == teacherUserId, cancellationToken);
+        if (module is null || !IsEditable(module.Course!.Status) || module.Course.LearningTrack?.IsBtecFocused != true
+            || module.UnitDefinitionId is not null
+            || await db.BtecLearningAims.AnyAsync(x => x.CourseModuleId == moduleId, cancellationToken)
+            || await db.BtecCriteria.AnyAsync(x => x.CourseModuleId == moduleId, cancellationToken)
+            || await db.CourseAssignments.AnyAsync(x => x.CourseModuleId == moduleId && x.Criteria.Any(), cancellationToken)) return false;
+        var unit = await CanonicalUnitAsync(unitDefinitionId, cancellationToken);
+        if (unit is null || !CanUseVersion(module.Course, unit)
+            || await db.CourseModules.AnyAsync(x => x.CourseId == module.CourseId && x.UnitDefinitionId == unit.Id, cancellationToken)
+            || await db.CourseModules.AnyAsync(x => x.CourseId == module.CourseId && x.Id != moduleId && x.UnitCode == unit.Code, cancellationToken)) return false;
+        module.Course.QualificationVersionId ??= unit.QualificationVersionId;
+        module.UnitDefinitionId = unit.Id;
+        module.ArabicTitle = unit.ArabicTitle;
+        module.EnglishTitle = unit.EnglishTitle;
+        module.UnitCode = unit.Code;
+        AddCanonicalStructure(module, unit);
+        db.AuditLogs.Add(Audit(teacherUserId, "CourseUnitLinkedToCanonical", nameof(CourseModule), module.Id.ToString(), unit.Id.ToString()));
+        await db.SaveChangesAsync(cancellationToken);
+        return true;
     }
 
     public async Task<bool> UpdateModuleAsync(string teacherUserId, Guid moduleId, UpdateModuleCommand command, CancellationToken cancellationToken = default)
@@ -99,19 +151,22 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
         var arabicTitle = OptionalText(command.ArabicTitle);
         if (module is null
             || !IsEditable(module.Course!.Status)
-            || arabicTitle is null
+            || (module.UnitDefinitionId is null && arabicTitle is null)
             || !TryPublicationStatus(command.PublicationStatus, command.AvailableFromUtc, out var publicationStatus)) return false;
         var englishTitle = OptionalText(command.EnglishTitle) ?? arabicTitle;
-        var unitCode = NormalizeOptionalCode(command.UnitCode);
+        var unitCode = module.UnitDefinitionId is null ? NormalizeOptionalCode(command.UnitCode) : module.UnitCode;
         if (unitCode is not null && await db.CourseModules.AnyAsync(x => x.CourseId == module.CourseId && x.UnitCode == unitCode && x.Id != module.Id, cancellationToken)) return false;
-        module.ArabicTitle = arabicTitle;
-        module.EnglishTitle = englishTitle;
-        module.UnitCode = unitCode;
+        if (module.UnitDefinitionId is null)
+        {
+            module.ArabicTitle = arabicTitle!;
+            module.EnglishTitle = englishTitle!;
+            module.UnitCode = unitCode;
+        }
         module.ArabicDescription = TrimOrNull(command.ArabicDescription);
         module.EnglishDescription = TrimOrNull(command.EnglishDescription);
         module.GuidedLearningHours = NonNegativeOrNull(command.GuidedLearningHours);
         module.Credits = NonNegativeOrNull(command.Credits);
-        module.QualificationLevel = TrimOrNull(command.QualificationLevel);
+        if (module.UnitDefinitionId is null) module.QualificationLevel = TrimOrNull(command.QualificationLevel);
         module.SortOrder = Math.Max(0, command.SortOrder);
         module.PublicationStatus = publicationStatus;
         module.AvailableFromUtc = command.AvailableFromUtc;
@@ -148,7 +203,9 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
             .Include(x => x.Criteria)
             .Include(x => x.Lessons).ThenInclude(x => x.Resources)
             .SingleOrDefaultAsync(x => x.Id == moduleId && x.Course!.TeacherUserId == teacherUserId, cancellationToken);
-        if (source is null || !IsEditable(source.Course!.Status)) return null;
+        // A canonical unit is delivered once per course. Copying its lessons is
+        // possible, but cloning the unit would create a second academic identity.
+        if (source is null || !IsEditable(source.Course!.Status) || source.UnitDefinitionId is not null) return null;
 
         var clone = new CourseModule
         {
@@ -263,6 +320,7 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
         var module = await OwnedModuleAsync(teacherUserId, command.ModuleId, cancellationToken);
         if (module is null
             || !IsEditable(module.Course!.Status)
+            || module.Course.LearningTrack?.IsBtecFocused == true
             || string.IsNullOrWhiteSpace(command.Code)
             || string.IsNullOrWhiteSpace(command.ArabicTitle)
             || string.IsNullOrWhiteSpace(command.EnglishTitle)
@@ -292,6 +350,7 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
         var aim = await db.BtecLearningAims.Include(x => x.CourseModule).ThenInclude(x => x!.Course).SingleOrDefaultAsync(x => x.Id == learningAimId && x.CourseModule!.Course!.TeacherUserId == teacherUserId, cancellationToken);
         if (aim is null
             || !IsEditable(aim.CourseModule!.Course!.Status)
+            || aim.CourseModule.UnitDefinitionId is not null
             || string.IsNullOrWhiteSpace(command.Code)
             || string.IsNullOrWhiteSpace(command.ArabicTitle)
             || string.IsNullOrWhiteSpace(command.EnglishTitle)
@@ -314,7 +373,7 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
     public async Task<bool> DeleteLearningAimAsync(string teacherUserId, Guid learningAimId, CancellationToken cancellationToken = default)
     {
         var aim = await db.BtecLearningAims.Include(x => x.CourseModule).ThenInclude(x => x!.Course).SingleOrDefaultAsync(x => x.Id == learningAimId && x.CourseModule!.Course!.TeacherUserId == teacherUserId, cancellationToken);
-        if (aim is null || !IsEditable(aim.CourseModule!.Course!.Status)) return false;
+        if (aim is null || !IsEditable(aim.CourseModule!.Course!.Status) || aim.CourseModule.UnitDefinitionId is not null) return false;
         var topicIds = await db.BtecTopics.Where(x => x.BtecLearningAimId == aim.Id).Select(x => x.Id).ToArrayAsync(cancellationToken);
         var lessons = await db.Lessons.Where(x => x.BtecLearningAimId == aim.Id || (x.BtecTopicId.HasValue && topicIds.Contains(x.BtecTopicId.Value))).ToListAsync(cancellationToken);
         foreach (var lesson in lessons) { lesson.BtecLearningAimId = null; lesson.BtecTopicId = null; }
@@ -388,6 +447,7 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
         var module = await OwnedModuleAsync(teacherUserId, command.ModuleId, cancellationToken);
         if (module is null
             || !IsEditable(module.Course!.Status)
+            || module.Course.LearningTrack?.IsBtecFocused == true
             || !TryCriterion(command.Code, command.Band, out var code, out var band)
             || string.IsNullOrWhiteSpace(command.ArabicDescription)
             || string.IsNullOrWhiteSpace(command.EnglishDescription)
@@ -418,6 +478,7 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
         var criterion = await db.BtecCriteria.Include(x => x.CourseModule).ThenInclude(x => x!.Course).SingleOrDefaultAsync(x => x.Id == criterionId && x.CourseModule!.Course!.TeacherUserId == teacherUserId, cancellationToken);
         if (criterion is null
             || !IsEditable(criterion.CourseModule!.Course!.Status)
+            || criterion.CourseModule.UnitDefinitionId is not null
             || !TryCriterion(command.Code, command.Band, out var code, out var band)
             || string.IsNullOrWhiteSpace(command.ArabicDescription)
             || string.IsNullOrWhiteSpace(command.EnglishDescription)
@@ -439,7 +500,7 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
     public async Task<bool> DeleteCriterionAsync(string teacherUserId, Guid criterionId, CancellationToken cancellationToken = default)
     {
         var criterion = await db.BtecCriteria.Include(x => x.CourseModule).ThenInclude(x => x!.Course).SingleOrDefaultAsync(x => x.Id == criterionId && x.CourseModule!.Course!.TeacherUserId == teacherUserId, cancellationToken);
-        if (criterion is null || !IsEditable(criterion.CourseModule!.Course!.Status)) return false;
+        if (criterion is null || !IsEditable(criterion.CourseModule!.Course!.Status) || criterion.CourseModule.UnitDefinitionId is not null) return false;
         db.BtecCriteria.Remove(criterion);
         db.AuditLogs.Add(Audit(teacherUserId, "BtecCriterionDeleted", nameof(BtecCriterion), criterionId.ToString()));
         await db.SaveChangesAsync(cancellationToken);
@@ -794,6 +855,87 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
 
     private static string? OptionalText(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
+    private async Task<UnitDefinition?> CanonicalUnitAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var unit = await db.UnitDefinitions.AsNoTracking()
+            .Include(x => x.QualificationVersion).ThenInclude(x => x!.Qualification)
+            .Include(x => x.LearningAims).ThenInclude(x => x.Criteria)
+            .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+        if (unit is null || !unit.IsActive || unit.PublishedAtUtc is null
+            || unit.QualificationVersion is not { IsActive: true, Qualification: { IsActive: true } }) return null;
+        // The delivery criterion code is unique within a unit. Reject catalogue
+        // definitions that cannot be represented without collapsing two codes.
+        var codes = unit.LearningAims.SelectMany(x => x.Criteria).Select(x => x.Code).ToArray();
+        return codes.Distinct(StringComparer.OrdinalIgnoreCase).Count() == codes.Length ? unit : null;
+    }
+
+    private static bool CanUseVersion(Course course, UnitDefinition unit) =>
+        course.QualificationVersionId is null || course.QualificationVersionId == unit.QualificationVersionId;
+
+    private async Task<T> InCanonicalTransactionAsync<T>(Func<Task<T>> work, T rejected, CancellationToken cancellationToken)
+    {
+        if (!db.Database.IsRelational()) return await work();
+        await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+        try
+        {
+            var result = await work();
+            await transaction.CommitAsync(cancellationToken);
+            return result;
+        }
+        catch (Exception ex) when (IsCanonicalWriteConflict(ex))
+        {
+            return rejected;
+        }
+    }
+
+    private static bool IsCanonicalWriteConflict(Exception exception)
+    {
+        for (Exception? current = exception; current is not null; current = current.InnerException)
+        {
+            if (current is PostgresException postgres
+                && postgres.SqlState is PostgresErrorCodes.SerializationFailure or PostgresErrorCodes.UniqueViolation) return true;
+        }
+        return false;
+    }
+
+    private void AddCanonicalStructure(CourseModule module, UnitDefinition unit)
+    {
+        foreach (var definition in unit.LearningAims.OrderBy(x => x.SortOrder))
+        {
+            var aim = new BtecLearningAim
+            {
+                CourseModule = module,
+                LearningAimDefinitionId = definition.Id,
+                Code = definition.Code,
+                ArabicTitle = definition.ArabicTitle,
+                EnglishTitle = definition.EnglishTitle,
+                ArabicDescription = definition.ArabicDescription,
+                EnglishDescription = definition.EnglishDescription,
+                SortOrder = definition.SortOrder,
+                PublicationStatus = ContentPublicationStatus.Published
+            };
+            module.LearningAims.Add(aim);
+            db.BtecLearningAims.Add(aim);
+            foreach (var criterionDefinition in definition.Criteria.OrderBy(x => x.SortOrder))
+            {
+                var criterion = new BtecCriterion
+                {
+                    CourseModule = module,
+                    BtecLearningAim = aim,
+                    AssessmentCriterionDefinitionId = criterionDefinition.Id,
+                    Code = criterionDefinition.Code,
+                    Band = criterionDefinition.Band,
+                    ArabicDescription = criterionDefinition.ArabicDescription,
+                    EnglishDescription = criterionDefinition.EnglishDescription,
+                    SortOrder = criterionDefinition.SortOrder,
+                    PublicationStatus = ContentPublicationStatus.Published
+                };
+                module.Criteria.Add(criterion);
+                db.BtecCriteria.Add(criterion);
+            }
+        }
+    }
+
     private async Task<Course?> OwnedCourseAsync(string teacherUserId, Guid courseId, CancellationToken cancellationToken) => await db.Courses.SingleOrDefaultAsync(x => x.Id == courseId && x.TeacherUserId == teacherUserId, cancellationToken);
     private async Task<Course?> CompleteCourseForQualityAsync(System.Linq.Expressions.Expression<Func<Course, bool>> predicate, CancellationToken cancellationToken) => await db.Courses
         .Include(x => x.LearningTrack)
@@ -802,7 +944,9 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
         .Include(x => x.Modules).ThenInclude(x => x.Criteria)
         .Include(x => x.LearningOutcomes)
         .SingleOrDefaultAsync(predicate, cancellationToken);
-    private async Task<CourseModule?> OwnedModuleAsync(string teacherUserId, Guid moduleId, CancellationToken cancellationToken) => await db.CourseModules.Include(x => x.Course).SingleOrDefaultAsync(x => x.Id == moduleId && x.Course!.TeacherUserId == teacherUserId, cancellationToken);
+    private async Task<CourseModule?> OwnedModuleAsync(string teacherUserId, Guid moduleId, CancellationToken cancellationToken) => await db.CourseModules
+        .Include(x => x.Course).ThenInclude(x => x!.LearningTrack)
+        .SingleOrDefaultAsync(x => x.Id == moduleId && x.Course!.TeacherUserId == teacherUserId, cancellationToken);
     private async Task<BtecLearningAim?> OwnedLearningAimAsync(string teacherUserId, Guid learningAimId, CancellationToken cancellationToken) => await db.BtecLearningAims.Include(x => x.CourseModule).ThenInclude(x => x!.Course).SingleOrDefaultAsync(x => x.Id == learningAimId && x.CourseModule!.Course!.TeacherUserId == teacherUserId, cancellationToken);
     private static bool IsEditable(CourseStatus status) => status is CourseStatus.Draft or CourseStatus.Rejected;
 

@@ -23,6 +23,7 @@ public sealed class PostgresMigrationTests
         Assert.Contains(migrations, migration => migration.EndsWith("_AddRegistrationEmailOutbox", StringComparison.Ordinal));
         Assert.Contains(migrations, migration => migration.EndsWith("_AddDurablePrivateStorageFoundation", StringComparison.Ordinal));
         Assert.Contains(migrations, migration => migration.EndsWith("_AddAcademicDeliveryPlanning", StringComparison.Ordinal));
+        Assert.Contains(migrations, migration => migration.EndsWith("_AddCanonicalLearnUnitLinks", StringComparison.Ordinal));
         Assert.False(db.Database.HasPendingModelChanges());
 
         var script = db.GetService<IMigrator>().GenerateScript(
@@ -33,9 +34,21 @@ public sealed class PostgresMigrationTests
         Assert.Contains("AddRegistrationEmailOutbox", script, StringComparison.Ordinal);
         Assert.Contains("AddDurablePrivateStorageFoundation", script, StringComparison.Ordinal);
         Assert.Contains("AddAcademicDeliveryPlanning", script, StringComparison.Ordinal);
+        Assert.Contains("AddCanonicalLearnUnitLinks", script, StringComparison.Ordinal);
+        Assert.Contains("IX_CourseModules_CourseId_UnitDefinitionId", script, StringComparison.Ordinal);
+        Assert.Contains("FK_CourseModules_UnitDefinitions_UnitDefinitionId", script, StringComparison.Ordinal);
         Assert.Contains("CREATE TABLE \"AcademicYears\"", script, StringComparison.Ordinal);
         Assert.Contains("CREATE TABLE \"AcademicTerms\"", script, StringComparison.Ordinal);
         Assert.Contains("CREATE TABLE \"DeliveryPlans\"", script, StringComparison.Ordinal);
         Assert.Contains("CREATE TABLE \"DeliveryPlanEntries\"", script, StringComparison.Ordinal);
+
+        var connection = db.Database.GetDbConnection();
+        await connection.OpenAsync();
+        await using var indexCheck = connection.CreateCommand();
+        indexCheck.CommandText = "SELECT count(*) FROM pg_indexes WHERE tablename = 'CourseModules' AND indexname = 'IX_CourseModules_CourseId_UnitDefinitionId' AND indexdef LIKE '%UNIQUE%'";
+        Assert.Equal(1L, Convert.ToInt64(await indexCheck.ExecuteScalarAsync()));
+        await using var foreignKeyCheck = connection.CreateCommand();
+        foreignKeyCheck.CommandText = "SELECT count(*) FROM information_schema.table_constraints WHERE table_name = 'CourseModules' AND constraint_type = 'FOREIGN KEY' AND constraint_name = 'FK_CourseModules_UnitDefinitions_UnitDefinitionId'";
+        Assert.Equal(1L, Convert.ToInt64(await foreignKeyCheck.ExecuteScalarAsync()));
     }
 }

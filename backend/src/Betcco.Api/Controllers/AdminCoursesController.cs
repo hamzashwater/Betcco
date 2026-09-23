@@ -41,7 +41,10 @@ public sealed class AdminCoursesController(ICourseAuthoringService courses, IFil
         var course = await db.Courses.AsNoTracking()
             .Include(x => x.Modules).ThenInclude(x => x.Lessons).ThenInclude(x => x.Resources)
             .Include(x => x.Modules).ThenInclude(x => x.LearningAims).ThenInclude(x => x.Topics)
+            .Include(x => x.Modules).ThenInclude(x => x.UnitDefinition)
+            .Include(x => x.Modules).ThenInclude(x => x.LearningAims).ThenInclude(x => x.LearningAimDefinition)
             .Include(x => x.Modules).ThenInclude(x => x.Criteria)
+            .Include(x => x.Modules).ThenInclude(x => x.Criteria).ThenInclude(x => x.AssessmentCriterionDefinition)
             .Include(x => x.LearningOutcomes)
             .Include(x => x.Subject)
             .SingleOrDefaultAsync(x => x.Id == courseId && (x.Status == Betcco.Domain.Common.CourseStatus.SubmittedForReview || x.Status == Betcco.Domain.Common.CourseStatus.Approved), cancellationToken);
@@ -86,9 +89,9 @@ public sealed class AdminCoursesController(ICourseAuthoringService courses, IFil
             }),
             modules = course.Modules.OrderBy(x => x.SortOrder).Select(module => new
             {
-                module.ArabicTitle,
-                module.EnglishTitle,
-                module.UnitCode,
+                ArabicTitle = module.UnitDefinition?.ArabicTitle ?? module.ArabicTitle,
+                EnglishTitle = module.UnitDefinition?.EnglishTitle ?? module.EnglishTitle,
+                UnitCode = module.UnitDefinition?.Code ?? module.UnitCode,
                 module.ArabicDescription,
                 module.EnglishDescription,
                 module.GuidedLearningHours,
@@ -98,11 +101,11 @@ public sealed class AdminCoursesController(ICourseAuthoringService courses, IFil
                 module.SortOrder,
                 learningAims = module.LearningAims.OrderBy(aim => aim.SortOrder).Select(aim => new
                 {
-                    aim.Code,
-                    aim.ArabicTitle,
-                    aim.EnglishTitle,
-                    aim.ArabicDescription,
-                    aim.EnglishDescription,
+                    Code = aim.LearningAimDefinition?.Code ?? aim.Code,
+                    ArabicTitle = aim.LearningAimDefinition?.ArabicTitle ?? aim.ArabicTitle,
+                    EnglishTitle = aim.LearningAimDefinition?.EnglishTitle ?? aim.EnglishTitle,
+                    ArabicDescription = aim.LearningAimDefinition?.ArabicDescription ?? aim.ArabicDescription,
+                    EnglishDescription = aim.LearningAimDefinition?.EnglishDescription ?? aim.EnglishDescription,
                     publicationStatus = aim.PublicationStatus.ToString(),
                     topics = aim.Topics.OrderBy(topic => topic.SortOrder).Select(topic => new
                     {
@@ -115,10 +118,10 @@ public sealed class AdminCoursesController(ICourseAuthoringService courses, IFil
                 }),
                 criteria = module.Criteria.OrderBy(criterion => criterion.SortOrder).Select(criterion => new
                 {
-                    criterion.Code,
-                    band = criterion.Band.ToString(),
-                    criterion.ArabicDescription,
-                    criterion.EnglishDescription,
+                    Code = criterion.AssessmentCriterionDefinition?.Code ?? criterion.Code,
+                    band = (criterion.AssessmentCriterionDefinition?.Band ?? criterion.Band).ToString(),
+                    ArabicDescription = criterion.AssessmentCriterionDefinition?.ArabicDescription ?? criterion.ArabicDescription,
+                    EnglishDescription = criterion.AssessmentCriterionDefinition?.EnglishDescription ?? criterion.EnglishDescription,
                     criterion.ArabicEvidenceGuidance,
                     criterion.EnglishEvidenceGuidance,
                     publicationStatus = criterion.PublicationStatus.ToString()

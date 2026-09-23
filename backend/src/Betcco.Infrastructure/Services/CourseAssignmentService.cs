@@ -122,15 +122,22 @@ public sealed class CourseAssignmentService(
         string englishDescription;
         if (command.BtecCriterionId is { } btecCriterionId)
         {
-            var source = await db.BtecCriteria.Include(criterion => criterion.CourseModule).SingleOrDefaultAsync(criterion => criterion.Id == btecCriterionId && criterion.CourseModule!.CourseId == assignment.CourseId, cancellationToken);
+            var source = await db.BtecCriteria.Include(criterion => criterion.CourseModule)
+                .Include(criterion => criterion.AssessmentCriterionDefinition)
+                .SingleOrDefaultAsync(criterion => criterion.Id == btecCriterionId
+                    && criterion.CourseModule!.CourseId == assignment.CourseId
+                    && (!assignment.CourseModuleId.HasValue || criterion.CourseModuleId == assignment.CourseModuleId), cancellationToken);
             if (source is null) return null;
-            code = source.Code;
-            band = source.Band;
-            arabicDescription = source.ArabicDescription;
-            englishDescription = source.EnglishDescription;
+            if (source.CourseModule!.UnitDefinitionId is not null && source.AssessmentCriterionDefinition is null) return null;
+            code = source.AssessmentCriterionDefinition?.Code ?? source.Code;
+            band = source.AssessmentCriterionDefinition?.Band ?? source.Band;
+            arabicDescription = source.AssessmentCriterionDefinition?.ArabicDescription ?? source.ArabicDescription;
+            englishDescription = source.AssessmentCriterionDefinition?.EnglishDescription ?? source.EnglishDescription;
         }
         else
         {
+            if (assignment.CourseModuleId is { } moduleId
+                && await db.CourseModules.AnyAsync(x => x.Id == moduleId && x.UnitDefinitionId != null, cancellationToken)) return null;
             if (!TryCriterion(command.Code, command.Band, out code, out band)
                 || string.IsNullOrWhiteSpace(command.ArabicDescription)
                 || string.IsNullOrWhiteSpace(command.EnglishDescription)) return null;

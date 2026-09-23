@@ -25,9 +25,13 @@ public sealed class CourseAuthoringController(ICourseAuthoringService courses, I
     public async Task<IActionResult> Get(Guid courseId, CancellationToken cancellationToken)
     {
         var course = await db.Courses.AsNoTracking()
+            .Include(x => x.LearningTrack)
             .Include(x => x.Modules).ThenInclude(x => x.Lessons).ThenInclude(x => x.Resources)
             .Include(x => x.Modules).ThenInclude(x => x.LearningAims).ThenInclude(x => x.Topics)
+            .Include(x => x.Modules).ThenInclude(x => x.UnitDefinition)
+            .Include(x => x.Modules).ThenInclude(x => x.LearningAims).ThenInclude(x => x.LearningAimDefinition)
             .Include(x => x.Modules).ThenInclude(x => x.Criteria)
+            .Include(x => x.Modules).ThenInclude(x => x.Criteria).ThenInclude(x => x.AssessmentCriterionDefinition)
             .Include(x => x.LearningOutcomes)
             .SingleOrDefaultAsync(x => x.Id == courseId && x.TeacherUserId == UserId, cancellationToken);
         return course is null ? NotFound() : Ok(CourseView(course));
@@ -55,8 +59,41 @@ public sealed class CourseAuthoringController(ICourseAuthoringService courses, I
     public async Task<IActionResult> AddModule(CreateModuleCommand command, CancellationToken cancellationToken)
     {
         var id = await courses.AddModuleAsync(UserId, command, cancellationToken);
-        return id is null ? Forbid() : Ok(new { id });
+        return id is null ? BadRequest(new ProblemDetails { Status = 400, Title = "Invalid course unit", Detail = "Select an active published unit from the course qualification version." }) : Ok(new { id });
     }
+
+    [HttpGet("{courseId:guid}/academic-units")]
+    public async Task<IActionResult> AcademicUnits(Guid courseId, CancellationToken cancellationToken)
+    {
+        var course = await db.Courses.AsNoTracking().Include(x => x.LearningTrack)
+            .SingleOrDefaultAsync(x => x.Id == courseId && x.TeacherUserId == UserId, cancellationToken);
+        if (course is null) return NotFound();
+        if (course.LearningTrack?.IsBtecFocused != true) return Ok(Array.Empty<object>());
+        var units = await db.UnitDefinitions.AsNoTracking()
+            .Where(x => x.IsActive && x.PublishedAtUtc != null
+                && x.QualificationVersion!.IsActive && x.QualificationVersion.Qualification!.IsActive
+                && (course.QualificationVersionId == null || x.QualificationVersionId == course.QualificationVersionId))
+            .OrderBy(x => x.QualificationVersion!.Qualification!.Code)
+            .ThenBy(x => x.QualificationVersion!.VersionCode).ThenBy(x => x.Code)
+            .Select(x => new
+            {
+                x.Id,
+                x.Code,
+                x.ArabicTitle,
+                x.EnglishTitle,
+                x.QualificationVersionId,
+                QualificationCode = x.QualificationVersion!.Qualification!.Code,
+                x.QualificationVersion.VersionCode
+            })
+            .Take(500).ToArrayAsync(cancellationToken);
+        return Ok(units);
+    }
+
+    [HttpPost("modules/{moduleId:guid}/academic-link")]
+    public async Task<IActionResult> LinkModule(Guid moduleId, LinkCourseUnitCommand command, CancellationToken cancellationToken) =>
+        await courses.LinkModuleToUnitAsync(UserId, moduleId, command.UnitDefinitionId, cancellationToken)
+            ? NoContent()
+            : BadRequest(new ProblemDetails { Status = 400, Title = "Academic mapping required", Detail = "This unit cannot be linked automatically. Check its existing aims, criteria, and qualification version." });
 
     [HttpPut("modules/{moduleId:guid}")]
     public async Task<IActionResult> UpdateModule(Guid moduleId, UpdateModuleCommand command, CancellationToken cancellationToken) => await courses.UpdateModuleAsync(UserId, moduleId, command, cancellationToken) ? NoContent() : BadRequest(new { message = "This module cannot be updated." });
@@ -421,13 +458,16 @@ public sealed class CourseAuthoringController(ICourseAuthoringService courses, I
         hasCover = course.CoverImageKey != null,
         course.SeoTitle,
         course.SeoDescription,
+        course.QualificationVersionId,
+        isBtecFocused = course.LearningTrack?.IsBtecFocused == true,
         outcomes = course.LearningOutcomes.OrderBy(x => x.SortOrder).Select(x => new { x.Id, x.ArabicText, x.EnglishText, x.SortOrder }),
         modules = course.Modules.OrderBy(x => x.SortOrder).Select(module => new
         {
             module.Id,
-            module.ArabicTitle,
-            module.EnglishTitle,
-            module.UnitCode,
+            module.UnitDefinitionId,
+            ArabicTitle = module.UnitDefinition?.ArabicTitle ?? module.ArabicTitle,
+            EnglishTitle = module.UnitDefinition?.EnglishTitle ?? module.EnglishTitle,
+            UnitCode = module.UnitDefinition?.Code ?? module.UnitCode,
             module.ArabicDescription,
             module.EnglishDescription,
             module.GuidedLearningHours,
@@ -439,11 +479,12 @@ public sealed class CourseAuthoringController(ICourseAuthoringService courses, I
             learningAims = module.LearningAims.OrderBy(aim => aim.SortOrder).Select(aim => new
             {
                 aim.Id,
-                aim.Code,
-                aim.ArabicTitle,
-                aim.EnglishTitle,
-                aim.ArabicDescription,
-                aim.EnglishDescription,
+                Code = aim.LearningAimDefinition?.Code ?? aim.Code,
+                ArabicTitle = aim.LearningAimDefinition?.ArabicTitle ?? aim.ArabicTitle,
+                EnglishTitle = aim.LearningAimDefinition?.EnglishTitle ?? aim.EnglishTitle,
+                ArabicDescription = aim.LearningAimDefinition?.ArabicDescription ?? aim.ArabicDescription,
+                EnglishDescription = aim.LearningAimDefinition?.EnglishDescription ?? aim.EnglishDescription,
+                aim.LearningAimDefinitionId,
                 publicationStatus = aim.PublicationStatus.ToString(),
                 aim.AvailableFromUtc,
                 aim.SortOrder,
@@ -463,10 +504,11 @@ public sealed class CourseAuthoringController(ICourseAuthoringService courses, I
             {
                 criterion.Id,
                 criterion.BtecLearningAimId,
-                criterion.Code,
-                band = criterion.Band.ToString(),
-                criterion.ArabicDescription,
-                criterion.EnglishDescription,
+                Code = criterion.AssessmentCriterionDefinition?.Code ?? criterion.Code,
+                band = (criterion.AssessmentCriterionDefinition?.Band ?? criterion.Band).ToString(),
+                ArabicDescription = criterion.AssessmentCriterionDefinition?.ArabicDescription ?? criterion.ArabicDescription,
+                EnglishDescription = criterion.AssessmentCriterionDefinition?.EnglishDescription ?? criterion.EnglishDescription,
+                criterion.AssessmentCriterionDefinitionId,
                 criterion.ArabicEvidenceGuidance,
                 criterion.EnglishEvidenceGuidance,
                 publicationStatus = criterion.PublicationStatus.ToString(),
