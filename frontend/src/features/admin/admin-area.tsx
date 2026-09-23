@@ -20,6 +20,7 @@ import { AcademicCatalogue } from "@/features/admin/academic-catalogue";
 import { RetakeManagement } from "@/features/admin/retake-management";
 import { EvaluatorSpecialismManagement } from "@/features/admin/evaluator-specialism-management";
 import { EligibleEvaluatorAssignment } from "@/features/admin/eligible-evaluator-assignment";
+import { AssessmentCoordinationQueue } from "@/features/admin/assessment-coordination-queue";
 import { SupportCenter } from "@/features/support/support-center";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -1811,6 +1812,7 @@ function AdminEvaluations() {
             : "Choose an evaluator eligible for the request's Unit. The server rechecks eligibility on assignment."
         }
       />
+      <AssessmentCoordinationQueue />
       {lastAssigned && (
         <p className="mt-4 text-sm text-green-700" role="status">
           {locale === "ar" ? "تم إسناد التقييم." : "Evaluation assigned."}
@@ -1824,6 +1826,9 @@ function AdminEvaluations() {
             onAssigned={() => {
               setLastAssigned(true);
               client.invalidateQueries({ queryKey: ["pending-evaluations"] });
+              client.invalidateQueries({
+                queryKey: ["assessment-coordination"],
+              });
               client.invalidateQueries({ queryKey: ["admin-dashboard"] });
             }}
           />

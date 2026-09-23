@@ -100,15 +100,15 @@ export function SiteNavigation() {
   const isStudent = user.data?.roles.includes("Student") ?? false;
   const authResolved = !user.isPending;
   const cartItemCount = cart.data?.items.length ?? 0;
-  const brandDestination = isWorkspace
-    ? `/${locale}/${workspace}/dashboard`
-    : `/${locale}`;
   const isLeadVerifier = user.data?.roles.includes("LeadInternalVerifier");
   const canManageEvaluatorSpecialisms = user.data?.roles.some(
     (role) => role === "Admin" || role === "SystemAdmin",
   );
+  const isCourseReviewer = user.data?.roles.includes("CourseReviewer") ?? false;
+  const isCoordinatorOnly =
+    isCourseReviewer && !canManageEvaluatorSpecialisms && !isLeadVerifier;
   const dashboardRole =
-    canManageEvaluatorSpecialisms || isLeadVerifier
+    canManageEvaluatorSpecialisms || isLeadVerifier || isCourseReviewer
       ? "admin"
       : user.data?.roles.includes("Teacher")
         ? "teacher"
@@ -117,16 +117,27 @@ export function SiteNavigation() {
   // anchored to that workspace even if the browser has a stale profile cache.
   const visibleAccountRole = workspace ?? dashboardRole;
   const accountDestination =
-    visibleAccountRole === "admin" &&
-    isLeadVerifier &&
-    !canManageEvaluatorSpecialisms
-      ? `/${locale}/admin/retakes`
-      : `/${locale}/${visibleAccountRole}/dashboard`;
+    visibleAccountRole === "admin" && isCoordinatorOnly
+      ? `/${locale}/admin/evaluations`
+      : visibleAccountRole === "admin" &&
+          isLeadVerifier &&
+          !canManageEvaluatorSpecialisms
+        ? `/${locale}/admin/retakes`
+        : `/${locale}/${visibleAccountRole}/dashboard`;
+  const brandDestination = isWorkspace
+    ? workspace === "admin" && isCoordinatorOnly
+      ? `/${locale}/admin/evaluations`
+      : `/${locale}/${workspace}/dashboard`
+    : `/${locale}`;
   const accountLabel =
     visibleAccountRole === "admin"
-      ? locale === "ar"
-        ? "حساب الأدمن"
-        : "Admin account"
+      ? isCoordinatorOnly
+        ? locale === "ar"
+          ? "متابعة التقييمات"
+          : "Assessment coordination"
+        : locale === "ar"
+          ? "حساب الأدمن"
+          : "Admin account"
       : visibleAccountRole === "teacher"
         ? locale === "ar"
           ? "حساب المعلم"
@@ -285,12 +296,24 @@ export function SiteNavigation() {
             label: locale === "ar" ? "أمان الحساب" : "Account security",
           },
         ];
-  const navLinks = isWorkspace ? workspaceNavLinks : publicNavLinks;
+  const navLinks = isWorkspace
+    ? isCoordinatorOnly && workspace === "admin"
+      ? workspaceNavLinks.filter(
+          (link) =>
+            link.href === `/${locale}/admin/evaluations` ||
+            link.href === `/${locale}/admin/security`,
+        )
+      : workspaceNavLinks
+    : publicNavLinks;
   const workspaceLabel =
     workspace === "admin"
-      ? locale === "ar"
-        ? "مساحة إدارة المنصة"
-        : "Platform management"
+      ? isCoordinatorOnly
+        ? locale === "ar"
+          ? "متابعة التقييمات"
+          : "Assessment coordination"
+        : locale === "ar"
+          ? "مساحة إدارة المنصة"
+          : "Platform management"
       : locale === "ar"
         ? "مساحة عمل المعلم"
         : "Teacher workspace";
