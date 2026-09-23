@@ -49,7 +49,46 @@ public sealed class CourseAuthoringController(ICourseAuthoringService courses, I
         if (!await HasValidTaxonomyAsync(normalizedCommand, cancellationToken))
             return BadRequest(new { message = "Choose a valid learning track, grade, specialization, and subject." });
 
-        return Ok(new { id = await courses.CreateDraftAsync(UserId, normalizedCommand, cancellationToken) });
+        try
+        {
+            return Ok(new { id = await courses.CreateDraftAsync(UserId, normalizedCommand, cancellationToken) });
+        }
+        catch (InvalidOperationException exception) when (exception.Message is "ActiveDeliveryPlanRequired" or "DeliveryPlanNotAllowed" or "SubjectOutsidePlanSpecialization")
+        {
+            return BadRequest(new ProblemDetails { Status = 400, Title = exception.Message });
+        }
+    }
+
+    [HttpGet("available-delivery-plans")]
+    public async Task<IActionResult> AvailableDeliveryPlans(CancellationToken cancellationToken)
+    {
+        var plans = await db.DeliveryPlans.AsNoTracking()
+            .Where(x => x.IsActive && x.GradeId != null && x.AcademicYear!.IsActive
+                && x.QualificationVersion!.IsActive && x.QualificationVersion.Qualification!.IsActive
+                && x.QualificationVersion.Qualification.SpecializationId != null
+                && x.QualificationVersion.Qualification.Specialization!.IsVisible
+                && x.Grade!.IsVisible && x.Grade.LearningTrack!.IsBtecFocused
+                && x.Grade.LearningTrackId == x.QualificationVersion.Qualification.Specialization.LearningTrackId)
+            .OrderByDescending(x => x.AcademicYear!.StartDate)
+            .ThenBy(x => x.Grade!.SortOrder)
+            .ThenBy(x => x.QualificationVersion!.Qualification!.Code)
+            .Select(x => new
+            {
+                x.Id,
+                x.GradeId,
+                gradeEnglishName = x.Grade!.EnglishName,
+                gradeArabicName = x.Grade.ArabicName,
+                learningTrackId = x.Grade.LearningTrackId,
+                x.AcademicYearId,
+                academicYearCode = x.AcademicYear!.Code,
+                x.QualificationVersionId,
+                qualificationCode = x.QualificationVersion!.Qualification!.Code,
+                versionCode = x.QualificationVersion.VersionCode,
+                specializationId = x.QualificationVersion.Qualification.SpecializationId,
+                specializationEnglishName = x.QualificationVersion.Qualification.Specialization!.EnglishName,
+                specializationArabicName = x.QualificationVersion.Qualification.Specialization.ArabicName
+            }).ToArrayAsync(cancellationToken);
+        return Ok(plans);
     }
 
     [HttpPut("{courseId:guid}")]
@@ -69,6 +108,27 @@ public sealed class CourseAuthoringController(ICourseAuthoringService courses, I
             .SingleOrDefaultAsync(x => x.Id == courseId && x.TeacherUserId == UserId, cancellationToken);
         if (course is null) return NotFound();
         if (course.LearningTrack?.IsBtecFocused != true) return Ok(Array.Empty<object>());
+        if (course.DeliveryPlanId is { } deliveryPlanId)
+        {
+            var entries = await db.DeliveryPlanEntries.AsNoTracking()
+                .Where(x => x.DeliveryPlanId == deliveryPlanId && x.DeliveryPlan!.IsActive
+                    && x.AcademicTerm!.IsActive && x.UnitDefinition!.IsActive && x.UnitDefinition.PublishedAtUtc != null)
+                .OrderBy(x => x.AcademicTerm!.SortOrder).ThenBy(x => x.SortOrder).ThenBy(x => x.Id)
+                .Select(x => new
+                {
+                    Id = x.UnitDefinitionId,
+                    DeliveryPlanEntryId = x.Id,
+                    x.UnitDefinition!.Code,
+                    x.UnitDefinition.ArabicTitle,
+                    x.UnitDefinition.EnglishTitle,
+                    x.UnitDefinition.QualificationVersionId,
+                    QualificationCode = x.UnitDefinition.QualificationVersion!.Qualification!.Code,
+                    x.UnitDefinition.QualificationVersion.VersionCode,
+                    TermCode = x.AcademicTerm!.Code
+                }).ToArrayAsync(cancellationToken);
+            return Ok(entries);
+        }
+        // Legacy courses may still use this list for explicit reconciliation of existing modules.
         var units = await db.UnitDefinitions.AsNoTracking()
             .Where(x => x.IsActive && x.PublishedAtUtc != null
                 && x.QualificationVersion!.IsActive && x.QualificationVersion.Qualification!.IsActive
@@ -459,12 +519,14 @@ public sealed class CourseAuthoringController(ICourseAuthoringService courses, I
         course.SeoTitle,
         course.SeoDescription,
         course.QualificationVersionId,
+        course.DeliveryPlanId,
         isBtecFocused = course.LearningTrack?.IsBtecFocused == true,
         outcomes = course.LearningOutcomes.OrderBy(x => x.SortOrder).Select(x => new { x.Id, x.ArabicText, x.EnglishText, x.SortOrder }),
         modules = course.Modules.OrderBy(x => x.SortOrder).Select(module => new
         {
             module.Id,
             module.UnitDefinitionId,
+            module.DeliveryPlanEntryId,
             ArabicTitle = module.UnitDefinition?.ArabicTitle ?? module.ArabicTitle,
             EnglishTitle = module.UnitDefinition?.EnglishTitle ?? module.EnglishTitle,
             UnitCode = module.UnitDefinition?.Code ?? module.UnitCode,

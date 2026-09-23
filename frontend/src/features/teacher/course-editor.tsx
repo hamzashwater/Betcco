@@ -46,6 +46,7 @@ type Taxonomy = {
 type CourseEditorData = {
   id: string;
   isBtecFocused: boolean;
+  deliveryPlanId?: string;
   qualificationVersionId?: string;
   arabicTitle: string;
   englishTitle: string;
@@ -85,12 +86,29 @@ type CourseEditorData = {
 
 type AcademicUnitOption = {
   id: string;
+  deliveryPlanEntryId?: string;
+  termCode?: string;
   code: string;
   arabicTitle: string;
   englishTitle: string;
   qualificationVersionId: string;
   qualificationCode: string;
   versionCode: string;
+};
+
+type AvailableDeliveryPlan = {
+  id: string;
+  gradeId: string;
+  gradeEnglishName: string;
+  gradeArabicName: string;
+  learningTrackId: string;
+  academicYearId: string;
+  academicYearCode: string;
+  qualificationCode: string;
+  versionCode: string;
+  specializationId: string;
+  specializationEnglishName: string;
+  specializationArabicName: string;
 };
 
 type LearningAimData = {
@@ -420,6 +438,15 @@ function CreateCourse() {
     queryKey: ["taxonomy", locale],
     queryFn: () => api<Taxonomy>(`/taxonomy?locale=${locale}`),
   });
+  const availablePlans = useQuery({
+    queryKey: ["teacher-available-delivery-plans"],
+    queryFn: () =>
+      api<AvailableDeliveryPlan[]>("/teacher/courses/available-delivery-plans"),
+  });
+  const [planSpecializationId, setPlanSpecializationId] = useState("");
+  const [planGradeId, setPlanGradeId] = useState("");
+  const [planYearId, setPlanYearId] = useState("");
+  const [deliveryPlanId, setDeliveryPlanId] = useState("");
   const [form, setForm] = useState({
     arabicTitle: "",
     englishTitle: "",
@@ -437,6 +464,68 @@ function CreateCourse() {
     taxonomy.data?.tracks[0]?.id ??
     "";
   const selectedTrackId = form.learningTrackId || defaultTrackId;
+  const isBtecTrack = taxonomy.data?.tracks.some(
+    (track) => track.id === selectedTrackId && track.isBtecFocused,
+  );
+  const chosenPlan = availablePlans.data?.find(
+    (plan) => plan.id === deliveryPlanId,
+  );
+  const trackPlans = (availablePlans.data ?? []).filter(
+    (plan) => plan.learningTrackId === selectedTrackId,
+  );
+  const specializationOptions = Array.from(
+    new Map(
+      trackPlans.map((plan) => [
+        plan.specializationId,
+        {
+          id: plan.specializationId,
+          name:
+            locale === "ar"
+              ? plan.specializationArabicName
+              : plan.specializationEnglishName,
+        },
+      ]),
+    ).values(),
+  );
+  const gradeOptions = Array.from(
+    new Map(
+      trackPlans
+        .filter((plan) => plan.specializationId === planSpecializationId)
+        .map((plan) => [
+          plan.gradeId,
+          {
+            id: plan.gradeId,
+            name:
+              locale === "ar" ? plan.gradeArabicName : plan.gradeEnglishName,
+          },
+        ]),
+    ).values(),
+  );
+  const yearOptions = Array.from(
+    new Map(
+      trackPlans
+        .filter(
+          (plan) =>
+            plan.specializationId === planSpecializationId &&
+            plan.gradeId === planGradeId,
+        )
+        .map((plan) => [
+          plan.academicYearId,
+          { id: plan.academicYearId, name: plan.academicYearCode },
+        ]),
+    ).values(),
+  );
+  const planOptions = trackPlans
+    .filter(
+      (plan) =>
+        plan.specializationId === planSpecializationId &&
+        plan.gradeId === planGradeId &&
+        plan.academicYearId === planYearId,
+    )
+    .map((plan) => ({
+      id: plan.id,
+      name: `${plan.qualificationCode} · ${plan.versionCode}`,
+    }));
   const create = useMutation({
     mutationFn: () =>
       api<{ id: string }>("/teacher/courses", {
@@ -447,8 +536,11 @@ function CreateCourse() {
           englishDescription:
             form.englishDescription.trim() || form.arabicDescription.trim(),
           learningTrackId: selectedTrackId || undefined,
-          gradeId: form.gradeId || null,
-          specializationId: form.specializationId || null,
+          gradeId: isBtecTrack ? chosenPlan?.gradeId : form.gradeId || null,
+          specializationId: isBtecTrack
+            ? chosenPlan?.specializationId
+            : form.specializationId || null,
+          deliveryPlanId: isBtecTrack ? deliveryPlanId || null : null,
           subjectId: form.subjectId || null,
           price: form.isFree ? 0 : Number(form.price),
         }),
@@ -546,6 +638,70 @@ function CreateCourse() {
           />
           {locale === "ar" ? "هذه دورة مجانية" : "This is a free course"}
         </label>
+        {isBtecTrack ? (
+          <div className="grid gap-3 rounded-2xl border border-border p-4 md:grid-cols-2">
+            <p className="font-bold md:col-span-2">
+              {locale === "ar"
+                ? "خطة تسليم BTEC المعتمدة"
+                : "Approved BTEC delivery plan"}
+            </p>
+            <SelectField
+              label={locale === "ar" ? "التخصص" : "Specialization"}
+              value={planSpecializationId}
+              onChange={(value) => {
+                setPlanSpecializationId(value);
+                setPlanGradeId("");
+                setPlanYearId("");
+                setDeliveryPlanId("");
+              }}
+              options={specializationOptions}
+            />
+            <SelectField
+              label={locale === "ar" ? "الصف" : "Grade"}
+              value={planGradeId}
+              onChange={(value) => {
+                setPlanGradeId(value);
+                setPlanYearId("");
+                setDeliveryPlanId("");
+              }}
+              options={gradeOptions}
+            />
+            <SelectField
+              label={locale === "ar" ? "السنة الأكاديمية" : "Academic year"}
+              value={planYearId}
+              onChange={(value) => {
+                setPlanYearId(value);
+                setDeliveryPlanId("");
+              }}
+              options={yearOptions}
+            />
+            <SelectField
+              label={locale === "ar" ? "خطة البرنامج" : "Programme plan"}
+              value={deliveryPlanId}
+              onChange={setDeliveryPlanId}
+              options={planOptions}
+            />
+            {availablePlans.isPending ? (
+              <p aria-busy="true">
+                {locale === "ar" ? "جارٍ تحميل الخطط…" : "Loading plans…"}
+              </p>
+            ) : null}
+            {availablePlans.isError ? (
+              <p role="alert" className="text-red-400">
+                {locale === "ar"
+                  ? "تعذر تحميل الخطط."
+                  : "Could not load plans."}
+              </p>
+            ) : null}
+            {availablePlans.isSuccess && trackPlans.length === 0 ? (
+              <p className="text-muted md:col-span-2">
+                {locale === "ar"
+                  ? "لا توجد خطة معتمدة. اطلب من المدير إعدادها."
+                  : "No approved plan is available. Ask an admin to create one."}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
         <details className="rounded-2xl border border-border bg-black/5 p-4">
           <summary className="cursor-pointer font-bold text-foreground">
             {locale === "ar"
@@ -554,40 +710,48 @@ function CreateCourse() {
           </summary>
           <p className="mt-2 text-sm text-muted">
             {locale === "ar"
-              ? "سيُستخدم مسار BTEC الافتراضي إن لم تختر مسارًا آخر. يمكنك إضافة الصف والتخصص والمادة الآن أو لاحقًا."
-              : "The default BTEC track is used unless you choose another one. Grade, specialization, and subject can be added now or later."}
+              ? "سيُستخدم مسار BTEC الافتراضي إن لم تختر مسارًا آخر. تتحدد بيانات BTEC من الخطة المعتمدة، ويمكن إضافة المادة اختياريًا."
+              : "The default BTEC track is used unless you choose another one. The approved plan sets BTEC grade and specialization; subject is optional."}
           </p>
           <div className="mt-4 grid gap-4 md:grid-cols-3">
             <SelectField
               label={locale === "ar" ? "المسار التعليمي" : "Learning track"}
               value={selectedTrackId}
-              onChange={(value) =>
+              onChange={(value) => {
                 setForm((current) => ({
                   ...current,
                   learningTrackId: value,
                   gradeId: "",
                   specializationId: "",
                   subjectId: "",
-                }))
-              }
+                }));
+                setDeliveryPlanId("");
+                setPlanSpecializationId("");
+                setPlanGradeId("");
+                setPlanYearId("");
+              }}
               options={taxonomy.data?.tracks ?? []}
             />
-            <SelectField
-              label={locale === "ar" ? "الصف" : "Grade"}
-              value={form.gradeId}
-              onChange={(value) => update("gradeId", value)}
-              options={(taxonomy.data?.grades ?? []).filter(
-                (item) => item.learningTrackId === selectedTrackId,
-              )}
-            />
-            <SelectField
-              label={locale === "ar" ? "التخصص" : "Specialization"}
-              value={form.specializationId}
-              onChange={(value) => update("specializationId", value)}
-              options={(taxonomy.data?.specializations ?? []).filter(
-                (item) => item.learningTrackId === selectedTrackId,
-              )}
-            />
+            {!isBtecTrack ? (
+              <SelectField
+                label={locale === "ar" ? "الصف" : "Grade"}
+                value={form.gradeId}
+                onChange={(value) => update("gradeId", value)}
+                options={(taxonomy.data?.grades ?? []).filter(
+                  (item) => item.learningTrackId === selectedTrackId,
+                )}
+              />
+            ) : null}
+            {!isBtecTrack ? (
+              <SelectField
+                label={locale === "ar" ? "التخصص" : "Specialization"}
+                value={form.specializationId}
+                onChange={(value) => update("specializationId", value)}
+                options={(taxonomy.data?.specializations ?? []).filter(
+                  (item) => item.learningTrackId === selectedTrackId,
+                )}
+              />
+            ) : null}
           </div>
           <div className="mt-4 grid gap-2 md:max-w-[calc(66.666%-0.5rem)]">
             <SelectField
@@ -598,7 +762,10 @@ function CreateCourse() {
                 .filter(
                   (item) =>
                     !item.specializationId ||
-                    item.specializationId === form.specializationId,
+                    item.specializationId ===
+                      (isBtecTrack
+                        ? chosenPlan?.specializationId
+                        : form.specializationId),
                 )
                 .map((item) => ({
                   ...item,
@@ -609,13 +776,21 @@ function CreateCourse() {
             />
             <TeacherSubjectCreator
               locale={locale}
-              specializationId={form.specializationId}
+              specializationId={
+                isBtecTrack
+                  ? (chosenPlan?.specializationId ?? "")
+                  : form.specializationId
+              }
               onCreated={(subjectId) => update("subjectId", subjectId)}
             />
           </div>
         </details>
         <button
-          disabled={create.isPending || taxonomy.isPending}
+          disabled={
+            create.isPending ||
+            taxonomy.isPending ||
+            (isBtecTrack && !chosenPlan)
+          }
           className="focus-ring inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-5 py-3 font-black text-slate-950 disabled:opacity-50"
         >
           <Plus size={18} aria-hidden="true" />
@@ -1866,7 +2041,7 @@ export function CurriculumEditor({
       api<AcademicUnitOption[]>(`/teacher/courses/${course.id}/academic-units`),
     enabled: course.isBtecFocused,
   });
-  const [unitDefinitionId, setUnitDefinitionId] = useState("");
+  const [deliveryPlanEntryId, setDeliveryPlanEntryId] = useState("");
   const [arabicTitle, setArabicTitle] = useState("");
   const [englishTitle, setEnglishTitle] = useState("");
   const [unitCode, setUnitCode] = useState("");
@@ -1876,7 +2051,9 @@ export function CurriculumEditor({
         method: "POST",
         body: JSON.stringify({
           courseId: course.id,
-          unitDefinitionId: course.isBtecFocused ? unitDefinitionId : null,
+          deliveryPlanEntryId: course.isBtecFocused
+            ? deliveryPlanEntryId
+            : null,
           arabicTitle,
           englishTitle: englishTitle.trim() || arabicTitle.trim(),
           unitCode: unitCode || null,
@@ -1887,7 +2064,7 @@ export function CurriculumEditor({
       setArabicTitle("");
       setEnglishTitle("");
       setUnitCode("");
-      setUnitDefinitionId("");
+      setDeliveryPlanEntryId("");
       client.invalidateQueries({ queryKey: ["teacher-course", course.id] });
       client.invalidateQueries({
         queryKey: ["teacher-course-academic-units", course.id],
@@ -1931,7 +2108,17 @@ export function CurriculumEditor({
           {locale === "ar" ? "لا توجد وحدات بعد." : "No modules yet."}
         </p>
       )}
-      {!disabled ? (
+      {!disabled && course.isBtecFocused && !course.deliveryPlanId ? (
+        <p
+          className="mt-5 rounded-xl border border-border p-4 text-sm text-muted"
+          role="status"
+        >
+          {locale === "ar"
+            ? "هذه دورة BTEC قديمة بلا خطة معتمدة. الوحدات الحالية متاحة للقراءة، ولا يمكن إضافة وحدة جديدة قبل ربط خطة بواسطة الإدارة."
+            : "This legacy BTEC course has no approved plan. Existing units remain readable; new units require an admin plan."}
+        </p>
+      ) : null}
+      {!disabled && (!course.isBtecFocused || course.deliveryPlanId) ? (
         <div className="mt-5 rounded-2xl border border-primary/20 bg-primary/5 p-4">
           <h3 className="flex items-center gap-2 font-black">
             <FolderPlus size={18} className="text-primary" aria-hidden="true" />
@@ -1942,8 +2129,10 @@ export function CurriculumEditor({
               <label className="grid gap-1 text-sm font-bold md:col-span-2">
                 {locale === "ar" ? "الوحدة الأكاديمية" : "Academic unit"}
                 <select
-                  value={unitDefinitionId}
-                  onChange={(event) => setUnitDefinitionId(event.target.value)}
+                  value={deliveryPlanEntryId}
+                  onChange={(event) =>
+                    setDeliveryPlanEntryId(event.target.value)
+                  }
                   className="rounded-xl border border-border bg-surface-solid p-3"
                   aria-label={
                     locale === "ar" ? "الوحدة الأكاديمية" : "Academic unit"
@@ -1951,13 +2140,16 @@ export function CurriculumEditor({
                 >
                   <option value="">
                     {locale === "ar"
-                      ? "اختر وحدة منشورة"
-                      : "Choose a published unit"}
+                      ? "اختر وحدة ضمن الخطة"
+                      : "Choose a planned unit"}
                   </option>
                   {academicUnits.data?.map((unit) => (
-                    <option key={unit.id} value={unit.id}>
-                      {unit.qualificationCode} / {unit.versionCode} ·{" "}
-                      {unit.code} ·{" "}
+                    <option
+                      key={unit.deliveryPlanEntryId ?? unit.id}
+                      value={unit.deliveryPlanEntryId ?? ""}
+                    >
+                      {unit.termCode} · {unit.qualificationCode} /{" "}
+                      {unit.versionCode} · {unit.code} ·{" "}
                       {locale === "ar" ? unit.arabicTitle : unit.englishTitle}
                     </option>
                   ))}
@@ -2010,8 +2202,8 @@ export function CurriculumEditor({
           academicUnits.data.length === 0 ? (
             <p className="mt-2 text-sm text-muted">
               {locale === "ar"
-                ? "لا توجد وحدات منشورة لهذا الإصدار. اطلب من المدير نشر وحدة أكاديمية."
-                : "No published units are available for this version. Ask an admin to publish an academic unit."}
+                ? "لا توجد وحدات متاحة ضمن الخطة. اطلب من المدير إضافتها."
+                : "No units are available in this plan. Ask an admin to add them."}
             </p>
           ) : null}
           <button
@@ -2019,7 +2211,9 @@ export function CurriculumEditor({
             onClick={() => addModule.mutate()}
             disabled={
               addModule.isPending ||
-              (course.isBtecFocused ? !unitDefinitionId : !arabicTitle.trim())
+              (course.isBtecFocused
+                ? !deliveryPlanEntryId
+                : !arabicTitle.trim())
             }
             className="focus-ring mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
           >

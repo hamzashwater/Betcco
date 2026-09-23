@@ -10,7 +10,8 @@ public sealed record CreateCourseCommand(
     Guid? SpecializationId,
     Guid? SubjectId,
     decimal Price,
-    bool IsFree);
+    bool IsFree,
+    Guid? DeliveryPlanId = null);
 
 public sealed record CreateModuleCommand(
     Guid CourseId,
@@ -25,7 +26,8 @@ public sealed record CreateModuleCommand(
     string? QualificationLevel = null,
     string PublicationStatus = "Published",
     DateTimeOffset? AvailableFromUtc = null,
-    Guid? UnitDefinitionId = null);
+    Guid? UnitDefinitionId = null,
+    Guid? DeliveryPlanEntryId = null);
 
 public sealed record LinkCourseUnitCommand(Guid UnitDefinitionId);
 
