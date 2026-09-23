@@ -34,8 +34,11 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
     [Authorize(Policy = "Student")]
     [HttpPost]
     // Historic clients only; the Student wizard uses POST /scoped.
-    public IActionResult Create() => Conflict(new { code = "SCOPED_ASSESSMENT_REQUIRED",
-        message = "Create a request through a canonical assessment scope." });
+    public IActionResult Create() => Conflict(new
+    {
+        code = "SCOPED_ASSESSMENT_REQUIRED",
+        message = "Create a request through a canonical assessment scope."
+    });
 
     [Authorize(Policy = "Student")]
     [HttpPost("{requestId:guid}/files")]

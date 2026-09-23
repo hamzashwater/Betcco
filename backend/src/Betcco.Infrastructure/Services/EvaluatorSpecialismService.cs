@@ -22,30 +22,33 @@ public sealed class EvaluatorSpecialismService(BetccoDbContext db, UserManager<A
             .Where(x => evaluatorUserId == null || x.EvaluatorUserId == evaluatorUserId);
         var count = await query.CountAsync(cancellationToken);
         var items = await (from grant in query
-            join evaluator in db.Users.AsNoTracking() on grant.EvaluatorUserId equals evaluator.Id
-            join unit in db.UnitDefinitions.AsNoTracking() on grant.UnitDefinitionId equals unit.Id
-            orderby grant.GrantedAtUtc descending, grant.Id descending
-            select new EvaluatorSpecialismView(grant.Id, grant.EvaluatorUserId, evaluator.DisplayName,
-                unit.Id, unit.Code, unit.EnglishTitle, unit.ArabicTitle, unit.QualificationVersionId,
-                grant.GrantedAtUtc, grant.RevokedAtUtc, grant.RevokeReason))
+                           join evaluator in db.Users.AsNoTracking() on grant.EvaluatorUserId equals evaluator.Id
+                           join unit in db.UnitDefinitions.AsNoTracking() on grant.UnitDefinitionId equals unit.Id
+                           orderby grant.GrantedAtUtc descending, grant.Id descending
+                           select new EvaluatorSpecialismView(grant.Id, grant.EvaluatorUserId, evaluator.DisplayName,
+                               unit.Id, unit.Code, unit.EnglishTitle, unit.ArabicTitle, unit.QualificationVersionId,
+                               grant.GrantedAtUtc, grant.RevokedAtUtc, grant.RevokeReason))
             .Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
         return new EvaluatorSpecialismPage(items, page, pageSize, count);
     }
 
     public async Task<IReadOnlyList<EvaluatorStaffOption>> ListStaffAsync(CancellationToken cancellationToken = default) =>
         await (from user in db.Users.AsNoTracking()
-            join membership in db.UserRoles.AsNoTracking() on user.Id equals membership.UserId
-            join role in db.Roles.AsNoTracking() on membership.RoleId equals role.Id
-            where !user.IsFrozen && (role.Name == PlatformRoles.Teacher || role.Name == PlatformRoles.Assessor)
-            orderby user.DisplayName
-            select new EvaluatorStaffOption(user.Id, user.DisplayName))
-            .Distinct().Take(500).ToListAsync(cancellationToken);
+               join membership in db.UserRoles.AsNoTracking() on user.Id equals membership.UserId
+               join role in db.Roles.AsNoTracking() on membership.RoleId equals role.Id
+               where !user.IsFrozen && (role.Name == PlatformRoles.Teacher || role.Name == PlatformRoles.Assessor)
+               select new { user.Id, user.DisplayName })
+            .Distinct().OrderBy(x => x.DisplayName).ThenBy(x => x.Id)
+            .Take(500).Select(x => new EvaluatorStaffOption(x.Id, x.DisplayName))
+            .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<EvaluatorUnitOption>> ListUnitsAsync(CancellationToken cancellationToken = default) =>
         await db.UnitDefinitions.AsNoTracking().Where(x => x.IsActive)
             .OrderBy(x => x.Code).ThenBy(x => x.EnglishTitle)
             .Select(x => new EvaluatorUnitOption(x.Id, x.Code, x.EnglishTitle,
-                x.ArabicTitle, x.QualificationVersionId))
+                x.ArabicTitle, x.QualificationVersionId,
+                x.QualificationVersion!.Qualification!.Code,
+                x.QualificationVersion.VersionCode))
             .Take(500).ToListAsync(cancellationToken);
 
     public async Task<SpecialismWriteResult> GrantAsync(Guid evaluatorUserId, Guid unitDefinitionId,
@@ -72,16 +75,24 @@ public sealed class EvaluatorSpecialismService(BetccoDbContext db, UserManager<A
             GrantedAtUtc = DateTimeOffset.UtcNow
         };
         db.EvaluatorUnitSpecialisms.Add(grant);
-        db.AuditLogs.Add(new AuditLog { ActorUserId = actorUserId.ToString(), Action = "EvaluatorUnitSpecialismGranted",
-            EntityType = nameof(EvaluatorUnitSpecialism), EntityId = grant.Id.ToString(), Outcome = "Success" });
+        db.AuditLogs.Add(new AuditLog
+        {
+            ActorUserId = actorUserId.ToString(),
+            Action = "EvaluatorUnitSpecialismGranted",
+            EntityType = nameof(EvaluatorUnitSpecialism),
+            EntityId = grant.Id.ToString(),
+            Outcome = "Success"
+        });
         try
         {
             await db.SaveChangesAsync(cancellationToken);
             return SpecialismWriteResult.Success;
         }
         catch (DbUpdateException error) when (error.InnerException is PostgresException
-            { SqlState: PostgresErrorCodes.UniqueViolation,
-              ConstraintName: "IX_EvaluatorUnitSpecialisms_EvaluatorUserId_UnitDefinitionId" })
+        {
+            SqlState: PostgresErrorCodes.UniqueViolation,
+            ConstraintName: "IX_EvaluatorUnitSpecialisms_EvaluatorUserId_UnitDefinitionId"
+        })
         {
             db.ChangeTracker.Clear();
             return SpecialismWriteResult.AlreadyActive;
@@ -101,8 +112,14 @@ public sealed class EvaluatorSpecialismService(BetccoDbContext db, UserManager<A
         grant.RevokedAtUtc = DateTimeOffset.UtcNow;
         grant.RevokedByUserId = actorUserId;
         grant.RevokeReason = reason;
-        db.AuditLogs.Add(new AuditLog { ActorUserId = actorUserId.ToString(), Action = "EvaluatorUnitSpecialismRevoked",
-            EntityType = nameof(EvaluatorUnitSpecialism), EntityId = grant.Id.ToString(), Outcome = "Success" });
+        db.AuditLogs.Add(new AuditLog
+        {
+            ActorUserId = actorUserId.ToString(),
+            Action = "EvaluatorUnitSpecialismRevoked",
+            EntityType = nameof(EvaluatorUnitSpecialism),
+            EntityId = grant.Id.ToString(),
+            Outcome = "Success"
+        });
         try
         {
             await db.SaveChangesAsync(cancellationToken);
@@ -125,14 +142,15 @@ public sealed class EvaluatorSpecialismService(BetccoDbContext db, UserManager<A
         var unitId = await ResolveUnitIdAsync(db, request, cancellationToken);
         if (unitId is null) return (AssignmentResult.AcademicMappingRequired, []);
         var candidates = await (from grant in db.EvaluatorUnitSpecialisms.AsNoTracking()
-            join user in db.Users.AsNoTracking() on grant.EvaluatorUserId equals user.Id
-            join membership in db.UserRoles.AsNoTracking() on user.Id equals membership.UserId
-            join role in db.Roles.AsNoTracking() on membership.RoleId equals role.Id
-            where grant.UnitDefinitionId == unitId && grant.RevokedAtUtc == null && !user.IsFrozen
-                && (role.Name == PlatformRoles.Teacher || role.Name == PlatformRoles.Assessor)
-            orderby user.DisplayName
-            select new EligibleEvaluatorView(user.Id, user.DisplayName))
-            .Distinct().Take(500).ToListAsync(cancellationToken);
+                                join user in db.Users.AsNoTracking() on grant.EvaluatorUserId equals user.Id
+                                join membership in db.UserRoles.AsNoTracking() on user.Id equals membership.UserId
+                                join role in db.Roles.AsNoTracking() on membership.RoleId equals role.Id
+                                where grant.UnitDefinitionId == unitId && grant.RevokedAtUtc == null && !user.IsFrozen
+                                    && (role.Name == PlatformRoles.Teacher || role.Name == PlatformRoles.Assessor)
+                                select new { user.Id, user.DisplayName })
+            .Distinct().OrderBy(x => x.DisplayName).ThenBy(x => x.Id)
+            .Take(500).Select(x => new EligibleEvaluatorView(x.Id, x.DisplayName))
+            .ToListAsync(cancellationToken);
         return (AssignmentResult.Success, candidates);
     }
 

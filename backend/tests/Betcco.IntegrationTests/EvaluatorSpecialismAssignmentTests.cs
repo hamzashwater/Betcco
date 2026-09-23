@@ -21,18 +21,31 @@ public sealed class EvaluatorSpecialismAssignmentTests
 
         Assert.Equal(AssignmentResult.UnitSpecialismRequired,
             await service.AssignWithOutcomeAsync("reviewer", request.Id, evaluatorId.ToString()));
-        var otherUnit = new UnitDefinition { QualificationVersionId = unit.QualificationVersionId,
-            Code = "U2", EnglishTitle = "Other", ArabicTitle = "أخرى" };
+        var otherUnit = new UnitDefinition
+        {
+            QualificationVersionId = unit.QualificationVersionId,
+            Code = "U2",
+            EnglishTitle = "Other",
+            ArabicTitle = "أخرى"
+        };
         db.UnitDefinitions.Add(otherUnit);
-        var wrongGrant = new EvaluatorUnitSpecialism { EvaluatorUserId = evaluatorId,
-            UnitDefinitionId = otherUnit.Id, GrantedByUserId = evaluatorId };
+        var wrongGrant = new EvaluatorUnitSpecialism
+        {
+            EvaluatorUserId = evaluatorId,
+            UnitDefinitionId = otherUnit.Id,
+            GrantedByUserId = evaluatorId
+        };
         db.EvaluatorUnitSpecialisms.Add(wrongGrant);
         await db.SaveChangesAsync();
         Assert.Equal(AssignmentResult.UnitSpecialismRequired,
             await service.AssignWithOutcomeAsync("reviewer", request.Id, evaluatorId.ToString()));
 
-        var grant = new EvaluatorUnitSpecialism { EvaluatorUserId = evaluatorId,
-            UnitDefinitionId = unit.Id, GrantedByUserId = evaluatorId };
+        var grant = new EvaluatorUnitSpecialism
+        {
+            EvaluatorUserId = evaluatorId,
+            UnitDefinitionId = unit.Id,
+            GrantedByUserId = evaluatorId
+        };
         db.EvaluatorUnitSpecialisms.Add(grant);
         await db.SaveChangesAsync();
         Assert.Equal(AssignmentResult.Success,
@@ -53,8 +66,12 @@ public sealed class EvaluatorSpecialismAssignmentTests
     {
         await using var db = NewContext();
         var (request, unit, evaluatorId) = await SeedAsync(db);
-        db.EvaluatorUnitSpecialisms.Add(new EvaluatorUnitSpecialism { EvaluatorUserId = evaluatorId,
-            UnitDefinitionId = unit.Id, GrantedByUserId = evaluatorId });
+        db.EvaluatorUnitSpecialisms.Add(new EvaluatorUnitSpecialism
+        {
+            EvaluatorUserId = evaluatorId,
+            UnitDefinitionId = unit.Id,
+            GrantedByUserId = evaluatorId
+        });
         await db.SaveChangesAsync();
         var service = new EvaluationService(db, new NullStorage(), new CleanScanner());
 
@@ -78,26 +95,56 @@ public sealed class EvaluatorSpecialismAssignmentTests
     {
         var evaluatorId = Guid.NewGuid();
         var role = new IdentityRole<Guid> { Name = PlatformRoles.Assessor, NormalizedName = "ASSESSOR" };
-        db.Users.Add(new ApplicationUser { Id = evaluatorId, UserName = "assessor@example.test",
-            DisplayName = "Assessor" });
+        db.Users.Add(new ApplicationUser
+        {
+            Id = evaluatorId,
+            UserName = "assessor@example.test",
+            DisplayName = "Assessor"
+        });
         db.Roles.Add(role);
         db.UserRoles.Add(new IdentityUserRole<Guid> { UserId = evaluatorId, RoleId = role.Id });
         var qualification = new Qualification { Code = "Q", ArabicName = "مؤهل", EnglishName = "Qualification" };
-        var version = new QualificationVersion { Qualification = qualification, VersionCode = "V1",
-            SourceReference = "test" };
-        var unit = new UnitDefinition { QualificationVersion = version, Code = "U1",
-            EnglishTitle = "Unit", ArabicTitle = "وحدة" };
-        var definition = new AssessmentDefinition { UnitDefinition = unit, Code = "A1",
-            EnglishTitle = "Assessment", ArabicTitle = "تقييم" };
+        var version = new QualificationVersion
+        {
+            Qualification = qualification,
+            VersionCode = "V1",
+            SourceReference = "test"
+        };
+        var unit = new UnitDefinition
+        {
+            QualificationVersion = version,
+            Code = "U1",
+            EnglishTitle = "Unit",
+            ArabicTitle = "وحدة"
+        };
+        var definition = new AssessmentDefinition
+        {
+            UnitDefinition = unit,
+            Code = "A1",
+            EnglishTitle = "Assessment",
+            ArabicTitle = "تقييم"
+        };
         var gradeId = Guid.NewGuid();
         var specializationId = Guid.NewGuid();
         var rubricId = Guid.NewGuid();
-        var scope = new AssessmentScope { AssessmentDefinition = definition, GradeId = gradeId,
-            SpecializationId = specializationId, RubricTemplateId = rubricId };
-        var request = new EvaluationRequest { StudentUserId = "student", GradeId = gradeId,
-            SpecializationId = specializationId, TaskTypeId = Guid.NewGuid(), RubricTemplateId = rubricId,
-            QualificationVersionId = version.Id, AssessmentScope = scope,
-            Status = EvaluationStatus.PendingAssignment };
+        var scope = new AssessmentScope
+        {
+            AssessmentDefinition = definition,
+            GradeId = gradeId,
+            SpecializationId = specializationId,
+            RubricTemplateId = rubricId
+        };
+        var request = new EvaluationRequest
+        {
+            StudentUserId = "student",
+            GradeId = gradeId,
+            SpecializationId = specializationId,
+            TaskTypeId = Guid.NewGuid(),
+            RubricTemplateId = rubricId,
+            QualificationVersionId = version.Id,
+            AssessmentScope = scope,
+            Status = EvaluationStatus.PendingAssignment
+        };
         db.EvaluationRequests.Add(request);
         await db.SaveChangesAsync();
         return (request, unit, evaluatorId);

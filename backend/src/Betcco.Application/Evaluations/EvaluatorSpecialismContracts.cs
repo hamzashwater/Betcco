@@ -32,7 +32,8 @@ public sealed record EvaluatorSpecialismPage(IReadOnlyList<EvaluatorSpecialismVi
 
 public sealed record EvaluatorStaffOption(Guid Id, string DisplayName);
 public sealed record EvaluatorUnitOption(Guid Id, string Code, string EnglishTitle,
-    string ArabicTitle, Guid QualificationVersionId);
+    string ArabicTitle, Guid QualificationVersionId, string QualificationCode,
+    string QualificationVersionCode);
 public sealed record EligibleEvaluatorView(Guid Id, string DisplayName);
 
 public interface IEvaluatorSpecialismService

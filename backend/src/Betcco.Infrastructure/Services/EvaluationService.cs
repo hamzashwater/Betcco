@@ -174,11 +174,11 @@ public sealed class EvaluationService(
             var unitId = await EvaluatorSpecialismService.ResolveUnitIdAsync(db, request, cancellationToken);
             if (unitId is null) return AssignmentResult.AcademicMappingRequired;
             var eligible = await (from user in db.Users.AsNoTracking()
-                join membership in db.UserRoles.AsNoTracking() on user.Id equals membership.UserId
-                join role in db.Roles.AsNoTracking() on membership.RoleId equals role.Id
-                where user.Id == evaluatorId && !user.IsFrozen
-                    && (role.Name == PlatformRoles.Teacher || role.Name == PlatformRoles.Assessor)
-                select user.Id).AnyAsync(cancellationToken);
+                                  join membership in db.UserRoles.AsNoTracking() on user.Id equals membership.UserId
+                                  join role in db.Roles.AsNoTracking() on membership.RoleId equals role.Id
+                                  where user.Id == evaluatorId && !user.IsFrozen
+                                      && (role.Name == PlatformRoles.Teacher || role.Name == PlatformRoles.Assessor)
+                                  select user.Id).AnyAsync(cancellationToken);
             if (!eligible) return AssignmentResult.EvaluatorNotEligible;
 
             // A shared row lock serializes revocation with the final grant check.
@@ -212,17 +212,23 @@ public sealed class EvaluationService(
             if (transaction is not null) await transaction.CommitAsync(cancellationToken);
             return AssignmentResult.Success;
         }
-        catch (DbUpdateException error) when (error.InnerException is PostgresException
-            { SqlState: PostgresErrorCodes.UniqueViolation or PostgresErrorCodes.SerializationFailure })
+        catch (Exception error) when (IsAssignmentRace(error))
         {
             db.ChangeTracker.Clear();
             return AssignmentResult.Conflict;
         }
-        catch (PostgresException error) when (error.SqlState == PostgresErrorCodes.SerializationFailure)
+    }
+
+    private static bool IsAssignmentRace(Exception error)
+    {
+        for (Exception? current = error; current is not null; current = current.InnerException)
         {
-            db.ChangeTracker.Clear();
-            return AssignmentResult.Conflict;
+            if (current is not PostgresException postgres) continue;
+            if (postgres.SqlState == PostgresErrorCodes.SerializationFailure) return true;
+            if (postgres.SqlState == PostgresErrorCodes.UniqueViolation
+                && postgres.ConstraintName == "IX_EvaluatorAssignments_EvaluationRequestId") return true;
         }
+        return false;
     }
 
     public async Task<bool> SetCriteriaPlanAsync(string teacherUserId, Guid requestId, IReadOnlyCollection<string> criterionCodes, CancellationToken cancellationToken = default)

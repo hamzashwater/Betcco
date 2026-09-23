@@ -662,11 +662,13 @@ export function LoginForm() {
       invalidateCsrfToken();
       queryClient.setQueryData(["current-user"], result.user);
       void queryClient.invalidateQueries({ queryKey: ["current-user"] });
-      const role = result.user.roles.includes("Admin")
-        ? "admin"
-        : result.user.roles.includes("Teacher")
-          ? "teacher"
-          : "student";
+      const role =
+        result.user.roles.includes("Admin") ||
+        result.user.roles.includes("SystemAdmin")
+          ? "admin"
+          : result.user.roles.includes("Teacher")
+            ? "teacher"
+            : "student";
       router.replace(`/${locale}/${role}/dashboard`);
       router.refresh();
     },
