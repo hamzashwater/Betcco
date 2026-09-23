@@ -92,6 +92,7 @@ public sealed class BetccoDbContext(
     public DbSet<EvaluationRequest> EvaluationRequests => Set<EvaluationRequest>();
     public DbSet<SubmissionFile> SubmissionFiles => Set<SubmissionFile>();
     public DbSet<EvaluatorAssignment> EvaluatorAssignments => Set<EvaluatorAssignment>();
+    public DbSet<EvaluatorUnitSpecialism> EvaluatorUnitSpecialisms => Set<EvaluatorUnitSpecialism>();
     public DbSet<CriterionResult> CriterionResults => Set<CriterionResult>();
     public DbSet<EvaluationEvidence> EvaluationEvidenceItems => Set<EvaluationEvidence>();
     public DbSet<EvaluationFeedback> EvaluationFeedbackItems => Set<EvaluationFeedback>();
@@ -1273,6 +1274,21 @@ public sealed class BetccoDbContext(
             .HasFilter("\"RetakeOfEvaluationRequestId\" IS NOT NULL");
         builder.Entity<CourseAssignmentFeedback>().HasIndex(x => new { x.CourseAssignmentSubmissionId, x.CreatedAtUtc });
         builder.Entity<EvaluatorAssignment>().HasIndex(x => x.EvaluationRequestId).IsUnique();
+        builder.Entity<EvaluatorUnitSpecialism>().Property(x => x.RevokeReason).HasMaxLength(500);
+        builder.Entity<EvaluatorUnitSpecialism>().Property(x => x.RevokedAtUtc).IsConcurrencyToken();
+        builder.Entity<EvaluatorUnitSpecialism>().HasOne<ApplicationUser>().WithMany()
+            .HasForeignKey(x => x.EvaluatorUserId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<EvaluatorUnitSpecialism>().HasOne<ApplicationUser>().WithMany()
+            .HasForeignKey(x => x.GrantedByUserId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<EvaluatorUnitSpecialism>().HasOne<ApplicationUser>().WithMany()
+            .HasForeignKey(x => x.RevokedByUserId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<EvaluatorUnitSpecialism>().HasOne(x => x.UnitDefinition).WithMany()
+            .HasForeignKey(x => x.UnitDefinitionId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<EvaluatorUnitSpecialism>().HasIndex(x => new { x.EvaluatorUserId, x.UnitDefinitionId })
+            .IsUnique().HasFilter("\"RevokedAtUtc\" IS NULL");
+        builder.Entity<EvaluatorUnitSpecialism>().HasIndex(x => new { x.UnitDefinitionId, x.RevokedAtUtc, x.EvaluatorUserId });
+        builder.Entity<EvaluatorAssignment>().HasOne(x => x.EvaluatorUnitSpecialism).WithMany()
+            .HasForeignKey(x => x.EvaluatorUnitSpecialismId).OnDelete(DeleteBehavior.Restrict);
         builder.Entity<SubmissionFile>().HasIndex(x => new { x.EvaluationRequestId, x.StorageKey }).IsUnique();
         builder.Entity<EvaluationEvidence>().HasIndex(x => new { x.EvaluationRequestId, x.CriterionCode }).IsUnique();
         builder.Entity<EvaluationFeedback>().HasIndex(x => new { x.EvaluationRequestId, x.CreatedAtUtc });

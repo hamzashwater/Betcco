@@ -16,7 +16,7 @@ namespace Betcco.Api.Controllers;
 [Authorize]
 [Route("api/v1/evaluations")]
 public sealed class EvaluationsController(IEvaluationService evaluations, ICommerceService commerce, IFileStorage storage, Betcco.Infrastructure.Persistence.BetccoDbContext db,
-    IScopedAssessmentService scopedAssessments) : ControllerBase
+    IScopedAssessmentService scopedAssessments, IEvaluatorSpecialismService specialisms) : ControllerBase
 {
     [Authorize(Policy = "Student")]
     [HttpGet("assessment-scopes")]
@@ -34,11 +34,8 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
     [Authorize(Policy = "Student")]
     [HttpPost]
     // Historic clients only; the Student wizard uses POST /scoped.
-    public async Task<IActionResult> Create(CreateEvaluationCommand command, CancellationToken cancellationToken)
-    {
-        var request = await evaluations.CreateDraftAsync(UserId, command, cancellationToken);
-        return request is null ? BadRequest(new { message = "The selected rubric does not match the educational context." }) : Ok(request);
-    }
+    public IActionResult Create() => Conflict(new { code = "SCOPED_ASSESSMENT_REQUIRED",
+        message = "Create a request through a canonical assessment scope." });
 
     [Authorize(Policy = "Student")]
     [HttpPost("{requestId:guid}/files")]
@@ -92,7 +89,32 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
 
     [Authorize(Policy = "CourseReviewer")]
     [HttpPost("{requestId:guid}/assign")]
-    public async Task<IActionResult> Assign(Guid requestId, AssignEvaluatorRequest request, CancellationToken cancellationToken) => await evaluations.AssignAsync(UserId, requestId, request.TeacherUserId, cancellationToken) ? NoContent() : BadRequest();
+    public async Task<IActionResult> Assign(Guid requestId, AssignEvaluatorRequest request, CancellationToken cancellationToken)
+    {
+        var result = await evaluations.AssignWithOutcomeAsync(UserId, requestId, request.TeacherUserId, cancellationToken);
+        return result switch
+        {
+            AssignmentResult.Success => NoContent(),
+            AssignmentResult.AcademicMappingRequired => Conflict(new { code = "ACADEMIC_MAPPING_REQUIRED" }),
+            AssignmentResult.EvaluatorNotEligible => BadRequest(new { code = "EVALUATOR_NOT_ELIGIBLE" }),
+            AssignmentResult.UnitSpecialismRequired => Conflict(new { code = "UNIT_SPECIALISM_REQUIRED" }),
+            AssignmentResult.Conflict => Conflict(new { code = "ASSIGNMENT_CONFLICT" }),
+            _ => Conflict(new { code = "REQUEST_NOT_ASSIGNABLE" })
+        };
+    }
+
+    [Authorize(Policy = "CourseReviewer")]
+    [HttpGet("{requestId:guid}/eligible-evaluators")]
+    public async Task<IActionResult> EligibleEvaluators(Guid requestId, CancellationToken cancellationToken)
+    {
+        var (result, candidates) = await specialisms.EligibleAsync(requestId, cancellationToken);
+        return result switch
+        {
+            AssignmentResult.Success => Ok(candidates),
+            AssignmentResult.AcademicMappingRequired => Conflict(new { code = "ACADEMIC_MAPPING_REQUIRED" }),
+            _ => NotFound()
+        };
+    }
 
     [Authorize(Policy = "AssessmentAssessor")]
     [HttpPost("{requestId:guid}/criteria-plan")]
