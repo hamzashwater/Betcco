@@ -70,6 +70,7 @@ public sealed class DatabaseInitializer(
 
         await db.SaveChangesAsync(cancellationToken);
         await EnsureSchoolTaxonomyAsync(cancellationToken);
+        await PearsonAcademicCatalogueSeed.ApplyAsync(db, cancellationToken);
         var rubric = await db.RubricTemplates.Include(x => x.Criteria).SingleOrDefaultAsync(x => x.ArabicTitle == "معايير مهمة البرمجة", cancellationToken);
         if (rubric is null)
         {
@@ -191,10 +192,7 @@ public sealed class DatabaseInitializer(
             return;
         }
 
-        grade.ArabicName = arabicName;
-        grade.EnglishName = englishName;
-        grade.SortOrder = sortOrder;
-        grade.IsVisible = true;
+        // Preserve administrator edits and archival on subsequent startups.
     }
 
     private async Task EnsureSpecializationAsync(LearningTrack track, string slug, string arabicName, string englishName, string accentColor, int sortOrder, CancellationToken cancellationToken)
@@ -206,11 +204,7 @@ public sealed class DatabaseInitializer(
             return;
         }
 
-        specialization.ArabicName = arabicName;
-        specialization.EnglishName = englishName;
-        specialization.AccentColor = accentColor;
-        specialization.SortOrder = sortOrder;
-        specialization.IsVisible = true;
+        // Preserve administrator edits and archival on subsequent startups.
     }
 
     private async Task EnsureLegalSettingsAsync(CancellationToken cancellationToken)

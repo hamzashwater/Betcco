@@ -1,6 +1,7 @@
 "use client";
 
 import { api } from "@/lib/api";
+import { AcademicCatalogManagement } from "@/features/admin/academic-catalog-management";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
@@ -56,6 +57,7 @@ type Unit = {
   arabicTitle: string;
   englishTitle: string;
   isActive: boolean;
+  source: string;
   aims: Aim[];
   definitions: Definition[];
 };
@@ -108,6 +110,15 @@ export function AcademicCatalogue() {
     onSuccess: () =>
       client.invalidateQueries({ queryKey: ["academic-catalogue", versionId] }),
   });
+  const unitStatus = useMutation({
+    mutationFn: (unit: Unit) =>
+      api(`/admin/academic-records/units/${unit.id}/status`, {
+        method: "PUT",
+        body: JSON.stringify({ isActive: !unit.isActive }),
+      }),
+    onSuccess: () =>
+      client.invalidateQueries({ queryKey: ["academic-catalogue", versionId] }),
+  });
   const issueLabel = (issue: string) => t(issueKeys[issue] ?? "invalidMapping");
   const state = (issues: string[], active: boolean) =>
     issues.length > 0
@@ -133,6 +144,7 @@ export function AcademicCatalogue() {
         </h1>
         <p className="mt-3 leading-7 text-muted">{t("description")}</p>
       </div>
+      {versions.isSuccess ? <AcademicCatalogManagement /> : null}
 
       {versions.isPending ? (
         <p className="card mt-7 p-6" role="status" aria-busy="true">
@@ -218,11 +230,34 @@ export function AcademicCatalogue() {
                           <span dir="ltr">{unit.code}</span> ·{" "}
                           {ar ? unit.arabicTitle : unit.englishTitle}
                         </h2>
+                        <p className="mt-1 text-xs text-muted">
+                          {unit.source === "PearsonOfficial"
+                            ? "PearsonOfficial"
+                            : unit.source === "AdminCustom"
+                              ? "AdminCustom"
+                              : "Unknown"}
+                        </p>
                       </div>
-                      <Badge
-                        text={unit.isActive ? t("active") : t("draft")}
-                        ready={unit.isActive}
-                      />
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          text={unit.isActive ? t("active") : t("draft")}
+                          ready={unit.isActive}
+                        />
+                        <button
+                          type="button"
+                          disabled={unitStatus.isPending}
+                          className="focus-ring rounded-lg border border-border px-2 py-1 text-xs disabled:opacity-50"
+                          onClick={() => unitStatus.mutate(unit)}
+                        >
+                          {unit.isActive
+                            ? ar
+                              ? "أرشفة"
+                              : "Archive"
+                            : ar
+                              ? "تفعيل"
+                              : "Activate"}
+                        </button>
+                      </div>
                     </div>
                     <div className="mt-5 grid min-w-0 gap-5 lg:grid-cols-2">
                       <div className="min-w-0 rounded-xl border border-border p-4">

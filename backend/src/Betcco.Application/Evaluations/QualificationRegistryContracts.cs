@@ -1,6 +1,6 @@
 namespace Betcco.Application.Evaluations;
 
-public sealed record CreateQualificationCommand(string Code, string ArabicName, string EnglishName);
+public sealed record CreateQualificationCommand(string Code, string ArabicName, string EnglishName, Guid? SpecializationId = null);
 
 public sealed record CreateQualificationVersionCommand(
     Guid QualificationId,
@@ -15,7 +15,8 @@ public sealed record QualificationVersionView(
     string SourceReference,
     DateTimeOffset EffectiveFromUtc,
     DateTimeOffset? EffectiveUntilUtc,
-    bool IsActive);
+    bool IsActive,
+    string Source = "Unknown");
 
 public sealed record QualificationView(
     Guid Id,
@@ -23,7 +24,9 @@ public sealed record QualificationView(
     string ArabicName,
     string EnglishName,
     bool IsActive,
-    IReadOnlyCollection<QualificationVersionView> Versions);
+    IReadOnlyCollection<QualificationVersionView> Versions,
+    Guid? SpecializationId = null,
+    string Source = "Unknown");
 
 public sealed record RubricQualificationBindingView(
     Guid RubricTemplateId,

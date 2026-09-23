@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Betcco.Application.Evaluations;
 using Betcco.Domain.Evaluations;
+using Betcco.Domain.Learning;
 using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -29,8 +30,11 @@ public sealed partial class QualificationRegistryService(BetccoDbContext db) : I
                         version.SourceReference,
                         version.EffectiveFromUtc,
                         version.EffectiveUntilUtc,
-                        version.IsActive))
-                    .ToArray()))
+                        version.IsActive,
+                        version.Source.ToString()))
+                    .ToArray(),
+                item.SpecializationId,
+                item.Source.ToString()))
             .ToArrayAsync(cancellationToken);
 
     public async Task<QualificationView?> CreateQualificationAsync(
@@ -41,6 +45,8 @@ public sealed partial class QualificationRegistryService(BetccoDbContext db) : I
         if (!TryCode(command.Code, out var code)
             || !TryText(command.ArabicName, 2, 256, out var arabicName)
             || !TryText(command.EnglishName, 2, 256, out var englishName)
+            || command.SpecializationId is not { } specializationId
+            || !await db.Specializations.AnyAsync(x => x.Id == specializationId && x.IsVisible && x.LearningTrack!.IsBtecFocused, cancellationToken)
             || await db.Qualifications.AnyAsync(item => item.Code == code, cancellationToken))
             return null;
 
@@ -48,7 +54,9 @@ public sealed partial class QualificationRegistryService(BetccoDbContext db) : I
         {
             Code = code,
             ArabicName = arabicName,
-            EnglishName = englishName
+            EnglishName = englishName,
+            SpecializationId = specializationId,
+            Source = AcademicSource.AdminCustom
         };
         db.Qualifications.Add(qualification);
         db.AuditLogs.Add(Audit(actorUserId, "QualificationCreated", nameof(Qualification), qualification.Id.ToString(), new { code }));
@@ -79,6 +87,7 @@ public sealed partial class QualificationRegistryService(BetccoDbContext db) : I
             QualificationId = qualification.Id,
             VersionCode = versionCode,
             SourceReference = sourceReference,
+            Source = AcademicSource.AdminCustom,
             EffectiveFromUtc = command.EffectiveFromUtc,
             EffectiveUntilUtc = command.EffectiveUntilUtc
         };
@@ -138,7 +147,9 @@ public sealed partial class QualificationRegistryService(BetccoDbContext db) : I
         qualification.ArabicName,
         qualification.EnglishName,
         qualification.IsActive,
-        []);
+        [],
+        qualification.SpecializationId,
+        qualification.Source.ToString());
 
     private static QualificationVersionView ToView(QualificationVersion version) => new(
         version.Id,
@@ -146,7 +157,8 @@ public sealed partial class QualificationRegistryService(BetccoDbContext db) : I
         version.SourceReference,
         version.EffectiveFromUtc,
         version.EffectiveUntilUtc,
-        version.IsActive);
+        version.IsActive,
+        version.Source.ToString());
 
     private static bool TryCode(string? raw, out string code)
     {

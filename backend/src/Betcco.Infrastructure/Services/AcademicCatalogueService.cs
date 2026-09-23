@@ -67,7 +67,7 @@ public sealed class AcademicCatalogueService(BetccoDbContext db) : IAcademicCata
                     definition.CriterionMappings.Select(x => x.AssessmentCriterionDefinitionId).ToArray(), issues, scopes);
             }).ToArray();
             return new AcademicUnitView(unit.Id, unit.Code, unit.ArabicTitle, unit.EnglishTitle, unit.SourceReference,
-                unit.IsActive, aims, definitions);
+                unit.IsActive, aims, definitions, unit.Source.ToString());
         }).ToArray();
         return new AcademicCatalogueView(new AcademicVersionView(version.Id, version.Qualification.Code, version.VersionCode,
             version.IsActive && version.Qualification.IsActive), units);
@@ -79,11 +79,14 @@ public sealed class AcademicCatalogueService(BetccoDbContext db) : IAcademicCata
         var arabicTitle = Text(command.ArabicTitle, 256);
         var englishTitle = Text(command.EnglishTitle, 256);
         var source = OptionalText(command.SourceReference, 2_048);
-        if (!await db.QualificationVersions.AnyAsync(x => x.Id == command.QualificationVersionId, cancellationToken))
-            throw new AcademicCatalogueException("QualificationVersionMissing");
+        var version = await db.QualificationVersions.AsNoTracking()
+            .SingleOrDefaultAsync(x => x.Id == command.QualificationVersionId, cancellationToken);
+        if (version is null) throw new AcademicCatalogueException("QualificationVersionMissing");
+        if (id is null && version.Source == AcademicSource.PearsonOfficial)
+            throw new AcademicCatalogueException("OfficialVersionImmutable");
         var unit = id is null ? null : await db.UnitDefinitions.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
         if (id is not null && unit is null) throw new AcademicCatalogueException("UnitMissing");
-        if (unit is not null && (unit.PublishedAtUtc is not null || unit.QualificationVersionId != command.QualificationVersionId))
+        if (unit is not null && (unit.Source == AcademicSource.PearsonOfficial || unit.PublishedAtUtc is not null || unit.QualificationVersionId != command.QualificationVersionId))
             throw new AcademicCatalogueException("PublishedImmutable");
         if (await db.UnitDefinitions.AnyAsync(x => x.QualificationVersionId == command.QualificationVersionId && x.Code == code && x.Id != id, cancellationToken))
             throw new AcademicCatalogueException("DuplicateCode");
@@ -92,7 +95,8 @@ public sealed class AcademicCatalogueService(BetccoDbContext db) : IAcademicCata
             QualificationVersionId = command.QualificationVersionId,
             Code = code,
             ArabicTitle = arabicTitle,
-            EnglishTitle = englishTitle
+            EnglishTitle = englishTitle,
+            Source = AcademicSource.AdminCustom
         };
         unit.Code = code;
         unit.ArabicTitle = arabicTitle;
@@ -313,7 +317,7 @@ public sealed class AcademicCatalogueService(BetccoDbContext db) : IAcademicCata
     {
         var unit = await db.UnitDefinitions.SingleOrDefaultAsync(x => x.Id == id, cancellationToken)
             ?? throw new AcademicCatalogueException("UnitMissing");
-        if (unit.PublishedAtUtc is not null) throw new AcademicCatalogueException("PublishedImmutable");
+        if (unit.Source == AcademicSource.PearsonOfficial || unit.PublishedAtUtc is not null) throw new AcademicCatalogueException("PublishedImmutable");
         return unit;
     }
 

@@ -27,6 +27,21 @@ type Version = {
   qualificationCode: string;
   versionCode: string;
   isActive: boolean;
+  specializationId?: string;
+  specializationEnglishName?: string;
+  specializationArabicName?: string;
+};
+type Grade = {
+  id: string;
+  learningTrackId: string;
+  arabicName: string;
+  englishName: string;
+  isVisible: boolean;
+};
+type Specialization = {
+  id: string;
+  learningTrackId: string;
+  isVisible: boolean;
 };
 type Unit = {
   id: string;
@@ -44,6 +59,11 @@ type PlanSummary = {
   academicYearCode: string;
   isActive: boolean;
   entryCount: number;
+  gradeId?: string;
+  gradeEnglishName?: string;
+  gradeArabicName?: string;
+  specializationEnglishName?: string;
+  specializationArabicName?: string;
 };
 type PlanEntry = {
   id: string;
@@ -77,6 +97,7 @@ export function DeliveryPlanning() {
   const [yearForm, setYearForm] = useState(emptyYear);
   const [termForm, setTermForm] = useState(emptyTerm);
   const [versionId, setVersionId] = useState("");
+  const [gradeId, setGradeId] = useState("");
   const [unitId, setUnitId] = useState("");
   const [entryTermId, setEntryTermId] = useState("");
 
@@ -94,6 +115,28 @@ export function DeliveryPlanning() {
         "/admin/delivery-planning/qualification-versions?pageSize=100",
       ),
   });
+  const grades = useQuery({
+    queryKey: ["academic-taxonomy-grades"],
+    queryFn: async () => {
+      const value = await api<Grade[]>("/admin/academic-taxonomy/grades");
+      return Array.isArray(value) ? value : [];
+    },
+  });
+  const specializations = useQuery({
+    queryKey: ["academic-taxonomy-specializations"],
+    queryFn: async () => {
+      const value = await api<Specialization[]>(
+        "/admin/academic-taxonomy/specializations",
+      );
+      return Array.isArray(value) ? value : [];
+    },
+  });
+  const selectedVersion = versions.data?.items.find(
+    (item) => item.id === versionId,
+  );
+  const selectedSpecialization = specializations.data?.find(
+    (item) => item.id === selectedVersion?.specializationId,
+  );
   const currentYearId = years.data?.items.some(
     (item) => item.id === selectedYearId,
   )
@@ -191,6 +234,7 @@ export function DeliveryPlanning() {
         body: JSON.stringify({
           qualificationVersionId: versionId,
           academicYearId: currentYearId,
+          gradeId,
         }),
       }),
     onSuccess: async (saved) => {
@@ -610,17 +654,15 @@ export function DeliveryPlanning() {
               <select
                 className="input"
                 value={versionId}
-                onChange={(e) => setVersionId(e.target.value)}
+                onChange={(e) => {
+                  setVersionId(e.target.value);
+                  setGradeId("");
+                }}
               >
                 <option value="">{t("chooseVersion")}</option>
                 {versions.data.items
                   .filter(
-                    (item) =>
-                      item.isActive &&
-                      !plans.data?.items.some(
-                        (planItem) =>
-                          planItem.qualificationVersionId === item.id,
-                      ),
+                    (item) => item.isActive && Boolean(item.specializationId),
                   )
                   .map((item) => (
                     <option key={item.id} value={item.id}>
@@ -629,10 +671,51 @@ export function DeliveryPlanning() {
                   ))}
               </select>
             </Field>
+            <Field label={locale === "ar" ? "الصف" : "Grade"}>
+              <select
+                className="input"
+                value={gradeId}
+                onChange={(event) => setGradeId(event.target.value)}
+              >
+                <option value="">
+                  {locale === "ar" ? "اختر الصف" : "Choose grade"}
+                </option>
+                {grades.data
+                  ?.filter(
+                    (item) =>
+                      item.isVisible &&
+                      item.learningTrackId ===
+                        selectedSpecialization?.learningTrackId,
+                  )
+                  .map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {locale === "ar" ? item.arabicName : item.englishName}
+                    </option>
+                  ))}
+              </select>
+            </Field>
+            <p className="text-sm text-muted">
+              {locale === "ar" ? "التخصص: " : "Specialization: "}
+              {locale === "ar"
+                ? selectedVersion?.specializationArabicName
+                : selectedVersion?.specializationEnglishName}
+            </p>
             <button
               type="button"
               className="focus-ring rounded-lg bg-primary px-4 py-3 font-bold text-white disabled:opacity-50"
-              disabled={!versionId || !currentYearId || isSaving}
+              disabled={
+                !versionId ||
+                !gradeId ||
+                !currentYearId ||
+                isSaving ||
+                Boolean(
+                  plans.data?.items.some(
+                    (item) =>
+                      item.qualificationVersionId === versionId &&
+                      item.gradeId === gradeId,
+                  ),
+                )
+              }
               onClick={() => createPlan.mutate()}
             >
               {isSaving ? t("saving") : t("createPlan")}
@@ -658,7 +741,10 @@ export function DeliveryPlanning() {
                   className={`focus-ring min-w-0 rounded-lg border px-3 py-2 text-sm ${currentPlanId === item.id ? "border-primary bg-primary/5" : "border-border"}`}
                 >
                   <span className="break-words font-bold">
-                    {item.qualificationCode} · {item.qualificationVersionCode}
+                    {item.qualificationCode} · {item.qualificationVersionCode} ·{" "}
+                    {locale === "ar"
+                      ? item.gradeArabicName
+                      : item.gradeEnglishName}
                   </span>{" "}
                   <span className="text-muted">({item.entryCount})</span>
                 </button>
