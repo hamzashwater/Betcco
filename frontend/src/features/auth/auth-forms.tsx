@@ -11,6 +11,9 @@ import {
   UserRound,
   Eye,
   EyeOff,
+  ArrowLeft,
+  KeyRound,
+  Mail,
 } from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
@@ -901,105 +904,200 @@ export function ResetPasswordForm() {
       }),
     onSuccess: () => router.push(`/${locale}/login`),
   });
-  return isReset ? (
-    <form
-      onSubmit={reset.handleSubmit((values) => updatePassword.mutate(values))}
-      className="card mx-auto grid max-w-md gap-4 p-6"
-    >
-      <h1 className="text-3xl font-black">
-        {locale === "ar" ? "تعيين كلمة مرور جديدة" : "Set a new password"}
-      </h1>
-      <Field
-        label={locale === "ar" ? "كلمة المرور الجديدة" : "New password"}
-        error={reset.formState.errors.password?.message}
-      >
-        <span className="relative block">
-          <input
-            type={showPassword ? "text" : "password"}
-            className="!pe-11"
-            {...reset.register("password")}
-          />
-          <PasswordVisibilityButton
-            locale={locale}
-            visible={showPassword}
-            onClick={() => setShowPassword((value) => !value)}
-          />
+  return (
+    <section className="shell grid min-w-0 gap-6 py-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] lg:items-center lg:py-12">
+      <div className="rounded-[1.75rem] bg-gradient-to-br from-[#11354c] via-[#11283c] to-[#0c1a2a] px-6 py-10 text-white sm:px-10 lg:min-h-[32rem] lg:py-16">
+        <p className="text-xs font-black tracking-[0.16em] text-[#79dfd0]">
+          BETCCO ACCOUNT
+        </p>
+        <h1 className="mt-5 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
+          {isReset
+            ? locale === "ar"
+              ? "أنشئ كلمة مرور جديدة لحسابك"
+              : "Create a new password for your account"
+            : locale === "ar"
+              ? "استعد الوصول إلى حسابك"
+              : "Recover access to your account"}
+        </h1>
+        <p className="mt-4 max-w-xl text-sm leading-7 text-slate-200">
+          {isReset
+            ? locale === "ar"
+              ? "استخدم الرابط الذي وصلك عبر البريد لإنشاء كلمة مرور جديدة."
+              : "Use the link sent to your email to set a new password."
+            : locale === "ar"
+              ? "أدخل بريد حسابك وسنرسل تعليمات الاستعادة إذا كان الحساب مؤهلًا."
+              : "Enter your account email. If the account is eligible, we will send recovery instructions."}
+        </p>
+        <div className="mt-9 grid gap-3 text-sm sm:grid-cols-2">
+          <p className="rounded-xl border border-white/10 p-4">
+            <ShieldCheck
+              size={20}
+              className="mb-3 text-[#79dfd0]"
+              aria-hidden="true"
+            />
+            {locale === "ar" ? "رابط استعادة آمن" : "Secure reset link"}
+          </p>
+          <p className="rounded-xl border border-white/10 p-4">
+            <KeyRound
+              size={20}
+              className="mb-3 text-[#79dfd0]"
+              aria-hidden="true"
+            />
+            {locale === "ar" ? "كلمة مرور جديدة" : "A new password"}
+          </p>
+        </div>
+      </div>
+      <div className="card min-w-0 p-5 sm:p-8">
+        <span className="grid size-12 place-items-center rounded-xl bg-primary/15 text-primary">
+          {isReset ? (
+            <KeyRound size={23} aria-hidden="true" />
+          ) : (
+            <Mail size={23} aria-hidden="true" />
+          )}
         </span>
-      </Field>
-      <Field
-        label={locale === "ar" ? "تأكيد كلمة المرور" : "Confirm password"}
-        error={reset.formState.errors.confirmPassword?.message}
-      >
-        <span className="relative block">
-          <input
-            type={showConfirmation ? "text" : "password"}
-            className="!pe-11"
-            {...reset.register("confirmPassword")}
+        <h2 className="mt-5 text-2xl font-black">
+          {isReset
+            ? locale === "ar"
+              ? "تعيين كلمة مرور جديدة"
+              : "Set a new password"
+            : locale === "ar"
+              ? "نسيت كلمة المرور؟"
+              : "Forgot your password?"}
+        </h2>
+        {isReset ? (
+          <form
+            onSubmit={reset.handleSubmit((values) =>
+              updatePassword.mutate(values),
+            )}
+            className="mt-5 grid gap-4"
+          >
+            <Field
+              label={locale === "ar" ? "كلمة المرور الجديدة" : "New password"}
+              error={reset.formState.errors.password?.message}
+            >
+              <span className="relative block">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  className="!pe-11"
+                  {...reset.register("password")}
+                />
+                <PasswordVisibilityButton
+                  locale={locale}
+                  visible={showPassword}
+                  onClick={() => setShowPassword((value) => !value)}
+                />
+              </span>
+            </Field>
+            <p className="text-xs leading-5 text-muted">
+              {locale === "ar"
+                ? "استخدم 12 حرفًا على الأقل، مع حرف إنجليزي كبير ورمز خاص."
+                : "Use at least 12 characters, including an uppercase letter and a symbol."}
+            </p>
+            <Field
+              label={locale === "ar" ? "تأكيد كلمة المرور" : "Confirm password"}
+              error={reset.formState.errors.confirmPassword?.message}
+            >
+              <span className="relative block">
+                <input
+                  type={showConfirmation ? "text" : "password"}
+                  autoComplete="new-password"
+                  className="!pe-11"
+                  {...reset.register("confirmPassword")}
+                />
+                <PasswordVisibilityButton
+                  locale={locale}
+                  visible={showConfirmation}
+                  onClick={() => setShowConfirmation((value) => !value)}
+                />
+              </span>
+            </Field>
+            <button
+              className="focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-slate-950 disabled:opacity-60"
+              disabled={updatePassword.isPending}
+            >
+              {updatePassword.isPending
+                ? locale === "ar"
+                  ? "جارٍ الحفظ…"
+                  : "Saving…"
+                : locale === "ar"
+                  ? "حفظ كلمة المرور"
+                  : "Save password"}
+            </button>
+            {updatePassword.isError && (
+              <p role="alert" className="text-sm text-red-600">
+                {updatePassword.error instanceof Error
+                  ? updatePassword.error.message
+                  : locale === "ar"
+                    ? "تعذر تعيين كلمة المرور."
+                    : "Password could not be reset."}
+              </p>
+            )}
+          </form>
+        ) : (
+          <form
+            onSubmit={forgot.handleSubmit((values) =>
+              requestReset.mutate(values),
+            )}
+            className="mt-5 grid gap-4"
+          >
+            <Field
+              label={locale === "ar" ? "البريد الإلكتروني" : "Email"}
+              error={forgot.formState.errors.email?.message}
+            >
+              <input
+                type="email"
+                autoComplete="email"
+                placeholder="name@example.com"
+                {...forgot.register("email")}
+              />
+            </Field>
+            <button
+              className="focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-slate-950 disabled:opacity-60"
+              disabled={requestReset.isPending}
+            >
+              {requestReset.isPending
+                ? locale === "ar"
+                  ? "جارٍ الإرسال…"
+                  : "Sending…"
+                : locale === "ar"
+                  ? "إرسال رابط الاستعادة"
+                  : "Send reset link"}
+            </button>
+            {requestReset.isSuccess && (
+              <p
+                role="status"
+                className="rounded-xl bg-emerald-500/10 p-3 text-sm text-emerald-700 dark:text-emerald-300"
+              >
+                {locale === "ar"
+                  ? "إذا كان الحساب مؤهلًا فسيصلك رابط الاستعادة."
+                  : "If an eligible account exists, a reset link has been sent."}
+              </p>
+            )}
+            {requestReset.isError && (
+              <p role="alert" className="text-sm text-red-600">
+                {requestReset.error instanceof Error
+                  ? requestReset.error.message
+                  : locale === "ar"
+                    ? "تعذر إرسال الطلب."
+                    : "The request could not be sent."}
+              </p>
+            )}
+          </form>
+        )}
+        <Link
+          href={`/${locale}/login`}
+          className="focus-ring mt-6 inline-flex items-center gap-2 text-sm font-bold text-primary"
+        >
+          <ArrowLeft
+            size={16}
+            aria-hidden="true"
+            className={locale === "ar" ? "rotate-180" : ""}
           />
-          <PasswordVisibilityButton
-            locale={locale}
-            visible={showConfirmation}
-            onClick={() => setShowConfirmation((value) => !value)}
-          />
-        </span>
-      </Field>
-      <button
-        className="focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-white disabled:opacity-60"
-        disabled={updatePassword.isPending}
-      >
-        {updatePassword.isPending
-          ? "…"
-          : locale === "ar"
-            ? "حفظ كلمة المرور"
-            : "Save password"}
-      </button>
-      {updatePassword.isError && (
-        <p role="alert" className="text-sm text-red-600">
-          {updatePassword.error instanceof Error
-            ? updatePassword.error.message
-            : "Request failed."}
-        </p>
-      )}
-    </form>
-  ) : (
-    <form
-      onSubmit={forgot.handleSubmit((values) => requestReset.mutate(values))}
-      className="card mx-auto grid max-w-md gap-4 p-6"
-    >
-      <h1 className="text-3xl font-black">
-        {locale === "ar" ? "استعادة كلمة المرور" : "Reset your password"}
-      </h1>
-      <Field
-        label={locale === "ar" ? "البريد الإلكتروني" : "Email"}
-        error={forgot.formState.errors.email?.message}
-      >
-        <input type="email" {...forgot.register("email")} />
-      </Field>
-      <button
-        className="focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-white disabled:opacity-60"
-        disabled={requestReset.isPending}
-      >
-        {requestReset.isPending
-          ? "…"
-          : locale === "ar"
-            ? "إرسال رابط الاستعادة"
-            : "Send reset link"}
-      </button>
-      {requestReset.isSuccess && (
-        <p role="status" className="text-sm text-emerald-700">
-          {locale === "ar"
-            ? "إذا كان الحساب موجودًا فسيصلك رابط الاستعادة."
-            : "If an eligible account exists, a reset link has been sent."}
-        </p>
-      )}
-      {requestReset.isError && (
-        <p role="alert" className="text-sm text-red-600">
-          {requestReset.error instanceof Error
-            ? requestReset.error.message
-            : "Request failed."}
-        </p>
-      )}
-    </form>
+          {locale === "ar" ? "العودة إلى تسجيل الدخول" : "Back to sign in"}
+        </Link>
+      </div>
+    </section>
   );
 }
 
