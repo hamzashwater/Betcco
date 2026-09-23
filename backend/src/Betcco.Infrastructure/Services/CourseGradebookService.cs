@@ -135,8 +135,10 @@ public sealed class CourseGradebookService(BetccoDbContext db) : ICourseGradeboo
                 submission.CourseAssignment.Course!.TeacherUserId,
                 CourseArabicTitle = submission.CourseAssignment.Course.ArabicTitle,
                 CourseEnglishTitle = submission.CourseAssignment.Course.EnglishTitle,
-                UnitArabicTitle = submission.CourseAssignment.CourseModule == null ? null : submission.CourseAssignment.CourseModule.ArabicTitle,
-                UnitEnglishTitle = submission.CourseAssignment.CourseModule == null ? null : submission.CourseAssignment.CourseModule.EnglishTitle,
+                UnitArabicTitle = submission.CourseAssignment.CourseModule == null ? null : submission.CourseAssignment.CourseModule.UnitDefinition != null
+                    ? submission.CourseAssignment.CourseModule.UnitDefinition.ArabicTitle : submission.CourseAssignment.CourseModule.ArabicTitle,
+                UnitEnglishTitle = submission.CourseAssignment.CourseModule == null ? null : submission.CourseAssignment.CourseModule.UnitDefinition != null
+                    ? submission.CourseAssignment.CourseModule.UnitDefinition.EnglishTitle : submission.CourseAssignment.CourseModule.EnglishTitle,
                 AssignmentArabicTitle = submission.CourseAssignment.ArabicTitle,
                 AssignmentEnglishTitle = submission.CourseAssignment.EnglishTitle
             })

@@ -137,8 +137,15 @@ public sealed class AdminDashboardController(BetccoDbContext db, ICourseGradeboo
         {
             courses = await db.Courses.AsNoTracking().OrderBy(course => course.ArabicTitle).Take(200)
                 .Select(course => new { course.Id, title = locale.StartsWith("ar") ? course.ArabicTitle : course.EnglishTitle }).ToListAsync(cancellationToken),
-            units = await db.CourseModules.AsNoTracking().OrderBy(unit => unit.ArabicTitle).Take(300)
-                .Select(unit => new { unit.Id, unit.CourseId, title = locale.StartsWith("ar") ? unit.ArabicTitle : unit.EnglishTitle }).ToListAsync(cancellationToken),
+            units = await db.CourseModules.AsNoTracking().OrderBy(unit => unit.UnitDefinition != null ? unit.UnitDefinition.ArabicTitle : unit.ArabicTitle).Take(300)
+                .Select(unit => new
+                {
+                    unit.Id,
+                    unit.CourseId,
+                    title = locale.StartsWith("ar")
+                    ? unit.UnitDefinition != null ? unit.UnitDefinition.ArabicTitle : unit.ArabicTitle
+                    : unit.UnitDefinition != null ? unit.UnitDefinition.EnglishTitle : unit.EnglishTitle
+                }).ToListAsync(cancellationToken),
             teachers = await db.Users.AsNoTracking().Where(user => db.UserRoles.Any(role => role.UserId == user.Id && role.RoleId == teacherRoleId)).OrderBy(user => user.DisplayName).Take(300)
                 .Select(user => new { id = user.Id.ToString(), user.DisplayName }).ToListAsync(cancellationToken),
             students = await db.Users.AsNoTracking().Where(user => db.UserRoles.Any(role => role.UserId == user.Id && role.RoleId == studentRoleId)).OrderBy(user => user.DisplayName).Take(500)
