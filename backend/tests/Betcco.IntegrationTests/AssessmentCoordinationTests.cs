@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Betcco.Api.Authorization;
 using Betcco.Api.Controllers;
 using Betcco.Application.Common;
+using Betcco.Application.Evaluations;
 using Betcco.Domain.Common;
 using Betcco.Domain.Evaluations;
 using Betcco.Infrastructure.Identity;
@@ -17,21 +18,34 @@ namespace Betcco.IntegrationTests;
 public sealed class AssessmentCoordinationTests
 {
     [Fact]
-    public void Queue_uses_existing_reviewer_permission_without_granting_assessment_or_verification()
+    public async Task Queue_uses_existing_reviewer_permission_without_granting_assessment_or_verification()
     {
         var policy = typeof(AssessmentCoordinationController)
             .GetCustomAttributes(typeof(AuthorizeAttribute), true)
             .Cast<AuthorizeAttribute>().Single().Policy;
         Assert.Equal("CourseReviewer", policy);
+        Assert.Equal(typeof(IAssessmentCoordinationService),
+            Assert.Single(typeof(AssessmentCoordinationController).GetConstructors().Single().GetParameters()).ParameterType);
 
         static ClaimsPrincipal UserIn(string role) => new(new ClaimsIdentity(
             [new Claim(ClaimTypes.Role, role)], "test"));
+        static async Task<bool> CanReadQueue(string role)
+        {
+            var requirement = new PlatformPermissionRequirement(PlatformPermissions.ReviewCourses);
+            var context = new AuthorizationHandlerContext([requirement], UserIn(role), null);
+            await new PlatformPermissionAuthorizationHandler().HandleAsync(context);
+            return context.HasSucceeded;
+        }
+        Assert.True(await CanReadQueue(PlatformRoles.CourseReviewer));
         Assert.True(PlatformPermissionAuthorizationHandler.HasPermission(
             UserIn(PlatformRoles.CourseReviewer), PlatformPermissions.ReviewCourses));
         foreach (var role in new[] { PlatformRoles.Student, PlatformRoles.Assessor,
                      PlatformRoles.InternalVerifier, PlatformRoles.LeadInternalVerifier })
+        {
+            Assert.False(await CanReadQueue(role));
             Assert.False(PlatformPermissionAuthorizationHandler.HasPermission(
                 UserIn(role), PlatformPermissions.ReviewCourses));
+        }
         Assert.False(PlatformPermissionAuthorizationHandler.HasPermission(
             UserIn(PlatformRoles.CourseReviewer), PlatformPermissions.Assess));
         Assert.False(PlatformPermissionAuthorizationHandler.HasPermission(
@@ -99,14 +113,17 @@ public sealed class AssessmentCoordinationTests
         });
         await db.SaveChangesAsync();
 
-        var controller = new AssessmentCoordinationController(db, new EvaluatorSpecialismService(db, null!));
+        var service = new AssessmentCoordinationService(db, new EvaluatorSpecialismService(db, null!));
+        var controller = new AssessmentCoordinationController(service);
         Assert.IsType<BadRequestObjectResult>((await controller.Queue(page: 0)).Result);
         Assert.IsType<BadRequestObjectResult>((await controller.Queue(pageSize: 51)).Result);
         Assert.IsType<BadRequestObjectResult>((await controller.Queue(status: "Completed")).Result);
         Assert.IsType<BadRequestObjectResult>((await controller.Queue(status: "2")).Result);
 
-        var all = Assert.IsType<AssessmentCoordinationPage>(
+        var all = await service.QueueAsync(null, 1, 10);
+        var httpPage = Assert.IsType<AssessmentCoordinationPage>(
             Assert.IsType<OkObjectResult>((await controller.Queue(pageSize: 10)).Result).Value);
+        Assert.Equal(all.Items.Select(item => item.Id), httpPage.Items.Select(item => item.Id));
         Assert.Equal(4, all.TotalCount);
         Assert.DoesNotContain(all.Items, item => item.Id == completed.Id);
         Assert.Contains(all.Items, item => item.Id == pending.Id && item.HasEligibleEvaluator == true
@@ -120,9 +137,7 @@ public sealed class AssessmentCoordinationTests
             property.Name.Contains("Student", StringComparison.OrdinalIgnoreCase)
             || property.Name.Contains("Comment", StringComparison.OrdinalIgnoreCase));
 
-        var page = Assert.IsType<AssessmentCoordinationPage>(
-            Assert.IsType<OkObjectResult>((await controller.Queue(
-                status: "PendingAssignment", page: 2, pageSize: 1)).Result).Value);
+        var page = await service.QueueAsync(EvaluationStatus.PendingAssignment, 2, 1);
         Assert.Equal(3, page.TotalCount);
         Assert.Single(page.Items);
         Assert.Equal("PendingAssignment", page.Items[0].Status);
@@ -130,8 +145,7 @@ public sealed class AssessmentCoordinationTests
         var grant = await db.EvaluatorUnitSpecialisms.SingleAsync();
         grant.RevokedAtUtc = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync();
-        var afterRevocation = Assert.IsType<AssessmentCoordinationPage>(
-            Assert.IsType<OkObjectResult>((await controller.Queue(pageSize: 10)).Result).Value);
+        var afterRevocation = await service.QueueAsync(null, 1, 10);
         Assert.Contains(afterRevocation.Items, item => item.Id == pending.Id
             && item.BlockerCode == "NoEligibleEvaluator");
         Assert.Contains(afterRevocation.Items, item => item.Id == assigned.Id
