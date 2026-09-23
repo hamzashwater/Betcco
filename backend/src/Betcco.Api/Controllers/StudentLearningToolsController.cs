@@ -363,7 +363,7 @@ public sealed class StudentLearningToolsController(
     {
         var studentId = UserId!;
         if (!await db.Enrollments.AsNoTracking().AnyAsync(item => item.CourseId == courseId && item.StudentUserId == studentId && (item.AccessEndsAtUtc == null || item.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken)) return NotFound();
-        var announcements = await db.CourseAnnouncements.AsNoTracking().Include(item => item.CourseModule).Include(item => item.Recipients)
+        var announcements = await db.CourseAnnouncements.AsNoTracking().Include(item => item.CourseModule).ThenInclude(module => module!.UnitDefinition).Include(item => item.Recipients)
             .Where(item => item.CourseId == courseId && item.IsPublished
                 && (item.Audience != AnnouncementAudience.SelectedStudents || item.Recipients.Any(recipient => recipient.StudentUserId == studentId)))
             .OrderByDescending(item => item.PublishedAtUtc).Take(50).ToListAsync(cancellationToken);
@@ -372,7 +372,9 @@ public sealed class StudentLearningToolsController(
             item.Id,
             title = Localize(locale, item.ArabicTitle, item.EnglishTitle),
             body = Localize(locale, item.ArabicBody, item.EnglishBody),
-            unitTitle = item.CourseModule is null ? null : Localize(locale, item.CourseModule.ArabicTitle, item.CourseModule.EnglishTitle),
+            unitTitle = item.CourseModule is null ? null : Localize(locale,
+                item.CourseModule.UnitDefinition?.ArabicTitle ?? item.CourseModule.ArabicTitle,
+                item.CourseModule.UnitDefinition?.EnglishTitle ?? item.CourseModule.EnglishTitle),
             audience = item.Audience.ToString(),
             item.PublishedAtUtc
         }));

@@ -24,6 +24,7 @@ public sealed class StudentCoursePlayerService(
             .Include(item => item.Modules)
                 .ThenInclude(item => item.Lessons)
                     .ThenInclude(item => item.Resources)
+            .Include(item => item.Modules).ThenInclude(item => item.UnitDefinition)
             .SingleOrDefaultAsync(item => item.Id == courseId && item.Status == CourseStatus.Published, cancellationToken);
         if (course is null) return null;
 
@@ -99,7 +100,7 @@ public sealed class StudentCoursePlayerService(
                 .ToArray();
             modules.Add(new StudentCoursePlayerModule(
                 module.Id,
-                Localize(locale, module.ArabicTitle, module.EnglishTitle),
+                Localize(locale, module.UnitDefinition?.ArabicTitle ?? module.ArabicTitle, module.UnitDefinition?.EnglishTitle ?? module.EnglishTitle),
                 !moduleAccess.IsAvailable,
                 moduleAccess.Reason,
                 moduleAccess.AvailableAtUtc,

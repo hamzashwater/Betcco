@@ -45,6 +45,8 @@ type Taxonomy = {
 
 type CourseEditorData = {
   id: string;
+  isBtecFocused: boolean;
+  qualificationVersionId?: string;
   arabicTitle: string;
   englishTitle: string;
   arabicDescription: string;
@@ -63,6 +65,7 @@ type CourseEditorData = {
   }[];
   modules: {
     id: string;
+    unitDefinitionId?: string;
     arabicTitle: string;
     englishTitle: string;
     unitCode?: string;
@@ -78,6 +81,16 @@ type CourseEditorData = {
     criteria: CriterionData[];
     lessons: LessonData[];
   }[];
+};
+
+type AcademicUnitOption = {
+  id: string;
+  code: string;
+  arabicTitle: string;
+  englishTitle: string;
+  qualificationVersionId: string;
+  qualificationCode: string;
+  versionCode: string;
 };
 
 type LearningAimData = {
@@ -1838,7 +1851,7 @@ function OutcomesEditor({
   );
 }
 
-function CurriculumEditor({
+export function CurriculumEditor({
   course,
   disabled,
 }: {
@@ -1847,6 +1860,13 @@ function CurriculumEditor({
 }) {
   const locale = useLocale();
   const client = useQueryClient();
+  const academicUnits = useQuery({
+    queryKey: ["teacher-course-academic-units", course.id],
+    queryFn: () =>
+      api<AcademicUnitOption[]>(`/teacher/courses/${course.id}/academic-units`),
+    enabled: course.isBtecFocused,
+  });
+  const [unitDefinitionId, setUnitDefinitionId] = useState("");
   const [arabicTitle, setArabicTitle] = useState("");
   const [englishTitle, setEnglishTitle] = useState("");
   const [unitCode, setUnitCode] = useState("");
@@ -1856,6 +1876,7 @@ function CurriculumEditor({
         method: "POST",
         body: JSON.stringify({
           courseId: course.id,
+          unitDefinitionId: course.isBtecFocused ? unitDefinitionId : null,
           arabicTitle,
           englishTitle: englishTitle.trim() || arabicTitle.trim(),
           unitCode: unitCode || null,
@@ -1866,7 +1887,11 @@ function CurriculumEditor({
       setArabicTitle("");
       setEnglishTitle("");
       setUnitCode("");
+      setUnitDefinitionId("");
       client.invalidateQueries({ queryKey: ["teacher-course", course.id] });
+      client.invalidateQueries({
+        queryKey: ["teacher-course-academic-units", course.id],
+      });
     },
   });
   return (
@@ -1896,6 +1921,8 @@ function CurriculumEditor({
               module={module}
               courseId={course.id}
               disabled={disabled}
+              isBtecFocused={course.isBtecFocused}
+              academicUnits={academicUnits.data ?? []}
             />
           ))}
         </div>
@@ -1911,39 +1938,89 @@ function CurriculumEditor({
             {locale === "ar" ? "إضافة وحدة" : "Add module"}
           </h3>
           <div className="mt-3 grid gap-3 md:grid-cols-2">
-            <input
-              value={arabicTitle}
-              onChange={(event) => setArabicTitle(event.target.value)}
-              placeholder={
-                locale === "ar" ? "اسم الوحدة بالعربية" : "Arabic module title"
-              }
-              className="rounded-xl border border-border bg-transparent p-3"
-            />
-            <input
-              value={unitCode}
-              onChange={(event) => setUnitCode(event.target.value)}
-              placeholder={
-                locale === "ar"
-                  ? "رمز الوحدة (مثال: UNIT-1)"
-                  : "Unit code (e.g. UNIT-1)"
-              }
-              className="rounded-xl border border-border bg-transparent p-3"
-            />
-            <input
-              value={englishTitle}
-              onChange={(event) => setEnglishTitle(event.target.value)}
-              placeholder={
-                locale === "ar"
-                  ? "اسم الوحدة بالإنجليزية (اختياري)"
-                  : "English module title (optional)"
-              }
-              className="rounded-xl border border-border bg-transparent p-3"
-            />
+            {course.isBtecFocused ? (
+              <label className="grid gap-1 text-sm font-bold md:col-span-2">
+                {locale === "ar" ? "الوحدة الأكاديمية" : "Academic unit"}
+                <select
+                  value={unitDefinitionId}
+                  onChange={(event) => setUnitDefinitionId(event.target.value)}
+                  className="rounded-xl border border-border bg-surface-solid p-3"
+                  aria-label={
+                    locale === "ar" ? "الوحدة الأكاديمية" : "Academic unit"
+                  }
+                >
+                  <option value="">
+                    {locale === "ar"
+                      ? "اختر وحدة منشورة"
+                      : "Choose a published unit"}
+                  </option>
+                  {academicUnits.data?.map((unit) => (
+                    <option key={unit.id} value={unit.id}>
+                      {unit.qualificationCode} / {unit.versionCode} ·{" "}
+                      {unit.code} ·{" "}
+                      {locale === "ar" ? unit.arabicTitle : unit.englishTitle}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : (
+              <>
+                <input
+                  value={arabicTitle}
+                  onChange={(event) => setArabicTitle(event.target.value)}
+                  placeholder={
+                    locale === "ar"
+                      ? "اسم الوحدة بالعربية"
+                      : "Arabic module title"
+                  }
+                  className="rounded-xl border border-border bg-transparent p-3"
+                />
+                <input
+                  value={unitCode}
+                  onChange={(event) => setUnitCode(event.target.value)}
+                  placeholder={
+                    locale === "ar"
+                      ? "رمز الوحدة (مثال: UNIT-1)"
+                      : "Unit code (e.g. UNIT-1)"
+                  }
+                  className="rounded-xl border border-border bg-transparent p-3"
+                />
+                <input
+                  value={englishTitle}
+                  onChange={(event) => setEnglishTitle(event.target.value)}
+                  placeholder={
+                    locale === "ar"
+                      ? "اسم الوحدة بالإنجليزية (اختياري)"
+                      : "English module title (optional)"
+                  }
+                  className="rounded-xl border border-border bg-transparent p-3"
+                />
+              </>
+            )}
           </div>
+          {course.isBtecFocused && academicUnits.isError ? (
+            <p className="mt-2 text-sm text-red-400">
+              {locale === "ar"
+                ? "تعذر تحميل الوحدات الأكاديمية."
+                : "Could not load academic units."}
+            </p>
+          ) : null}
+          {course.isBtecFocused &&
+          academicUnits.isSuccess &&
+          academicUnits.data.length === 0 ? (
+            <p className="mt-2 text-sm text-muted">
+              {locale === "ar"
+                ? "لا توجد وحدات منشورة لهذا الإصدار. اطلب من المدير نشر وحدة أكاديمية."
+                : "No published units are available for this version. Ask an admin to publish an academic unit."}
+            </p>
+          ) : null}
           <button
             type="button"
             onClick={() => addModule.mutate()}
-            disabled={!arabicTitle.trim() || addModule.isPending}
+            disabled={
+              addModule.isPending ||
+              (course.isBtecFocused ? !unitDefinitionId : !arabicTitle.trim())
+            }
             className="focus-ring mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
           >
             <Plus size={17} aria-hidden="true" />
@@ -1960,13 +2037,18 @@ function ModuleEditor({
   module,
   courseId,
   disabled,
+  isBtecFocused,
+  academicUnits,
 }: {
   module: CourseEditorData["modules"][number];
   courseId: string;
   disabled: boolean;
+  isBtecFocused: boolean;
+  academicUnits: AcademicUnitOption[];
 }) {
   const locale = useLocale();
   const client = useQueryClient();
+  const [legacyUnitDefinitionId, setLegacyUnitDefinitionId] = useState("");
   const [titles, setTitles] = useState({
     arabicTitle: module.arabicTitle,
     englishTitle: module.englishTitle,
@@ -2026,6 +2108,20 @@ function ModuleEditor({
       }),
     onSuccess: refresh,
   });
+  const linkModule = useMutation({
+    mutationFn: () =>
+      api(`/teacher/courses/modules/${module.id}/academic-link`, {
+        method: "POST",
+        body: JSON.stringify({ unitDefinitionId: legacyUnitDefinitionId }),
+      }),
+    onSuccess: () => {
+      setLegacyUnitDefinitionId("");
+      refresh();
+      client.invalidateQueries({
+        queryKey: ["teacher-course-academic-units", courseId],
+      });
+    },
+  });
   const addLesson = useMutation({
     mutationFn: () =>
       api("/teacher/courses/lessons", {
@@ -2071,7 +2167,9 @@ function ModuleEditor({
             <button
               type="button"
               onClick={() => duplicateModule.mutate()}
-              disabled={duplicateModule.isPending}
+              disabled={
+                duplicateModule.isPending || Boolean(module.unitDefinitionId)
+              }
               className="focus-ring inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-xs font-bold"
             >
               <Copy size={14} aria-hidden="true" />
@@ -2089,53 +2187,109 @@ function ModuleEditor({
           </div>
         ) : null}
       </div>
+      {isBtecFocused && !module.unitDefinitionId ? (
+        <div className="mt-3 rounded-xl border border-amber-400/40 p-3 text-sm">
+          <p>
+            {locale === "ar"
+              ? "وحدة قديمة بلا ربط أكاديمي. تبقى الدروس والتقدم متاحين. يمكن ربطها فقط إذا لم تتضمن أهدافاً أو معايير قديمة."
+              : "Legacy unit without an academic link. Lessons and progress remain available. It can be linked only when it has no legacy aims or criteria."}
+          </p>
+          {!disabled &&
+          module.learningAims.length === 0 &&
+          module.criteria.length === 0 ? (
+            <div className="mt-2 flex flex-wrap gap-2">
+              <select
+                value={legacyUnitDefinitionId}
+                onChange={(event) =>
+                  setLegacyUnitDefinitionId(event.target.value)
+                }
+                aria-label={
+                  locale === "ar" ? "ربط بوحدة أكاديمية" : "Link academic unit"
+                }
+                className="min-w-0 flex-1 rounded-lg border border-border bg-surface-solid p-2"
+              >
+                <option value="">
+                  {locale === "ar"
+                    ? "اختر وحدة منشورة"
+                    : "Choose a published unit"}
+                </option>
+                {academicUnits.map((unit) => (
+                  <option key={unit.id} value={unit.id}>
+                    {unit.qualificationCode} / {unit.versionCode} · {unit.code}{" "}
+                    · {locale === "ar" ? unit.arabicTitle : unit.englishTitle}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => linkModule.mutate()}
+                disabled={!legacyUnitDefinitionId || linkModule.isPending}
+                className="focus-ring rounded-lg border border-primary/40 px-3 py-2 font-bold disabled:opacity-50"
+              >
+                {locale === "ar" ? "ربط الوحدة" : "Link unit"}
+              </button>
+            </div>
+          ) : null}
+          <RequestError error={linkModule.error} />
+        </div>
+      ) : null}
       {!disabled ? (
         <>
           <div className="mt-3 grid gap-3 md:grid-cols-2">
-            <input
-              value={titles.arabicTitle}
-              onChange={(event) =>
-                setTitles((current) => ({
-                  ...current,
-                  arabicTitle: event.target.value,
-                }))
-              }
-              className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
-            />
-            <input
-              value={titles.englishTitle}
-              onChange={(event) =>
-                setTitles((current) => ({
-                  ...current,
-                  englishTitle: event.target.value,
-                }))
-              }
-              className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
-            />
-            <input
-              value={unitDetails.unitCode}
-              onChange={(event) =>
-                setUnitDetails((current) => ({
-                  ...current,
-                  unitCode: event.target.value,
-                }))
-              }
-              placeholder={locale === "ar" ? "رمز الوحدة" : "Unit code"}
-              className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
-            />
-            <input
-              value={unitDetails.qualificationLevel}
-              onChange={(event) =>
-                setUnitDetails((current) => ({
-                  ...current,
-                  qualificationLevel: event.target.value,
-                }))
-              }
-              placeholder={
-                locale === "ar" ? "المستوى / المؤهل" : "Qualification level"
-              }
-              className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
-            />
+            {!module.unitDefinitionId ? (
+              <>
+                <input
+                  value={titles.arabicTitle}
+                  onChange={(event) =>
+                    setTitles((current) => ({
+                      ...current,
+                      arabicTitle: event.target.value,
+                    }))
+                  }
+                  className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
+                />
+                <input
+                  value={titles.englishTitle}
+                  onChange={(event) =>
+                    setTitles((current) => ({
+                      ...current,
+                      englishTitle: event.target.value,
+                    }))
+                  }
+                  className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
+                />
+                <input
+                  value={unitDetails.unitCode}
+                  onChange={(event) =>
+                    setUnitDetails((current) => ({
+                      ...current,
+                      unitCode: event.target.value,
+                    }))
+                  }
+                  placeholder={locale === "ar" ? "رمز الوحدة" : "Unit code"}
+                  className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
+                />
+                <input
+                  value={unitDetails.qualificationLevel}
+                  onChange={(event) =>
+                    setUnitDetails((current) => ({
+                      ...current,
+                      qualificationLevel: event.target.value,
+                    }))
+                  }
+                  placeholder={
+                    locale === "ar" ? "المستوى / المؤهل" : "Qualification level"
+                  }
+                  className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
+                />
+              </>
+            ) : (
+              <p className="text-sm text-muted md:col-span-2">
+                {locale === "ar"
+                  ? "اسم الوحدة ورمزها وأهدافها ومعاييرها من الدليل الأكاديمي المنشور."
+                  : "Unit name, code, aims, and criteria come from the published academic catalogue."}
+              </p>
+            )}
           </div>
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             <textarea
@@ -2264,6 +2418,8 @@ function ModuleEditor({
         module={module}
         courseId={courseId}
         disabled={disabled}
+        academicLocked={Boolean(module.unitDefinitionId)}
+        allowAcademicCreation={!isBtecFocused}
       />
       <div className="mt-4 grid gap-3">
         {module.lessons.map((item) => (
@@ -2416,10 +2572,14 @@ function BtecStructureEditor({
   module,
   courseId,
   disabled,
+  academicLocked,
+  allowAcademicCreation,
 }: {
   module: CourseEditorData["modules"][number];
   courseId: string;
   disabled: boolean;
+  academicLocked: boolean;
+  allowAcademicCreation: boolean;
 }) {
   const locale = useLocale();
   const client = useQueryClient();
@@ -2512,6 +2672,7 @@ function BtecStructureEditor({
               aim={item}
               courseId={courseId}
               disabled={disabled}
+              academicLocked={academicLocked}
             />
           ))}
         </div>
@@ -2522,7 +2683,7 @@ function BtecStructureEditor({
             : "No learning aims yet."}
         </p>
       )}
-      {!disabled ? (
+      {!disabled && allowAcademicCreation ? (
         <div className="mt-4 grid gap-3 rounded-xl border border-border bg-surface-solid/45 p-3 md:grid-cols-2">
           <input
             value={aim.code}
@@ -2617,7 +2778,7 @@ function BtecStructureEditor({
                 key={item.id}
                 criterion={item}
                 courseId={courseId}
-                disabled={disabled}
+                disabled={disabled || academicLocked}
               />
             ))}
           </div>
@@ -2626,7 +2787,7 @@ function BtecStructureEditor({
             {locale === "ar" ? "لا توجد معايير بعد." : "No criteria yet."}
           </p>
         )}
-        {!disabled ? (
+        {!disabled && allowAcademicCreation ? (
           <div className="mt-3 grid gap-3 rounded-xl border border-border bg-surface-solid/45 p-3 md:grid-cols-2">
             <select
               value={criterion.learningAimId}
@@ -2732,10 +2893,12 @@ function LearningAimEditor({
   aim,
   courseId,
   disabled,
+  academicLocked,
 }: {
   aim: LearningAimData;
   courseId: string;
   disabled: boolean;
+  academicLocked: boolean;
 }) {
   const locale = useLocale();
   const client = useQueryClient();
@@ -2794,7 +2957,7 @@ function LearningAimEditor({
         <p className="font-black">
           {aim.code} — {locale === "ar" ? aim.arabicTitle : aim.englishTitle}
         </p>
-        {!disabled ? (
+        {!disabled && !academicLocked ? (
           <div className="flex gap-2">
             <button
               type="button"
@@ -2814,7 +2977,7 @@ function LearningAimEditor({
           </div>
         ) : null}
       </div>
-      {!disabled ? (
+      {!disabled && !academicLocked ? (
         <div className="mt-3 grid gap-2 md:grid-cols-3">
           <input
             value={form.code}

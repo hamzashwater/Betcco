@@ -24,7 +24,10 @@ public sealed record CreateModuleCommand(
     int? Credits = null,
     string? QualificationLevel = null,
     string PublicationStatus = "Published",
-    DateTimeOffset? AvailableFromUtc = null);
+    DateTimeOffset? AvailableFromUtc = null,
+    Guid? UnitDefinitionId = null);
+
+public sealed record LinkCourseUnitCommand(Guid UnitDefinitionId);
 
 public sealed record CreateLearningAimCommand(
     Guid ModuleId,
@@ -149,6 +152,7 @@ public interface ICourseAuthoringService
     Task<Guid> CreateDraftAsync(string teacherUserId, CreateCourseCommand command, CancellationToken cancellationToken = default);
     Task<bool> UpdateCourseAsync(string teacherUserId, Guid courseId, UpdateCourseCommand command, CancellationToken cancellationToken = default);
     Task<Guid?> AddModuleAsync(string teacherUserId, CreateModuleCommand command, CancellationToken cancellationToken = default);
+    Task<bool> LinkModuleToUnitAsync(string teacherUserId, Guid moduleId, Guid unitDefinitionId, CancellationToken cancellationToken = default);
     Task<bool> UpdateModuleAsync(string teacherUserId, Guid moduleId, UpdateModuleCommand command, CancellationToken cancellationToken = default);
     Task<bool> DeleteModuleAsync(string teacherUserId, Guid moduleId, CancellationToken cancellationToken = default);
     Task<Guid?> DuplicateModuleAsync(string teacherUserId, Guid moduleId, CancellationToken cancellationToken = default);

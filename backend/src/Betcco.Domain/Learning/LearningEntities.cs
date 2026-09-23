@@ -1,4 +1,5 @@
 using Betcco.Domain.Common;
+using Betcco.Domain.Evaluations;
 
 namespace Betcco.Domain.Learning;
 
@@ -60,6 +61,9 @@ public sealed class Course : Entity
     public Guid? GradeId { get; set; }
     public Guid? SpecializationId { get; set; }
     public Guid? SubjectId { get; set; }
+    // Established by the first canonical BTEC unit; legacy courses remain unbound.
+    public Guid? QualificationVersionId { get; set; }
+    public QualificationVersion? QualificationVersion { get; set; }
     public string? TeacherUserId { get; set; }
     public CourseStatus Status { get; set; } = CourseStatus.Draft;
     public decimal Price { get; set; }
@@ -86,6 +90,8 @@ public sealed class CourseModule : Entity
 {
     public Guid CourseId { get; set; }
     public Course? Course { get; set; }
+    public Guid? UnitDefinitionId { get; set; }
+    public UnitDefinition? UnitDefinition { get; set; }
     public required string ArabicTitle { get; set; }
     public required string EnglishTitle { get; set; }
     // CourseModule is retained as the storage name for backwards compatibility;
@@ -109,6 +115,8 @@ public sealed class BtecLearningAim : Entity
 {
     public Guid CourseModuleId { get; set; }
     public CourseModule? CourseModule { get; set; }
+    public Guid? LearningAimDefinitionId { get; set; }
+    public LearningAimDefinition? LearningAimDefinition { get; set; }
     public required string Code { get; set; }
     public required string ArabicTitle { get; set; }
     public required string EnglishTitle { get; set; }
@@ -140,6 +148,8 @@ public sealed class BtecCriterion : Entity
 {
     public Guid CourseModuleId { get; set; }
     public CourseModule? CourseModule { get; set; }
+    public Guid? AssessmentCriterionDefinitionId { get; set; }
+    public AssessmentCriterionDefinition? AssessmentCriterionDefinition { get; set; }
     public Guid? BtecLearningAimId { get; set; }
     public BtecLearningAim? BtecLearningAim { get; set; }
     // Examples: A.P1, A.M2, B.D1. The code is immutable once submissions use it.

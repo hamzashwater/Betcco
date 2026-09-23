@@ -70,7 +70,9 @@ public sealed class LearningController(
             return player is null ? NotFound() : Ok(player);
         }
 
-        var course = await db.Courses.Include(x => x.Modules).ThenInclude(x => x.Lessons).ThenInclude(x => x.Resources).AsNoTracking().SingleOrDefaultAsync(x => x.Id == courseId && x.Status == CourseStatus.Published, cancellationToken);
+        var course = await db.Courses.Include(x => x.Modules).ThenInclude(x => x.Lessons).ThenInclude(x => x.Resources)
+            .Include(x => x.Modules).ThenInclude(x => x.UnitDefinition)
+            .AsNoTracking().SingleOrDefaultAsync(x => x.Id == courseId && x.Status == CourseStatus.Published, cancellationToken);
         if (course is null || !await CanAccessCourseAsync(courseId, cancellationToken)) return NotFound();
         var modules = new List<object>();
         foreach (var module in course.Modules.Where(item => item.IsPublished).OrderBy(item => item.SortOrder))
@@ -100,7 +102,7 @@ public sealed class LearningController(
             modules.Add(new
             {
                 module.Id,
-                title = Localize(locale, module.ArabicTitle, module.EnglishTitle),
+                title = Localize(locale, module.UnitDefinition?.ArabicTitle ?? module.ArabicTitle, module.UnitDefinition?.EnglishTitle ?? module.EnglishTitle),
                 isLocked = !moduleAccess.IsAvailable,
                 lockReason = moduleAccess.Reason,
                 moduleAccess.AvailableAtUtc,

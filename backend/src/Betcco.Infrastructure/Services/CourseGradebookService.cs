@@ -135,8 +135,10 @@ public sealed class CourseGradebookService(BetccoDbContext db) : ICourseGradeboo
                 submission.CourseAssignment.Course!.TeacherUserId,
                 CourseArabicTitle = submission.CourseAssignment.Course.ArabicTitle,
                 CourseEnglishTitle = submission.CourseAssignment.Course.EnglishTitle,
-                UnitArabicTitle = submission.CourseAssignment.CourseModule == null ? null : submission.CourseAssignment.CourseModule.ArabicTitle,
-                UnitEnglishTitle = submission.CourseAssignment.CourseModule == null ? null : submission.CourseAssignment.CourseModule.EnglishTitle,
+                UnitArabicTitle = submission.CourseAssignment.CourseModule == null ? null : submission.CourseAssignment.CourseModule.UnitDefinition != null
+                    ? submission.CourseAssignment.CourseModule.UnitDefinition.ArabicTitle : submission.CourseAssignment.CourseModule.ArabicTitle,
+                UnitEnglishTitle = submission.CourseAssignment.CourseModule == null ? null : submission.CourseAssignment.CourseModule.UnitDefinition != null
+                    ? submission.CourseAssignment.CourseModule.UnitDefinition.EnglishTitle : submission.CourseAssignment.CourseModule.EnglishTitle,
                 AssignmentArabicTitle = submission.CourseAssignment.ArabicTitle,
                 AssignmentEnglishTitle = submission.CourseAssignment.EnglishTitle
             })
@@ -176,6 +178,7 @@ public sealed class CourseGradebookService(BetccoDbContext db) : ICourseGradeboo
         var course = await db.Courses.AsNoTracking().SingleOrDefaultAsync(item => item.Id == courseId, cancellationToken);
         if (course is null) return null;
         var units = await db.CourseModules.AsNoTracking()
+            .Include(unit => unit.UnitDefinition)
             .Where(unit => unit.CourseId == courseId && unit.IsPublished)
             .OrderBy(unit => unit.SortOrder)
             .ToListAsync(cancellationToken);
@@ -183,8 +186,9 @@ public sealed class CourseGradebookService(BetccoDbContext db) : ICourseGradeboo
             .Where(lesson => lesson.CourseModule!.CourseId == courseId && lesson.IsPublished && lesson.CourseModule.IsPublished)
             .ToListAsync(cancellationToken);
         var assignments = await db.CourseAssignments.AsNoTracking()
-            .Include(assignment => assignment.CourseModule)
+            .Include(assignment => assignment.CourseModule).ThenInclude(module => module!.UnitDefinition)
             .Include(assignment => assignment.Criteria).ThenInclude(criterion => criterion.BtecCriterion).ThenInclude(criterion => criterion!.BtecLearningAim)
+            .Include(assignment => assignment.Criteria).ThenInclude(criterion => criterion.BtecCriterion).ThenInclude(criterion => criterion!.BtecLearningAim).ThenInclude(aim => aim!.LearningAimDefinition)
             .Where(assignment => assignment.CourseId == courseId && assignment.IsPublished)
             .OrderBy(assignment => assignment.DueAtUtc)
             .ToListAsync(cancellationToken);
@@ -211,6 +215,7 @@ public sealed class CourseGradebookService(BetccoDbContext db) : ICourseGradeboo
                 .Where(attempt => studentIds.Contains(attempt.StudentUserId) && quizzes.Contains(attempt.QuizId) && attempt.Passed)
             .ToListAsync(cancellationToken);
         var learningAims = await db.BtecLearningAims.AsNoTracking()
+            .Include(aim => aim.LearningAimDefinition)
             .Where(aim => aim.CourseModule!.CourseId == courseId && aim.PublicationStatus == ContentPublicationStatus.Published)
             .OrderBy(aim => aim.SortOrder)
             .ToListAsync(cancellationToken);
@@ -237,9 +242,9 @@ public sealed class CourseGradebookService(BetccoDbContext db) : ICourseGradeboo
             return new BtecCriterionProgressItem(
                 assignment.Id,
                 assignment.CourseModuleId,
-                assignment.CourseModule?.UnitCode,
+                assignment.CourseModule?.UnitDefinition?.Code ?? assignment.CourseModule?.UnitCode,
                 assignment.BtecLearningAimId ?? criterion.BtecCriterion?.BtecLearningAimId,
-                criterion.BtecCriterion?.BtecLearningAim?.Code,
+                criterion.BtecCriterion?.BtecLearningAim?.LearningAimDefinition?.Code ?? criterion.BtecCriterion?.BtecLearningAim?.Code,
                 Localize(locale, assignment.ArabicTitle, assignment.EnglishTitle),
                 criterion.Code,
                 criterion.Band.ToString(),
@@ -264,8 +269,8 @@ public sealed class CourseGradebookService(BetccoDbContext db) : ICourseGradeboo
                 var aimCriteria = criteria.Where(criterion => criterion.LearningAimId == aim.Id).ToArray();
                 return new CourseLearningAimProgressItem(
                     aim.Id,
-                    aim.Code,
-                    Localize(locale, aim.ArabicTitle, aim.EnglishTitle),
+                    aim.LearningAimDefinition?.Code ?? aim.Code,
+                    Localize(locale, aim.LearningAimDefinition?.ArabicTitle ?? aim.ArabicTitle, aim.LearningAimDefinition?.EnglishTitle ?? aim.EnglishTitle),
                     Percentage(aimLessons.Count(lesson => completeLessonIds.Contains(lesson.Id)), aimLessons.Length),
                     aimLessons.Count(lesson => completeLessonIds.Contains(lesson.Id)),
                     aimLessons.Length,
@@ -273,9 +278,9 @@ public sealed class CourseGradebookService(BetccoDbContext db) : ICourseGradeboo
             }).ToArray();
             return new CourseUnitGradebookItem(
                 unit.Id,
-                unit.UnitCode is { Length: > 0 }
-                    ? $"{unit.UnitCode} · {Localize(locale, unit.ArabicTitle, unit.EnglishTitle)}"
-                    : Localize(locale, unit.ArabicTitle, unit.EnglishTitle),
+                (unit.UnitDefinition?.Code ?? unit.UnitCode) is { Length: > 0 } code
+                    ? $"{code} · {Localize(locale, unit.UnitDefinition?.ArabicTitle ?? unit.ArabicTitle, unit.UnitDefinition?.EnglishTitle ?? unit.EnglishTitle)}"
+                    : Localize(locale, unit.UnitDefinition?.ArabicTitle ?? unit.ArabicTitle, unit.UnitDefinition?.EnglishTitle ?? unit.EnglishTitle),
                 Percentage(unitLessons.Count(lesson => completeLessonIds.Contains(lesson.Id)), unitLessons.Length),
                 unitLessons.Count(lesson => completeLessonIds.Contains(lesson.Id)),
                 unitLessons.Length,

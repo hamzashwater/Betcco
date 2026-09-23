@@ -85,7 +85,13 @@ public sealed class CourseContentAccessController(IContentAccessService contentA
     private async Task<IReadOnlyCollection<object>> CourseItemsAsync(Guid courseId, CancellationToken cancellationToken)
     {
         var course = await db.Courses.AsNoTracking().Where(item => item.Id == courseId).Select(item => new { item.Id, item.ArabicTitle, item.EnglishTitle }).SingleAsync(cancellationToken);
-        var modules = await db.CourseModules.AsNoTracking().Where(item => item.CourseId == courseId).OrderBy(item => item.SortOrder).Select(item => new { item.Id, item.ArabicTitle, item.EnglishTitle }).ToArrayAsync(cancellationToken);
+        var modules = await db.CourseModules.AsNoTracking().Where(item => item.CourseId == courseId).OrderBy(item => item.SortOrder)
+            .Select(item => new
+            {
+                item.Id,
+                ArabicTitle = item.UnitDefinition != null ? item.UnitDefinition.ArabicTitle : item.ArabicTitle,
+                EnglishTitle = item.UnitDefinition != null ? item.UnitDefinition.EnglishTitle : item.EnglishTitle
+            }).ToArrayAsync(cancellationToken);
         var lessons = await db.Lessons.AsNoTracking().Where(item => item.CourseModule!.CourseId == courseId).OrderBy(item => item.CourseModule!.SortOrder).ThenBy(item => item.SortOrder).Select(item => new { item.Id, item.ArabicTitle, item.EnglishTitle }).ToArrayAsync(cancellationToken);
         var quizzes = await db.Quizzes.AsNoTracking().Where(item => item.CourseId == courseId).OrderBy(item => item.CreatedAtUtc).Select(item => new { item.Id, item.ArabicTitle, item.EnglishTitle }).ToArrayAsync(cancellationToken);
         var assignments = await db.CourseAssignments.AsNoTracking().Where(item => item.CourseId == courseId).OrderBy(item => item.CreatedAtUtc).Select(item => new { item.Id, item.ArabicTitle, item.EnglishTitle }).ToArrayAsync(cancellationToken);

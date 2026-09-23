@@ -24,13 +24,13 @@ public sealed class TeacherAnnouncementsController(
     public async Task<IActionResult> List(Guid courseId, CancellationToken cancellationToken)
     {
         if (!await OwnsCourseAsync(courseId, cancellationToken)) return NotFound();
-        var announcements = await db.CourseAnnouncements.AsNoTracking().Include(item => item.CourseModule).Include(item => item.Recipients)
+        var announcements = await db.CourseAnnouncements.AsNoTracking().Include(item => item.CourseModule).ThenInclude(module => module!.UnitDefinition).Include(item => item.Recipients)
             .Where(item => item.CourseId == courseId).OrderByDescending(item => item.PublishedAtUtc ?? item.CreatedAtUtc).ToListAsync(cancellationToken);
         return Ok(announcements.Select(item => new
         {
             item.Id,
             item.CourseModuleId,
-            unitTitle = item.CourseModule is null ? null : item.CourseModule.ArabicTitle,
+            unitTitle = item.CourseModule is null ? null : item.CourseModule.UnitDefinition?.ArabicTitle ?? item.CourseModule.ArabicTitle,
             item.ArabicTitle,
             item.EnglishTitle,
             item.ArabicBody,

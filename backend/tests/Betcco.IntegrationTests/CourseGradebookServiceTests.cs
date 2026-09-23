@@ -1,6 +1,7 @@
 using Betcco.Application.Learning;
 using Betcco.Domain.Assessments;
 using Betcco.Domain.Common;
+using Betcco.Domain.Evaluations;
 using Betcco.Domain.Learning;
 using Betcco.Infrastructure.Persistence;
 using Betcco.Infrastructure.Services;
@@ -143,6 +144,39 @@ public sealed class CourseGradebookServiceTests
         Assert.Single(student.Units[0].LearningAims);
         Assert.Equal("A", student.Units[0].LearningAims[0].Code);
         Assert.Equal(100m, student.Units[0].LearningAims[0].LessonProgressPercent);
+
+        var qualification = new Qualification { Code = "Q", ArabicName = "مؤهل", EnglishName = "Qualification" };
+        var version = new QualificationVersion { Qualification = qualification, VersionCode = "2026", SourceReference = "Approved specification", EffectiveFromUtc = DateTimeOffset.UtcNow };
+        var canonicalUnit = new UnitDefinition
+        {
+            QualificationVersion = version,
+            Code = "U2",
+            ArabicTitle = "وحدة معتمدة",
+            EnglishTitle = "Canonical unit",
+            SourceReference = "Approved specification",
+            PublishedAtUtc = DateTimeOffset.UtcNow
+        };
+        var canonicalAim = new LearningAimDefinition
+        {
+            UnitDefinition = canonicalUnit,
+            Code = "B",
+            ArabicTitle = "هدف معتمد",
+            EnglishTitle = "Canonical aim",
+            ArabicDescription = "وصف",
+            EnglishDescription = "Description",
+            SourceReference = "Approved specification"
+        };
+        course.QualificationVersion = version;
+        unit.UnitDefinition = canonicalUnit;
+        aim.LearningAimDefinition = canonicalAim;
+        db.AddRange(qualification, version, canonicalUnit, canonicalAim);
+        await db.SaveChangesAsync();
+        var mappedStudent = await service.GetStudentAsync("student-1", course.Id, "en");
+        Assert.NotNull(mappedStudent);
+        Assert.Equal("U2 · Canonical unit", mappedStudent!.Units[0].UnitTitle);
+        Assert.Equal("B", mappedStudent.Units[0].LearningAims[0].Code);
+        Assert.Equal("Canonical aim", mappedStudent.Units[0].LearningAims[0].Title);
+        Assert.Equal("A.P1", mappedStudent.Criteria.Single(item => item.Code == "A.P1").Code);
 
         Assert.Null(await service.GetStudentAsync("not-enrolled", course.Id, "en"));
         Assert.Null(await service.GetTeacherAsync("teacher-2", course.Id, "en", 1, 25));
