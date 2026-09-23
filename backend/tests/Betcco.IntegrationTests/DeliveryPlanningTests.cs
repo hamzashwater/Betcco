@@ -142,9 +142,9 @@ public sealed class DeliveryPlanningTests
         await using var secondContext = database.CreateContext();
         var attempts = await Task.WhenAll(
             Record.ExceptionAsync(() => new DeliveryPlanningService(firstContext).CreateTermAsync(
-                new(concurrentYear.Id, "A", new(2027, 1, 1), new(2027, 8, 31), 10), "admin")),
+                new(concurrentYear.Id, "TERM-A", new(2027, 1, 1), new(2027, 8, 31), 10), "admin")),
             Record.ExceptionAsync(() => new DeliveryPlanningService(secondContext).CreateTermAsync(
-                new(concurrentYear.Id, "B", new(2027, 6, 1), new(2027, 12, 31), 20), "admin")));
+                new(concurrentYear.Id, "TERM-B", new(2027, 6, 1), new(2027, 12, 31), 20), "admin")));
         Assert.Single(attempts, x => x is not null);
         db.ChangeTracker.Clear();
         Assert.Single(await db.AcademicTerms.Where(x => x.AcademicYearId == concurrentYear.Id).ToArrayAsync());
