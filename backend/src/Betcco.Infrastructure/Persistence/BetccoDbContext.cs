@@ -82,6 +82,10 @@ public sealed class BetccoDbContext(
     public DbSet<Qualification> Qualifications => Set<Qualification>();
     public DbSet<QualificationVersion> QualificationVersions => Set<QualificationVersion>();
     public DbSet<UnitDefinition> UnitDefinitions => Set<UnitDefinition>();
+    public DbSet<AcademicYear> AcademicYears => Set<AcademicYear>();
+    public DbSet<AcademicTerm> AcademicTerms => Set<AcademicTerm>();
+    public DbSet<DeliveryPlan> DeliveryPlans => Set<DeliveryPlan>();
+    public DbSet<DeliveryPlanEntry> DeliveryPlanEntries => Set<DeliveryPlanEntry>();
     public DbSet<LearningAimDefinition> LearningAimDefinitions => Set<LearningAimDefinition>();
     public DbSet<AssessmentCriterionDefinition> AssessmentCriterionDefinitions => Set<AssessmentCriterionDefinition>();
     public DbSet<AssessmentDefinitionAim> AssessmentDefinitionAims => Set<AssessmentDefinitionAim>();
@@ -1225,6 +1229,35 @@ public sealed class BetccoDbContext(
         builder.Entity<UnitDefinition>().Property(x => x.SourceReference).HasMaxLength(2_048);
         builder.Entity<UnitDefinition>().HasIndex(x => new { x.QualificationVersionId, x.Code }).IsUnique();
         builder.Entity<UnitDefinition>().HasOne(x => x.QualificationVersion).WithMany(x => x.UnitDefinitions).HasForeignKey(x => x.QualificationVersionId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<AcademicYear>().Property(x => x.Code).HasMaxLength(64);
+        builder.Entity<AcademicYear>().Property(x => x.CreatedByUserId).HasMaxLength(64);
+        builder.Entity<AcademicYear>().Property(x => x.UpdatedByUserId).HasMaxLength(64);
+        builder.Entity<AcademicYear>().HasIndex(x => x.Code).IsUnique();
+        builder.Entity<AcademicYear>().ToTable(table => table.HasCheckConstraint("CK_AcademicYears_DateRange", "\"StartDate\" < \"EndDate\""));
+        builder.Entity<AcademicTerm>().Property(x => x.Code).HasMaxLength(64);
+        builder.Entity<AcademicTerm>().Property(x => x.CreatedByUserId).HasMaxLength(64);
+        builder.Entity<AcademicTerm>().Property(x => x.UpdatedByUserId).HasMaxLength(64);
+        builder.Entity<AcademicTerm>().HasIndex(x => new { x.AcademicYearId, x.Code }).IsUnique();
+        builder.Entity<AcademicTerm>().HasIndex(x => new { x.AcademicYearId, x.SortOrder, x.StartDate });
+        builder.Entity<AcademicTerm>().ToTable(table =>
+        {
+            table.HasCheckConstraint("CK_AcademicTerms_DateRange", "\"StartDate\" < \"EndDate\"");
+            table.HasCheckConstraint("CK_AcademicTerms_SortOrder", "\"SortOrder\" >= 0 AND \"SortOrder\" <= 10000");
+        });
+        builder.Entity<AcademicTerm>().HasOne(x => x.AcademicYear).WithMany(x => x.Terms).HasForeignKey(x => x.AcademicYearId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<DeliveryPlan>().HasIndex(x => new { x.QualificationVersionId, x.AcademicYearId }).IsUnique();
+        builder.Entity<DeliveryPlan>().Property(x => x.CreatedByUserId).HasMaxLength(64);
+        builder.Entity<DeliveryPlan>().Property(x => x.UpdatedByUserId).HasMaxLength(64);
+        builder.Entity<DeliveryPlan>().HasOne(x => x.QualificationVersion).WithMany().HasForeignKey(x => x.QualificationVersionId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<DeliveryPlan>().HasOne(x => x.AcademicYear).WithMany(x => x.DeliveryPlans).HasForeignKey(x => x.AcademicYearId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<DeliveryPlanEntry>().HasIndex(x => new { x.DeliveryPlanId, x.UnitDefinitionId }).IsUnique();
+        builder.Entity<DeliveryPlanEntry>().Property(x => x.CreatedByUserId).HasMaxLength(64);
+        builder.Entity<DeliveryPlanEntry>().Property(x => x.UpdatedByUserId).HasMaxLength(64);
+        builder.Entity<DeliveryPlanEntry>().HasIndex(x => new { x.DeliveryPlanId, x.SortOrder });
+        builder.Entity<DeliveryPlanEntry>().ToTable(table => table.HasCheckConstraint("CK_DeliveryPlanEntries_SortOrder", "\"SortOrder\" >= 0"));
+        builder.Entity<DeliveryPlanEntry>().HasOne(x => x.DeliveryPlan).WithMany(x => x.Entries).HasForeignKey(x => x.DeliveryPlanId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<DeliveryPlanEntry>().HasOne(x => x.UnitDefinition).WithMany().HasForeignKey(x => x.UnitDefinitionId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<DeliveryPlanEntry>().HasOne(x => x.AcademicTerm).WithMany(x => x.DeliveryPlanEntries).HasForeignKey(x => x.AcademicTermId).OnDelete(DeleteBehavior.Restrict);
         builder.Entity<AssessmentDefinition>().Property(x => x.Code).HasMaxLength(64);
         builder.Entity<AssessmentDefinition>().Property(x => x.EnglishTitle).HasMaxLength(256);
         builder.Entity<AssessmentDefinition>().Property(x => x.ArabicTitle).HasMaxLength(256);

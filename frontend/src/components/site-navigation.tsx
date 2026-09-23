@@ -226,6 +226,10 @@ export function SiteNavigation() {
             label: t("academicCatalogue.title"),
           },
           {
+            href: `/${locale}/admin/delivery-planning`,
+            label: t("deliveryPlanning.title"),
+          },
+          {
             href: `/${locale}/admin/wallet`,
             label: locale === "ar" ? "المحفظة" : "Wallet",
           },
