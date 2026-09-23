@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Betcco.Application.Evaluations;
@@ -15,12 +16,14 @@ public sealed partial class DeliveryPlanningService(BetccoDbContext db) : IDeliv
     {
         (page, pageSize) = Page(page, pageSize);
         var query = db.AcademicYears.AsNoTracking().OrderByDescending(x => x.StartDate).ThenBy(x => x.Code).ThenBy(x => x.Id);
-        return new(await query.Skip((page - 1) * pageSize).Take(pageSize).Select(x => YearView(x)).ToArrayAsync(cancellationToken),
+        return new(await query.Skip((page - 1) * pageSize).Take(pageSize)
+                .Select(x => new AcademicYearView(x.Id, x.Code, x.StartDate, x.EndDate, x.IsActive)).ToArrayAsync(cancellationToken),
             page, pageSize, await query.CountAsync(cancellationToken));
     }
 
     public async Task<AcademicYearView> GetAcademicYearAsync(Guid id, CancellationToken cancellationToken = default) =>
-        await db.AcademicYears.AsNoTracking().Where(x => x.Id == id).Select(x => YearView(x)).SingleOrDefaultAsync(cancellationToken)
+        await db.AcademicYears.AsNoTracking().Where(x => x.Id == id)
+            .Select(x => new AcademicYearView(x.Id, x.Code, x.StartDate, x.EndDate, x.IsActive)).SingleOrDefaultAsync(cancellationToken)
         ?? throw Missing("AcademicYearMissing");
 
     public async Task<AcademicYearView> CreateAcademicYearAsync(SaveAcademicYearCommand command, string actorId, CancellationToken cancellationToken = default)
@@ -43,6 +46,8 @@ public sealed partial class DeliveryPlanningService(BetccoDbContext db) : IDeliv
         ValidRange(command.StartDate, command.EndDate);
         if (await db.AcademicYears.AnyAsync(x => x.Code == code && x.Id != id, cancellationToken)) throw Invalid("DuplicateAcademicYearCode");
         if (year.Terms.Any(x => x.StartDate < command.StartDate || x.EndDate > command.EndDate)) throw Invalid("AcademicYearExcludesTerm");
+        if (!command.IsActive && await db.DeliveryPlans.AnyAsync(x => x.AcademicYearId == id && x.IsActive, cancellationToken))
+            throw Invalid("AcademicYearHasActiveDeliveryPlan");
         year.Code = code;
         year.StartDate = command.StartDate;
         year.EndDate = command.EndDate;
@@ -59,7 +64,8 @@ public sealed partial class DeliveryPlanningService(BetccoDbContext db) : IDeliv
         (page, pageSize) = Page(page, pageSize);
         var query = db.AcademicTerms.AsNoTracking().Where(x => x.AcademicYearId == academicYearId)
             .OrderBy(x => x.SortOrder).ThenBy(x => x.StartDate).ThenBy(x => x.Code).ThenBy(x => x.Id);
-        return new(await query.Skip((page - 1) * pageSize).Take(pageSize).Select(x => TermView(x)).ToArrayAsync(cancellationToken),
+        return new(await query.Skip((page - 1) * pageSize).Take(pageSize)
+                .Select(x => new AcademicTermView(x.Id, x.AcademicYearId, x.Code, x.StartDate, x.EndDate, x.SortOrder, x.IsActive)).ToArrayAsync(cancellationToken),
             page, pageSize, await query.CountAsync(cancellationToken));
     }
 
@@ -71,11 +77,15 @@ public sealed partial class DeliveryPlanningService(BetccoDbContext db) : IDeliv
 
     private async Task<AcademicTermView> SaveTermAsync(Guid? id, SaveAcademicTermCommand command, string actorId, CancellationToken cancellationToken)
     {
+        await using var transaction = db.Database.IsRelational()
+            ? await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken)
+            : null;
         var year = await db.AcademicYears.AsNoTracking().SingleOrDefaultAsync(x => x.Id == command.AcademicYearId, cancellationToken) ?? throw Missing("AcademicYearMissing");
         var code = ValidCode(command.Code);
         ValidRange(command.StartDate, command.EndDate);
         if (command.SortOrder is < 0 or > 10_000) throw Invalid("InvalidSortOrder");
         if (command.StartDate < year.StartDate || command.EndDate > year.EndDate) throw Invalid("TermOutsideAcademicYear");
+        if (command.IsActive && !year.IsActive) throw Invalid("ActiveAcademicYearRequired");
         if (await db.AcademicTerms.AnyAsync(x => x.AcademicYearId == year.Id && x.Code == code && x.Id != id, cancellationToken)) throw Invalid("DuplicateTermCode");
         if (command.IsActive && await db.AcademicTerms.AnyAsync(x => x.AcademicYearId == year.Id && x.Id != id && x.IsActive
             && x.StartDate <= command.EndDate && command.StartDate <= x.EndDate, cancellationToken)) throw Invalid("OverlappingActiveTerm");
@@ -91,6 +101,8 @@ public sealed partial class DeliveryPlanningService(BetccoDbContext db) : IDeliv
         {
             term = await db.AcademicTerms.SingleOrDefaultAsync(x => x.Id == id, cancellationToken) ?? throw Missing("AcademicTermMissing");
             if (term.AcademicYearId != command.AcademicYearId) throw Invalid("AcademicTermYearImmutable");
+            if (!command.IsActive && term.IsActive && await db.DeliveryPlanEntries.AnyAsync(x => x.AcademicTermId == term.Id && x.DeliveryPlan!.IsActive, cancellationToken))
+                throw Invalid("AcademicTermHasActiveDeliveryPlanEntry");
             StampActor(term, actorId, false);
         }
         term.Code = code;
@@ -101,6 +113,7 @@ public sealed partial class DeliveryPlanningService(BetccoDbContext db) : IDeliv
         Audit(actorId, id is null ? "AcademicTermCreated" : "AcademicTermUpdated", term,
             new { term.AcademicYearId, term.Code, term.StartDate, term.EndDate, term.SortOrder, term.IsActive });
         await db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
         return TermView(term);
     }
 
@@ -130,7 +143,9 @@ public sealed partial class DeliveryPlanningService(BetccoDbContext db) : IDeliv
         var query = db.DeliveryPlans.AsNoTracking().Where(x => academicYearId == null || x.AcademicYearId == academicYearId)
             .OrderByDescending(x => x.AcademicYear!.StartDate).ThenBy(x => x.QualificationVersion!.Qualification!.Code)
             .ThenBy(x => x.QualificationVersion!.VersionCode).ThenBy(x => x.Id);
-        return new(await query.Skip((page - 1) * pageSize).Take(pageSize).Select(x => SummaryView(x)).ToArrayAsync(cancellationToken),
+        return new(await query.Skip((page - 1) * pageSize).Take(pageSize).Select(x => new DeliveryPlanSummaryView(
+                x.Id, x.QualificationVersionId, x.QualificationVersion!.Qualification!.Code, x.QualificationVersion.VersionCode,
+                x.AcademicYearId, x.AcademicYear!.Code, x.IsActive, x.Entries.Count)).ToArrayAsync(cancellationToken),
             page, pageSize, await query.CountAsync(cancellationToken));
     }
 
@@ -157,6 +172,13 @@ public sealed partial class DeliveryPlanningService(BetccoDbContext db) : IDeliv
     public async Task<DeliveryPlanView> UpdatePlanAsync(Guid id, UpdateDeliveryPlanCommand command, string actorId, CancellationToken cancellationToken = default)
     {
         var plan = await db.DeliveryPlans.SingleOrDefaultAsync(x => x.Id == id, cancellationToken) ?? throw Missing("DeliveryPlanMissing");
+        if (command.IsActive && !plan.IsActive)
+        {
+            if (!await db.AcademicYears.AnyAsync(x => x.Id == plan.AcademicYearId && x.IsActive, cancellationToken))
+                throw Invalid("ActiveAcademicYearRequired");
+            if (!await db.QualificationVersions.AnyAsync(x => x.Id == plan.QualificationVersionId && x.IsActive && x.Qualification!.IsActive, cancellationToken))
+                throw Invalid("ActiveQualificationVersionRequired");
+        }
         plan.IsActive = command.IsActive;
         StampActor(plan, actorId, false);
         Audit(actorId, "DeliveryPlanUpdated", plan, new { plan.IsActive });

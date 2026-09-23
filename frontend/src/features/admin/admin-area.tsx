@@ -17,6 +17,7 @@ import { InternalVerificationPlanManagement } from "@/features/admin/internal-ve
 import { EvaluationAppealManagement } from "@/features/admin/evaluation-appeal-management";
 import { QualificationRegistryManagement } from "@/features/admin/qualification-registry-management";
 import { AcademicCatalogue } from "@/features/admin/academic-catalogue";
+import { DeliveryPlanning } from "@/features/admin/delivery-planning";
 import { RetakeManagement } from "@/features/admin/retake-management";
 import { EvaluatorSpecialismManagement } from "@/features/admin/evaluator-specialism-management";
 import { EligibleEvaluatorAssignment } from "@/features/admin/eligible-evaluator-assignment";
@@ -167,6 +168,7 @@ export function AdminArea({ segment }: { segment: string[] }) {
   if (current === "qualification-registry")
     return <QualificationRegistryManagement />;
   if (current === "academic-catalogue") return <AcademicCatalogue />;
+  if (current === "delivery-planning") return <DeliveryPlanning />;
   if (current === "support") return <SupportCenter mode="admin" />;
   if (current === "integrations") return <SchoolIntegrations />;
   return <AdminDashboard />;
@@ -179,6 +181,7 @@ function DateInputValue(date: Date) {
 function AdminDashboard() {
   const locale = useLocale();
   const academicT = useTranslations("academicCatalogue");
+  const deliveryT = useTranslations("deliveryPlanning");
   const [period, setPeriod] = useState("30d");
   const [customFrom, setCustomFrom] = useState(() =>
     DateInputValue(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)),
@@ -482,6 +485,12 @@ function AdminDashboard() {
           label={academicT("title")}
           text={academicT("description")}
           icon={BookOpenCheck}
+        />
+        <AdminLink
+          href="delivery-planning"
+          label={deliveryT("title")}
+          text={deliveryT("description")}
+          icon={Network}
         />
         <AdminLink
           href="gradebook"

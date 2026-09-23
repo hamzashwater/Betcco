@@ -22,6 +22,7 @@ public sealed class PostgresMigrationTests
         Assert.Contains(migrations, migration => migration.EndsWith("_AddPaymentSessionRecovery", StringComparison.Ordinal));
         Assert.Contains(migrations, migration => migration.EndsWith("_AddRegistrationEmailOutbox", StringComparison.Ordinal));
         Assert.Contains(migrations, migration => migration.EndsWith("_AddDurablePrivateStorageFoundation", StringComparison.Ordinal));
+        Assert.Contains(migrations, migration => migration.EndsWith("_AddAcademicDeliveryPlanning", StringComparison.Ordinal));
         Assert.False(db.Database.HasPendingModelChanges());
 
         var script = db.GetService<IMigrator>().GenerateScript(
@@ -31,5 +32,10 @@ public sealed class PostgresMigrationTests
         Assert.Contains("AddPaymentSessionRecovery", script, StringComparison.Ordinal);
         Assert.Contains("AddRegistrationEmailOutbox", script, StringComparison.Ordinal);
         Assert.Contains("AddDurablePrivateStorageFoundation", script, StringComparison.Ordinal);
+        Assert.Contains("AddAcademicDeliveryPlanning", script, StringComparison.Ordinal);
+        Assert.Contains("CREATE TABLE \"AcademicYears\"", script, StringComparison.Ordinal);
+        Assert.Contains("CREATE TABLE \"AcademicTerms\"", script, StringComparison.Ordinal);
+        Assert.Contains("CREATE TABLE \"DeliveryPlans\"", script, StringComparison.Ordinal);
+        Assert.Contains("CREATE TABLE \"DeliveryPlanEntries\"", script, StringComparison.Ordinal);
     }
 }
