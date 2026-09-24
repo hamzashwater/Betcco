@@ -1,5 +1,6 @@
 using Betcco.Api.Controllers;
 using System.Security.Claims;
+using System.Text.Json;
 using Betcco.Application.Common;
 using Betcco.Domain.Common;
 using Betcco.Domain.Identity;
@@ -578,6 +579,15 @@ public sealed class AuthRegistrationTests
             Assert.IsType<NotFoundResult>(await controller.Freeze(targets[role].Id, new FreezeUserRequest(true), CancellationToken.None));
             Assert.False(targets[role].IsFrozen);
         }
+        var studentList = Assert.IsType<OkObjectResult>(await controller.ListFreezeTargets(PlatformRoles.Student, null, cancellationToken: CancellationToken.None));
+        var listedUsers = JsonSerializer.Serialize(studentList.Value);
+        Assert.Contains(targets[PlatformRoles.Student].Id.ToString(), listedUsers);
+        Assert.DoesNotContain(targets[PlatformRoles.SupportAdmin].Id.ToString(), listedUsers);
+        Assert.IsType<NoContentResult>(await fixture.CreateAdminUsersController(Guid.NewGuid().ToString()).Freeze(
+            targets[PlatformRoles.SupportAdmin].Id, new FreezeUserRequest(true), CancellationToken.None));
+        Assert.True(targets[PlatformRoles.SupportAdmin].IsFrozen);
+        Assert.IsType<NotFoundResult>(await fixture.CreateAdminUsersController(Guid.NewGuid().ToString(), PlatformRoles.SystemAdmin).Freeze(
+            targets[PlatformRoles.Admin].Id, new FreezeUserRequest(true), CancellationToken.None));
         Assert.Contains(fixture.Db.AuditLogs, log => log.Action == "StudentFrozen");
         Assert.Contains(fixture.Db.AuditLogs, log => log.Action == "TeacherUnfrozen");
     }
@@ -604,6 +614,8 @@ public sealed class AuthRegistrationTests
         var url = new Uri(fixture.Email.HtmlBody!.Split("href=\"")[1].Split('"')[0]);
         var query = QueryHelpers.ParseQuery(url.Query);
         var confirmation = new EmailChangeConfirmationRequest(student.Id, query["email"]!, query["proof"]!, query["mode"]!);
+        Assert.IsType<BadRequestObjectResult>(await fixture.Controller.ConfirmEmailChange(
+            confirmation with { Proof = "invalid-proof" }, CancellationToken.None));
         Assert.IsType<NoContentResult>(await fixture.Controller.ConfirmEmailChange(confirmation, CancellationToken.None));
         Assert.Equal("student-new@betcco.test", student.Email);
         Assert.Equal(student.Email, student.UserName);
