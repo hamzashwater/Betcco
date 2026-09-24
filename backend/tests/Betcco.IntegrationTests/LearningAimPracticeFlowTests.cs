@@ -290,6 +290,51 @@ public sealed class LearningAimPracticeFlowTests
         Assert.Equal(2, await upgrade.CourseAssignments.AsNoTracking().CountAsync());
     }
 
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Comprehensive_evidence_download_is_private_and_teacher_review_survives_access_expiry()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("comprehensive_evidence_privacy");
+        await using var db = database.CreateContext();
+        var (course, module) = await SeedReadyComprehensiveAsync(db, 3);
+        var access = new ContentAccessService(db);
+        var storage = new ReadableFileStorage();
+        var service = new CourseAssignmentService(db, storage, new CleanFileScanner(), new NullEmailNotifications(), access);
+        var created = await service.CreateComprehensivePracticeAsync("teacher", new CreateComprehensivePracticeCommand(
+            module.Id, "تدريب", "Practice", "تعليمات", "Instructions", null));
+        var draft = (await service.StartSubmissionAsync("student", created.Id!.Value, null))!;
+        await using var evidence = new MemoryStream([0x25, 0x50, 0x44, 0x46, 0x2D, 0x31]);
+        Assert.Equal(CourseAssignmentFileAddStatus.Added, await service.AddFileAsync("student", draft.SubmissionId,
+            "unit.pdf", "application/pdf", evidence.Length, evidence));
+        Assert.True(await service.SubmitAsync("student", draft.SubmissionId));
+        var fileId = await db.CourseAssignmentSubmissionFiles.AsNoTracking()
+            .Where(x => x.CourseAssignmentSubmissionVersion!.CourseAssignmentSubmissionId == draft.SubmissionId)
+            .Select(x => x.Id).SingleAsync();
+
+        CourseAssignmentsController Controller(string userId) => new(service, storage, null!, null!, db, access,
+            new CourseAssignmentDeadlineResolver(db), null!)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, userId)], "Test"))
+                }
+            }
+        };
+
+        Assert.IsType<NotFoundResult>(await Controller("another-student").DownloadFile(draft.SubmissionId, fileId, CancellationToken.None));
+        Assert.IsType<NotFoundResult>(await Controller("unrelated-teacher").DownloadFile(draft.SubmissionId, fileId, CancellationToken.None));
+        Assert.IsType<FileStreamResult>(await Controller("student").DownloadFile(draft.SubmissionId, fileId, CancellationToken.None));
+        var enrollment = await db.Enrollments.SingleAsync(x => x.CourseId == course.Id && x.StudentUserId == "student");
+        enrollment.AccessEndsAtUtc = DateTimeOffset.UtcNow.AddHours(-1);
+        await db.SaveChangesAsync();
+        Assert.IsType<NotFoundResult>(await Controller("student").DownloadFile(draft.SubmissionId, fileId, CancellationToken.None));
+        Assert.IsType<FileStreamResult>(await Controller("teacher").DownloadFile(draft.SubmissionId, fileId, CancellationToken.None));
+        Assert.Equal(PracticeReviewResult.Finalized, await service.ReviewComprehensivePracticeAsync("teacher", draft.SubmissionId,
+            new ReviewLearningAimPracticeCommand("Merit", "Strong", "Gap", "Improve")));
+    }
+
     private static async Task<(Course Course, CourseModule Module)> SeedReadyComprehensiveAsync(BetccoDbContext db, int count)
     {
         var (course, module, aims, lessons) = await SeedAsync(db, count);
@@ -703,6 +748,12 @@ public sealed class LearningAimPracticeFlowTests
     {
         public Task<string> SavePrivateAsync(Stream content, string contentType, CancellationToken cancellationToken = default) => Task.FromResult($"private/{Guid.NewGuid()}");
         public Task<Stream?> OpenPrivateReadAsync(string storageKey, CancellationToken cancellationToken = default) => Task.FromResult<Stream?>(null);
+    }
+    private sealed class ReadableFileStorage : IFileStorage
+    {
+        public Task<string> SavePrivateAsync(Stream content, string contentType, CancellationToken cancellationToken = default) => Task.FromResult($"private/{Guid.NewGuid()}");
+        public Task<Stream?> OpenPrivateReadAsync(string storageKey, CancellationToken cancellationToken = default) =>
+            Task.FromResult<Stream?>(new MemoryStream([0x25, 0x50, 0x44, 0x46, 0x2D, 0x31]));
     }
     private sealed class NullEmailNotifications : IEmailNotificationService
     {
