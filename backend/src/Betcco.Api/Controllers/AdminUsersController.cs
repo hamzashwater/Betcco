@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Text.Json;
+using Betcco.Api.Authorization;
 using Betcco.Application.Common;
 using Betcco.Domain.Identity;
 using Betcco.Domain.Platform;
@@ -155,6 +156,37 @@ public sealed class AdminUsersController(UserManager<ApplicationUser> userManage
         db.AuditLogs.Add(new AuditLog { ActorUserId = UserId, Action = "SupportAdminActivationResent", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success" });
         await db.SaveChangesAsync(cancellationToken);
         return Accepted();
+    }
+
+    [Authorize(Policy = "SystemAdmin")]
+    [HttpPost("support-admins/{userId:guid}/revoke-authority")]
+    public async Task<IActionResult> RevokeSupportAdminAuthority(Guid userId, CancellationToken cancellationToken)
+    {
+        if (!PlatformPermissionAuthorizationHandler.HasPermission(User, PlatformPermissions.ManageUsers)) return Forbid();
+        if (userId.ToString() == UserId) return Forbid();
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null) return NotFound();
+        var roles = await userManager.GetRolesAsync(user);
+        if (!roles.Contains(PlatformRoles.SupportAdmin) || roles.Contains(PlatformRoles.Admin) || roles.Contains(PlatformRoles.SystemAdmin)) return NotFound();
+
+        await using var transaction = db.Database.IsRelational() ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
+        var removeResult = await userManager.RemoveFromRoleAsync(user, PlatformRoles.SupportAdmin);
+        if (!removeResult.Succeeded) return BadRequest(new ValidationProblemDetails(removeResult.Errors.ToDictionary(error => error.Code, error => new[] { error.Description })));
+        var stampResult = await userManager.UpdateSecurityStampAsync(user);
+        if (!stampResult.Succeeded) return Problem("Unable to invalidate account sessions.");
+
+        var now = DateTimeOffset.UtcNow;
+        var sessions = await db.UserSessions.Where(session => session.UserId == userId.ToString() && session.RevokedAtUtc == null && !session.IsDeleted).ToListAsync(cancellationToken);
+        foreach (var session in sessions)
+        {
+            session.RevokedAtUtc = now;
+            session.RevokedByUserId = UserId;
+            session.RevocationReason = "Support administrator authority revoked";
+        }
+        db.AuditLogs.Add(new AuditLog { ActorUserId = UserId, Action = "SupportAdminAuthorityRevoked", EntityType = nameof(ApplicationUser), EntityId = userId.ToString(), Outcome = "Success" });
+        await db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+        return NoContent();
     }
 
     private async Task SendSupportAdminActivationAsync(ApplicationUser user, CancellationToken cancellationToken)

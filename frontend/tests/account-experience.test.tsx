@@ -288,6 +288,80 @@ describe("email confirmation and account administration", () => {
     );
   });
 
+  it.each(["en", "ar"] as const)(
+    "confirms %s support authority revocation separately from freezing",
+    async (locale) => {
+      let revoked = false;
+      apiMock.mockImplementation((path: string) => {
+        if (path.startsWith("/admin/users?"))
+          return Promise.resolve({
+            items:
+              path.includes("role=SupportAdmin") && !revoked
+                ? [
+                    {
+                      id: "support-1",
+                      displayName: "Support One",
+                      email: "support@example.com",
+                      emailConfirmed: true,
+                      isFrozen: false,
+                      mustChangePassword: false,
+                    },
+                  ]
+                : [],
+            totalCount: revoked ? 0 : 1,
+          });
+        if (path === "/admin/users/support-admins/support-1/revoke-authority")
+          revoked = true;
+        return Promise.resolve();
+      });
+      const confirm = vi
+        .spyOn(window, "confirm")
+        .mockReturnValueOnce(false)
+        .mockReturnValueOnce(true);
+      renderAccount(<AccountIdentityManagement />, locale);
+      const user = userEvent.setup();
+      await user.click(
+        screen.getByRole("button", {
+          name: locale === "ar" ? "مساعدو الإدارة" : "Support administrators",
+        }),
+      );
+      const revoke = await screen.findByRole("button", {
+        name:
+          locale === "ar"
+            ? "سحب صلاحيات مساعد الإدارة"
+            : "Revoke support access",
+      });
+      expect(
+        screen.getByRole("button", {
+          name: locale === "ar" ? "تجميد" : "Freeze",
+        }),
+      ).toBeVisible();
+      await user.click(revoke);
+      expect(confirm).toHaveBeenCalledOnce();
+      expect(confirm.mock.calls[0][0]).toContain("Support One");
+      expect(
+        apiMock.mock.calls.some(
+          ([path]) =>
+            path === "/admin/users/support-admins/support-1/revoke-authority",
+        ),
+      ).toBe(false);
+      await user.click(revoke);
+      await waitFor(() =>
+        expect(apiMock).toHaveBeenCalledWith(
+          "/admin/users/support-admins/support-1/revoke-authority",
+          expect.objectContaining({ method: "POST" }),
+        ),
+      );
+      await waitFor(() => expect(screen.queryByText("Support One")).toBeNull());
+      expect(
+        apiMock.mock.calls.some(
+          ([path]) => path === "/admin/users/support-1/freeze",
+        ),
+      ).toBe(false);
+      expect(screen.getByRole("status")).toBeVisible();
+    },
+  );
+
   it("shows SupportAdmin only the Student and Teacher freeze queue", async () => {
     apiMock.mockImplementation((path: string) =>
       path === "/auth/me"

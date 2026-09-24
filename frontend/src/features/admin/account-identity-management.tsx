@@ -84,6 +84,20 @@ export function AccountIdentityManagement() {
       }),
     onSuccess: refresh,
   });
+  const revokeSupportAccess = useMutation({
+    mutationFn: (id: string) =>
+      api<void>(`/admin/users/support-admins/${id}/revoke-authority`, {
+        method: "POST",
+      }),
+    onSuccess: () => {
+      setNotice(
+        locale === "ar"
+          ? "سُحبت صلاحيات مساعد الإدارة وانتهت جلساته، مع الاحتفاظ بالحساب."
+          : "Support access revoked and sessions ended. The account remains available.",
+      );
+      refresh();
+    },
+  });
 
   return (
     <section className="shell min-w-0 py-8">
@@ -249,6 +263,29 @@ export function AccountIdentityManagement() {
                   </button>
                 </div>
               </div>
+              {role === "SupportAdmin" && (
+                <div className="border-t border-border pt-3">
+                  <button
+                    type="button"
+                    disabled={revokeSupportAccess.isPending}
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          locale === "ar"
+                            ? `سحب صلاحيات مساعد الإدارة من ${user.displayName}؟ سيُحتفظ بالحساب وتنتهي جميع جلساته.`
+                            : `Revoke support access for ${user.displayName}? The account will remain, and all sessions will end.`,
+                        )
+                      )
+                        revokeSupportAccess.mutate(user.id);
+                    }}
+                    className="focus-ring rounded-xl border border-red-500/50 px-3 py-2 text-sm font-bold text-red-700 disabled:opacity-60"
+                  >
+                    {locale === "ar"
+                      ? "سحب صلاحيات مساعد الإدارة"
+                      : "Revoke support access"}
+                  </button>
+                </div>
+              )}
               <form
                 className="flex min-w-0 flex-wrap gap-2"
                 onSubmit={(event) => {
@@ -306,7 +343,10 @@ export function AccountIdentityManagement() {
             {locale === "ar" ? "لا توجد حسابات." : "No accounts yet."}
           </p>
         )}
-        {(changeEmail.isError || freeze.isError || resend.isError) && (
+        {(changeEmail.isError ||
+          freeze.isError ||
+          resend.isError ||
+          revokeSupportAccess.isError) && (
           <p role="alert" className="text-sm text-red-600">
             {locale === "ar"
               ? "تعذر إكمال الإجراء."

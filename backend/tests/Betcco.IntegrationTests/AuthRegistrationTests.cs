@@ -592,6 +592,114 @@ public sealed class AuthRegistrationTests
         Assert.Contains(fixture.Db.AuditLogs, log => log.Action == "TeacherUnfrozen");
     }
 
+    [Theory]
+    [InlineData(PlatformRoles.Admin)]
+    [InlineData(PlatformRoles.SystemAdmin)]
+    public async Task Admin_revokes_support_authority_without_freezing_or_deleting_the_account(string actorRole)
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var roleManager = fixture.Services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        foreach (var role in new[] { PlatformRoles.SupportAdmin, PlatformRoles.Teacher })
+            Assert.True((await roleManager.CreateAsync(new IdentityRole<Guid>(role))).Succeeded);
+        var target = new ApplicationUser { UserName = "support-role@betcco.test", Email = "support-role@betcco.test", DisplayName = "Support colleague", EmailConfirmed = true };
+        Assert.True((await fixture.Users.CreateAsync(target, "T!estPassword123")).Succeeded);
+        Assert.True((await fixture.Users.AddToRoleAsync(target, PlatformRoles.SupportAdmin)).Succeeded);
+        Assert.True((await fixture.Users.AddToRoleAsync(target, PlatformRoles.Teacher)).Succeeded);
+        var originalStamp = target.SecurityStamp;
+        var sessions = Enumerable.Range(0, 2).Select(_ => new UserSession
+        {
+            UserId = target.Id.ToString(),
+            DeviceName = "Test",
+            BrowserName = "Test",
+            LoggedInAtUtc = DateTimeOffset.UtcNow,
+            LastActiveAtUtc = DateTimeOffset.UtcNow
+        }).ToArray();
+        fixture.Db.UserSessions.AddRange(sessions);
+        await fixture.Db.SaveChangesAsync();
+
+        var actorId = Guid.NewGuid().ToString();
+        var admin = fixture.CreateAdminUsersController(actorId, actorRole);
+        Assert.IsType<NoContentResult>(await admin.RevokeSupportAdminAuthority(target.Id, CancellationToken.None));
+        var persisted = await fixture.Db.Users.AsNoTracking().SingleAsync(user => user.Id == target.Id);
+        Assert.Equal("support-role@betcco.test", persisted.Email);
+        Assert.Equal("Support colleague", persisted.DisplayName);
+        Assert.False(persisted.IsFrozen);
+        Assert.False(await fixture.Users.IsInRoleAsync(target, PlatformRoles.SupportAdmin));
+        Assert.True(await fixture.Users.IsInRoleAsync(target, PlatformRoles.Teacher));
+        Assert.NotEqual(originalStamp, persisted.SecurityStamp);
+        Assert.All(sessions, session =>
+        {
+            Assert.NotNull(session.RevokedAtUtc);
+            Assert.Equal(actorId, session.RevokedByUserId);
+        });
+        Assert.Contains(fixture.Db.AuditLogs, log => log.Action == "SupportAdminAuthorityRevoked" && log.ActorUserId == actorId && log.EntityId == target.Id.ToString());
+        Assert.IsType<NotFoundResult>(await admin.RevokeSupportAdminAuthority(target.Id, CancellationToken.None));
+
+        Assert.IsType<NoContentResult>(await admin.Freeze(target.Id, new FreezeUserRequest(true), CancellationToken.None));
+        Assert.True(target.IsFrozen);
+        Assert.IsType<NoContentResult>(await admin.Freeze(target.Id, new FreezeUserRequest(false), CancellationToken.None));
+        Assert.False(target.IsFrozen);
+        Assert.True(await fixture.Users.IsInRoleAsync(target, PlatformRoles.Teacher));
+    }
+
+    [Theory]
+    [InlineData(PlatformRoles.SupportAdmin)]
+    [InlineData(PlatformRoles.Teacher)]
+    [InlineData(PlatformRoles.Student)]
+    public async Task Non_admin_roles_cannot_revoke_another_support_administrator(string actorRole)
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var roleManager = fixture.Services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        Assert.True((await roleManager.CreateAsync(new IdentityRole<Guid>(PlatformRoles.SupportAdmin))).Succeeded);
+        var target = new ApplicationUser { UserName = "support-target@betcco.test", Email = "support-target@betcco.test", DisplayName = "Target", EmailConfirmed = true };
+        Assert.True((await fixture.Users.CreateAsync(target, "T!estPassword123")).Succeeded);
+        Assert.True((await fixture.Users.AddToRoleAsync(target, PlatformRoles.SupportAdmin)).Succeeded);
+        var originalStamp = target.SecurityStamp;
+        var session = new UserSession { UserId = target.Id.ToString(), DeviceName = "Test", BrowserName = "Test", LoggedInAtUtc = DateTimeOffset.UtcNow, LastActiveAtUtc = DateTimeOffset.UtcNow };
+        fixture.Db.UserSessions.Add(session);
+        await fixture.Db.SaveChangesAsync();
+
+        var controller = fixture.CreateAdminUsersController(Guid.NewGuid().ToString(), actorRole);
+        Assert.IsType<ForbidResult>(await controller.RevokeSupportAdminAuthority(target.Id, CancellationToken.None));
+        Assert.True(await fixture.Users.IsInRoleAsync(target, PlatformRoles.SupportAdmin));
+        Assert.Equal(originalStamp, target.SecurityStamp);
+        Assert.Null(session.RevokedAtUtc);
+    }
+
+    [Fact]
+    public async Task Support_administrator_cannot_revoke_own_authority()
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var roleManager = fixture.Services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        Assert.True((await roleManager.CreateAsync(new IdentityRole<Guid>(PlatformRoles.SupportAdmin))).Succeeded);
+        var target = new ApplicationUser { UserName = "self@betcco.test", Email = "self@betcco.test", DisplayName = "Self", EmailConfirmed = true };
+        Assert.True((await fixture.Users.CreateAsync(target, "T!estPassword123")).Succeeded);
+        Assert.True((await fixture.Users.AddToRoleAsync(target, PlatformRoles.SupportAdmin)).Succeeded);
+
+        var controller = fixture.CreateAdminUsersController(target.Id.ToString(), PlatformRoles.SupportAdmin);
+        Assert.IsType<ForbidResult>(await controller.RevokeSupportAdminAuthority(target.Id, CancellationToken.None));
+        Assert.True(await fixture.Users.IsInRoleAsync(target, PlatformRoles.SupportAdmin));
+    }
+
+    [Theory]
+    [InlineData(PlatformRoles.Admin)]
+    [InlineData(PlatformRoles.SystemAdmin)]
+    public async Task Support_authority_revocation_does_not_modify_privileged_identities(string privilegedRole)
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var roleManager = fixture.Services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        foreach (var role in new[] { PlatformRoles.SupportAdmin, privilegedRole })
+            Assert.True((await roleManager.CreateAsync(new IdentityRole<Guid>(role))).Succeeded);
+        var target = new ApplicationUser { UserName = "privileged@betcco.test", Email = "privileged@betcco.test", DisplayName = "Privileged", EmailConfirmed = true };
+        Assert.True((await fixture.Users.CreateAsync(target, "T!estPassword123")).Succeeded);
+        Assert.True((await fixture.Users.AddToRoleAsync(target, PlatformRoles.SupportAdmin)).Succeeded);
+        Assert.True((await fixture.Users.AddToRoleAsync(target, privilegedRole)).Succeeded);
+
+        Assert.IsType<NotFoundResult>(await fixture.CreateAdminUsersController(Guid.NewGuid().ToString()).RevokeSupportAdminAuthority(target.Id, CancellationToken.None));
+        Assert.True(await fixture.Users.IsInRoleAsync(target, PlatformRoles.SupportAdmin));
+        Assert.True(await fixture.Users.IsInRoleAsync(target, privilegedRole));
+    }
+
     [Fact]
     public async Task Student_email_changes_only_after_password_and_new_mailbox_confirmation()
     {
