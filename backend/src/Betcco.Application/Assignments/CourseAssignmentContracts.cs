@@ -54,11 +54,20 @@ public sealed record AssignmentGradeCommand(
     string? OverallFeedback,
     string? PrivateTeacherNotes = null);
 
+public sealed record CreateLearningAimPracticeCommand(
+    Guid LearningAimId, string ArabicTitle, string EnglishTitle,
+    string ArabicInstructions, string EnglishInstructions, DateTimeOffset? DueAtUtc);
+
+public sealed record ReviewLearningAimPracticeCommand(
+    string TrainingOutcome, string Strengths, string Gaps, string ImprovementGuidance);
+
 public sealed record CourseAssignmentSubmissionView(Guid SubmissionId, int VersionNumber, string Status);
 public enum CourseAssignmentFileAddStatus { Added, SubmissionNotFound, Rejected, ScannerUnavailable, RejectedByAssignmentPolicy }
 
 public interface ICourseAssignmentService
 {
+    Task<Guid?> CreatePracticeAsync(string teacherUserId, CreateLearningAimPracticeCommand command, CancellationToken cancellationToken = default);
+    Task<bool> ReviewPracticeAsync(string teacherUserId, Guid submissionId, ReviewLearningAimPracticeCommand command, CancellationToken cancellationToken = default);
     Task<Guid?> CreateAsync(string teacherUserId, CreateCourseAssignmentCommand command, CancellationToken cancellationToken = default);
     Task<bool> UpdateAsync(string teacherUserId, Guid assignmentId, UpdateCourseAssignmentCommand command, CancellationToken cancellationToken = default);
     Task<bool> DeleteAsync(string teacherUserId, Guid assignmentId, CancellationToken cancellationToken = default);

@@ -4,6 +4,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { FilePicker } from "@/components/forms/file-picker";
+import { TeacherLearningAimPractice } from "@/features/learning/learning-aim-practice";
 import {
   CourseWorkspaceNavigation,
   CourseWorkspaceSection,
@@ -4161,6 +4162,10 @@ function CourseAssignmentsEditor({
 
   return (
     <section className="card grid gap-5 p-5">
+      <TeacherLearningAimPractice
+        courseId={course.id}
+        modules={course.modules}
+      />
       <div>
         <h2 className="flex items-center gap-2 text-xl font-black">
           <FileText size={20} className="text-primary" aria-hidden="true" />

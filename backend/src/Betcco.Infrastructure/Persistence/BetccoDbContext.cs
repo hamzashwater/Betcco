@@ -1206,6 +1206,11 @@ public sealed class BetccoDbContext(
         builder.Entity<CourseAssignment>().HasIndex(x => new { x.CourseId, x.IsPublished, x.DueAtUtc });
         builder.Entity<CourseAssignment>().HasIndex(x => new { x.CourseId, x.PublicationStatus, x.AvailableFromUtc });
         builder.Entity<CourseAssignment>().HasIndex(x => x.LessonId).IsUnique().HasFilter("\"LessonId\" IS NOT NULL");
+        builder.Entity<CourseAssignment>().HasIndex(x => x.BtecLearningAimId).IsUnique()
+            .HasFilter("\"BtecLearningAimId\" IS NOT NULL AND \"Purpose\" = 1");
+        builder.Entity<CourseAssignmentSubmission>().Property(x => x.TrainingStrengths).HasMaxLength(4_000);
+        builder.Entity<CourseAssignmentSubmission>().Property(x => x.TrainingGaps).HasMaxLength(4_000);
+        builder.Entity<CourseAssignmentSubmission>().Property(x => x.TrainingImprovementGuidance).HasMaxLength(4_000);
         builder.Entity<CourseAssignmentDeadlineExtension>().Property(x => x.StudentUserId).HasMaxLength(64);
         builder.Entity<CourseAssignmentDeadlineExtension>().Property(x => x.GrantedByUserId).HasMaxLength(64);
         builder.Entity<CourseAssignmentDeadlineExtension>().Property(x => x.RevokedByUserId).HasMaxLength(64);

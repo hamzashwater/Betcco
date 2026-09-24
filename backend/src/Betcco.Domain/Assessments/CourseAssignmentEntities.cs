@@ -7,6 +7,7 @@ namespace Betcco.Domain.Assessments;
 // interchangeable with the paid, externally assigned EvaluationRequest flow.
 public sealed class CourseAssignment : Entity
 {
+    public CourseAssignmentPurpose Purpose { get; set; } = CourseAssignmentPurpose.Coursework;
     public Guid CourseId { get; set; }
     public Course? Course { get; set; }
     public Guid? CourseModuleId { get; set; }
@@ -100,6 +101,10 @@ public sealed class CourseAssignmentSubmission : Entity
     public string AssessmentRuleSetVersion { get; set; } = "btec-internal-v1";
     public string AssessmentRuleSetSnapshotJson { get; set; } = "";
     public EvaluationGrade? CalculatedGrade { get; set; }
+    public TrainingOutcome? TrainingOutcome { get; set; }
+    public string? TrainingStrengths { get; set; }
+    public string? TrainingGaps { get; set; }
+    public string? TrainingImprovementGuidance { get; set; }
     public decimal? CalculatedScore { get; set; }
     public DateTimeOffset? SubmittedAtUtc { get; set; }
     public DateTimeOffset? GradedAtUtc { get; set; }

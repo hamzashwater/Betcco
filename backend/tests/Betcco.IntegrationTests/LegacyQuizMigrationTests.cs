@@ -119,10 +119,21 @@ public sealed class LegacyQuizMigrationTests
         await using (var before = database.CreateContext())
         {
             before.AddRange(track, grade, specialization, taskType, rubric, course, module, legacy, regular,
-                enrollment, progress, note, bookmark, resource, assignment, submission, evaluation, payment,
+                enrollment, progress, note, bookmark, resource, evaluation, payment,
                 keepRule, keepAssignmentRule, removeRule, removeQuizRule, removeQuizPreviousRule,
                 keepPrerequisite, removePrerequisite, removeQuizPrerequisite, removeQuizRequiredPrerequisite);
             await before.SaveChangesAsync();
+
+            // This test seeds a previous schema. The current EF model includes
+            // additive practice columns that do not exist until the upgrade.
+            await before.Database.ExecuteSqlInterpolatedAsync($"""
+                INSERT INTO "CourseAssignments" ("Id", "CourseId", "CourseModuleId", "ArabicTitle", "EnglishTitle", "ArabicInstructions", "EnglishInstructions", "MaxSubmissionAttempts", "IsPublished", "CreatedAtUtc", "UpdatedAtUtc", "IsDeleted")
+                VALUES ({assignment.Id}, {course.Id}, {module.Id}, 'واجب', 'Assignment', 'تعليمات', 'Instructions', 1, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, FALSE);
+                """);
+            await before.Database.ExecuteSqlInterpolatedAsync($"""
+                INSERT INTO "CourseAssignmentSubmissions" ("Id", "CourseAssignmentId", "StudentUserId", "Status", "CurrentVersionNumber", "CreatedAtUtc", "UpdatedAtUtc", "IsDeleted")
+                VALUES ({submission.Id}, {assignment.Id}, 'student', 0, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, FALSE);
+                """);
 
             var quizId = Guid.NewGuid();
             await before.Database.ExecuteSqlInterpolatedAsync($"""
