@@ -1,3 +1,4 @@
+using Betcco.Application.Assignments;
 using Betcco.Domain.Assessments;
 using Betcco.Domain.Common;
 using Betcco.Domain.Learning;
@@ -8,8 +9,10 @@ namespace Betcco.Infrastructure.Services;
 
 // The canonical UnitDefinition orders the delivery aims. Missing or mismatched
 // mappings fail closed rather than assigning a teacher-authored identity.
-public sealed class LearningAimPracticeProgressService(BetccoDbContext db)
+public sealed class LearningAimPracticeProgressService(BetccoDbContext db, ICourseAssignmentDeadlineResolver? deadlineResolver = null)
 {
+    private readonly ICourseAssignmentDeadlineResolver deadlineResolverService = deadlineResolver ?? new CourseAssignmentDeadlineResolver(db);
+
     public async Task<IReadOnlyList<LearningAimPracticeProgress>> GetAsync(
         string studentUserId, Guid moduleId, CancellationToken cancellationToken = default)
     {
@@ -58,6 +61,8 @@ public sealed class LearningAimPracticeProgressService(BetccoDbContext db)
             })
             .ToArrayAsync(cancellationToken);
         var assignmentIds = assignments.Select(x => x.Id).ToArray();
+        var deadlines = await deadlineResolverService.ResolveManyAsync(assignments.Select(x =>
+            new CourseAssignmentDeadlineTarget(x.Id, studentUserId, x.DueAtUtc)).ToArray(), cancellationToken);
         var submissions = await db.CourseAssignmentSubmissions.AsNoTracking()
             .Where(x => x.StudentUserId == studentUserId && assignmentIds.Contains(x.CourseAssignmentId))
             .Select(x => new
@@ -83,10 +88,11 @@ public sealed class LearningAimPracticeProgressService(BetccoDbContext db)
             var submission = assignment is null ? null : submissions.SingleOrDefault(x => x.CourseAssignmentId == assignment.Id);
             var reviewed = submission?.Status == CourseAssignmentSubmissionStatus.Finalized
                 && submission.TrainingOutcome is not null;
+            var effectiveDueAtUtc = assignment is null ? null : deadlines[(assignment.Id, studentUserId)].EffectiveDueAtUtc;
             var available = assignment is not null && assignment.IsPublished
                 && assignment.PublicationStatus == ContentPublicationStatus.Published
                 && (assignment.AvailableFromUtc is null || assignment.AvailableFromUtc <= DateTimeOffset.UtcNow)
-                && (assignment.DueAtUtc is null || assignment.DueAtUtc >= DateTimeOffset.UtcNow);
+                && (effectiveDueAtUtc is null || effectiveDueAtUtc >= DateTimeOffset.UtcNow);
             var complete = contentComplete && reviewed;
             result.Add(new LearningAimPracticeProgress(
                 aim.Id, definition.Id, moduleId, definition.Code, definition.ArabicTitle, definition.EnglishTitle,

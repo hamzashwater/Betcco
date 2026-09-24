@@ -105,6 +105,80 @@ public sealed class LearningAimPracticeFlowTests
         Assert.True((await new LearningAimPracticeProgressService(db).GetAsync("student", module.Id))[0].ContentComplete);
     }
 
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task PostgreSql_practice_access_and_submission_honor_student_specific_effective_deadline()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("practice_deadline");
+        await using var db = database.CreateContext();
+        var (course, module, aims, lessons) = await SeedAsync(db, 3);
+        db.Enrollments.Add(new Enrollment { StudentUserId = "student-b", CourseId = course.Id });
+        db.LessonProgresses.AddRange(
+            new LessonProgress { StudentUserId = "student", LessonId = lessons[0].Id, IsCompleted = true },
+            new LessonProgress { StudentUserId = "student-b", LessonId = lessons[0].Id, IsCompleted = true });
+        await db.SaveChangesAsync();
+
+        var access = new ContentAccessService(db);
+        var submissions = new CourseAssignmentService(db, new MemoryFileStorage(), new CleanFileScanner(), new NullEmailNotifications(), access);
+        var progress = new LearningAimPracticeProgressService(db);
+        var assignmentId = (await submissions.CreatePracticeAsync("teacher", new CreateLearningAimPracticeCommand(
+            aims[0].Id, "نشاط", "Practice", "ارفع عملك", "Upload your work", DateTimeOffset.UtcNow.AddHours(2))))!.Value;
+        Assert.True((await progress.GetAsync("student", module.Id))[0].PracticeAvailable);
+        Assert.True((await access.CanAccessAsync("student", course.Id, LearningContentType.Assignment, assignmentId)).IsAvailable);
+
+        var assignment = await db.CourseAssignments.SingleAsync(x => x.Id == assignmentId);
+        assignment.DueAtUtc = DateTimeOffset.UtcNow.AddHours(-2);
+        await db.SaveChangesAsync();
+        Assert.False((await progress.GetAsync("student", module.Id))[0].PracticeAvailable);
+        Assert.False((await access.CanAccessAsync("student", course.Id, LearningContentType.Assignment, assignmentId)).IsAvailable);
+        Assert.Null(await submissions.StartSubmissionAsync("student", assignmentId, null));
+
+        var extensions = new CourseAssignmentDeadlineExtensionService(db);
+        var expired = await extensions.GrantAsync("teacher", assignmentId,
+            new GrantCourseAssignmentDeadlineExtension("student", DateTimeOffset.UtcNow.AddHours(-1), "Expired extension"));
+        Assert.Equal(DeadlineExtensionWriteStatus.Success, expired.Status);
+        Assert.False((await progress.GetAsync("student", module.Id))[0].PracticeAvailable);
+        Assert.False((await access.CanAccessAsync("student", course.Id, LearningContentType.Assignment, assignmentId)).IsAvailable);
+        Assert.Null(await submissions.StartSubmissionAsync("student", assignmentId, null));
+        Assert.Equal(DeadlineExtensionWriteStatus.Success,
+            (await extensions.RevokeAsync("teacher", assignmentId, expired.Extension!.Id, new(null))).Status);
+
+        var command = new GrantCourseAssignmentDeadlineExtension("student", DateTimeOffset.UtcNow.AddHours(2), "Practice extension");
+        var granted = await extensions.GrantAsync("teacher", assignmentId, command);
+        Assert.Equal(DeadlineExtensionWriteStatus.Success, granted.Status);
+        Assert.True((await progress.GetAsync("student", module.Id))[0].PracticeAvailable);
+        Assert.True((await access.CanAccessAsync("student", course.Id, LearningContentType.Assignment, assignmentId)).IsAvailable);
+        Assert.False((await progress.GetAsync("student-b", module.Id))[0].PracticeAvailable);
+        Assert.False((await access.CanAccessAsync("student-b", course.Id, LearningContentType.Assignment, assignmentId)).IsAvailable);
+        Assert.Null(await submissions.StartSubmissionAsync("student-b", assignmentId, null));
+        Assert.False((await progress.GetAsync("student", module.Id))[1].IsUnlocked);
+
+        var draft = await submissions.StartSubmissionAsync("student", assignmentId, "My practice");
+        Assert.NotNull(draft);
+        await using var file = new MemoryStream([0x25, 0x50, 0x44, 0x46, 0x2D, 0x31]);
+        Assert.Equal(CourseAssignmentFileAddStatus.Added,
+            await submissions.AddFileAsync("student", draft!.SubmissionId, "work.pdf", "application/pdf", file.Length, file));
+        Assert.Equal(DeadlineExtensionWriteStatus.Success,
+            (await extensions.RevokeAsync("teacher", assignmentId, granted.Extension!.Id, new(null))).Status);
+        var expiredAgain = await extensions.GrantAsync("teacher", assignmentId,
+            new GrantCourseAssignmentDeadlineExtension("student", DateTimeOffset.UtcNow.AddHours(-1), "Expired extension"));
+        Assert.Equal(DeadlineExtensionWriteStatus.Success, expiredAgain.Status);
+        Assert.False((await progress.GetAsync("student", module.Id))[0].PracticeAvailable);
+        Assert.False((await access.CanAccessAsync("student", course.Id, LearningContentType.Assignment, assignmentId)).IsAvailable);
+        Assert.Null(await submissions.StartSubmissionAsync("student", assignmentId, null));
+        Assert.False(await submissions.SubmitAsync("student", draft.SubmissionId));
+        Assert.Equal(DeadlineExtensionWriteStatus.Success,
+            (await extensions.RevokeAsync("teacher", assignmentId, expiredAgain.Extension!.Id, new(null))).Status);
+        Assert.False((await progress.GetAsync("student", module.Id))[0].PracticeAvailable);
+        Assert.False((await access.CanAccessAsync("student", course.Id, LearningContentType.Assignment, assignmentId)).IsAvailable);
+        Assert.Null(await submissions.StartSubmissionAsync("student", assignmentId, null));
+        Assert.False(await submissions.SubmitAsync("student", draft.SubmissionId));
+
+        Assert.Equal(DeadlineExtensionWriteStatus.Success, (await extensions.GrantAsync("teacher", assignmentId, command)).Status);
+        Assert.True(await submissions.SubmitAsync("student", draft.SubmissionId));
+        Assert.False((await progress.GetAsync("student", module.Id))[1].IsUnlocked);
+    }
+
     private static BetccoDbContext CreateDb() => new(new DbContextOptionsBuilder<BetccoDbContext>()
         .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
 
@@ -122,7 +196,9 @@ public sealed class LearningAimPracticeFlowTests
             TeacherUserId = "teacher",
             Status = CourseStatus.Published
         };
-        var unit = new UnitDefinition { QualificationVersionId = Guid.NewGuid(), Code = "U1", ArabicTitle = "وحدة", EnglishTitle = "Unit" };
+        var qualification = new Qualification { Code = "Q", ArabicName = "مؤهل", EnglishName = "Qualification" };
+        var version = new QualificationVersion { Qualification = qualification, VersionCode = "V1", SourceReference = "Approved source" };
+        var unit = new UnitDefinition { QualificationVersion = version, Code = "U1", ArabicTitle = "وحدة", EnglishTitle = "Unit" };
         var module = new CourseModule { Course = course, UnitDefinition = unit, ArabicTitle = "وحدة", EnglishTitle = "Unit", IsPublished = true };
         var definitions = Enumerable.Range(0, count).Select(i => new LearningAimDefinition
         {
@@ -155,7 +231,7 @@ public sealed class LearningAimPracticeFlowTests
             IsPublished = true,
             PublicationStatus = ContentPublicationStatus.Published
         }).ToArray();
-        db.AddRange(track, course, unit, module);
+        db.AddRange(track, course, qualification, version, unit, module);
         db.AddRange(definitions); db.AddRange(aims); db.AddRange(lessons);
         db.Enrollments.Add(new Enrollment { StudentUserId = "student", Course = course });
         await db.SaveChangesAsync();
