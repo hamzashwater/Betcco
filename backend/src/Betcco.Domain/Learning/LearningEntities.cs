@@ -240,7 +240,7 @@ public sealed class Enrollment : Entity
 
 /// <summary>
 /// One optional release rule per learner-facing course item. The generic
-/// content identity deliberately avoids duplicate Unit/Lesson/Quiz/Assignment
+/// content identity deliberately avoids duplicate Unit/Lesson/Assignment
 /// rule tables while ownership is always checked through <see cref="CourseId"/>.
 /// </summary>
 public sealed class ContentAccessRule : Entity

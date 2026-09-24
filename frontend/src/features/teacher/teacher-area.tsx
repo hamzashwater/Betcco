@@ -151,11 +151,7 @@ function TeacherDashboard() {
               ? "—"
               : `${analytics.data?.averageLessonProgress ?? 0}%`
           }
-          detail={
-            locale === "ar"
-              ? `متوسط الاختبارات ${analytics.data?.averageQuizScore ?? 0}%`
-              : `Average quiz score ${analytics.data?.averageQuizScore ?? 0}%`
-          }
+          detail={locale === "ar" ? "الدروس المنشورة" : "Published lessons"}
           icon={BookOpenCheck}
         />
         <MetricCard
@@ -171,8 +167,8 @@ function TeacherDashboard() {
           }
           detail={
             locale === "ar"
-              ? "بناءً على التقدم والمهام والاختبارات"
-              : "Based on progress, assignments, and quizzes"
+              ? "بناءً على التقدم والمهام"
+              : "Based on progress and assignments"
           }
           icon={AlertTriangle}
           tone="warm"

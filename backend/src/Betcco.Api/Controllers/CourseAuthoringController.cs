@@ -19,7 +19,7 @@ public sealed class CourseAuthoringController(ICourseAuthoringService courses, I
     private const long MaxCourseVideoBytes = 500L * 1024 * 1024;
 
     [HttpGet]
-    public async Task<IActionResult> List(CancellationToken cancellationToken) => Ok(await db.Courses.AsNoTracking().Where(x => x.TeacherUserId == UserId).OrderByDescending(x => x.UpdatedAtUtc).Select(x => new { x.Id, x.ArabicTitle, x.EnglishTitle, status = x.Status.ToString(), x.Price, x.IsFree, hasCover = x.CoverImageKey != null, moduleCount = x.Modules.Count, lessonCount = x.Modules.SelectMany(module => module.Lessons).Count() }).ToListAsync(cancellationToken));
+    public async Task<IActionResult> List(CancellationToken cancellationToken) => Ok(await db.Courses.AsNoTracking().Where(x => x.TeacherUserId == UserId).OrderByDescending(x => x.UpdatedAtUtc).Select(x => new { x.Id, x.ArabicTitle, x.EnglishTitle, status = x.Status.ToString(), x.Price, x.IsFree, hasCover = x.CoverImageKey != null, moduleCount = x.Modules.Count, lessonCount = x.Modules.SelectMany(module => module.Lessons).Count(lesson => lesson.Type != LessonType.LegacyArchived) }).ToListAsync(cancellationToken));
 
     [HttpGet("{courseId:guid}")]
     public async Task<IActionResult> Get(Guid courseId, CancellationToken cancellationToken)
@@ -316,6 +316,7 @@ public sealed class CourseAuthoringController(ICourseAuthoringService courses, I
 
         // Reject non-owners before reading, scanning, or staging a large upload.
         if (!await db.Lessons.AsNoTracking().AnyAsync(item => item.Id == lessonId
+            && item.Type != LessonType.LegacyArchived
             && item.CourseModule!.Course!.TeacherUserId == UserId
             && (item.CourseModule.Course.Status == CourseStatus.Draft
                 || item.CourseModule.Course.Status == CourseStatus.Rejected), cancellationToken))
@@ -397,7 +398,7 @@ public sealed class CourseAuthoringController(ICourseAuthoringService courses, I
         var lesson = await db.Lessons.AsNoTracking()
             .Include(item => item.CourseModule).ThenInclude(item => item!.Course)
             .Include(item => item.Resources)
-            .SingleOrDefaultAsync(item => item.Id == lessonId && item.CourseModule!.Course!.TeacherUserId == UserId, cancellationToken);
+            .SingleOrDefaultAsync(item => item.Id == lessonId && item.Type != LessonType.LegacyArchived && item.CourseModule!.Course!.TeacherUserId == UserId, cancellationToken);
         var video = lesson is null ? null : FindVideoResource(lesson);
         if (video is null) return NotFound();
         var content = await storage.OpenPrivateReadAsync(video.StorageKey, cancellationToken);
@@ -417,7 +418,7 @@ public sealed class CourseAuthoringController(ICourseAuthoringService courses, I
     [HttpGet("resources/{resourceId:guid}")]
     public async Task<IActionResult> DownloadResource(Guid resourceId, CancellationToken cancellationToken)
     {
-        var resource = await db.LessonResources.AsNoTracking().Include(x => x.Lesson).ThenInclude(x => x!.CourseModule).ThenInclude(x => x!.Course).SingleOrDefaultAsync(x => x.Id == resourceId && x.Lesson!.CourseModule!.Course!.TeacherUserId == UserId, cancellationToken);
+        var resource = await db.LessonResources.AsNoTracking().Include(x => x.Lesson).ThenInclude(x => x!.CourseModule).ThenInclude(x => x!.Course).SingleOrDefaultAsync(x => x.Id == resourceId && x.Lesson!.Type != LessonType.LegacyArchived && x.Lesson.CourseModule!.Course!.TeacherUserId == UserId, cancellationToken);
         if (resource is null) return NotFound();
         if (resource.ExternalUrl is not null) return Redirect(resource.ExternalUrl);
         var content = await storage.OpenPrivateReadAsync(resource.StorageKey, cancellationToken);
@@ -578,7 +579,7 @@ public sealed class CourseAuthoringController(ICourseAuthoringService courses, I
                 publicationStatus = criterion.PublicationStatus.ToString(),
                 criterion.SortOrder
             }),
-            lessons = module.Lessons.OrderBy(x => x.SortOrder).Select(lesson => new
+            lessons = module.Lessons.Where(x => x.Type != LessonType.LegacyArchived).OrderBy(x => x.SortOrder).Select(lesson => new
             {
                 lesson.Id,
                 lesson.BtecLearningAimId,

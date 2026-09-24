@@ -92,8 +92,7 @@ public sealed class CourseContentAccessController(IContentAccessService contentA
                 ArabicTitle = item.UnitDefinition != null ? item.UnitDefinition.ArabicTitle : item.ArabicTitle,
                 EnglishTitle = item.UnitDefinition != null ? item.UnitDefinition.EnglishTitle : item.EnglishTitle
             }).ToArrayAsync(cancellationToken);
-        var lessons = await db.Lessons.AsNoTracking().Where(item => item.CourseModule!.CourseId == courseId).OrderBy(item => item.CourseModule!.SortOrder).ThenBy(item => item.SortOrder).Select(item => new { item.Id, item.ArabicTitle, item.EnglishTitle }).ToArrayAsync(cancellationToken);
-        var quizzes = await db.Quizzes.AsNoTracking().Where(item => item.CourseId == courseId).OrderBy(item => item.CreatedAtUtc).Select(item => new { item.Id, item.ArabicTitle, item.EnglishTitle }).ToArrayAsync(cancellationToken);
+        var lessons = await db.Lessons.AsNoTracking().Where(item => item.CourseModule!.CourseId == courseId && item.Type != LessonType.LegacyArchived).OrderBy(item => item.CourseModule!.SortOrder).ThenBy(item => item.SortOrder).Select(item => new { item.Id, item.ArabicTitle, item.EnglishTitle }).ToArrayAsync(cancellationToken);
         var assignments = await db.CourseAssignments.AsNoTracking().Where(item => item.CourseId == courseId).OrderBy(item => item.CreatedAtUtc).Select(item => new { item.Id, item.ArabicTitle, item.EnglishTitle }).ToArrayAsync(cancellationToken);
         return new object[]
         {
@@ -101,7 +100,6 @@ public sealed class CourseContentAccessController(IContentAccessService contentA
         }
         .Concat(modules.Select(item => (object)new { type = LearningContentType.Unit.ToString(), item.Id, item.ArabicTitle, item.EnglishTitle }))
         .Concat(lessons.Select(item => (object)new { type = LearningContentType.Lesson.ToString(), item.Id, item.ArabicTitle, item.EnglishTitle }))
-        .Concat(quizzes.Select(item => (object)new { type = LearningContentType.Quiz.ToString(), item.Id, item.ArabicTitle, item.EnglishTitle }))
         .Concat(assignments.Select(item => (object)new { type = LearningContentType.Assignment.ToString(), item.Id, item.ArabicTitle, item.EnglishTitle }))
         .ToArray();
     }

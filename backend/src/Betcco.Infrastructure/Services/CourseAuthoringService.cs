@@ -319,7 +319,7 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
                 PublicationStatus = ContentPublicationStatus.Draft
             });
         }
-        foreach (var sourceLesson in source.Lessons)
+        foreach (var sourceLesson in source.Lessons.Where(item => item.Type != LessonType.LegacyArchived))
         {
             var lesson = new Lesson
             {
@@ -562,6 +562,7 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
             || !IsEditable(module.Course!.Status)
             || arabicTitle is null
             || !Enum.TryParse<LessonType>(command.Type, true, out var lessonType)
+            || !IsAuthorableLessonType(lessonType)
             || !TryPublicationStatus(command.PublicationStatus, command.AvailableFromUtc, out var publicationStatus)) return null;
         var englishTitle = OptionalText(command.EnglishTitle) ?? arabicTitle;
         if (!await HasValidLessonLocationAsync(module.Id, command.LearningAimId, command.TopicId, cancellationToken)) return null;
@@ -593,9 +594,11 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
         var lesson = await db.Lessons.Include(x => x.CourseModule).ThenInclude(x => x!.Course).SingleOrDefaultAsync(x => x.Id == lessonId && x.CourseModule!.Course!.TeacherUserId == teacherUserId, cancellationToken);
         var arabicTitle = OptionalText(command.ArabicTitle);
         if (lesson is null
+            || lesson.Type == LessonType.LegacyArchived
             || !IsEditable(lesson.CourseModule!.Course!.Status)
             || arabicTitle is null
             || !Enum.TryParse<LessonType>(command.Type, true, out var lessonType)
+            || !IsAuthorableLessonType(lessonType)
             || !TryPublicationStatus(command.PublicationStatus, command.AvailableFromUtc, out var publicationStatus)
             || !await HasValidLessonLocationAsync(lesson.CourseModuleId, command.LearningAimId, command.TopicId, cancellationToken)) return false;
         var englishTitle = OptionalText(command.EnglishTitle) ?? arabicTitle;
@@ -620,7 +623,7 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
     public async Task<bool> DeleteLessonAsync(string teacherUserId, Guid lessonId, CancellationToken cancellationToken = default)
     {
         var lesson = await db.Lessons.Include(x => x.CourseModule).ThenInclude(x => x!.Course).SingleOrDefaultAsync(x => x.Id == lessonId && x.CourseModule!.Course!.TeacherUserId == teacherUserId, cancellationToken);
-        if (lesson is null || !IsEditable(lesson.CourseModule!.Course!.Status)) return false;
+        if (lesson is null || lesson.Type == LessonType.LegacyArchived || !IsEditable(lesson.CourseModule!.Course!.Status)) return false;
         var videoKeys = await db.LessonResources
             .Where(item => item.LessonId == lessonId && (item.ContentType == "video/mp4" || item.ContentType == "video/webm"))
             .Select(item => item.StorageKey).Distinct().ToArrayAsync(cancellationToken);
@@ -641,7 +644,7 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
             .Include(x => x.CourseModule).ThenInclude(x => x!.Course)
             .Include(x => x.Resources)
             .SingleOrDefaultAsync(x => x.Id == lessonId && x.CourseModule!.Course!.TeacherUserId == teacherUserId, cancellationToken);
-        if (source is null || !IsEditable(source.CourseModule!.Course!.Status)) return null;
+        if (source is null || source.Type == LessonType.LegacyArchived || !IsEditable(source.CourseModule!.Course!.Status)) return null;
         var clone = new Lesson
         {
             CourseModuleId = source.CourseModuleId,
@@ -683,7 +686,7 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
     public async Task<bool> AddLessonResourceAsync(string teacherUserId, AddLessonResourceCommand command, CancellationToken cancellationToken = default)
     {
         var lesson = await db.Lessons.Include(x => x.CourseModule).ThenInclude(x => x!.Course).SingleOrDefaultAsync(x => x.Id == command.LessonId && x.CourseModule!.Course!.TeacherUserId == teacherUserId, cancellationToken);
-        if (lesson is null || !IsEditable(lesson.CourseModule!.Course!.Status) || string.IsNullOrWhiteSpace(command.DisplayName) || string.IsNullOrWhiteSpace(command.StorageKey) || string.IsNullOrWhiteSpace(command.ContentType)) return false;
+        if (lesson is null || lesson.Type == LessonType.LegacyArchived || !IsEditable(lesson.CourseModule!.Course!.Status) || string.IsNullOrWhiteSpace(command.DisplayName) || string.IsNullOrWhiteSpace(command.StorageKey) || string.IsNullOrWhiteSpace(command.ContentType)) return false;
         db.LessonResources.Add(new LessonResource
         {
             LessonId = lesson.Id,
@@ -704,7 +707,7 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
             .Include(x => x.CourseModule).ThenInclude(x => x!.Course)
             .Include(x => x.Resources)
             .SingleOrDefaultAsync(x => x.Id == command.LessonId && x.CourseModule!.Course!.TeacherUserId == teacherUserId, cancellationToken);
-        if (lesson is null || !IsEditable(lesson.CourseModule!.Course!.Status)
+        if (lesson is null || lesson.Type == LessonType.LegacyArchived || !IsEditable(lesson.CourseModule!.Course!.Status)
             || string.IsNullOrWhiteSpace(command.DisplayName) || command.DisplayName.Trim().Length > 240
             || string.IsNullOrWhiteSpace(command.StorageKey)
             || command.ContentType is not ("video/mp4" or "video/webm"))
@@ -744,7 +747,7 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
             .Include(item => item.CourseModule).ThenInclude(item => item!.Course)
             .Include(item => item.Resources)
             .SingleOrDefaultAsync(item => item.Id == lessonId && item.CourseModule!.Course!.TeacherUserId == teacherUserId, cancellationToken);
-        if (lesson is null || !IsEditable(lesson.CourseModule!.Course!.Status)) return null;
+        if (lesson is null || lesson.Type == LessonType.LegacyArchived || !IsEditable(lesson.CourseModule!.Course!.Status)) return null;
         var previous = CurrentVideo(lesson);
         if (previous is null) return null;
 
@@ -780,7 +783,7 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
     {
         var lesson = await db.Lessons.Include(x => x.CourseModule).ThenInclude(x => x!.Course)
             .SingleOrDefaultAsync(x => x.Id == command.LessonId && x.CourseModule!.Course!.TeacherUserId == teacherUserId, cancellationToken);
-        if (lesson is null || !IsEditable(lesson.CourseModule!.Course!.Status)
+        if (lesson is null || lesson.Type == LessonType.LegacyArchived || !IsEditable(lesson.CourseModule!.Course!.Status)
             || string.IsNullOrWhiteSpace(command.DisplayName) || command.DisplayName.Trim().Length > 240
             || !Uri.TryCreate(command.ExternalUrl, UriKind.Absolute, out var link) || link.Scheme != Uri.UriSchemeHttps)
             return false;
@@ -892,7 +895,7 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
         if (string.IsNullOrWhiteSpace(course.ArabicDescription)) reasons.Add("Course description is required.");
         if (string.IsNullOrWhiteSpace(course.CoverImageKey)) reasons.Add("A processed, safe cover image is required.");
         if (!course.IsFree && course.Price <= 0) reasons.Add("A paid course needs a valid price.");
-        if (!course.Modules.Any(x => x.IsPublished && x.Lessons.Any(y => y.IsPublished))) reasons.Add("At least one published module and lesson are required.");
+        if (!course.Modules.Any(x => x.IsPublished && x.Lessons.Any(y => y.IsPublished && y.Type != LessonType.LegacyArchived))) reasons.Add("At least one published module and lesson are required.");
         if (course.Modules.SelectMany(x => x.Lessons).Any(x => x.Type == LessonType.Video && x.DurationSeconds <= 0)) reasons.Add("Published video lessons need a duration.");
         return new QualityGateResult(reasons.Count == 0, reasons);
     }
@@ -1005,6 +1008,8 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
             && x.BtecLearningAim!.CourseModuleId == moduleId
             && (!learningAimId.HasValue || x.BtecLearningAimId == learningAimId.Value), cancellationToken);
     }
+
+    private static bool IsAuthorableLessonType(LessonType type) => type is LessonType.Text or LessonType.Video or LessonType.Assignment or LessonType.LiveSession or LessonType.Activity;
 
     private static bool TryPublicationStatus(string? rawStatus, DateTimeOffset? availableFromUtc, out ContentPublicationStatus status)
     {

@@ -183,7 +183,6 @@ public sealed class ContentAccessService(BetccoDbContext db) : IContentAccessSer
         LearningContentType.Course => await IsCourseCompletedAsync(studentUserId, node.Id, cancellationToken),
         LearningContentType.Unit => await IsUnitCompletedAsync(studentUserId, node.Id, cancellationToken),
         LearningContentType.Lesson => await db.LessonProgresses.AsNoTracking().AnyAsync(progress => progress.StudentUserId == studentUserId && progress.LessonId == node.Id && progress.IsCompleted, cancellationToken),
-        LearningContentType.Quiz => await db.QuizAttempts.AsNoTracking().AnyAsync(attempt => attempt.StudentUserId == studentUserId && attempt.QuizId == node.Id && attempt.SubmittedAtUtc != null && !attempt.RequiresManualReview && attempt.Passed, cancellationToken),
         LearningContentType.Assignment => await db.CourseAssignmentSubmissions.AsNoTracking().AnyAsync(submission => submission.StudentUserId == studentUserId && submission.CourseAssignmentId == node.Id && submission.CalculatedGrade != null && (submission.Status == CourseAssignmentSubmissionStatus.Graded || submission.Status == CourseAssignmentSubmissionStatus.Finalized), cancellationToken),
         _ => false
     };
@@ -192,7 +191,7 @@ public sealed class ContentAccessService(BetccoDbContext db) : IContentAccessSer
     {
         if (!await db.Enrollments.AsNoTracking().AnyAsync(enrollment => enrollment.StudentUserId == studentUserId && enrollment.CourseId == courseId && (enrollment.AccessEndsAtUtc == null || enrollment.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken)) return false;
         var lessonIds = await db.Lessons.AsNoTracking()
-            .Where(lesson => lesson.CourseModule!.CourseId == courseId && lesson.IsPublished && lesson.CourseModule.IsPublished)
+            .Where(lesson => lesson.CourseModule!.CourseId == courseId && lesson.IsPublished && lesson.Type != LessonType.LegacyArchived && lesson.CourseModule.IsPublished)
             .Select(lesson => lesson.Id)
             .ToArrayAsync(cancellationToken);
         return lessonIds.Length > 0 && await db.LessonProgresses.AsNoTracking().CountAsync(progress => progress.StudentUserId == studentUserId && progress.IsCompleted && lessonIds.Contains(progress.LessonId), cancellationToken) == lessonIds.Length;
@@ -200,7 +199,7 @@ public sealed class ContentAccessService(BetccoDbContext db) : IContentAccessSer
 
     private async Task<bool> IsUnitCompletedAsync(string studentUserId, Guid moduleId, CancellationToken cancellationToken)
     {
-        var lessonIds = await db.Lessons.AsNoTracking().Where(lesson => lesson.CourseModuleId == moduleId && lesson.IsPublished).Select(lesson => lesson.Id).ToArrayAsync(cancellationToken);
+        var lessonIds = await db.Lessons.AsNoTracking().Where(lesson => lesson.CourseModuleId == moduleId && lesson.IsPublished && lesson.Type != LessonType.LegacyArchived).Select(lesson => lesson.Id).ToArrayAsync(cancellationToken);
         return lessonIds.Length > 0 && await db.LessonProgresses.AsNoTracking().CountAsync(progress => progress.StudentUserId == studentUserId && progress.IsCompleted && lessonIds.Contains(progress.LessonId), cancellationToken) == lessonIds.Length;
     }
 
@@ -211,17 +210,9 @@ public sealed class ContentAccessService(BetccoDbContext db) : IContentAccessSer
             LearningContentType.Course => [],
             LearningContentType.Unit => (await db.CourseModules.AsNoTracking().Where(item => item.Id == node.Id).Select(item => item.CourseId).SingleOrDefaultAsync(cancellationToken)) is var courseId && courseId != Guid.Empty ? [new ContentNode(LearningContentType.Course, courseId)] : [],
             LearningContentType.Lesson => (await db.Lessons.AsNoTracking().Where(item => item.Id == node.Id).Select(item => item.CourseModuleId).SingleOrDefaultAsync(cancellationToken)) is var moduleId && moduleId != Guid.Empty ? [new ContentNode(LearningContentType.Unit, moduleId)] : [],
-            LearningContentType.Quiz => await QuizParentsAsync(node.Id, cancellationToken),
             LearningContentType.Assignment => await AssignmentParentsAsync(node.Id, cancellationToken),
             _ => []
         };
-    }
-
-    private async Task<IReadOnlyCollection<ContentNode>> QuizParentsAsync(Guid quizId, CancellationToken cancellationToken)
-    {
-        var row = await db.Quizzes.AsNoTracking().Where(item => item.Id == quizId).Select(item => new { item.CourseId, item.LessonId }).SingleOrDefaultAsync(cancellationToken);
-        if (row is null) return [];
-        return row.LessonId is { } lessonId ? [new ContentNode(LearningContentType.Lesson, lessonId)] : [new ContentNode(LearningContentType.Course, row.CourseId)];
     }
 
     private async Task<IReadOnlyCollection<ContentNode>> AssignmentParentsAsync(Guid assignmentId, CancellationToken cancellationToken)
@@ -237,8 +228,7 @@ public sealed class ContentAccessService(BetccoDbContext db) : IContentAccessSer
     {
         LearningContentType.Course => node.Id == courseId && await db.Courses.AsNoTracking().AnyAsync(course => course.Id == courseId, cancellationToken),
         LearningContentType.Unit => await db.CourseModules.AsNoTracking().AnyAsync(module => module.Id == node.Id && module.CourseId == courseId, cancellationToken),
-        LearningContentType.Lesson => await db.Lessons.AsNoTracking().AnyAsync(lesson => lesson.Id == node.Id && lesson.CourseModule!.CourseId == courseId, cancellationToken),
-        LearningContentType.Quiz => await db.Quizzes.AsNoTracking().AnyAsync(quiz => quiz.Id == node.Id && quiz.CourseId == courseId, cancellationToken),
+        LearningContentType.Lesson => await db.Lessons.AsNoTracking().AnyAsync(lesson => lesson.Id == node.Id && lesson.Type != LessonType.LegacyArchived && lesson.CourseModule!.CourseId == courseId, cancellationToken),
         LearningContentType.Assignment => await db.CourseAssignments.AsNoTracking().AnyAsync(assignment => assignment.Id == node.Id && assignment.CourseId == courseId, cancellationToken),
         _ => false
     };

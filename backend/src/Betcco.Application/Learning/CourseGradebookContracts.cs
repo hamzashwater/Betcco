@@ -45,8 +45,6 @@ public sealed record StudentCourseGradebookView(
     decimal LessonProgressPercent,
     int LessonsCompleted,
     int LessonsTotal,
-    int QuizzesPassed,
-    int QuizzesTotal,
     int AssignmentsCompleted,
     int AssignmentsTotal,
     BtecGradeSummary PredictedGrade,

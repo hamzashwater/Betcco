@@ -17,15 +17,11 @@ import { useMemo, useState } from "react";
 
 export type AttentionLevel = "High" | "Medium";
 export type FollowUpReason =
-  "LowProgress" | "MissedAssignments" | "LowQuizScore" | "Inactive14Days";
+  "LowProgress" | "MissedAssignments" | "Inactive14Days";
 type AttentionFilter = "All" | AttentionLevel;
 type ReasonFilter = "All" | FollowUpReason;
 type FollowUpSort =
-  | "priority"
-  | "progress"
-  | "missedAssignments"
-  | "quizAverage"
-  | "lastActivity";
+  "priority" | "progress" | "missedAssignments" | "lastActivity";
 
 export type TeacherFollowUpStudent = {
   studentUserId: string;
@@ -34,7 +30,6 @@ export type TeacherFollowUpStudent = {
   reasons: FollowUpReason[];
   progressPercent: number;
   missedAssignments: number;
-  averageQuizScore?: number | null;
   lastActiveAtUtc?: string | null;
 };
 
@@ -42,8 +37,6 @@ export type TeacherAnalytics = {
   courses: number;
   students: number;
   pendingReviews: number;
-  quizAttempts: number;
-  averageQuizScore: number;
   averageLessonProgress: number;
   studentsAtRisk: TeacherFollowUpStudent[];
   studentsAtRiskCount: number;
@@ -56,7 +49,6 @@ const attentionFilters: AttentionFilter[] = ["All", "High", "Medium"];
 const reasonFilters: FollowUpReason[] = [
   "LowProgress",
   "MissedAssignments",
-  "LowQuizScore",
   "Inactive14Days",
 ];
 const pageSize = 10;
@@ -219,7 +211,6 @@ export function TeacherStudentFollowUp() {
               <option value="missedAssignments">
                 {t("sort.missedAssignments")}
               </option>
-              <option value="quizAverage">{t("sort.quizAverage")}</option>
               <option value="lastActivity">{t("sort.lastActivity")}</option>
             </select>
           </div>
@@ -307,7 +298,7 @@ export function TeacherStudentFollowUp() {
                         </span>
                       ))}
                     </div>
-                    <dl className="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+                    <dl className="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
                       <StudentMetric
                         label={t("fields.progress")}
                         value={`${student.progressPercent}%`}
@@ -315,14 +306,6 @@ export function TeacherStudentFollowUp() {
                       <StudentMetric
                         label={t("fields.missedAssignments")}
                         value={String(student.missedAssignments)}
-                      />
-                      <StudentMetric
-                        label={t("fields.quizAverage")}
-                        value={
-                          student.averageQuizScore == null
-                            ? t("unavailable")
-                            : `${student.averageQuizScore}%`
-                        }
                       />
                       <StudentMetric
                         label={t("fields.lastActivity")}

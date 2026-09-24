@@ -1,6 +1,5 @@
 "use client";
 
-/* Private quiz images are delivered by an authenticated API endpoint. */
 /* eslint-disable @next/next/no-img-element */
 
 import { api } from "@/lib/api";
@@ -1044,7 +1043,7 @@ type LearningOverview = {
     startsAtUtc: string;
     endsAtUtc?: string;
     isLiveSession: boolean;
-    eventType: "Personal" | "LiveSession" | "Assignment" | "Quiz";
+    eventType: "Personal" | "LiveSession" | "Assignment";
   }[];
   certificates: {
     verificationCode: string;
@@ -1263,13 +1262,7 @@ function LearningOrganizer({
                       href={`/${locale}/student/courses`}
                       className="focus-ring rounded-lg border border-border px-3 py-2 text-sm font-bold text-primary"
                     >
-                      {entry.eventType === "Assignment"
-                        ? locale === "ar"
-                          ? "فتح الواجب"
-                          : "Open assignment"
-                        : locale === "ar"
-                          ? "فتح الاختبار"
-                          : "Open quiz"}
+                      {locale === "ar" ? "فتح الواجب" : "Open assignment"}
                     </Link>
                   )}
                 </article>
@@ -1668,7 +1661,11 @@ function CoursePlayer({
         </p>
       </section>
     );
-  const allLessons = result.data.modules.flatMap((module) => module.lessons);
+  const visibleModules = result.data.modules.map((module) => ({
+    ...module,
+    lessons: module.lessons.filter((item) => item.type !== "LegacyArchived"),
+  }));
+  const allLessons = visibleModules.flatMap((module) => module.lessons);
   const lesson = allLessons.find(
     (item) => item.id === result.data.currentLessonId,
   );
@@ -1942,7 +1939,6 @@ function CoursePlayer({
                 </Link>
               </>
             ) : null}
-            <QuizPanel courseId={courseId} lessonId={lesson.id} />
           </>
         ) : (
           <p className="mt-5 text-muted">No published lesson.</p>
@@ -1957,7 +1953,7 @@ function CoursePlayer({
           {locale === "ar" ? "محتوى الدورة" : "Course content"}
         </h2>
         <div className="mt-3 space-y-4">
-          {result.data.modules.map((module) => (
+          {visibleModules.map((module) => (
             <div key={module.id}>
               <p className="text-sm font-bold">{module.title}</p>
               <div className="mt-2 grid gap-1">
@@ -2709,8 +2705,6 @@ type StudentCourseGradebook = {
   lessonProgressPercent: number;
   lessonsCompleted: number;
   lessonsTotal: number;
-  quizzesPassed: number;
-  quizzesTotal: number;
   assignmentsCompleted: number;
   assignmentsTotal: number;
   predictedGrade: BtecGradeSummary;
@@ -2792,17 +2786,13 @@ function StudentCourseGradebookPanel({ courseId }: { courseId: string }) {
           </p>
         </div>
       </div>
-      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <GradeProgressStat
           label={locale === "ar" ? "الدروس" : "Lessons"}
           value={`${data.lessonsCompleted} / ${data.lessonsTotal}`}
           detail={`${data.lessonProgressPercent}%`}
         />
-        <GradeProgressStat
-          label={locale === "ar" ? "الاختبارات المجتازة" : "Quizzes passed"}
-          value={`${data.quizzesPassed} / ${data.quizzesTotal}`}
-          detail={locale === "ar" ? "اختبارات" : "quizzes"}
-        />
+
         <GradeProgressStat
           label={locale === "ar" ? "المهام المكتملة" : "Coursework assessed"}
           value={`${data.assignmentsCompleted} / ${data.assignmentsTotal}`}
@@ -3331,488 +3321,6 @@ export function CourseAssignmentPanel({
             ? "تعذر تحميل مهمة الدورة."
             : "Unable to load coursework."}
         </p>
-      ) : null}
-    </section>
-  );
-}
-
-function QuizPanel({
-  courseId,
-  lessonId,
-}: {
-  courseId: string;
-  lessonId: string;
-}) {
-  const locale = useLocale();
-  const quizzes = useQuery({
-    queryKey: ["quizzes", courseId, locale],
-    queryFn: () =>
-      api<
-        {
-          id: string;
-          lessonId?: string;
-          title: string;
-          passMark: number;
-          timeLimitMinutes?: number;
-          showScore: boolean;
-          showAnswers: boolean;
-          availableFromUtc?: string;
-          availableUntilUtc?: string;
-          allowLateAttempts: boolean;
-          isOpen: boolean;
-          isLate: boolean;
-          activeAttempt?: {
-            id: string;
-            startedAtUtc?: string;
-            expiresAtUtc?: string;
-          };
-          latestAttempt?: {
-            id: string;
-            submittedAtUtc?: string;
-            requiresManualReview: boolean;
-            isFinal: boolean;
-            scorePercent?: number;
-            passed?: boolean;
-            wasLate: boolean;
-            feedback: {
-              questionId: string;
-              question: string;
-              feedback: string;
-            }[];
-          };
-          questions: {
-            id: string;
-            type:
-              | "SingleChoice"
-              | "MultipleChoice"
-              | "TrueFalse"
-              | "ShortAnswer"
-              | "FillInBlank"
-              | "Matching"
-              | "Ordering"
-              | "Essay"
-              | "ImageQuestion"
-              | "CodeQuestion";
-            text: string;
-            options: string[];
-            matchingOptions: string[];
-            imagePath?: string;
-          }[];
-        }[]
-      >(`/quizzes/courses/${courseId}?locale=${locale}`),
-  });
-  const visible = (quizzes.data ?? []).filter(
-    (quiz) => !quiz.lessonId || quiz.lessonId === lessonId,
-  );
-  if (!visible.length) return null;
-  return (
-    <div className="mt-8 grid gap-4">
-      {visible.map((quiz) => (
-        <QuizAttemptForm key={quiz.id} quiz={quiz} />
-      ))}
-    </div>
-  );
-}
-
-function QuizAttemptForm({
-  quiz,
-}: {
-  quiz: {
-    id: string;
-    lessonId?: string;
-    title: string;
-    passMark: number;
-    timeLimitMinutes?: number;
-    showScore: boolean;
-    showAnswers: boolean;
-    availableFromUtc?: string;
-    availableUntilUtc?: string;
-    allowLateAttempts: boolean;
-    isOpen: boolean;
-    isLate: boolean;
-    activeAttempt?: {
-      id: string;
-      startedAtUtc?: string;
-      expiresAtUtc?: string;
-    };
-    latestAttempt?: {
-      id: string;
-      submittedAtUtc?: string;
-      requiresManualReview: boolean;
-      isFinal: boolean;
-      scorePercent?: number;
-      passed?: boolean;
-      wasLate: boolean;
-      feedback: { questionId: string; question: string; feedback: string }[];
-    };
-    questions: {
-      id: string;
-      type:
-        | "SingleChoice"
-        | "MultipleChoice"
-        | "TrueFalse"
-        | "ShortAnswer"
-        | "FillInBlank"
-        | "Matching"
-        | "Ordering"
-        | "Essay"
-        | "ImageQuestion"
-        | "CodeQuestion";
-      text: string;
-      options: string[];
-      matchingOptions: string[];
-      imagePath?: string;
-    }[];
-  };
-}) {
-  const locale = useLocale();
-  const [answers, setAnswers] = useState<Record<string, string[]>>({});
-  const [attemptId, setAttemptId] = useState<string | null>(
-    quiz.activeAttempt?.id ?? null,
-  );
-  const start = useMutation({
-    mutationFn: () =>
-      api<{ id: string; expiresAtUtc?: string }>(
-        `/quizzes/${quiz.id}/attempts/start`,
-        {
-          method: "POST",
-        },
-      ),
-    onSuccess: (attempt) => setAttemptId(attempt.id),
-  });
-  const submit = useMutation({
-    mutationFn: () =>
-      api<{
-        showScore: boolean;
-        scorePercent?: number;
-        passed?: boolean;
-        wasLate: boolean;
-        requiresManualReview: boolean;
-        review: { id: string; isCorrect: boolean; correctAnswers: string[] }[];
-      }>(`/quizzes/${quiz.id}/attempts`, {
-        method: "POST",
-        body: JSON.stringify({ attemptId, answers }),
-      }),
-    onError: () => setAttemptId(null),
-  });
-  const optionLabel = (option: string) =>
-    option === "True"
-      ? locale === "ar"
-        ? "صح"
-        : "True"
-      : option === "False"
-        ? locale === "ar"
-          ? "خطأ"
-          : "False"
-        : option;
-  return (
-    <section className="rounded-xl border p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-black">{quiz.title}</h2>
-        <span className="text-xs font-bold text-muted">
-          {locale === "ar" ? "النجاح" : "Pass"}: {quiz.passMark}%
-        </span>
-      </div>
-      {quiz.timeLimitMinutes ? (
-        <p className="mt-2 text-xs font-bold text-muted">
-          {locale === "ar"
-            ? `الوقت المحدد: ${quiz.timeLimitMinutes} دقيقة`
-            : `Time limit: ${quiz.timeLimitMinutes} minutes`}
-          {quiz.activeAttempt?.expiresAtUtc || start.data?.expiresAtUtc
-            ? ` · ${locale === "ar" ? "ينتهي" : "Ends"}: ${new Date(quiz.activeAttempt?.expiresAtUtc ?? start.data?.expiresAtUtc ?? "").toLocaleString(locale === "ar" ? "ar-JO" : "en-US")}`
-            : ""}
-        </p>
-      ) : null}
-      {quiz.latestAttempt ? (
-        <div className="mt-3 rounded-lg border border-border bg-black/5 p-3 text-sm">
-          <p className="font-bold">
-            {quiz.latestAttempt.requiresManualReview
-              ? locale === "ar"
-                ? "آخر محاولة بانتظار التصحيح اليدوي من المعلم."
-                : "Your latest attempt is awaiting teacher marking."
-              : quiz.showScore
-                ? `${locale === "ar" ? "آخر نتيجة" : "Latest result"}: ${quiz.latestAttempt.scorePercent ?? 0}% · ${quiz.latestAttempt.passed ? (locale === "ar" ? "ناجح" : "Passed") : locale === "ar" ? "لم يحقق علامة النجاح" : "Did not reach the pass mark"}`
-                : locale === "ar"
-                  ? "تم تسليم آخر محاولة. النتيجة مخفية وفق إعدادات المعلم."
-                  : "Your latest attempt was submitted. The score is hidden by your teacher."}
-            {quiz.latestAttempt.wasLate
-              ? locale === "ar"
-                ? " (متأخر)"
-                : " (late)"
-              : ""}
-          </p>
-          {quiz.latestAttempt.feedback.length ? (
-            <ul className="mt-2 grid gap-2">
-              {quiz.latestAttempt.feedback.map((item) => (
-                <li
-                  key={item.questionId}
-                  className="rounded-md border border-border p-2 text-xs leading-5"
-                >
-                  <strong>{item.question}: </strong>
-                  {item.feedback}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
-      ) : null}
-      {!quiz.isOpen ? (
-        <p role="status" className="mt-3 text-sm text-amber-500">
-          {quiz.availableFromUtc && new Date() < new Date(quiz.availableFromUtc)
-            ? locale === "ar"
-              ? `يفتح الاختبار في ${new Date(quiz.availableFromUtc).toLocaleString("ar-JO")}`
-              : `This quiz opens ${new Date(quiz.availableFromUtc).toLocaleString("en-US")}`
-            : locale === "ar"
-              ? "انتهت فترة إتاحة الاختبار."
-              : "The quiz availability window has closed."}
-        </p>
-      ) : null}
-      {quiz.isLate ? (
-        <p className="mt-2 text-xs font-bold text-amber-500">
-          {locale === "ar"
-            ? "سيُسجل هذا التسليم كمتأخر."
-            : "This attempt will be marked late."}
-        </p>
-      ) : null}
-      {!attemptId && quiz.isOpen ? (
-        <button
-          type="button"
-          onClick={() => start.mutate()}
-          disabled={start.isPending}
-          className="focus-ring mt-4 rounded-lg bg-primary px-3 py-2 text-sm font-bold text-slate-950 disabled:opacity-50"
-        >
-          {locale === "ar" ? "بدء الاختبار" : "Start quiz"}
-        </button>
-      ) : null}
-      {start.isError ? (
-        <p role="alert" className="mt-3 text-sm text-red-400">
-          {start.error instanceof Error
-            ? start.error.message
-            : locale === "ar"
-              ? "تعذر بدء الاختبار."
-              : "Unable to start the quiz."}
-        </p>
-      ) : null}
-      {attemptId ? (
-        <>
-          {quiz.questions.map((question) => (
-            <fieldset key={question.id} className="mt-4">
-              <legend className="text-sm font-semibold">{question.text}</legend>
-              {question.imagePath ? (
-                <img
-                  src={question.imagePath}
-                  alt={locale === "ar" ? "صورة السؤال" : "Question image"}
-                  className="mt-3 max-h-80 w-auto max-w-full rounded-xl border border-border object-contain"
-                />
-              ) : null}
-              {question.type === "Essay" || question.type === "CodeQuestion" ? (
-                <textarea
-                  value={answers[question.id]?.[0] ?? ""}
-                  onChange={(event) =>
-                    setAnswers((current) => ({
-                      ...current,
-                      [question.id]: [event.target.value],
-                    }))
-                  }
-                  className={`mt-2 min-h-32 w-full rounded-lg border border-border bg-transparent p-2.5 text-sm ${question.type === "CodeQuestion" ? "font-mono ltr:text-left" : ""}`}
-                  dir={question.type === "CodeQuestion" ? "ltr" : undefined}
-                  placeholder={
-                    question.type === "CodeQuestion"
-                      ? locale === "ar"
-                        ? "اكتب الكود هنا. لا يتم تنفيذه على الخادم."
-                        : "Write your code here. It will not run on the server."
-                      : locale === "ar"
-                        ? "اكتب إجابتك التفصيلية"
-                        : "Write your detailed answer"
-                  }
-                />
-              ) : question.type === "ShortAnswer" ||
-                question.type === "FillInBlank" ? (
-                <input
-                  value={answers[question.id]?.[0] ?? ""}
-                  onChange={(event) =>
-                    setAnswers((current) => ({
-                      ...current,
-                      [question.id]: [event.target.value],
-                    }))
-                  }
-                  className="mt-2 w-full rounded-lg border border-border bg-transparent p-2.5 text-sm"
-                  placeholder={
-                    locale === "ar" ? "اكتب إجابتك" : "Write your answer"
-                  }
-                />
-              ) : question.type === "Ordering" ? (
-                <div className="mt-2 grid gap-2">
-                  {question.options.map((_, position) => (
-                    <label key={position} className="grid gap-1 text-sm">
-                      <span className="font-bold text-muted">
-                        {locale === "ar"
-                          ? `الموضع ${position + 1}`
-                          : `Position ${position + 1}`}
-                      </span>
-                      <select
-                        value={answers[question.id]?.[position] ?? ""}
-                        onChange={(event) =>
-                          setAnswers((current) => {
-                            const next = [...(current[question.id] ?? [])];
-                            next[position] = event.target.value;
-                            return { ...current, [question.id]: next };
-                          })
-                        }
-                        className="rounded-lg border border-border bg-transparent p-2.5 text-sm"
-                      >
-                        <option value="">
-                          {locale === "ar" ? "اختر عنصرًا" : "Choose an item"}
-                        </option>
-                        {question.options.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  ))}
-                </div>
-              ) : question.type === "Matching" ? (
-                <div className="mt-2 grid gap-3">
-                  {question.options.map((left) => {
-                    const selected = answers[question.id] ?? [];
-                    const currentValue =
-                      selected
-                        .find((answer) => answer.startsWith(`${left} => `))
-                        ?.slice(left.length + 4) ?? "";
-                    return (
-                      <label
-                        key={left}
-                        className="grid gap-1 text-sm sm:grid-cols-2 sm:items-center"
-                      >
-                        <span className="font-bold">{left}</span>
-                        <select
-                          value={currentValue}
-                          onChange={(event) =>
-                            setAnswers((current) => {
-                              const unchanged = (
-                                current[question.id] ?? []
-                              ).filter(
-                                (answer) => !answer.startsWith(`${left} => `),
-                              );
-                              return {
-                                ...current,
-                                [question.id]: event.target.value
-                                  ? [
-                                      ...unchanged,
-                                      `${left} => ${event.target.value}`,
-                                    ]
-                                  : unchanged,
-                              };
-                            })
-                          }
-                          className="rounded-lg border border-border bg-transparent p-2.5 text-sm"
-                        >
-                          <option value="">
-                            {locale === "ar"
-                              ? "اختر المطابقة"
-                              : "Choose a match"}
-                          </option>
-                          {question.matchingOptions.map((option) => (
-                            <option key={option} value={option}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="mt-2 grid gap-2">
-                  {question.options.map((option) => {
-                    const selected = answers[question.id] ?? [];
-                    const multiple = question.type === "MultipleChoice";
-                    return (
-                      <label key={option} className="flex gap-2 text-sm">
-                        <input
-                          type={multiple ? "checkbox" : "radio"}
-                          name={question.id}
-                          value={option}
-                          checked={selected.includes(option)}
-                          onChange={(event) =>
-                            setAnswers((current) => ({
-                              ...current,
-                              [question.id]: multiple
-                                ? event.target.checked
-                                  ? [...selected, option]
-                                  : selected.filter((item) => item !== option)
-                                : [option],
-                            }))
-                          }
-                        />
-                        {optionLabel(option)}
-                      </label>
-                    );
-                  })}
-                </div>
-              )}
-            </fieldset>
-          ))}
-          <button
-            type="button"
-            onClick={() => submit.mutate()}
-            disabled={submit.isPending || !attemptId || Boolean(submit.data)}
-            className="focus-ring mt-5 rounded-lg bg-primary px-3 py-2 text-sm font-bold text-slate-950 disabled:opacity-50"
-          >
-            {locale === "ar" ? "إرسال الاختبار" : "Submit quiz"}
-          </button>
-          {submit.data ? (
-            <p role="status" className="mt-3 text-sm">
-              {submit.data.requiresManualReview
-                ? locale === "ar"
-                  ? "تم تسليم الاختبار. توجد إجابة تحتاج إلى تصحيح المعلم قبل إعلان النتيجة النهائية."
-                  : "Quiz submitted. A teacher must mark one or more responses before the final result is released."
-                : submit.data.showScore
-                  ? `${submit.data.scorePercent ?? 0}% · ${submit.data.passed ? (locale === "ar" ? "ناجح" : "Passed") : locale === "ar" ? "حاول مجددًا" : "Try again"}`
-                  : locale === "ar"
-                    ? "تم تسليم الاختبار. النتيجة مخفية وفق إعدادات المعلم."
-                    : "Quiz submitted. The score is hidden by your teacher."}
-              {submit.data.wasLate
-                ? locale === "ar"
-                  ? " (متأخر)"
-                  : " (late)"
-                : ""}
-            </p>
-          ) : null}
-          {submit.data?.review.length ? (
-            <ul className="mt-3 grid gap-2 text-sm">
-              {submit.data.review.map((item, index) => (
-                <li
-                  key={item.id}
-                  className="rounded-lg border border-border p-2"
-                >
-                  {locale === "ar"
-                    ? `السؤال ${index + 1}`
-                    : `Question ${index + 1}`}
-                  :{" "}
-                  {item.isCorrect
-                    ? locale === "ar"
-                      ? "صحيح"
-                      : "Correct"
-                    : locale === "ar"
-                      ? `الصحيح: ${item.correctAnswers.join("، ")}`
-                      : `Correct: ${item.correctAnswers.join(", ")}`}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-          {submit.isError ? (
-            <p role="alert" className="mt-3 text-sm text-red-400">
-              {submit.error instanceof Error
-                ? submit.error.message
-                : locale === "ar"
-                  ? "تعذر إرسال الاختبار."
-                  : "Unable to submit the quiz."}
-            </p>
-          ) : null}
-        </>
       ) : null}
     </section>
   );

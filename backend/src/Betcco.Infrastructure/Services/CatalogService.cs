@@ -77,7 +77,7 @@ public sealed class CatalogService(BetccoDbContext db, IMemoryCache cache) : ICa
             .SingleOrDefaultAsync(x => x.Slug == slug && x.Status == CourseStatus.Published, cancellationToken);
         if (course is null) return null;
         var modules = course.Modules.Where(x => x.IsPublished).OrderBy(x => x.SortOrder).Select(module =>
-            new ModuleDetail(module.Id, Localize(locale, module.UnitDefinition?.ArabicTitle ?? module.ArabicTitle, module.UnitDefinition?.EnglishTitle ?? module.EnglishTitle), module.Lessons.Where(x => x.IsPublished || x.IsPreview)
+            new ModuleDetail(module.Id, Localize(locale, module.UnitDefinition?.ArabicTitle ?? module.ArabicTitle, module.UnitDefinition?.EnglishTitle ?? module.EnglishTitle), module.Lessons.Where(x => x.Type != LessonType.LegacyArchived && (x.IsPublished || x.IsPreview))
                 .OrderBy(x => x.SortOrder).Select(lesson => new LessonDetail(lesson.Id, Localize(locale, lesson.ArabicTitle, lesson.EnglishTitle), lesson.DurationSeconds, lesson.IsPreview, lesson.Type.ToString())).ToArray())).ToArray();
         var teacherNames = await GetTeacherNamesAsync([course.TeacherUserId], cancellationToken);
         var teacherName = course.TeacherUserId is not null && teacherNames.TryGetValue(course.TeacherUserId, out var value) ? value : null;
@@ -100,7 +100,7 @@ public sealed class CatalogService(BetccoDbContext db, IMemoryCache cache) : ICa
 
     private static CourseSummary ToSummary(Betcco.Domain.Learning.Course course, string locale, string? teacherName = null)
     {
-        var lessons = course.Modules.SelectMany(x => x.Lessons).Where(x => x.IsPublished).ToArray();
+        var lessons = course.Modules.SelectMany(x => x.Lessons).Where(x => x.IsPublished && x.Type != LessonType.LegacyArchived).ToArray();
         return new CourseSummary(course.Id, course.Slug, Localize(locale, course.ArabicTitle, course.EnglishTitle), Localize(locale, course.ArabicDescription, course.EnglishDescription),
             Localize(locale, course.LearningTrack!.ArabicName, course.LearningTrack.EnglishName), course.Grade is null ? null : Localize(locale, course.Grade.ArabicName, course.Grade.EnglishName),
             course.Specialization is null ? null : Localize(locale, course.Specialization.ArabicName, course.Specialization.EnglishName), course.Subject is null ? null : Localize(locale, course.Subject.ArabicName, course.Subject.EnglishName),

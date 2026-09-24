@@ -68,7 +68,7 @@ public sealed class ScheduledCoursePublisher(
 
         var lessons = await db.Lessons
             .Include(lesson => lesson.CourseModule).ThenInclude(unit => unit!.Course)
-            .Where(lesson => lesson.PublicationStatus == ContentPublicationStatus.Scheduled
+            .Where(lesson => lesson.Type != LessonType.LegacyArchived && lesson.PublicationStatus == ContentPublicationStatus.Scheduled
                 && lesson.AvailableFromUtc <= now
                 && (lesson.CourseModule!.IsPublished
                     || lesson.CourseModule.PublicationStatus == ContentPublicationStatus.Scheduled && lesson.CourseModule.AvailableFromUtc <= now)
@@ -81,21 +81,6 @@ public sealed class ScheduledCoursePublisher(
             lesson.IsPublished = true;
             lesson.AvailableFromUtc = null;
             db.AuditLogs.Add(ScheduledAudit(nameof(Lesson), lesson.Id, "ScheduledCourseLessonPublished"));
-        }
-
-        var quizzes = await db.Quizzes
-            .Where(quiz => quiz.PublicationStatus == ContentPublicationStatus.Scheduled
-                && quiz.AvailableFromUtc <= now
-                && db.Courses.Any(course => course.Id == quiz.CourseId
-                    && (course.Status == CourseStatus.Published
-                        || course.Status == CourseStatus.Scheduled && course.ScheduledPublishAtUtc <= now)))
-            .ToListAsync(cancellationToken);
-        foreach (var quiz in quizzes)
-        {
-            quiz.PublicationStatus = ContentPublicationStatus.Published;
-            quiz.IsPublished = true;
-            quiz.AvailableFromUtc = null;
-            db.AuditLogs.Add(ScheduledAudit(nameof(Quiz), quiz.Id, "ScheduledQuizPublished"));
         }
 
         var assignments = await db.CourseAssignments
@@ -113,7 +98,7 @@ public sealed class ScheduledCoursePublisher(
             db.AuditLogs.Add(ScheduledAudit(nameof(CourseAssignment), assignment.Id, "ScheduledCourseAssignmentPublished"));
         }
 
-        if (courses.Count == 0 && units.Count == 0 && lessons.Count == 0 && quizzes.Count == 0 && assignments.Count == 0) return;
+        if (courses.Count == 0 && units.Count == 0 && lessons.Count == 0 && assignments.Count == 0) return;
         await db.SaveChangesAsync(cancellationToken);
     }
 

@@ -13,6 +13,38 @@ namespace Betcco.IntegrationTests;
 public sealed class CourseAuthoringServiceTests
 {
     [Fact]
+    public async Task Legacy_archived_lesson_cannot_be_authored_edited_or_duplicated()
+    {
+        await using var db = CreateDb();
+        var track = new LearningTrack { Slug = "legacy-lesson-track", ArabicName = "مسار", EnglishName = "Track" };
+        var course = new Course
+        {
+            Slug = "legacy-lesson-course",
+            ArabicTitle = "دورة",
+            EnglishTitle = "Course",
+            ArabicDescription = "وصف",
+            EnglishDescription = "Description",
+            LearningTrack = track,
+            TeacherUserId = "teacher-1",
+            Status = CourseStatus.Draft,
+            IsFree = true
+        };
+        var module = new CourseModule { Course = course, ArabicTitle = "وحدة", EnglishTitle = "Unit" };
+        var legacy = new Lesson { CourseModule = module, ArabicTitle = "قديم", EnglishTitle = "Legacy", Type = LessonType.LegacyArchived, PublicationStatus = ContentPublicationStatus.Archived };
+        db.AddRange(track, course, module, legacy);
+        await db.SaveChangesAsync();
+        var authoring = new CourseAuthoringService(db);
+
+        Assert.Null(await authoring.AddLessonAsync("teacher-1", new CreateLessonCommand(module.Id, "اختبار", "Quiz", null, null, "Quiz", 0, false, 1)));
+        Assert.Null(await authoring.AddLessonAsync("teacher-1", new CreateLessonCommand(module.Id, "أرشيف", "Archive", null, null, "LegacyArchived", 0, false, 1)));
+        Assert.Null(await authoring.AddLessonAsync("teacher-1", new CreateLessonCommand(module.Id, "أرشيف", "Archive", null, null, "2", 0, false, 1)));
+        Assert.False(await authoring.UpdateLessonAsync("teacher-1", legacy.Id, new UpdateLessonCommand("متغير", "Changed", null, null, "Text", 0, false, 1)));
+        Assert.Null(await authoring.DuplicateLessonAsync("teacher-1", legacy.Id));
+        Assert.False(await authoring.DeleteLessonAsync("teacher-1", legacy.Id));
+        Assert.Equal(LessonType.LegacyArchived, (await db.Lessons.SingleAsync(item => item.Id == legacy.Id)).Type);
+    }
+
+    [Fact]
     public async Task Teacher_can_build_a_draft_then_submit_review_and_publish_after_quality_gate()
     {
         await using var db = CreateDb();

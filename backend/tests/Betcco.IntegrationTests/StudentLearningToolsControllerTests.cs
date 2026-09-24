@@ -119,6 +119,66 @@ public sealed class StudentLearningToolsControllerTests
         Assert.Equal(ownPayment.Id.ToString(), items[0].GetProperty("id").GetString());
     }
 
+    [Fact]
+    public async Task Archived_legacy_lesson_history_is_hidden_from_student_tools_and_questions()
+    {
+        await using var db = CreateDb();
+        var course = new Course
+        {
+            Slug = "archived-lesson",
+            ArabicTitle = "دورة",
+            EnglishTitle = "Course",
+            ArabicDescription = "وصف",
+            EnglishDescription = "Description",
+            Status = CourseStatus.Published
+        };
+        var module = new CourseModule { Course = course, ArabicTitle = "وحدة", EnglishTitle = "Unit", IsPublished = true };
+        var archived = new Lesson
+        {
+            CourseModule = module,
+            ArabicTitle = "قديم",
+            EnglishTitle = "Historical",
+            Type = LessonType.LegacyArchived,
+            IsPublished = true
+        };
+        var regular = new Lesson
+        {
+            CourseModule = module,
+            ArabicTitle = "نص",
+            EnglishTitle = "Text",
+            Type = LessonType.Text,
+            IsPublished = true
+        };
+        db.AddRange(course, module, archived, regular,
+            new Enrollment { StudentUserId = "student-1", CourseId = course.Id },
+            new LessonNote { StudentUserId = "student-1", LessonId = archived.Id, Body = "Historical note" },
+            new LessonBookmark { StudentUserId = "student-1", LessonId = archived.Id },
+            new LessonProgress { StudentUserId = "student-1", LessonId = archived.Id, IsCompleted = true });
+        await db.SaveChangesAsync();
+        var context = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity(
+                    [new Claim(ClaimTypes.NameIdentifier, "student-1"), new Claim(ClaimTypes.Role, "Student")], "Test"))
+            }
+        };
+        var tools = new StudentLearningToolsController(db, null!, null!) { ControllerContext = context };
+        var overview = Assert.IsType<OkObjectResult>(await tools.Overview("en", CancellationToken.None));
+        using var document = JsonDocument.Parse(JsonSerializer.Serialize(overview.Value, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        }));
+        Assert.Empty(document.RootElement.GetProperty("notes").EnumerateArray());
+        Assert.Empty(document.RootElement.GetProperty("bookmarks").EnumerateArray());
+
+        var community = new CourseCommunityController(db, null!) { ControllerContext = context };
+        Assert.IsType<BadRequestObjectResult>(await community.Ask(course.Id,
+            new AskCourseQuestionRequest("Question", archived.Id), CancellationToken.None));
+        Assert.IsType<CreatedResult>(await community.Ask(course.Id,
+            new AskCourseQuestionRequest("Question", regular.Id), CancellationToken.None));
+    }
+
     private static BetccoDbContext CreateDb() => new(new DbContextOptionsBuilder<BetccoDbContext>()
         .UseInMemoryDatabase(Guid.NewGuid().ToString())
         .Options);

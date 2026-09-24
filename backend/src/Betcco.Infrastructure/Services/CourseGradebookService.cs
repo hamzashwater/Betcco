@@ -183,7 +183,7 @@ public sealed class CourseGradebookService(BetccoDbContext db) : ICourseGradeboo
             .OrderBy(unit => unit.SortOrder)
             .ToListAsync(cancellationToken);
         var lessons = await db.Lessons.AsNoTracking()
-            .Where(lesson => lesson.CourseModule!.CourseId == courseId && lesson.IsPublished && lesson.CourseModule.IsPublished)
+            .Where(lesson => lesson.CourseModule!.CourseId == courseId && lesson.IsPublished && lesson.Type != LessonType.LegacyArchived && lesson.CourseModule.IsPublished)
             .ToListAsync(cancellationToken);
         var assignments = await db.CourseAssignments.AsNoTracking()
             .Include(assignment => assignment.CourseModule).ThenInclude(module => module!.UnitDefinition)
@@ -205,15 +205,6 @@ public sealed class CourseGradebookService(BetccoDbContext db) : ICourseGradeboo
                 .Include(submission => submission.CriterionResults)
                 .Where(submission => studentIds.Contains(submission.StudentUserId) && assignmentIds.Contains(submission.CourseAssignmentId))
                 .ToListAsync(cancellationToken);
-        var quizzes = await db.Quizzes.AsNoTracking()
-            .Where(quiz => quiz.CourseId == courseId && quiz.IsPublished)
-            .Select(quiz => quiz.Id)
-            .ToArrayAsync(cancellationToken);
-        var attempts = studentIds.Count == 0 || quizzes.Length == 0
-            ? []
-            : await db.QuizAttempts.AsNoTracking()
-                .Where(attempt => studentIds.Contains(attempt.StudentUserId) && quizzes.Contains(attempt.QuizId) && attempt.Passed)
-            .ToListAsync(cancellationToken);
         var learningAims = await db.BtecLearningAims.AsNoTracking()
             .Include(aim => aim.LearningAimDefinition)
             .Where(aim => aim.CourseModule!.CourseId == courseId && aim.PublicationStatus == ContentPublicationStatus.Published)
@@ -223,7 +214,7 @@ public sealed class CourseGradebookService(BetccoDbContext db) : ICourseGradeboo
             .Where(topic => topic.BtecLearningAim!.CourseModule!.CourseId == courseId && topic.PublicationStatus == ContentPublicationStatus.Published)
             .Select(topic => new TopicAimMap(topic.Id, topic.BtecLearningAimId))
             .ToListAsync(cancellationToken);
-        return new CourseData(course, units, lessons, assignments, progress, submissions, quizzes, attempts, learningAims, topics);
+        return new CourseData(course, units, lessons, assignments, progress, submissions, learningAims, topics);
     }
 
     private static StudentCourseGradebookView BuildStudentView(CourseData data, string studentUserId, string locale)
@@ -251,10 +242,6 @@ public sealed class CourseGradebookService(BetccoDbContext db) : ICourseGradeboo
                 CriterionStatus(submission, result),
                 result?.Feedback);
         })).ToArray();
-        var passedQuizIds = data.PassedQuizAttempts
-            .Where(attempt => attempt.StudentUserId == studentUserId)
-            .Select(attempt => attempt.QuizId)
-            .ToHashSet();
         var completedAssignments = submissionsByAssignment.Values.Count(submission =>
             submission.Status is CourseAssignmentSubmissionStatus.Graded or CourseAssignmentSubmissionStatus.Finalized);
         var topicAimById = data.Topics.ToDictionary(topic => topic.Id, topic => topic.BtecLearningAimId);
@@ -293,8 +280,6 @@ public sealed class CourseGradebookService(BetccoDbContext db) : ICourseGradeboo
             Percentage(completeLessonIds.Count, data.Lessons.Count),
             completeLessonIds.Count,
             data.Lessons.Count,
-            passedQuizIds.Count,
-            data.QuizIds.Count,
             completedAssignments,
             data.Assignments.Count,
             Summarize(criteria),
@@ -358,8 +343,6 @@ public sealed class CourseGradebookService(BetccoDbContext db) : ICourseGradeboo
         IReadOnlyList<CourseAssignment> Assignments,
         IReadOnlyList<LessonProgress> LessonProgresses,
         IReadOnlyList<CourseAssignmentSubmission> Submissions,
-        IReadOnlyList<Guid> QuizIds,
-        IReadOnlyList<QuizAttempt> PassedQuizAttempts,
         IReadOnlyList<BtecLearningAim> LearningAims,
         IReadOnlyList<TopicAimMap> Topics);
 }

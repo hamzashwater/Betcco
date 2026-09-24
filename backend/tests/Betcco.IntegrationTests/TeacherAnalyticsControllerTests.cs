@@ -31,7 +31,7 @@ public sealed class TeacherAnalyticsControllerTests
         Assert.IsType<UnauthorizedResult>(await unauthorized.Get(CancellationToken.None));
 
         var json = await GetJsonAsync(fixture.Controller);
-        Assert.Equal(10, json.GetProperty("studentsAtRiskCount").GetInt32());
+        Assert.Equal(9, json.GetProperty("studentsAtRiskCount").GetInt32());
         Assert.Equal(8, json.GetProperty("studentsAtRisk").GetArrayLength());
         Assert.False(json.TryGetProperty("filteredStudentsAtRiskCount", out _));
     }
@@ -43,8 +43,8 @@ public sealed class TeacherAnalyticsControllerTests
 
         var json = await GetJsonAsync(fixture.Controller, followUp: true, page: 2, pageSize: 3);
 
-        Assert.Equal(10, json.GetProperty("studentsAtRiskCount").GetInt32());
-        Assert.Equal(10, json.GetProperty("filteredStudentsAtRiskCount").GetInt32());
+        Assert.Equal(9, json.GetProperty("studentsAtRiskCount").GetInt32());
+        Assert.Equal(9, json.GetProperty("filteredStudentsAtRiskCount").GetInt32());
         Assert.Equal(2, json.GetProperty("page").GetInt32());
         Assert.Equal(3, json.GetProperty("pageSize").GetInt32());
         Assert.Equal(3, json.GetProperty("studentsAtRisk").GetArrayLength());
@@ -72,7 +72,7 @@ public sealed class TeacherAnalyticsControllerTests
         var json = await GetJsonAsync(fixture.Controller, followUp: true, page: int.MaxValue, pageSize: 100);
 
         Assert.Equal(0, json.GetProperty("studentsAtRisk").GetArrayLength());
-        Assert.Equal(10, json.GetProperty("filteredStudentsAtRiskCount").GetInt32());
+        Assert.Equal(9, json.GetProperty("filteredStudentsAtRiskCount").GetInt32());
     }
 
     [Theory]
@@ -108,7 +108,7 @@ public sealed class TeacherAnalyticsControllerTests
 
     [Theory]
     [InlineData("High", 1)]
-    [InlineData("Medium", 9)]
+    [InlineData("Medium", 8)]
     public async Task Attention_filter_uses_the_existing_server_classification(string attention, int expectedCount)
     {
         await using var fixture = await AnalyticsFixture.CreateAsync();
@@ -123,7 +123,6 @@ public sealed class TeacherAnalyticsControllerTests
     [Theory]
     [InlineData("LowProgress")]
     [InlineData("MissedAssignments")]
-    [InlineData("LowQuizScore")]
     [InlineData("Inactive14Days")]
     public async Task Reason_filter_matches_only_existing_server_reasons(string reason)
     {
@@ -141,17 +140,16 @@ public sealed class TeacherAnalyticsControllerTests
     {
         await using var fixture = await AnalyticsFixture.CreateAsync();
 
-        var json = await GetJsonAsync(fixture.Controller, followUp: true, pageSize: 1, search: "dalia");
+        var json = await GetJsonAsync(fixture.Controller, followUp: true, pageSize: 1, search: "celine");
 
         Assert.Equal(1, json.GetProperty("filteredStudentsAtRiskCount").GetInt32());
-        Assert.Equal("Dalia quiz", json.GetProperty("studentsAtRisk")[0].GetProperty("studentName").GetString());
+        Assert.Equal("Celine assignments", json.GetProperty("studentsAtRisk")[0].GetProperty("studentName").GetString());
     }
 
     [Theory]
     [InlineData("priority", "Alice high")]
     [InlineData("progress", "Basma progress")]
     [InlineData("missedAssignments", "Celine assignments")]
-    [InlineData("quizAverage", "Dalia quiz")]
     [InlineData("lastActivity", "Evan inactive")]
     public async Task Sorting_is_deterministic_and_keeps_missing_values_distinct(string sort, string expectedFirst)
     {
@@ -161,8 +159,6 @@ public sealed class TeacherAnalyticsControllerTests
         var students = json.GetProperty("studentsAtRisk").EnumerateArray().ToArray();
 
         Assert.Equal(expectedFirst, students[0].GetProperty("studentName").GetString());
-        if (sort == "quizAverage")
-            Assert.Equal(JsonValueKind.Null, students[^1].GetProperty("averageQuizScore").ValueKind);
         if (sort == "lastActivity")
             Assert.Equal(JsonValueKind.Null, students[^1].GetProperty("lastActiveAtUtc").ValueKind);
     }
@@ -177,7 +173,7 @@ public sealed class TeacherAnalyticsControllerTests
 
         Assert.Equal("High", student.GetProperty("riskLevel").GetString());
         Assert.Equal(
-            ["LowProgress", "MissedAssignments", "LowQuizScore", "Inactive14Days"],
+            ["LowProgress", "MissedAssignments", "Inactive14Days"],
             student.GetProperty("reasons").EnumerateArray().Select(item => item.GetString()!).ToArray());
     }
 
@@ -283,24 +279,17 @@ public sealed class TeacherAnalyticsControllerTests
                 DueAtUtc = DateTimeOffset.UtcNow.AddDays(-1),
                 IsPublished = true
             }).ToArray();
-            var quiz = new Quiz
-            {
-                CourseId = course.Id,
-                ArabicTitle = "اختبار",
-                EnglishTitle = "Quiz",
-                IsPublished = true
-            };
             var students = new[]
             {
                 User("Alice high"),
                 User("Basma progress"),
                 User("Celine assignments"),
-                User("Dalia quiz"),
+                User("Dalia active"),
                 User("Evan inactive")
             }.Concat(Enumerable.Range(1, 5).Select(index => User($"Extra {index:00}"))).ToArray();
             var ids = students.ToDictionary(student => student.DisplayName, student => student.Id.ToString());
 
-            db.AddRange(course, unit, quiz);
+            db.AddRange(course, unit);
             db.AddRange(lessons);
             db.AddRange(assignments);
             db.AddRange(students);
@@ -312,10 +301,10 @@ public sealed class TeacherAnalyticsControllerTests
             }));
 
             db.Add(new LessonProgress { StudentUserId = ids["Alice high"], LessonId = lessons[0].Id, IsCompleted = true });
-            foreach (var name in new[] { "Celine assignments", "Dalia quiz", "Evan inactive" })
+            foreach (var name in new[] { "Celine assignments", "Dalia active", "Evan inactive" })
                 foreach (var lesson in lessons)
                     db.Add(new LessonProgress { StudentUserId = ids[name], LessonId = lesson.Id, IsCompleted = true });
-            foreach (var name in new[] { "Basma progress", "Dalia quiz", "Evan inactive" }.Concat(Enumerable.Range(1, 5).Select(index => $"Extra {index:00}")))
+            foreach (var name in new[] { "Basma progress", "Dalia active", "Evan inactive" }.Concat(Enumerable.Range(1, 5).Select(index => $"Extra {index:00}")))
                 foreach (var assignment in assignments)
                     db.Add(new CourseAssignmentSubmission
                     {
@@ -335,8 +324,6 @@ public sealed class TeacherAnalyticsControllerTests
                     SubmittedAtUtc = DateTimeOffset.UtcNow.AddDays(-1)
                 });
             db.AddRange(
-                new QuizAttempt { StudentUserId = ids["Alice high"], QuizId = quiz.Id, SubmittedAtUtc = DateTimeOffset.UtcNow, ScorePercent = 20m },
-                new QuizAttempt { StudentUserId = ids["Dalia quiz"], QuizId = quiz.Id, SubmittedAtUtc = DateTimeOffset.UtcNow, ScorePercent = 10m },
                 new UserSession { UserId = ids["Alice high"], DeviceName = "Test", BrowserName = "Test", LastActiveAtUtc = DateTimeOffset.UtcNow.AddDays(-30) },
                 new UserSession { UserId = ids["Evan inactive"], DeviceName = "Test", BrowserName = "Test", LastActiveAtUtc = DateTimeOffset.UtcNow.AddDays(-40) });
 

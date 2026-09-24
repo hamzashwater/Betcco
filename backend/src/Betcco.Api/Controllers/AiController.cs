@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Betcco.Application.Common;
+using Betcco.Domain.Common;
 using Betcco.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,7 +30,7 @@ public sealed class AiController(IAiProvider ai, BetccoDbContext db) : Controlle
         };
         if (request.LessonId is not null)
         {
-            var lesson = course.Modules.Where(x => x.IsPublished).SelectMany(x => x.Lessons).SingleOrDefault(x => x.Id == request.LessonId && x.IsPublished);
+            var lesson = course.Modules.Where(x => x.IsPublished).SelectMany(x => x.Lessons).SingleOrDefault(x => x.Id == request.LessonId && x.IsPublished && x.Type != LessonType.LegacyArchived);
             if (lesson is null) return NotFound();
             sources.Add($"[Lesson] {lesson.ArabicTitle} / {lesson.EnglishTitle}\n{Limit(lesson.ArabicBody, 4000)}\n{Limit(lesson.EnglishBody, 4000)}");
         }

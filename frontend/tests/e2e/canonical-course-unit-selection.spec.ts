@@ -27,7 +27,19 @@ for (const scenario of [
   }) => {
     await page.setViewportSize({ width: scenario.width, height: 844 });
     const pageErrors: string[] = [];
+    const consoleErrors: string[] = [];
     page.on("pageerror", (error) => pageErrors.push(error.message));
+    page.on("console", (message) => {
+      if (
+        message.type() === "error" &&
+        !message
+          .text()
+          .startsWith(
+            "Executing inline script violates the following Content Security Policy",
+          )
+      )
+        consoleErrors.push(message.text());
+    });
     let postedEntryId: string | undefined;
     await page.route("**/api/v1/**", async (route) => {
       const path = new URL(route.request().url()).pathname;
@@ -87,6 +99,10 @@ for (const scenario of [
     });
 
     await page.goto(`/${scenario.locale}/teacher/courses/course-1#curriculum`);
+    await expect(page.getByText(/question bank|بنك الأسئلة/i)).toHaveCount(0);
+    await expect(
+      page.locator("option").filter({ hasText: /quiz|اختبار/i }),
+    ).toHaveCount(0);
     const selector = page.getByRole("combobox", {
       name: scenario.locale === "ar" ? "الوحدة الأكاديمية" : "Academic unit",
     });
@@ -105,6 +121,7 @@ for (const scenario of [
       .click();
     await expect.poll(() => postedEntryId).toBe("entry-1");
     expect(pageErrors).toEqual([]);
+    expect(consoleErrors).toEqual([]);
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -129,7 +146,56 @@ for (const scenario of [
   }) => {
     await page.setViewportSize({ width: scenario.width, height: 844 });
     const pageErrors: string[] = [];
+    const consoleErrors: string[] = [];
     page.on("pageerror", (error) => pageErrors.push(error.message));
+    page.on("console", (message) => {
+      if (
+        message.type() === "error" &&
+        !message
+          .text()
+          .startsWith(
+            "Executing inline script violates the following Content Security Policy",
+          )
+      )
+        consoleErrors.push(message.text());
+    });
+    await page.route("**/api/v1/**", (route) => {
+      const path = new URL(route.request().url()).pathname;
+      if (path === "/api/v1/cart")
+        return route.fulfill({ json: { items: [] } });
+      if (path === "/api/v1/catalog/courses")
+        return route.fulfill({ json: { items: [], totalCount: 0 } });
+      if (path === "/api/v1/taxonomy")
+        return route.fulfill({
+          json: { tracks: [], grades: [], specializations: [], subjects: [] },
+        });
+      if (path === "/api/v1/student-tools/overview")
+        return route.fulfill({ json: { notes: [], bookmarks: [] } });
+      if (path.startsWith("/api/v1/gradebook/student/courses/"))
+        return route.fulfill({
+          json: {
+            courseId: "course-1",
+            courseTitle: "Example course",
+            lessonProgressPercent: 0,
+            lessonsCompleted: 0,
+            lessonsTotal: 2,
+            assignmentsCompleted: 0,
+            assignmentsTotal: 1,
+            predictedGrade: {
+              predictedGrade: "NotYetAchieved",
+              passAchieved: 0,
+              passRequired: 0,
+              meritAchieved: 0,
+              meritRequired: 0,
+              distinctionAchieved: 0,
+              distinctionRequired: 0,
+            },
+            units: [],
+            criteria: [],
+          },
+        });
+      return route.fulfill({ json: [] });
+    });
     await page.route("**/api/v1/auth/me", (route) =>
       route.fulfill({ json: { displayName: "Student", roles: ["Student"] } }),
     );
@@ -139,9 +205,21 @@ for (const scenario of [
           id: "course-1",
           title: "Example course",
           resumeLessonId: "lesson-1",
-          currentLessonId: "lesson-1",
-          previousLessonId: null,
-          nextLessonId: null,
+          currentLessonId:
+            new URL(route.request().url()).searchParams.get("lessonId") ===
+            "lesson-2"
+              ? "lesson-2"
+              : "lesson-1",
+          previousLessonId:
+            new URL(route.request().url()).searchParams.get("lessonId") ===
+            "lesson-2"
+              ? "lesson-1"
+              : null,
+          nextLessonId:
+            new URL(route.request().url()).searchParams.get("lessonId") ===
+            "lesson-2"
+              ? null
+              : "lesson-2",
           requestedLessonRejected: false,
           modules: [
             {
@@ -161,6 +239,30 @@ for (const scenario of [
                   isCompleted: false,
                   lastPositionSeconds: 0,
                 },
+                {
+                  id: "legacy-lesson",
+                  title: "Historical quiz",
+                  type: "LegacyArchived",
+                  body: "Historical only",
+                  durationSeconds: 0,
+                  isLocked: false,
+                  resources: [],
+                  video: null,
+                  isCompleted: true,
+                  lastPositionSeconds: 0,
+                },
+                {
+                  id: "lesson-2",
+                  title: "Course assignment",
+                  type: "Assignment",
+                  body: "Complete the coursework",
+                  durationSeconds: 0,
+                  isLocked: false,
+                  resources: [],
+                  video: null,
+                  isCompleted: false,
+                  lastPositionSeconds: 0,
+                },
               ],
             },
           ],
@@ -170,7 +272,12 @@ for (const scenario of [
     await page.goto(`/${scenario.locale}/student/learn/course-1`);
     await expect(page.getByText(scenario.title).first()).toBeVisible();
     await expect(page.getByText("First lesson").first()).toBeVisible();
+    await expect(page.getByText("Historical quiz")).toHaveCount(0);
+    await expect(page.getByText("Course assignment").first()).toBeVisible();
+    await page.getByRole("link", { name: "Course assignment" }).click();
+    await expect(page.getByText("Complete the coursework")).toBeVisible();
     expect(pageErrors).toEqual([]);
+    expect(consoleErrors).toEqual([]);
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= window.innerWidth,

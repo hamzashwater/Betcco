@@ -319,20 +319,17 @@
       "All": "جميع الأسباب",
       "LowProgress": "تقدم منخفض",
       "MissedAssignments": "مهام فائتة",
-      "LowQuizScore": "نتيجة اختبار منخفضة",
       "Inactive14Days": "غير نشط منذ 14 يومًا"
     },
     "sort": {
       "priority": "أولوية المتابعة",
       "progress": "الأقل تقدمًا أولًا",
       "missedAssignments": "الأكثر في المهام الفائتة",
-      "quizAverage": "الأقل في متوسط الاختبارات",
       "lastActivity": "النشاط الأقدم أولًا"
     },
     "fields": {
       "progress": "التقدم",
       "missedAssignments": "المهام الفائتة",
-      "quizAverage": "متوسط الاختبارات",
       "lastActivity": "آخر نشاط"
     },
     "unavailable": "غير متوفر",
@@ -357,7 +354,6 @@
       "announcements": "الإعلانات",
       "curriculum": "المنهج",
       "assignments": "المهام وسجل الدرجات",
-      "quizzes": "الاختبارات",
       "review": "النشر والمراجعة"
     }
   },
