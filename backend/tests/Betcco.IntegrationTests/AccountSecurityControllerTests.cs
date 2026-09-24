@@ -62,6 +62,43 @@ public sealed class AccountSecurityControllerTests
         Assert.Null((await fixture.Db.UserSessions.SingleAsync(item => item.Id == current.Id)).RevokedAtUtc);
     }
 
+    [Fact]
+    public async Task Logout_other_sessions_preserves_current_and_foreign_sessions()
+    {
+        await using var fixture = await SecurityFixture.CreateAsync();
+        var current = Session(fixture.User.Id.ToString(), "Current");
+        var other = Session(fixture.User.Id.ToString(), "Other");
+        var foreign = Session(Guid.NewGuid().ToString(), "Foreign");
+        fixture.Db.UserSessions.AddRange(current, other, foreign);
+        await fixture.Db.SaveChangesAsync();
+
+        Assert.IsType<OkObjectResult>(await fixture.CreateController(current.Id).LogoutOtherSessions(CancellationToken.None));
+        Assert.Null((await fixture.Db.UserSessions.SingleAsync(x => x.Id == current.Id)).RevokedAtUtc);
+        Assert.NotNull((await fixture.Db.UserSessions.SingleAsync(x => x.Id == other.Id)).RevokedAtUtc);
+        Assert.Null((await fixture.Db.UserSessions.SingleAsync(x => x.Id == foreign.Id)).RevokedAtUtc);
+        Assert.Contains(fixture.Db.AuditLogs, x => x.Action == "OtherUserSessionsRevoked");
+    }
+
+    [Fact]
+    public async Task Password_change_requires_current_password_and_revokes_other_sessions()
+    {
+        await using var fixture = await SecurityFixture.CreateAsync();
+        var current = Session(fixture.User.Id.ToString(), "Current");
+        var other = Session(fixture.User.Id.ToString(), "Other");
+        fixture.Db.UserSessions.AddRange(current, other);
+        await fixture.Db.SaveChangesAsync();
+        var controller = fixture.CreateController(current.Id);
+
+        Assert.IsType<BadRequestObjectResult>(await controller.ChangePassword(new ChangePasswordRequest("wrong", "N!ewPassword123"), CancellationToken.None));
+        Assert.Null((await fixture.Db.UserSessions.SingleAsync(x => x.Id == other.Id)).RevokedAtUtc);
+        Assert.IsType<NoContentResult>(await controller.ChangePassword(new ChangePasswordRequest("T!estPassword123", "N!ewPassword123"), CancellationToken.None));
+        Assert.True(await fixture.UserManager.CheckPasswordAsync(fixture.User, "N!ewPassword123"));
+        Assert.False(await fixture.UserManager.CheckPasswordAsync(fixture.User, "T!estPassword123"));
+        Assert.Null((await fixture.Db.UserSessions.SingleAsync(x => x.Id == current.Id)).RevokedAtUtc);
+        Assert.NotNull((await fixture.Db.UserSessions.SingleAsync(x => x.Id == other.Id)).RevokedAtUtc);
+        Assert.Contains(fixture.Db.AuditLogs, x => x.Action == "PasswordChanged");
+    }
+
     private static UserSession Session(string userId, string deviceName) => new()
     {
         UserId = userId,
@@ -116,7 +153,18 @@ public sealed class AccountSecurityControllerTests
             return new SecurityFixture(provider, db, userManager, signInManager, user);
         }
 
-        public AuthController CreateController(Guid currentSessionId) => new(
+        public AuthController CreateController(Guid currentSessionId)
+        {
+            var context = new DefaultHttpContext
+            {
+                RequestServices = services,
+                User = new ClaimsPrincipal(new ClaimsIdentity([
+                    new Claim(ClaimTypes.NameIdentifier, User.Id.ToString()),
+                    new Claim(BetccoAuthClaims.SessionId, currentSessionId.ToString())
+                ], "test"))
+            };
+            services.GetRequiredService<IHttpContextAccessor>().HttpContext = context;
+            return new AuthController(
             UserManager,
             SignInManager,
             Db,
@@ -124,19 +172,10 @@ public sealed class AccountSecurityControllerTests
             services.GetRequiredService<IDataProtectionProvider>(),
             new TestWebHostEnvironment(),
             new ConfigurationBuilder().Build())
-        {
-            ControllerContext = new ControllerContext
             {
-                HttpContext = new DefaultHttpContext
-                {
-                    RequestServices = services,
-                    User = new ClaimsPrincipal(new ClaimsIdentity([
-                    new Claim(ClaimTypes.NameIdentifier, User.Id.ToString()),
-                    new Claim(BetccoAuthClaims.SessionId, currentSessionId.ToString())
-                ], "test"))
-                }
-            }
-        };
+                ControllerContext = new ControllerContext { HttpContext = context }
+            };
+        }
 
         public async ValueTask DisposeAsync()
         {

@@ -300,6 +300,38 @@ public sealed class AuthController(
     }
 
     [Authorize]
+    [HttpPost("change-password")]
+    [EnableRateLimiting("password-reset")]
+    public async Task<IActionResult> ChangePassword(ChangePasswordRequest request, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+        var user = await userManager.GetUserAsync(User);
+        if (user is null || user.IsFrozen) return Unauthorized();
+        if (string.Equals(request.CurrentPassword, request.NewPassword, StringComparison.Ordinal))
+            return BadRequest(new { code = "PASSWORD_UNCHANGED", message = "Choose a different password." });
+
+        var result = await userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+        if (!result.Succeeded)
+            return BadRequest(new ValidationProblemDetails(result.Errors.ToDictionary(error => error.Code, error => new[] { error.Description })));
+
+        var currentSessionId = GetCurrentSessionId();
+        var now = DateTimeOffset.UtcNow;
+        var otherSessions = await db.UserSessions
+            .Where(session => session.UserId == user.Id.ToString() && session.Id != currentSessionId && session.RevokedAtUtc == null && !session.IsDeleted)
+            .ToListAsync(cancellationToken);
+        foreach (var session in otherSessions)
+        {
+            session.RevokedAtUtc = now;
+            session.RevokedByUserId = user.Id.ToString();
+            session.RevocationReason = "Password changed";
+        }
+        db.AuditLogs.Add(new AuditLog { ActorUserId = user.Id.ToString(), Action = "PasswordChanged", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success" });
+        await db.SaveChangesAsync(cancellationToken);
+        await RefreshCurrentSessionCookieAsync(user, cancellationToken);
+        return NoContent();
+    }
+
+    [Authorize]
     [HttpGet("two-factor")]
     public async Task<IActionResult> TwoFactorStatus()
     {
@@ -429,6 +461,32 @@ public sealed class AuthController(
         await db.SaveChangesAsync(cancellationToken);
         if (isCurrent) await signInManager.SignOutAsync();
         return Ok(new { currentSessionRevoked = isCurrent });
+    }
+
+    [Authorize]
+    [HttpPost("sessions/logout-others")]
+    public async Task<IActionResult> LogoutOtherSessions(CancellationToken cancellationToken)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null) return Unauthorized();
+        var currentSessionId = GetCurrentSessionId();
+        if (currentSessionId is null || !await db.UserSessions.AnyAsync(session =>
+                session.Id == currentSessionId && session.UserId == user.Id.ToString() && session.RevokedAtUtc == null && !session.IsDeleted, cancellationToken))
+            return Unauthorized();
+
+        var otherSessions = await db.UserSessions
+            .Where(session => session.UserId == user.Id.ToString() && session.Id != currentSessionId && session.RevokedAtUtc == null && !session.IsDeleted)
+            .ToListAsync(cancellationToken);
+        var now = DateTimeOffset.UtcNow;
+        foreach (var session in otherSessions)
+        {
+            session.RevokedAtUtc = now;
+            session.RevokedByUserId = user.Id.ToString();
+            session.RevocationReason = "Account owner signed out other sessions";
+        }
+        db.AuditLogs.Add(new AuditLog { ActorUserId = user.Id.ToString(), Action = "OtherUserSessionsRevoked", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success", MetadataJson = "{\"scope\":\"other-sessions\"}" });
+        await db.SaveChangesAsync(cancellationToken);
+        return Ok(new { revokedCount = otherSessions.Count });
     }
 
     [Authorize]
@@ -696,3 +754,6 @@ public sealed record TwoFactorCodeRequest(string? Code);
 public sealed record DevelopmentConfirmRequest(string Email);
 public sealed record ForgotPasswordRequest(string Email);
 public sealed record ResetPasswordRequest(Guid UserId, string Token, string Password);
+public sealed record ChangePasswordRequest(
+    [param: Required] string CurrentPassword,
+    [param: Required] string NewPassword);
