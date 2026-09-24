@@ -545,6 +545,142 @@ public sealed class AuthRegistrationTests
         Assert.Contains(fixture.Db.AuditLogs, item => item.Action == "TeacherInvitationRevoked" && item.EntityId == invitation.Id.ToString());
     }
 
+    [Fact]
+    public async Task Support_admin_can_freeze_students_and_teachers_but_not_privileged_accounts()
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var roleManager = fixture.Services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        foreach (var role in new[] { PlatformRoles.Teacher, PlatformRoles.SupportAdmin, PlatformRoles.Admin, PlatformRoles.SystemAdmin })
+            Assert.True((await roleManager.CreateAsync(new IdentityRole<Guid>(role))).Succeeded);
+
+        var targets = new Dictionary<string, ApplicationUser>();
+        foreach (var role in new[] { PlatformRoles.Student, PlatformRoles.Teacher, PlatformRoles.SupportAdmin, PlatformRoles.Admin, PlatformRoles.SystemAdmin })
+        {
+            var user = new ApplicationUser { UserName = $"{role}@betcco.test", Email = $"{role}@betcco.test", DisplayName = role, EmailConfirmed = true };
+            Assert.True((await fixture.Users.CreateAsync(user, "T!estPassword123")).Succeeded);
+            Assert.True((await fixture.Users.AddToRoleAsync(user, role)).Succeeded);
+            targets[role] = user;
+            fixture.Db.UserSessions.Add(new UserSession { UserId = user.Id.ToString(), DeviceName = "Test", BrowserName = "Test", LoggedInAtUtc = DateTimeOffset.UtcNow, LastActiveAtUtc = DateTimeOffset.UtcNow });
+        }
+        await fixture.Db.SaveChangesAsync();
+
+        var controller = fixture.CreateAdminUsersController(Guid.NewGuid().ToString(), PlatformRoles.SupportAdmin);
+        foreach (var role in new[] { PlatformRoles.Student, PlatformRoles.Teacher })
+        {
+            Assert.IsType<NoContentResult>(await controller.Freeze(targets[role].Id, new FreezeUserRequest(true), CancellationToken.None));
+            Assert.True(targets[role].IsFrozen);
+            Assert.All(fixture.Db.UserSessions.Where(session => session.UserId == targets[role].Id.ToString()), session => Assert.NotNull(session.RevokedAtUtc));
+            Assert.IsType<NoContentResult>(await controller.Freeze(targets[role].Id, new FreezeUserRequest(false), CancellationToken.None));
+            Assert.False(targets[role].IsFrozen);
+        }
+        foreach (var role in new[] { PlatformRoles.SupportAdmin, PlatformRoles.Admin, PlatformRoles.SystemAdmin })
+        {
+            Assert.IsType<NotFoundResult>(await controller.Freeze(targets[role].Id, new FreezeUserRequest(true), CancellationToken.None));
+            Assert.False(targets[role].IsFrozen);
+        }
+        Assert.Contains(fixture.Db.AuditLogs, log => log.Action == "StudentFrozen");
+        Assert.Contains(fixture.Db.AuditLogs, log => log.Action == "TeacherUnfrozen");
+    }
+
+    [Fact]
+    public async Task Student_email_changes_only_after_password_and_new_mailbox_confirmation()
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var student = new ApplicationUser { UserName = "student-old@betcco.test", Email = "student-old@betcco.test", DisplayName = "Student", EmailConfirmed = true };
+        Assert.True((await fixture.Users.CreateAsync(student, "T!estPassword123")).Succeeded);
+        Assert.True((await fixture.Users.AddToRoleAsync(student, PlatformRoles.Student)).Succeeded);
+        var session = new UserSession { UserId = student.Id.ToString(), DeviceName = "Browser", BrowserName = "Test", LoggedInAtUtc = DateTimeOffset.UtcNow, LastActiveAtUtc = DateTimeOffset.UtcNow };
+        fixture.Db.UserSessions.Add(session);
+        await fixture.Db.SaveChangesAsync();
+        SetAuthenticatedRequestContext(fixture, student.Id, PlatformRoles.Student, session.Id);
+
+        Assert.IsType<BadRequestObjectResult>(await fixture.Controller.RequestStudentEmailChange(
+            new StudentEmailChangeRequest("student-new@betcco.test", "wrong"), CancellationToken.None));
+        Assert.Null(fixture.Email.HtmlBody);
+        Assert.IsType<AcceptedResult>(await fixture.Controller.RequestStudentEmailChange(
+            new StudentEmailChangeRequest("student-new@betcco.test", "T!estPassword123"), CancellationToken.None));
+        Assert.Equal("student-old@betcco.test", student.Email);
+
+        var url = new Uri(fixture.Email.HtmlBody!.Split("href=\"")[1].Split('"')[0]);
+        var query = QueryHelpers.ParseQuery(url.Query);
+        var confirmation = new EmailChangeConfirmationRequest(student.Id, query["email"]!, query["proof"]!, query["mode"]!);
+        Assert.IsType<NoContentResult>(await fixture.Controller.ConfirmEmailChange(confirmation, CancellationToken.None));
+        Assert.Equal("student-new@betcco.test", student.Email);
+        Assert.Equal(student.Email, student.UserName);
+        Assert.NotNull(session.RevokedAtUtc);
+        Assert.IsType<ConflictObjectResult>(await fixture.Controller.ConfirmEmailChange(confirmation, CancellationToken.None));
+        Assert.Contains(fixture.Db.AuditLogs, log => log.Action == "StudentEmailChanged");
+    }
+
+    [Fact]
+    public async Task Managed_teacher_email_requires_admin_initiation_and_teacher_confirmation()
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var roleManager = fixture.Services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        Assert.True((await roleManager.CreateAsync(new IdentityRole<Guid>(PlatformRoles.Teacher))).Succeeded);
+        var teacher = new ApplicationUser { UserName = "teacher-old@betcco.test", Email = "teacher-old@betcco.test", DisplayName = "Teacher", EmailConfirmed = true };
+        Assert.True((await fixture.Users.CreateAsync(teacher, "T!estPassword123")).Succeeded);
+        Assert.True((await fixture.Users.AddToRoleAsync(teacher, PlatformRoles.Teacher)).Succeeded);
+        SetAuthenticatedRequestContext(fixture, teacher.Id, PlatformRoles.Teacher, Guid.NewGuid());
+        Assert.IsType<ForbidResult>(await fixture.Controller.RequestStudentEmailChange(
+            new StudentEmailChangeRequest("teacher-new@betcco.test", "T!estPassword123"), CancellationToken.None));
+
+        var admin = fixture.CreateAdminUsersController(Guid.NewGuid().ToString());
+        Assert.IsType<AcceptedResult>(await admin.RequestManagedEmailChange(teacher.Id,
+            new ManagedEmailChangeRequest("teacher-new@betcco.test"), CancellationToken.None));
+        Assert.Equal("teacher-old@betcco.test", teacher.Email);
+        var url = new Uri(fixture.Email.HtmlBody!.Split("href=\"")[1].Split('"')[0]);
+        var query = QueryHelpers.ParseQuery(url.Query);
+        var confirmation = new EmailChangeConfirmationRequest(teacher.Id, query["email"]!, query["proof"]!, query["mode"]!);
+        Assert.IsType<NoContentResult>(await fixture.Controller.ConfirmEmailChange(confirmation, CancellationToken.None));
+        Assert.Equal("teacher-new@betcco.test", teacher.Email);
+        Assert.Equal(teacher.Email, teacher.UserName);
+        Assert.Contains(fixture.Db.AuditLogs, log => log.Action == "ManagedUserEmailChangeRequested");
+        Assert.Contains(fixture.Db.AuditLogs, log => log.Action == "ManagedUserEmailChanged");
+    }
+
+    [Fact]
+    public async Task Support_admin_activation_keeps_password_private_and_requires_mailbox_token()
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var roleManager = fixture.Services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        Assert.True((await roleManager.CreateAsync(new IdentityRole<Guid>(PlatformRoles.SupportAdmin))).Succeeded);
+        var admin = fixture.CreateAdminUsersController(Guid.NewGuid().ToString());
+        Assert.IsType<AcceptedResult>(await admin.InviteSupportAdmin(
+            new InviteSupportAdminRequest("Support colleague", "support@betcco.test"), CancellationToken.None));
+        var user = (await fixture.Users.FindByEmailAsync("support@betcco.test"))!;
+        Assert.True(user.MustChangePassword);
+        Assert.False(user.EmailConfirmed);
+        Assert.True(await fixture.Users.IsInRoleAsync(user, PlatformRoles.SupportAdmin));
+        Assert.Empty(fixture.Db.TeacherInvitations);
+        Assert.IsType<BadRequestObjectResult>(await fixture.Controller.ResetPassword(
+            new ResetPasswordRequest(user.Id, "invalid", "N!ewPassword123")));
+        var url = new Uri(fixture.Email.HtmlBody!.Split("href=\"")[1].Split('"')[0]);
+        var query = QueryHelpers.ParseQuery(url.Query);
+        Assert.IsType<OkObjectResult>(await fixture.Controller.ResetPassword(
+            new ResetPasswordRequest(user.Id, query["token"]!, "N!ewPassword123")));
+        Assert.True(user.EmailConfirmed);
+        Assert.False(user.MustChangePassword);
+        Assert.True(await fixture.Users.CheckPasswordAsync(user, "N!ewPassword123"));
+        Assert.Contains(fixture.Db.AuditLogs, log => log.Action == "SupportAdminProvisioned");
+        Assert.Contains(fixture.Db.AuditLogs, log => log.Action == "SupportAdminActivated");
+    }
+
+    private static void SetAuthenticatedRequestContext(RegistrationFixture fixture, Guid userId, string role, Guid sessionId)
+    {
+        var context = new DefaultHttpContext
+        {
+            RequestServices = fixture.Services,
+            User = new ClaimsPrincipal(new ClaimsIdentity([
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                new Claim(ClaimTypes.Role, role),
+                new Claim(BetccoAuthClaims.SessionId, sessionId.ToString())
+            ], "Test"))
+        };
+        fixture.Services.GetRequiredService<IHttpContextAccessor>().HttpContext = context;
+        fixture.Controller.ControllerContext = new ControllerContext { HttpContext = context };
+    }
+
     private static void SetRequestContext(RegistrationFixture fixture)
     {
         var context = new DefaultHttpContext { RequestServices = fixture.Services };
@@ -563,7 +699,7 @@ public sealed class AuthRegistrationTests
         public ServiceProvider Services => services;
         private IConfiguration Configuration { get; }
 
-        public AdminUsersController CreateAdminUsersController(string actorUserId) => new(Users, Db, Email, Configuration)
+        public AdminUsersController CreateAdminUsersController(string actorUserId, string role = PlatformRoles.Admin) => new(Users, Db, Email, Configuration, services.GetRequiredService<IDataProtectionProvider>())
         {
             ControllerContext = new ControllerContext
             {
@@ -571,7 +707,7 @@ public sealed class AuthRegistrationTests
                 {
                     RequestServices = services,
                     User = new ClaimsPrincipal(new ClaimsIdentity(
-                        [new Claim(ClaimTypes.NameIdentifier, actorUserId)], "Test"))
+                        [new Claim(ClaimTypes.NameIdentifier, actorUserId), new Claim(ClaimTypes.Role, role)], "Test"))
                 }
             }
         };
