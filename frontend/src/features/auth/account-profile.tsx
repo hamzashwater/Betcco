@@ -136,10 +136,15 @@ export function AccountProfile({
                   <input
                     readOnly
                     value={profile.data.email ?? ""}
+                    aria-label={locale === "ar" ? "البريد الإلكتروني" : "Email"}
+                    aria-describedby="managed-email-help"
                     className="w-full min-w-0 rounded-xl border border-border bg-muted/35 py-2.5 ps-10 pe-3 text-muted"
                   />
                 </span>
-                <span className="text-xs font-normal leading-5 text-muted">
+                <span
+                  id="managed-email-help"
+                  className="text-xs font-normal leading-5 text-muted"
+                >
                   {role === "student"
                     ? locale === "ar"
                       ? "استخدم إجراء تغيير البريد الآمن أدناه."

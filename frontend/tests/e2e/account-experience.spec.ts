@@ -98,6 +98,7 @@ for (const role of roles) {
         await expect(
           page.getByRole("textbox", {
             name: locale === "ar" ? "البريد الإلكتروني" : "Email",
+            exact: true,
           }),
         ).toHaveValue("sam@example.com");
         expect(

@@ -6,7 +6,9 @@ import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useLocale } from "next-intl";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
+
+const subscribeToHydration = () => () => {};
 
 type FreezeTarget = {
   id: string;
@@ -23,6 +25,11 @@ export function SupportAccountArea({ segment }: { segment: string[] }) {
   const [search, setSearch] = useState("");
   const [term, setTerm] = useState("");
   const [page, setPage] = useState(1);
+  const mounted = useSyncExternalStore(
+    subscribeToHydration,
+    () => true,
+    () => false,
+  );
   const current = segment.join("/") || "accounts";
   const viewer = useQuery({
     queryKey: ["current-user"],
@@ -50,7 +57,7 @@ export function SupportAccountArea({ segment }: { segment: string[] }) {
       void client.invalidateQueries({ queryKey: ["support-freeze-targets"] }),
   });
 
-  if (viewer.isPending)
+  if (!mounted || viewer.isPending)
     return (
       <p className="shell py-10" aria-busy="true">
         {locale === "ar" ? "جارٍ التحميل…" : "Loading…"}
