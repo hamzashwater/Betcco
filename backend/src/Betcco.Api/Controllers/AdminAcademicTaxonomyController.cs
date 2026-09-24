@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Betcco.Domain.Learning;
 using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Persistence;
@@ -106,11 +105,32 @@ public sealed class AdminAcademicTaxonomyController(BetccoDbContext db) : Contro
     }
 
     private static bool Valid(SaveAcademicTaxonomyRequest request) => request.LearningTrackId != Guid.Empty
-        && !string.IsNullOrWhiteSpace(request.Slug) && request.Slug.Length <= 100
-        && Regex.IsMatch(request.Slug.Trim(), "^[a-z0-9]+(?:-[a-z0-9]+)*$", RegexOptions.NonBacktracking)
+        && ValidSlug(request.Slug)
         && !string.IsNullOrWhiteSpace(request.ArabicName) && request.ArabicName.Length <= 120
         && !string.IsNullOrWhiteSpace(request.EnglishName) && request.EnglishName.Length <= 120
         && request.SortOrder is >= 0 and <= 10_000;
+
+    private static bool ValidSlug(string? rawSlug)
+    {
+        if (string.IsNullOrWhiteSpace(rawSlug) || rawSlug.Length > 100)
+            return false;
+
+        var slug = rawSlug.Trim();
+        if (slug.Length == 0)
+            return false;
+
+        for (var index = 0; index < slug.Length; index++)
+        {
+            var current = slug[index];
+            if (current is >= 'a' and <= 'z' or >= '0' and <= '9')
+                continue;
+
+            if (current != '-' || index == 0 || index == slug.Length - 1 || slug[index - 1] == '-')
+                return false;
+        }
+
+        return true;
+    }
 
     private void Audit(string action, Guid id, object metadata) => db.AuditLogs.Add(new AuditLog
     {

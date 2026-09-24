@@ -17,6 +17,9 @@ public sealed class AcademicProgrammeAuthorityTests
     [Theory]
     [InlineData("simple")]
     [InlineData("hyphenated-slug")]
+    [InlineData("abc")]
+    [InlineData("grade-11")]
+    [InlineData("123")]
     [InlineData("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
     public async Task Academic_taxonomy_accepts_valid_slugs_on_specialization_and_grade_create_and_update(string slug)
     {
@@ -47,6 +50,31 @@ public sealed class AcademicProgrammeAuthorityTests
     }
 
     [Fact]
+    public async Task Academic_taxonomy_trims_surrounding_whitespace_after_checking_raw_slug_length()
+    {
+        await using var db = Context();
+        var track = BtecTrack();
+        db.LearningTracks.Add(track);
+        await db.SaveChangesAsync();
+        var controller = new AdminAcademicTaxonomyController(db)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+        controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim(ClaimTypes.NameIdentifier, "admin")], "test"));
+        var request = new SaveAcademicTaxonomyRequest(track.Id, "  grade-11  ", "اسم عربي", "English name", 1);
+
+        Assert.IsType<CreatedResult>(await controller.CreateSpecialization(request, default));
+        Assert.IsType<CreatedResult>(await controller.CreateGrade(request, default));
+        var specialization = await db.Specializations.SingleAsync();
+        var grade = await db.Grades.SingleAsync();
+        Assert.Equal("grade-11", specialization.Slug);
+        Assert.Equal("grade-11", grade.Slug);
+        Assert.IsType<NoContentResult>(await controller.UpdateSpecialization(specialization.Id, request, default));
+        Assert.IsType<NoContentResult>(await controller.UpdateGrade(grade.Id, request, default));
+    }
+
+    [Fact]
     public async Task Academic_taxonomy_rejects_invalid_and_oversized_slugs_on_all_write_paths()
     {
         await using var db = Context();
@@ -61,7 +89,7 @@ public sealed class AcademicProgrammeAuthorityTests
         };
         controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
             [new Claim(ClaimTypes.NameIdentifier, "admin")], "test"));
-        string[] invalidSlugs = [" ", "-leading", "trailing-", "repeated--hyphen", "Uppercase",
+        string[] invalidSlugs = [" ", "-leading", "trailing-", "repeated--hyphen", "Uppercase", "invalid_slug", "inside space",
             new string('a', 100) + " ", new string('a', 100) + "a", new string('a', 100_000) + "! "];
 
         foreach (var slug in invalidSlugs)
