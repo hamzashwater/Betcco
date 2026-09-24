@@ -308,8 +308,10 @@ for (const { locale, width } of [
       name: locale === "ar" ? "إرسال رابط التحقق" : "Send confirmation link",
     });
     await studentButton.focus();
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Tab");
     await expect(studentButton).toBeFocused();
-    await studentButton.click();
+    await page.keyboard.press("Enter");
     expect((await studentRequest).postDataJSON()).toEqual({
       newEmail: "new@example.com",
       currentPassword: "T!estPassword123",
