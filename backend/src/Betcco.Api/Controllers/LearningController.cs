@@ -79,7 +79,7 @@ public sealed class LearningController(
         {
             var moduleAccess = await StudentAccessAsync(courseId, LearningContentType.Unit, module.Id, cancellationToken);
             var lessons = new List<object>();
-            foreach (var lesson in module.Lessons.Where(item => item.IsPublished).OrderBy(item => item.SortOrder))
+            foreach (var lesson in module.Lessons.Where(item => item.IsPublished && item.Type != LessonType.LegacyArchived).OrderBy(item => item.SortOrder))
             {
                 var lessonAccess = await StudentAccessAsync(courseId, LearningContentType.Lesson, lesson.Id, cancellationToken);
                 lessons.Add(new
@@ -131,7 +131,7 @@ public sealed class LearningController(
         var lesson = await db.Lessons.AsNoTracking()
             .Include(item => item.CourseModule).ThenInclude(item => item!.Course)
             .Include(item => item.Resources)
-            .SingleOrDefaultAsync(item => item.Id == lessonId && item.IsPublished && item.CourseModule!.IsPublished
+            .SingleOrDefaultAsync(item => item.Id == lessonId && item.IsPublished && item.Type != LessonType.LegacyArchived && item.CourseModule!.IsPublished
                 && item.CourseModule.Course!.Status == CourseStatus.Published, cancellationToken);
         if (lesson is null || !await CanAccessCourseAsync(lesson.CourseModule!.CourseId, cancellationToken)
             || !(await StudentAccessAsync(lesson.CourseModule.CourseId, LearningContentType.Lesson, lessonId, cancellationToken)).IsAvailable)
@@ -153,6 +153,7 @@ public sealed class LearningController(
             .Include(resource => resource.Lesson).ThenInclude(lesson => lesson!.CourseModule)
             .Where(resource => resource.Lesson!.CourseModule!.CourseId == courseId
                 && resource.Lesson.IsPublished
+                && resource.Lesson.Type != LessonType.LegacyArchived
                 && resource.Lesson.CourseModule.IsPublished
                 && resource.IsDownloadable
                 && resource.ScanStatus == UploadScanStatus.Clean)

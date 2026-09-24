@@ -42,16 +42,16 @@ public sealed class StudentCoursesLearningHubService(
             TotalLessons = enrollment.Course.Modules
                 .Where(module => module.IsPublished)
                 .SelectMany(module => module.Lessons)
-                .Count(lesson => lesson.IsPublished),
+                .Count(lesson => lesson.IsPublished && lesson.Type != LessonType.LegacyArchived),
             CompletedLessons = db.LessonProgresses.Count(progress =>
                 progress.StudentUserId == studentUserId
                 && progress.IsCompleted
                 && enrollment.Course.Modules.Any(module => module.IsPublished
-                    && module.Lessons.Any(lesson => lesson.IsPublished && lesson.Id == progress.LessonId))),
+                    && module.Lessons.Any(lesson => lesson.IsPublished && lesson.Type != LessonType.LegacyArchived && lesson.Id == progress.LessonId))),
             RecentProgressAtUtc = db.LessonProgresses
                 .Where(progress => progress.StudentUserId == studentUserId
                     && enrollment.Course.Modules.Any(module => module.IsPublished
-                        && module.Lessons.Any(lesson => lesson.IsPublished && lesson.Id == progress.LessonId)))
+                        && module.Lessons.Any(lesson => lesson.IsPublished && lesson.Type != LessonType.LegacyArchived && lesson.Id == progress.LessonId)))
                 .Max(progress => (DateTimeOffset?)progress.LastVisitedAtUtc)
         });
 

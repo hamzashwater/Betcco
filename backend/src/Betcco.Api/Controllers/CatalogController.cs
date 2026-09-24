@@ -32,7 +32,7 @@ public sealed class CatalogController(ICatalogService catalog, IFileStorage stor
         var lesson = await db.Lessons.AsNoTracking()
             .Include(item => item.CourseModule).ThenInclude(module => module!.Course)
             .Include(item => item.Resources)
-            .SingleOrDefaultAsync(item => item.Id == lessonId && item.IsPreview && item.IsPublished
+            .SingleOrDefaultAsync(item => item.Id == lessonId && item.IsPreview && item.IsPublished && item.Type != LessonType.LegacyArchived
                 && item.CourseModule!.IsPublished && item.CourseModule.Course!.Status == CourseStatus.Published
                 && item.CourseModule.Course.Slug == slug, cancellationToken);
         if (lesson is null) return NotFound();
@@ -56,7 +56,7 @@ public sealed class CatalogController(ICatalogService catalog, IFileStorage stor
             .Include(item => item.Lesson).ThenInclude(lesson => lesson!.CourseModule).ThenInclude(module => module!.Course)
             .SingleOrDefaultAsync(item => item.Id == resourceId && item.LessonId == lessonId
                 && item.IsDownloadable && item.ScanStatus == UploadScanStatus.Clean
-                && item.Lesson!.IsPreview && item.Lesson.IsPublished && item.Lesson.CourseModule!.IsPublished
+                && item.Lesson!.IsPreview && item.Lesson.IsPublished && item.Lesson.Type != LessonType.LegacyArchived && item.Lesson.CourseModule!.IsPublished
                 && item.Lesson.CourseModule.Course!.Status == CourseStatus.Published && item.Lesson.CourseModule.Course.Slug == slug, cancellationToken);
         if (resource is null) return NotFound();
         if (resource.ExternalUrl is not null) return Redirect(resource.ExternalUrl);

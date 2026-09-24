@@ -136,8 +136,6 @@ describe("TeacherCoursesManagement", () => {
                     courses: courses.length,
                     students: 0,
                     pendingReviews: 0,
-                    quizAttempts: 0,
-                    averageQuizScore: 0,
                     averageLessonProgress: 0,
                     studentsAtRisk: [],
                     studentsAtRiskCount: 0,

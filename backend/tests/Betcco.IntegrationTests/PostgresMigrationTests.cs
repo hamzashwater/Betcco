@@ -1,6 +1,12 @@
+using Betcco.Domain.Common;
+using Betcco.Infrastructure.Identity;
+using Betcco.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Betcco.IntegrationTests;
 
@@ -24,6 +30,7 @@ public sealed class PostgresMigrationTests
         Assert.Contains(migrations, migration => migration.EndsWith("_AddDurablePrivateStorageFoundation", StringComparison.Ordinal));
         Assert.Contains(migrations, migration => migration.EndsWith("_AddAcademicDeliveryPlanning", StringComparison.Ordinal));
         Assert.Contains(migrations, migration => migration.EndsWith("_AddCanonicalLearnUnitLinks", StringComparison.Ordinal));
+        Assert.Contains(migrations, migration => migration.EndsWith("_RemoveLegacyQuizSystem", StringComparison.Ordinal));
         Assert.False(db.Database.HasPendingModelChanges());
 
         var script = db.GetService<IMigrator>().GenerateScript(
@@ -35,6 +42,9 @@ public sealed class PostgresMigrationTests
         Assert.Contains("AddDurablePrivateStorageFoundation", script, StringComparison.Ordinal);
         Assert.Contains("AddAcademicDeliveryPlanning", script, StringComparison.Ordinal);
         Assert.Contains("AddCanonicalLearnUnitLinks", script, StringComparison.Ordinal);
+        Assert.Contains("RemoveLegacyQuizSystem", script, StringComparison.Ordinal);
+        Assert.Contains("UPDATE \"Lessons\"", script, StringComparison.Ordinal);
+        Assert.Contains("DELETE FROM \"ContentPrerequisites\"", script, StringComparison.Ordinal);
         Assert.Contains("IX_CourseModules_CourseId_UnitDefinitionId", script, StringComparison.Ordinal);
         Assert.Contains("FK_CourseModules_UnitDefinitions_UnitDefinitionId", script, StringComparison.Ordinal);
         Assert.Contains("CREATE TABLE \"AcademicYears\"", script, StringComparison.Ordinal);
@@ -50,5 +60,29 @@ public sealed class PostgresMigrationTests
         await using var foreignKeyCheck = connection.CreateCommand();
         foreignKeyCheck.CommandText = "SELECT count(*) FROM information_schema.table_constraints WHERE table_name = 'CourseModules' AND constraint_type = 'FOREIGN KEY' AND constraint_name = 'FK_CourseModules_UnitDefinitions_UnitDefinitionId'";
         Assert.Equal(1L, Convert.ToInt64(await foreignKeyCheck.ExecuteScalarAsync()));
+        await using var removedTablesCheck = connection.CreateCommand();
+        removedTablesCheck.CommandText = "SELECT count(*) FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('Quizzes', 'QuizQuestions', 'QuizAttempts', 'QuizAttemptQuestionGrades', 'QuestionBankQuestions')";
+        Assert.Equal(0L, Convert.ToInt64(await removedTablesCheck.ExecuteScalarAsync()));
+        await using var preservedTablesCheck = connection.CreateCommand();
+        preservedTablesCheck.CommandText = "SELECT count(*) FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('Courses', 'Lessons', 'LessonProgresses', 'Enrollments', 'CourseAssignments', 'CourseAssignmentSubmissions', 'EvaluationRequests', 'UnitDefinitions')";
+        Assert.Equal(8L, Convert.ToInt64(await preservedTablesCheck.ExecuteScalarAsync()));
+
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddDbContext<BetccoDbContext>(options => options.UseNpgsql(database.ConnectionString));
+        services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
+            .AddEntityFrameworkStores<BetccoDbContext>()
+            .AddDefaultTokenProviders();
+        services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
+        services.AddScoped<DatabaseInitializer>();
+        await using var provider = services.BuildServiceProvider();
+        await using (var scope = provider.CreateAsyncScope())
+            await scope.ServiceProvider.GetRequiredService<DatabaseInitializer>().InitializeAsync();
+
+        await using var seeded = database.CreateContext();
+        Assert.True(await seeded.Courses.AnyAsync());
+        Assert.True(await seeded.Lessons.AnyAsync(x => x.Type == LessonType.Text));
+        Assert.True(await seeded.Lessons.AnyAsync(x => x.Type == LessonType.Assignment));
+        Assert.False(await seeded.Lessons.AnyAsync(x => x.Type == LessonType.LegacyArchived));
     }
 }

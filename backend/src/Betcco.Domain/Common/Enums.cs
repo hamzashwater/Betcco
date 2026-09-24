@@ -4,7 +4,7 @@ public enum CourseStatus { Draft, SubmittedForReview, Approved, Rejected, Publis
 public enum ContentPublicationStatus { Draft, Published, Archived, Scheduled }
 public enum BtecCriterionBand { Pass, Merit, Distinction }
 public enum CourseAssignmentSubmissionStatus { Draft, Submitted, NeedsRevision, Graded, Finalized }
-public enum LessonType { Text, Video, Quiz, Assignment, LiveSession, Activity }
+public enum LessonType { Text = 0, Video = 1, LegacyArchived = 2, Assignment = 3, LiveSession = 4, Activity = 5 }
 public enum PaymentStatus { Pending, Processing, Paid, Failed, Cancelled, Refunded, PartiallyRefunded, Chargeback }
 public enum ProviderSessionStatus { NotStarted, Creating, Unknown, Ready, Failed, RequiresReconciliation }
 public enum CartStatus { Open, Closed }
@@ -41,8 +41,7 @@ public enum EvaluationStatus { Draft, PendingPayment, Paid, PendingAssignment, A
 public enum InternalVerificationSampleStatus { Pending, Accepted, ReturnedToAssessor }
 public enum EvaluationAppealStatus { Submitted, UnderReview, Upheld, Rejected, Withdrawn }
 public enum CriterionAchievement { Achieved, PartiallyAchieved, NotAchieved, NotApplicable }
-// This is an academic outcome, not a score. Numeric quiz scores remain in
-// QuizAttempt.ScorePercent and are never converted into a BTEC criterion award.
+// This is an academic outcome, not a numeric score.
 // The sequential values intentionally preserve ordering only.
 public enum EvaluationGrade { NotYetAchieved, Pass, Merit, Distinction }
 public enum UploadScanStatus { Pending, Clean, Rejected, Quarantined }
@@ -231,22 +230,8 @@ public enum SecurityIncidentSeverity { Low, Medium, High, Critical }
 public enum SecurityIncidentStatus { Open, Assessing, Contained, Closed }
 
 public enum BreachNotificationAudience { AffectedIndividuals, RegulatoryAuthority }
-public enum QuizQuestionType
-{
-    SingleChoice,
-    MultipleChoice,
-    TrueFalse,
-    ShortAnswer,
-    FillInBlank,
-    Matching,
-    Ordering,
-    Essay,
-    ImageQuestion,
-    CodeQuestion
-}
-
 /// <summary>Persisted content kinds used by access rules and prerequisites.</summary>
-public enum LearningContentType { Course, Unit, Lesson, Quiz, Assignment }
+public enum LearningContentType { Course = 0, Unit = 1, Lesson = 2, Assignment = 4 }
 
 /// <summary>
 /// Controls when enrolled students can open a course item. Publishing remains a

@@ -33,7 +33,7 @@ public sealed class StudentCoursePlayerService(
             .OrderBy(module => module.SortOrder)
             .ThenBy(module => module.Id)
             .SelectMany(module => module.Lessons
-                .Where(lesson => lesson.IsPublished)
+                .Where(lesson => lesson.IsPublished && lesson.Type != LessonType.LegacyArchived)
                 .OrderBy(lesson => lesson.SortOrder)
                 .ThenBy(lesson => lesson.Id))
             .ToArray();
@@ -93,7 +93,7 @@ public sealed class StudentCoursePlayerService(
                 module.Id,
                 cancellationToken);
             var lessons = module.Lessons
-                .Where(item => item.IsPublished)
+                .Where(item => item.IsPublished && item.Type != LessonType.LegacyArchived)
                 .OrderBy(item => item.SortOrder)
                 .ThenBy(item => item.Id)
                 .Select(lesson => LessonView(lesson, locale, lessonAccess[lesson.Id], progress.GetValueOrDefault(lesson.Id)))
@@ -129,6 +129,7 @@ public sealed class StudentCoursePlayerService(
             .Include(item => item.CourseModule)
             .SingleOrDefaultAsync(item => item.Id == lessonId
                 && item.IsPublished
+                && item.Type != LessonType.LegacyArchived
                 && item.CourseModule!.IsPublished
                 && item.CourseModule.Course!.Status == CourseStatus.Published,
                 cancellationToken);

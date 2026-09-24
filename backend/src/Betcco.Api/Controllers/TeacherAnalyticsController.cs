@@ -27,8 +27,8 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db, ICourseAssign
         [FromQuery] string sort = "priority")
     {
         var allowedAttentionLevels = new[] { "High", "Medium" };
-        var allowedReasons = new[] { "LowProgress", "MissedAssignments", "LowQuizScore", "Inactive14Days" };
-        var allowedSorts = new[] { "priority", "progress", "missedAssignments", "quizAverage", "lastActivity" };
+        var allowedReasons = new[] { "LowProgress", "MissedAssignments", "Inactive14Days" };
+        var allowedSorts = new[] { "priority", "progress", "missedAssignments", "lastActivity" };
         if (followUp && (page < 1 || pageSize is < 1 or > 100
             || search?.Length > 200
             || attention is not null && !allowedAttentionLevels.Contains(attention, StringComparer.OrdinalIgnoreCase)
@@ -49,7 +49,7 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db, ICourseAssign
                 PublishedLessons = course.Modules
                     .Where(module => module.IsPublished)
                     .SelectMany(module => module.Lessons)
-                    .Count(lesson => lesson.IsPublished)
+                    .Count(lesson => lesson.IsPublished && lesson.Type != LessonType.LegacyArchived)
             })
             .ToListAsync(cancellationToken);
         var courseIds = courses.Select(course => course.Id).ToArray();
@@ -57,8 +57,8 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db, ICourseAssign
         {
             var empty = Array.Empty<object>();
             return followUp
-                ? Ok(new { courses = 0, students = 0, pendingReviews = 0, quizAttempts = 0, averageQuizScore = 0m, averageLessonProgress = 0m, studentsAtRisk = empty, studentsAtRiskCount = 0, filteredStudentsAtRiskCount = 0, page, pageSize })
-                : Ok(new { courses = 0, students = 0, pendingReviews = 0, quizAttempts = 0, averageQuizScore = 0m, averageLessonProgress = 0m, studentsAtRisk = empty, studentsAtRiskCount = 0 });
+                ? Ok(new { courses = 0, students = 0, pendingReviews = 0, averageLessonProgress = 0m, studentsAtRisk = empty, studentsAtRiskCount = 0, filteredStudentsAtRiskCount = 0, page, pageSize })
+                : Ok(new { courses = 0, students = 0, pendingReviews = 0, averageLessonProgress = 0m, studentsAtRisk = empty, studentsAtRiskCount = 0 });
         }
 
         var enrollments = await db.Enrollments.AsNoTracking()
@@ -71,7 +71,7 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db, ICourseAssign
             .ToArray();
         var publishedLessonsByCourse = courses.ToDictionary(course => course.Id, course => course.PublishedLessons);
         var publishedLessons = await db.Lessons.AsNoTracking()
-            .Where(lesson => courseIds.Contains(lesson.CourseModule!.CourseId) && lesson.CourseModule.IsPublished && lesson.IsPublished)
+            .Where(lesson => courseIds.Contains(lesson.CourseModule!.CourseId) && lesson.CourseModule.IsPublished && lesson.IsPublished && lesson.Type != LessonType.LegacyArchived)
             .Select(lesson => new { lesson.Id, CourseId = lesson.CourseModule!.CourseId })
             .ToListAsync(cancellationToken);
         var lessonIds = publishedLessons.Select(lesson => lesson.Id).ToArray();
@@ -85,14 +85,6 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db, ICourseAssign
         var learningSlots = enrollments.Sum(enrollment => publishedLessonsByCourse[enrollment.CourseId]);
         var pendingReviews = await db.CourseAssignmentSubmissions.AsNoTracking()
             .CountAsync(submission => courseIds.Contains(submission.CourseAssignment!.CourseId) && submission.Status == CourseAssignmentSubmissionStatus.Submitted, cancellationToken);
-        var quizIds = await db.Quizzes.AsNoTracking()
-            .Where(quiz => courseIds.Contains(quiz.CourseId))
-            .Select(quiz => quiz.Id)
-            .ToArrayAsync(cancellationToken);
-        var quizData = await db.QuizAttempts.AsNoTracking()
-            .Where(attempt => quizIds.Contains(attempt.QuizId) && attempt.SubmittedAtUtc != null && !attempt.RequiresManualReview && studentUserIds.Contains(attempt.StudentUserId))
-            .Select(attempt => new { attempt.StudentUserId, attempt.ScorePercent })
-            .ToListAsync(cancellationToken);
         var now = DateTimeOffset.UtcNow;
         var overdueAssignments = await db.CourseAssignments.AsNoTracking()
             .Where(assignment => courseIds.Contains(assignment.CourseId) && assignment.IsPublished && assignment.DueAtUtc < now)
@@ -124,8 +116,6 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db, ICourseAssign
         var lessonCourseById = publishedLessons.ToDictionary(lesson => lesson.Id, lesson => lesson.CourseId);
         var completedLessonsByStudent = completedProgress.GroupBy(progress => progress.StudentUserId)
             .ToDictionary(group => group.Key, group => group.Select(progress => progress.LessonId).ToHashSet());
-        var quizScoresByStudent = quizData.GroupBy(attempt => attempt.StudentUserId)
-            .ToDictionary(group => group.Key, group => group.Select(attempt => attempt.ScorePercent).ToArray());
         var submissionByStudentAndAssignment = assignmentSubmissions.ToDictionary(
             submission => (submission.StudentUserId, submission.CourseAssignmentId),
             submission => submission.Status);
@@ -139,13 +129,10 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db, ICourseAssign
                 && assignmentDeadlines[(assignment.Id, studentUserId)].EffectiveDueAtUtc < now
                 && (!submissionByStudentAndAssignment.TryGetValue((studentUserId, assignment.Id), out var status)
                     || status is CourseAssignmentSubmissionStatus.Draft or CourseAssignmentSubmissionStatus.NeedsRevision));
-            var quizScores = quizScoresByStudent.GetValueOrDefault(studentUserId, []);
-            var averageQuizScore = quizScores.Length == 0 ? (decimal?)null : Math.Round(quizScores.Average(), 2);
             lastActivity.TryGetValue(studentUserId, out var lastActiveAtUtc);
             var reasons = new List<string>();
             if (expectedLessons > 0 && progressPercent < 40m) reasons.Add("LowProgress");
             if (missedAssignments > 0) reasons.Add("MissedAssignments");
-            if (averageQuizScore is < 50m) reasons.Add("LowQuizScore");
             if (lastActiveAtUtc != default && lastActiveAtUtc <= now.AddDays(-14)) reasons.Add("Inactive14Days");
             var riskLevel = reasons.Count switch
             {
@@ -161,7 +148,6 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db, ICourseAssign
                 reasons,
                 progressPercent,
                 missedAssignments,
-                averageQuizScore,
                 lastActiveAtUtc = lastActiveAtUtc == default ? (DateTimeOffset?)null : lastActiveAtUtc
             };
         }).Where(student => student.reasons.Count > 0).OrderByDescending(student => student.riskLevel == "High").ThenByDescending(student => student.reasons.Count).ThenBy(student => student.studentName).ToArray();
@@ -171,8 +157,6 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db, ICourseAssign
                 courses = courses.Count,
                 students = enrollments.Select(enrollment => enrollment.StudentUserId).Distinct().Count(),
                 pendingReviews,
-                quizAttempts = quizData.Count,
-                averageQuizScore = quizData.Count == 0 ? 0m : Math.Round(quizData.Average(attempt => attempt.ScorePercent), 2),
                 averageLessonProgress = learningSlots == 0 ? 0m : Math.Round(completed * 100m / learningSlots, 2),
                 studentsAtRisk = studentsAtRisk.Take(8),
                 studentsAtRiskCount = studentsAtRisk.Length
@@ -195,10 +179,6 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db, ICourseAssign
             "missedassignments" => filteredStudents.OrderByDescending(student => student.missedAssignments)
                 .ThenBy(student => student.studentName, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(student => student.studentUserId, StringComparer.Ordinal),
-            "quizaverage" => filteredStudents.OrderBy(student => student.averageQuizScore is null)
-                .ThenBy(student => student.averageQuizScore)
-                .ThenBy(student => student.studentName, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(student => student.studentUserId, StringComparer.Ordinal),
             "lastactivity" => filteredStudents.OrderBy(student => student.lastActiveAtUtc is null)
                 .ThenBy(student => student.lastActiveAtUtc)
                 .ThenBy(student => student.studentName, StringComparer.OrdinalIgnoreCase)
@@ -219,8 +199,6 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db, ICourseAssign
             courses = courses.Count,
             students = enrollments.Select(enrollment => enrollment.StudentUserId).Distinct().Count(),
             pendingReviews,
-            quizAttempts = quizData.Count,
-            averageQuizScore = quizData.Count == 0 ? 0m : Math.Round(quizData.Average(attempt => attempt.ScorePercent), 2),
             averageLessonProgress = learningSlots == 0 ? 0m : Math.Round(completed * 100m / learningSlots, 2),
             studentsAtRisk = pagedStudentsAtRisk,
             studentsAtRiskCount = studentsAtRisk.Length,

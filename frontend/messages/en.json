@@ -319,20 +319,17 @@
       "All": "All reasons",
       "LowProgress": "Low progress",
       "MissedAssignments": "Missed assignments",
-      "LowQuizScore": "Low quiz score",
       "Inactive14Days": "Inactive for 14 days"
     },
     "sort": {
       "priority": "Attention priority",
       "progress": "Lowest progress first",
       "missedAssignments": "Most missed assignments",
-      "quizAverage": "Lowest quiz average",
       "lastActivity": "Oldest activity first"
     },
     "fields": {
       "progress": "Progress",
       "missedAssignments": "Missed assignments",
-      "quizAverage": "Quiz average",
       "lastActivity": "Last activity"
     },
     "unavailable": "Not available",
@@ -357,7 +354,6 @@
       "announcements": "Announcements",
       "curriculum": "Curriculum",
       "assignments": "Assignments & gradebook",
-      "quizzes": "Quizzes",
       "review": "Publishing & review"
     }
   },

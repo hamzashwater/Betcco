@@ -9,7 +9,6 @@ export const courseWorkspaceSections = [
   "announcements",
   "curriculum",
   "assignments",
-  "quizzes",
   "review",
 ] as const;
 

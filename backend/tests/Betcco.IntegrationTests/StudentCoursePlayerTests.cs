@@ -17,6 +17,31 @@ namespace Betcco.IntegrationTests;
 public sealed class StudentCoursePlayerTests
 {
     [Fact]
+    public async Task Archived_legacy_lesson_is_preserved_but_never_delivered_or_resumed()
+    {
+        await using var fixture = await PlayerFixture.CreateAsync();
+        fixture.Fourth.Type = LessonType.LegacyArchived;
+        fixture.Fourth.IsPublished = true; // The type check also protects an incorrectly published historical row.
+        fixture.Db.LessonProgresses.Add(new LessonProgress
+        {
+            StudentUserId = PlayerFixture.StudentId,
+            LessonId = fixture.Fourth.Id,
+            LastVisitedAtUtc = DateTimeOffset.UtcNow.AddHours(1)
+        });
+        await fixture.Db.SaveChangesAsync();
+
+        var result = Assert.IsType<StudentCoursePlayerResult>(
+            await fixture.Service.GetAsync(PlayerFixture.StudentId, fixture.Course.Id, "en", fixture.Fourth.Id));
+
+        Assert.True(result.RequestedLessonRejected);
+        Assert.Equal(fixture.Second.Id, result.ResumeLessonId);
+        Assert.DoesNotContain(result.Modules.SelectMany(module => module.Lessons), lesson => lesson.Id == fixture.Fourth.Id);
+        Assert.False((await fixture.Access.CanAccessAsync(PlayerFixture.StudentId, fixture.Course.Id, LearningContentType.Lesson, fixture.Fourth.Id)).IsAvailable);
+        Assert.Null(await fixture.Service.SaveProgressAsync(PlayerFixture.StudentId, fixture.Fourth.Id, 0, true));
+        Assert.NotNull(await fixture.Db.LessonProgresses.SingleAsync(progress => progress.StudentUserId == PlayerFixture.StudentId && progress.LessonId == fixture.Fourth.Id));
+    }
+
+    [Fact]
     public async Task Canonical_unit_changes_display_language_without_changing_identity_or_progress()
     {
         await using var fixture = await PlayerFixture.CreateAsync();

@@ -29,7 +29,7 @@ public sealed class StudentLearningToolsController(
     public async Task<IActionResult> Overview([FromQuery] string locale = "ar", CancellationToken cancellationToken = default)
     {
         var studentId = UserId!;
-        var notes = await db.LessonNotes.AsNoTracking().Include(x => x.Lesson!).ThenInclude(x => x.CourseModule).Where(x => x.StudentUserId == studentId).OrderByDescending(x => x.UpdatedAtUtc).Select(x => new
+        var notes = await db.LessonNotes.AsNoTracking().Include(x => x.Lesson!).ThenInclude(x => x.CourseModule).Where(x => x.StudentUserId == studentId && x.Lesson!.Type != LessonType.LegacyArchived && x.Lesson.IsPublished).OrderByDescending(x => x.UpdatedAtUtc).Select(x => new
         {
             x.Id,
             x.LessonId,
@@ -38,7 +38,7 @@ public sealed class StudentLearningToolsController(
             body = x.Body,
             x.UpdatedAtUtc
         }).ToListAsync(cancellationToken);
-        var bookmarks = await db.LessonBookmarks.AsNoTracking().Include(x => x.Lesson!).ThenInclude(x => x.CourseModule).Where(x => x.StudentUserId == studentId).OrderByDescending(x => x.CreatedAtUtc).Select(x => new
+        var bookmarks = await db.LessonBookmarks.AsNoTracking().Include(x => x.Lesson!).ThenInclude(x => x.CourseModule).Where(x => x.StudentUserId == studentId && x.Lesson!.Type != LessonType.LegacyArchived && x.Lesson.IsPublished).OrderByDescending(x => x.CreatedAtUtc).Select(x => new
         {
             x.Id,
             x.LessonId,
@@ -128,20 +128,6 @@ public sealed class StudentLearningToolsController(
             isLiveSession = false,
             eventType = "Assignment"
         }).ToArray();
-        var quizEvents = await db.Quizzes.AsNoTracking()
-            .Where(quiz => courseIds.Contains(quiz.CourseId) && quiz.IsPublished && (quiz.AvailableFromUtc != null || quiz.AvailableUntilUtc != null))
-            .Select(quiz => new
-            {
-                id = $"quiz:{quiz.Id}",
-                personalEntryId = (Guid?)null,
-                title = Localize(locale, quiz.ArabicTitle, quiz.EnglishTitle),
-                details = (string?)(quiz.AvailableUntilUtc == null ? "Quiz opens" : "Quiz deadline"),
-                StartsAtUtc = quiz.AvailableUntilUtc ?? quiz.AvailableFromUtc!.Value,
-                endsAtUtc = (DateTimeOffset?)null,
-                isLiveSession = false,
-                eventType = "Quiz"
-            })
-            .ToListAsync(cancellationToken);
         var certificates = await db.CourseCertificates.AsNoTracking().Include(x => x.Course).Where(x => x.StudentUserId == studentId).OrderByDescending(x => x.IssuedAtUtc).Select(x => new
         {
             x.VerificationCode,
@@ -155,6 +141,8 @@ public sealed class StudentLearningToolsController(
             where progress.StudentUserId == studentId
                 && progress.IsCompleted
                 && module.IsPublished
+                && lesson.IsPublished
+                && lesson.Type != LessonType.LegacyArchived
                 && courseIds.Contains(module.CourseId)
             select progress.Id).CountAsync(cancellationToken);
         var submittedAssignmentsCount = await db.CourseAssignmentSubmissions.AsNoTracking()
@@ -187,7 +175,7 @@ public sealed class StudentLearningToolsController(
         {
             notes,
             bookmarks,
-            calendar = personalEntries.Concat(liveSessions).Concat(assignmentEvents).Concat(quizEvents).OrderBy(x => x.StartsAtUtc),
+            calendar = personalEntries.Concat(liveSessions).Concat(assignmentEvents).OrderBy(x => x.StartsAtUtc),
             certificates,
             upcomingAssignments,
             unreadNotifications,
@@ -247,6 +235,7 @@ public sealed class StudentLearningToolsController(
     [HttpDelete("notes/{lessonId:guid}")]
     public async Task<IActionResult> DeleteNote(Guid lessonId, CancellationToken cancellationToken)
     {
+        if (!await OwnsLessonAsync(lessonId, cancellationToken)) return NotFound();
         var note = await db.LessonNotes.SingleOrDefaultAsync(x => x.StudentUserId == UserId && x.LessonId == lessonId, cancellationToken);
         if (note is null) return NotFound();
         db.LessonNotes.Remove(note);
@@ -271,6 +260,7 @@ public sealed class StudentLearningToolsController(
     [HttpDelete("bookmarks/{lessonId:guid}")]
     public async Task<IActionResult> RemoveBookmark(Guid lessonId, CancellationToken cancellationToken)
     {
+        if (!await OwnsLessonAsync(lessonId, cancellationToken)) return NotFound();
         var bookmark = await db.LessonBookmarks.SingleOrDefaultAsync(x => x.StudentUserId == UserId && x.LessonId == lessonId, cancellationToken);
         if (bookmark is null) return NotFound();
         db.LessonBookmarks.Remove(bookmark);
@@ -306,7 +296,7 @@ public sealed class StudentLearningToolsController(
     {
         var studentId = UserId!;
         if (!await db.Enrollments.AnyAsync(x => x.StudentUserId == studentId && x.CourseId == courseId && (x.AccessEndsAtUtc == null || x.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken)) return NotFound();
-        var lessonIds = await db.Lessons.AsNoTracking().Include(x => x.CourseModule).Where(x => x.CourseModule!.CourseId == courseId && x.IsPublished && x.CourseModule.IsPublished).Select(x => x.Id).ToArrayAsync(cancellationToken);
+        var lessonIds = await db.Lessons.AsNoTracking().Include(x => x.CourseModule).Where(x => x.CourseModule!.CourseId == courseId && x.IsPublished && x.Type != LessonType.LegacyArchived && x.CourseModule.IsPublished).Select(x => x.Id).ToArrayAsync(cancellationToken);
         if (lessonIds.Length == 0 || await db.LessonProgresses.CountAsync(x => x.StudentUserId == studentId && x.IsCompleted && lessonIds.Contains(x.LessonId), cancellationToken) != lessonIds.Length) return Conflict(new { message = "Complete every published lesson before issuing a certificate." });
         var certificate = await db.CourseCertificates.SingleOrDefaultAsync(x => x.StudentUserId == studentId && x.CourseId == courseId, cancellationToken);
         var issued = false;
@@ -408,7 +398,7 @@ public sealed class StudentLearningToolsController(
         return File(png, "image/png");
     }
 
-    private async Task<bool> OwnsLessonAsync(Guid lessonId, CancellationToken cancellationToken) => await db.Lessons.Include(x => x.CourseModule).AnyAsync(x => x.Id == lessonId && x.IsPublished && x.CourseModule!.IsPublished && db.Enrollments.Any(enrollment => enrollment.StudentUserId == UserId && enrollment.CourseId == x.CourseModule.CourseId && (enrollment.AccessEndsAtUtc == null || enrollment.AccessEndsAtUtc > DateTimeOffset.UtcNow)), cancellationToken);
+    private async Task<bool> OwnsLessonAsync(Guid lessonId, CancellationToken cancellationToken) => await db.Lessons.Include(x => x.CourseModule).AnyAsync(x => x.Id == lessonId && x.IsPublished && x.Type != LessonType.LegacyArchived && x.CourseModule!.IsPublished && db.Enrollments.Any(enrollment => enrollment.StudentUserId == UserId && enrollment.CourseId == x.CourseModule.CourseId && (enrollment.AccessEndsAtUtc == null || enrollment.AccessEndsAtUtc > DateTimeOffset.UtcNow)), cancellationToken);
     private string? UserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
     private AuditLog Audit(string action, string entityType, Guid entityId) => new() { ActorUserId = UserId, Action = action, EntityType = entityType, EntityId = entityId.ToString(), Outcome = "Success" };
     private static string Localize(string locale, string arabic, string english) =>
@@ -442,7 +432,7 @@ public sealed class CourseCommunityController(BetccoDbContext db, UserManager<Ap
         if (!await CanAccessCourseAsync(courseId, cancellationToken)) return NotFound();
         var userId = UserId!;
         var teacherOrAdmin = User.IsInRole("Teacher") || User.IsInRole("Admin");
-        var questions = await db.CourseQuestions.AsNoTracking().Include(x => x.Lesson).Include(x => x.Replies).Where(x => x.CourseId == courseId && (teacherOrAdmin || x.StudentUserId == userId)).OrderByDescending(x => x.CreatedAtUtc).ToListAsync(cancellationToken);
+        var questions = await db.CourseQuestions.AsNoTracking().Include(x => x.Lesson).Include(x => x.Replies).Where(x => x.CourseId == courseId && (teacherOrAdmin || x.StudentUserId == userId && (x.LessonId == null || x.Lesson!.Type != LessonType.LegacyArchived))).OrderByDescending(x => x.CreatedAtUtc).ToListAsync(cancellationToken);
         var authorIds = questions.Select(x => x.StudentUserId).Concat(questions.SelectMany(x => x.Replies).Select(x => x.AuthorUserId)).Distinct().ToArray();
         var displayNames = (await users.Users.Where(x => authorIds.Contains(x.Id.ToString())).Select(x => new { Id = x.Id.ToString(), x.DisplayName }).ToListAsync(cancellationToken)).ToDictionary(x => x.Id, x => x.DisplayName);
         return Ok(questions.Select(question => new
@@ -463,7 +453,7 @@ public sealed class CourseCommunityController(BetccoDbContext db, UserManager<Ap
     public async Task<IActionResult> Ask(Guid courseId, AskCourseQuestionRequest request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Body) || request.Body.Trim().Length > 2000 || !await IsEnrolledAsync(courseId, cancellationToken)) return BadRequest(new { message = "Enter a question for a course you are enrolled in." });
-        if (request.LessonId is not null && !await db.Lessons.Include(x => x.CourseModule).AnyAsync(x => x.Id == request.LessonId && x.CourseModule!.CourseId == courseId, cancellationToken)) return BadRequest(new { message = "The selected lesson does not belong to this course." });
+        if (request.LessonId is not null && !await db.Lessons.Include(x => x.CourseModule).AnyAsync(x => x.Id == request.LessonId && x.CourseModule!.CourseId == courseId && x.IsPublished && x.Type != LessonType.LegacyArchived, cancellationToken)) return BadRequest(new { message = "The selected lesson is not available in this course." });
         var question = new CourseQuestion { CourseId = courseId, LessonId = request.LessonId, StudentUserId = UserId!, Body = request.Body.Trim() };
         db.CourseQuestions.Add(question);
         db.AuditLogs.Add(Audit("CourseQuestionAsked", nameof(CourseQuestion), question.Id));

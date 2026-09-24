@@ -143,11 +143,6 @@ public sealed class BetccoDbContext(
     public DbSet<RegistrationEmailOutboxMessage> RegistrationEmailOutboxMessages => Set<RegistrationEmailOutboxMessage>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
     public DbSet<StorageLifecycleOperation> StorageLifecycleOperations => Set<StorageLifecycleOperation>();
-    public DbSet<Quiz> Quizzes => Set<Quiz>();
-    public DbSet<QuizQuestion> QuizQuestions => Set<QuizQuestion>();
-    public DbSet<QuestionBankQuestion> QuestionBankQuestions => Set<QuestionBankQuestion>();
-    public DbSet<QuizAttempt> QuizAttempts => Set<QuizAttempt>();
-    public DbSet<QuizAttemptQuestionGrade> QuizAttemptQuestionGrades => Set<QuizAttemptQuestionGrade>();
     public DbSet<CourseAssignment> CourseAssignments => Set<CourseAssignment>();
     public DbSet<CourseAssignmentDeadlineExtension> CourseAssignmentDeadlineExtensions => Set<CourseAssignmentDeadlineExtension>();
     public DbSet<CourseAssignmentCriterion> CourseAssignmentCriteria => Set<CourseAssignmentCriterion>();
@@ -1208,16 +1203,6 @@ public sealed class BetccoDbContext(
             .HasForeignKey<RegistrationEmailOutboxMessage>(x => x.UserId)
             .HasPrincipalKey<ApplicationUser>(x => x.Id)
             .OnDelete(DeleteBehavior.Restrict);
-        builder.Entity<QuizAttempt>().HasIndex(x => new { x.StudentUserId, x.QuizId, x.CreatedAtUtc });
-        builder.Entity<Quiz>().HasIndex(x => new { x.CourseId, x.PublicationStatus, x.AvailableFromUtc });
-        builder.Entity<QuizAttemptQuestionGrade>().HasIndex(x => new { x.QuizAttemptId, x.QuizQuestionId }).IsUnique();
-        builder.Entity<QuizQuestion>().HasOne(x => x.ImageResource).WithMany().HasForeignKey(x => x.ImageResourceId).OnDelete(DeleteBehavior.Restrict);
-        builder.Entity<QuestionBankQuestion>().HasIndex(x => new { x.TeacherUserId, x.CourseId, x.UpdatedAtUtc });
-        builder.Entity<QuestionBankQuestion>().HasIndex(x => new { x.TeacherUserId, x.CourseId, x.SubjectId, x.CourseModuleId, x.BtecLearningAimId });
-        builder.Entity<QuestionBankQuestion>().HasOne(x => x.ImageResource).WithMany().HasForeignKey(x => x.ImageResourceId).OnDelete(DeleteBehavior.Restrict);
-        builder.Entity<QuestionBankQuestion>().HasOne(x => x.Subject).WithMany().HasForeignKey(x => x.SubjectId).OnDelete(DeleteBehavior.SetNull);
-        builder.Entity<QuestionBankQuestion>().HasOne(x => x.CourseModule).WithMany().HasForeignKey(x => x.CourseModuleId).OnDelete(DeleteBehavior.SetNull);
-        builder.Entity<QuestionBankQuestion>().HasOne(x => x.BtecLearningAim).WithMany().HasForeignKey(x => x.BtecLearningAimId).OnDelete(DeleteBehavior.SetNull);
         builder.Entity<CourseAssignment>().HasIndex(x => new { x.CourseId, x.IsPublished, x.DueAtUtc });
         builder.Entity<CourseAssignment>().HasIndex(x => new { x.CourseId, x.PublicationStatus, x.AvailableFromUtc });
         builder.Entity<CourseAssignment>().HasIndex(x => x.LessonId).IsUnique().HasFilter("\"LessonId\" IS NOT NULL");

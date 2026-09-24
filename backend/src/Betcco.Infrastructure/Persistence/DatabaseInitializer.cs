@@ -60,7 +60,6 @@ public sealed class DatabaseInitializer(
             var course = new Course { Slug = "btec-programming-foundations", ArabicTitle = "أساسيات البرمجة لطلاب BTEC", EnglishTitle = "BTEC Programming Foundations", ArabicDescription = "تعلم البرمجة من المفاهيم إلى تطبيق المهارات ضمن معايير واضحة.", EnglishDescription = "Learn programming from core concepts to applied skills with clear criteria.", LearningTrack = btec, Grade = grade10, Specialization = it, Subject = programming, TeacherUserId = "seed-teacher", Status = CourseStatus.Published, Price = 12m, CoverImageKey = "seed/btec-programming-cover", SeoTitle = "BETCCO | أساسيات البرمجة BTEC", SeoDescription = "دورة BETCCO لأساسيات البرمجة لطلاب BTEC.", PublishedAtUtc = DateTimeOffset.UtcNow };
             var module = new CourseModule { Course = course, ArabicTitle = "ابدأ بالتفكير البرمجي", EnglishTitle = "Start with computational thinking", IsPublished = true, SortOrder = 1 };
             module.Lessons.Add(new Lesson { ArabicTitle = "ما هي الخوارزمية؟", EnglishTitle = "What is an algorithm?", ArabicBody = "محتوى الدرس النموذجي.", EnglishBody = "Sample lesson content.", Type = LessonType.Text, DurationSeconds = 900, IsPreview = true, IsPublished = true, SortOrder = 1 });
-            module.Lessons.Add(new Lesson { ArabicTitle = "اختبر فهمك", EnglishTitle = "Check your understanding", Type = LessonType.Quiz, DurationSeconds = 600, IsPublished = true, SortOrder = 2 });
             module.Lessons.Add(new Lesson { ArabicTitle = "مهمة تطبيقية", EnglishTitle = "Applied assignment", Type = LessonType.Assignment, DurationSeconds = 900, IsPublished = true, SortOrder = 3 });
             course.LearningOutcomes.Add(new CourseLearningOutcome { ArabicText = "فهم الخوارزميات الأساسية.", EnglishText = "Understand fundamental algorithms.", SortOrder = 1 });
             course.Skills.Add(new CourseSkill { ArabicText = "حل المشكلات", EnglishText = "Problem solving", SortOrder = 1 });
@@ -90,15 +89,6 @@ public sealed class DatabaseInitializer(
             db.RubricCriteria.AddRange(CreateStructuredProgrammingCriteria(rubric.Id));
         }
         await db.SaveChangesAsync(cancellationToken);
-        if (!await db.Quizzes.AnyAsync(cancellationToken))
-        {
-            var course = await db.Courses.SingleAsync(x => x.Slug == "btec-programming-foundations", cancellationToken);
-            var quizLesson = await db.Lessons.SingleAsync(x => x.CourseModule!.CourseId == course.Id && x.Type == LessonType.Quiz, cancellationToken);
-            var quiz = new Betcco.Domain.Assessments.Quiz { CourseId = course.Id, LessonId = quizLesson.Id, ArabicTitle = "اختبار أساسيات الخوارزميات", EnglishTitle = "Algorithm Fundamentals Quiz", IsPublished = true, PassMark = 50m };
-            quiz.Questions.Add(new Betcco.Domain.Assessments.QuizQuestion { Type = QuizQuestionType.SingleChoice, ArabicText = "ما الوصف الأفضل للخوارزمية؟", EnglishText = "What best describes an algorithm?", OptionsJson = "[\"A repeatable set of steps\",\"A random guess\",\"A file type\"]", CorrectAnswersJson = "[\"A repeatable set of steps\"]", SortOrder = 1 });
-            db.Quizzes.Add(quiz);
-            await db.SaveChangesAsync(cancellationToken);
-        }
         await SeedAdministratorAsync();
     }
 

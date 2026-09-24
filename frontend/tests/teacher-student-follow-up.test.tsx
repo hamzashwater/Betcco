@@ -23,35 +23,27 @@ const students: TeacherFollowUpStudent[] = [
     studentUserId: "alice",
     studentName: "Alice high",
     riskLevel: "High",
-    reasons: [
-      "LowProgress",
-      "MissedAssignments",
-      "LowQuizScore",
-      "Inactive14Days",
-    ],
+    reasons: ["LowProgress", "MissedAssignments", "Inactive14Days"],
     progressPercent: 20,
     missedAssignments: 2,
-    averageQuizScore: 30,
     lastActiveAtUtc: "2026-08-01T10:00:00Z",
   },
   {
     studentUserId: "basma",
     studentName: "Basma server medium",
     riskLevel: "Medium",
-    reasons: ["LowProgress", "MissedAssignments", "LowQuizScore"],
+    reasons: ["LowProgress", "MissedAssignments"],
     progressPercent: 30,
     missedAssignments: 0,
-    averageQuizScore: null,
     lastActiveAtUtc: null,
   },
   {
     studentUserId: "celine",
     studentName: "Celine assignments",
     riskLevel: "High",
-    reasons: ["MissedAssignments", "LowQuizScore"],
+    reasons: ["MissedAssignments"],
     progressPercent: 70,
     missedAssignments: 3,
-    averageQuizScore: 40,
     lastActiveAtUtc: "2026-09-10T10:00:00Z",
   },
   {
@@ -61,7 +53,6 @@ const students: TeacherFollowUpStudent[] = [
     reasons: ["Inactive14Days"],
     progressPercent: 90,
     missedAssignments: 0,
-    averageQuizScore: 80,
     lastActiveAtUtc: "2026-08-20T10:00:00Z",
   },
   ...Array.from({ length: 8 }, (_, index): TeacherFollowUpStudent => ({
@@ -71,7 +62,6 @@ const students: TeacherFollowUpStudent[] = [
     reasons: ["LowProgress"],
     progressPercent: 35 + index,
     missedAssignments: 0,
-    averageQuizScore: null,
     lastActiveAtUtc: null,
   })),
 ];
@@ -100,10 +90,6 @@ function responseFor(url: string, source = students) {
       return left.progressPercent - right.progressPercent || byName;
     if (sort === "missedAssignments")
       return right.missedAssignments - left.missedAssignments || byName;
-    if (sort === "quizAverage")
-      return (
-        nullableNumber(left.averageQuizScore, right.averageQuizScore) || byName
-      );
     if (sort === "lastActivity")
       return (
         nullableDate(left.lastActiveAtUtc, right.lastActiveAtUtc) || byName
@@ -135,19 +121,11 @@ function analyticsResponse(
     courses: 2,
     students: 20,
     pendingReviews: 1,
-    quizAttempts: 5,
-    averageQuizScore: 60,
     averageLessonProgress: 50,
     studentsAtRisk: visible,
     studentsAtRiskCount: total,
     filteredStudentsAtRiskCount: filtered,
   };
-}
-
-function nullableNumber(left?: number | null, right?: number | null) {
-  if (left == null) return right == null ? 0 : 1;
-  if (right == null) return -1;
-  return left - right;
 }
 
 function nullableDate(left?: string | null, right?: string | null) {
@@ -227,7 +205,7 @@ describe("TeacherStudentFollowUp", () => {
     );
 
     expect(await screen.findByText("Basma server medium")).toBeVisible();
-    expect(screen.getAllByText("Not available")).toHaveLength(2);
+    expect(screen.getAllByText("Not available")).toHaveLength(1);
     expect(screen.queryByText("Alice high")).not.toBeInTheDocument();
   });
 
@@ -255,7 +233,6 @@ describe("TeacherStudentFollowUp", () => {
   it.each([
     ["Low progress", "LowProgress"],
     ["Missed assignments", "MissedAssignments"],
-    ["Low quiz score", "LowQuizScore"],
     ["Inactive for 14 days", "Inactive14Days"],
   ])(
     "requests the %s reason across the complete result",
@@ -282,7 +259,6 @@ describe("TeacherStudentFollowUp", () => {
     ["Attention priority", "priority"],
     ["Lowest progress first", "progress"],
     ["Most missed assignments", "missedAssignments"],
-    ["Lowest quiz average", "quizAverage"],
     ["Oldest activity first", "lastActivity"],
   ])("supports the %s server sort", async (label, value) => {
     const user = userEvent.setup();

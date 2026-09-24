@@ -151,6 +151,42 @@ test("video error offers a keyboard retry", async ({ page }) => {
 });
 
 async function mockStudentSession(page: import("@playwright/test").Page) {
+  await page.route("**/api/v1/**", (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (path === "/api/v1/cart") return route.fulfill({ json: { items: [] } });
+    if (path === "/api/v1/catalog/courses")
+      return route.fulfill({ json: { items: [], totalCount: 0 } });
+    if (path === "/api/v1/taxonomy")
+      return route.fulfill({
+        json: { tracks: [], grades: [], specializations: [], subjects: [] },
+      });
+    if (path === "/api/v1/student-tools/overview")
+      return route.fulfill({ json: { notes: [], bookmarks: [] } });
+    if (path.startsWith("/api/v1/gradebook/student/courses/"))
+      return route.fulfill({
+        json: {
+          courseId,
+          courseTitle: "Media course",
+          lessonProgressPercent: 0,
+          lessonsCompleted: 0,
+          lessonsTotal: 1,
+          assignmentsCompleted: 0,
+          assignmentsTotal: 0,
+          predictedGrade: {
+            predictedGrade: "NotYetAchieved",
+            passAchieved: 0,
+            passRequired: 0,
+            meritAchieved: 0,
+            meritRequired: 0,
+            distinctionAchieved: 0,
+            distinctionRequired: 0,
+          },
+          units: [],
+          criteria: [],
+        },
+      });
+    return route.fulfill({ json: [] });
+  });
   await page.route("**/api/v1/auth/me", (route) =>
     route.fulfill({
       json: { displayName: "Media Student", roles: ["Student"] },

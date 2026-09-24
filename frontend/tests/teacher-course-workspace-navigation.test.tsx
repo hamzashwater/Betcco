@@ -42,7 +42,6 @@ describe("CourseWorkspaceNavigation", () => {
       ["Announcements", "#announcements"],
       ["Curriculum", "#curriculum"],
       ["Assignments & gradebook", "#assignments"],
-      ["Quizzes", "#quizzes"],
       ["Publishing & review", "#review"],
     ];
 
@@ -111,11 +110,13 @@ describe("CourseWorkspaceNavigation", () => {
 
   it("updates the visible active state when a section link is selected", () => {
     renderNavigation("en");
-    const quizzes = screen.getByRole("link", { name: "Quizzes" });
+    const assignments = screen.getByRole("link", {
+      name: "Assignments & gradebook",
+    });
 
-    fireEvent.click(quizzes);
+    fireEvent.click(assignments);
 
-    expect(quizzes).toHaveAttribute("aria-current", "location");
+    expect(assignments).toHaveAttribute("aria-current", "location");
     expect(
       screen.getByRole("link", { name: "Course setup" }),
     ).not.toHaveAttribute("aria-current");
