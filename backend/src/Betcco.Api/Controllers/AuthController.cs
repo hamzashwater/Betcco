@@ -133,10 +133,14 @@ public sealed class AuthController(
         if (!result.Succeeded) return BadRequest(new ValidationProblemDetails(result.Errors.ToDictionary(x => x.Code, x => new[] { x.Description })));
         if (user.MustChangePassword)
         {
+            var activatingSupportAdmin = !user.EmailConfirmed && await userManager.IsInRoleAsync(user, PlatformRoles.SupportAdmin);
             user.MustChangePassword = false;
+            if (activatingSupportAdmin) user.EmailConfirmed = true;
             var updateResult = await userManager.UpdateAsync(user);
             if (!updateResult.Succeeded) return BadRequest(new ValidationProblemDetails(updateResult.Errors.ToDictionary(x => x.Code, x => new[] { x.Description })));
             db.AuditLogs.Add(new AuditLog { ActorUserId = user.Id.ToString(), Action = "RequiredPasswordChanged", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success" });
+            if (activatingSupportAdmin)
+                db.AuditLogs.Add(new AuditLog { ActorUserId = user.Id.ToString(), Action = "SupportAdminActivated", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success" });
         }
         if (invitation is not null)
         {
@@ -300,6 +304,115 @@ public sealed class AuthController(
     }
 
     [Authorize]
+    [HttpPost("change-password")]
+    [EnableRateLimiting("password-reset")]
+    public async Task<IActionResult> ChangePassword(ChangePasswordRequest request, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+        var user = await userManager.GetUserAsync(User);
+        if (user is null || user.IsFrozen) return Unauthorized();
+        if (string.Equals(request.CurrentPassword, request.NewPassword, StringComparison.Ordinal))
+            return BadRequest(new { code = "PASSWORD_UNCHANGED", message = "Choose a different password." });
+
+        var result = await userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+        if (!result.Succeeded)
+            return BadRequest(new ValidationProblemDetails(result.Errors.ToDictionary(error => error.Code, error => new[] { error.Description })));
+
+        var currentSessionId = GetCurrentSessionId();
+        var now = DateTimeOffset.UtcNow;
+        var otherSessions = await db.UserSessions
+            .Where(session => session.UserId == user.Id.ToString() && session.Id != currentSessionId && session.RevokedAtUtc == null && !session.IsDeleted)
+            .ToListAsync(cancellationToken);
+        foreach (var session in otherSessions)
+        {
+            session.RevokedAtUtc = now;
+            session.RevokedByUserId = user.Id.ToString();
+            session.RevocationReason = "Password changed";
+        }
+        db.AuditLogs.Add(new AuditLog { ActorUserId = user.Id.ToString(), Action = "PasswordChanged", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success" });
+        await db.SaveChangesAsync(cancellationToken);
+        await RefreshCurrentSessionCookieAsync(user, cancellationToken);
+        return NoContent();
+    }
+
+    [Authorize]
+    [HttpPost("email-change/request")]
+    [EnableRateLimiting("password-reset")]
+    public async Task<IActionResult> RequestStudentEmailChange(StudentEmailChangeRequest request, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+        var user = await userManager.GetUserAsync(User);
+        if (user is null || user.IsFrozen) return Unauthorized();
+        var roles = await userManager.GetRolesAsync(user);
+        if (roles.Count != 1 || !roles.Contains(PlatformRoles.Student)) return Forbid();
+        var newEmail = request.NewEmail.Trim();
+        if (string.Equals(user.Email, newEmail, StringComparison.OrdinalIgnoreCase)) return BadRequest(new { message = "Enter a different email address." });
+        if (await userManager.FindByEmailAsync(newEmail) is not null) return Conflict(new { message = "This email already has an account." });
+        var passwordCheck = await signInManager.CheckPasswordSignInAsync(user, request.CurrentPassword, lockoutOnFailure: true);
+        if (!passwordCheck.Succeeded) return BadRequest(new { code = "REAUTH_FAILED", message = "Current password could not be verified." });
+
+        var identityToken = await userManager.GenerateChangeEmailTokenAsync(user, newEmail);
+        var proof = EmailChangeProof.Protect(dataProtection, "student", identityToken);
+        var url = $"{PublicAppUrl}/ar/change-email?mode=student&userId={user.Id}&email={Uri.EscapeDataString(newEmail)}&proof={Uri.EscapeDataString(proof)}";
+        await emailSender.SendAsync(newEmail, "Confirm your BETCCO email change", $"<p>Confirm your new email: <a href=\"{url}\">Confirm email</a></p>", cancellationToken);
+        db.AuditLogs.Add(new AuditLog { ActorUserId = user.Id.ToString(), Action = "StudentEmailChangeRequested", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success" });
+        await db.SaveChangesAsync(cancellationToken);
+        return Accepted(new { message = "Check the new email address for a confirmation link. The link expires in one hour." });
+    }
+
+    [Authorize]
+    [HttpPost("email-change/confirm")]
+    [EnableRateLimiting("password-reset")]
+    public async Task<IActionResult> ConfirmEmailChange(EmailChangeConfirmationRequest request, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+        if (request.Mode is not ("student" or "managed")) return BadRequest();
+        var user = await userManager.GetUserAsync(User);
+        if (user is null || user.IsFrozen || user.MustChangePassword || user.Id != request.UserId) return Unauthorized();
+        var roles = await userManager.GetRolesAsync(user);
+        if (request.Mode == "student" && (roles.Count != 1 || !roles.Contains(PlatformRoles.Student))) return Forbid();
+        if (request.Mode == "managed" && (roles.Contains(PlatformRoles.Admin) || roles.Contains(PlatformRoles.SystemAdmin)
+            || !roles.Any(role => role is PlatformRoles.Teacher or PlatformRoles.SupportAdmin))) return Forbid();
+        var newEmail = request.NewEmail.Trim();
+        if (string.Equals(user.Email, newEmail, StringComparison.OrdinalIgnoreCase)) return Conflict(new { message = "Email has already changed." });
+        if (await userManager.FindByEmailAsync(newEmail) is not null) return Conflict(new { message = "This email already has an account." });
+        var identityToken = EmailChangeProof.Unprotect(dataProtection, request.Mode, request.Proof);
+        if (identityToken is null) return BadRequest(new { code = "EMAIL_CHANGE_EXPIRED", message = "The confirmation link is invalid or expired." });
+
+        var oldEmail = user.Email;
+        await using var transaction = db.Database.IsRelational() ? await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken) : null;
+        var result = await userManager.ChangeEmailAsync(user, newEmail, identityToken);
+        if (!result.Succeeded) return BadRequest(new ValidationProblemDetails(result.Errors.ToDictionary(error => error.Code, error => new[] { error.Description })));
+        result = await userManager.SetUserNameAsync(user, newEmail);
+        if (!result.Succeeded) return BadRequest(new ValidationProblemDetails(result.Errors.ToDictionary(error => error.Code, error => new[] { error.Description })));
+        var now = DateTimeOffset.UtcNow;
+        var sessions = await db.UserSessions.Where(session => session.UserId == user.Id.ToString() && session.RevokedAtUtc == null && !session.IsDeleted).ToListAsync(cancellationToken);
+        foreach (var session in sessions)
+        {
+            session.RevokedAtUtc = now;
+            session.RevokedByUserId = user.Id.ToString();
+            session.RevocationReason = "Email changed";
+        }
+        db.AuditLogs.Add(new AuditLog { ActorUserId = user.Id.ToString(), Action = request.Mode == "student" ? "StudentEmailChanged" : "ManagedUserEmailChanged", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success" });
+        await db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+        await signInManager.SignOutAsync();
+        if (!string.IsNullOrWhiteSpace(oldEmail))
+        {
+            try
+            {
+                await emailSender.SendAsync(oldEmail, "Your BETCCO email changed", "<p>The email address on your BETCCO account was changed. Contact support if you did not request this.</p>", cancellationToken);
+            }
+            catch (Exception)
+            {
+                db.AuditLogs.Add(new AuditLog { ActorUserId = user.Id.ToString(), Action = "OldEmailChangeNoticeFailed", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Failure" });
+                await db.SaveChangesAsync(cancellationToken);
+            }
+        }
+        return NoContent();
+    }
+
+    [Authorize]
     [HttpGet("two-factor")]
     public async Task<IActionResult> TwoFactorStatus()
     {
@@ -429,6 +542,32 @@ public sealed class AuthController(
         await db.SaveChangesAsync(cancellationToken);
         if (isCurrent) await signInManager.SignOutAsync();
         return Ok(new { currentSessionRevoked = isCurrent });
+    }
+
+    [Authorize]
+    [HttpPost("sessions/logout-others")]
+    public async Task<IActionResult> LogoutOtherSessions(CancellationToken cancellationToken)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null) return Unauthorized();
+        var currentSessionId = GetCurrentSessionId();
+        if (currentSessionId is null || !await db.UserSessions.AnyAsync(session =>
+                session.Id == currentSessionId && session.UserId == user.Id.ToString() && session.RevokedAtUtc == null && !session.IsDeleted, cancellationToken))
+            return Unauthorized();
+
+        var otherSessions = await db.UserSessions
+            .Where(session => session.UserId == user.Id.ToString() && session.Id != currentSessionId && session.RevokedAtUtc == null && !session.IsDeleted)
+            .ToListAsync(cancellationToken);
+        var now = DateTimeOffset.UtcNow;
+        foreach (var session in otherSessions)
+        {
+            session.RevokedAtUtc = now;
+            session.RevokedByUserId = user.Id.ToString();
+            session.RevocationReason = "Account owner signed out other sessions";
+        }
+        db.AuditLogs.Add(new AuditLog { ActorUserId = user.Id.ToString(), Action = "OtherUserSessionsRevoked", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success", MetadataJson = "{\"scope\":\"other-sessions\"}" });
+        await db.SaveChangesAsync(cancellationToken);
+        return Ok(new { revokedCount = otherSessions.Count });
     }
 
     [Authorize]
@@ -696,3 +835,14 @@ public sealed record TwoFactorCodeRequest(string? Code);
 public sealed record DevelopmentConfirmRequest(string Email);
 public sealed record ForgotPasswordRequest(string Email);
 public sealed record ResetPasswordRequest(Guid UserId, string Token, string Password);
+public sealed record ChangePasswordRequest(
+    [param: Required] string CurrentPassword,
+    [param: Required] string NewPassword);
+public sealed record StudentEmailChangeRequest(
+    [param: Required, EmailAddress, StringLength(320)] string NewEmail,
+    [param: Required] string CurrentPassword);
+public sealed record EmailChangeConfirmationRequest(
+    Guid UserId,
+    [param: Required, EmailAddress, StringLength(320)] string NewEmail,
+    [param: Required] string Proof,
+    [param: Required] string Mode);

@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using Betcco.Api.Authorization;
+using Betcco.Api.Controllers;
 using Betcco.Application.Common;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace Betcco.IntegrationTests;
 
@@ -13,6 +15,11 @@ public sealed class PlatformPermissionAuthorizationTests
     [InlineData(PlatformRoles.SystemAdmin, PlatformPermissions.ManagePrivacy, true)]
     [InlineData(PlatformRoles.SystemAdmin, PlatformPermissions.ManageSecurityIncidents, true)]
     [InlineData(PlatformRoles.SupportAdmin, PlatformPermissions.ManagePrivacy, false)]
+    [InlineData(PlatformRoles.SupportAdmin, PlatformPermissions.FreezeStudentTeacher, true)]
+    [InlineData(PlatformRoles.SupportAdmin, PlatformPermissions.ManageUsers, false)]
+    [InlineData(PlatformRoles.Student, PlatformPermissions.FreezeStudentTeacher, false)]
+    [InlineData(PlatformRoles.Teacher, PlatformPermissions.FreezeStudentTeacher, false)]
+    [InlineData(PlatformRoles.SystemAdmin, PlatformPermissions.FreezeStudentTeacher, true)]
     [InlineData(PlatformRoles.InternalVerifier, PlatformPermissions.VerifyAssessments, true)]
     [InlineData(PlatformRoles.InternalVerifier, PlatformPermissions.PlanInternalVerification, false)]
     [InlineData(PlatformRoles.LeadInternalVerifier, PlatformPermissions.PlanInternalVerification, true)]
@@ -41,5 +48,19 @@ public sealed class PlatformPermissionAuthorizationTests
         await new PlatformPermissionAuthorizationHandler().HandleAsync(context);
 
         Assert.False(context.HasSucceeded);
+    }
+
+    [Fact]
+    public void Only_freeze_operations_use_the_narrow_support_admin_policy()
+    {
+        var actions = typeof(AdminUsersController).GetMethods()
+            .Where(method => method.DeclaringType == typeof(AdminUsersController)
+                && method.GetCustomAttributes(typeof(HttpMethodAttribute), false).Length > 0);
+        foreach (var action in actions)
+        {
+            var policy = Assert.Single(action.GetCustomAttributes(typeof(AuthorizeAttribute), false).Cast<AuthorizeAttribute>()).Policy;
+            Assert.Equal(action.Name is nameof(AdminUsersController.Freeze) or nameof(AdminUsersController.ListFreezeTargets)
+                ? "StudentTeacherFreeze" : "SystemAdmin", policy);
+        }
     }
 }

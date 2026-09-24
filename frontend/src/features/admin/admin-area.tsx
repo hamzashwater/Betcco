@@ -6,6 +6,7 @@
 import { api } from "@/lib/api";
 import { AccountSecurity } from "@/features/auth/account-security";
 import { AccountProfile } from "@/features/auth/account-profile";
+import { AccountIdentityManagement } from "@/features/admin/account-identity-management";
 import { ContentStudio } from "@/features/admin/content-studio";
 import { CommerceCatalogManager } from "@/features/admin/commerce-catalog";
 import { CommissionSettings } from "@/features/admin/commission-settings";
@@ -157,6 +158,7 @@ export function AdminArea({ segment }: { segment: string[] }) {
   if (current === "wallet" || current === "accounting") return <AdminWallet />;
   if (current === "profile") return <AccountProfile role="admin" />;
   if (current === "security") return <AccountSecurity role="admin" />;
+  if (current === "account-identities") return <AccountIdentityManagement />;
   if (current === "content") return <ContentStudio />;
   if (current === "commerce") return <CommerceCatalogManager />;
   if (current === "audit-logs") return <AuditLogViewer />;
@@ -429,6 +431,16 @@ function AdminDashboard() {
               : "See the count, send invitations, and freeze or activate accounts."
           }
           icon={UserRoundCheck}
+        />
+        <AdminLink
+          href="account-identities"
+          label={locale === "ar" ? "هويات الحسابات" : "Account identities"}
+          text={
+            locale === "ar"
+              ? "إدارة بريد المعلمين ومساعدي الإدارة ودعوات مساعدي الإدارة."
+              : "Manage Teacher and SupportAdmin email and support invitations."
+          }
+          icon={UsersRound}
         />
         <AdminLink
           href="course-approvals"

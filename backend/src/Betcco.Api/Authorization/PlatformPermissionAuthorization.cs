@@ -28,10 +28,11 @@ public sealed class PlatformPermissionAuthorizationHandler : AuthorizationHandle
             },
             [PlatformRoles.CourseReviewer] = new HashSet<string>(StringComparer.Ordinal) { PlatformPermissions.ReviewCourses },
             [PlatformRoles.FinanceAdmin] = new HashSet<string>(StringComparer.Ordinal) { PlatformPermissions.ManageFinance },
-            [PlatformRoles.SupportAdmin] = new HashSet<string>(StringComparer.Ordinal) { PlatformPermissions.ManageSupport },
+            [PlatformRoles.SupportAdmin] = new HashSet<string>(StringComparer.Ordinal) { PlatformPermissions.ManageSupport, PlatformPermissions.FreezeStudentTeacher },
             [PlatformRoles.SystemAdmin] = new HashSet<string>(StringComparer.Ordinal)
             {
                 PlatformPermissions.ManageUsers,
+                PlatformPermissions.FreezeStudentTeacher,
                 PlatformPermissions.ManagePrivacy,
                 PlatformPermissions.ManageSecurityIncidents
             }

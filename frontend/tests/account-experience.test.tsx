@@ -7,6 +7,9 @@ import arMessages from "../messages/ar.json";
 import enMessages from "../messages/en.json";
 import { AccountProfile } from "@/features/auth/account-profile";
 import { AccountSecurity } from "@/features/auth/account-security";
+import { EmailChangeConfirmation } from "@/features/auth/email-change-confirmation";
+import { AccountIdentityManagement } from "@/features/admin/account-identity-management";
+import { SupportAccountArea } from "@/features/support/support-account-area";
 import { ResetPasswordForm } from "@/features/auth/auth-forms";
 import { StudentArea } from "@/features/student/student-area";
 import { ApiError } from "@/lib/api";
@@ -148,10 +151,257 @@ describe("account profiles", () => {
       "/ar/teacher/security",
     );
   });
+
+  it("requires a password and new mailbox confirmation for a student email request", async () => {
+    apiMock.mockImplementation((path: string) =>
+      path === "/auth/profile" ? Promise.resolve(profile) : Promise.resolve(),
+    );
+    renderAccount(<AccountProfile role="student" />);
+    const user = userEvent.setup();
+    await user.type(
+      await screen.findByRole("textbox", { name: "New email" }),
+      "new@example.com",
+    );
+    await user.type(
+      screen.getByLabelText("Current password"),
+      "T!estPassword123",
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Send confirmation link" }),
+    );
+    await waitFor(() =>
+      expect(apiMock).toHaveBeenCalledWith(
+        "/auth/email-change/request",
+        expect.objectContaining({
+          body: JSON.stringify({
+            newEmail: "new@example.com",
+            currentPassword: "T!estPassword123",
+          }),
+        }),
+      ),
+    );
+    expect(screen.getByDisplayValue("sam@example.com")).toHaveAttribute(
+      "readonly",
+    );
+  });
+
+  it("keeps managed email controls off Teacher and SupportAdmin profiles", async () => {
+    apiMock.mockResolvedValue(profile);
+    renderAccount(<AccountProfile role="support" />);
+    expect(
+      await screen.findByText("Administration manages this account's email."),
+    ).toBeVisible();
+    expect(
+      screen.queryByRole("button", { name: "Send confirmation link" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Security" })).toHaveAttribute(
+      "href",
+      "/en/support/security",
+    );
+  });
+});
+
+describe("email confirmation and account administration", () => {
+  it("submits the mailbox proof from a confirmation link", async () => {
+    searchMock.value =
+      "userId=00000000-0000-0000-0000-000000000001&email=new%40example.com&proof=proof-value&mode=student";
+    apiMock.mockResolvedValue(undefined);
+    renderAccount(<EmailChangeConfirmation />);
+    await userEvent
+      .setup()
+      .click(screen.getByRole("button", { name: "Confirm email change" }));
+    await waitFor(() =>
+      expect(apiMock).toHaveBeenCalledWith(
+        "/auth/email-change/confirm",
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({
+            userId: "00000000-0000-0000-0000-000000000001",
+            newEmail: "new@example.com",
+            proof: "proof-value",
+            mode: "student",
+          }),
+        }),
+      ),
+    );
+  });
+
+  it("lets Admin invite SupportAdmin and request a managed email change", async () => {
+    apiMock.mockImplementation((path: string) =>
+      path.startsWith("/admin/users?")
+        ? Promise.resolve({
+            items: [
+              {
+                id: "teacher-1",
+                displayName: "Teacher One",
+                email: "old@example.com",
+                emailConfirmed: true,
+                isFrozen: false,
+                mustChangePassword: false,
+              },
+            ],
+            totalCount: 1,
+          })
+        : Promise.resolve(),
+    );
+    renderAccount(<AccountIdentityManagement />);
+    const user = userEvent.setup();
+    await user.type(
+      await screen.findByPlaceholderText("New email"),
+      "new@example.com",
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Request email change" }),
+    );
+    await waitFor(() =>
+      expect(apiMock).toHaveBeenCalledWith(
+        "/admin/users/teacher-1/email-change/request",
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({ newEmail: "new@example.com" }),
+        }),
+      ),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Support administrators" }),
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: "Name" }),
+      "Support One",
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: "Work email" }),
+      "support@example.com",
+    );
+    await user.click(screen.getByRole("button", { name: "Send invitation" }));
+    await waitFor(() =>
+      expect(apiMock).toHaveBeenCalledWith(
+        "/admin/users/support-admins/invite",
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({
+            displayName: "Support One",
+            email: "support@example.com",
+          }),
+        }),
+      ),
+    );
+  });
+
+  it.each(["en", "ar"] as const)(
+    "confirms %s support authority revocation separately from freezing",
+    async (locale) => {
+      let revoked = false;
+      apiMock.mockImplementation((path: string) => {
+        if (path.startsWith("/admin/users?"))
+          return Promise.resolve({
+            items:
+              path.includes("role=SupportAdmin") && !revoked
+                ? [
+                    {
+                      id: "support-1",
+                      displayName: "Support One",
+                      email: "support@example.com",
+                      emailConfirmed: true,
+                      isFrozen: false,
+                      mustChangePassword: false,
+                    },
+                  ]
+                : [],
+            totalCount: revoked ? 0 : 1,
+          });
+        if (path === "/admin/users/support-admins/support-1/revoke-authority")
+          revoked = true;
+        return Promise.resolve();
+      });
+      const confirm = vi
+        .spyOn(window, "confirm")
+        .mockReturnValueOnce(false)
+        .mockReturnValueOnce(true);
+      renderAccount(<AccountIdentityManagement />, locale);
+      const user = userEvent.setup();
+      await user.click(
+        screen.getByRole("button", {
+          name: locale === "ar" ? "مساعدو الإدارة" : "Support administrators",
+        }),
+      );
+      const revoke = await screen.findByRole("button", {
+        name:
+          locale === "ar"
+            ? "سحب صلاحيات مساعد الإدارة"
+            : "Revoke support access",
+      });
+      expect(
+        screen.getByRole("button", {
+          name: locale === "ar" ? "تجميد" : "Freeze",
+        }),
+      ).toBeVisible();
+      await user.click(revoke);
+      expect(confirm).toHaveBeenCalledOnce();
+      expect(confirm.mock.calls[0][0]).toContain("Support One");
+      expect(
+        apiMock.mock.calls.some(
+          ([path]) =>
+            path === "/admin/users/support-admins/support-1/revoke-authority",
+        ),
+      ).toBe(false);
+      await user.click(revoke);
+      await waitFor(() =>
+        expect(apiMock).toHaveBeenCalledWith(
+          "/admin/users/support-admins/support-1/revoke-authority",
+          expect.objectContaining({ method: "POST" }),
+        ),
+      );
+      await waitFor(() => expect(screen.queryByText("Support One")).toBeNull());
+      expect(
+        apiMock.mock.calls.some(
+          ([path]) => path === "/admin/users/support-1/freeze",
+        ),
+      ).toBe(false);
+      expect(screen.getByRole("status")).toBeVisible();
+    },
+  );
+
+  it("shows SupportAdmin only the Student and Teacher freeze queue", async () => {
+    apiMock.mockImplementation((path: string) =>
+      path === "/auth/me"
+        ? Promise.resolve({ roles: ["SupportAdmin"] })
+        : path.startsWith("/admin/users/freeze-targets?")
+          ? Promise.resolve({
+              items: [
+                {
+                  id: "student-1",
+                  displayName: "Student One",
+                  email: "student@example.com",
+                  isFrozen: false,
+                },
+              ],
+              totalCount: 1,
+            })
+          : Promise.resolve(),
+    );
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    renderAccount(<SupportAccountArea segment={["accounts"]} />);
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole("button", { name: "Freeze" }));
+    await waitFor(() =>
+      expect(apiMock).toHaveBeenCalledWith(
+        "/admin/users/student-1/freeze",
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({ frozen: true }),
+        }),
+      ),
+    );
+    expect(screen.getByRole("link", { name: "Security" })).toHaveAttribute(
+      "href",
+      "/en/support/security",
+    );
+  });
 });
 
 describe("security with existing endpoints", () => {
-  function mockSecurity(enabled: boolean) {
+  function mockSecurity(enabled: boolean, includeOther = false) {
     apiMock.mockImplementation((path: string, options?: RequestInit) => {
       if (path === "/auth/two-factor")
         return Promise.resolve({
@@ -159,7 +409,11 @@ describe("security with existing endpoints", () => {
           hasAuthenticator: enabled,
         });
       if (path === "/auth/sessions")
-        return Promise.resolve({ items: [session] });
+        return Promise.resolve({
+          items: includeOther
+            ? [session, { ...session, id: "session-2", isCurrent: false }]
+            : [session],
+        });
       if (path === "/auth/two-factor/setup")
         return Promise.resolve({
           sharedKey: "SECRETKEY",
@@ -172,6 +426,9 @@ describe("security with existing endpoints", () => {
       if (path === "/auth/sessions/session-1" && options?.method === "DELETE")
         return Promise.resolve({ currentSessionRevoked: true });
       if (path === "/auth/sessions/logout-all") return Promise.resolve();
+      if (path === "/auth/sessions/logout-others")
+        return Promise.resolve({ revokedCount: 1 });
+      if (path === "/auth/change-password") return Promise.resolve();
       return Promise.reject(new Error(`Unexpected ${path}`));
     });
   }
@@ -254,6 +511,51 @@ describe("security with existing endpoints", () => {
       ),
     );
     await waitFor(() => expect(replaceMock).toHaveBeenCalledWith("/en/login"));
+  });
+
+  it("changes the password with the current password and retains this browser", async () => {
+    mockSecurity(false);
+    renderAccount(<AccountSecurity role="student" />);
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByLabelText("Current password"),
+      "T!estPassword123",
+    );
+    await user.type(screen.getByLabelText("New password"), "N!ewPassword123");
+    await user.type(
+      screen.getByLabelText("Confirm new password"),
+      "N!ewPassword123",
+    );
+    await user.click(screen.getByRole("button", { name: "Save password" }));
+    await waitFor(() =>
+      expect(apiMock).toHaveBeenCalledWith(
+        "/auth/change-password",
+        expect.objectContaining({
+          body: JSON.stringify({
+            currentPassword: "T!estPassword123",
+            newPassword: "N!ewPassword123",
+          }),
+        }),
+      ),
+    );
+    expect(replaceMock).not.toHaveBeenCalledWith("/en/login");
+  });
+
+  it("signs out other devices while keeping the current session", async () => {
+    mockSecurity(false, true);
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    renderAccount(<AccountSecurity role="teacher" />);
+    const user = userEvent.setup();
+    await user.click(
+      await screen.findByRole("button", { name: "Sign out other devices" }),
+    );
+    await waitFor(() =>
+      expect(apiMock).toHaveBeenCalledWith(
+        "/auth/sessions/logout-others",
+        expect.objectContaining({ method: "POST" }),
+      ),
+    );
+    expect(replaceMock).not.toHaveBeenCalledWith("/en/login");
   });
 });
 

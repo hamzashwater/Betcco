@@ -51,11 +51,14 @@ export function SiteNavigation() {
     ? "admin"
     : pathname.startsWith(`/${locale}/teacher`)
       ? "teacher"
-      : null;
+      : pathname.startsWith(`/${locale}/support`)
+        ? "support"
+        : null;
   const isWorkspace = workspace !== null;
   const isAccountArea =
     pathname.startsWith(`/${locale}/admin`) ||
     pathname.startsWith(`/${locale}/teacher`) ||
+    pathname.startsWith(`/${locale}/support`) ||
     pathname.startsWith(`/${locale}/student`);
   const user = useQuery({
     queryKey: ["current-user"],
@@ -110,24 +113,30 @@ export function SiteNavigation() {
   const dashboardRole =
     canManageEvaluatorSpecialisms || isLeadVerifier || isCourseReviewer
       ? "admin"
-      : user.data?.roles.includes("Teacher")
-        ? "teacher"
-        : "student";
+      : user.data?.roles.includes("SupportAdmin")
+        ? "support"
+        : user.data?.roles.includes("Teacher")
+          ? "teacher"
+          : "student";
   // Inside a protected workspace, keep both the logo and account shortcut
   // anchored to that workspace even if the browser has a stale profile cache.
   const visibleAccountRole = workspace ?? dashboardRole;
   const accountDestination =
-    visibleAccountRole === "admin" && isCoordinatorOnly
-      ? `/${locale}/admin/evaluations`
-      : visibleAccountRole === "admin" &&
-          isLeadVerifier &&
-          !canManageEvaluatorSpecialisms
-        ? `/${locale}/admin/retakes`
-        : `/${locale}/${visibleAccountRole}/dashboard`;
+    visibleAccountRole === "support"
+      ? `/${locale}/support/accounts`
+      : visibleAccountRole === "admin" && isCoordinatorOnly
+        ? `/${locale}/admin/evaluations`
+        : visibleAccountRole === "admin" &&
+            isLeadVerifier &&
+            !canManageEvaluatorSpecialisms
+          ? `/${locale}/admin/retakes`
+          : `/${locale}/${visibleAccountRole}/dashboard`;
   const brandDestination = isWorkspace
-    ? workspace === "admin" && isCoordinatorOnly
-      ? `/${locale}/admin/evaluations`
-      : `/${locale}/${workspace}/dashboard`
+    ? workspace === "support"
+      ? `/${locale}/support/accounts`
+      : workspace === "admin" && isCoordinatorOnly
+        ? `/${locale}/admin/evaluations`
+        : `/${locale}/${workspace}/dashboard`
     : `/${locale}`;
   const accountLabel =
     visibleAccountRole === "admin"
@@ -138,13 +147,17 @@ export function SiteNavigation() {
         : locale === "ar"
           ? "حساب الأدمن"
           : "Admin account"
-      : visibleAccountRole === "teacher"
+      : visibleAccountRole === "support"
         ? locale === "ar"
-          ? "حساب المعلم"
-          : "Teacher account"
-        : locale === "ar"
-          ? "حساب الطالب"
-          : "Student account";
+          ? "حساب مساعد الإدارة"
+          : "Support administrator account"
+        : visibleAccountRole === "teacher"
+          ? locale === "ar"
+            ? "حساب المعلم"
+            : "Teacher account"
+          : locale === "ar"
+            ? "حساب الطالب"
+            : "Student account";
   const publicNavLinks: {
     href: string;
     label: string;
@@ -185,6 +198,10 @@ export function SiteNavigation() {
           {
             href: `/${locale}/admin/teachers`,
             label: locale === "ar" ? "المعلمون" : "Teachers",
+          },
+          {
+            href: `/${locale}/admin/account-identities`,
+            label: locale === "ar" ? "هويات الحسابات" : "Account identities",
           },
           {
             href: `/${locale}/admin/course-approvals`,
@@ -277,37 +294,52 @@ export function SiteNavigation() {
             label: locale === "ar" ? "أمان الحساب" : "Account security",
           },
         ]
-      : [
-          {
-            href: `/${locale}/teacher`,
-            label: locale === "ar" ? "الملخص" : "Overview",
-            exact: true,
-          },
-          {
-            href: `/${locale}/teacher/courses`,
-            label: locale === "ar" ? "دوراتي" : "My courses",
-          },
-          {
-            href: `/${locale}/teacher/students`,
-            label: t("teacherStudentFollowUp.navigation"),
-          },
-          {
-            href: `/${locale}/teacher/evaluations`,
-            label: locale === "ar" ? "التقييمات" : "Evaluations",
-          },
-          {
-            href: `/${locale}/teacher/wallet`,
-            label: locale === "ar" ? "محفظتي" : "My wallet",
-          },
-          {
-            href: `/${locale}/teacher/profile`,
-            label: locale === "ar" ? "الملف الشخصي" : "Profile",
-          },
-          {
-            href: `/${locale}/teacher/security`,
-            label: locale === "ar" ? "أمان الحساب" : "Account security",
-          },
-        ];
+      : workspace === "support"
+        ? [
+            {
+              href: `/${locale}/support/accounts`,
+              label: locale === "ar" ? "الحسابات" : "Accounts",
+            },
+            {
+              href: `/${locale}/support/profile`,
+              label: locale === "ar" ? "الملف الشخصي" : "Profile",
+            },
+            {
+              href: `/${locale}/support/security`,
+              label: locale === "ar" ? "أمان الحساب" : "Account security",
+            },
+          ]
+        : [
+            {
+              href: `/${locale}/teacher`,
+              label: locale === "ar" ? "الملخص" : "Overview",
+              exact: true,
+            },
+            {
+              href: `/${locale}/teacher/courses`,
+              label: locale === "ar" ? "دوراتي" : "My courses",
+            },
+            {
+              href: `/${locale}/teacher/students`,
+              label: t("teacherStudentFollowUp.navigation"),
+            },
+            {
+              href: `/${locale}/teacher/evaluations`,
+              label: locale === "ar" ? "التقييمات" : "Evaluations",
+            },
+            {
+              href: `/${locale}/teacher/wallet`,
+              label: locale === "ar" ? "محفظتي" : "My wallet",
+            },
+            {
+              href: `/${locale}/teacher/profile`,
+              label: locale === "ar" ? "الملف الشخصي" : "Profile",
+            },
+            {
+              href: `/${locale}/teacher/security`,
+              label: locale === "ar" ? "أمان الحساب" : "Account security",
+            },
+          ];
   const navLinks = isWorkspace
     ? isCoordinatorOnly && workspace === "admin"
       ? workspaceNavLinks.filter(
@@ -327,9 +359,13 @@ export function SiteNavigation() {
         : locale === "ar"
           ? "مساحة إدارة المنصة"
           : "Platform management"
-      : locale === "ar"
-        ? "مساحة عمل المعلم"
-        : "Teacher workspace";
+      : workspace === "support"
+        ? locale === "ar"
+          ? "مساحة مساعدة الإدارة"
+          : "Support workspace"
+        : locale === "ar"
+          ? "مساحة عمل المعلم"
+          : "Teacher workspace";
 
   useEffect(() => {
     if (!isAccountArea || user.isPending || user.data) return;

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,6 +63,75 @@ public sealed class AccountSecurityControllerTests
         Assert.Null((await fixture.Db.UserSessions.SingleAsync(item => item.Id == current.Id)).RevokedAtUtc);
     }
 
+    [Fact]
+    public async Task Logout_other_sessions_preserves_current_and_foreign_sessions()
+    {
+        await using var fixture = await SecurityFixture.CreateAsync();
+        var current = Session(fixture.User.Id.ToString(), "Current");
+        var other = Session(fixture.User.Id.ToString(), "Other");
+        var foreign = Session(Guid.NewGuid().ToString(), "Foreign");
+        fixture.Db.UserSessions.AddRange(current, other, foreign);
+        await fixture.Db.SaveChangesAsync();
+
+        Assert.IsType<OkObjectResult>(await fixture.CreateController(current.Id).LogoutOtherSessions(CancellationToken.None));
+        Assert.Null((await fixture.Db.UserSessions.SingleAsync(x => x.Id == current.Id)).RevokedAtUtc);
+        Assert.NotNull((await fixture.Db.UserSessions.SingleAsync(x => x.Id == other.Id)).RevokedAtUtc);
+        Assert.Null((await fixture.Db.UserSessions.SingleAsync(x => x.Id == foreign.Id)).RevokedAtUtc);
+        Assert.Contains(fixture.Db.AuditLogs, x => x.Action == "OtherUserSessionsRevoked");
+    }
+
+    [Fact]
+    public async Task Password_change_requires_current_password_and_revokes_other_sessions()
+    {
+        await using var fixture = await SecurityFixture.CreateAsync();
+        var current = Session(fixture.User.Id.ToString(), "Current");
+        var other = Session(fixture.User.Id.ToString(), "Other");
+        fixture.Db.UserSessions.AddRange(current, other);
+        await fixture.Db.SaveChangesAsync();
+        var controller = fixture.CreateController(current.Id);
+
+        Assert.IsType<BadRequestObjectResult>(await controller.ChangePassword(new ChangePasswordRequest("wrong", "N!ewPassword123"), CancellationToken.None));
+        Assert.Null((await fixture.Db.UserSessions.SingleAsync(x => x.Id == other.Id)).RevokedAtUtc);
+        Assert.IsType<NoContentResult>(await controller.ChangePassword(new ChangePasswordRequest("T!estPassword123", "N!ewPassword123"), CancellationToken.None));
+        Assert.True(await fixture.UserManager.CheckPasswordAsync(fixture.User, "N!ewPassword123"));
+        Assert.False(await fixture.UserManager.CheckPasswordAsync(fixture.User, "T!estPassword123"));
+        Assert.Null((await fixture.Db.UserSessions.SingleAsync(x => x.Id == current.Id)).RevokedAtUtc);
+        Assert.NotNull((await fixture.Db.UserSessions.SingleAsync(x => x.Id == other.Id)).RevokedAtUtc);
+        Assert.Contains(fixture.Db.AuditLogs, x => x.Action == "PasswordChanged");
+    }
+
+    [Fact]
+    public async Task PostgreSql_email_confirmation_and_session_revocation_commit_together()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("account_security");
+        await using var fixture = await SecurityFixture.CreateAsync(database.ConnectionString);
+        var roles = fixture.Services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        Assert.True((await roles.CreateAsync(new IdentityRole<Guid>(PlatformRoles.Student))).Succeeded);
+        Assert.True((await fixture.UserManager.AddToRoleAsync(fixture.User, PlatformRoles.Student)).Succeeded);
+        var current = Session(fixture.User.Id.ToString(), "Current");
+        var other = Session(fixture.User.Id.ToString(), "Other");
+        fixture.Db.UserSessions.AddRange(current, other);
+        await fixture.Db.SaveChangesAsync();
+        var controller = fixture.CreateController(current.Id);
+
+        Assert.IsType<OkObjectResult>(await controller.LogoutOtherSessions(CancellationToken.None));
+        Assert.Null((await fixture.Db.UserSessions.SingleAsync(item => item.Id == current.Id)).RevokedAtUtc);
+        Assert.NotNull((await fixture.Db.UserSessions.SingleAsync(item => item.Id == other.Id)).RevokedAtUtc);
+        Assert.IsType<AcceptedResult>(await controller.RequestStudentEmailChange(
+            new StudentEmailChangeRequest("new-owner@betcco.test", "T!estPassword123"), CancellationToken.None));
+        var url = new Uri(fixture.Email.HtmlBody!.Split("href=\"")[1].Split('"')[0]);
+        var query = QueryHelpers.ParseQuery(url.Query);
+        Assert.IsType<NoContentResult>(await controller.ConfirmEmailChange(
+            new EmailChangeConfirmationRequest(fixture.User.Id, query["email"]!, query["proof"]!, query["mode"]!), CancellationToken.None));
+
+        var persisted = await fixture.Db.Users.AsNoTracking().SingleAsync(user => user.Id == fixture.User.Id);
+        Assert.Equal("new-owner@betcco.test", persisted.Email);
+        Assert.Equal(persisted.Email, persisted.UserName);
+        Assert.True(persisted.EmailConfirmed);
+        Assert.NotNull((await fixture.Db.UserSessions.SingleAsync(item => item.Id == current.Id)).RevokedAtUtc);
+        Assert.Contains(fixture.Db.AuditLogs, log => log.Action == "StudentEmailChanged");
+    }
+
     private static UserSession Session(string userId, string deviceName) => new()
     {
         UserId = userId,
@@ -75,24 +145,31 @@ public sealed class AccountSecurityControllerTests
     {
         private readonly ServiceProvider services;
         public BetccoDbContext Db { get; }
+        public ServiceProvider Services => services;
+        public CapturingEmailSender Email { get; }
         public UserManager<ApplicationUser> UserManager { get; }
         public SignInManager<ApplicationUser> SignInManager { get; }
         public ApplicationUser User { get; }
 
-        private SecurityFixture(ServiceProvider services, BetccoDbContext db, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ApplicationUser user)
+        private SecurityFixture(ServiceProvider services, BetccoDbContext db, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ApplicationUser user, CapturingEmailSender email)
         {
             this.services = services;
             Db = db;
             UserManager = userManager;
             SignInManager = signInManager;
             User = user;
+            Email = email;
         }
 
-        public static async Task<SecurityFixture> CreateAsync()
+        public static async Task<SecurityFixture> CreateAsync(string? postgresConnectionString = null)
         {
             var services = new ServiceCollection();
             services.AddLogging();
-            services.AddDbContext<BetccoDbContext>(options => options.UseInMemoryDatabase(Guid.NewGuid().ToString()));
+            services.AddDbContext<BetccoDbContext>(options =>
+            {
+                if (postgresConnectionString is null) options.UseInMemoryDatabase(Guid.NewGuid().ToString());
+                else options.UseNpgsql(postgresConnectionString);
+            });
             services.AddDataProtection();
             services.AddHttpContextAccessor();
             services.AddAuthentication(IdentityConstants.ApplicationScheme).AddCookie(IdentityConstants.ApplicationScheme);
@@ -113,30 +190,32 @@ public sealed class AccountSecurityControllerTests
             var signInManager = provider.GetRequiredService<SignInManager<ApplicationUser>>();
             var user = new ApplicationUser { UserName = "owner@betcco.test", Email = "owner@betcco.test", DisplayName = "Owner", EmailConfirmed = true };
             Assert.True((await userManager.CreateAsync(user, "T!estPassword123")).Succeeded);
-            return new SecurityFixture(provider, db, userManager, signInManager, user);
+            return new SecurityFixture(provider, db, userManager, signInManager, user, new CapturingEmailSender());
         }
 
-        public AuthController CreateController(Guid currentSessionId) => new(
-            UserManager,
-            SignInManager,
-            Db,
-            new NullEmailSender(),
-            services.GetRequiredService<IDataProtectionProvider>(),
-            new TestWebHostEnvironment(),
-            new ConfigurationBuilder().Build())
+        public AuthController CreateController(Guid currentSessionId)
         {
-            ControllerContext = new ControllerContext
+            var context = new DefaultHttpContext
             {
-                HttpContext = new DefaultHttpContext
-                {
-                    RequestServices = services,
-                    User = new ClaimsPrincipal(new ClaimsIdentity([
+                RequestServices = services,
+                User = new ClaimsPrincipal(new ClaimsIdentity([
                     new Claim(ClaimTypes.NameIdentifier, User.Id.ToString()),
                     new Claim(BetccoAuthClaims.SessionId, currentSessionId.ToString())
                 ], "test"))
-                }
-            }
-        };
+            };
+            services.GetRequiredService<IHttpContextAccessor>().HttpContext = context;
+            return new AuthController(
+            UserManager,
+            SignInManager,
+            Db,
+            Email,
+            services.GetRequiredService<IDataProtectionProvider>(),
+            new TestWebHostEnvironment(),
+            new ConfigurationBuilder().Build())
+            {
+                ControllerContext = new ControllerContext { HttpContext = context }
+            };
+        }
 
         public async ValueTask DisposeAsync()
         {
@@ -145,9 +224,14 @@ public sealed class AccountSecurityControllerTests
         }
     }
 
-    private sealed class NullEmailSender : IEmailSender
+    private sealed class CapturingEmailSender : IEmailSender
     {
-        public Task SendAsync(string to, string subject, string htmlBody, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public string? HtmlBody { get; private set; }
+        public Task SendAsync(string to, string subject, string htmlBody, CancellationToken cancellationToken = default)
+        {
+            HtmlBody = htmlBody;
+            return Task.CompletedTask;
+        }
     }
 
     private sealed class TestWebHostEnvironment : IWebHostEnvironment
