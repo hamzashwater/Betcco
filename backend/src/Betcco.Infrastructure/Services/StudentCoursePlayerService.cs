@@ -202,5 +202,7 @@ public sealed class StudentCoursePlayerService(
             : null;
 
     private static string Localize(string locale, string arabic, string english) =>
-        locale.StartsWith("ar", StringComparison.OrdinalIgnoreCase) ? arabic : english;
+        locale.StartsWith("ar", StringComparison.OrdinalIgnoreCase)
+            ? string.IsNullOrWhiteSpace(arabic) ? english : arabic
+            : string.IsNullOrWhiteSpace(english) ? arabic : english;
 }

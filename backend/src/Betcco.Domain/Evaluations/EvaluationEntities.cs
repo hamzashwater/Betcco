@@ -139,6 +139,9 @@ public sealed class RetakeAuthorization : Entity
 /// </summary>
 public sealed class Qualification : Entity
 {
+    public Guid? SpecializationId { get; set; }
+    public Betcco.Domain.Learning.Specialization? Specialization { get; set; }
+    public AcademicSource Source { get; set; }
     public required string Code { get; set; }
     public required string ArabicName { get; set; }
     public required string EnglishName { get; set; }
@@ -153,6 +156,7 @@ public sealed class Qualification : Entity
 /// </summary>
 public sealed class QualificationVersion : Entity
 {
+    public AcademicSource Source { get; set; }
     public Guid QualificationId { get; set; }
     public Qualification? Qualification { get; set; }
     public required string VersionCode { get; set; }
@@ -167,6 +171,7 @@ public sealed class QualificationVersion : Entity
 /// <summary>A course-independent academic unit in one qualification version.</summary>
 public sealed class UnitDefinition : Entity
 {
+    public AcademicSource Source { get; set; }
     public Guid QualificationVersionId { get; set; }
     public QualificationVersion? QualificationVersion { get; set; }
     public required string Code { get; set; }

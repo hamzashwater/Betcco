@@ -4,6 +4,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { api } from "@/lib/api";
+import { academicText } from "@/lib/academic-localization";
 import { MotivationCard } from "@/components/motivation-card";
 import { FilePicker } from "@/components/forms/file-picker";
 import { AccountSecurity } from "@/features/auth/account-security";
@@ -100,20 +101,28 @@ function AcademicIdentity({
     <div className="min-w-0 rounded-xl border border-border/70 bg-page/40 p-3 text-sm">
       <p className="font-bold">
         {academic.qualificationCode} ·{" "}
-        {locale === "ar"
-          ? academic.qualificationArabicName
-          : academic.qualificationEnglishName}{" "}
+        {academicText(
+          locale,
+          academic.qualificationArabicName,
+          academic.qualificationEnglishName,
+        )}{" "}
         ({academic.qualificationVersionCode})
       </p>
       <p>
         {academic.unitCode} ·{" "}
-        {locale === "ar" ? academic.unitArabicTitle : academic.unitEnglishTitle}
+        {academicText(
+          locale,
+          academic.unitArabicTitle,
+          academic.unitEnglishTitle,
+        )}
       </p>
       <p>
         {academic.assessmentCode} v{academic.assessmentVersion} ·{" "}
-        {locale === "ar"
-          ? academic.assessmentArabicTitle
-          : academic.assessmentEnglishTitle}
+        {academicText(
+          locale,
+          academic.assessmentArabicTitle,
+          academic.assessmentEnglishTitle,
+        )}
       </p>
       <p className="text-muted">
         {locale === "ar" ? "أهداف التعلم" : "Learning aims"}:{" "}
@@ -3998,7 +4007,7 @@ function EvaluationWizard() {
     forSpecialization,
     (item) => item.unitCode,
     (item) =>
-      `${item.unitCode} · ${locale === "ar" ? item.unitArabicTitle : item.unitEnglishTitle}`,
+      `${item.unitCode} · ${academicText(locale, item.unitArabicTitle, item.unitEnglishTitle)}`,
   );
   const forUnit = forSpecialization.filter(
     (item) => item.unitCode === selected.unit,

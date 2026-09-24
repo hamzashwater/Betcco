@@ -73,5 +73,8 @@ public sealed class CatalogController(ICatalogService catalog, IFileStorage stor
         return content is null ? NotFound() : File(content, course.CoverImageContentType ?? "image/jpeg", enableRangeProcessing: true);
     }
 
-    private static string Localize(string locale, string arabic, string english) => locale.StartsWith("ar", StringComparison.OrdinalIgnoreCase) ? arabic : english;
+    private static string Localize(string locale, string arabic, string english) =>
+        locale.StartsWith("ar", StringComparison.OrdinalIgnoreCase)
+            ? string.IsNullOrWhiteSpace(arabic) ? english : arabic
+            : string.IsNullOrWhiteSpace(english) ? arabic : english;
 }

@@ -411,7 +411,10 @@ public sealed class StudentLearningToolsController(
     private async Task<bool> OwnsLessonAsync(Guid lessonId, CancellationToken cancellationToken) => await db.Lessons.Include(x => x.CourseModule).AnyAsync(x => x.Id == lessonId && x.IsPublished && x.CourseModule!.IsPublished && db.Enrollments.Any(enrollment => enrollment.StudentUserId == UserId && enrollment.CourseId == x.CourseModule.CourseId && (enrollment.AccessEndsAtUtc == null || enrollment.AccessEndsAtUtc > DateTimeOffset.UtcNow)), cancellationToken);
     private string? UserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
     private AuditLog Audit(string action, string entityType, Guid entityId) => new() { ActorUserId = UserId, Action = action, EntityType = entityType, EntityId = entityId.ToString(), Outcome = "Success" };
-    private static string Localize(string locale, string arabic, string english) => locale.StartsWith("ar", StringComparison.OrdinalIgnoreCase) ? arabic : english;
+    private static string Localize(string locale, string arabic, string english) =>
+        locale.StartsWith("ar", StringComparison.OrdinalIgnoreCase)
+            ? string.IsNullOrWhiteSpace(arabic) ? english : arabic
+            : string.IsNullOrWhiteSpace(english) ? arabic : english;
     private static string? TrimOrNull(string? value, int max) => string.IsNullOrWhiteSpace(value) ? null : value.Trim()[..Math.Min(value.Trim().Length, max)];
 }
 
@@ -489,7 +492,10 @@ public sealed class CourseCommunityController(BetccoDbContext db, UserManager<Ap
     private async Task<bool> IsEnrolledAsync(Guid courseId, CancellationToken cancellationToken) => await db.Enrollments.AnyAsync(x => x.CourseId == courseId && x.StudentUserId == UserId && (x.AccessEndsAtUtc == null || x.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken);
     private string? UserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
     private AuditLog Audit(string action, string entityType, Guid entityId) => new() { ActorUserId = UserId, Action = action, EntityType = entityType, EntityId = entityId.ToString(), Outcome = "Success" };
-    private static string Localize(string locale, string arabic, string english) => locale.StartsWith("ar", StringComparison.OrdinalIgnoreCase) ? arabic : english;
+    private static string Localize(string locale, string arabic, string english) =>
+        locale.StartsWith("ar", StringComparison.OrdinalIgnoreCase)
+            ? string.IsNullOrWhiteSpace(arabic) ? english : arabic
+            : string.IsNullOrWhiteSpace(english) ? arabic : english;
 }
 
 public sealed record AskCourseQuestionRequest(string Body, Guid? LessonId);

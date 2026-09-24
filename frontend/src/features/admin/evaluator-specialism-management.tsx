@@ -1,6 +1,7 @@
 "use client";
 
 import { api } from "@/lib/api";
+import { academicText } from "@/lib/academic-localization";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
 import { useState } from "react";
@@ -35,7 +36,8 @@ type GrantPage = {
 };
 
 export function EvaluatorSpecialismManagement() {
-  const ar = useLocale() === "ar";
+  const locale = useLocale();
+  const ar = locale === "ar";
   const client = useQueryClient();
   const [evaluatorUserId, setEvaluatorUserId] = useState("");
   const [unitDefinitionId, setUnitDefinitionId] = useState("");
@@ -187,7 +189,11 @@ export function EvaluatorSpecialismManagement() {
                 <p className="font-bold">{item.evaluatorName}</p>
                 <p className="break-words text-sm text-muted">
                   {item.unitCode} —{" "}
-                  {ar ? item.unitArabicTitle : item.unitEnglishTitle}
+                  {academicText(
+                    locale,
+                    item.unitArabicTitle,
+                    item.unitEnglishTitle,
+                  )}
                 </p>
                 <p className="mt-2 text-xs text-muted">
                   {ar ? "مُنح في" : "Granted"}{" "}

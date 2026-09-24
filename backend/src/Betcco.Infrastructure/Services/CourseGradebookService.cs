@@ -345,7 +345,9 @@ public sealed class CourseGradebookService(BetccoDbContext db) : ICourseGradeboo
         _ => "NotStarted"
     };
     private static string Localize(string locale, string arabic, string english) =>
-        locale.StartsWith("ar", StringComparison.OrdinalIgnoreCase) ? arabic : english;
+        locale.StartsWith("ar", StringComparison.OrdinalIgnoreCase)
+            ? string.IsNullOrWhiteSpace(arabic) ? english : arabic
+            : string.IsNullOrWhiteSpace(english) ? arabic : english;
 
     private sealed record TopicAimMap(Guid Id, Guid BtecLearningAimId);
 

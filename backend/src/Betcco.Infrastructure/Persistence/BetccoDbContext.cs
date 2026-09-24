@@ -828,12 +828,18 @@ public sealed class BetccoDbContext(
         builder.Entity<Course>().HasIndex(x => new { x.Status, x.ScheduledPublishAtUtc });
         builder.Entity<Course>().HasOne(x => x.QualificationVersion).WithMany()
             .HasForeignKey(x => x.QualificationVersionId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<Course>().HasOne(x => x.DeliveryPlan).WithMany()
+            .HasForeignKey(x => x.DeliveryPlanId).OnDelete(DeleteBehavior.Restrict);
         builder.Entity<CourseModule>().HasIndex(x => new { x.CourseId, x.SortOrder });
         builder.Entity<CourseModule>().HasIndex(x => new { x.CourseId, x.UnitCode }).IsUnique().HasFilter("\"UnitCode\" IS NOT NULL");
         builder.Entity<CourseModule>().HasIndex(x => new { x.CourseId, x.UnitDefinitionId }).IsUnique()
             .HasFilter("\"UnitDefinitionId\" IS NOT NULL");
         builder.Entity<CourseModule>().HasOne(x => x.UnitDefinition).WithMany()
             .HasForeignKey(x => x.UnitDefinitionId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<CourseModule>().HasOne(x => x.DeliveryPlanEntry).WithMany()
+            .HasForeignKey(x => x.DeliveryPlanEntryId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<CourseModule>().HasIndex(x => new { x.CourseId, x.DeliveryPlanEntryId }).IsUnique()
+            .HasFilter("\"DeliveryPlanEntryId\" IS NOT NULL");
         builder.Entity<BtecLearningAim>().HasIndex(x => new { x.CourseModuleId, x.Code }).IsUnique();
         builder.Entity<BtecLearningAim>().HasIndex(x => new { x.CourseModuleId, x.SortOrder });
         builder.Entity<BtecLearningAim>().HasIndex(x => new { x.CourseModuleId, x.LearningAimDefinitionId }).IsUnique()
@@ -1233,6 +1239,8 @@ public sealed class BetccoDbContext(
         builder.Entity<Qualification>().Property(x => x.ArabicName).HasMaxLength(256);
         builder.Entity<Qualification>().Property(x => x.EnglishName).HasMaxLength(256);
         builder.Entity<Qualification>().HasIndex(x => x.Code).IsUnique();
+        builder.Entity<Qualification>().HasOne(x => x.Specialization).WithMany()
+            .HasForeignKey(x => x.SpecializationId).OnDelete(DeleteBehavior.Restrict);
         builder.Entity<QualificationVersion>().Property(x => x.VersionCode).HasMaxLength(64);
         builder.Entity<QualificationVersion>().Property(x => x.SourceReference).HasMaxLength(2_048);
         builder.Entity<QualificationVersion>().HasIndex(x => new { x.QualificationId, x.VersionCode }).IsUnique();
@@ -1259,11 +1267,16 @@ public sealed class BetccoDbContext(
             table.HasCheckConstraint("CK_AcademicTerms_SortOrder", "\"SortOrder\" >= 0 AND \"SortOrder\" <= 10000");
         });
         builder.Entity<AcademicTerm>().HasOne(x => x.AcademicYear).WithMany(x => x.Terms).HasForeignKey(x => x.AcademicYearId).OnDelete(DeleteBehavior.Restrict);
-        builder.Entity<DeliveryPlan>().HasIndex(x => new { x.QualificationVersionId, x.AcademicYearId }).IsUnique();
+        builder.Entity<DeliveryPlan>().HasIndex(x => new { x.QualificationVersionId, x.AcademicYearId, x.GradeId }).IsUnique()
+            .HasFilter("\"GradeId\" IS NOT NULL");
+        builder.Entity<DeliveryPlan>().HasIndex(x => new { x.QualificationVersionId, x.AcademicYearId }).IsUnique()
+            .HasDatabaseName("IX_DeliveryPlans_LegacyVersionYear")
+            .HasFilter("\"GradeId\" IS NULL");
         builder.Entity<DeliveryPlan>().Property(x => x.CreatedByUserId).HasMaxLength(64);
         builder.Entity<DeliveryPlan>().Property(x => x.UpdatedByUserId).HasMaxLength(64);
         builder.Entity<DeliveryPlan>().HasOne(x => x.QualificationVersion).WithMany().HasForeignKey(x => x.QualificationVersionId).OnDelete(DeleteBehavior.Restrict);
         builder.Entity<DeliveryPlan>().HasOne(x => x.AcademicYear).WithMany(x => x.DeliveryPlans).HasForeignKey(x => x.AcademicYearId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<DeliveryPlan>().HasOne(x => x.Grade).WithMany().HasForeignKey(x => x.GradeId).OnDelete(DeleteBehavior.Restrict);
         builder.Entity<DeliveryPlanEntry>().HasIndex(x => new { x.DeliveryPlanId, x.UnitDefinitionId }).IsUnique();
         builder.Entity<DeliveryPlanEntry>().Property(x => x.CreatedByUserId).HasMaxLength(64);
         builder.Entity<DeliveryPlanEntry>().Property(x => x.UpdatedByUserId).HasMaxLength(64);

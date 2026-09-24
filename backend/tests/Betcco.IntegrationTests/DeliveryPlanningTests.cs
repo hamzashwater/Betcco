@@ -4,6 +4,7 @@ using Betcco.Api.Controllers;
 using Betcco.Application.Common;
 using Betcco.Application.Evaluations;
 using Betcco.Domain.Evaluations;
+using Betcco.Domain.Learning;
 using Betcco.Infrastructure.Persistence;
 using Betcco.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -57,6 +58,12 @@ public sealed class DeliveryPlanningTests
     {
         await using var db = Context();
         var (version, otherVersion, firstUnit, secondUnit, outsideUnit) = await SeedCatalogueAsync(db);
+        var track = new LearningTrack { Slug = "btec", ArabicName = "بيتك", EnglishName = "BTEC", IsBtecFocused = true };
+        var specialization = new Specialization { Slug = "it", ArabicName = "تقنية المعلومات", EnglishName = "IT", LearningTrackId = track.Id };
+        var grade = new Grade { Slug = "grade-11", ArabicName = "الحادي عشر", EnglishName = "Grade 11", LearningTrackId = track.Id };
+        db.AddRange(track, specialization, grade);
+        version.Qualification!.SpecializationId = specialization.Id;
+        await db.SaveChangesAsync();
         var service = new DeliveryPlanningService(db);
         var year = await service.CreateAcademicYearAsync(new("AY-1", new(2026, 8, 1), new(2027, 7, 31)), "admin");
         var otherYear = await service.CreateAcademicYearAsync(new("AY-2", new(2027, 8, 1), new(2028, 7, 31)), "admin");
@@ -66,9 +73,10 @@ public sealed class DeliveryPlanningTests
         await Assert.ThrowsAsync<DeliveryPlanningException>(() => service.UpdateTermAsync(firstTerm.Id,
             new(otherYear.Id, firstTerm.Code, outsideTerm.StartDate, outsideTerm.EndDate, firstTerm.SortOrder), "admin"));
 
-        var plan = await service.CreatePlanAsync(new(version.Id, year.Id), "admin");
+        var plan = await service.CreatePlanAsync(new(version.Id, year.Id, grade.Id), "admin");
         Assert.Equal(version.Id, plan.Plan.QualificationVersionId);
-        await Assert.ThrowsAsync<DeliveryPlanningException>(() => service.CreatePlanAsync(new(version.Id, year.Id), "admin"));
+        Assert.Equal(grade.Id, plan.Plan.GradeId);
+        await Assert.ThrowsAsync<DeliveryPlanningException>(() => service.CreatePlanAsync(new(version.Id, year.Id, grade.Id), "admin"));
         await Assert.ThrowsAsync<DeliveryPlanningException>(() => service.AddEntryAsync(plan.Plan.Id, new(outsideUnit.Id, firstTerm.Id), "admin"));
         await Assert.ThrowsAsync<DeliveryPlanningException>(() => service.AddEntryAsync(plan.Plan.Id, new(firstUnit.Id, outsideTerm.Id), "admin"));
 

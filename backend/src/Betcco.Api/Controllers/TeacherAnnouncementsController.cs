@@ -31,6 +31,8 @@ public sealed class TeacherAnnouncementsController(
             item.Id,
             item.CourseModuleId,
             unitTitle = item.CourseModule is null ? null : item.CourseModule.UnitDefinition?.ArabicTitle ?? item.CourseModule.ArabicTitle,
+            unitArabicTitle = item.CourseModule is null ? null : item.CourseModule.UnitDefinition?.ArabicTitle ?? item.CourseModule.ArabicTitle,
+            unitEnglishTitle = item.CourseModule is null ? null : item.CourseModule.UnitDefinition?.EnglishTitle ?? item.CourseModule.EnglishTitle,
             item.ArabicTitle,
             item.EnglishTitle,
             item.ArabicBody,

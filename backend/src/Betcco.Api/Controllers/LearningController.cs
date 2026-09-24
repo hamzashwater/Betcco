@@ -201,7 +201,10 @@ public sealed class LearningController(
         ? contentAccess.CanAccessAsync(UserId!, courseId, contentType, contentId, cancellationToken)
         : Task.FromResult(new ContentAccessDecision(true));
     private string? UserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
-    private static string Localize(string locale, string arabic, string english) => locale.StartsWith("ar", StringComparison.OrdinalIgnoreCase) ? arabic : english;
+    private static string Localize(string locale, string arabic, string english) =>
+        locale.StartsWith("ar", StringComparison.OrdinalIgnoreCase)
+            ? string.IsNullOrWhiteSpace(arabic) ? english : arabic
+            : string.IsNullOrWhiteSpace(english) ? arabic : english;
     private static Betcco.Domain.Learning.LessonResource? FindVideoResource(Betcco.Domain.Learning.Lesson lesson) =>
         Guid.TryParse(lesson.VideoReference, out var resourceId)
             ? lesson.Resources.SingleOrDefault(resource => resource.Id == resourceId

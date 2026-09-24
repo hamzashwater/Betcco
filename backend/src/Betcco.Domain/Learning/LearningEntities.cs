@@ -52,6 +52,8 @@ public sealed class Subject : Entity
 
 public sealed class Course : Entity
 {
+    public Guid? DeliveryPlanId { get; set; }
+    public DeliveryPlan? DeliveryPlan { get; set; }
     public required string Slug { get; set; }
     public required string ArabicTitle { get; set; }
     public required string EnglishTitle { get; set; }
@@ -88,6 +90,8 @@ public sealed class Course : Entity
 
 public sealed class CourseModule : Entity
 {
+    public Guid? DeliveryPlanEntryId { get; set; }
+    public DeliveryPlanEntry? DeliveryPlanEntry { get; set; }
     public Guid CourseId { get; set; }
     public Course? Course { get; set; }
     public Guid? UnitDefinitionId { get; set; }

@@ -12,6 +12,7 @@ vi.mock("@/lib/api", () => ({ api: apiMock }));
 const course = {
   id: "course-1",
   isBtecFocused: true,
+  deliveryPlanId: "plan-1",
   arabicTitle: "دورة",
   englishTitle: "Course",
   arabicDescription: "وصف",
@@ -31,16 +32,18 @@ afterEach(() => {
 
 describe("canonical BTEC unit selection", () => {
   it.each(["en", "ar"] as const)(
-    "sends only a selected UnitDefinition ID for %s authoring",
+    "sends the selected delivery plan entry for %s authoring",
     async (locale) => {
       apiMock.mockImplementation(async (path: string) => {
         if (path.endsWith("/academic-units"))
           return [
             {
               id: "unit-1",
-              code: "U1",
-              arabicTitle: "الوحدة الأولى",
-              englishTitle: "Unit one",
+              deliveryPlanEntryId: "entry-1",
+              termCode: "T1",
+              code: "1",
+              arabicTitle: "أنظمة تكنولوجيا المعلومات",
+              englishTitle: "Information Technology Systems",
               qualificationVersionId: "version-1",
               qualificationCode: "Q",
               versionCode: "2026",
@@ -70,17 +73,21 @@ describe("canonical BTEC unit selection", () => {
         name: locale === "ar" ? "إضافة الوحدة" : "Add module",
       });
       expect(add).toBeDisabled();
-      await screen.findByRole("option", {
-        name: locale === "ar" ? /الوحدة الأولى/ : /Unit one/,
+      const option = await screen.findByRole("option", {
+        name:
+          locale === "ar"
+            ? /الوحدة 1 — أنظمة تكنولوجيا المعلومات/
+            : /Unit 1 — Information Technology Systems/,
       });
-      await userEvent.selectOptions(selector, "unit-1");
+      expect(option).toHaveValue("entry-1");
+      await userEvent.selectOptions(selector, "entry-1");
       await userEvent.click(add);
       await waitFor(() =>
         expect(apiMock).toHaveBeenCalledWith(
           "/teacher/courses/modules",
           expect.objectContaining({
             method: "POST",
-            body: expect.stringContaining('"unitDefinitionId":"unit-1"'),
+            body: expect.stringContaining('"deliveryPlanEntryId":"entry-1"'),
           }),
         ),
       );

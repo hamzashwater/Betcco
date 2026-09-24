@@ -25,7 +25,12 @@ public sealed record DeliveryPlanningQualificationVersionView(
     Guid Id,
     string QualificationCode,
     string VersionCode,
-    bool IsActive);
+    bool IsActive,
+    Guid? SpecializationId = null,
+    string? SpecializationEnglishName = null,
+    string? SpecializationArabicName = null,
+    string? QualificationEnglishName = null,
+    string? QualificationArabicName = null);
 public sealed record DeliveryPlanningUnitView(Guid Id, string Code, string ArabicTitle, string EnglishTitle, bool IsActive);
 
 public sealed record DeliveryPlanSummaryView(
@@ -36,7 +41,15 @@ public sealed record DeliveryPlanSummaryView(
     Guid AcademicYearId,
     string AcademicYearCode,
     bool IsActive,
-    int EntryCount);
+    int EntryCount,
+    Guid? GradeId = null,
+    string? GradeEnglishName = null,
+    string? GradeArabicName = null,
+    Guid? SpecializationId = null,
+    string? SpecializationEnglishName = null,
+    string? SpecializationArabicName = null,
+    string? QualificationEnglishName = null,
+    string? QualificationArabicName = null);
 public sealed record DeliveryPlanEntryView(
     Guid Id,
     Guid UnitDefinitionId,
@@ -47,7 +60,7 @@ public sealed record DeliveryPlanEntryView(
     string TermCode,
     int SortOrder);
 public sealed record DeliveryPlanView(DeliveryPlanSummaryView Plan, IReadOnlyList<DeliveryPlanEntryView> Entries);
-public sealed record CreateDeliveryPlanCommand(Guid QualificationVersionId, Guid AcademicYearId);
+public sealed record CreateDeliveryPlanCommand(Guid QualificationVersionId, Guid AcademicYearId, Guid? GradeId = null);
 public sealed record UpdateDeliveryPlanCommand(bool IsActive);
 public sealed record AddDeliveryPlanEntryCommand(Guid UnitDefinitionId, Guid AcademicTermId);
 public sealed record UpdateDeliveryPlanEntryCommand(Guid AcademicTermId);

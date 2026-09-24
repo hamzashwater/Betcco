@@ -14,6 +14,36 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
 {
     public async Task<Guid> CreateDraftAsync(string teacherUserId, CreateCourseCommand command, CancellationToken cancellationToken = default)
     {
+        var track = await db.LearningTracks.AsNoTracking().SingleOrDefaultAsync(x => x.Id == command.LearningTrackId, cancellationToken)
+            ?? throw new InvalidOperationException("LearningTrackMissing");
+        DeliveryPlan? plan = null;
+        if (track.IsBtecFocused)
+        {
+            plan = command.DeliveryPlanId is { } planId
+                ? await db.DeliveryPlans.AsNoTracking()
+                    .Include(x => x.Grade)
+                    .Include(x => x.AcademicYear)
+                    .Include(x => x.QualificationVersion).ThenInclude(x => x!.Qualification).ThenInclude(x => x!.Specialization)
+                    .SingleOrDefaultAsync(x => x.Id == planId, cancellationToken)
+                : null;
+            if (plan is not { IsActive: true, GradeId: not null } || plan.Grade is not { IsVisible: true }
+                || plan.Grade.LearningTrackId != track.Id
+                || plan.AcademicYear?.IsActive != true || plan.QualificationVersion?.IsActive != true
+                || plan.QualificationVersion.Qualification?.IsActive != true
+                || plan.QualificationVersion.Qualification.Specialization is not { IsVisible: true } specialization
+                || specialization.LearningTrackId != track.Id
+                || (command.GradeId is { } gradeId && gradeId != plan.GradeId)
+                || (command.SpecializationId is { } specializationId && specializationId != specialization.Id))
+                throw new InvalidOperationException("ActiveDeliveryPlanRequired");
+        }
+        else if (command.DeliveryPlanId is not null)
+        {
+            throw new InvalidOperationException("DeliveryPlanNotAllowed");
+        }
+        if (plan is not null && command.SubjectId is { } subjectId
+            && !await db.Subjects.AsNoTracking().AnyAsync(x => x.Id == subjectId
+                && (x.SpecializationId == null || x.SpecializationId == plan.QualificationVersion!.Qualification!.SpecializationId), cancellationToken))
+            throw new InvalidOperationException("SubjectOutsidePlanSpecialization");
         var arabicTitle = RequiredText(command.ArabicTitle);
         var arabicDescription = RequiredText(command.ArabicDescription);
         var englishTitle = OptionalText(command.EnglishTitle) ?? arabicTitle;
@@ -27,9 +57,11 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
             ArabicDescription = arabicDescription,
             EnglishDescription = englishDescription,
             LearningTrackId = command.LearningTrackId,
-            GradeId = command.GradeId,
-            SpecializationId = command.SpecializationId,
+            GradeId = plan?.GradeId ?? command.GradeId,
+            SpecializationId = plan?.QualificationVersion?.Qualification?.SpecializationId ?? command.SpecializationId,
             SubjectId = command.SubjectId,
+            DeliveryPlanId = plan?.Id,
+            QualificationVersionId = plan?.QualificationVersionId,
             TeacherUserId = teacherUserId,
             IsFree = command.IsFree,
             Price = command.IsFree ? 0 : command.Price,
@@ -78,11 +110,24 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
             || !TryPublicationStatus(command.PublicationStatus, command.AvailableFromUtc, out var publicationStatus)) return null;
 
         var isBtec = course.LearningTrack?.IsBtecFocused == true;
-        if (isBtec != command.UnitDefinitionId.HasValue || (!isBtec && arabicTitle is null)) return null;
+        if (isBtec && course.DeliveryPlanId is null) return null;
+        if (!isBtec && (arabicTitle is null || command.DeliveryPlanEntryId is not null || command.UnitDefinitionId is not null)) return null;
         UnitDefinition? unit = null;
-        if (command.UnitDefinitionId is { } unitId)
+        DeliveryPlanEntry? planEntry = null;
+        if (isBtec)
         {
-            unit = await CanonicalUnitAsync(unitId, cancellationToken);
+            if (command.DeliveryPlanEntryId is not { } entryId) return null;
+            planEntry = await db.DeliveryPlanEntries.AsNoTracking()
+                .Include(x => x.DeliveryPlan).ThenInclude(x => x!.AcademicYear)
+                .Include(x => x.AcademicTerm)
+                .Include(x => x.UnitDefinition).ThenInclude(x => x!.QualificationVersion).ThenInclude(x => x!.Qualification)
+                .SingleOrDefaultAsync(x => x.Id == entryId, cancellationToken);
+            if (planEntry is null || planEntry.DeliveryPlanId != course.DeliveryPlanId || planEntry.DeliveryPlan?.IsActive != true
+                || planEntry.DeliveryPlan.GradeId != course.GradeId || planEntry.DeliveryPlan.QualificationVersionId != course.QualificationVersionId
+                || planEntry.AcademicTerm?.IsActive != true || planEntry.AcademicTerm.AcademicYearId != planEntry.DeliveryPlan.AcademicYearId
+                || planEntry.DeliveryPlan.AcademicYear?.IsActive != true
+                || (command.UnitDefinitionId is { } suppliedUnitId && suppliedUnitId != planEntry.UnitDefinitionId)) return null;
+            unit = await CanonicalUnitAsync(planEntry.UnitDefinitionId, cancellationToken);
             if (unit is null || !CanUseVersion(course, unit)) return null;
             if (await db.CourseModules.AnyAsync(x => x.CourseId == course.Id && x.UnitDefinitionId == unit.Id, cancellationToken)) return null;
         }
@@ -95,6 +140,7 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
         {
             CourseId = course.Id,
             UnitDefinitionId = unit?.Id,
+            DeliveryPlanEntryId = planEntry?.Id,
             ArabicTitle = unit?.ArabicTitle ?? arabicTitle!,
             EnglishTitle = unit?.EnglishTitle ?? englishTitle!,
             UnitCode = unitCode,
@@ -126,6 +172,7 @@ public sealed class CourseAuthoringService(BetccoDbContext db) : ICourseAuthorin
         var module = await db.CourseModules.Include(x => x.Course).ThenInclude(x => x!.LearningTrack)
             .SingleOrDefaultAsync(x => x.Id == moduleId && x.Course!.TeacherUserId == teacherUserId, cancellationToken);
         if (module is null || !IsEditable(module.Course!.Status) || module.Course.LearningTrack?.IsBtecFocused != true
+            || module.Course.DeliveryPlanId is not null
             || module.UnitDefinitionId is not null
             || await db.BtecLearningAims.AnyAsync(x => x.CourseModuleId == moduleId, cancellationToken)
             || await db.BtecCriteria.AnyAsync(x => x.CourseModuleId == moduleId, cancellationToken)

@@ -2,26 +2,34 @@
 
 ## Metadata
 
-- Last updated: 2026-09-23
-- Verified implementation baseline SHA: `e48f727426ec649c3d9b9792d26d12a435afc846`
-- Status verified against origin/main: `e48f727426ec649c3d9b9792d26d12a435afc846`
-- Local branch: `feature/canonical-learn-unit-migration` (Lenovo; not pushed)
+- Last updated: 2026-09-24
+- Verified implementation baseline SHA: `641ab55f695a87d380a59c288fbbc3fcc1bbd184`
+- Status verified against origin/main: `641ab55f695a87d380a59c288fbbc3fcc1bbd184`
+- Local branch: `feature/academic-catalog-programme-planning` (ASUS; not pushed)
 - Remote CI for this local branch: NOT RUN; user-managed push, PR, review, and merge remain pending.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
 ## Current Local Feature
 
-- Task: COURSEMODULE → UNITDEFINITION canonical LEARN unit migration.
-- Status: Local implementation and validation complete; remote CI pending user-managed push. This branch has no PR and is not merged into `main`.
-- Design: `UnitDefinition` is the academic unit authority. `CourseModule` remains the per-course delivery container for lessons, sequencing, progress, and coursework. New BTEC delivery selects an active published canonical unit; its aims and criteria are linked to canonical definitions. Affected teacher, student, admin, catalogue, and gradebook unit/aim labels resolve from those definitions when mapped; assignment criterion snapshots remain historical evidence. The server binds each course to one qualification version, rejects another version or qualification, and prevents duplicate delivery of the same canonical unit within one course.
-- Legacy data: all existing module, lesson, progress, assignment, submission, adjustment, and assessment history rows remain untouched by the additive migration. Legacy modules have nullable academic links and remain readable. Unmapped modules with legacy aims, criteria, or coursework criteria require explicit academic reconciliation; no title/code guess or automated backfill is performed.
-- Migration: `20260923155147_AddCanonicalLearnUnitLinks` adds nullable course/version, module/unit, aim/definition, and criterion/definition links, with restrictive foreign keys and filtered uniqueness indexes. `CourseModule` and legacy columns remain physically present.
-- Local validation: affected backend regression tests 26/26, including PostgreSQL migration chain, canonical delivery persistence, concurrent version selection, and pending-model verification; adjacent academic catalogue, delivery planning, and student access tests 36/36; gradebook legacy/canonical read test 1/1; backend Release build and format verification; focused frontend Vitest 3/3, typecheck, lint, Prettier, Next.js production build; and mocked-API browser teacher authoring and student player journeys 6/6 (English, Arabic RTL, 390px mobile) passed. Browser checks did not exercise a live authenticated backend.
-- Development seed: the existing BTEC demonstration course still creates an unmapped delivery module on an empty Development database. It contains no academic unit code, aims, or criteria; it is legacy sample content, not a teacher authoring path.
-- Deferred: manual reconciliation of ambiguous historical modules, user-managed PR/remote CI/review/merge, and any later physical cleanup of legacy columns.
+- Task: Pearson academic catalogue authority and Admin programme planning — Slice 1.
+- Status: Local implementation, bilingual catalogue follow-up, and validation complete; remote CI pending user-managed push. This branch has no PR and is not merged into `main`.
+- Design: Trusted seed imports 101 exact Unit numbers and English titles from four Pearson BTEC International Level 2/3 IT and Business specifications, with `PearsonOfficial` provenance and source URLs. New Admin records are `AdminCustom`; activating a custom Unit publishes and locks its identity. Pearson academic identity is immutable through Admin authoring. Existing `Specialization` is reused, and new qualifications require a valid BTEC specialization. Admin can manage specializations and grades without startup seed resetting those edits.
+- Initial taxonomy seed creates only Information Technology and Business specializations. Engineering, Hospitality, and future sectors are SystemAdmin-creatable; previously created Engineering rows are retained. The 101 supported Pearson Units now have distinct English canonical and BETCCO-localized Arabic titles. The Arabic wording is platform localization, not a claim of official Pearson Arabic publication. The seed replaces only blank or English-copied Arabic placeholders and preserves distinct administrator-edited Arabic titles, Unit IDs, codes, English titles, and source references.
+- Localization: catalogue and planning APIs expose persisted Arabic and English qualification/Unit names, while locale-aware API services select the student-facing language. Admin and Teacher UI selectors choose from those API fields. The Admin catalogue shows both Unit titles and allows SystemAdmin to correct the BETCCO Arabic display title without changing Pearson English identity. Missing translations use a controlled opposite-language fallback.
+- Planning: `DeliveryPlan` now binds qualification version, academic year, and grade, with specialization derived from the qualification. Grade-scoped uniqueness is `(QualificationVersionId, AcademicYearId, GradeId)`; legacy null-grade plans retain their former version/year uniqueness. Entries retain term binding and ordering; mapped entries cannot be removed or moved while course modules reference them. No grade/term distribution is seeded.
+- Teacher authoring: new BTEC drafts require an active Admin plan; grade, specialization, and qualification version are derived or checked on the server. New BTEC `CourseModule` rows require a plan entry; canonical Unit code/title and term come from that entry. Non-BTEC modules remain free form. Legacy BTEC courses and their existing modules remain readable, and existing explicit reconciliation is limited to legacy courses.
+- Legacy data: nullable links and `Unknown` source preserve historical qualifications, plans, courses, modules, lessons, progress, enrollments, assignments, submissions, and gradebook data. No title-based mapping or destructive backfill occurs.
+- Migration: `20260923183826_AddAcademicProgrammeAuthority` adds source and nullable specialization/grade/plan/entry bindings, restrictive foreign keys, and filtered unique indexes. Its Up path is additive; rollback drops the new columns and would discard values created after this migration, so rollback requires separate data planning.
+- Local validation: the original Slice passed focused backend integration/regression tests 27/27 (including full empty PostgreSQL migration chain and EF pending-model check) and backend unit tests 34/34. This follow-up passed 36/36 affected backend integration tests including PostgreSQL, frontend Vitest 123/123, Release build, .NET format verification, frontend typecheck/lint/Prettier, and Next.js production build. Mocked-API browser checks passed 12/12 for Admin catalogue/planning, Teacher and Student Units, English desktop, Arabic RTL, and 390px mobile with no page errors or horizontal overflow. They did not exercise a live authenticated backend.
+- Deferred: production migration and smoke verification, manual reconciliation of ambiguous historical modules, user-managed PR/remote CI/review/merge, and any later physical cleanup of legacy columns.
 
 ## Recent Merged Tasks
+
+- Task: COURSEMODULE → UNITDEFINITION canonical LEARN unit migration.
+- Merge/commit SHA: `641ab55f695a87d380a59c288fbbc3fcc1bbd184`
+- Pull Request: [#46 — canonical LEARN Unit migration](https://github.com/hamzashwater/Betcco/pull/46)
+- Outcome: MERGED into `main`. Post-merge Quality and Security analysis passed. `UnitDefinition` became the academic Unit authority while `CourseModule` stayed the per-course delivery container. The additive migration `20260923155147_AddCanonicalLearnUnitLinks` preserved legacy academic and delivery history with nullable links and no title-based backfill.
 
 - Task: Academic Year / Term / Delivery Plan — Slice 1
 - Merge/commit SHA: `e48f727426ec649c3d9b9792d26d12a435afc846`

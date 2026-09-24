@@ -1,6 +1,8 @@
 "use client";
 
 import { api } from "@/lib/api";
+import { academicText, academicUnitLabel } from "@/lib/academic-localization";
+import { AcademicCatalogManagement } from "@/features/admin/academic-catalog-management";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
@@ -10,6 +12,8 @@ type Version = {
   qualificationCode: string;
   versionCode: string;
   isActive: boolean;
+  qualificationArabicName?: string;
+  qualificationEnglishName?: string;
 };
 type Criterion = {
   id: string;
@@ -56,6 +60,8 @@ type Unit = {
   arabicTitle: string;
   englishTitle: string;
   isActive: boolean;
+  source: string;
+  arabicTitleSource?: string;
   aims: Aim[];
   definitions: Definition[];
 };
@@ -79,6 +85,7 @@ export function AcademicCatalogue() {
   const ar = locale === "ar";
   const client = useQueryClient();
   const [chosenVersionId, setChosenVersionId] = useState("");
+  const [arabicDrafts, setArabicDrafts] = useState<Record<string, string>>({});
   const versions = useQuery({
     queryKey: ["academic-catalogue", "versions"],
     queryFn: () => api<Version[]>("/admin/academic-catalogue/versions"),
@@ -108,6 +115,32 @@ export function AcademicCatalogue() {
     onSuccess: () =>
       client.invalidateQueries({ queryKey: ["academic-catalogue", versionId] }),
   });
+  const unitStatus = useMutation({
+    mutationFn: (unit: Unit) =>
+      api(`/admin/academic-records/units/${unit.id}/status`, {
+        method: "PUT",
+        body: JSON.stringify({ isActive: !unit.isActive }),
+      }),
+    onSuccess: () =>
+      client.invalidateQueries({ queryKey: ["academic-catalogue", versionId] }),
+  });
+  const localizeUnit = useMutation({
+    mutationFn: ({ id, arabicTitle }: { id: string; arabicTitle: string }) =>
+      api(`/admin/academic-records/units/${id}/arabic-localization`, {
+        method: "PUT",
+        body: JSON.stringify({ arabicTitle }),
+      }),
+    onSuccess: async (_, { id }) => {
+      setArabicDrafts((current) => {
+        const next = { ...current };
+        delete next[id];
+        return next;
+      });
+      await client.invalidateQueries({
+        queryKey: ["academic-catalogue", versionId],
+      });
+    },
+  });
   const issueLabel = (issue: string) => t(issueKeys[issue] ?? "invalidMapping");
   const state = (issues: string[], active: boolean) =>
     issues.length > 0
@@ -133,6 +166,7 @@ export function AcademicCatalogue() {
         </h1>
         <p className="mt-3 leading-7 text-muted">{t("description")}</p>
       </div>
+      {versions.isSuccess ? <AcademicCatalogManagement /> : null}
 
       {versions.isPending ? (
         <p className="card mt-7 p-6" role="status" aria-busy="true">
@@ -170,7 +204,13 @@ export function AcademicCatalogue() {
             >
               {versions.data?.map((version) => (
                 <option key={version.id} value={version.id}>
-                  {version.qualificationCode} · {version.versionCode}
+                  {version.qualificationCode} ·{" "}
+                  {academicText(
+                    locale,
+                    version.qualificationArabicName,
+                    version.qualificationEnglishName,
+                  ) || version.qualificationCode}{" "}
+                  · {version.versionCode}
                 </option>
               ))}
             </select>
@@ -215,14 +255,107 @@ export function AcademicCatalogue() {
                           {catalogue.data.version.versionCode}
                         </p>
                         <h2 className="mt-2 break-words text-xl font-black">
-                          <span dir="ltr">{unit.code}</span> ·{" "}
-                          {ar ? unit.arabicTitle : unit.englishTitle}
+                          {academicUnitLabel(
+                            locale,
+                            unit.code,
+                            unit.arabicTitle,
+                            unit.englishTitle,
+                          )}
                         </h2>
+                        <p
+                          className="mt-1 break-words text-sm text-muted"
+                          lang="en"
+                        >
+                          English: {unit.englishTitle}
+                        </p>
+                        <p
+                          className="mt-1 break-words text-sm text-muted"
+                          lang="ar"
+                          dir="rtl"
+                        >
+                          العربية:{" "}
+                          {academicText(
+                            "ar",
+                            unit.arabicTitle,
+                            unit.englishTitle,
+                          )}
+                        </p>
+                        <p className="mt-1 text-xs text-muted">
+                          {unit.source === "PearsonOfficial"
+                            ? "PearsonOfficial"
+                            : unit.source === "AdminCustom"
+                              ? "AdminCustom"
+                              : "Unknown"}
+                        </p>
+                        {unit.source === "PearsonOfficial" ? (
+                          <div className="mt-3 grid max-w-xl gap-2">
+                            <p className="text-xs text-muted">
+                              {ar
+                                ? "العنوان الإنجليزي هو هوية بيرسون الرسمية. العنوان العربي ترجمة عرض محلية من BETCCO."
+                                : "The English title is Pearson's official identity. The Arabic display title is BETCCO localization."}
+                            </p>
+                            <label className="grid gap-1 text-sm font-semibold">
+                              {ar
+                                ? "العنوان العربي المحلي"
+                                : "BETCCO Arabic display title"}
+                              <input
+                                dir="rtl"
+                                lang="ar"
+                                value={
+                                  arabicDrafts[unit.id] ?? unit.arabicTitle
+                                }
+                                onChange={(event) =>
+                                  setArabicDrafts((current) => ({
+                                    ...current,
+                                    [unit.id]: event.target.value,
+                                  }))
+                                }
+                                className="focus-ring rounded-lg border border-border bg-background px-3 py-2"
+                              />
+                            </label>
+                            <button
+                              type="button"
+                              className="focus-ring justify-self-start rounded-lg border border-primary px-3 py-2 text-sm font-bold text-primary disabled:opacity-50"
+                              disabled={
+                                localizeUnit.isPending ||
+                                !arabicDrafts[unit.id]?.trim() ||
+                                arabicDrafts[unit.id]?.trim() ===
+                                  unit.arabicTitle
+                              }
+                              onClick={() =>
+                                localizeUnit.mutate({
+                                  id: unit.id,
+                                  arabicTitle: arabicDrafts[unit.id],
+                                })
+                              }
+                            >
+                              {ar
+                                ? "حفظ العنوان العربي"
+                                : "Save Arabic display title"}
+                            </button>
+                          </div>
+                        ) : null}
                       </div>
-                      <Badge
-                        text={unit.isActive ? t("active") : t("draft")}
-                        ready={unit.isActive}
-                      />
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          text={unit.isActive ? t("active") : t("draft")}
+                          ready={unit.isActive}
+                        />
+                        <button
+                          type="button"
+                          disabled={unitStatus.isPending}
+                          className="focus-ring rounded-lg border border-border px-2 py-1 text-xs disabled:opacity-50"
+                          onClick={() => unitStatus.mutate(unit)}
+                        >
+                          {unit.isActive
+                            ? ar
+                              ? "أرشفة"
+                              : "Archive"
+                            : ar
+                              ? "تفعيل"
+                              : "Activate"}
+                        </button>
+                      </div>
                     </div>
                     <div className="mt-5 grid min-w-0 gap-5 lg:grid-cols-2">
                       <div className="min-w-0 rounded-xl border border-border p-4">
@@ -240,7 +373,11 @@ export function AcademicCatalogue() {
                               >
                                 <h4 className="break-words font-bold">
                                   <span dir="ltr">{aim.code}</span> ·{" "}
-                                  {ar ? aim.arabicTitle : aim.englishTitle}
+                                  {academicText(
+                                    locale,
+                                    aim.arabicTitle,
+                                    aim.englishTitle,
+                                  )}
                                 </h4>
                                 {aim.criteria.length === 0 ? (
                                   <p className="mt-2 text-sm text-muted">
@@ -262,9 +399,11 @@ export function AcademicCatalogue() {
                                           </span>
                                         </div>
                                         <p className="mt-1 break-words text-muted">
-                                          {ar
-                                            ? criterion.arabicDescription
-                                            : criterion.englishDescription}
+                                          {academicText(
+                                            locale,
+                                            criterion.arabicDescription,
+                                            criterion.englishDescription,
+                                          )}
                                         </p>
                                       </li>
                                     ))}
@@ -293,9 +432,11 @@ export function AcademicCatalogue() {
                                 <div className="flex flex-wrap items-start justify-between gap-2">
                                   <h4 className="break-words font-bold">
                                     <span dir="ltr">{definition.code}</span> ·{" "}
-                                    {ar
-                                      ? definition.arabicTitle
-                                      : definition.englishTitle}{" "}
+                                    {academicText(
+                                      locale,
+                                      definition.arabicTitle,
+                                      definition.englishTitle,
+                                    )}{" "}
                                     <span className="text-muted">
                                       {t("versionLabel", {
                                         version: definition.version,
@@ -359,13 +500,17 @@ export function AcademicCatalogue() {
                                         >
                                           <div className="flex flex-wrap items-center justify-between gap-2">
                                             <span className="break-words font-semibold">
-                                              {ar
-                                                ? scope.gradeArabicName
-                                                : scope.gradeEnglishName}{" "}
+                                              {academicText(
+                                                locale,
+                                                scope.gradeArabicName,
+                                                scope.gradeEnglishName,
+                                              )}{" "}
                                               ·{" "}
-                                              {ar
-                                                ? scope.specializationArabicName
-                                                : scope.specializationEnglishName}
+                                              {academicText(
+                                                locale,
+                                                scope.specializationArabicName,
+                                                scope.specializationEnglishName,
+                                              )}
                                             </span>
                                             <Badge
                                               text={state(
@@ -380,9 +525,11 @@ export function AcademicCatalogue() {
                                           </div>
                                           <p className="mt-1 break-words text-muted">
                                             {t("rubric")}:{" "}
-                                            {ar
-                                              ? scope.rubricArabicTitle
-                                              : scope.rubricEnglishTitle}{" "}
+                                            {academicText(
+                                              locale,
+                                              scope.rubricArabicTitle,
+                                              scope.rubricEnglishTitle,
+                                            )}{" "}
                                             ·{" "}
                                             {t("versionLabel", {
                                               version: scope.version,
@@ -421,12 +568,18 @@ export function AcademicCatalogue() {
           )}
         </>
       )}
-      {(publish.isError || activate.isError) && (
+      {(publish.isError ||
+        activate.isError ||
+        unitStatus.isError ||
+        localizeUnit.isError) && (
         <p className="card mt-5 p-4 text-red-700" role="alert">
           {t("saveError")}
         </p>
       )}
-      {(publish.isSuccess || activate.isSuccess) && (
+      {(publish.isSuccess ||
+        activate.isSuccess ||
+        unitStatus.isSuccess ||
+        localizeUnit.isSuccess) && (
         <p className="mt-5 text-sm text-green-700" role="status">
           {t("saved")}
         </p>

@@ -29,6 +29,9 @@ public sealed class AcademicTerm : Entity
 /// <summary>An editable delivery plan for one canonical qualification version and academic year.</summary>
 public sealed class DeliveryPlan : Entity
 {
+    // Null only for plans created before grade-scoped planning was introduced.
+    public Guid? GradeId { get; set; }
+    public Betcco.Domain.Learning.Grade? Grade { get; set; }
     public Guid QualificationVersionId { get; set; }
     public QualificationVersion? QualificationVersion { get; set; }
     public Guid AcademicYearId { get; set; }

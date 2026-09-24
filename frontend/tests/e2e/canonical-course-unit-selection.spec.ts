@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 const course = {
   id: "course-1",
   isBtecFocused: true,
+  deliveryPlanId: "plan-1",
   qualificationVersionId: null,
   arabicTitle: "دورة تجريبية",
   englishTitle: "Example course",
@@ -27,7 +28,7 @@ for (const scenario of [
     await page.setViewportSize({ width: scenario.width, height: 844 });
     const pageErrors: string[] = [];
     page.on("pageerror", (error) => pageErrors.push(error.message));
-    let postedUnitId: string | undefined;
+    let postedEntryId: string | undefined;
     await page.route("**/api/v1/**", async (route) => {
       const path = new URL(route.request().url()).pathname;
       const json = (value: unknown) =>
@@ -49,9 +50,11 @@ for (const scenario of [
         return json([
           {
             id: "unit-1",
-            code: "U1",
-            arabicTitle: "الوحدة الأولى",
-            englishTitle: "Unit one",
+            deliveryPlanEntryId: "entry-1",
+            termCode: "T1",
+            code: "1",
+            arabicTitle: "أنظمة تكنولوجيا المعلومات",
+            englishTitle: "Information Technology Systems",
             qualificationVersionId: "version-1",
             qualificationCode: "Q",
             versionCode: "2026",
@@ -61,7 +64,7 @@ for (const scenario of [
         path === "/api/v1/teacher/courses/modules" &&
         route.request().method() === "POST"
       ) {
-        postedUnitId = route.request().postDataJSON().unitDefinitionId;
+        postedEntryId = route.request().postDataJSON().deliveryPlanEntryId;
         return json({ id: "delivery-1" });
       }
       if (path.endsWith("/learning-access"))
@@ -88,14 +91,19 @@ for (const scenario of [
       name: scenario.locale === "ar" ? "الوحدة الأكاديمية" : "Academic unit",
     });
     await expect(selector).toBeVisible();
-    await expect(selector.locator("option[value='unit-1']")).toBeAttached();
-    await selector.selectOption("unit-1");
+    await expect(selector.locator("option[value='entry-1']")).toBeAttached();
+    await expect(selector.locator("option[value='entry-1']")).toHaveText(
+      scenario.locale === "ar"
+        ? /الوحدة 1 — أنظمة تكنولوجيا المعلومات/
+        : /Unit 1 — Information Technology Systems/,
+    );
+    await selector.selectOption("entry-1");
     await page
       .getByRole("button", {
         name: scenario.locale === "ar" ? "إضافة الوحدة" : "Add module",
       })
       .click();
-    await expect.poll(() => postedUnitId).toBe("unit-1");
+    await expect.poll(() => postedEntryId).toBe("entry-1");
     expect(pageErrors).toEqual([]);
     expect(
       await page.evaluate(
@@ -112,9 +120,9 @@ for (const scenario of [
 }
 
 for (const scenario of [
-  { locale: "en", width: 1280, title: "Canonical unit" },
-  { locale: "ar", width: 1280, title: "الوحدة المعتمدة" },
-  { locale: "en", width: 390, title: "Canonical unit" },
+  { locale: "en", width: 1280, title: "Information Technology Systems" },
+  { locale: "ar", width: 1280, title: "أنظمة تكنولوجيا المعلومات" },
+  { locale: "en", width: 390, title: "Information Technology Systems" },
 ]) {
   test(`student sees canonical unit delivery in ${scenario.locale} at ${scenario.width}px`, async ({
     page,
