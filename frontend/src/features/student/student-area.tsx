@@ -7,6 +7,7 @@ import { academicText } from "@/lib/academic-localization";
 import { MotivationCard } from "@/components/motivation-card";
 import { FilePicker } from "@/components/forms/file-picker";
 import { StudentLearningAimPractice } from "@/features/learning/learning-aim-practice";
+import { StudentComprehensivePractice } from "@/features/learning/comprehensive-practice";
 import { AccountSecurity } from "@/features/auth/account-security";
 import { AccountLayout } from "@/features/auth/account-layout";
 import { StudentEmailChange } from "@/features/auth/student-email-change";
@@ -1732,6 +1733,7 @@ function CoursePlayer({
           </p>
         ) : null}
         <StudentLearningAimPractice courseId={courseId} />
+        <StudentComprehensivePractice courseId={courseId} />
         {lesson ? (
           <>
             {lesson.video && !lesson.isLocked ? (

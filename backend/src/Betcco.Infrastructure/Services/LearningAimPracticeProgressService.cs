@@ -24,12 +24,13 @@ public sealed class LearningAimPracticeProgressService(BetccoDbContext db, ICour
         if (module?.UnitDefinition is null) return [];
         var definitions = module.UnitDefinition.LearningAims.OrderBy(x => x.SortOrder)
             .ThenBy(x => x.Code).ThenBy(x => x.Id).ToArray();
-        var delivery = module.LearningAims.Where(x => x.LearningAimDefinitionId is not null
-                && x.LearningAimDefinition?.UnitDefinitionId == module.UnitDefinitionId
-                && x.PublicationStatus == ContentPublicationStatus.Published)
-            .ToDictionary(x => x.LearningAimDefinitionId!.Value);
-        if (definitions.Length == 0 || delivery.Count != definitions.Length
-            || definitions.Any(x => !delivery.ContainsKey(x.Id))) return [];
+        var publishedAims = module.LearningAims.Where(x => x.PublicationStatus == ContentPublicationStatus.Published).ToArray();
+        if (definitions.Length == 0 || publishedAims.Length != definitions.Length
+            || publishedAims.Any(x => x.LearningAimDefinitionId is null
+                || x.LearningAimDefinition?.UnitDefinitionId != module.UnitDefinitionId)
+            || publishedAims.Select(x => x.LearningAimDefinitionId).Distinct().Count() != definitions.Length) return [];
+        var delivery = publishedAims.ToDictionary(x => x.LearningAimDefinitionId!.Value);
+        if (definitions.Any(x => !delivery.ContainsKey(x.Id))) return [];
 
         var aimIds = delivery.Values.Select(x => x.Id).ToArray();
         var lessons = await db.Lessons.AsNoTracking()
@@ -131,6 +132,23 @@ public sealed class LearningAimPracticeProgressService(BetccoDbContext db, ICour
         if (target is null) return false;
         var aims = await GetAsync(studentUserId, target.ModuleId, cancellationToken);
         return aims.Any(x => x.Id == target.AimId && x.PracticeAvailable);
+    }
+
+    public async Task<bool> CanSubmitComprehensiveAsync(string studentUserId, Guid assignmentId, CancellationToken cancellationToken = default)
+    {
+        var assignment = await db.CourseAssignments.AsNoTracking()
+            .Where(x => x.Id == assignmentId && x.Purpose == CourseAssignmentPurpose.ComprehensivePractice
+                && x.CourseModuleId != null && x.BtecLearningAimId == null && x.LessonId == null
+                && x.CourseModule!.UnitDefinitionId != null)
+            .Select(x => new { x.CourseModuleId, x.DueAtUtc, x.AvailableFromUtc, x.IsPublished, x.PublicationStatus })
+            .SingleOrDefaultAsync(cancellationToken);
+        if (assignment?.CourseModuleId is null || !assignment.IsPublished
+            || assignment.PublicationStatus != ContentPublicationStatus.Published
+            || assignment.AvailableFromUtc > DateTimeOffset.UtcNow) return false;
+        var deadline = await deadlineResolverService.ResolveAsync(assignmentId, studentUserId, assignment.DueAtUtc, cancellationToken);
+        if (deadline.EffectiveDueAtUtc < DateTimeOffset.UtcNow) return false;
+        var aims = await GetAsync(studentUserId, assignment.CourseModuleId.Value, cancellationToken);
+        return aims.Count > 0 && aims.All(x => x.IsComplete);
     }
 }
 

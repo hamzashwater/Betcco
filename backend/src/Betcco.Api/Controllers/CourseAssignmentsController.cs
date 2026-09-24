@@ -56,6 +56,69 @@ public sealed class CourseAssignmentsController(
     }
 
     [Authorize(Policy = "Teacher")]
+    [HttpPost("teacher/comprehensive-practice")]
+    public async Task<IActionResult> CreateComprehensivePractice(CreateComprehensivePracticeCommand command, CancellationToken cancellationToken)
+    {
+        var result = await assignments.CreateComprehensivePracticeAsync(UserId, command, cancellationToken);
+        return result.Status switch
+        {
+            PracticeCreateStatus.Created => Ok(new { id = result.Id }),
+            PracticeCreateStatus.Conflict => Conflict(new { code = "COMPREHENSIVE_PRACTICE_EXISTS" }),
+            _ => BadRequest(new { message = "Choose a canonical Unit in your course and provide complete practice instructions." })
+        };
+    }
+
+    [Authorize(Policy = "Teacher")]
+    [HttpGet("teacher/courses/{courseId:guid}/comprehensive-practice")]
+    public async Task<IActionResult> TeacherComprehensivePractice(Guid courseId, CancellationToken cancellationToken)
+    {
+        if (!await db.Courses.AsNoTracking().AnyAsync(x => x.Id == courseId && x.TeacherUserId == UserId, cancellationToken)) return NotFound();
+        var rows = await db.CourseAssignments.AsNoTracking()
+            .Include(x => x.Criteria).Include(x => x.Resources)
+            .Where(x => x.CourseId == courseId && x.Purpose == CourseAssignmentPurpose.ComprehensivePractice)
+            .OrderBy(x => x.CourseModuleId).ToArrayAsync(cancellationToken);
+        return Ok(rows.Select(x => AssignmentView(x)));
+    }
+
+    [Authorize(Policy = "Teacher")]
+    [HttpGet("teacher/courses/{courseId:guid}/comprehensive-practice/submissions")]
+    public async Task<IActionResult> TeacherComprehensiveSubmissions(Guid courseId, CancellationToken cancellationToken)
+    {
+        if (!await db.Courses.AsNoTracking().AnyAsync(x => x.Id == courseId && x.TeacherUserId == UserId, cancellationToken)) return NotFound();
+        var rows = await db.CourseAssignmentSubmissions.AsNoTracking()
+            .Where(x => x.CourseAssignment!.CourseId == courseId
+                && x.CourseAssignment.Purpose == CourseAssignmentPurpose.ComprehensivePractice
+                && db.Enrollments.Any(enrollment => enrollment.CourseId == courseId
+                    && enrollment.StudentUserId == x.StudentUserId))
+            .OrderByDescending(x => x.SubmittedAtUtc)
+            .Select(x => new
+            {
+                x.Id,
+                x.CourseAssignmentId,
+                x.StudentUserId,
+                Status = x.Status.ToString(),
+                TrainingOutcome = x.TrainingOutcome == null ? null : x.TrainingOutcome.ToString(),
+                x.TrainingStrengths,
+                x.TrainingGaps,
+                x.TrainingImprovementGuidance,
+                x.SubmittedAtUtc,
+                Files = x.Versions.Where(v => v.VersionNumber == x.CurrentVersionNumber)
+                    .SelectMany(v => v.Files).Select(file => new { file.Id, file.OriginalFileName, file.ContentType, file.LengthBytes })
+            }).ToArrayAsync(cancellationToken);
+        return Ok(rows);
+    }
+
+    [Authorize(Policy = "Teacher")]
+    [HttpPost("teacher/comprehensive-practice/submissions/{submissionId:guid}/review")]
+    public async Task<IActionResult> ReviewComprehensivePractice(Guid submissionId, ReviewLearningAimPracticeCommand command, CancellationToken cancellationToken) =>
+        await assignments.ReviewComprehensivePracticeAsync(UserId, submissionId, command, cancellationToken) switch
+        {
+            PracticeReviewResult.Finalized => NoContent(),
+            PracticeReviewResult.Conflict => Conflict(new { code = "PRACTICE_REVIEW_CONFLICT" }),
+            _ => BadRequest(new { message = "A submitted Unit Practice, authorized teacher, outcome and complete feedback are required." })
+        };
+
+    [Authorize(Policy = "Teacher")]
     [HttpGet("teacher/courses/{courseId:guid}/practice")]
     public async Task<IActionResult> TeacherPractice(Guid courseId, CancellationToken cancellationToken)
     {
@@ -148,12 +211,55 @@ public sealed class CourseAssignmentsController(
                     Gaps = null,
                     ImprovementGuidance = null
                 }).ToArray();
+            var finalAssignment = await db.CourseAssignments.AsNoTracking()
+                .Where(x => x.CourseModuleId == module.Id && x.Purpose == CourseAssignmentPurpose.ComprehensivePractice)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.ArabicTitle,
+                    x.EnglishTitle,
+                    x.ArabicInstructions,
+                    x.EnglishInstructions,
+                    x.DueAtUtc,
+                    Resources = x.Resources.Where(resource => resource.ScanStatus == UploadScanStatus.Clean)
+                        .Select(resource => new { resource.Id, resource.DisplayName }).ToArray(),
+                    Criteria = x.Criteria.OrderBy(criterion => criterion.SortOrder)
+                        .Select(criterion => new { criterion.Code, criterion.ArabicDescription, criterion.EnglishDescription }).ToArray()
+                })
+                .SingleOrDefaultAsync(cancellationToken);
+            var finalSubmission = finalAssignment is null ? null : await db.CourseAssignmentSubmissions.AsNoTracking()
+                .Where(x => x.CourseAssignmentId == finalAssignment.Id && x.StudentUserId == UserId)
+                .Select(x => new { x.Status, x.TrainingOutcome, x.TrainingStrengths, x.TrainingGaps, x.TrainingImprovementGuidance })
+                .SingleOrDefaultAsync(cancellationToken);
+            var allAimsComplete = aims.Count > 0 && aims.All(x => x.IsComplete);
+            var finalAvailable = finalAssignment is not null && unitAccess.IsAvailable && allAimsComplete
+                && (await contentAccess.CanAccessAsync(UserId, courseId, LearningContentType.Assignment, finalAssignment.Id, cancellationToken)).IsAvailable;
+            var finalDeadline = finalAssignment is null ? null : await deadlineResolver.ResolveAsync(finalAssignment.Id, UserId, finalAssignment.DueAtUtc, cancellationToken);
+            var reviewed = finalSubmission?.Status == CourseAssignmentSubmissionStatus.Finalized && finalSubmission.TrainingOutcome is not null;
             result.Add(new
             {
                 module.Id,
                 module.ArabicTitle,
                 module.EnglishTitle,
-                Aims = aims
+                Aims = aims,
+                FinalPractice = new
+                {
+                    AssignmentId = finalAssignment?.Id,
+                    ArabicTitle = finalAssignment?.ArabicTitle,
+                    EnglishTitle = finalAssignment?.EnglishTitle,
+                    ArabicInstructions = finalAvailable ? finalAssignment?.ArabicInstructions : null,
+                    EnglishInstructions = finalAvailable ? finalAssignment?.EnglishInstructions : null,
+                    EffectiveDueAtUtc = finalDeadline?.EffectiveDueAtUtc,
+                    Resources = finalAvailable ? finalAssignment?.Resources : null,
+                    Criteria = finalAvailable ? finalAssignment?.Criteria : null,
+                    IsAvailable = finalAvailable,
+                    Status = finalSubmission?.Status.ToString() ?? (finalAssignment is null ? "NotConfigured" : finalAvailable ? "Available" : "Locked"),
+                    TrainingOutcome = reviewed && unitAccess.IsAvailable ? finalSubmission?.TrainingOutcome?.ToString() : null,
+                    Strengths = reviewed && unitAccess.IsAvailable ? finalSubmission?.TrainingStrengths : null,
+                    Gaps = reviewed && unitAccess.IsAvailable ? finalSubmission?.TrainingGaps : null,
+                    ImprovementGuidance = reviewed && unitAccess.IsAvailable ? finalSubmission?.TrainingImprovementGuidance : null,
+                    IsTrainingComplete = unitAccess.IsAvailable && allAimsComplete && reviewed
+                }
             });
         }
         return Ok(result);
@@ -409,7 +515,7 @@ public sealed class CourseAssignmentsController(
         var submission = file.CourseAssignmentSubmissionVersion!.CourseAssignmentSubmission!;
         if (!User.IsInRole(PlatformRoles.Admin) && submission.StudentUserId != UserId && submission.CourseAssignment!.Course!.TeacherUserId != UserId) return NotFound();
         if (submission.StudentUserId == UserId
-            && submission.CourseAssignment!.Purpose == CourseAssignmentPurpose.LearningAimPractice
+            && submission.CourseAssignment!.Purpose is CourseAssignmentPurpose.LearningAimPractice or CourseAssignmentPurpose.ComprehensivePractice
             && !await db.Enrollments.AsNoTracking().AnyAsync(x => x.CourseId == submission.CourseAssignment.CourseId
                 && x.StudentUserId == UserId && (x.AccessEndsAtUtc == null || x.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken)) return NotFound();
         var content = await storage.OpenPrivateReadAsync(file.StorageKey, cancellationToken);

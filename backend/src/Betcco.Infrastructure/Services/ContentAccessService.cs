@@ -42,6 +42,10 @@ public sealed class ContentAccessService(BetccoDbContext db) : IContentAccessSer
             && await db.CourseAssignments.AsNoTracking().AnyAsync(x => x.Id == contentId && x.Purpose == CourseAssignmentPurpose.LearningAimPractice, cancellationToken)
             && !await practice.CanSubmitAsync(studentUserId, contentId, cancellationToken))
             return Denied("CompleteLearningAimContent");
+        if (contentType == LearningContentType.Assignment
+            && await db.CourseAssignments.AsNoTracking().AnyAsync(x => x.Id == contentId && x.Purpose == CourseAssignmentPurpose.ComprehensivePractice, cancellationToken)
+            && !await practice.CanSubmitComprehensiveAsync(studentUserId, contentId, cancellationToken))
+            return Denied("CompleteAllLearningAims");
         return await EvaluateNodeAsync(studentUserId, courseId, enrollment, node, [], cancellationToken);
     }
 
@@ -199,6 +203,7 @@ public sealed class ContentAccessService(BetccoDbContext db) : IContentAccessSer
         LearningContentType.Assignment => await db.CourseAssignmentSubmissions.AsNoTracking().AnyAsync(submission =>
             submission.StudentUserId == studentUserId && submission.CourseAssignmentId == node.Id
             && (submission.CourseAssignment!.Purpose == CourseAssignmentPurpose.LearningAimPractice
+                || submission.CourseAssignment.Purpose == CourseAssignmentPurpose.ComprehensivePractice
                 ? submission.Status == CourseAssignmentSubmissionStatus.Finalized && submission.TrainingOutcome != null
                 : submission.CalculatedGrade != null && (submission.Status == CourseAssignmentSubmissionStatus.Graded || submission.Status == CourseAssignmentSubmissionStatus.Finalized)), cancellationToken),
         _ => false

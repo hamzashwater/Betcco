@@ -1208,6 +1208,9 @@ public sealed class BetccoDbContext(
         builder.Entity<CourseAssignment>().HasIndex(x => x.LessonId).IsUnique().HasFilter("\"LessonId\" IS NOT NULL");
         builder.Entity<CourseAssignment>().HasIndex(x => x.BtecLearningAimId).IsUnique()
             .HasFilter("\"BtecLearningAimId\" IS NOT NULL AND \"Purpose\" = 1");
+        builder.Entity<CourseAssignment>().HasIndex(x => x.CourseModuleId, "IX_CourseAssignments_CourseModuleId");
+        builder.Entity<CourseAssignment>().HasIndex(x => x.CourseModuleId, "IX_CourseAssignments_CourseModuleId_ComprehensivePractice").IsUnique()
+            .HasFilter("\"CourseModuleId\" IS NOT NULL AND \"Purpose\" = 2");
         builder.Entity<CourseAssignmentSubmission>().Property(x => x.TrainingStrengths).HasMaxLength(4_000);
         builder.Entity<CourseAssignmentSubmission>().Property(x => x.TrainingGaps).HasMaxLength(4_000);
         builder.Entity<CourseAssignmentSubmission>().Property(x => x.TrainingImprovementGuidance).HasMaxLength(4_000);

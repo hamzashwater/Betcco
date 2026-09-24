@@ -4,7 +4,7 @@ public enum CourseStatus { Draft, SubmittedForReview, Approved, Rejected, Publis
 public enum ContentPublicationStatus { Draft, Published, Archived, Scheduled }
 public enum BtecCriterionBand { Pass, Merit, Distinction }
 public enum CourseAssignmentSubmissionStatus { Draft, Submitted, NeedsRevision, Graded, Finalized }
-public enum CourseAssignmentPurpose { Coursework = 0, LearningAimPractice = 1 }
+public enum CourseAssignmentPurpose { Coursework = 0, LearningAimPractice = 1, ComprehensivePractice = 2 }
 // A formative course result. Never persisted as EvaluationGrade or CriterionResult.
 public enum TrainingOutcome { NotYetAchieved, Pass, Merit, Distinction }
 public enum LessonType { Text = 0, Video = 1, LegacyArchived = 2, Assignment = 3, LiveSession = 4, Activity = 5 }
