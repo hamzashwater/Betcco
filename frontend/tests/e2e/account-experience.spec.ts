@@ -38,8 +38,18 @@ test("staff can leave an unfinished MFA enrollment", async ({ page }) => {
       signedOut = true;
       return route.fulfill({ status: 204 });
     }
+    if (path === "/api/v1/notifications")
+      return route.fulfill({ contentType: "application/json", body: "[]" });
     return route.fulfill({ contentType: "application/json", body: "{}" });
   });
+  await page.goto("/en/about");
+  await page.waitForLoadState("networkidle");
+  await expect(page).toHaveURL(/\/en\/about$/);
+  await expect(
+    page.getByRole("heading", {
+      name: "Clear learning built around application",
+    }),
+  ).toBeVisible();
   await page.goto("/en/support/accounts");
   await expect(page).toHaveURL(/\/en\/staff\/security$/);
   await page.getByRole("button", { name: "Sign out" }).click();
@@ -136,6 +146,10 @@ for (const { locale, width } of [
       return route.fulfill({ contentType: "application/json", body: "{}" });
     });
 
+    await page.goto(`/${locale}/about`);
+    await page.waitForLoadState("networkidle");
+    await expect(page).toHaveURL(new RegExp(`/${locale}/about$`));
+    await expect(page.locator("#main-content")).toBeVisible();
     await page.goto(`/${locale}/admin/dashboard`);
     await expect(page).toHaveURL(new RegExp(`/${locale}/staff/security$`));
     await expect(

@@ -1,3 +1,4 @@
+import { createHmac } from "node:crypto";
 import {
   expect,
   test,
@@ -7,6 +8,9 @@ import {
 } from "@playwright/test";
 
 test.describe.configure({ mode: "serial" });
+// The enrollment page displays a live authenticator secret. Keep test artifacts
+// from persisting its pixels or the submitted code on failure.
+test.use({ trace: "off", screenshot: "off", video: "off" });
 
 const publicRoutes = [
   "/en",
@@ -173,7 +177,59 @@ test("@golden-path full-stack student, admin and teacher journey", async ({
 
   await page.context().clearCookies();
   await page.goto("/en/login");
-  await signIn(page, adminEmail, adminPassword, /\/en\/admin\/dashboard$/);
+  await signIn(page, adminEmail, adminPassword, /\/en\/staff\/security$/);
+  await expect(
+    page.getByText(
+      /Multi-factor authentication is required for this staff account/,
+    ),
+  ).toBeVisible();
+  const blockedAdmin = await page.evaluate(async () => {
+    const response = await fetch("/api/v1/admin/dashboard");
+    return { status: response.status, code: (await response.json()).code };
+  });
+  expect(blockedAdmin).toEqual({
+    status: 403,
+    code: "MFA_ENROLLMENT_REQUIRED",
+  });
+
+  await assertRouteUsable(page, "/en/about");
+  await expect(page).toHaveURL(/\/en\/about$/);
+  await page.goto("/en/staff/security");
+  const setupResponsePromise = page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/v1/auth/two-factor/setup") &&
+      response.request().method() === "POST",
+  );
+  await page
+    .getByRole("button", { name: "Set up an authenticator app" })
+    .click();
+  const setupResponse = await setupResponsePromise;
+  expect(setupResponse.status()).toBe(200);
+  const setupPayload = (await setupResponse.json()) as {
+    authenticatorUri: string;
+  };
+  const secret = new URL(setupPayload.authenticatorUri).searchParams.get(
+    "secret",
+  );
+  if (!secret) throw new Error("Authenticator setup response has no secret.");
+  await expect(page.locator("#main-content code").first()).toBeVisible();
+
+  await page
+    .getByRole("textbox", { name: "Enter the 6-digit code" })
+    .fill(generateTotp(secret));
+  const enableResponsePromise = page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/v1/auth/two-factor/enable") &&
+      response.request().method() === "POST",
+  );
+  await page.getByRole("button", { name: "Confirm and enable" }).click();
+  expect((await enableResponsePromise).status()).toBe(204);
+  await expect(page).toHaveURL(/\/en\/admin\/dashboard$/);
+  expect(
+    await page.evaluate(
+      async () => (await fetch("/api/v1/admin/dashboard")).status,
+    ),
+  ).toBe(200);
 
   for (const route of adminRoutes) await assertRouteUsable(page, route);
 
@@ -314,8 +370,10 @@ async function waitForTeacherResetUrl(
   request: APIRequestContext,
   email: string,
 ) {
+  const mailpitUrl =
+    process.env.BETCCO_UAT_MAILPIT_URL ?? "http://127.0.0.1:8025";
   for (let attempt = 0; attempt < 30; attempt += 1) {
-    const list = await request.get("http://127.0.0.1:8025/api/v1/messages");
+    const list = await request.get(`${mailpitUrl}/api/v1/messages`);
     if (list.ok()) {
       const payload = await list.json();
       const messages = Array.isArray(payload.messages) ? payload.messages : [];
@@ -325,7 +383,7 @@ async function waitForTeacherResetUrl(
         const id = message.ID ?? message.Id ?? message.id;
         if (!id) continue;
         const detailResponse = await request.get(
-          `http://127.0.0.1:8025/api/v1/message/${id}`,
+          `${mailpitUrl}/api/v1/message/${id}`,
         );
         if (!detailResponse.ok()) continue;
         const detail = await detailResponse.json();
@@ -349,4 +407,33 @@ function requiredEnv(name: string) {
   if (!value)
     throw new Error(`Missing required UAT environment variable: ${name}`);
   return value;
+}
+
+// RFC 6238: 30-second counter, HMAC-SHA1, dynamic truncation, six digits.
+function generateTotp(base32Secret: string) {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  const bytes: number[] = [];
+  let value = 0;
+  let bits = 0;
+  for (const character of base32Secret.replace(/[\s=-]/g, "").toUpperCase()) {
+    const digit = alphabet.indexOf(character);
+    if (digit < 0) throw new Error("Invalid authenticator key encoding.");
+    value = (value << 5) | digit;
+    bits += 5;
+    if (bits >= 8) {
+      bits -= 8;
+      bytes.push((value >>> bits) & 0xff);
+      value &= (1 << bits) - 1;
+    }
+  }
+  if (bytes.length === 0) throw new Error("Authenticator key is empty.");
+  const counter = Buffer.alloc(8);
+  counter.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 30_000)));
+  const digest = createHmac("sha1", Buffer.from(bytes))
+    .update(counter)
+    .digest();
+  const offset = digest[digest.length - 1] & 0x0f;
+  return ((digest.readUInt32BE(offset) & 0x7fffffff) % 1_000_000)
+    .toString()
+    .padStart(6, "0");
 }

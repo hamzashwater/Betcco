@@ -62,8 +62,11 @@ public sealed class StaffMfaCookieSessionTests
             Assert.True((await userManager.AddToRoleAsync(user, PlatformRoles.SupportAdmin)).Succeeded);
             var session = new UserSession
             {
-                UserId = user.Id.ToString(), DeviceName = "Test browser", BrowserName = "Test browser",
-                LoggedInAtUtc = DateTimeOffset.UtcNow, LastActiveAtUtc = DateTimeOffset.UtcNow
+                UserId = user.Id.ToString(),
+                DeviceName = "Test browser",
+                BrowserName = "Test browser",
+                LoggedInAtUtc = DateTimeOffset.UtcNow,
+                LastActiveAtUtc = DateTimeOffset.UtcNow
             };
             db.UserSessions.Add(session);
             await db.SaveChangesAsync();

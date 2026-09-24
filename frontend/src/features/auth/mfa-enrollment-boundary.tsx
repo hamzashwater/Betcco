@@ -9,6 +9,21 @@ import { useEffect } from "react";
 
 type CurrentUser = { requiresMfaEnrollment: boolean };
 
+// These route segments contain authenticated workspaces. Public content and
+// catalogue routes stay available while a staff member enrolls an authenticator.
+const workspaceSegments = new Set([
+  "admin",
+  "student",
+  "teacher",
+  "support",
+  "staff",
+]);
+
+function isWorkspacePath(pathname: string, locale: string) {
+  const segments = pathname.split("/").filter(Boolean);
+  return segments[0] === locale && workspaceSegments.has(segments[1] ?? "");
+}
+
 export function MfaEnrollmentBoundary({
   children,
   navigation,
@@ -27,12 +42,15 @@ export function MfaEnrollmentBoundary({
     staleTime: 60_000,
   });
   const enrolling = user.data?.requiresMfaEnrollment === true;
+  const workspace = isWorkspacePath(pathname, locale);
+  const shouldRedirect =
+    enrolling && workspace && pathname.replace(/\/$/, "") !== securityPath;
 
   useEffect(() => {
-    if (enrolling && pathname !== securityPath) router.replace(securityPath);
-  }, [enrolling, pathname, router, securityPath]);
+    if (shouldRedirect) router.replace(securityPath);
+  }, [shouldRedirect, router, securityPath]);
 
-  if (enrolling && pathname !== securityPath) {
+  if (shouldRedirect) {
     return (
       <main id="main-content" className="shell flex-1 py-10" aria-busy="true">
         <p>
@@ -52,7 +70,7 @@ export function MfaEnrollmentBoundary({
 
   return (
     <>
-      {!enrolling && navigation}
+      {(!enrolling || !workspace) && navigation}
       {children}
     </>
   );

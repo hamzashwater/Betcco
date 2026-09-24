@@ -232,8 +232,15 @@ public sealed class AuthController(
             return Unauthorized();
         }
         var roles = await userManager.GetRolesAsync(user);
-        return Ok(new { id = user.Id, email = user.Email, displayName = user.DisplayName, roles, isFrozen = user.IsFrozen,
-            requiresMfaEnrollment = StaffMfaPolicy.RequiresStaffMfa(roles) && !await userManager.GetTwoFactorEnabledAsync(user) });
+        return Ok(new
+        {
+            id = user.Id,
+            email = user.Email,
+            displayName = user.DisplayName,
+            roles,
+            isFrozen = user.IsFrozen,
+            requiresMfaEnrollment = StaffMfaPolicy.RequiresStaffMfa(roles) && !await userManager.GetTwoFactorEnabledAsync(user)
+        });
     }
 
     [Authorize]
