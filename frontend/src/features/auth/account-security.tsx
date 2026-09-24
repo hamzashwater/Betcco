@@ -12,6 +12,7 @@ import {
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AccountLayout, type AccountRole } from "./account-layout";
 
 type TwoFactorStatus = {
   isEnabled: boolean;
@@ -55,7 +56,7 @@ function formatDate(value: string, locale: string) {
   }).format(new Date(value));
 }
 
-export function AccountSecurity() {
+export function AccountSecurity({ role }: { role: AccountRole }) {
   const locale = useLocale();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -157,23 +158,7 @@ export function AccountSecurity() {
     logoutAll.isPending;
 
   return (
-    <section className="shell py-10">
-      <div className="max-w-4xl">
-        <p className="text-sm font-black tracking-[0.16em] text-primary">
-          BETCCO SECURITY
-        </p>
-        <h1 className="mt-2 text-3xl font-black text-foreground">
-          {locale === "ar"
-            ? "أمان الحساب والجلسات"
-            : "Account security and sessions"}
-        </h1>
-        <p className="mt-3 max-w-2xl leading-7 text-muted">
-          {locale === "ar"
-            ? "فعّل تطبيق المصادقة لحماية الحساب، وراجع الأجهزة التي ما زالت مسجّلة الدخول."
-            : "Protect this account with an authenticator app and review devices that are still signed in."}
-        </p>
-      </div>
-
+    <AccountLayout role={role} active="security">
       {notice && (
         <p
           role="status"
@@ -183,8 +168,8 @@ export function AccountSecurity() {
         </p>
       )}
 
-      <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_1.1fr]">
-        <section className="card p-6">
+      <div className="mt-6 grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+        <section className="card min-w-0 p-5 sm:p-6">
           <div className="flex items-start gap-3">
             <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary">
               <ShieldCheck size={23} aria-hidden="true" />
@@ -300,10 +285,18 @@ export function AccountSecurity() {
               </ol>
               <code
                 dir="ltr"
-                className="overflow-x-auto rounded-xl border border-primary/35 bg-primary/10 px-4 py-3 text-center font-mono text-sm font-black tracking-[0.18em] text-foreground"
+                className="overflow-x-auto rounded-xl border border-primary/35 bg-primary/10 px-4 py-3 text-center font-mono text-sm font-black tracking-[0.12em] text-foreground"
               >
                 {setup.sharedKey}
               </code>
+              <a
+                href={setup.authenticatorUri}
+                className="focus-ring text-sm font-bold text-primary underline underline-offset-4"
+              >
+                {locale === "ar"
+                  ? "فتح تطبيق المصادقة بهذا الحساب"
+                  : "Open this account in your authenticator app"}
+              </a>
               <label className="grid gap-1 text-sm font-bold">
                 {locale === "ar"
                   ? "أدخل الرمز المكوّن من 6 أرقام"
@@ -344,8 +337,8 @@ export function AccountSecurity() {
           )}
         </section>
 
-        <section className="card p-6">
-          <div className="flex items-start justify-between gap-3">
+        <section className="card min-w-0 p-5 sm:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="flex items-start gap-3">
               <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-secondary/15 text-secondary">
                 <Laptop size={23} aria-hidden="true" />
@@ -399,7 +392,7 @@ export function AccountSecurity() {
                         size={19}
                         aria-hidden="true"
                       />
-                      <div>
+                      <div className="min-w-0">
                         <p className="font-black text-foreground">
                           {session.deviceName}
                           {session.isCurrent && (
@@ -415,6 +408,10 @@ export function AccountSecurity() {
                         <p className="mt-1 text-xs text-muted">
                           {locale === "ar" ? "آخر نشاط: " : "Last active: "}
                           {formatDate(session.lastActiveAtUtc, locale)}
+                        </p>
+                        <p className="mt-1 text-xs text-muted">
+                          {locale === "ar" ? "تسجيل الدخول: " : "Signed in: "}
+                          {formatDate(session.loggedInAtUtc, locale)}
                         </p>
                       </div>
                     </div>
@@ -463,6 +460,6 @@ export function AccountSecurity() {
           )}
         </section>
       </div>
-    </section>
+    </AccountLayout>
   );
 }

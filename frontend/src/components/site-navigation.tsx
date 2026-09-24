@@ -269,6 +269,10 @@ export function SiteNavigation() {
             label: locale === "ar" ? "التكاملات" : "Integrations",
           },
           {
+            href: `/${locale}/admin/profile`,
+            label: locale === "ar" ? "الملف الشخصي" : "Profile",
+          },
+          {
             href: `/${locale}/admin/security`,
             label: locale === "ar" ? "أمان الحساب" : "Account security",
           },
@@ -296,6 +300,10 @@ export function SiteNavigation() {
             label: locale === "ar" ? "محفظتي" : "My wallet",
           },
           {
+            href: `/${locale}/teacher/profile`,
+            label: locale === "ar" ? "الملف الشخصي" : "Profile",
+          },
+          {
             href: `/${locale}/teacher/security`,
             label: locale === "ar" ? "أمان الحساب" : "Account security",
           },
@@ -305,6 +313,7 @@ export function SiteNavigation() {
       ? workspaceNavLinks.filter(
           (link) =>
             link.href === `/${locale}/admin/evaluations` ||
+            link.href === `/${locale}/admin/profile` ||
             link.href === `/${locale}/admin/security`,
         )
       : workspaceNavLinks

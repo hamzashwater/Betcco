@@ -5,6 +5,7 @@
 
 import { api } from "@/lib/api";
 import { AccountSecurity } from "@/features/auth/account-security";
+import { AccountProfile } from "@/features/auth/account-profile";
 import { ContentStudio } from "@/features/admin/content-studio";
 import { CommerceCatalogManager } from "@/features/admin/commerce-catalog";
 import { CommissionSettings } from "@/features/admin/commission-settings";
@@ -154,7 +155,8 @@ export function AdminArea({ segment }: { segment: string[] }) {
     return <EvaluatorSpecialismManagement />;
   if (current === "retakes") return <RetakeManagement />;
   if (current === "wallet" || current === "accounting") return <AdminWallet />;
-  if (current === "security") return <AccountSecurity />;
+  if (current === "profile") return <AccountProfile role="admin" />;
+  if (current === "security") return <AccountSecurity role="admin" />;
   if (current === "content") return <ContentStudio />;
   if (current === "commerce") return <CommerceCatalogManager />;
   if (current === "audit-logs") return <AuditLogViewer />;

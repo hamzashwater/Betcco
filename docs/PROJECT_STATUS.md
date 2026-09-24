@@ -3,17 +3,26 @@
 ## Metadata
 
 - Last updated: 2026-09-24
-- Verified implementation baseline SHA: `641ab55f695a87d380a59c288fbbc3fcc1bbd184`
-- Status verified against origin/main: `641ab55f695a87d380a59c288fbbc3fcc1bbd184`
-- Local branch: `feature/academic-catalog-programme-planning` (ASUS; not pushed)
+- Verified implementation baseline SHA: `17dc6c8dd0fcb22ed53fc956eba416b7fce32142`
+- Status verified against origin/main: `17dc6c8dd0fcb22ed53fc956eba416b7fce32142`
+- Local branch: `feature/account-security-ui-phase1` (Lenovo; not pushed)
 - Remote CI for this local branch: NOT RUN; user-managed push, PR, review, and merge remain pending.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
 ## Current Local Feature
 
+- Task: Account/Profile/Security UI integration — Phase 1.
+- Status: Local implementation complete on `feature/account-security-ui-phase1`; rebased onto PR #47's merged `main`. Not pushed, reviewed remotely, or merged.
+- Scope: Student, Teacher, and Admin Profile UI; shared account navigation; Account Security, authenticator-based 2FA and active-session UI; Forgot and Reset Password UX. All actions use existing Auth/Profile/Security APIs. Student membership and payment access remains in place.
+- Validation: focused frontend tests 11/11, full frontend Vitest 134/134, typecheck, ESLint, Prettier, and Next.js production build passed. Mocked-API browser checks passed 12/12 across the three roles, English/Arabic, desktop/390px, with RTL, no page errors, and no horizontal overflow; live backend browser behavior was not exercised.
+- Deferred backend gaps: avatar upload/removal, secure email change, authenticated current-password change, Teacher phone-change approval, and logout of other devices while retaining the current session. This Phase made no backend, schema, or migration changes.
+
+## Recently Merged Academic Work (PR #47)
+
 - Task: Pearson academic catalogue authority and Admin programme planning — Slice 1.
-- Status: Local implementation, bilingual catalogue follow-up, and validation complete; remote CI pending user-managed push. This branch has no PR and is not merged into `main`.
+- Merge/commit SHA: `17dc6c8dd0fcb22ed53fc956eba416b7fce32142`.
+- Status: MERGED into `main` through PR #47. The academic design, migration, and validation details below are retained from that workstream.
 - Design: Trusted seed imports 101 exact Unit numbers and English titles from four Pearson BTEC International Level 2/3 IT and Business specifications, with `PearsonOfficial` provenance and source URLs. New Admin records are `AdminCustom`; activating a custom Unit publishes and locks its identity. Pearson academic identity is immutable through Admin authoring. Existing `Specialization` is reused, and new qualifications require a valid BTEC specialization. Admin can manage specializations and grades without startup seed resetting those edits.
 - Initial taxonomy seed creates only Information Technology and Business specializations. Engineering, Hospitality, and future sectors are SystemAdmin-creatable; previously created Engineering rows are retained. The 101 supported Pearson Units now have distinct English canonical and BETCCO-localized Arabic titles. The Arabic wording is platform localization, not a claim of official Pearson Arabic publication. The seed replaces only blank or English-copied Arabic placeholders and preserves distinct administrator-edited Arabic titles, Unit IDs, codes, English titles, and source references.
 - Localization: catalogue and planning APIs expose persisted Arabic and English qualification/Unit names, while locale-aware API services select the student-facing language. Admin and Teacher UI selectors choose from those API fields. The Admin catalogue shows both Unit titles and allows SystemAdmin to correct the BETCCO Arabic display title without changing Pearson English identity. Missing translations use a controlled opposite-language fallback.
@@ -167,7 +176,7 @@ These entries are merged repository evidence only; new behavior changes still re
 
 Done: Main contains the versioned criterion/rule and qualification snapshot foundations, the additive ASSESS academic identity foundation from PR #28 (`UnitDefinition`, `AssessmentDefinition`, `AssessmentScope`, and the nullable `EvaluationRequest` bridge), authenticity declarations, authorised resubmission records, internal-verification sampling, appeals, structured assessment-audit export, formal visual PDF reporting, authorised paid Retakes from PR #36, and Evaluator-specialism routing Slice 1 from PR #38. ASSESS Slices 1–3 are DONE: the canonical academic chain is `QualificationVersion` → `UnitDefinition` → `LearningAimDefinition` → `AssessmentCriterionDefinition`, with `AssessmentDefinition` → `AssessmentScope`; `EvaluationRequest` remains the ASSESS aggregate root and a Retake is another new linked `EvaluationRequest`. Evaluator assignment requires an active UnitDefinition specialism grant checked server-side, and each new assignment retains the exact grant evidence. The structured audit export now uses the safe v2 contract: raw internal identifiers and sensitive implementation metadata are structurally excluded, academic traceability is preserved, actor-role attribution is corrected, unsupported historical RBAC precision is not fabricated, and deterministic SHA-256 integrity is preserved. The PDF includes assignment/task, submission/evidence, assessor/internal-verifier/lead-internal-verifier/appeal-review, and academic audit/history context; excludes sensitive storage/internal IDs; retains neutral/non-official BTEC wording; and has verified Arabic/English, multipage, and Linux/Windows font-layout compatibility with required CI green. PR #34 separately completed student-specific LEARN coursework deadline extensions without changing `EvaluationRequest` or `ResubmissionAuthorization.DueAtUtc`; LEARN remains separate from ASSESS.
 
-Remaining: Resit, admin-configurable Retake pricing, automatic Appeal → Retake, broader ASSESS reasonable adjustments beyond the completed LEARN coursework deadline slice, and the unmerged canonical LEARN unit branch remain unresolved on `main`. AcademicYear/Term/DeliveryPlan Slice 1 is merged through PR #45. Production payment/provider validation and production operations remain outstanding.
+Remaining: Resit, admin-configurable Retake pricing, automatic Appeal → Retake, and broader ASSESS reasonable adjustments beyond the completed LEARN coursework deadline slice remain unresolved on `main`. Canonical LEARN units and AcademicYear/Term/DeliveryPlan Slice 1 are merged through PRs #46 and #45. Production payment/provider validation and production operations remain outstanding.
 
 ### Privacy and compliance workflow core
 
@@ -217,11 +226,11 @@ Live progress is tracked in OPEN Draft PRs, and repository evidence wins over co
 
 Maximum active implementation workstreams: **2**
 
-At the 2026-09-23 preflight, GitHub reported no OPEN PRs; PR #45 was already merged. Lenovo's `feature/canonical-learn-unit-migration` is local only. ASUS may have independent local work that is not visible through GitHub; reconcile shared hotspots and migration order before either device pushes.
+At the 2026-09-24 preflight, GitHub reported no OPEN PRs. PRs #46 and #47 are merged; the Account/Profile/Security Phase 1 branch remains local. Recheck live GitHub and shared hotspots before its user-managed push.
 
 ## Next Actions
 
-- Lenovo next action: user-managed push of `feature/canonical-learn-unit-migration`, then PR, remote CI, review, and merge. Recheck ASUS changes and migration order before push.
+- Lenovo next action: user-managed push of `feature/account-security-ui-phase1`, then PR, remote CI, review, and merge. Recheck live `main` and open Draft PR scopes before push.
 - Task 6: DONE — Media / Video Foundation + Secure Delivery. PR #18 merged with required CI green.
 - Slice 1: DONE — ASSESS academic identity foundation. PR #28 merged with required CI green.
 - Slice 2: DONE — Versioned Learning Aims / Criteria + AssessmentDefinition publication/source mapping + Qualification/Rubric compatibility enforcement. PR #30 merged with required CI green.
@@ -233,7 +242,7 @@ At the 2026-09-23 preflight, GitHub reported no OPEN PRs; PR #45 was already mer
 - CI reproducibility hardening Slice 1: DONE — GitHub Actions and direct workflow container references are pinned to verified immutable identifiers in the three CI workflows. PR #41 merged without changing CI semantics.
 - SLA / Expected Completion Workflow Slice 1: DONE — append-only server-owned operational targets with NotSet/OnTrack/Overdue coordination state. PR #43 merged; no fixed SLA duration was introduced.
 - AcademicYear / Term / DeliveryPlan Slice 1: DONE and merged through PR #45; planning and course delivery remain separate.
-- Canonical LEARN unit migration: locally implemented in this branch; ambiguous historical modules need explicit evidence-backed reconciliation after integration. Resit remains unimplemented. Admin-configurable Retake pricing and broader ASSESS reasonable adjustments remain unresolved.
+- Canonical LEARN unit migration: merged through PR #46; ambiguous historical modules still need explicit evidence-backed reconciliation. Resit remains unimplemented. Admin-configurable Retake pricing and broader ASSESS reasonable adjustments remain unresolved.
 
 Definition of Done for each workstream: implementation is reviewed, required CI is green, its PR is merged into `main`, and this document is reconciled with the new merged state.
 
@@ -282,7 +291,7 @@ Do not reopen these areas merely because a later account lacks conversation memo
 - PR #26 is merged into `main` at `23ff9d3926a079d72871e68a4950805a5cd947e2`; the `/en/about` WebKit React #418 hydration mismatch is resolved with consistent locale-aware server/client settings, seeded React Query hydration, and a bounded 3000ms server fetch timeout with localized fallbacks. Unit verification was 9/9 and production HTTPS browser verification was 4/4.
 - PR #20 is merged into `main` at `25b25e30e3dc1e6a63025d4308073545e00412e9`; full-stack browser UAT completed 7/7 with required `/en/about` WebKit iPhone 14 regression coverage, strict page-error and overflow assertions, and no production or database changes.
 - PR #28 is merged into `main` at `be2b275b02a5c1f31aaead68c2fe32784d50bc11`; the ASSESS academic identity foundation is DONE with additive `UnitDefinition`, `AssessmentDefinition`, `AssessmentScope`, and a nullable `EvaluationRequest` bridge. No historic backfill or destructive migration was performed. Subsequent PRs #30 and #32 completed academic authoring, scope selection, and snapshots; PR #38 completed evaluator-specialism routing. Assessment Coordinator capabilities Slice 1 was completed by PR #40.
-- PR #30 is merged into `main` at `689b87280ecf27b1d4f825092e8f814066e9ccd4`; versioned academic authoring, canonical aims and criteria, definition mappings, source/publication rules, qualification/rubric compatibility, and the bilingual Admin Academic Catalogue are DONE. Slice 3 subsequently completed AssessmentScope selection and the immutable EvaluationRequest academic snapshot; PR #34 completed LEARN coursework deadline extensions; PR #36 completed authorised paid assessment Retakes; PR #38 completed evaluator-specialism routing; PR #45 completed AcademicYear/Term/DeliveryPlan Slice 1. Resit, admin-configurable Retake pricing, and automatic Appeal → Retake remain future work. Canonical LEARN unit work is local and unmerged.
+- PR #30 is merged into `main` at `689b87280ecf27b1d4f825092e8f814066e9ccd4`; versioned academic authoring, canonical aims and criteria, definition mappings, source/publication rules, qualification/rubric compatibility, and the bilingual Admin Academic Catalogue are DONE. Slice 3 subsequently completed AssessmentScope selection and the immutable EvaluationRequest academic snapshot; PR #34 completed LEARN coursework deadline extensions; PR #36 completed authorised paid assessment Retakes; PR #38 completed evaluator-specialism routing; PR #45 completed AcademicYear/Term/DeliveryPlan Slice 1; PR #46 completed canonical LEARN unit links; and PR #47 completed Pearson academic catalogue authority and Admin programme planning. Resit, admin-configurable Retake pricing, and automatic Appeal → Retake remain future work.
 - PR #32 is merged into `main` at `5321baa7f64eb06c6affd9e0bac94f28a52dc825`; AssessmentScope selection and immutable academic snapshot creation are DONE. The nullable legacy bridge remains supported, with no historical backfill or destructive migration. The transitional `TaskTypeId` dependency remains explicit follow-up work where canonical task-type ownership is not yet fully migrated.
 - PR #34 is merged into `main` at `ab4ace6ef4b1774f3c752c7b7bd5e688531330f1`; Reasonable Adjustments Slice 1 for LEARN coursework deadlines is DONE with an additive migration, no backfill, and no destructive schema operation. Production migration and production smoke verification have not been executed.
 - PR #36 is merged into `main` at `717ddd5b81e2825cdf45dda80bfb4fcac7d7da93`; Retake Slice 1 is DONE with additive migration `20260922182302_AddAssessmentRetakes`, no historical backfill, no destructive schema operation, retained approval history, Retake-only scope protection, one-Retake uniqueness, and `RESTRICT` foreign keys. ResubmissionAuthorization semantics, including `ResubmissionAuthorization.DueAtUtc`, were not changed; LEARN remains separate from ASSESS. Resit, admin-configurable Retake pricing, automatic Appeal → Retake, production migration, production smoke verification, and production payment/provider validation remain outstanding.

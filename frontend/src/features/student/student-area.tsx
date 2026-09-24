@@ -8,6 +8,7 @@ import { academicText } from "@/lib/academic-localization";
 import { MotivationCard } from "@/components/motivation-card";
 import { FilePicker } from "@/components/forms/file-picker";
 import { AccountSecurity } from "@/features/auth/account-security";
+import { AccountLayout } from "@/features/auth/account-layout";
 import { SupportCenter } from "@/features/support/support-center";
 import { EvaluationAppeals } from "@/features/student/evaluation-appeals";
 import {
@@ -34,7 +35,6 @@ import {
   PlayCircle,
   Sparkles,
   StickyNote,
-  ShieldCheck,
   Timer,
   Trophy,
   UserRound,
@@ -164,7 +164,7 @@ export function StudentArea({
   if (current === "support") content = <SupportCenter mode="student" />;
   if (current === "account") content = <StudentAccount />;
   if (current === "purchases") content = <StudentPurchases />;
-  if (current === "security") content = <AccountSecurity />;
+  if (current === "security") content = <AccountSecurity role="student" />;
   return (
     <>
       <StudentWorkspaceNav current={current} />
@@ -631,28 +631,10 @@ function StudentAccount() {
       new Date(first.endsAtUtc).getTime(),
   );
   return (
-    <section className="shell py-10">
-      <DashboardHeader
-        eyebrow="BETCCO ACCOUNT"
-        title={locale === "ar" ? "حسابي" : "My account"}
-        description={
-          locale === "ar"
-            ? "حدّث بياناتك الأساسية، وراجع عضوياتك ودفعاتك من مكان واحد. لا يتم تغيير البريد الإلكتروني من هذه الصفحة حفاظًا على التحقق والأمان."
-            : "Update your basic details and review memberships and payments in one place. Email changes stay outside this page to preserve verification and account security."
-        }
-        actions={
-          <Link
-            href={`/${locale}/student/security`}
-            className="focus-ring inline-flex items-center gap-2 rounded-xl border border-border px-4 py-3 text-sm font-black text-foreground"
-          >
-            <ShieldCheck size={18} aria-hidden="true" />
-            {locale === "ar" ? "أمان الحساب" : "Account security"}
-          </Link>
-        }
-      />
-      <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
+    <AccountLayout role="student" active="profile">
+      <div className="mt-6 grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
         <form
-          className="card p-5 sm:p-6"
+          className="card min-w-0 p-5 sm:p-6"
           onSubmit={(event) => {
             event.preventDefault();
             setNotice(null);
@@ -770,7 +752,7 @@ function StudentAccount() {
             </div>
           )}
         </form>
-        <section className="card p-5 sm:p-6">
+        <section className="card min-w-0 p-5 sm:p-6">
           <div className="flex items-start gap-3">
             <span className="grid size-11 place-items-center rounded-xl bg-primary/15 text-primary">
               <CreditCard size={22} aria-hidden="true" />
@@ -855,7 +837,7 @@ function StudentAccount() {
           </Link>
         </section>
       </div>
-    </section>
+    </AccountLayout>
   );
 }
 

@@ -2,6 +2,7 @@
 
 import { api } from "@/lib/api";
 import { AccountSecurity } from "@/features/auth/account-security";
+import { AccountProfile } from "@/features/auth/account-profile";
 import { CourseEditor } from "@/features/teacher/course-editor";
 import {
   TeacherCoursesManagement,
@@ -42,7 +43,8 @@ export function TeacherArea({ segment }: { segment: string[] }) {
   if (current === "courses") return <TeacherCoursesManagement />;
   if (current === "students") return <TeacherStudentFollowUp />;
   if (current === "wallet") return <TeacherWallet />;
-  if (current === "security") return <AccountSecurity />;
+  if (current === "profile") return <AccountProfile role="teacher" />;
+  if (current === "security") return <AccountSecurity role="teacher" />;
   if (current === "evaluations") return <TeacherEvaluations />;
   if (current.startsWith("evaluations/") && segment[1])
     return <TeacherEvaluationReview evaluationId={segment[1]} />;
