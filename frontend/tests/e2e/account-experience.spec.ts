@@ -4,6 +4,204 @@ const roles = ["student", "teacher", "support", "admin"] as const;
 const locales = ["en", "ar"] as const;
 const widths = [1280, 390] as const;
 
+test("staff can leave an unfinished MFA enrollment", async ({ page }) => {
+  let signedOut = false;
+  await page.route("**/api/v1/**", async (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (path === "/api/v1/auth/me")
+      return route.fulfill(
+        signedOut
+          ? { status: 401, contentType: "application/json", body: "{}" }
+          : {
+              contentType: "application/json",
+              body: JSON.stringify({
+                roles: ["SupportAdmin"],
+                requiresMfaEnrollment: true,
+              }),
+            },
+      );
+    if (path === "/api/v1/auth/two-factor")
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({
+          isEnabled: false,
+          hasAuthenticator: false,
+          isRequired: true,
+        }),
+      });
+    if (path === "/api/v1/security/antiforgery")
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({ token: "browser-test-token" }),
+      });
+    if (path === "/api/v1/auth/logout") {
+      signedOut = true;
+      return route.fulfill({ status: 204 });
+    }
+    return route.fulfill({ contentType: "application/json", body: "{}" });
+  });
+  await page.goto("/en/support/accounts");
+  await expect(page).toHaveURL(/\/en\/staff\/security$/);
+  await page.getByRole("button", { name: "Sign out" }).click();
+  await expect(page).toHaveURL(/\/en\/login$/);
+});
+
+for (const { locale, width } of [
+  { locale: "en", width: 1280 },
+  { locale: "ar", width: 1280 },
+  { locale: "ar", width: 390 },
+] as const) {
+  test(`mandatory staff MFA enrollment in ${locale} at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 800 });
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    let enabled = false;
+    await page.route("**/api/v1/**", async (route) => {
+      const path = new URL(route.request().url()).pathname;
+      if (path === "/api/v1/auth/me")
+        return route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify({
+            displayName: "Admin",
+            roles: ["Admin"],
+            requiresMfaEnrollment: !enabled,
+          }),
+        });
+      if (path === "/api/v1/security/antiforgery")
+        return route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify({ token: "browser-test-token" }),
+        });
+      if (path === "/api/v1/auth/two-factor")
+        return route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify({
+            isEnabled: enabled,
+            hasAuthenticator: enabled,
+            isRequired: true,
+          }),
+        });
+      if (path === "/api/v1/auth/two-factor/setup")
+        return route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify({
+            sharedKey: "BROWSERTESTKEY",
+            authenticatorUri: "otpauth://totp/Betcco?secret=BROWSERTESTKEY",
+          }),
+        });
+      if (path === "/api/v1/auth/two-factor/enable") {
+        enabled = true;
+        return route.fulfill({ status: 204 });
+      }
+      if (path === "/api/v1/auth/logout") return route.fulfill({ status: 204 });
+      if (path === "/api/v1/admin/dashboard") {
+        if (!enabled)
+          return route.fulfill({
+            status: 403,
+            contentType: "application/json",
+            body: JSON.stringify({ code: "MFA_ENROLLMENT_REQUIRED" }),
+          });
+        return route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify({
+            period: "30d",
+            fromUtc: "2026-09-01T00:00:00Z",
+            toUtc: "2026-09-30T00:00:00Z",
+            students: 0,
+            activeStudents: 0,
+            teachers: 0,
+            activeTeachers: 0,
+            courses: 0,
+            publishedCourses: 0,
+            units: 0,
+            enrollments: 0,
+            assignments: 0,
+            pendingReviews: 0,
+            pendingApprovals: 0,
+            pendingEvaluations: 0,
+            evaluationsAwaitingVerification: 0,
+            completionRate: 0,
+            orders: 0,
+            activeSubscriptions: 0,
+            refunds: 0,
+            revenue: 0,
+            trend: [],
+          }),
+        });
+      }
+      if (path === "/api/v1/notifications")
+        return route.fulfill({ contentType: "application/json", body: "[]" });
+      return route.fulfill({ contentType: "application/json", body: "{}" });
+    });
+
+    await page.goto(`/${locale}/admin/dashboard`);
+    await expect(page).toHaveURL(new RegExp(`/${locale}/staff/security$`));
+    await expect(
+      page.getByText(
+        locale === "ar"
+          ? /المصادقة الثنائية إلزامية/
+          : /Multi-factor authentication is required/,
+      ),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: locale === "ar" ? "تسجيل الخروج" : "Sign out",
+      }),
+    ).toBeVisible();
+    const blocked = await page.evaluate(async () => {
+      const response = await fetch("/api/v1/admin/dashboard");
+      return { status: response.status, code: (await response.json()).code };
+    });
+    expect(blocked).toEqual({ status: 403, code: "MFA_ENROLLMENT_REQUIRED" });
+    const setupButton = page.getByRole("button", {
+      name:
+        locale === "ar"
+          ? "إعداد تطبيق المصادقة"
+          : "Set up an authenticator app",
+    });
+    await setupButton.focus();
+    await expect(setupButton).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page.getByText("BROWSERTESTKEY")).toBeVisible();
+    await page
+      .getByRole("textbox", {
+        name:
+          locale === "ar"
+            ? "أدخل الرمز المكوّن من 6 أرقام"
+            : "Enter the 6-digit code",
+      })
+      .fill("123456");
+    await page
+      .getByRole("button", {
+        name: locale === "ar" ? "تأكيد التفعيل" : "Confirm and enable",
+      })
+      .click();
+    await expect(page).toHaveURL(new RegExp(`/${locale}/admin/dashboard$`));
+    await expect(
+      page.getByRole("heading", {
+        name: locale === "ar" ? "لوحة الأدمن" : "Admin dashboard",
+      }),
+    ).toBeVisible();
+    const permitted = await page.evaluate(
+      async () => (await fetch("/api/v1/admin/dashboard")).status,
+    );
+    expect(permitted).toBe(200);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
+    expect(
+      await page
+        .locator("#main-content")
+        .evaluate((element) => getComputedStyle(element).direction),
+    ).toBe(locale === "ar" ? "rtl" : "ltr");
+    expect(errors).toEqual([]);
+  });
+}
+
 for (const role of roles) {
   for (const locale of locales) {
     for (const width of widths) {

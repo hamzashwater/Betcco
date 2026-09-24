@@ -4,6 +4,7 @@ using System.Data;
 using System.Text;
 using System.ComponentModel.DataAnnotations;
 using Betcco.Application.Common;
+using Betcco.Api.Authorization;
 using Betcco.Domain.Common;
 using Betcco.Domain.Identity;
 using Betcco.Domain.Platform;
@@ -199,13 +200,18 @@ public sealed class AuthController(
         // audit trail remain the enforcement mechanisms.
         if (await userManager.IsInRoleAsync(user, PlatformRoles.Student))
             await ObserveStudentDeviceAsync(user, cancellationToken);
+        var roles = await userManager.GetRolesAsync(user);
+        var requiresMfaEnrollment = StaffMfaPolicy.RequiresStaffMfa(roles) && !await userManager.GetTwoFactorEnabledAsync(user);
+        if (requiresMfaEnrollment)
+            db.AuditLogs.Add(new AuditLog { ActorUserId = user.Id.ToString(), Action = "StaffMfaEnrollmentRequired", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success" });
         var session = await CreateSessionAsync(user, cancellationToken);
         await signInManager.SignInWithClaimsAsync(user, request.RememberMe, [new Claim(BetccoAuthClaims.SessionId, session.Id.ToString())]);
-        return Ok(new { user = new { id = user.Id, email = user.Email, displayName = user.DisplayName, roles = await userManager.GetRolesAsync(user) } });
+        return Ok(new { user = new { id = user.Id, email = user.Email, displayName = user.DisplayName, roles, requiresMfaEnrollment } });
     }
 
     [Authorize]
     [HttpPost("logout")]
+    [StaffMfaBootstrap]
     public async Task<IActionResult> Logout(CancellationToken cancellationToken)
     {
         var user = await userManager.GetUserAsync(User);
@@ -216,6 +222,7 @@ public sealed class AuthController(
 
     [Authorize]
     [HttpGet("me")]
+    [StaffMfaBootstrap]
     public async Task<IActionResult> Me()
     {
         var user = await userManager.GetUserAsync(User);
@@ -224,7 +231,9 @@ public sealed class AuthController(
             if (user is not null) await signInManager.SignOutAsync();
             return Unauthorized();
         }
-        return Ok(new { id = user.Id, email = user.Email, displayName = user.DisplayName, roles = await userManager.GetRolesAsync(user), isFrozen = user.IsFrozen });
+        var roles = await userManager.GetRolesAsync(user);
+        return Ok(new { id = user.Id, email = user.Email, displayName = user.DisplayName, roles, isFrozen = user.IsFrozen,
+            requiresMfaEnrollment = StaffMfaPolicy.RequiresStaffMfa(roles) && !await userManager.GetTwoFactorEnabledAsync(user) });
     }
 
     [Authorize]
@@ -414,6 +423,7 @@ public sealed class AuthController(
 
     [Authorize]
     [HttpGet("two-factor")]
+    [StaffMfaBootstrap]
     public async Task<IActionResult> TwoFactorStatus()
     {
         var user = await userManager.GetUserAsync(User);
@@ -422,12 +432,14 @@ public sealed class AuthController(
         return Ok(new
         {
             isEnabled = await userManager.GetTwoFactorEnabledAsync(user),
-            hasAuthenticator = !string.IsNullOrWhiteSpace(authenticatorKey)
+            hasAuthenticator = !string.IsNullOrWhiteSpace(authenticatorKey),
+            isRequired = StaffMfaPolicy.RequiresStaffMfa(await userManager.GetRolesAsync(user))
         });
     }
 
     [Authorize]
     [HttpPost("two-factor/setup")]
+    [StaffMfaBootstrap]
     [EnableRateLimiting("auth")]
     public async Task<IActionResult> SetupTwoFactor(CancellationToken cancellationToken)
     {
@@ -453,6 +465,7 @@ public sealed class AuthController(
 
     [Authorize]
     [HttpPost("two-factor/enable")]
+    [StaffMfaBootstrap]
     [EnableRateLimiting("auth")]
     public async Task<IActionResult> EnableTwoFactor(TwoFactorCodeRequest request, CancellationToken cancellationToken)
     {
@@ -462,21 +475,44 @@ public sealed class AuthController(
         if (!await VerifyAuthenticatorCodeAsync(user, request.Code))
             return BadRequest(new { code = "TWO_FACTOR_INVALID", message = "The authenticator code is invalid or expired." });
 
+        await using var transaction = db.Database.IsRelational()
+            ? await db.Database.BeginTransactionAsync(cancellationToken)
+            : null;
         var result = await userManager.SetTwoFactorEnabledAsync(user, true);
         if (!result.Succeeded) return BadRequest(new ValidationProblemDetails(result.Errors.ToDictionary(x => x.Code, x => new[] { x.Description })));
-        await RefreshCurrentSessionCookieAsync(user, cancellationToken);
+        if (StaffMfaPolicy.RequiresStaffMfa(await userManager.GetRolesAsync(user)))
+        {
+            var stampResult = await userManager.UpdateSecurityStampAsync(user);
+            if (!stampResult.Succeeded) return BadRequest(new ValidationProblemDetails(stampResult.Errors.ToDictionary(x => x.Code, x => new[] { x.Description })));
+            // A password-only bootstrap session must not gain privileged access when
+            // this browser finishes enrollment. End every other active session.
+            var currentSessionId = GetCurrentSessionId();
+            var otherSessions = await db.UserSessions.Where(session => session.UserId == user.Id.ToString()
+                && session.Id != currentSessionId && session.RevokedAtUtc == null && !session.IsDeleted).ToListAsync(cancellationToken);
+            foreach (var session in otherSessions)
+            {
+                session.RevokedAtUtc = DateTimeOffset.UtcNow;
+                session.RevokedByUserId = user.Id.ToString();
+                session.RevocationReason = "MFA enrolled";
+            }
+        }
         db.AuditLogs.Add(new AuditLog { ActorUserId = user.Id.ToString(), Action = "TwoFactorEnabled", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success" });
         await db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+        await RefreshCurrentSessionCookieAsync(user, cancellationToken);
         return NoContent();
     }
 
     [Authorize]
     [HttpPost("two-factor/disable")]
+    [StaffMfaBootstrap]
     [EnableRateLimiting("auth")]
     public async Task<IActionResult> DisableTwoFactor(TwoFactorCodeRequest request, CancellationToken cancellationToken)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null) return Unauthorized();
+        if (StaffMfaPolicy.RequiresStaffMfa(await userManager.GetRolesAsync(user)))
+            return StatusCode(StatusCodes.Status403Forbidden, new { code = "STAFF_MFA_REQUIRED", message = "Multi-factor authentication is required for this staff account." });
         if (!await userManager.GetTwoFactorEnabledAsync(user)) return NoContent();
         if (!await VerifyAuthenticatorCodeAsync(user, request.Code))
             return BadRequest(new { code = "TWO_FACTOR_INVALID", message = "The authenticator code is invalid or expired." });
