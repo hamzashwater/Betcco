@@ -14,6 +14,71 @@ namespace Betcco.IntegrationTests;
 
 public sealed class AcademicProgrammeAuthorityTests
 {
+    [Theory]
+    [InlineData("simple")]
+    [InlineData("hyphenated-slug")]
+    [InlineData("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
+    public async Task Academic_taxonomy_accepts_valid_slugs_on_specialization_and_grade_create_and_update(string slug)
+    {
+        await using var db = Context();
+        var track = BtecTrack();
+        db.LearningTracks.Add(track);
+        await db.SaveChangesAsync();
+        var controller = new AdminAcademicTaxonomyController(db)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+        controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim(ClaimTypes.NameIdentifier, "admin")], "test"));
+        var request = new SaveAcademicTaxonomyRequest(track.Id, slug, "اسم عربي", "English name", 1);
+
+        Assert.IsType<CreatedResult>(await controller.CreateSpecialization(request, default));
+        Assert.IsType<CreatedResult>(await controller.CreateGrade(request, default));
+        var specialization = await db.Specializations.SingleAsync();
+        var grade = await db.Grades.SingleAsync();
+        Assert.Equal(slug, specialization.Slug);
+        Assert.Equal(slug, grade.Slug);
+        Assert.IsType<NoContentResult>(await controller.UpdateSpecialization(specialization.Id,
+            request with { EnglishName = "Updated specialization" }, default));
+        Assert.IsType<NoContentResult>(await controller.UpdateGrade(grade.Id,
+            request with { EnglishName = "Updated grade" }, default));
+        Assert.Equal("Updated specialization", specialization.EnglishName);
+        Assert.Equal("Updated grade", grade.EnglishName);
+    }
+
+    [Fact]
+    public async Task Academic_taxonomy_rejects_invalid_and_oversized_slugs_on_all_write_paths()
+    {
+        await using var db = Context();
+        var track = BtecTrack();
+        var specialization = new Specialization { LearningTrackId = track.Id, Slug = "existing-specialization", ArabicName = "تخصص", EnglishName = "Specialization" };
+        var grade = new Grade { LearningTrackId = track.Id, Slug = "existing-grade", ArabicName = "صف", EnglishName = "Grade" };
+        db.AddRange(track, specialization, grade);
+        await db.SaveChangesAsync();
+        var controller = new AdminAcademicTaxonomyController(db)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+        controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim(ClaimTypes.NameIdentifier, "admin")], "test"));
+        string[] invalidSlugs = [" ", "-leading", "trailing-", "repeated--hyphen", "Uppercase",
+            new string('a', 100) + " ", new string('a', 100) + "a", new string('a', 100_000) + "! "];
+
+        foreach (var slug in invalidSlugs)
+        {
+            var request = new SaveAcademicTaxonomyRequest(track.Id, slug, "اسم عربي", "Changed", 1);
+            Assert.IsType<BadRequestObjectResult>(await controller.CreateSpecialization(request, default));
+            Assert.IsType<BadRequestObjectResult>(await controller.CreateGrade(request, default));
+            Assert.IsType<BadRequestObjectResult>(await controller.UpdateSpecialization(specialization.Id, request, default));
+            Assert.IsType<BadRequestObjectResult>(await controller.UpdateGrade(grade.Id, request, default));
+        }
+
+        Assert.Equal(1, await db.Specializations.CountAsync());
+        Assert.Equal(1, await db.Grades.CountAsync());
+        Assert.Equal("Specialization", specialization.EnglishName);
+        Assert.Equal("Grade", grade.EnglishName);
+    }
+
     [Fact]
     public async Task Clean_seed_adds_only_it_and_business_and_admin_can_create_future_specializations()
     {

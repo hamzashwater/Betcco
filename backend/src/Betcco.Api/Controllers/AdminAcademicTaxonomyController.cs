@@ -106,8 +106,9 @@ public sealed class AdminAcademicTaxonomyController(BetccoDbContext db) : Contro
     }
 
     private static bool Valid(SaveAcademicTaxonomyRequest request) => request.LearningTrackId != Guid.Empty
-        && !string.IsNullOrWhiteSpace(request.Slug) && Regex.IsMatch(request.Slug.Trim(), "^[a-z0-9]+(?:-[a-z0-9]+)*$")
-        && request.Slug.Length <= 100 && !string.IsNullOrWhiteSpace(request.ArabicName) && request.ArabicName.Length <= 120
+        && !string.IsNullOrWhiteSpace(request.Slug) && request.Slug.Length <= 100
+        && Regex.IsMatch(request.Slug.Trim(), "^[a-z0-9]+(?:-[a-z0-9]+)*$", RegexOptions.NonBacktracking)
+        && !string.IsNullOrWhiteSpace(request.ArabicName) && request.ArabicName.Length <= 120
         && !string.IsNullOrWhiteSpace(request.EnglishName) && request.EnglishName.Length <= 120
         && request.SortOrder is >= 0 and <= 10_000;
 
