@@ -147,6 +147,10 @@ test("@golden-path full-stack student, admin and teacher journey", async ({
   const studentPassword = `Aa!${Date.now()}StudentUat`;
 
   await registerStudent(page, studentEmail, studentPassword);
+  await page
+    .getByRole("dialog", { name: "Cookie choices" })
+    .getByRole("button", { name: "Accept all" })
+    .click();
   await signIn(
     page,
     studentEmail,
@@ -223,13 +227,48 @@ test("@golden-path full-stack student, admin and teacher journey", async ({
       response.request().method() === "POST",
   );
   await page.getByRole("button", { name: "Confirm and enable" }).click();
-  expect((await enableResponsePromise).status()).toBe(204);
+  const enableResponse = await enableResponsePromise;
+  expect(enableResponse.status()).toBe(200);
+  const recoveryCodes = (
+    (await enableResponse.json()) as { recoveryCodes: string[] }
+  ).recoveryCodes;
+  expect(recoveryCodes).toHaveLength(10);
+  await page
+    .getByRole("checkbox", { name: "I saved these codes securely" })
+    .check();
+  await page.getByRole("button", { name: "Continue" }).click();
   await expect(page).toHaveURL(/\/en\/admin\/dashboard$/);
   expect(
     await page.evaluate(
       async () => (await fetch("/api/v1/admin/dashboard")).status,
     ),
   ).toBe(200);
+
+  await page.context().clearCookies();
+  await page.goto("/en/login");
+  expect(
+    await loginWithRecoveryCode(
+      page,
+      adminEmail,
+      adminPassword,
+      recoveryCodes[0],
+    ),
+  ).toBe(200);
+  await page.goto("/en/admin/dashboard");
+  expect(
+    await page.evaluate(
+      async () => (await fetch("/api/v1/admin/dashboard")).status,
+    ),
+  ).toBe(200);
+  expect(
+    await loginWithRecoveryCode(
+      page,
+      adminEmail,
+      adminPassword,
+      recoveryCodes[0],
+    ),
+  ).toBe(401);
+  recoveryCodes.length = 0;
 
   for (const route of adminRoutes) await assertRouteUsable(page, route);
 
@@ -336,6 +375,35 @@ async function signIn(
   await expect(page).toHaveURL(target);
 }
 
+async function loginWithRecoveryCode(
+  page: Page,
+  email: string,
+  password: string,
+  code: string,
+) {
+  return page.evaluate(
+    async ({ email, password, code }) => {
+      const csrf = await fetch("/api/v1/security/antiforgery", {
+        credentials: "include",
+      });
+      const { token } = (await csrf.json()) as { token: string };
+      const response = await fetch("/api/v1/auth/login", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": token },
+        body: JSON.stringify({
+          email,
+          password,
+          rememberMe: false,
+          twoFactorRecoveryCode: code,
+        }),
+      });
+      return response.status;
+    },
+    { email, password, code },
+  );
+}
+
 async function assertRouteUsable(page: Page, route: string) {
   const response = await page.goto(route, { waitUntil: "domcontentloaded" });
   expect(response, `No navigation response for ${route}`).not.toBeNull();
@@ -392,7 +460,7 @@ async function waitForTeacherResetUrl(
           .replaceAll("=\\r\\n", "")
           .replaceAll("=\\n", "");
         const match = body.match(
-          /https?:\/\/localhost:3000\/ar\/reset-password\?userId=[^"\s<]+&token=[^"\\\s<]+/,
+          /https?:\/\/localhost:\d+\/ar\/reset-password\?userId=[^"\s<]+&token=[^"\\\s<]+/,
         );
         if (match) return match[0];
       }

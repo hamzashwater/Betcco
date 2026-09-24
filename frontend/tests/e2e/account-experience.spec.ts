@@ -1,8 +1,97 @@
 import { expect, test } from "@playwright/test";
 
+test.use({ trace: "off", screenshot: "off", video: "off" });
+
 const roles = ["student", "teacher", "support", "admin"] as const;
 const locales = ["en", "ar"] as const;
 const widths = [1280, 390] as const;
+
+for (const { locale, width } of [
+  { locale: "en", width: 1280 },
+  { locale: "ar", width: 390 },
+] as const) {
+  test(`recovery login choice in ${locale} at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 });
+    let recoverySubmitted = false;
+    let authenticated = false;
+    await page.route("**/api/v1/**", async (route) => {
+      const path = new URL(route.request().url()).pathname;
+      if (path === "/api/v1/security/antiforgery")
+        return route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify({ token: "test-token" }),
+        });
+      if (path === "/api/v1/auth/login") {
+        const body = route.request().postDataJSON() as {
+          twoFactorCode?: string | null;
+          twoFactorRecoveryCode?: string | null;
+        };
+        if (body.twoFactorRecoveryCode) {
+          recoverySubmitted = body.twoFactorCode == null;
+          authenticated = true;
+          return route.fulfill({
+            contentType: "application/json",
+            body: JSON.stringify({
+              user: { roles: ["Teacher"], requiresMfaEnrollment: false },
+            }),
+          });
+        }
+        return route.fulfill({
+          status: 401,
+          contentType: "application/json",
+          body: JSON.stringify({ code: "TWO_FACTOR_REQUIRED" }),
+        });
+      }
+      if (path === "/api/v1/auth/me")
+        return route.fulfill(
+          authenticated
+            ? {
+                contentType: "application/json",
+                body: JSON.stringify({
+                  roles: ["Teacher"],
+                  requiresMfaEnrollment: false,
+                }),
+              }
+            : { status: 401, contentType: "application/json", body: "{}" },
+        );
+      if (path === "/api/v1/notifications")
+        return route.fulfill({ contentType: "application/json", body: "[]" });
+      return route.fulfill({ contentType: "application/json", body: "{}" });
+    });
+    await page.goto(`/${locale}/login`);
+    await page
+      .getByRole("textbox", {
+        name: locale === "ar" ? "البريد الإلكتروني" : "Email",
+      })
+      .fill("teacher@example.test");
+    await page
+      .getByLabel(locale === "ar" ? "كلمة المرور" : "Password", { exact: true })
+      .fill("T!estPassword123");
+    await page
+      .getByRole("button", { name: locale === "ar" ? "دخول" : "Sign in" })
+      .click();
+    const useRecovery = page.getByRole("button", {
+      name: locale === "ar" ? "استخدام رمز استرداد" : "Use a recovery code",
+    });
+    await expect(useRecovery).toBeVisible();
+    await useRecovery.click();
+    const input = page.getByRole("textbox", {
+      name: locale === "ar" ? "رمز الاسترداد" : "Recovery code",
+    });
+    await expect(input).not.toHaveAttribute("maxlength", "6");
+    await input.fill("example-recovery-code");
+    await page
+      .getByRole("button", { name: locale === "ar" ? "دخول" : "Sign in" })
+      .click();
+    await expect(page).toHaveURL(new RegExp(`/${locale}/teacher/dashboard$`));
+    expect(recoverySubmitted).toBe(true);
+    const dimensions = await page.evaluate(() => ({
+      scroll: document.documentElement.scrollWidth,
+      viewport: innerWidth,
+    }));
+    expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.viewport);
+  });
+}
 
 test("staff can leave an unfinished MFA enrollment", async ({ page }) => {
   let signedOut = false;
@@ -91,6 +180,7 @@ for (const { locale, width } of [
             isEnabled: enabled,
             hasAuthenticator: enabled,
             isRequired: true,
+            recoveryCodesLeft: enabled ? 2 : 0,
           }),
         });
       if (path === "/api/v1/auth/two-factor/setup")
@@ -103,7 +193,13 @@ for (const { locale, width } of [
         });
       if (path === "/api/v1/auth/two-factor/enable") {
         enabled = true;
-        return route.fulfill({ status: 204 });
+        return route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify({
+            recoveryCodes: ["example-1", "example-2"],
+            recoveryCodesLeft: 2,
+          }),
+        });
       }
       if (path === "/api/v1/auth/logout") return route.fulfill({ status: 204 });
       if (path === "/api/v1/admin/dashboard") {
@@ -191,6 +287,18 @@ for (const { locale, width } of [
       .getByRole("button", {
         name: locale === "ar" ? "تأكيد التفعيل" : "Confirm and enable",
       })
+      .click();
+    await expect(page.getByText("example-1")).toBeVisible();
+    await page
+      .getByRole("checkbox", {
+        name:
+          locale === "ar"
+            ? "حفظت الرموز في مكان آمن"
+            : "I saved these codes securely",
+      })
+      .check();
+    await page
+      .getByRole("button", { name: locale === "ar" ? "متابعة" : "Continue" })
       .click();
     await expect(page).toHaveURL(new RegExp(`/${locale}/admin/dashboard$`));
     await expect(

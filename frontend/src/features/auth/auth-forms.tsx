@@ -109,6 +109,7 @@ const loginSchema = z.object({
   password: z.string().min(1),
   rememberMe: z.boolean(),
   twoFactorCode: z.string().trim().optional(),
+  twoFactorRecoveryCode: z.string().trim().optional(),
 });
 type LoginValues = z.infer<typeof loginSchema>;
 const forgotPasswordSchema = z.object({ email: z.string().trim().email() });
@@ -157,6 +158,14 @@ function authErrorMessage(error: unknown, locale: string) {
     return locale === "ar"
       ? "رمز تطبيق المصادقة غير صحيح أو انتهت صلاحيته."
       : "The authenticator code is invalid or expired.";
+  }
+  if (
+    error instanceof ApiError &&
+    error.code === "TWO_FACTOR_RECOVERY_CODE_INVALID"
+  ) {
+    return locale === "ar"
+      ? "رمز الاسترداد غير صحيح أو مستخدم."
+      : "The recovery code is invalid or already used.";
   }
   if (error instanceof ApiError && error.code === "PASSWORD_CHANGE_REQUIRED") {
     return locale === "ar"
@@ -643,6 +652,9 @@ export function LoginForm() {
   const queryClient = useQueryClient();
   const [showPassword, setShowPassword] = useState(false);
   const [requiresTwoFactor, setRequiresTwoFactor] = useState(false);
+  const [twoFactorMethod, setTwoFactorMethod] = useState<
+    "authenticator" | "recovery"
+  >("authenticator");
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -650,11 +662,14 @@ export function LoginForm() {
       password: "",
       rememberMe: false,
       twoFactorCode: "",
+      twoFactorRecoveryCode: "",
     },
   });
   const request = useMutation({
-    mutationFn: (values: LoginValues) =>
-      api<{
+    mutationFn: () => {
+      const values = form.getValues();
+      form.setValue("twoFactorRecoveryCode", "");
+      return api<{
         user: {
           displayName: string;
           roles: string[];
@@ -664,10 +679,19 @@ export function LoginForm() {
         method: "POST",
         body: JSON.stringify({
           ...values,
-          twoFactorCode: values.twoFactorCode || null,
+          twoFactorCode:
+            twoFactorMethod === "authenticator"
+              ? values.twoFactorCode || null
+              : null,
+          twoFactorRecoveryCode:
+            twoFactorMethod === "recovery"
+              ? values.twoFactorRecoveryCode || null
+              : null,
         }),
-      }),
+      });
+    },
     onSuccess: (result) => {
+      form.setValue("twoFactorRecoveryCode", "");
       invalidateCsrfToken();
       queryClient.setQueryData(["current-user"], result.user);
       void queryClient.invalidateQueries({ queryKey: ["current-user"] });
@@ -693,6 +717,7 @@ export function LoginForm() {
       router.refresh();
     },
     onError: (error) => {
+      form.setValue("twoFactorRecoveryCode", "");
       if (
         error instanceof ApiError &&
         error.code === "PASSWORD_CHANGE_REQUIRED"
@@ -703,16 +728,25 @@ export function LoginForm() {
       if (
         error instanceof ApiError &&
         (error.code === "TWO_FACTOR_REQUIRED" ||
-          error.code === "TWO_FACTOR_INVALID")
+          error.code === "TWO_FACTOR_INVALID" ||
+          error.code === "TWO_FACTOR_RECOVERY_CODE_INVALID")
       ) {
         setRequiresTwoFactor(true);
-        window.setTimeout(() => form.setFocus("twoFactorCode"), 0);
+        window.setTimeout(
+          () =>
+            form.setFocus(
+              twoFactorMethod === "recovery"
+                ? "twoFactorRecoveryCode"
+                : "twoFactorCode",
+            ),
+          0,
+        );
       }
     },
   });
   return (
     <form
-      onSubmit={form.handleSubmit((values) => request.mutate(values))}
+      onSubmit={form.handleSubmit(() => request.mutate())}
       className="card mx-auto grid max-w-md gap-4 p-6"
     >
       <h1 className="text-3xl font-black">
@@ -742,26 +776,78 @@ export function LoginForm() {
         </span>
       </Field>
       {requiresTwoFactor && (
-        <Field
-          label={
-            locale === "ar"
-              ? "رمز تطبيق المصادقة (6 أرقام)"
-              : "Authenticator code (6 digits)"
-          }
-          error={form.formState.errors.twoFactorCode?.message}
-        >
-          <input
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            maxLength={6}
-            className="font-mono tracking-[0.25em]"
-            {...form.register("twoFactorCode", {
-              onChange: (event) => {
-                event.target.value = event.target.value.replace(/\D/g, "");
-              },
-            })}
-          />
-        </Field>
+        <div className="grid gap-3">
+          <div
+            className="flex flex-wrap gap-2"
+            role="group"
+            aria-label={
+              locale === "ar" ? "طريقة التحقق" : "Verification method"
+            }
+          >
+            <button
+              type="button"
+              aria-pressed={twoFactorMethod === "authenticator"}
+              onClick={() => {
+                setTwoFactorMethod("authenticator");
+                form.setValue("twoFactorRecoveryCode", "");
+              }}
+              className="focus-ring rounded-lg border border-border px-3 py-2 text-sm font-bold aria-pressed:bg-primary/20"
+            >
+              {locale === "ar" ? "رمز تطبيق المصادقة" : "Authenticator code"}
+            </button>
+            <button
+              type="button"
+              aria-pressed={twoFactorMethod === "recovery"}
+              onClick={() => {
+                setTwoFactorMethod("recovery");
+                form.setValue("twoFactorCode", "");
+              }}
+              className="focus-ring rounded-lg border border-border px-3 py-2 text-sm font-bold aria-pressed:bg-primary/20"
+            >
+              {locale === "ar" ? "استخدام رمز استرداد" : "Use a recovery code"}
+            </button>
+          </div>
+          {twoFactorMethod === "authenticator" ? (
+            <Field
+              label={
+                locale === "ar"
+                  ? "رمز تطبيق المصادقة (6 أرقام)"
+                  : "Authenticator code (6 digits)"
+              }
+              error={form.formState.errors.twoFactorCode?.message}
+            >
+              <input
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                className="font-mono tracking-[0.25em]"
+                {...form.register("twoFactorCode", {
+                  onChange: (event) => {
+                    event.target.value = event.target.value.replace(/\D/g, "");
+                  },
+                })}
+              />
+            </Field>
+          ) : (
+            <Field
+              label={locale === "ar" ? "رمز الاسترداد" : "Recovery code"}
+              error={form.formState.errors.twoFactorRecoveryCode?.message}
+            >
+              <input
+                autoComplete="off"
+                className="min-w-0 font-mono"
+                {...form.register("twoFactorRecoveryCode")}
+              />
+            </Field>
+          )}
+          {twoFactorMethod === "recovery" && (
+            <p className="text-sm text-muted">
+              {locale === "ar"
+                ? "يمكن استخدام كل رمز استرداد مرة واحدة فقط."
+                : "Each recovery code can be used only once."}
+            </p>
+          )}
+        </div>
       )}
       <label className="flex gap-2 text-sm">
         <input type="checkbox" {...form.register("rememberMe")} />
