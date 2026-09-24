@@ -1553,7 +1553,7 @@ function LearningAccessEditor({
         </h2>
         <p className="mt-1 text-sm leading-6 text-muted">
           {locale === "ar"
-            ? "تُطبَّق الأقفال من الخادم على المشغّل والملفات والاختبارات والمهام، وليس من الواجهة فقط."
+            ? "تُطبَّق الأقفال من الخادم على المشغّل والملفات والمهام، وليس من الواجهة فقط."
             : "Locks are enforced by the server for the player, files, and assignments—not just in the interface."}
         </p>
       </div>
@@ -1573,7 +1573,7 @@ function LearningAccessEditor({
             >
               <option value="">
                 {locale === "ar"
-                  ? "اختر دورة أو وحدة أو درسًا أو اختبارًا أو مهمة"
+                  ? "اختر دورة أو وحدة أو درسًا أو مهمة"
                   : "Choose a course item"}
               </option>
               {items.map((item) => (

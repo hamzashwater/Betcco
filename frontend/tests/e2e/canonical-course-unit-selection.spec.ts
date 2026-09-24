@@ -99,6 +99,8 @@ for (const scenario of [
     });
 
     await page.goto(`/${scenario.locale}/teacher/courses/course-1#curriculum`);
+    await expect(page.locator('a[href="#assignments"]')).toBeVisible();
+    await expect(page.locator('a[href="#quizzes"]')).toHaveCount(0);
     await expect(page.getByText(/question bank|بنك الأسئلة/i)).toHaveCount(0);
     await expect(
       page.locator("option").filter({ hasText: /quiz|اختبار/i }),
@@ -269,7 +271,50 @@ for (const scenario of [
         },
       }),
     );
-    await page.goto(`/${scenario.locale}/student/learn/course-1`);
+    await page.route("**/api/v1/learning/my-courses*", (route) =>
+      route.fulfill({
+        json: {
+          items: [
+            {
+              courseId: "course-1",
+              arabicTitle: "دورة تجريبية",
+              englishTitle: "Example course",
+              localizedTitle:
+                scenario.locale === "ar" ? "دورة تجريبية" : "Example course",
+              completedLessons: 1,
+              totalLessons: 2,
+              publishedModuleCount: 1,
+              progressPercent: 50,
+              progressState: "InProgress",
+              hasCover: false,
+              teacherName: "Teacher",
+              enrolledAtUtc: "2026-09-01T00:00:00Z",
+              accessAvailable: true,
+            },
+          ],
+          page: 1,
+          pageSize: 12,
+          totalCount: 1,
+          summary: {
+            totalCourses: 1,
+            notStarted: 0,
+            inProgress: 1,
+            completed: 0,
+            completedLessons: 1,
+            totalLessons: 2,
+            progressPercent: 50,
+          },
+        },
+      }),
+    );
+    await page.goto(`/${scenario.locale}/student/courses`);
+    await page
+      .locator(`a[href="/${scenario.locale}/student/learn/course-1"]`)
+      .first()
+      .click();
+    await expect(page).toHaveURL(
+      new RegExp(`/${scenario.locale}/student/learn/course-1$`),
+    );
     await expect(page.getByText(scenario.title).first()).toBeVisible();
     await expect(page.getByText("First lesson").first()).toBeVisible();
     await expect(page.getByText("Historical quiz")).toHaveCount(0);

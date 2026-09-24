@@ -178,7 +178,7 @@ function AboutBetcco({ brand }: { brand: BrandSettings }) {
           [
             ar ? "تطبيق وتقييم" : "Apply and assess",
             ar
-              ? "أرسل المهام والاختبارات، وتابع تقييم BTEC المبني على معايير P وM وD داخل حسابك."
+              ? "أرسل المهام، وتابع تقييم BTEC المبني على معايير P وM وD داخل حسابك."
               : "Submit coursework, then follow BTEC evaluation based on P, M, and D criteria in your account.",
           ],
           [
