@@ -1,22 +1,28 @@
 using System.Security.Claims;
+using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Text.Json;
+using Betcco.Api.Authorization;
 using Betcco.Application.Common;
 using Betcco.Domain.Identity;
 using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Identity;
 using Betcco.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 namespace Betcco.Api.Controllers;
 
 [ApiController]
-[Authorize(Policy = "SystemAdmin")]
+[Authorize]
 [Route("api/v1/admin/users")]
-public sealed class AdminUsersController(UserManager<ApplicationUser> userManager, BetccoDbContext db, IEmailSender emailSender, IConfiguration configuration) : ControllerBase
+public sealed class AdminUsersController(UserManager<ApplicationUser> userManager, BetccoDbContext db, IEmailSender emailSender, IConfiguration configuration, IDataProtectionProvider dataProtection) : ControllerBase
 {
+    [Authorize(Policy = "SystemAdmin")]
     [HttpGet]
     public async Task<IActionResult> List([FromQuery] string? role, [FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 25, CancellationToken cancellationToken = default)
     {
@@ -29,10 +35,35 @@ public sealed class AdminUsersController(UserManager<ApplicationUser> userManage
             users = users.Where(x => userIds.Contains(x.Id));
         }
         var count = await users.CountAsync(cancellationToken);
-        var results = await users.OrderBy(x => x.Email).Skip((page - 1) * pageSize).Take(pageSize).Select(x => new { x.Id, x.Email, x.DisplayName, x.EmailConfirmed, x.IsFrozen }).ToListAsync(cancellationToken);
+        var results = await users.OrderBy(x => x.Email).Skip((page - 1) * pageSize).Take(pageSize).Select(x => new { x.Id, x.Email, x.DisplayName, x.EmailConfirmed, x.IsFrozen, x.MustChangePassword }).ToListAsync(cancellationToken);
         return Ok(new { items = results, page, pageSize, totalCount = count });
     }
 
+    [Authorize(Policy = "StudentTeacherFreeze")]
+    [HttpGet("freeze-targets")]
+    public async Task<IActionResult> ListFreezeTargets([FromQuery] string role, [FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 25, CancellationToken cancellationToken = default)
+    {
+        if (role is not (PlatformRoles.Student or PlatformRoles.Teacher)) return BadRequest();
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+        var requestedRoleIds = db.Roles.Where(item => item.Name == role).Select(item => item.Id);
+        var otherRoleIds = db.Roles.Where(item => item.Name != PlatformRoles.Student && item.Name != PlatformRoles.Teacher).Select(item => item.Id);
+        var users = db.Users.AsNoTracking().Where(user =>
+            db.UserRoles.Any(link => link.UserId == user.Id && requestedRoleIds.Contains(link.RoleId))
+            && !db.UserRoles.Any(link => link.UserId == user.Id && otherRoleIds.Contains(link.RoleId)));
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            if (term.Length > 100) return BadRequest();
+            users = users.Where(user => user.DisplayName.Contains(term) || user.Email!.Contains(term));
+        }
+        var totalCount = await users.CountAsync(cancellationToken);
+        var items = await users.OrderBy(user => user.DisplayName).Skip((page - 1) * pageSize).Take(pageSize)
+            .Select(user => new { user.Id, user.DisplayName, user.Email, user.IsFrozen }).ToListAsync(cancellationToken);
+        return Ok(new { items, totalCount, page, pageSize });
+    }
+
+    [Authorize(Policy = "SystemAdmin")]
     [HttpPost("teachers/invite")]
     public async Task<IActionResult> InviteTeacher(InviteTeacherRequest request, CancellationToken cancellationToken)
     {
@@ -64,6 +95,109 @@ public sealed class AdminUsersController(UserManager<ApplicationUser> userManage
         return Accepted(new { id = teacher.Id, invitationId = invitation.Id, status = invitation.Status.ToString(), invitation.ExpiresAtUtc, message = "Teacher invitation sent." });
     }
 
+    [Authorize(Policy = "SystemAdmin")]
+    [HttpPost("{userId:guid}/email-change/request")]
+    [EnableRateLimiting("auth")]
+    public async Task<IActionResult> RequestManagedEmailChange(Guid userId, ManagedEmailChangeRequest request, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null || user.Id.ToString() == UserId) return NotFound();
+        if (user.MustChangePassword || !user.EmailConfirmed) return Conflict(new { message = "Activate the account before changing its email." });
+        var roles = await userManager.GetRolesAsync(user);
+        if (roles.Contains(PlatformRoles.Admin) || roles.Contains(PlatformRoles.SystemAdmin)
+            || !roles.Any(role => role is PlatformRoles.Teacher or PlatformRoles.SupportAdmin)) return NotFound();
+        var newEmail = request.NewEmail.Trim();
+        if (string.Equals(user.Email, newEmail, StringComparison.OrdinalIgnoreCase)) return BadRequest(new { message = "Enter a different email address." });
+        if (await userManager.FindByEmailAsync(newEmail) is not null) return Conflict(new { message = "This email already has an account." });
+
+        var identityToken = await userManager.GenerateChangeEmailTokenAsync(user, newEmail);
+        var proof = EmailChangeProof.Protect(dataProtection, "managed", identityToken);
+        var publicAppUrl = configuration["APP_PUBLIC_URL"]?.TrimEnd('/') ?? configuration["NEXT_PUBLIC_APP_URL"]?.TrimEnd('/') ?? $"{Request.Scheme}://{Request.Host}";
+        var url = $"{publicAppUrl}/ar/change-email?mode=managed&userId={user.Id}&email={Uri.EscapeDataString(newEmail)}&proof={Uri.EscapeDataString(proof)}";
+        await emailSender.SendAsync(newEmail, "Confirm your BETCCO work email", $"<p>Confirm your new work email: <a href=\"{url}\">Confirm email</a></p>", cancellationToken);
+        db.AuditLogs.Add(new AuditLog { ActorUserId = UserId, Action = "ManagedUserEmailChangeRequested", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success" });
+        await db.SaveChangesAsync(cancellationToken);
+        return Accepted(new { message = "A confirmation link was sent to the new email address. It expires in one hour." });
+    }
+
+    [Authorize(Policy = "SystemAdmin")]
+    [HttpPost("support-admins/invite")]
+    [EnableRateLimiting("auth")]
+    public async Task<IActionResult> InviteSupportAdmin(InviteSupportAdminRequest request, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+        var email = request.Email.Trim();
+        var displayName = request.DisplayName.Trim();
+        if (await userManager.FindByEmailAsync(email) is not null) return Conflict(new { message = "This email already has an account." });
+        await using var transaction = db.Database.IsRelational() ? await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken) : null;
+        var user = new ApplicationUser { UserName = email, Email = email, DisplayName = displayName, EmailConfirmed = false, MustChangePassword = true };
+        var temporaryPassword = $"T!{Guid.NewGuid():N}a9";
+        var result = await userManager.CreateAsync(user, temporaryPassword);
+        if (!result.Succeeded) return BadRequest(new ValidationProblemDetails(result.Errors.ToDictionary(error => error.Code, error => new[] { error.Description })));
+        result = await userManager.AddToRoleAsync(user, PlatformRoles.SupportAdmin);
+        if (!result.Succeeded) return BadRequest(new ValidationProblemDetails(result.Errors.ToDictionary(error => error.Code, error => new[] { error.Description })));
+        db.AuditLogs.Add(new AuditLog { ActorUserId = UserId, Action = "SupportAdminProvisioned", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success" });
+        await db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+        await SendSupportAdminActivationAsync(user, cancellationToken);
+        return Accepted(new { id = user.Id, message = "Support administrator activation email sent." });
+    }
+
+    [Authorize(Policy = "SystemAdmin")]
+    [HttpPost("support-admins/{userId:guid}/resend-activation")]
+    [EnableRateLimiting("auth")]
+    public async Task<IActionResult> ResendSupportAdminActivation(Guid userId, CancellationToken cancellationToken)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null || user.IsFrozen || !user.MustChangePassword || user.EmailConfirmed
+            || !await userManager.IsInRoleAsync(user, PlatformRoles.SupportAdmin)) return NotFound();
+        await SendSupportAdminActivationAsync(user, cancellationToken);
+        db.AuditLogs.Add(new AuditLog { ActorUserId = UserId, Action = "SupportAdminActivationResent", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success" });
+        await db.SaveChangesAsync(cancellationToken);
+        return Accepted();
+    }
+
+    [Authorize(Policy = "SystemAdmin")]
+    [HttpPost("support-admins/{userId:guid}/revoke-authority")]
+    public async Task<IActionResult> RevokeSupportAdminAuthority(Guid userId, CancellationToken cancellationToken)
+    {
+        if (!PlatformPermissionAuthorizationHandler.HasPermission(User, PlatformPermissions.ManageUsers)) return Forbid();
+        if (userId.ToString() == UserId) return Forbid();
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null) return NotFound();
+        var roles = await userManager.GetRolesAsync(user);
+        if (!roles.Contains(PlatformRoles.SupportAdmin) || roles.Contains(PlatformRoles.Admin) || roles.Contains(PlatformRoles.SystemAdmin)) return NotFound();
+
+        await using var transaction = db.Database.IsRelational() ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
+        var removeResult = await userManager.RemoveFromRoleAsync(user, PlatformRoles.SupportAdmin);
+        if (!removeResult.Succeeded) return BadRequest(new ValidationProblemDetails(removeResult.Errors.ToDictionary(error => error.Code, error => new[] { error.Description })));
+        var stampResult = await userManager.UpdateSecurityStampAsync(user);
+        if (!stampResult.Succeeded) return Problem("Unable to invalidate account sessions.");
+
+        var now = DateTimeOffset.UtcNow;
+        var sessions = await db.UserSessions.Where(session => session.UserId == userId.ToString() && session.RevokedAtUtc == null && !session.IsDeleted).ToListAsync(cancellationToken);
+        foreach (var session in sessions)
+        {
+            session.RevokedAtUtc = now;
+            session.RevokedByUserId = UserId;
+            session.RevocationReason = "Support administrator authority revoked";
+        }
+        db.AuditLogs.Add(new AuditLog { ActorUserId = UserId, Action = "SupportAdminAuthorityRevoked", EntityType = nameof(ApplicationUser), EntityId = userId.ToString(), Outcome = "Success" });
+        await db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+        return NoContent();
+    }
+
+    private async Task SendSupportAdminActivationAsync(ApplicationUser user, CancellationToken cancellationToken)
+    {
+        var token = await userManager.GeneratePasswordResetTokenAsync(user);
+        var publicAppUrl = configuration["APP_PUBLIC_URL"]?.TrimEnd('/') ?? configuration["NEXT_PUBLIC_APP_URL"]?.TrimEnd('/') ?? $"{Request.Scheme}://{Request.Host}";
+        var resetUrl = $"{publicAppUrl}/ar/reset-password?userId={user.Id}&token={Uri.EscapeDataString(token)}";
+        await emailSender.SendAsync(user.Email!, "Activate your BETCCO support administrator account", $"<p>Set your private BETCCO password to activate your account: <a href=\"{resetUrl}\">Activate account</a></p>", cancellationToken);
+    }
+
+    [Authorize(Policy = "SystemAdmin")]
     [HttpGet("teachers/invitations")]
     public async Task<IActionResult> ListTeacherInvitations([FromQuery] int page = 1, [FromQuery] int pageSize = 25, CancellationToken cancellationToken = default)
     {
@@ -87,6 +221,7 @@ public sealed class AdminUsersController(UserManager<ApplicationUser> userManage
         return Ok(new { items, page, pageSize, totalCount });
     }
 
+    [Authorize(Policy = "SystemAdmin")]
     [HttpPost("teachers/invitations/{invitationId:guid}/revoke")]
     public async Task<IActionResult> RevokeTeacherInvitation(Guid invitationId, RevokeTeacherInvitationRequest request, CancellationToken cancellationToken)
     {
@@ -128,24 +263,42 @@ public sealed class AdminUsersController(UserManager<ApplicationUser> userManage
         return NoContent();
     }
 
+    [Authorize(Policy = "StudentTeacherFreeze")]
     [HttpPost("{userId:guid}/freeze")]
     public async Task<IActionResult> Freeze(Guid userId, FreezeUserRequest request, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByIdAsync(userId.ToString());
         if (user is null || user.Id.ToString() == UserId) return BadRequest();
         var roles = await userManager.GetRolesAsync(user);
-        if (roles.Contains(PlatformRoles.Admin) || !roles.Any(role => role is PlatformRoles.Student or PlatformRoles.Teacher)) return NotFound();
+        var privilegedActor = User.IsInRole(PlatformRoles.Admin) || User.IsInRole(PlatformRoles.SystemAdmin);
+        if (!privilegedActor && (roles.Count == 0 || roles.Any(role => role is not (PlatformRoles.Student or PlatformRoles.Teacher)))) return NotFound();
+        if (privilegedActor && roles.Contains(PlatformRoles.Admin) && !User.IsInRole(PlatformRoles.Admin)) return NotFound();
+        if (roles.Count == 0) return NotFound();
+        await using var transaction = db.Database.IsRelational() ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
         var wasFrozen = user.IsFrozen;
         user.IsFrozen = request.Frozen;
         user.SessionsInvalidBeforeUtc = DateTimeOffset.UtcNow;
         var result = await userManager.UpdateAsync(user);
         if (!result.Succeeded) return BadRequest(new ValidationProblemDetails(result.Errors.ToDictionary(x => x.Code, x => new[] { x.Description })));
-        await userManager.UpdateSecurityStampAsync(user);
-        db.AuditLogs.Add(new AuditLog { ActorUserId = UserId, Action = request.Frozen ? "UserFrozen" : "UserUnfrozen", EntityType = nameof(ApplicationUser), EntityId = userId.ToString(), Outcome = "Success", OldValuesJson = AuditValues(("isFrozen", wasFrozen)), NewValuesJson = AuditValues(("isFrozen", request.Frozen)) });
+        var stampResult = await userManager.UpdateSecurityStampAsync(user);
+        if (!stampResult.Succeeded) return Problem("Unable to update account security.");
+        var sessions = await db.UserSessions.Where(session => session.UserId == userId.ToString() && session.RevokedAtUtc == null && !session.IsDeleted).ToListAsync(cancellationToken);
+        foreach (var session in sessions)
+        {
+            session.RevokedAtUtc = DateTimeOffset.UtcNow;
+            session.RevokedByUserId = UserId;
+            session.RevocationReason = request.Frozen ? "Account frozen" : "Account unfrozen; sign in again";
+        }
+        var action = roles.Contains(PlatformRoles.Teacher) ? (request.Frozen ? "TeacherFrozen" : "TeacherUnfrozen")
+            : roles.Contains(PlatformRoles.Student) ? (request.Frozen ? "StudentFrozen" : "StudentUnfrozen")
+            : request.Frozen ? "UserFrozen" : "UserUnfrozen";
+        db.AuditLogs.Add(new AuditLog { ActorUserId = UserId, Action = action, EntityType = nameof(ApplicationUser), EntityId = userId.ToString(), Outcome = "Success", OldValuesJson = AuditValues(("isFrozen", wasFrozen)), NewValuesJson = AuditValues(("isFrozen", request.Frozen)) });
         await db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
         return NoContent();
     }
 
+    [Authorize(Policy = "SystemAdmin")]
     [HttpDelete("{userId:guid}")]
     public async Task<IActionResult> DeleteStudent(Guid userId, CancellationToken cancellationToken)
     {
@@ -164,6 +317,7 @@ public sealed class AdminUsersController(UserManager<ApplicationUser> userManage
         return NoContent();
     }
 
+    [Authorize(Policy = "SystemAdmin")]
     [HttpPost("{userId:guid}/approve")]
     public async Task<IActionResult> ApproveStudent(Guid userId, CancellationToken cancellationToken)
     {
@@ -181,6 +335,7 @@ public sealed class AdminUsersController(UserManager<ApplicationUser> userManage
         return NoContent();
     }
 
+    [Authorize(Policy = "SystemAdmin")]
     [HttpPost("{userId:guid}/reset-device")]
     public async Task<IActionResult> ResetDevice(Guid userId, ResetDeviceRequest request, CancellationToken cancellationToken)
     {
@@ -222,3 +377,7 @@ public sealed record InviteTeacherRequest(string DisplayName, string Email);
 public sealed record RevokeTeacherInvitationRequest(string Reason);
 public sealed record FreezeUserRequest(bool Frozen);
 public sealed record ResetDeviceRequest(string Reason);
+public sealed record ManagedEmailChangeRequest([param: Required, EmailAddress, StringLength(320)] string NewEmail);
+public sealed record InviteSupportAdminRequest(
+    [param: Required, StringLength(160, MinimumLength = 2)] string DisplayName,
+    [param: Required, EmailAddress, StringLength(320)] string Email);

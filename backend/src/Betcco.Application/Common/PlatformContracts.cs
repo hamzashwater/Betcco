@@ -32,6 +32,7 @@ public static class PlatformPermissions
     public const string ManageFinance = "finance.manage";
     public const string ManageSupport = "support.manage";
     public const string ManageUsers = "users.manage";
+    public const string FreezeStudentTeacher = "users.freeze.student-teacher";
     public const string ManagePrivacy = "privacy.manage";
     public const string ManageSecurityIncidents = "security-incidents.manage";
 }

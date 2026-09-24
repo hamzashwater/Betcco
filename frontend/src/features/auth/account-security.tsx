@@ -64,6 +64,9 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
   const [verificationCode, setVerificationCode] = useState("");
   const [disableCode, setDisableCode] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const twoFactor = useQuery({
     queryKey: ["account-security", "two-factor"],
@@ -150,12 +153,46 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
       api<void>("/auth/sessions/logout-all", { method: "POST" }),
     onSuccess: signedOut,
   });
+  const logoutOthers = useMutation({
+    mutationFn: () =>
+      api<{ revokedCount: number }>("/auth/sessions/logout-others", {
+        method: "POST",
+      }),
+    onSuccess: ({ revokedCount }) => {
+      setNotice(
+        locale === "ar"
+          ? `تم إنهاء ${revokedCount} من الجلسات الأخرى.`
+          : `${revokedCount} other sessions signed out.`,
+      );
+      refreshSecurity();
+    },
+  });
+  const changePassword = useMutation({
+    mutationFn: () =>
+      api<void>("/auth/change-password", {
+        method: "POST",
+        body: JSON.stringify({ currentPassword, newPassword }),
+      }),
+    onSuccess: () => {
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setNotice(
+        locale === "ar"
+          ? "تم تغيير كلمة المرور وإنهاء الجلسات الأخرى."
+          : "Password changed and other sessions signed out.",
+      );
+      refreshSecurity();
+    },
+  });
   const busy =
     startSetup.isPending ||
     enableTwoFactor.isPending ||
     disableTwoFactor.isPending ||
     revokeSession.isPending ||
-    logoutAll.isPending;
+    logoutAll.isPending ||
+    logoutOthers.isPending ||
+    changePassword.isPending;
 
   return (
     <AccountLayout role={role} active="security">
@@ -167,6 +204,85 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
           {notice}
         </p>
       )}
+
+      <form
+        className="card mt-6 grid min-w-0 gap-4 p-5 sm:p-6"
+        onSubmit={(event) => {
+          event.preventDefault();
+          setNotice(null);
+          if (newPassword === confirmPassword) changePassword.mutate();
+        }}
+      >
+        <h2 className="text-xl font-black">
+          {locale === "ar" ? "تغيير كلمة المرور" : "Change password"}
+        </h2>
+        <p className="text-sm text-muted">
+          {locale === "ar"
+            ? "سيُطلب منك تسجيل الدخول من جديد على أجهزتك الأخرى."
+            : "Your other devices will need to sign in again."}
+        </p>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <label className="grid min-w-0 gap-1 text-sm font-bold">
+            <span>
+              {locale === "ar" ? "كلمة المرور الحالية" : "Current password"}
+            </span>
+            <input
+              type="password"
+              autoComplete="current-password"
+              required
+              value={currentPassword}
+              onChange={(event) => setCurrentPassword(event.target.value)}
+              className="focus-ring w-full min-w-0 rounded-xl border border-border bg-transparent px-3 py-2"
+            />
+          </label>
+          <label className="grid min-w-0 gap-1 text-sm font-bold">
+            <span>
+              {locale === "ar" ? "كلمة المرور الجديدة" : "New password"}
+            </span>
+            <input
+              type="password"
+              autoComplete="new-password"
+              required
+              minLength={12}
+              value={newPassword}
+              onChange={(event) => setNewPassword(event.target.value)}
+              className="focus-ring w-full min-w-0 rounded-xl border border-border bg-transparent px-3 py-2"
+            />
+          </label>
+          <label className="grid min-w-0 gap-1 text-sm font-bold">
+            <span>
+              {locale === "ar" ? "تأكيد كلمة المرور" : "Confirm new password"}
+            </span>
+            <input
+              type="password"
+              autoComplete="new-password"
+              required
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              className="focus-ring w-full min-w-0 rounded-xl border border-border bg-transparent px-3 py-2"
+            />
+          </label>
+        </div>
+        {confirmPassword && newPassword !== confirmPassword && (
+          <p role="alert" className="text-sm text-red-600">
+            {locale === "ar"
+              ? "كلمتا المرور غير متطابقتين."
+              : "Passwords do not match."}
+          </p>
+        )}
+        {changePassword.isError && (
+          <p role="alert" className="text-sm text-red-600">
+            {errorMessage(changePassword.error, locale)}
+          </p>
+        )}
+        <button
+          type="submit"
+          disabled={busy || newPassword !== confirmPassword}
+          className="focus-ring w-fit rounded-xl bg-primary px-4 py-2 text-sm font-black text-slate-950 disabled:opacity-60"
+        >
+          {locale === "ar" ? "حفظ كلمة المرور" : "Save password"}
+        </button>
+      </form>
 
       <div className="mt-6 grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         <section className="card min-w-0 p-5 sm:p-6">
@@ -354,23 +470,47 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                 </p>
               </div>
             </div>
-            <button
-              type="button"
-              disabled={busy || !sessions.data?.items.length}
-              onClick={() => {
-                if (
-                  window.confirm(
-                    locale === "ar"
-                      ? "سيتم تسجيل خروجك من جميع الأجهزة، بما فيها هذا الجهاز. هل تريد المتابعة؟"
-                      : "You will be signed out from every device, including this one. Continue?",
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                disabled={
+                  busy ||
+                  !sessions.data?.items.some((session) => !session.isCurrent)
+                }
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      locale === "ar"
+                        ? "إنهاء جميع الجلسات الأخرى مع إبقاء هذا الجهاز متصلاً؟"
+                        : "Sign out all other devices and keep this device signed in?",
+                    )
                   )
-                )
-                  logoutAll.mutate();
-              }}
-              className="focus-ring shrink-0 rounded-lg border border-red-500/45 px-3 py-2 text-xs font-black text-red-600 hover:bg-red-500/10 disabled:opacity-60"
-            >
-              {locale === "ar" ? "إنهاء الكل" : "Sign out all"}
-            </button>
+                    logoutOthers.mutate();
+                }}
+                className="focus-ring shrink-0 rounded-lg border border-border px-3 py-2 text-xs font-black disabled:opacity-60"
+              >
+                {locale === "ar"
+                  ? "إنهاء الأجهزة الأخرى"
+                  : "Sign out other devices"}
+              </button>
+              <button
+                type="button"
+                disabled={busy || !sessions.data?.items.length}
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      locale === "ar"
+                        ? "سيتم تسجيل خروجك من جميع الأجهزة، بما فيها هذا الجهاز. هل تريد المتابعة؟"
+                        : "You will be signed out from every device, including this one. Continue?",
+                    )
+                  )
+                    logoutAll.mutate();
+                }}
+                className="focus-ring shrink-0 rounded-lg border border-red-500/45 px-3 py-2 text-xs font-black text-red-600 hover:bg-red-500/10 disabled:opacity-60"
+              >
+                {locale === "ar" ? "إنهاء الكل" : "Sign out all"}
+              </button>
+            </div>
           </div>
           <div className="mt-5 grid gap-3">
             {sessions.isPending ? (
@@ -456,6 +596,11 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
           {logoutAll.isError && (
             <p role="alert" className="mt-3 text-sm text-red-600">
               {errorMessage(logoutAll.error, locale)}
+            </p>
+          )}
+          {logoutOthers.isError && (
+            <p role="alert" className="mt-3 text-sm text-red-600">
+              {errorMessage(logoutOthers.error, locale)}
             </p>
           )}
         </section>

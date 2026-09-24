@@ -671,9 +671,11 @@ export function LoginForm() {
           ? "admin/dashboard"
           : result.user.roles.includes("CourseReviewer")
             ? "admin/evaluations"
-            : result.user.roles.includes("Teacher")
-              ? "teacher/dashboard"
-              : "student/dashboard";
+            : result.user.roles.includes("SupportAdmin")
+              ? "support/accounts"
+              : result.user.roles.includes("Teacher")
+                ? "teacher/dashboard"
+                : "student/dashboard";
       router.replace(`/${locale}/${destination}`);
       router.refresh();
     },

@@ -133,6 +133,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("FinanceAdmin", policy => policy.AddRequirements(new PlatformPermissionRequirement(PlatformPermissions.ManageFinance)));
     options.AddPolicy("SupportAdmin", policy => policy.AddRequirements(new PlatformPermissionRequirement(PlatformPermissions.ManageSupport)));
     options.AddPolicy("SystemAdmin", policy => policy.AddRequirements(new PlatformPermissionRequirement(PlatformPermissions.ManageUsers)));
+    options.AddPolicy("StudentTeacherFreeze", policy => policy.AddRequirements(new PlatformPermissionRequirement(PlatformPermissions.FreezeStudentTeacher)));
     options.AddPolicy("PrivacyAdmin", policy => policy.AddRequirements(new PlatformPermissionRequirement(PlatformPermissions.ManagePrivacy)));
     options.AddPolicy("SecurityIncidentAdmin", policy => policy.AddRequirements(new PlatformPermissionRequirement(PlatformPermissions.ManageSecurityIncidents)));
 });
