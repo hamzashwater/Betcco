@@ -10,8 +10,16 @@ function watchErrors(page: Page) {
   page.on("console", (message) => {
     if (
       message.type() === "error" &&
-      !message.text().startsWith("Executing inline script violates the following Content Security Policy") &&
-      !message.text().startsWith("Applying inline style violates the following Content Security Policy")
+      !message
+        .text()
+        .startsWith(
+          "Executing inline script violates the following Content Security Policy",
+        ) &&
+      !message
+        .text()
+        .startsWith(
+          "Applying inline style violates the following Content Security Policy",
+        )
     )
       errors.push(message.text());
   });
@@ -230,14 +238,18 @@ for (const scenario of [
           : "Learning aims and practice",
     });
     await expect(
-      area.getByText(
-        scenario.locale === "ar" ? "المحتوى: 0 / 1" : "Content: 0 / 1",
-      ).first(),
+      area
+        .getByText(
+          scenario.locale === "ar" ? "المحتوى: 0 / 1" : "Content: 0 / 1",
+        )
+        .first(),
     ).toBeVisible();
     await expect(
-      area.getByText(
-        scenario.locale === "ar" ? "التدريب: مقفل" : "Practice: Locked",
-      ).first(),
+      area
+        .getByText(
+          scenario.locale === "ar" ? "التدريب: مقفل" : "Practice: Locked",
+        )
+        .first(),
     ).toBeVisible();
     await page
       .getByRole("button", {
@@ -254,13 +266,11 @@ for (const scenario of [
         name: scenario.locale === "ar" ? "بدء التدريب" : "Start practice",
       })
       .click();
-    await area
-      .locator('input[type="file"]')
-      .setInputFiles({
-        name: "work.pdf",
-        mimeType: "application/pdf",
-        buffer: Buffer.from("%PDF-1.4\n"),
-      });
+    await area.locator('input[type="file"]').setInputFiles({
+      name: "work.pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.from("%PDF-1.4\n"),
+    });
     await area
       .getByRole("button", {
         name: scenario.locale === "ar" ? "رفع الملفات" : "Upload files",

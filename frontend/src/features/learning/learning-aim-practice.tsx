@@ -80,7 +80,7 @@ function trainingOutcomeLabel(locale: string, outcome: string) {
     Merit: "جدارة (Merit)",
     Distinction: "تميز (Distinction)",
   };
-  return locale === "ar" ? arabic[outcome] ?? outcome : outcome;
+  return locale === "ar" ? (arabic[outcome] ?? outcome) : outcome;
 }
 
 export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
@@ -259,7 +259,8 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                               "النتيجة التدريبية",
                               "Training Outcome",
                             )}
-                            : {trainingOutcomeLabel(locale, aim.trainingOutcome)}
+                            :{" "}
+                            {trainingOutcomeLabel(locale, aim.trainingOutcome)}
                           </p>
                           <p className="rounded-lg border border-amber-400/30 bg-amber-400/10 p-2">
                             {tr(
