@@ -654,7 +654,13 @@ export function LoginForm() {
   });
   const request = useMutation({
     mutationFn: (values: LoginValues) =>
-      api<{ user: { displayName: string; roles: string[] } }>("/auth/login", {
+      api<{
+        user: {
+          displayName: string;
+          roles: string[];
+          requiresMfaEnrollment: boolean;
+        };
+      }>("/auth/login", {
         method: "POST",
         body: JSON.stringify({
           ...values,
@@ -665,6 +671,11 @@ export function LoginForm() {
       invalidateCsrfToken();
       queryClient.setQueryData(["current-user"], result.user);
       void queryClient.invalidateQueries({ queryKey: ["current-user"] });
+      if (result.user.requiresMfaEnrollment) {
+        router.replace(`/${locale}/staff/security`);
+        router.refresh();
+        return;
+      }
       const destination =
         result.user.roles.includes("Admin") ||
         result.user.roles.includes("SystemAdmin")
@@ -673,9 +684,11 @@ export function LoginForm() {
             ? "admin/evaluations"
             : result.user.roles.includes("SupportAdmin")
               ? "support/accounts"
-              : result.user.roles.includes("Teacher")
-                ? "teacher/dashboard"
-                : "student/dashboard";
+              : result.user.roles.includes("FinanceAdmin")
+                ? "admin/wallet"
+                : result.user.roles.includes("Teacher")
+                  ? "teacher/dashboard"
+                  : "student/dashboard";
       router.replace(`/${locale}/${destination}`);
       router.refresh();
     },

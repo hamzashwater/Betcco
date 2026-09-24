@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useLocale } from "next-intl";
 import { ShieldCheck, UserRound } from "lucide-react";
 
-export type AccountRole = "student" | "teacher" | "support" | "admin";
+export type AccountRole = "student" | "teacher" | "support" | "admin" | "staff";
 
 export function AccountLayout({
   role,
@@ -43,27 +43,29 @@ export function AccountLayout({
               : "Set up an authenticator app and review signed-in devices."}
         </p>
       </header>
-      <nav
-        aria-label={locale === "ar" ? "إعدادات الحساب" : "Account settings"}
-        className="mt-5 flex flex-wrap gap-2"
-      >
-        <Link
-          href={profileHref}
-          aria-current={active === "profile" ? "page" : undefined}
-          className={`focus-ring inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold ${active === "profile" ? "bg-primary text-slate-950" : "border border-border text-foreground hover:bg-primary/10"}`}
+      {role !== "staff" && (
+        <nav
+          aria-label={locale === "ar" ? "إعدادات الحساب" : "Account settings"}
+          className="mt-5 flex flex-wrap gap-2"
         >
-          <UserRound size={17} aria-hidden="true" />
-          {locale === "ar" ? "الملف الشخصي" : "Profile"}
-        </Link>
-        <Link
-          href={securityHref}
-          aria-current={active === "security" ? "page" : undefined}
-          className={`focus-ring inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold ${active === "security" ? "bg-primary text-slate-950" : "border border-border text-foreground hover:bg-primary/10"}`}
-        >
-          <ShieldCheck size={17} aria-hidden="true" />
-          {locale === "ar" ? "أمان الحساب" : "Security"}
-        </Link>
-      </nav>
+          <Link
+            href={profileHref}
+            aria-current={active === "profile" ? "page" : undefined}
+            className={`focus-ring inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold ${active === "profile" ? "bg-primary text-slate-950" : "border border-border text-foreground hover:bg-primary/10"}`}
+          >
+            <UserRound size={17} aria-hidden="true" />
+            {locale === "ar" ? "الملف الشخصي" : "Profile"}
+          </Link>
+          <Link
+            href={securityHref}
+            aria-current={active === "security" ? "page" : undefined}
+            className={`focus-ring inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold ${active === "security" ? "bg-primary text-slate-950" : "border border-border text-foreground hover:bg-primary/10"}`}
+          >
+            <ShieldCheck size={17} aria-hidden="true" />
+            {locale === "ar" ? "أمان الحساب" : "Security"}
+          </Link>
+        </nav>
+      )}
       {children}
     </section>
   );

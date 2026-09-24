@@ -401,12 +401,23 @@ describe("email confirmation and account administration", () => {
 });
 
 describe("security with existing endpoints", () => {
-  function mockSecurity(enabled: boolean, includeOther = false) {
+  function mockSecurity(
+    enabled: boolean,
+    includeOther = false,
+    isRequired = false,
+    enrollment = false,
+  ) {
     apiMock.mockImplementation((path: string, options?: RequestInit) => {
+      if (path === "/auth/me")
+        return Promise.resolve({
+          roles: isRequired ? ["Admin"] : ["Teacher"],
+          requiresMfaEnrollment: enrollment,
+        });
       if (path === "/auth/two-factor")
         return Promise.resolve({
           isEnabled: enabled,
           hasAuthenticator: enabled,
+          isRequired,
         });
       if (path === "/auth/sessions")
         return Promise.resolve({
@@ -429,6 +440,7 @@ describe("security with existing endpoints", () => {
       if (path === "/auth/sessions/logout-others")
         return Promise.resolve({ revokedCount: 1 });
       if (path === "/auth/change-password") return Promise.resolve();
+      if (path === "/auth/logout") return Promise.resolve();
       return Promise.reject(new Error(`Unexpected ${path}`));
     });
   }
@@ -465,17 +477,105 @@ describe("security with existing endpoints", () => {
   });
 
   it("shows enabled 2FA and live session details with current badge", async () => {
-    mockSecurity(true);
+    mockSecurity(true, false, true);
     renderAccount(<AccountSecurity role="admin" />);
+    expect(await screen.findByText("Lenovo Laptop")).toBeVisible();
+    expect(
+      screen.queryByRole("button", {
+        name: "Disable two-factor authentication",
+      }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText("Lenovo Laptop")).toBeVisible();
+    expect(screen.getByText("This device")).toBeVisible();
+    expect(screen.getByText(/Chrome · 192\.0\.2\.1/)).toBeVisible();
+    expect(screen.getByRole("button", { name: "Sign out all" })).toBeVisible();
+  });
+
+  it("keeps self-service disable for a non-enforced user", async () => {
+    mockSecurity(true);
+    renderAccount(<AccountSecurity role="teacher" />);
     expect(
       await screen.findByRole("button", {
         name: "Disable two-factor authentication",
       }),
     ).toBeVisible();
-    expect(screen.getByText("Lenovo Laptop")).toBeVisible();
-    expect(screen.getByText("This device")).toBeVisible();
-    expect(screen.getByText(/Chrome · 192\.0\.2\.1/)).toBeVisible();
-    expect(screen.getByRole("button", { name: "Sign out all" })).toBeVisible();
+  });
+
+  it.each(["en", "ar"] as const)(
+    "shows mandatory staff enrollment and logout in %s",
+    async (locale) => {
+      mockSecurity(false, false, true, true);
+      renderAccount(<AccountSecurity role="staff" />, locale);
+      expect(
+        await screen.findByText(
+          locale === "ar"
+            ? /المصادقة الثنائية إلزامية/
+            : /Multi-factor authentication is required/,
+        ),
+      ).toBeVisible();
+      expect(
+        screen.queryByRole("button", {
+          name: locale === "ar" ? "حفظ كلمة المرور" : "Save password",
+        }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(
+          locale === "ar" ? "الجلسات النشطة" : "Active sessions",
+        ),
+      ).not.toBeInTheDocument();
+      await userEvent.setup().click(
+        screen.getByRole("button", {
+          name: locale === "ar" ? "تسجيل الخروج" : "Sign out",
+        }),
+      );
+      await waitFor(() =>
+        expect(replaceMock).toHaveBeenCalledWith(`/${locale}/login`),
+      );
+    },
+  );
+
+  it("returns enrolled FinanceAdmin to the existing finance workspace", async () => {
+    let enabled = false;
+    apiMock.mockImplementation((path: string) => {
+      if (path === "/auth/me")
+        return Promise.resolve({
+          roles: ["FinanceAdmin"],
+          requiresMfaEnrollment: !enabled,
+        });
+      if (path === "/auth/two-factor")
+        return Promise.resolve({
+          isEnabled: enabled,
+          hasAuthenticator: enabled,
+          isRequired: true,
+        });
+      if (path === "/auth/two-factor/setup")
+        return Promise.resolve({
+          sharedKey: "SECRETKEY",
+          authenticatorUri: "otpauth://totp/Betcco?secret=SECRETKEY",
+        });
+      if (path === "/auth/two-factor/enable") {
+        enabled = true;
+        return Promise.resolve();
+      }
+      return Promise.reject(new Error(`Unexpected ${path}`));
+    });
+    renderAccount(<AccountSecurity role="staff" />);
+    const user = userEvent.setup();
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Set up an authenticator app",
+      }),
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: "Enter the 6-digit code" }),
+      "123456",
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Confirm and enable" }),
+    );
+    await waitFor(() =>
+      expect(replaceMock).toHaveBeenCalledWith("/en/admin/wallet"),
+    );
   });
 
   it("revokes a session and redirects when the server says it was current", async () => {
