@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useLocale } from "next-intl";
 import { ShieldCheck, UserRound } from "lucide-react";
 
-export type AccountRole = "student" | "teacher" | "admin";
+export type AccountRole = "student" | "teacher" | "support" | "admin";
 
 export function AccountLayout({
   role,

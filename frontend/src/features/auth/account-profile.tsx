@@ -27,6 +27,9 @@ export function AccountProfile({
   const locale = useLocale();
   const client = useQueryClient();
   const [notice, setNotice] = useState<string | null>(null);
+  const [emailNotice, setEmailNotice] = useState<string | null>(null);
+  const [newEmail, setNewEmail] = useState("");
+  const [emailPassword, setEmailPassword] = useState("");
   const profile = useQuery({
     queryKey: ["account-profile"],
     queryFn: () => api<Profile>("/auth/profile"),
@@ -50,6 +53,22 @@ export function AccountProfile({
       void client.invalidateQueries({ queryKey: ["current-user"] });
       setNotice(
         locale === "ar" ? "تم حفظ بيانات الحساب." : "Account details saved.",
+      );
+    },
+  });
+  const requestEmailChange = useMutation({
+    mutationFn: () =>
+      api<void>("/auth/email-change/request", {
+        method: "POST",
+        body: JSON.stringify({ newEmail, currentPassword: emailPassword }),
+      }),
+    onSuccess: () => {
+      setNewEmail("");
+      setEmailPassword("");
+      setEmailNotice(
+        locale === "ar"
+          ? "أرسلنا رابط التحقق إلى البريد الجديد. صلاحيته ساعة واحدة."
+          : "A confirmation link was sent to the new address. It expires in one hour.",
       );
     },
   });
@@ -139,9 +158,13 @@ export function AccountProfile({
                   />
                 </span>
                 <span className="text-xs font-normal leading-5 text-muted">
-                  {locale === "ar"
-                    ? "تغيير البريد الإلكتروني غير متاح من إعدادات الحساب."
-                    : "Email changes are not available in account settings."}
+                  {role === "student"
+                    ? locale === "ar"
+                      ? "استخدم إجراء تغيير البريد الآمن أدناه."
+                      : "Use the secure change email action below."
+                    : locale === "ar"
+                      ? "تُدير الإدارة بريد هذا الحساب."
+                      : "Administration manages this account's email."}
                 </span>
               </label>
               <label className="grid gap-1.5 text-sm font-bold">
@@ -221,9 +244,13 @@ export function AccountProfile({
                 ? locale === "ar"
                   ? "حساب المعلم"
                   : "Teacher account"
-                : locale === "ar"
-                  ? "حساب الأدمن"
-                  : "Admin account"}
+                : role === "support"
+                  ? locale === "ar"
+                    ? "حساب مساعد الإدارة"
+                    : "Support administrator account"
+                  : locale === "ar"
+                    ? "حساب الأدمن"
+                    : "Admin account"}
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted">
               {locale === "ar"
@@ -233,6 +260,73 @@ export function AccountProfile({
           </aside>
         )}
       </div>
+      {role === "student" && (
+        <form
+          className="card mt-5 grid min-w-0 gap-4 p-5 sm:p-7"
+          onSubmit={(event) => {
+            event.preventDefault();
+            setEmailNotice(null);
+            requestEmailChange.mutate();
+          }}
+        >
+          <h2 className="text-xl font-black">
+            {locale === "ar" ? "تغيير البريد الإلكتروني" : "Change email"}
+          </h2>
+          <p className="text-sm text-muted">
+            {locale === "ar"
+              ? "تحقق من ملكية البريد الجديد قبل تغيير بيانات الدخول. سيتطلب التأكيد تسجيل دخول جديدًا."
+              : "Verify the new address before it becomes your sign-in email. Confirmation will sign you out."}
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="grid gap-1 text-sm font-bold">
+              <span>{locale === "ar" ? "البريد الجديد" : "New email"}</span>
+              <input
+                type="email"
+                required
+                maxLength={320}
+                autoComplete="email"
+                value={newEmail}
+                onChange={(event) => setNewEmail(event.target.value)}
+                className="focus-ring min-w-0 rounded-xl border border-border bg-transparent px-3 py-2"
+              />
+            </label>
+            <label className="grid gap-1 text-sm font-bold">
+              <span>
+                {locale === "ar" ? "كلمة المرور الحالية" : "Current password"}
+              </span>
+              <input
+                type="password"
+                required
+                autoComplete="current-password"
+                value={emailPassword}
+                onChange={(event) => setEmailPassword(event.target.value)}
+                className="focus-ring min-w-0 rounded-xl border border-border bg-transparent px-3 py-2"
+              />
+            </label>
+          </div>
+          <button
+            type="submit"
+            disabled={requestEmailChange.isPending}
+            className="focus-ring w-fit rounded-xl bg-primary px-4 py-2 text-sm font-black text-slate-950 disabled:opacity-60"
+          >
+            {locale === "ar" ? "إرسال رابط التحقق" : "Send confirmation link"}
+          </button>
+          {emailNotice && (
+            <p role="status" className="text-sm text-emerald-700">
+              {emailNotice}
+            </p>
+          )}
+          {requestEmailChange.isError && (
+            <p role="alert" className="text-sm text-red-600">
+              {requestEmailChange.error instanceof Error
+                ? requestEmailChange.error.message
+                : locale === "ar"
+                  ? "تعذر إرسال الرابط."
+                  : "Unable to send the link."}
+            </p>
+          )}
+        </form>
+      )}
     </AccountLayout>
   );
 }
