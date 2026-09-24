@@ -84,6 +84,7 @@ public sealed class CourseGradebookService(BetccoDbContext db) : ICourseGradeboo
         var rows = db.CourseAssignmentSubmissions.AsNoTracking()
             .Include(submission => submission.CourseAssignment).ThenInclude(assignment => assignment!.Course)
             .Include(submission => submission.CourseAssignment).ThenInclude(assignment => assignment!.CourseModule)
+            .Where(submission => submission.CourseAssignment!.Purpose == CourseAssignmentPurpose.Coursework)
             .AsQueryable();
 
         if (query.CourseId is { } courseId)
@@ -189,7 +190,8 @@ public sealed class CourseGradebookService(BetccoDbContext db) : ICourseGradeboo
             .Include(assignment => assignment.CourseModule).ThenInclude(module => module!.UnitDefinition)
             .Include(assignment => assignment.Criteria).ThenInclude(criterion => criterion.BtecCriterion).ThenInclude(criterion => criterion!.BtecLearningAim)
             .Include(assignment => assignment.Criteria).ThenInclude(criterion => criterion.BtecCriterion).ThenInclude(criterion => criterion!.BtecLearningAim).ThenInclude(aim => aim!.LearningAimDefinition)
-            .Where(assignment => assignment.CourseId == courseId && assignment.IsPublished)
+            .Where(assignment => assignment.CourseId == courseId && assignment.IsPublished
+                && assignment.Purpose == CourseAssignmentPurpose.Coursework)
             .OrderBy(assignment => assignment.DueAtUtc)
             .ToListAsync(cancellationToken);
         var lessonIds = lessons.Select(lesson => lesson.Id).ToArray();

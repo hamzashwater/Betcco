@@ -29,6 +29,19 @@ public sealed class ContentAccessService(BetccoDbContext db) : IContentAccessSer
         if (enrollment is null) return Denied("EnrollmentRequired");
         var node = new ContentNode(contentType, contentId);
         if (!await TargetBelongsToCourseAsync(courseId, node, cancellationToken)) return Denied("ContentNotFound");
+        var practice = new LearningAimPracticeProgressService(db);
+        if (contentType == LearningContentType.Lesson)
+        {
+            var aimId = await db.Lessons.AsNoTracking().Where(x => x.Id == contentId && x.CourseModule!.UnitDefinitionId != null)
+                .Select(x => x.BtecLearningAimId ?? (Guid?)x.BtecTopic!.BtecLearningAimId)
+                .SingleOrDefaultAsync(cancellationToken);
+            if (aimId is { } id && !await practice.CanAccessAimAsync(studentUserId, id, cancellationToken))
+                return Denied("CompletePreviousLearningAim");
+        }
+        if (contentType == LearningContentType.Assignment
+            && await db.CourseAssignments.AsNoTracking().AnyAsync(x => x.Id == contentId && x.Purpose == CourseAssignmentPurpose.LearningAimPractice, cancellationToken)
+            && !await practice.CanSubmitAsync(studentUserId, contentId, cancellationToken))
+            return Denied("CompleteLearningAimContent");
         return await EvaluateNodeAsync(studentUserId, courseId, enrollment, node, [], cancellationToken);
     }
 
@@ -183,7 +196,11 @@ public sealed class ContentAccessService(BetccoDbContext db) : IContentAccessSer
         LearningContentType.Course => await IsCourseCompletedAsync(studentUserId, node.Id, cancellationToken),
         LearningContentType.Unit => await IsUnitCompletedAsync(studentUserId, node.Id, cancellationToken),
         LearningContentType.Lesson => await db.LessonProgresses.AsNoTracking().AnyAsync(progress => progress.StudentUserId == studentUserId && progress.LessonId == node.Id && progress.IsCompleted, cancellationToken),
-        LearningContentType.Assignment => await db.CourseAssignmentSubmissions.AsNoTracking().AnyAsync(submission => submission.StudentUserId == studentUserId && submission.CourseAssignmentId == node.Id && submission.CalculatedGrade != null && (submission.Status == CourseAssignmentSubmissionStatus.Graded || submission.Status == CourseAssignmentSubmissionStatus.Finalized), cancellationToken),
+        LearningContentType.Assignment => await db.CourseAssignmentSubmissions.AsNoTracking().AnyAsync(submission =>
+            submission.StudentUserId == studentUserId && submission.CourseAssignmentId == node.Id
+            && (submission.CourseAssignment!.Purpose == CourseAssignmentPurpose.LearningAimPractice
+                ? submission.Status == CourseAssignmentSubmissionStatus.Finalized && submission.TrainingOutcome != null
+                : submission.CalculatedGrade != null && (submission.Status == CourseAssignmentSubmissionStatus.Graded || submission.Status == CourseAssignmentSubmissionStatus.Finalized)), cancellationToken),
         _ => false
     };
 

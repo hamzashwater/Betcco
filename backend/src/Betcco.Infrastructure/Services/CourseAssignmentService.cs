@@ -22,6 +22,91 @@ public sealed class CourseAssignmentService(
     ICourseAssignmentDeadlineResolver? deadlineResolver = null) : ICourseAssignmentService
 {
     private readonly ICourseAssignmentDeadlineResolver deadlineResolverService = deadlineResolver ?? new CourseAssignmentDeadlineResolver(db);
+    public async Task<Guid?> CreatePracticeAsync(string teacherUserId, CreateLearningAimPracticeCommand command, CancellationToken cancellationToken = default)
+    {
+        var aim = await db.BtecLearningAims.AsNoTracking()
+            .Include(x => x.LearningAimDefinition)
+            .Include(x => x.CourseModule).ThenInclude(x => x!.Course)
+            .SingleOrDefaultAsync(x => x.Id == command.LearningAimId, cancellationToken);
+        if (aim?.CourseModule?.UnitDefinitionId is null
+            || aim.LearningAimDefinition?.UnitDefinitionId != aim.CourseModule.UnitDefinitionId
+            || aim.CourseModule.Course?.TeacherUserId != teacherUserId
+            || !CanManageAssignments(aim.CourseModule.Course.Status)
+            || string.IsNullOrWhiteSpace(command.ArabicTitle) || string.IsNullOrWhiteSpace(command.EnglishTitle)
+            || string.IsNullOrWhiteSpace(command.ArabicInstructions) || string.IsNullOrWhiteSpace(command.EnglishInstructions)
+            || command.ArabicTitle.Length > 256 || command.EnglishTitle.Length > 256
+            || command.ArabicInstructions.Length > 4_000 || command.EnglishInstructions.Length > 4_000
+            || command.DueAtUtc <= DateTimeOffset.UtcNow
+            || await db.CourseAssignments.AnyAsync(x => x.Purpose == CourseAssignmentPurpose.LearningAimPractice
+                && x.BtecLearningAimId == command.LearningAimId, cancellationToken)) return null;
+        var assignment = new CourseAssignment
+        {
+            CourseId = aim.CourseModule.CourseId,
+            CourseModuleId = aim.CourseModuleId,
+            BtecLearningAimId = aim.Id,
+            Purpose = CourseAssignmentPurpose.LearningAimPractice,
+            ArabicTitle = command.ArabicTitle.Trim(),
+            EnglishTitle = command.EnglishTitle.Trim(),
+            ArabicInstructions = command.ArabicInstructions.Trim(),
+            EnglishInstructions = command.EnglishInstructions.Trim(),
+            DueAtUtc = command.DueAtUtc,
+            MaxScore = null,
+            MaxSubmissionAttempts = 1,
+            AllowResubmission = false,
+            IsPublished = true,
+            PublicationStatus = ContentPublicationStatus.Published
+        };
+        db.CourseAssignments.Add(assignment);
+        db.AuditLogs.Add(Audit(teacherUserId, "LearningAimPracticeCreated", nameof(CourseAssignment), assignment.Id.ToString()));
+        await db.SaveChangesAsync(cancellationToken);
+        return assignment.Id;
+    }
+
+    public async Task<PracticeReviewResult> ReviewPracticeAsync(string teacherUserId, Guid submissionId, ReviewLearningAimPracticeCommand command, CancellationToken cancellationToken = default)
+    {
+        var submission = await db.CourseAssignmentSubmissions.AsNoTracking()
+            .Where(x => x.Id == submissionId
+                && x.CourseAssignment!.Purpose == CourseAssignmentPurpose.LearningAimPractice
+                && x.CourseAssignment.Course!.TeacherUserId == teacherUserId)
+            .Select(x => new { x.StudentUserId, x.Status, x.CourseAssignment!.CourseId })
+            .SingleOrDefaultAsync(cancellationToken);
+        if (submission is null || !Enum.TryParse<TrainingOutcome>(command.TrainingOutcome, true, out var outcome)
+            || !Enum.IsDefined(outcome)
+            || string.IsNullOrWhiteSpace(command.Strengths) || string.IsNullOrWhiteSpace(command.Gaps)
+            || string.IsNullOrWhiteSpace(command.ImprovementGuidance)
+            || command.Strengths.Length > 4_000 || command.Gaps.Length > 4_000
+            || command.ImprovementGuidance.Length > 4_000
+            || !await db.Enrollments.AnyAsync(x => x.CourseId == submission.CourseId
+                && x.StudentUserId == submission.StudentUserId, cancellationToken)) return PracticeReviewResult.Invalid;
+        if (submission.Status != CourseAssignmentSubmissionStatus.Submitted)
+            return submission.Status == CourseAssignmentSubmissionStatus.Finalized ? PracticeReviewResult.Conflict : PracticeReviewResult.Invalid;
+
+        var now = DateTimeOffset.UtcNow;
+        var strengths = command.Strengths.Trim();
+        var gaps = command.Gaps.Trim();
+        var guidance = command.ImprovementGuidance.Trim();
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+        var updated = await db.CourseAssignmentSubmissions
+            .Where(x => x.Id == submissionId && x.Status == CourseAssignmentSubmissionStatus.Submitted
+                && x.CourseAssignment!.Purpose == CourseAssignmentPurpose.LearningAimPractice
+                && x.CourseAssignment.Course!.TeacherUserId == teacherUserId
+                && db.Enrollments.Any(enrollment => enrollment.CourseId == x.CourseAssignment.CourseId
+                    && enrollment.StudentUserId == x.StudentUserId))
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(x => x.Status, CourseAssignmentSubmissionStatus.Finalized)
+                .SetProperty(x => x.TrainingOutcome, (TrainingOutcome?)outcome)
+                .SetProperty(x => x.TrainingStrengths, strengths)
+                .SetProperty(x => x.TrainingGaps, gaps)
+                .SetProperty(x => x.TrainingImprovementGuidance, guidance)
+                .SetProperty(x => x.GradedAtUtc, now)
+                .SetProperty(x => x.UpdatedAtUtc, now), cancellationToken);
+        if (updated != 1) return PracticeReviewResult.Conflict;
+        db.AuditLogs.Add(Audit(teacherUserId, "LearningAimPracticeReviewed", nameof(CourseAssignmentSubmission), submissionId.ToString(), outcome.ToString()));
+        await db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return PracticeReviewResult.Finalized;
+    }
+
     public async Task<Guid?> CreateAsync(string teacherUserId, CreateCourseAssignmentCommand command, CancellationToken cancellationToken = default)
     {
         var course = await db.Courses.SingleOrDefaultAsync(course => course.Id == command.CourseId && course.TeacherUserId == teacherUserId, cancellationToken);
@@ -68,7 +153,7 @@ public sealed class CourseAssignmentService(
     public async Task<bool> UpdateAsync(string teacherUserId, Guid assignmentId, UpdateCourseAssignmentCommand command, CancellationToken cancellationToken = default)
     {
         var assignment = await OwnedAssignmentAsync(teacherUserId, assignmentId, cancellationToken);
-        if (assignment is null
+        if (assignment is null || assignment.Purpose != CourseAssignmentPurpose.Coursework
             || assignment.PublicationStatus != ContentPublicationStatus.Draft
             || string.IsNullOrWhiteSpace(command.ArabicTitle)
             || string.IsNullOrWhiteSpace(command.EnglishTitle)
@@ -102,7 +187,7 @@ public sealed class CourseAssignmentService(
     public async Task<bool> DeleteAsync(string teacherUserId, Guid assignmentId, CancellationToken cancellationToken = default)
     {
         var assignment = await OwnedAssignmentAsync(teacherUserId, assignmentId, cancellationToken);
-        if (assignment is null || assignment.PublicationStatus != ContentPublicationStatus.Draft
+        if (assignment is null || assignment.Purpose != CourseAssignmentPurpose.Coursework || assignment.PublicationStatus != ContentPublicationStatus.Draft
             || await db.CourseAssignmentSubmissions.AnyAsync(submission => submission.CourseAssignmentId == assignmentId, cancellationToken)
             || await db.CourseAssignmentDeadlineExtensions.AnyAsync(extension => extension.CourseAssignmentId == assignmentId, cancellationToken)) return false;
         db.CourseAssignments.Remove(assignment);
@@ -114,7 +199,7 @@ public sealed class CourseAssignmentService(
     public async Task<Guid?> AddCriterionAsync(string teacherUserId, AddCourseAssignmentCriterionCommand command, CancellationToken cancellationToken = default)
     {
         var assignment = await OwnedAssignmentAsync(teacherUserId, command.AssignmentId, cancellationToken);
-        if (assignment is null || assignment.PublicationStatus != ContentPublicationStatus.Draft) return null;
+        if (assignment is null || assignment.Purpose != CourseAssignmentPurpose.Coursework || assignment.PublicationStatus != ContentPublicationStatus.Draft) return null;
 
         string code;
         BtecCriterionBand band;
@@ -164,7 +249,7 @@ public sealed class CourseAssignmentService(
     public async Task<bool> DeleteCriterionAsync(string teacherUserId, Guid criterionId, CancellationToken cancellationToken = default)
     {
         var criterion = await db.CourseAssignmentCriteria.Include(item => item.CourseAssignment).ThenInclude(item => item!.Course).SingleOrDefaultAsync(item => item.Id == criterionId && item.CourseAssignment!.Course!.TeacherUserId == teacherUserId, cancellationToken);
-        if (criterion is null || criterion.CourseAssignment!.PublicationStatus != ContentPublicationStatus.Draft) return false;
+        if (criterion is null || criterion.CourseAssignment!.Purpose != CourseAssignmentPurpose.Coursework || criterion.CourseAssignment.PublicationStatus != ContentPublicationStatus.Draft) return false;
         db.CourseAssignmentCriteria.Remove(criterion);
         db.AuditLogs.Add(Audit(teacherUserId, "CourseAssignmentCriterionDeleted", nameof(CourseAssignmentCriterion), criterionId.ToString()));
         await db.SaveChangesAsync(cancellationToken);
@@ -174,7 +259,7 @@ public sealed class CourseAssignmentService(
     public async Task<bool> PublishAsync(string teacherUserId, Guid assignmentId, bool publish, CancellationToken cancellationToken = default)
     {
         var assignment = await OwnedAssignmentAsync(teacherUserId, assignmentId, cancellationToken);
-        if (assignment is null) return false;
+        if (assignment is null || assignment.Purpose != CourseAssignmentPurpose.Coursework) return false;
         if (publish && !await db.CourseAssignmentCriteria.AnyAsync(criterion => criterion.CourseAssignmentId == assignment.Id, cancellationToken)) return false;
         if (!publish && await db.CourseAssignmentSubmissions.AnyAsync(submission => submission.CourseAssignmentId == assignment.Id && submission.Status != CourseAssignmentSubmissionStatus.Draft, cancellationToken)) return false;
         assignment.IsPublished = publish;
@@ -187,7 +272,7 @@ public sealed class CourseAssignmentService(
     public async Task<bool> SetPublicationStatusAsync(string teacherUserId, Guid assignmentId, string publicationStatus, DateTimeOffset? availableFromUtc, CancellationToken cancellationToken = default)
     {
         var assignment = await OwnedAssignmentAsync(teacherUserId, assignmentId, cancellationToken);
-        if (assignment is null
+        if (assignment is null || assignment.Purpose != CourseAssignmentPurpose.Coursework
             || !TryPublicationStatus(publicationStatus, out var status)
             || status == ContentPublicationStatus.Published && !await db.CourseAssignmentCriteria.AnyAsync(item => item.CourseAssignmentId == assignmentId, cancellationToken)
             || status is ContentPublicationStatus.Archived or ContentPublicationStatus.Scheduled && await db.CourseAssignmentSubmissions.AnyAsync(item => item.CourseAssignmentId == assignmentId && item.Status == CourseAssignmentSubmissionStatus.Submitted, cancellationToken)
@@ -296,6 +381,10 @@ public sealed class CourseAssignmentService(
     {
         var submission = await db.CourseAssignmentSubmissions.Include(item => item.CourseAssignment).Include(item => item.Versions).SingleOrDefaultAsync(item => item.Id == submissionId && item.StudentUserId == studentUserId && item.Status == CourseAssignmentSubmissionStatus.Draft, cancellationToken);
         if (submission is null || length <= 0) return CourseAssignmentFileAddStatus.SubmissionNotFound;
+        if (submission.CourseAssignment!.Purpose == CourseAssignmentPurpose.LearningAimPractice
+            && !(await contentAccess.CanAccessAsync(studentUserId, submission.CourseAssignment.CourseId,
+                LearningContentType.Assignment, submission.CourseAssignmentId, cancellationToken)).IsAvailable)
+            return CourseAssignmentFileAddStatus.SubmissionNotFound;
         if (length > submission.CourseAssignment!.MaxFileSizeBytes
             || !AllowsFile(submission.CourseAssignment.AllowedFileExtensionsJson, originalName))
             return CourseAssignmentFileAddStatus.RejectedByAssignmentPolicy;
@@ -389,7 +478,8 @@ public sealed class CourseAssignmentService(
             .Include(item => item.CourseAssignment).ThenInclude(item => item!.Course)
             .Include(item => item.CourseAssignment).ThenInclude(item => item!.Criteria)
             .SingleOrDefaultAsync(item => item.Id == submissionId && item.CourseAssignment!.Course!.TeacherUserId == teacherUserId && item.Status == CourseAssignmentSubmissionStatus.Submitted, cancellationToken);
-        if (submission is null || command.Results.Count != submission.CourseAssignment!.Criteria.Count) return false;
+        if (submission is null || submission.CourseAssignment!.Purpose != CourseAssignmentPurpose.Coursework
+            || command.Results.Count != submission.CourseAssignment.Criteria.Count) return false;
         var criteria = submission.CourseAssignment.Criteria.ToDictionary(item => item.Id);
         if (command.Results.Select(item => item.CriterionId).Distinct().Count() != command.Results.Count || command.Results.Any(item => !criteria.ContainsKey(item.CriterionId) || !Enum.TryParse<CriterionAchievement>(item.Achievement, true, out _))) return false;
 
@@ -441,7 +531,7 @@ public sealed class CourseAssignmentService(
     public async Task<bool> RequestRevisionAsync(string teacherUserId, Guid submissionId, string feedback, CancellationToken cancellationToken = default)
     {
         var submission = await db.CourseAssignmentSubmissions.Include(item => item.CourseAssignment).ThenInclude(item => item!.Course).SingleOrDefaultAsync(item => item.Id == submissionId && item.CourseAssignment!.Course!.TeacherUserId == teacherUserId && item.Status == CourseAssignmentSubmissionStatus.Submitted, cancellationToken);
-        if (submission is null || string.IsNullOrWhiteSpace(feedback)) return false;
+        if (submission is null || submission.CourseAssignment!.Purpose != CourseAssignmentPurpose.Coursework || string.IsNullOrWhiteSpace(feedback)) return false;
         submission.Status = CourseAssignmentSubmissionStatus.NeedsRevision;
         db.CourseAssignmentFeedbackItems.Add(new CourseAssignmentFeedback { CourseAssignmentSubmissionId = submission.Id, AuthorUserId = teacherUserId, Body = feedback.Trim(), RequestsResubmission = true });
         db.Notifications.Add(new Notification { UserId = submission.StudentUserId, Title = "Assignment revision requested", Body = "Review your teacher feedback and submit a new version.", Type = NotificationType.Course, DeepLink = "/student/courses" });

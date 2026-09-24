@@ -39,6 +39,7 @@ public sealed class StudentCoursesLearningHubService(
             EnrolledAtUtc = enrollment.EnrolledAtUtc,
             HasCover = enrollment.Course.CoverImageKey != null,
             PublishedModuleCount = enrollment.Course.Modules.Count(module => module.IsPublished),
+            HasCanonicalLearningAims = enrollment.Course.Modules.Any(module => module.IsPublished && module.UnitDefinitionId != null),
             TotalLessons = enrollment.Course.Modules
                 .Where(module => module.IsPublished)
                 .SelectMany(module => module.Lessons)
@@ -58,8 +59,8 @@ public sealed class StudentCoursesLearningHubService(
         var totalCourses = await rows.CountAsync(cancellationToken);
         var notStarted = await rows.CountAsync(row => row.CompletedLessons == 0, cancellationToken);
         var inProgress = await rows.CountAsync(row => row.CompletedLessons > 0
-            && (row.TotalLessons == 0 || row.CompletedLessons < row.TotalLessons), cancellationToken);
-        var completed = await rows.CountAsync(row => row.TotalLessons > 0
+            && (row.HasCanonicalLearningAims || row.TotalLessons == 0 || row.CompletedLessons < row.TotalLessons), cancellationToken);
+        var completed = await rows.CountAsync(row => !row.HasCanonicalLearningAims && row.TotalLessons > 0
             && row.CompletedLessons == row.TotalLessons, cancellationToken);
         var completedLessons = await rows.SumAsync(row => row.CompletedLessons, cancellationToken);
         var totalLessons = await rows.SumAsync(row => row.TotalLessons, cancellationToken);
@@ -76,8 +77,8 @@ public sealed class StudentCoursesLearningHubService(
         {
             StudentCourseProgressFilter.NotStarted => rows.Where(row => row.CompletedLessons == 0),
             StudentCourseProgressFilter.InProgress => rows.Where(row => row.CompletedLessons > 0
-                && (row.TotalLessons == 0 || row.CompletedLessons < row.TotalLessons)),
-            StudentCourseProgressFilter.Completed => rows.Where(row => row.TotalLessons > 0
+                && (row.HasCanonicalLearningAims || row.TotalLessons == 0 || row.CompletedLessons < row.TotalLessons)),
+            StudentCourseProgressFilter.Completed => rows.Where(row => !row.HasCanonicalLearningAims && row.TotalLessons > 0
                 && row.CompletedLessons == row.TotalLessons),
             _ => rows
         };
@@ -105,7 +106,7 @@ public sealed class StudentCoursesLearningHubService(
         foreach (var row in pageRows)
         {
             var access = await contentAccess.CanAccessCourseAsync(studentUserId, row.CourseId, cancellationToken);
-            var state = ProgressState(row.CompletedLessons, row.TotalLessons);
+            var state = ProgressState(row.CompletedLessons, row.TotalLessons, row.HasCanonicalLearningAims);
             items.Add(new StudentCourseLearningHubItem(
                 row.CourseId,
                 row.ArabicTitle,
@@ -153,10 +154,10 @@ public sealed class StudentCoursesLearningHubService(
         ? 0m
         : Math.Round(completed * 100m / total, 2, MidpointRounding.AwayFromZero);
 
-    private static string ProgressState(int completed, int total)
+    private static string ProgressState(int completed, int total, bool hasCanonicalLearningAims)
     {
         if (completed == 0) return "NotStarted";
-        return total > 0 && completed == total ? "Completed" : "InProgress";
+        return !hasCanonicalLearningAims && total > 0 && completed == total ? "Completed" : "InProgress";
     }
 
     private sealed class StudentCourseQueryRow
@@ -168,6 +169,7 @@ public sealed class StudentCoursesLearningHubService(
         public DateTimeOffset EnrolledAtUtc { get; init; }
         public bool HasCover { get; init; }
         public int PublishedModuleCount { get; init; }
+        public bool HasCanonicalLearningAims { get; init; }
         public int TotalLessons { get; init; }
         public int CompletedLessons { get; init; }
         public DateTimeOffset? RecentProgressAtUtc { get; init; }

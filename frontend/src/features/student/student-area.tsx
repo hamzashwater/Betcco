@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { academicText } from "@/lib/academic-localization";
 import { MotivationCard } from "@/components/motivation-card";
 import { FilePicker } from "@/components/forms/file-picker";
+import { StudentLearningAimPractice } from "@/features/learning/learning-aim-practice";
 import { AccountSecurity } from "@/features/auth/account-security";
 import { AccountLayout } from "@/features/auth/account-layout";
 import { StudentEmailChange } from "@/features/auth/student-email-change";
@@ -1631,6 +1632,9 @@ function CoursePlayer({
       if (request.markCompleted) {
         void client.invalidateQueries({ queryKey: ["player", courseId] });
         void client.invalidateQueries({
+          queryKey: ["learning-aim-practice", courseId],
+        });
+        void client.invalidateQueries({
           queryKey: ["student-courses-learning-hub"],
         });
       }
@@ -1727,6 +1731,7 @@ function CoursePlayer({
               : "That lesson is unavailable. You were returned to your authorized learning position."}
           </p>
         ) : null}
+        <StudentLearningAimPractice courseId={courseId} />
         {lesson ? (
           <>
             {lesson.video && !lesson.isLocked ? (
