@@ -109,8 +109,12 @@ public sealed class CourseAssignmentsController(
     [Authorize(Policy = "Teacher")]
     [HttpPost("teacher/practice/submissions/{submissionId:guid}/review")]
     public async Task<IActionResult> ReviewPractice(Guid submissionId, ReviewLearningAimPracticeCommand command, CancellationToken cancellationToken) =>
-        await assignments.ReviewPracticeAsync(UserId, submissionId, command, cancellationToken)
-            ? NoContent() : BadRequest(new { message = "A submitted practice activity, authorized teacher, outcome and complete feedback are required." });
+        await assignments.ReviewPracticeAsync(UserId, submissionId, command, cancellationToken) switch
+        {
+            PracticeReviewResult.Finalized => NoContent(),
+            PracticeReviewResult.Conflict => Conflict(new { code = "PRACTICE_REVIEW_CONFLICT", message = "This practice review is no longer available for finalization." }),
+            _ => BadRequest(new { message = "A submitted practice activity, authorized teacher, outcome and complete feedback are required." })
+        };
 
     [Authorize(Policy = "Student")]
     [HttpGet("student/courses/{courseId:guid}/learning-aim-practice")]

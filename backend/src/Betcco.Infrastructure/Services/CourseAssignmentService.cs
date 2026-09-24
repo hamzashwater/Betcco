@@ -62,31 +62,49 @@ public sealed class CourseAssignmentService(
         return assignment.Id;
     }
 
-    public async Task<bool> ReviewPracticeAsync(string teacherUserId, Guid submissionId, ReviewLearningAimPracticeCommand command, CancellationToken cancellationToken = default)
+    public async Task<PracticeReviewResult> ReviewPracticeAsync(string teacherUserId, Guid submissionId, ReviewLearningAimPracticeCommand command, CancellationToken cancellationToken = default)
     {
-        var submission = await db.CourseAssignmentSubmissions
-            .Include(x => x.CourseAssignment).ThenInclude(x => x!.Course)
-            .SingleOrDefaultAsync(x => x.Id == submissionId && x.Status == CourseAssignmentSubmissionStatus.Submitted
+        var submission = await db.CourseAssignmentSubmissions.AsNoTracking()
+            .Where(x => x.Id == submissionId
                 && x.CourseAssignment!.Purpose == CourseAssignmentPurpose.LearningAimPractice
-                && x.CourseAssignment.Course!.TeacherUserId == teacherUserId, cancellationToken);
+                && x.CourseAssignment.Course!.TeacherUserId == teacherUserId)
+            .Select(x => new { x.StudentUserId, x.Status, x.CourseAssignment!.CourseId })
+            .SingleOrDefaultAsync(cancellationToken);
         if (submission is null || !Enum.TryParse<TrainingOutcome>(command.TrainingOutcome, true, out var outcome)
             || !Enum.IsDefined(outcome)
             || string.IsNullOrWhiteSpace(command.Strengths) || string.IsNullOrWhiteSpace(command.Gaps)
             || string.IsNullOrWhiteSpace(command.ImprovementGuidance)
             || command.Strengths.Length > 4_000 || command.Gaps.Length > 4_000
             || command.ImprovementGuidance.Length > 4_000
-            || !await db.Enrollments.AnyAsync(x => x.CourseId == submission.CourseAssignment!.CourseId
-                && x.StudentUserId == submission.StudentUserId
-                && (x.AccessEndsAtUtc == null || x.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken)) return false;
-        submission.TrainingOutcome = outcome;
-        submission.TrainingStrengths = command.Strengths.Trim();
-        submission.TrainingGaps = command.Gaps.Trim();
-        submission.TrainingImprovementGuidance = command.ImprovementGuidance.Trim();
-        submission.GradedAtUtc = DateTimeOffset.UtcNow;
-        submission.Status = CourseAssignmentSubmissionStatus.Finalized;
-        db.AuditLogs.Add(Audit(teacherUserId, "LearningAimPracticeReviewed", nameof(CourseAssignmentSubmission), submission.Id.ToString(), outcome.ToString()));
+            || !await db.Enrollments.AnyAsync(x => x.CourseId == submission.CourseId
+                && x.StudentUserId == submission.StudentUserId, cancellationToken)) return PracticeReviewResult.Invalid;
+        if (submission.Status != CourseAssignmentSubmissionStatus.Submitted)
+            return submission.Status == CourseAssignmentSubmissionStatus.Finalized ? PracticeReviewResult.Conflict : PracticeReviewResult.Invalid;
+
+        var now = DateTimeOffset.UtcNow;
+        var strengths = command.Strengths.Trim();
+        var gaps = command.Gaps.Trim();
+        var guidance = command.ImprovementGuidance.Trim();
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+        var updated = await db.CourseAssignmentSubmissions
+            .Where(x => x.Id == submissionId && x.Status == CourseAssignmentSubmissionStatus.Submitted
+                && x.CourseAssignment!.Purpose == CourseAssignmentPurpose.LearningAimPractice
+                && x.CourseAssignment.Course!.TeacherUserId == teacherUserId
+                && db.Enrollments.Any(enrollment => enrollment.CourseId == x.CourseAssignment.CourseId
+                    && enrollment.StudentUserId == x.StudentUserId))
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(x => x.Status, CourseAssignmentSubmissionStatus.Finalized)
+                .SetProperty(x => x.TrainingOutcome, (TrainingOutcome?)outcome)
+                .SetProperty(x => x.TrainingStrengths, strengths)
+                .SetProperty(x => x.TrainingGaps, gaps)
+                .SetProperty(x => x.TrainingImprovementGuidance, guidance)
+                .SetProperty(x => x.GradedAtUtc, now)
+                .SetProperty(x => x.UpdatedAtUtc, now), cancellationToken);
+        if (updated != 1) return PracticeReviewResult.Conflict;
+        db.AuditLogs.Add(Audit(teacherUserId, "LearningAimPracticeReviewed", nameof(CourseAssignmentSubmission), submissionId.ToString(), outcome.ToString()));
         await db.SaveChangesAsync(cancellationToken);
-        return true;
+        await transaction.CommitAsync(cancellationToken);
+        return PracticeReviewResult.Finalized;
     }
 
     public async Task<Guid?> CreateAsync(string teacherUserId, CreateCourseAssignmentCommand command, CancellationToken cancellationToken = default)
