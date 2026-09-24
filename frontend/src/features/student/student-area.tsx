@@ -8,6 +8,7 @@ import { MotivationCard } from "@/components/motivation-card";
 import { FilePicker } from "@/components/forms/file-picker";
 import { AccountSecurity } from "@/features/auth/account-security";
 import { AccountLayout } from "@/features/auth/account-layout";
+import { StudentEmailChange } from "@/features/auth/student-email-change";
 import { SupportCenter } from "@/features/support/support-center";
 import { EvaluationAppeals } from "@/features/student/evaluation-appeals";
 import {
@@ -836,6 +837,7 @@ function StudentAccount() {
           </Link>
         </section>
       </div>
+      <StudentEmailChange />
     </AccountLayout>
   );
 }
