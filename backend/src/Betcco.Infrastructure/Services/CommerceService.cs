@@ -1491,18 +1491,18 @@ public sealed class CommerceService(
             .ToArrayAsync(cancellationToken);
         if (unitMappings.Length == 0) return;
 
-        var unitIds = unitMappings.Select(item => item.UnitDefinitionId).Distinct().ToArray();
-        var existingUnitIds = await db.IncludedEvaluationEntitlements.AsNoTracking()
-            .Where(item => item.GrantedByPaymentId == paymentId && unitIds.Contains(item.UnitDefinitionId))
-            .Select(item => item.UnitDefinitionId)
+        var enrollmentIds = enrollments.Select(item => item.Id).ToArray();
+        var existingPairs = await db.IncludedEvaluationEntitlements.AsNoTracking()
+            .Where(item => item.GrantedByPaymentId == paymentId && enrollmentIds.Contains(item.EnrollmentId))
+            .Select(item => new { item.EnrollmentId, item.UnitDefinitionId })
             .ToArrayAsync(cancellationToken);
-        var existing = existingUnitIds.ToHashSet();
+        var existing = existingPairs.Select(item => (item.EnrollmentId, item.UnitDefinitionId)).ToHashSet();
 
         var enrollmentsByCourse = enrollments.ToDictionary(item => item.CourseId);
         foreach (var mapping in unitMappings)
         {
             if (!enrollmentsByCourse.TryGetValue(mapping.CourseId, out var enrollment)) continue;
-            if (!existing.Add(mapping.UnitDefinitionId)) continue;
+            if (!existing.Add((enrollment.Id, mapping.UnitDefinitionId))) continue;
 
             var entitlement = new IncludedEvaluationEntitlement
             {

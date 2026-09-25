@@ -73,6 +73,14 @@ public sealed class EvaluationCriteriaPlanTests
         {
             new CriterionSubmission("P1", "Achieved", null, null)
         }));
+        Assert.False(await service.SubmitResultsAsync("teacher", request.Id, new[]
+        {
+            new CriterionSubmission("P1", "999", null, null),
+            new CriterionSubmission("M1", "Achieved", null, null),
+            new CriterionSubmission("D1", "Achieved", null, null)
+        }));
+        Assert.Equal(EvaluationStatus.Assigned, request.Status);
+        Assert.Empty(await db.CriterionResults.Where(x => x.EvaluationRequestId == request.Id).ToListAsync());
 
         Assert.True(await service.SubmitResultsAsync("teacher", request.Id, new[]
         {
@@ -250,6 +258,12 @@ public sealed class EvaluationCriteriaPlanTests
             "Add one clear example that directly satisfies P1.",
             true);
 
+        Assert.False(await service.SubmitReviewAsync("teacher", request.Id, firstReview with
+        {
+            Results = [new CriterionSubmission("A.P1", "999", null, null)]
+        }));
+        Assert.Equal(EvaluationStatus.Assigned, request.Status);
+        Assert.Empty(await db.CriterionResults.Where(item => item.EvaluationRequestId == request.Id).ToListAsync());
         Assert.True(await service.SubmitReviewAsync("teacher", request.Id, firstReview));
         Assert.Equal(EvaluationStatus.NeedsRevision, request.Status);
         Assert.Equal(EvaluationGrade.NotYetAchieved, request.CalculatedGrade);

@@ -3654,18 +3654,30 @@ function EvaluationWizard() {
             className="rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm"
             role="status"
           >
-            {includedCredit.isPending ? (
+            {includedCredit.isPending ||
+            (includedCredit.isError && includedCredit.isFetching) ? (
               <p className="text-muted">
                 {locale === "ar"
                   ? "جارٍ التحقق من رصيد تقييم المهمة لهذه الوحدة…"
                   : "Checking your included evaluation credit for this Unit…"}
               </p>
             ) : includedCredit.isError ? (
-              <p className="text-red-500">
-                {locale === "ar"
-                  ? "تعذر التحقق من رصيد التقييم الآن. أعد المحاولة قبل إرسال الطلب."
-                  : "We could not verify your evaluation credit. Retry before submitting."}
-              </p>
+              <div className="grid justify-items-start gap-2">
+                <p className="text-red-500">
+                  {locale === "ar"
+                    ? "تعذر التحقق من رصيد التقييم الآن. أعد المحاولة قبل إرسال الطلب."
+                    : "We could not verify your evaluation credit. Retry before submitting."}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void includedCredit.refetch()}
+                  className="focus-ring rounded-lg border border-primary px-3 py-2 font-semibold text-primary"
+                >
+                  {locale === "ar"
+                    ? "إعادة التحقق من الرصيد"
+                    : "Retry credit check"}
+                </button>
+              </div>
             ) : hasIncludedCredit ? (
               <>
                 <p className="font-black text-primary">

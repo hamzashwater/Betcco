@@ -54,7 +54,9 @@ function mockFetch(
   scopes: (typeof scope)[] = [scope],
   fail = false,
   creditAvailable = false,
+  creditFailuresBeforeSuccess = 0,
 ) {
+  let creditChecks = 0;
   const fetchMock = vi.fn(
     async (input: string | URL | Request, init?: RequestInit) => {
       const path = String(input);
@@ -62,8 +64,11 @@ function mockFetch(
         return fail
           ? Response.json({ message: "Unavailable" }, { status: 503 })
           : Response.json(scopes);
-      if (path.includes("/included-credit"))
+      if (path.includes("/included-credit")) {
+        if (creditChecks++ < creditFailuresBeforeSuccess)
+          return Response.json({ message: "Unavailable" }, { status: 503 });
         return Response.json({ available: creditAvailable });
+      }
       if (path.endsWith("/security/antiforgery"))
         return Response.json({ token: "csrf" });
       if (path.endsWith("/evaluations/scoped"))
@@ -293,5 +298,27 @@ describe("Student scoped evaluation wizard", () => {
         ),
       ).toBe(true),
     );
+  });
+
+  it("lets the student retry an included-credit lookup after an error", async () => {
+    const fetchMock = mockFetch([scope], false, false, 1);
+    const user = userEvent.setup();
+    renderWizard();
+
+    await selectPrimaryScope(user);
+    expect(
+      await screen.findByText(/We could not verify your evaluation credit/),
+    ).toBeVisible();
+    await user.click(
+      screen.getByRole("button", { name: "Retry credit check" }),
+    );
+    expect(
+      await screen.findByText(/No included evaluation credit is available/),
+    ).toBeVisible();
+    expect(
+      fetchMock.mock.calls.filter(([input]) =>
+        String(input).includes("/included-credit"),
+      ),
+    ).toHaveLength(2);
   });
 });

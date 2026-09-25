@@ -86,6 +86,13 @@ public sealed class CourseAssignmentServiceTests
         Assert.Equal(CourseAssignmentFileAddStatus.Added, await service.AddFileAsync("student-1", secondVersion.SubmissionId, "work-v2.pdf", "application/pdf", secondFile.Length, secondFile));
         Assert.True(await service.SubmitAsync("student-1", secondVersion.SubmissionId));
         Assert.False(await service.GradeAsync("teacher-2", secondVersion.SubmissionId, new AssignmentGradeCommand([], null)));
+        Assert.False(await service.GradeAsync("teacher-1", secondVersion.SubmissionId, new AssignmentGradeCommand(
+            [
+                new AssignmentCriterionSubmission(passId!.Value, "999", null),
+                new AssignmentCriterionSubmission(meritId!.Value, "Achieved", null),
+                new AssignmentCriterionSubmission(distinctionId!.Value, "Achieved", null)
+            ], null)));
+        Assert.Empty(await db.CourseAssignmentCriterionResults.Where(item => item.CourseAssignmentSubmissionId == secondVersion.SubmissionId).ToListAsync());
         Assert.True(await service.GradeAsync("teacher-1", secondVersion.SubmissionId, new AssignmentGradeCommand(
             [
                 new AssignmentCriterionSubmission(passId!.Value, "Achieved", "تم تحقيق P1."),
