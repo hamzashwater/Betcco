@@ -50,21 +50,66 @@ function renderWizard(locale: "en" | "ar" = "en") {
   );
 }
 
-function mockFetch(scopes: (typeof scope)[] = [scope], fail = false) {
-  const fetchMock = vi.fn(async (input: string | URL | Request) => {
-    const path = String(input);
-    if (path.endsWith("/evaluations/assessment-scopes"))
-      return fail
-        ? Response.json({ message: "Unavailable" }, { status: 503 })
-        : Response.json(scopes);
-    if (path.endsWith("/security/antiforgery"))
-      return Response.json({ token: "csrf" });
-    if (path.endsWith("/evaluations/scoped"))
-      return Response.json({ id: "request-1", criteria: ["A.P1"] });
-    return Response.json({ message: "Unexpected request" }, { status: 404 });
-  });
+function mockFetch(
+  scopes: (typeof scope)[] = [scope],
+  fail = false,
+  creditAvailable = false,
+) {
+  const fetchMock = vi.fn(
+    async (input: string | URL | Request, init?: RequestInit) => {
+      const path = String(input);
+      if (path.endsWith("/evaluations/assessment-scopes"))
+        return fail
+          ? Response.json({ message: "Unavailable" }, { status: 503 })
+          : Response.json(scopes);
+      if (path.includes("/included-credit"))
+        return Response.json({ available: creditAvailable });
+      if (path.endsWith("/security/antiforgery"))
+        return Response.json({ token: "csrf" });
+      if (path.endsWith("/evaluations/scoped"))
+        return Response.json({ id: "request-1", criteria: ["A.P1"] });
+      if (path.includes("/evaluations/request-1/files"))
+        return new Response(null, { status: 204 });
+      if (path.endsWith("/authenticity-declaration"))
+        return new Response(null, { status: 204 });
+      if (path.endsWith("/evaluations/request-1/checkout"))
+        return Response.json(
+          creditAvailable
+            ? {
+                includedCreditApplied: true,
+                evaluationStatus: "PendingAssignment",
+                paymentId: null,
+              }
+            : {
+                includedCreditApplied: false,
+                evaluationStatus: "PendingPayment",
+                paymentId: "payment-1",
+              },
+        );
+      if (path.endsWith("/payments/fake/confirm"))
+        return new Response(null, { status: 204 });
+      return Response.json(
+        { message: `Unexpected request: ${path} ${init?.method ?? "GET"}` },
+        { status: 404 },
+      );
+    },
+  );
   vi.stubGlobal("fetch", fetchMock);
   return fetchMock;
+}
+
+async function selectPrimaryScope(user: ReturnType<typeof userEvent.setup>) {
+  await user.selectOptions(
+    await screen.findByLabelText("Qualification and version"),
+    "Q:V1",
+  );
+  await user.selectOptions(screen.getByLabelText("Grade"), "g");
+  await user.selectOptions(screen.getByLabelText("Specialization"), "s");
+  await user.selectOptions(screen.getByLabelText("Unit"), "U1");
+  await user.selectOptions(
+    screen.getByLabelText("Assessment or assignment"),
+    scope.assessmentScopeId,
+  );
 }
 
 describe("Student scoped evaluation wizard", () => {
@@ -157,4 +202,96 @@ describe("Student scoped evaluation wizard", () => {
       ).toBeInTheDocument();
     },
   );
+
+  it("uses the included Unit evaluation credit without showing or confirming a payment", async () => {
+    const fetchMock = mockFetch([scope], false, true);
+    const user = userEvent.setup();
+    renderWizard();
+
+    await selectPrimaryScope(user);
+    expect(
+      await screen.findByText(
+        "You have 1 assignment evaluation included with this Unit",
+      ),
+    ).toBeVisible();
+
+    const file = new File(["assignment"], "assignment.pdf", {
+      type: "application/pdf",
+    });
+    await user.upload(screen.getByLabelText("Choose Assignment files"), file);
+    await user.click(screen.getByRole("button", { name: "Save and review" }));
+
+    const originality = await screen.findByRole("checkbox", {
+      name: /Originality declaration/,
+    });
+    expect(screen.queryByLabelText("Payment method")).not.toBeInTheDocument();
+    await user.click(originality);
+    await user.click(
+      screen.getByRole("button", {
+        name: "Use included assignment evaluation",
+      }),
+    );
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/v1/evaluations/request-1/checkout",
+        expect.objectContaining({
+          body: JSON.stringify({
+            paymentMethod: "Card",
+            expectIncludedCredit: true,
+          }),
+        }),
+      ),
+    );
+    expect(
+      fetchMock.mock.calls.some(([input]) =>
+        String(input).includes("/payments/fake/confirm"),
+      ),
+    ).toBe(false);
+  });
+
+  it("keeps the standard one-time payment flow when no included credit exists", async () => {
+    const fetchMock = mockFetch([scope], false, false);
+    const user = userEvent.setup();
+    renderWizard();
+
+    await selectPrimaryScope(user);
+    expect(
+      await screen.findByText(/No included evaluation credit is available/),
+    ).toBeVisible();
+
+    const file = new File(["assignment"], "assignment.pdf", {
+      type: "application/pdf",
+    });
+    await user.upload(screen.getByLabelText("Choose Assignment files"), file);
+    await user.click(screen.getByRole("button", { name: "Save and review" }));
+
+    const originality = await screen.findByRole("checkbox", {
+      name: /Originality declaration/,
+    });
+    expect(screen.getByLabelText("Payment method")).toBeVisible();
+    await user.click(originality);
+    await user.click(
+      screen.getByRole("button", { name: "Pay using selected method" }),
+    );
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/v1/evaluations/request-1/checkout",
+        expect.objectContaining({
+          body: JSON.stringify({
+            paymentMethod: "Card",
+            expectIncludedCredit: false,
+          }),
+        }),
+      ),
+    );
+    await waitFor(() =>
+      expect(
+        fetchMock.mock.calls.some(([input]) =>
+          String(input).includes("/payments/fake/confirm"),
+        ),
+      ).toBe(true),
+    );
+  });
 });

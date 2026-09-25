@@ -5,6 +5,7 @@ using Betcco.Application.Common;
 using Betcco.Application.Commerce;
 using Betcco.Domain.Common;
 using Betcco.Domain.Commerce;
+using Betcco.Domain.Evaluations;
 using Betcco.Domain.Learning;
 using Betcco.Infrastructure.Persistence;
 using Betcco.Infrastructure.Services;
@@ -50,7 +51,11 @@ public sealed class RefundFoundationTests
         var refund = Assert.IsType<RefundView>(result.Refund);
         Assert.Equal(nameof(RefundStatus.InternallyRecorded), refund.Status);
         Assert.Null(refund.ProviderRefundReference);
-        Assert.Equal(nameof(RefundEntitlementDisposition.NotChangedPendingBusinessPolicy), refund.EntitlementDisposition);
+        Assert.Equal(nameof(RefundEntitlementDisposition.UnusedIncludedEvaluationCreditsRevoked), refund.EntitlementDisposition);
+        var credit = Assert.Single(await db.IncludedEvaluationEntitlements.ToListAsync());
+        Assert.NotNull(credit.RevokedAtUtc);
+        Assert.Equal(refund.Id, credit.RevokedByRefundId);
+        Assert.Null(credit.ConsumedByEvaluationRequestId);
         var payment = await db.Payments.SingleAsync(item => item.Id == paid.Payment.Id);
         Assert.Equal(PaymentStatus.Refunded, payment.Status);
         var transition = Assert.Single(await db.PaymentStatusTransitions.ToListAsync(), item => item.NewStatus == PaymentStatus.Refunded);
@@ -73,7 +78,44 @@ public sealed class RefundFoundationTests
         Assert.Equal(-70m, Assert.Single(reversals, item => item.Type == "TeacherCourseEarningRefundReversal").Amount);
         Assert.Single(await db.Enrollments.Where(item => item.PaymentId == paid.Payment.Id).ToListAsync());
         Assert.Contains(db.AuditLogs, item => item.Action == "RefundInternallyRecorded");
-        Assert.Contains(db.AuditLogs, item => item.Action == "RefundEntitlementPolicyNotApplied");
+        Assert.Contains(db.AuditLogs, item => item.Action == "RefundEntitlementDispositionApplied");
+        Assert.Contains(db.AuditLogs, item => item.Action == "IncludedEvaluationCreditRevokedByRefund");
+    }
+
+    [Fact]
+    public async Task Full_refund_preserves_an_already_consumed_included_evaluation_credit()
+    {
+        await using var db = CreateDb();
+        var paid = await AddPaidCoursePaymentAsync(db);
+        var credit = Assert.Single(await db.IncludedEvaluationEntitlements.ToListAsync());
+        var evaluation = new EvaluationRequest
+        {
+            StudentUserId = "student",
+            GradeId = Guid.NewGuid(),
+            SpecializationId = Guid.NewGuid(),
+            TaskTypeId = Guid.NewGuid(),
+            RubricTemplateId = Guid.NewGuid(),
+            Status = EvaluationStatus.PendingAssignment,
+            Price = 0m
+        };
+        db.EvaluationRequests.Add(evaluation);
+        credit.ConsumedByEvaluationRequestId = evaluation.Id;
+        credit.ConsumedAtUtc = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+
+        var result = await new RefundService(db).RecordInternalRefundAsync(
+            "finance",
+            Request(paid.Payment.Id, 100m, "JOD", "consumed-credit"));
+
+        var refund = Assert.IsType<RefundView>(result.Refund);
+        Assert.Equal(nameof(RefundStatus.InternallyRecorded), refund.Status);
+        Assert.Equal(nameof(RefundEntitlementDisposition.NotChangedPendingBusinessPolicy), refund.EntitlementDisposition);
+        await db.Entry(credit).ReloadAsync();
+        Assert.Equal(evaluation.Id, credit.ConsumedByEvaluationRequestId);
+        Assert.NotNull(credit.ConsumedAtUtc);
+        Assert.Null(credit.RevokedAtUtc);
+        Assert.Null(credit.RevokedByRefundId);
+        Assert.DoesNotContain(db.AuditLogs, item => item.Action == "IncludedEvaluationCreditRevokedByRefund");
     }
 
     [Fact]
@@ -153,10 +195,28 @@ public sealed class RefundFoundationTests
     private static async Task<(Payment Payment, CourseSaleAllocation Allocation)> AddPaidCoursePaymentAsync(BetccoDbContext db)
     {
         var track = new LearningTrack { Slug = $"track-{Guid.NewGuid():N}", ArabicName = "مسار", EnglishName = "Track", IsBtecFocused = true };
+        var unit = new UnitDefinition
+        {
+            QualificationVersionId = Guid.NewGuid(),
+            Code = $"U-{Guid.NewGuid():N}",
+            ArabicTitle = "وحدة",
+            EnglishTitle = "Unit",
+            IsActive = true,
+            PublishedAtUtc = DateTimeOffset.UtcNow
+        };
         var course = new Course { Slug = $"course-{Guid.NewGuid():N}", ArabicTitle = "دورة", EnglishTitle = "Course", ArabicDescription = "وصف", EnglishDescription = "Description", LearningTrack = track, TeacherUserId = "teacher", Status = CourseStatus.Published, Price = 100m };
+        course.Modules.Add(new CourseModule
+        {
+            CourseId = course.Id,
+            UnitDefinitionId = unit.Id,
+            ArabicTitle = "وحدة",
+            EnglishTitle = "Unit",
+            UnitCode = unit.Code,
+            IsPublished = true
+        });
         var cart = new Cart { OwnerKey = $"cart-{Guid.NewGuid():N}", UserId = "student" };
         cart.Items.Add(new CartItem { ItemType = CartItemType.Course, ReferenceId = course.Id });
-        db.AddRange(track, course, cart);
+        db.AddRange(track, unit, course, cart);
         await db.SaveChangesAsync();
         var commerce = new CommerceService(db, new FakePaymentProvider());
         var checkout = await commerce.CreateCourseCheckoutAsync("student", cart.OwnerKey, null, "Card", $"checkout-{Guid.NewGuid():N}");

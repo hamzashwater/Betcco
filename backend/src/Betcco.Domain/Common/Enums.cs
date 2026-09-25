@@ -25,7 +25,7 @@ public enum LedgerEventType { PaidCourseSale, PaidCourseSaleRefund }
 /// </summary>
 public enum RefundStatus { Requested, ProviderProcessing, ProviderVerified, InternallyRecorded, ProviderFailed, ProviderResultUnknown }
 public enum RefundTransitionSource { InternalAccounting, PayTabsProviderInitiation, PayTabsProviderVerification, PayTabsProviderFailure, PayTabsProviderAmbiguousResult }
-public enum RefundEntitlementDisposition { NotChangedPendingBusinessPolicy }
+public enum RefundEntitlementDisposition { NotChangedPendingBusinessPolicy, UnusedIncludedEvaluationCreditsRevoked }
 /// <summary>Internal commercial-document state. These values do not represent a tax authority submission.</summary>
 public enum CommercialDocumentStatus { Issued }
 public enum CommercialDocumentSource { TrustedPaidPayment, TrustedFinalizedRefund }

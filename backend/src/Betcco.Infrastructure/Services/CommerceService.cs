@@ -3,6 +3,7 @@ using Betcco.Application.Common;
 using Betcco.Application.Commerce;
 using Betcco.Domain.Common;
 using Betcco.Domain.Commerce;
+using Betcco.Domain.Evaluations;
 using Betcco.Domain.Learning;
 using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Persistence;
@@ -26,6 +27,7 @@ public sealed class CommerceService(
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> CouponRedemptionLocks = new(StringComparer.OrdinalIgnoreCase);
     private static readonly ConcurrentDictionary<Guid, SemaphoreSlim> CartCheckoutLocks = new();
     private static readonly ConcurrentDictionary<Guid, SemaphoreSlim> PaymentSessionLocks = new();
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> EvaluationCreditLocks = new(StringComparer.Ordinal);
     public async Task<CartView> GetCartAsync(string ownerKey, string? userId, string locale, CancellationToken cancellationToken = default)
     {
         var cart = await db.Carts.Include(x => x.Items).SingleOrDefaultAsync(x => x.OwnerKey == ownerKey, cancellationToken);
@@ -387,6 +389,7 @@ public sealed class CommerceService(
     {
         await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
         Guid[] enrolledCourseIds = [];
+        Guid[] includedCreditCourseIds = [];
         var payments = db.Payments.Where(payment => payment.Id == paymentId && payment.Provider != null);
         payments = expectedProvider is null
             ? payments.Where(payment => payment.Provider!.StartsWith("Fake"))
@@ -444,6 +447,7 @@ public sealed class CommerceService(
             var courses = await db.Courses.Where(x => courseIds.Contains(x.Id)).ToListAsync(cancellationToken);
             if (purchase.Lines.All(x => x.GrossAmount == 0) && courses.Any(x => !x.IsFree && x.Price > 0))
                 purchase = new CoursePurchaseSnapshot(courses.Select(course => new PurchasedCourseLine(course.Id, course.IsFree ? 0 : course.Price)).ToArray());
+            includedCreditCourseIds = purchase.Lines.Where(x => x.GrossAmount > 0).Select(x => x.CourseId).Distinct().ToArray();
             await GrantPermanentCourseAccessAsync(payment.UserId, courseIds, payment.Id, cancellationToken);
             await RecordCourseRevenueSplitAsync(payment, courses, purchase.Lines, cancellationToken);
             enrolledCourseIds = courseIds;
@@ -490,6 +494,9 @@ public sealed class CommerceService(
                 evaluation.Status = EvaluationStatus.PendingAssignment;
             }
         }
+        if (includedCreditCourseIds.Length > 0)
+            await GrantIncludedEvaluationEntitlementsAsync(payment.UserId, includedCreditCourseIds, payment.Id, cancellationToken);
+
         if (enrolledCourseIds.Length > 0)
         {
             var titles = await db.Courses.AsNoTracking()
@@ -684,16 +691,48 @@ public sealed class CommerceService(
         });
     }
 
-    public async Task<CheckoutResult?> CreateEvaluationCheckoutAsync(string userId, Guid evaluationRequestId, string? paymentMethod, string idempotencyKey, CancellationToken cancellationToken = default)
+    public async Task<IncludedEvaluationCreditStatus> GetIncludedEvaluationCreditStatusAsync(
+        string userId,
+        Guid assessmentScopeId,
+        CancellationToken cancellationToken = default)
+    {
+        var unitDefinitionId = await AssessmentUnitDefinitionIdAsync(assessmentScopeId, cancellationToken);
+        if (unitDefinitionId is null) return new(false);
+
+        var available = await db.IncludedEvaluationEntitlements.AsNoTracking().AnyAsync(
+            item => item.StudentUserId == userId
+                && item.UnitDefinitionId == unitDefinitionId.Value
+                && item.ConsumedByEvaluationRequestId == null
+                && item.RevokedAtUtc == null,
+            cancellationToken);
+        return new(available);
+    }
+
+    public async Task<EvaluationCheckoutResult?> CreateEvaluationCheckoutAsync(string userId, Guid evaluationRequestId, string? paymentMethod, string idempotencyKey, bool expectIncludedCredit = false, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(idempotencyKey)) throw new InvalidOperationException("An idempotency key is required.");
+
         var existing = await db.Payments.SingleOrDefaultAsync(x => x.UserId == userId && x.IdempotencyKey == idempotencyKey, cancellationToken);
-        if (existing is not null) return await ResumeCheckoutAsync(existing, cancellationToken);
+        if (existing is not null)
+        {
+            var status = await db.EvaluationRequests.AsNoTracking()
+                .Where(item => item.Id == evaluationRequestId && item.StudentUserId == userId)
+                .Select(item => item.Status)
+                .SingleOrDefaultAsync(cancellationToken);
+            return new(false, status.ToString(), await ResumeCheckoutAsync(existing, cancellationToken));
+        }
+
+        var included = await TryConsumeIncludedEvaluationCreditAsync(userId, evaluationRequestId, cancellationToken);
+        if (included is not null) return included;
+        if (expectIncludedCredit)
+            throw new InvalidOperationException("Your included evaluation credit could not be applied. Refresh the page before choosing a paid review.");
+
         var request = await db.EvaluationRequests.SingleOrDefaultAsync(x => x.Id == evaluationRequestId && x.StudentUserId == userId && x.Status == EvaluationStatus.Draft, cancellationToken);
         if (request is null
             || !await db.SubmissionFiles.AnyAsync(x => x.EvaluationRequestId == evaluationRequestId && x.ScanStatus == UploadScanStatus.Clean, cancellationToken)
             || !await db.AuthenticityDeclarations.AnyAsync(x => x.EvaluationRequestId == evaluationRequestId && x.AttemptNumber == request.SubmissionAttemptNumber, cancellationToken)) return null;
         if (!EvaluationWorkflow.CanTransition(request.Status, EvaluationStatus.PendingPayment)) return null;
+
         request.Status = EvaluationStatus.PendingPayment;
         var tax = await CalculateTaxAsync(request.Price, cancellationToken);
         var method = ResolvePaymentMethod(paymentMethod);
@@ -715,8 +754,161 @@ public sealed class CommerceService(
         };
         db.Payments.Add(payment);
         await db.SaveChangesAsync(cancellationToken);
-        return await ResumeCheckoutAsync(payment, cancellationToken);
+        return new(false, request.Status.ToString(), await ResumeCheckoutAsync(payment, cancellationToken));
     }
+
+    private async Task<EvaluationCheckoutResult?> TryConsumeIncludedEvaluationCreditAsync(
+        string userId,
+        Guid evaluationRequestId,
+        CancellationToken cancellationToken)
+    {
+        for (var attempt = 0; ; attempt++)
+        {
+            try
+            {
+                return await TryConsumeIncludedEvaluationCreditOnceAsync(userId, evaluationRequestId, cancellationToken);
+            }
+            catch (DbUpdateConcurrencyException) when (attempt < 2)
+            {
+                db.ChangeTracker.Clear();
+            }
+            catch (Exception exception) when (attempt < 2 && IsPostgresConcurrencyConflict(exception))
+            {
+                db.ChangeTracker.Clear();
+            }
+        }
+    }
+
+    private async Task<EvaluationCheckoutResult?> TryConsumeIncludedEvaluationCreditOnceAsync(
+        string userId,
+        Guid evaluationRequestId,
+        CancellationToken cancellationToken)
+    {
+        var snapshot = await db.EvaluationRequests.AsNoTracking()
+            .Where(item => item.Id == evaluationRequestId && item.StudentUserId == userId)
+            .Select(item => new
+            {
+                item.Status,
+                item.AssessmentScopeId,
+                item.RetakeOfEvaluationRequestId,
+                item.SubmissionAttemptNumber
+            })
+            .SingleOrDefaultAsync(cancellationToken);
+        if (snapshot is null || snapshot.RetakeOfEvaluationRequestId is not null) return null;
+
+        var replay = await db.IncludedEvaluationEntitlements.AsNoTracking()
+            .AnyAsync(item => item.StudentUserId == userId && item.ConsumedByEvaluationRequestId == evaluationRequestId, cancellationToken);
+        if (replay) return new(true, snapshot.Status.ToString(), null);
+        if (snapshot.Status != EvaluationStatus.Draft || snapshot.AssessmentScopeId is null) return null;
+
+        var hasCleanFile = await db.SubmissionFiles.AsNoTracking().AnyAsync(
+            item => item.EvaluationRequestId == evaluationRequestId && item.ScanStatus == UploadScanStatus.Clean,
+            cancellationToken);
+        var hasAuthenticity = await db.AuthenticityDeclarations.AsNoTracking().AnyAsync(
+            item => item.EvaluationRequestId == evaluationRequestId && item.AttemptNumber == snapshot.SubmissionAttemptNumber,
+            cancellationToken);
+        if (!hasCleanFile || !hasAuthenticity) return null;
+
+        var unitDefinitionId = await AssessmentUnitDefinitionIdAsync(snapshot.AssessmentScopeId.Value, cancellationToken);
+        if (unitDefinitionId is null) return null;
+
+        var lockKey = $"{userId}:{unitDefinitionId.Value:N}";
+        var gate = EvaluationCreditLocks.GetOrAdd(lockKey, _ => new SemaphoreSlim(1, 1));
+        await gate.WaitAsync(cancellationToken);
+        try
+        {
+            await using var transaction = db.Database.IsRelational()
+                ? await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken)
+                : null;
+
+            var request = await db.EvaluationRequests.SingleOrDefaultAsync(
+                item => item.Id == evaluationRequestId && item.StudentUserId == userId,
+                cancellationToken);
+            if (request is null || request.RetakeOfEvaluationRequestId is not null)
+            {
+                if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+                return null;
+            }
+
+            var consumed = await db.IncludedEvaluationEntitlements.SingleOrDefaultAsync(
+                item => item.StudentUserId == userId && item.ConsumedByEvaluationRequestId == evaluationRequestId,
+                cancellationToken);
+            if (consumed is not null)
+            {
+                if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+                return new(true, request.Status.ToString(), null);
+            }
+            if (request.Status != EvaluationStatus.Draft || request.AssessmentScopeId is null)
+            {
+                if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+                return null;
+            }
+
+            var currentUnitDefinitionId = await AssessmentUnitDefinitionIdAsync(request.AssessmentScopeId.Value, cancellationToken);
+            if (currentUnitDefinitionId != unitDefinitionId)
+            {
+                if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+                return null;
+            }
+
+            var entitlement = await db.IncludedEvaluationEntitlements
+                .Where(item => item.StudentUserId == userId
+                    && item.UnitDefinitionId == unitDefinitionId.Value
+                    && item.ConsumedByEvaluationRequestId == null
+                    && item.RevokedAtUtc == null)
+                .OrderBy(item => item.GrantedAtUtc)
+                .ThenBy(item => item.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+            if (entitlement is null)
+            {
+                if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+                return null;
+            }
+
+            if (!EvaluationWorkflow.CanTransition(request.Status, EvaluationStatus.PendingAssignment))
+            {
+                if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+                return null;
+            }
+
+            var previousStatus = request.Status;
+            entitlement.ConsumedByEvaluationRequestId = request.Id;
+            entitlement.ConsumedAtUtc = DateTimeOffset.UtcNow;
+            request.Price = 0m;
+            request.PaymentId = null;
+            request.Status = EvaluationStatus.PendingAssignment;
+
+            db.AssessmentAuditEvents.Add(new AssessmentAuditEvent
+            {
+                EvaluationRequestId = request.Id,
+                ActorUserId = userId,
+                EventType = "IncludedEvaluationCreditConsumed",
+                FromStatus = previousStatus.ToString(),
+                ToStatus = request.Status.ToString(),
+                AttemptNumber = request.SubmissionAttemptNumber,
+                Reason = $"Included evaluation credit {entitlement.Id:N} consumed."
+            });
+            db.AuditLogs.Add(Audit(
+                userId,
+                "IncludedEvaluationCreditConsumed",
+                nameof(IncludedEvaluationEntitlement),
+                entitlement.Id.ToString()));
+
+            await db.SaveChangesAsync(cancellationToken);
+            if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+            return new(true, request.Status.ToString(), null);
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    private async Task<Guid?> AssessmentUnitDefinitionIdAsync(Guid assessmentScopeId, CancellationToken cancellationToken) =>
+        await db.AssessmentScopes.AsNoTracking()
+            .Where(scope => scope.Id == assessmentScopeId)
+            .Select(scope => (Guid?)scope.AssessmentDefinition!.UnitDefinitionId)
+            .SingleOrDefaultAsync(cancellationToken);
 
     private async Task<CheckoutResult> ResumeCheckoutAsync(Payment payment, CancellationToken cancellationToken)
     {
@@ -1261,6 +1453,71 @@ public sealed class CommerceService(
                 enrollment.AccessEndsAtUtc = null;
                 enrollment.PaymentId = paymentId;
             }
+        }
+    }
+
+    private async Task GrantIncludedEvaluationEntitlementsAsync(
+        string userId,
+        IReadOnlyCollection<Guid> courseIds,
+        Guid paymentId,
+        CancellationToken cancellationToken)
+    {
+        if (courseIds.Count == 0) return;
+
+        var trackedEnrollments = db.ChangeTracker.Entries<Enrollment>()
+            .Where(entry => entry.State != EntityState.Deleted
+                && entry.Entity.StudentUserId == userId
+                && courseIds.Contains(entry.Entity.CourseId))
+            .Select(entry => entry.Entity)
+            .ToList();
+        var trackedCourseIds = trackedEnrollments.Select(item => item.CourseId).ToHashSet();
+        var missingCourseIds = courseIds.Where(courseId => !trackedCourseIds.Contains(courseId)).ToArray();
+        if (missingCourseIds.Length > 0)
+        {
+            trackedEnrollments.AddRange(await db.Enrollments
+                .Where(item => item.StudentUserId == userId && missingCourseIds.Contains(item.CourseId))
+                .ToListAsync(cancellationToken));
+        }
+
+        var enrollments = trackedEnrollments
+            .GroupBy(item => item.Id)
+            .Select(group => group.First())
+            .ToArray();
+        if (enrollments.Length == 0) return;
+
+        var unitMappings = await db.CourseModules.AsNoTracking()
+            .Where(module => courseIds.Contains(module.CourseId) && module.UnitDefinitionId != null)
+            .Select(module => new { module.CourseId, UnitDefinitionId = module.UnitDefinitionId!.Value })
+            .ToArrayAsync(cancellationToken);
+        if (unitMappings.Length == 0) return;
+
+        var unitIds = unitMappings.Select(item => item.UnitDefinitionId).Distinct().ToArray();
+        var existingUnitIds = await db.IncludedEvaluationEntitlements.AsNoTracking()
+            .Where(item => item.GrantedByPaymentId == paymentId && unitIds.Contains(item.UnitDefinitionId))
+            .Select(item => item.UnitDefinitionId)
+            .ToArrayAsync(cancellationToken);
+        var existing = existingUnitIds.ToHashSet();
+
+        var enrollmentsByCourse = enrollments.ToDictionary(item => item.CourseId);
+        foreach (var mapping in unitMappings)
+        {
+            if (!enrollmentsByCourse.TryGetValue(mapping.CourseId, out var enrollment)) continue;
+            if (!existing.Add(mapping.UnitDefinitionId)) continue;
+
+            var entitlement = new IncludedEvaluationEntitlement
+            {
+                StudentUserId = userId,
+                EnrollmentId = enrollment.Id,
+                UnitDefinitionId = mapping.UnitDefinitionId,
+                GrantedByPaymentId = paymentId,
+                GrantedAtUtc = DateTimeOffset.UtcNow
+            };
+            db.IncludedEvaluationEntitlements.Add(entitlement);
+            db.AuditLogs.Add(Audit(
+                userId,
+                "IncludedEvaluationCreditGranted",
+                nameof(IncludedEvaluationEntitlement),
+                entitlement.Id.ToString()));
         }
     }
 

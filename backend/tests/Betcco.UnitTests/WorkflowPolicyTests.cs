@@ -5,10 +5,11 @@ namespace Betcco.UnitTests;
 public sealed class WorkflowPolicyTests
 {
     [Fact]
-    public void Evaluation_cannot_skip_verified_payment_and_assignment()
+    public void Evaluation_enters_assignment_queue_after_payment_or_server_owned_included_credit()
     {
         Assert.False(EvaluationWorkflow.CanTransition(EvaluationStatus.Draft, EvaluationStatus.Assigned));
         Assert.True(EvaluationWorkflow.CanTransition(EvaluationStatus.Draft, EvaluationStatus.PendingPayment));
+        Assert.True(EvaluationWorkflow.CanTransition(EvaluationStatus.Draft, EvaluationStatus.PendingAssignment));
         Assert.True(EvaluationWorkflow.CanTransition(EvaluationStatus.PendingPayment, EvaluationStatus.PendingAssignment));
     }
 

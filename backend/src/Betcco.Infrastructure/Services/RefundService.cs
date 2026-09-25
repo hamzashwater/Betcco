@@ -3,6 +3,7 @@ using System.Text.Json;
 using Betcco.Application.Commerce;
 using Betcco.Domain.Common;
 using Betcco.Domain.Commerce;
+using Betcco.Domain.Evaluations;
 using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -77,6 +78,10 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
                 await db.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
                 return new(ToView(refund));
+            }
+            catch (DbUpdateConcurrencyException) when (attempt == 0)
+            {
+                db.ChangeTracker.Clear();
             }
             catch (Exception exception) when (attempt == 0 && IsPostgresConcurrencyConflict(exception))
             {
@@ -257,9 +262,44 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
         });
         await BookFullCourseSaleRefundAsync(payment, refund, allocations, cancellationToken);
         AddWalletReversals(payment, refund, allocations);
+        var revokedCredits = await RevokeUnusedIncludedEvaluationCreditsAsync(payment, refund, cancellationToken);
+        if (revokedCredits > 0)
+            refund.EntitlementDisposition = RefundEntitlementDisposition.UnusedIncludedEvaluationCreditsRevoked;
         Audit(financeAdminUserId, "RefundInternallyRecorded", refund.Id, new { refund.PaymentId, refund.Amount, refund.Currency, providerRefundVerified = !string.IsNullOrWhiteSpace(refund.ProviderRefundReference) });
-        Audit(financeAdminUserId, "RefundEntitlementPolicyNotApplied", refund.Id, new { refund.PaymentId, disposition = refund.EntitlementDisposition.ToString(), policy = "REQUIRES BUSINESS POLICY" });
+        Audit(financeAdminUserId, "RefundEntitlementDispositionApplied", refund.Id, new
+        {
+            refund.PaymentId,
+            disposition = refund.EntitlementDisposition.ToString(),
+            revokedIncludedEvaluationCredits = revokedCredits
+        });
         return true;
+    }
+
+    private async Task<int> RevokeUnusedIncludedEvaluationCreditsAsync(
+        Payment payment,
+        Refund refund,
+        CancellationToken cancellationToken)
+    {
+        var unused = await db.IncludedEvaluationEntitlements
+            .Where(item => item.GrantedByPaymentId == payment.Id
+                && item.ConsumedByEvaluationRequestId == null
+                && item.RevokedAtUtc == null)
+            .ToListAsync(cancellationToken);
+        if (unused.Count == 0) return 0;
+
+        var revokedAtUtc = DateTimeOffset.UtcNow;
+        foreach (var entitlement in unused)
+        {
+            entitlement.RevokedByRefundId = refund.Id;
+            entitlement.RevokedAtUtc = revokedAtUtc;
+            Audit(
+                refund.InternallyRecordedByUserId ?? refund.RequestedByUserId,
+                "IncludedEvaluationCreditRevokedByRefund",
+                entitlement.Id,
+                new { entitlement.UnitDefinitionId, entitlement.GrantedByPaymentId, refundId = refund.Id });
+        }
+
+        return unused.Count;
     }
 
     private async Task<RefundProviderWorkflowResult> RecordProviderFailureAsync(string actor, Guid refundId, string? providerReference, string? providerStatusCode, string failureCode, CancellationToken cancellationToken)
