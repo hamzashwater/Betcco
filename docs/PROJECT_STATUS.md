@@ -3,8 +3,8 @@
 ## Metadata
 
 - Last updated: 2026-09-25
-- Verified implementation baseline SHA: `a0684ce0e65027c45c860e0ebf3db332263c8a0d`
-- Status verified against origin/main: `a0684ce0e65027c45c860e0ebf3db332263c8a0d`
+- Verified implementation baseline SHA: `713dd95732ac44b334b6581b171d13ec1a49fb93`
+- Status verified against origin/main: `713dd95732ac44b334b6581b171d13ec1a49fb93`
 - OPEN / Draft implementation PRs at verification: none.
 - Parallel workstream coordination is persisted in `docs/WORKSTREAM_COORDINATION.md` and must be rechecked against live GitHub before implementation.
 
@@ -16,6 +16,7 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - PR #49 — Legacy Quiz System removal merged at `b656e586dea3f57a3ccee863f16ffc25cf116769`; active Quiz functionality was removed while historical lesson/progress data was preserved through the archived legacy lesson type.
 - PR #50 — Account Security Phase 2 merged at `89240b64027826f8bb48b76f3bdee28038120b82`; authenticated password change, secure Student email change, Admin-managed Teacher/SupportAdmin identity updates, logout-other-sessions, SupportAdmin provisioning/freeze authority, separate SupportAdmin-authority revocation, audit coverage, and EN/AR UI are implemented.
 - PR #51 — Learning Aim Practice Flow Slice 1 merged at `b390a4e114e443839305f7aada19d397887ded8d`; formative Practice Activity, Training P/M/D, Learning Aim progression/completion, Course Player integration, and related migration/tests are implemented separately from formal ASSESS.
+- PR #61 — Learning Aim Practice Attempt History — Slice 1 merged at `713dd95732ac44b334b6581b171d13ec1a49fb93`; teachers can configure bounded Learning Aim Practice attempt limits, reviewed attempts preserve independent evidence/feedback/outcomes, learners and teachers can inspect chronological attempt history, and progress exposes latest/best formative outcomes without reopening completed Learning Aims or changing Final Unit Practice, formal ASSESS, Retake, Resubmission, payments, or entitlements. Required PR Quality, Full UAT Matrix, and Security analysis checks were green before merge.
 - PR #52 — Staff MFA Enforcement Slice 1 merged at `7929f631aa33b3e98f332905943cd9f1eab7d7f9`; mandatory MFA is server-enforced for Admin, SystemAdmin, SupportAdmin, and FinanceAdmin, including restricted enrollment state and session/SecurityStamp handling.
 - PR #54 — Staff MFA Recovery Codes Slice 1 merged at `3693585d44ab43f7c591771e221b7be4cde1a4ea`; Identity recovery codes provide one-time presentation, single-use login, regeneration, and password-plus-unused-code authenticator reset with session revocation and mandatory Staff re-enrollment.
 - PR #55 — ASUS/LENOVO workstream coordination merged at `231efd020d2e8cd1d9cf8934edc288586c560024`; `docs/WORKSTREAM_COORDINATION.md` now records ownership, reserved scope, preflight, overlap, and handoff rules.
@@ -283,7 +284,7 @@ Do not reopen these areas merely because a later account lacks conversation memo
 | i18n/SEO/Performance/Accessibility | NOT STARTED |
 | Early Warning | NOT STARTED |
 | Guardian | NOT STARTED |
-| Community/Formative | PARTIAL — LEARNING AIM PRACTICE + FINAL UNIT COMPREHENSIVE PRACTICE MERGED |
+| Community/Formative | PARTIAL — LEARNING AIM PRACTICE + ATTEMPT HISTORY/IMPROVEMENT TRACKING + FINAL UNIT COMPREHENSIVE PRACTICE MERGED |
 | AI | NOT STARTED |
 | OneRoster/LTI | NOT STARTED |
 | Final UAT/Launch Hardening | PARTIAL |

@@ -47,10 +47,11 @@ Snapshot captured: **2026-09-25**
 
 At capture time:
 
-- `main`: `a0684ce0e65027c45c860e0ebf3db332263c8a0d`
+- `main`: `713dd95732ac44b334b6581b171d13ec1a49fb93`
 - PR #53 is merged: Comprehensive Practice Assignment — Final Unit Practice.
 - PR #57 is merged: LENOVO Admin Audit Log Filters — Slice 1.
 - PR #59 is merged: LENOVO Admin Audit Log CSV Export — Slice 2.
+- PR #61 is merged: ASUS Learning Aim Practice Attempt History — Slice 1.
 - GitHub Secret Scanning and Push Protection are enabled; 0 open secret-scanning alerts were present at verification.
 - OPEN implementation PRs: none.
 - ASUS and LENOVO have no active implementation PR at this snapshot.
@@ -65,30 +66,31 @@ These SHAs are historical coordination markers only. Re-verify them before using
 
 **No active ASUS implementation PR at this snapshot.**
 
-PR #53 — **Comprehensive Practice Assignment — Final Unit Practice** — is merged into `main` at `179b4eee25a5bad0cf4d961c3d940d9044461fff`.
+PR #61 — **Learning Aim Practice Attempt History — Slice 1** — is merged into `main` at `713dd95732ac44b334b6581b171d13ec1a49fb93`.
+
+PR #53 — **Comprehensive Practice Assignment — Final Unit Practice** — remains merged at `179b4eee25a5bad0cf4d961c3d940d9044461fff`.
 
 ## ASUS Reserved Scope
 
-No active implementation scope is reserved solely by PR #53 after its merge.
+No active ASUS implementation scope is reserved after PR #61 and PR #53 merged.
 
 The ASUS planned roadmap below remains planning ownership only. Before starting any roadmap item, ASUS must run a fresh preflight against latest `main`, all OPEN/Draft PRs, changed files, CI, and review threads.
 
 ## ASUS Current Completion Sequence
 
-PR #53 completion is closed: focused review, remediation, latest-main synchronization, final PR CI, Ready for Review, final review, merge, and post-merge `main` Quality/Security push CI are complete and green.
+PR #61 completion is closed: required PR Quality, Full UAT Matrix, and Security analysis checks were green before merge, and post-merge `main` Quality #181 plus Security analysis #183 are complete and green.
 
 ## ASUS Planned Roadmap
 
 These items are treated as ASUS-owned planning scope unless coordination explicitly changes ownership:
 
-1. Attempt History + Improvement Tracking
-2. AI Practice Evaluator
-3. Student Progress Intelligence
-4. Teacher Intervention Dashboard
-5. Evaluate My Assignment
-6. Commerce / Entitlements
-7. Production Hardening
-8. Final UI/UX Redesign
+1. AI Practice Evaluator
+2. Student Progress Intelligence
+3. Teacher Intervention Dashboard
+4. Evaluate My Assignment
+5. Commerce / Entitlements
+6. Production Hardening
+7. Final UI/UX Redesign
 
 A roadmap item is not automatically an active implementation branch. Re-run preflight before starting each item.
 
