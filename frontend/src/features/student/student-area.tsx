@@ -13,6 +13,7 @@ import { AccountLayout } from "@/features/auth/account-layout";
 import { StudentEmailChange } from "@/features/auth/student-email-change";
 import { SupportCenter } from "@/features/support/support-center";
 import { EvaluationAppeals } from "@/features/student/evaluation-appeals";
+import { AiPracticeShell } from "@/features/student/ai-practice-shell";
 import {
   compactStudentCoursesQueryOptions,
   StudentCoursesLearningHub,
@@ -144,6 +145,7 @@ export function StudentArea({
   const current = segment.join("/") || "dashboard";
   let content: ReactNode = <StudentDashboard />;
   if (current === "courses") content = <StudentCoursesLearningHub />;
+  if (current === "ai-practice") content = <AiPracticeShell />;
   if (current.startsWith("learn/") && segment[1])
     content = (
       <CoursePlayer
@@ -180,6 +182,7 @@ function StudentWorkspaceNav({ current }: { current: string }) {
   const links = [
     ["", locale === "ar" ? "الملخص" : "Overview"],
     ["courses", locale === "ar" ? "دوراتي" : "My courses"],
+    ["ai-practice", locale === "ar" ? "مساعد التدريب AI" : "AI practice"],
     ["evaluations", locale === "ar" ? "تقييماتي" : "My evaluations"],
     ["appeals", locale === "ar" ? "استئنافاتي" : "My appeals"],
     ["planner", locale === "ar" ? "المخطط" : "Planner"],
