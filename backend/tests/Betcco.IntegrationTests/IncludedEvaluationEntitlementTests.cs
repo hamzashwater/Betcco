@@ -99,6 +99,72 @@ public sealed class IncludedEvaluationEntitlementTests
     }
 
     [Fact]
+    public async Task Two_paid_course_enrollments_for_the_same_unit_grant_two_credits_in_one_payment()
+    {
+        await using var db = CreateDb();
+        var unit = await AddUnitCourseAsync(db, "shared", 25m, isFree: false);
+        var firstCourse = await db.Courses.SingleAsync();
+        var secondCourse = new Course
+        {
+            Slug = "course-shared-second",
+            ArabicTitle = "دورة ثانية",
+            EnglishTitle = "Second course",
+            ArabicDescription = "وصف",
+            EnglishDescription = "Description",
+            LearningTrackId = firstCourse.LearningTrackId,
+            TeacherUserId = "teacher",
+            Status = CourseStatus.Published,
+            Price = 30m,
+            IsFree = false
+        };
+        secondCourse.Modules.Add(new CourseModule
+        {
+            CourseId = secondCourse.Id,
+            UnitDefinitionId = unit.Id,
+            ArabicTitle = "وحدة",
+            EnglishTitle = "Unit",
+            UnitCode = unit.Code,
+            IsPublished = true
+        });
+        db.Courses.Add(secondCourse);
+        var cart = await db.Carts.SingleAsync();
+        db.CartItems.Add(new Betcco.Domain.Commerce.CartItem
+        {
+            CartId = cart.Id,
+            ItemType = CartItemType.Course,
+            ReferenceId = secondCourse.Id
+        });
+        await db.SaveChangesAsync();
+
+        var commerce = new CommerceService(db, new FakePaymentProvider());
+        var payment = await commerce.CreateCourseCheckoutAsync(
+            "student", "shared-cart", null, "Card", "two-shared-courses");
+        Assert.NotNull(payment);
+        Assert.True(await commerce.ConfirmFakeWebhookAsync(payment.PaymentId, "two-shared-courses-confirmed"));
+        Assert.True(await commerce.ConfirmFakeWebhookAsync(payment.PaymentId, "two-shared-courses-confirmed"));
+
+        var credits = await db.IncludedEvaluationEntitlements.ToListAsync();
+        Assert.Equal(2, credits.Count);
+        Assert.Equal(2, credits.Select(item => item.EnrollmentId).Distinct().Count());
+        Assert.All(credits, item =>
+        {
+            Assert.Equal(payment.PaymentId, item.GrantedByPaymentId);
+            Assert.Equal(unit.Id, item.UnitDefinitionId);
+        });
+
+        var firstReview = await AddReadyEvaluationAsync(db, "student", unit.Id);
+        var secondReview = await AddReadyEvaluationAsync(db, "student", unit.Id);
+        Assert.True((await commerce.CreateEvaluationCheckoutAsync(
+            "student", firstReview.Request.Id, "Card", "first-shared-credit", expectIncludedCredit: true))!.IncludedCreditApplied);
+        Assert.True((await commerce.GetIncludedEvaluationCreditStatusAsync(
+            "student", secondReview.Scope.Id)).Available);
+        Assert.True((await commerce.CreateEvaluationCheckoutAsync(
+            "student", secondReview.Request.Id, "Card", "second-shared-credit", expectIncludedCredit: true))!.IncludedCreditApplied);
+        Assert.False((await commerce.GetIncludedEvaluationCreditStatusAsync(
+            "student", secondReview.Scope.Id)).Available);
+    }
+
+    [Fact]
     public async Task Free_course_access_does_not_grant_an_included_evaluation_credit()
     {
         await using var db = CreateDb();

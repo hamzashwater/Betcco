@@ -287,7 +287,8 @@ public sealed class EvaluationService(
             || command.Results.Any(x =>
                 !validCodes.Contains(x.CriterionCode, StringComparer.OrdinalIgnoreCase)
                 || !selectedCodes.Contains(x.CriterionCode, StringComparer.OrdinalIgnoreCase)
-                || !Enum.TryParse<CriterionAchievement>(x.Achievement, true, out _))) return false;
+                || !Enum.TryParse<CriterionAchievement>(x.Achievement, true, out var achievement)
+                || !Enum.IsDefined(achievement))) return false;
 
         var normalizedResults = command.Results.Select(item =>
         {
@@ -360,7 +361,10 @@ public sealed class EvaluationService(
         var selectedCodes = JsonSerializer.Deserialize<string[]>(request.EvaluatorCriteriaPlanJson) ?? [];
         if (!BtecAssessmentRuleSet.TryRead(request.AssessmentRuleSetSnapshotJson, out var ruleSet)) return false;
         if (selectedCodes.Length == 0 || results.Count != selectedCodes.Length || results.Select(x => x.CriterionCode).Distinct(StringComparer.OrdinalIgnoreCase).Count() != results.Count) return false;
-        if (results.Any(x => !validCodes.Contains(x.CriterionCode, StringComparer.OrdinalIgnoreCase) || !selectedCodes.Contains(x.CriterionCode, StringComparer.OrdinalIgnoreCase) || !Enum.TryParse<CriterionAchievement>(x.Achievement, true, out _))) return false;
+        if (results.Any(x => !validCodes.Contains(x.CriterionCode, StringComparer.OrdinalIgnoreCase)
+            || !selectedCodes.Contains(x.CriterionCode, StringComparer.OrdinalIgnoreCase)
+            || !Enum.TryParse<CriterionAchievement>(x.Achievement, true, out var achievement)
+            || !Enum.IsDefined(achievement))) return false;
         if (request.RetakeOfEvaluationRequestId is not null
             && (validCodes.Any(code => !string.Equals(EvaluationAssessmentCalculator.Describe(code).Band, "P", StringComparison.OrdinalIgnoreCase))
                 || selectedCodes.Length != validCodes.Length)) return false;

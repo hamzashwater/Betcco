@@ -646,7 +646,10 @@ public sealed class CourseAssignmentService(
         if (submission is null || submission.CourseAssignment!.Purpose != CourseAssignmentPurpose.Coursework
             || command.Results.Count != submission.CourseAssignment.Criteria.Count) return false;
         var criteria = submission.CourseAssignment.Criteria.ToDictionary(item => item.Id);
-        if (command.Results.Select(item => item.CriterionId).Distinct().Count() != command.Results.Count || command.Results.Any(item => !criteria.ContainsKey(item.CriterionId) || !Enum.TryParse<CriterionAchievement>(item.Achievement, true, out _))) return false;
+        if (command.Results.Select(item => item.CriterionId).Distinct().Count() != command.Results.Count
+            || command.Results.Any(item => !criteria.ContainsKey(item.CriterionId)
+                || !Enum.TryParse<CriterionAchievement>(item.Achievement, true, out var achievement)
+                || !Enum.IsDefined(achievement))) return false;
 
         var oldResults = await db.CourseAssignmentCriterionResults.Where(item => item.CourseAssignmentSubmissionId == submission.Id).ToListAsync(cancellationToken);
         db.CourseAssignmentCriterionResults.RemoveRange(oldResults);

@@ -1352,7 +1352,10 @@ public sealed class BetccoDbContext(
             .HasForeignKey(x => x.ConsumedByEvaluationRequestId).OnDelete(DeleteBehavior.Restrict);
         builder.Entity<IncludedEvaluationEntitlement>().HasOne(x => x.RevokedByRefund).WithMany()
             .HasForeignKey(x => x.RevokedByRefundId).OnDelete(DeleteBehavior.Restrict);
-        builder.Entity<IncludedEvaluationEntitlement>().HasIndex(x => new { x.GrantedByPaymentId, x.UnitDefinitionId }).IsUnique();
+        builder.Entity<IncludedEvaluationEntitlement>()
+            .HasIndex(x => new { x.GrantedByPaymentId, x.EnrollmentId, x.UnitDefinitionId })
+            .IsUnique()
+            .HasDatabaseName("IX_IncludedEvaluationEntitlements_Payment_Enrollment_Unit");
         builder.Entity<IncludedEvaluationEntitlement>().HasIndex(x => x.ConsumedByEvaluationRequestId).IsUnique()
             .HasFilter("\"ConsumedByEvaluationRequestId\" IS NOT NULL");
         builder.Entity<IncludedEvaluationEntitlement>().HasIndex(x => new { x.StudentUserId, x.UnitDefinitionId, x.ConsumedAtUtc, x.RevokedAtUtc });
