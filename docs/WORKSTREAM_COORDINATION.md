@@ -78,7 +78,7 @@ The ASUS planned roadmap below remains planning ownership only. Before starting 
 
 ## ASUS Current Completion Sequence
 
-PR #61 implementation is merged. Required PR checks were green before merge. Post-merge `main` Security analysis is green; post-merge Quality must be verified against the live workflow before claiming final closure.
+PR #61 completion is closed: required PR Quality, Full UAT Matrix, and Security analysis checks were green before merge, and post-merge `main` Quality #181 plus Security analysis #183 are complete and green.
 
 ## ASUS Planned Roadmap
 
