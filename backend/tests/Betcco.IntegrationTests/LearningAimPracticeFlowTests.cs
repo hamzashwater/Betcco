@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using System.Data.Common;
+using System.Text.Json;
 using Betcco.Api.Controllers;
 using Betcco.Application.Assignments;
 using Betcco.Application.Common;
@@ -10,11 +12,606 @@ using Betcco.Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Betcco.IntegrationTests;
 
 public sealed class LearningAimPracticeFlowTests
 {
+    [Theory]
+    [InlineData(3)]
+    [InlineData(4)]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Comprehensive_practice_requires_every_reviewed_canonical_aim_and_stays_formative(int count)
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("comprehensive_unlock");
+        await using var db = database.CreateContext();
+        var (course, module, aims, lessons) = await SeedAsync(db, count);
+        var access = new ContentAccessService(db);
+        var service = new CourseAssignmentService(db, new MemoryFileStorage(), new CleanFileScanner(), new NullEmailNotifications(), access);
+        var created = await service.CreateComprehensivePracticeAsync("teacher", new CreateComprehensivePracticeCommand(
+            module.Id, "تدريب الوحدة", "Unit Practice", "ارفع عملك", "Upload your work", null));
+        Assert.Equal(PracticeCreateStatus.Created, created.Status);
+        var finalId = created.Id!.Value;
+        Assert.Equal(PracticeCreateStatus.Conflict, (await service.CreateComprehensivePracticeAsync("teacher", new CreateComprehensivePracticeCommand(
+            module.Id, "تدريب الوحدة", "Unit Practice", "ارفع عملك", "Upload your work", null))).Status);
+        Assert.Equal(PracticeCreateStatus.Invalid, (await service.CreateComprehensivePracticeAsync("other-teacher", new CreateComprehensivePracticeCommand(
+            module.Id, "تدريب الوحدة", "Unit Practice", "ارفع عملك", "Upload your work", null))).Status);
+        Assert.True(await service.PublishAsync("teacher", finalId, true));
+        Assert.False((await access.CanAccessAsync("student", course.Id, LearningContentType.Assignment, finalId)).IsAvailable);
+        Assert.Null(await service.StartSubmissionAsync("student", finalId, null));
+        Assert.Null(await service.StartSubmissionAsync("outsider", finalId, null));
+        for (var i = 0; i < count; i++)
+        {
+            var aimId = (await service.CreatePracticeAsync("teacher", new CreateLearningAimPracticeCommand(
+                aims[i].Id, "نشاط", "Practice", "ارفع", "Upload", null)))!.Value;
+            db.LessonProgresses.Add(new LessonProgress { StudentUserId = "student", LessonId = lessons[i].Id, IsCompleted = true });
+            await db.SaveChangesAsync();
+            var draft = (await service.StartSubmissionAsync("student", aimId, null))!;
+            await using var evidence = new MemoryStream([0x25, 0x50, 0x44, 0x46, 0x2D, 0x31]);
+            Assert.Equal(CourseAssignmentFileAddStatus.Added, await service.AddFileAsync("student", draft.SubmissionId,
+                "aim.pdf", "application/pdf", evidence.Length, evidence));
+            Assert.True(await service.SubmitAsync("student", draft.SubmissionId));
+            Assert.False((await access.CanAccessAsync("student", course.Id, LearningContentType.Assignment, finalId)).IsAvailable);
+            Assert.Equal(PracticeReviewResult.Finalized, await service.ReviewPracticeAsync("teacher", draft.SubmissionId,
+                new ReviewLearningAimPracticeCommand("Pass", "Strong", "Gap", "Improve")));
+            Assert.Equal(i == count - 1, (await access.CanAccessAsync("student", course.Id, LearningContentType.Assignment, finalId)).IsAvailable);
+        }
+        var finalDraft = (await service.StartSubmissionAsync("student", finalId, "Full Unit"))!;
+        await using var file = new MemoryStream([0x25, 0x50, 0x44, 0x46, 0x2D, 0x31]);
+        Assert.Equal(CourseAssignmentFileAddStatus.Added, await service.AddFileAsync("student", finalDraft.SubmissionId,
+            "unit.pdf", "application/pdf", file.Length, file));
+        Assert.True(await service.SubmitAsync("student", finalDraft.SubmissionId));
+        var review = new ReviewLearningAimPracticeCommand("Merit", "Strong evidence", "Missing detail", "Explain the method");
+        Assert.Equal(PracticeReviewResult.Invalid, await service.ReviewComprehensivePracticeAsync("other-teacher", finalDraft.SubmissionId, review));
+        Assert.Equal(PracticeReviewResult.Invalid, await service.ReviewPracticeAsync("teacher", finalDraft.SubmissionId, review));
+        Assert.Equal(PracticeReviewResult.Finalized, await service.ReviewComprehensivePracticeAsync("teacher", finalDraft.SubmissionId, review));
+        var stored = await db.CourseAssignmentSubmissions.AsNoTracking().SingleAsync(x => x.Id == finalDraft.SubmissionId);
+        Assert.Equal(TrainingOutcome.Merit, stored.TrainingOutcome);
+        Assert.Equal("Strong evidence", stored.TrainingStrengths);
+        Assert.Equal("Missing detail", stored.TrainingGaps);
+        Assert.Equal("Explain the method", stored.TrainingImprovementGuidance);
+        Assert.Null(stored.CalculatedGrade);
+        Assert.Empty(await db.EvaluationRequests.AsNoTracking().ToArrayAsync());
+        Assert.Empty(await db.CourseAssignmentCriterionResults.AsNoTracking().ToArrayAsync());
+        Assert.Equal(PracticeReviewResult.Conflict, await service.ReviewComprehensivePracticeAsync("teacher", finalDraft.SubmissionId, review));
+    }
+
+    [Fact]
+    public async Task Empty_or_broken_canonical_aim_mapping_never_releases_comprehensive_practice()
+    {
+        await using var db = CreateDb();
+        var (course, module, _, _) = await SeedAsync(db, 0);
+        var service = new CourseAssignmentService(db, new MemoryFileStorage(), new CleanFileScanner(), new NullEmailNotifications(), new ContentAccessService(db));
+        var created = await service.CreateComprehensivePracticeAsync("teacher", new CreateComprehensivePracticeCommand(
+            module.Id, "تدريب", "Practice", "تعليمات", "Instructions", null));
+        Assert.Equal(PracticeCreateStatus.Created, created.Status);
+        Assert.True(await service.PublishAsync("teacher", created.Id!.Value, true));
+        Assert.False((await new ContentAccessService(db).CanAccessAsync("student", course.Id, LearningContentType.Assignment, created.Id!.Value)).IsAvailable);
+        Assert.Null(await service.StartSubmissionAsync("student", created.Id.Value, null));
+        var definition = new LearningAimDefinition { UnitDefinitionId = module.UnitDefinitionId!.Value, Code = "A", ArabicTitle = "هدف", EnglishTitle = "Aim", ArabicDescription = "وصف", EnglishDescription = "Description", SourceReference = "test" };
+        db.Add(definition);
+        await db.SaveChangesAsync();
+        Assert.False((await new ContentAccessService(db).CanAccessAsync("student", course.Id, LearningContentType.Assignment, created.Id.Value)).IsAvailable);
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Comprehensive_deadline_uses_only_the_students_active_extension()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("comprehensive_deadline");
+        await using var db = database.CreateContext();
+        var (course, module) = await SeedReadyComprehensiveAsync(db, 3);
+        db.Enrollments.Add(new Enrollment { StudentUserId = "student-b", CourseId = course.Id });
+        await db.SaveChangesAsync();
+        var service = new CourseAssignmentService(db, new MemoryFileStorage(), new CleanFileScanner(), new NullEmailNotifications(), new ContentAccessService(db));
+        var created = await service.CreateComprehensivePracticeAsync("teacher", new CreateComprehensivePracticeCommand(
+            module.Id, "تدريب", "Practice", "تعليمات", "Instructions", DateTimeOffset.UtcNow.AddHours(2)));
+        var assignmentId = created.Id!.Value;
+        Assert.True(await service.PublishAsync("teacher", assignmentId, true));
+        Assert.True((await new ContentAccessService(db).CanAccessAsync("student", course.Id, LearningContentType.Assignment, assignmentId)).IsAvailable);
+        var assignment = await db.CourseAssignments.SingleAsync(x => x.Id == assignmentId);
+        assignment.DueAtUtc = DateTimeOffset.UtcNow.AddHours(-2);
+        await db.SaveChangesAsync();
+        Assert.Null(await service.StartSubmissionAsync("student", assignmentId, null));
+        var extensions = new CourseAssignmentDeadlineExtensionService(db);
+        var expired = await extensions.GrantAsync("teacher", assignmentId,
+            new GrantCourseAssignmentDeadlineExtension("student", DateTimeOffset.UtcNow.AddHours(-1), "Expired extension"));
+        Assert.Equal(DeadlineExtensionWriteStatus.Success, expired.Status);
+        Assert.Null(await service.StartSubmissionAsync("student", assignmentId, null));
+        Assert.Equal(DeadlineExtensionWriteStatus.Success, (await extensions.RevokeAsync("teacher", assignmentId, expired.Extension!.Id, new(null))).Status);
+        var active = await extensions.GrantAsync("teacher", assignmentId,
+            new GrantCourseAssignmentDeadlineExtension("student", DateTimeOffset.UtcNow.AddHours(2), "Practice extension"));
+        Assert.Equal(DeadlineExtensionWriteStatus.Success, active.Status);
+        Assert.True((await new ContentAccessService(db).CanAccessAsync("student", course.Id, LearningContentType.Assignment, assignmentId)).IsAvailable);
+        Assert.False((await new ContentAccessService(db).CanAccessAsync("student-b", course.Id, LearningContentType.Assignment, assignmentId)).IsAvailable);
+        var draft = (await service.StartSubmissionAsync("student", assignmentId, null))!;
+        await using var file = new MemoryStream([0x25, 0x50, 0x44, 0x46, 0x2D, 0x31]);
+        Assert.Equal(CourseAssignmentFileAddStatus.Added, await service.AddFileAsync("student", draft.SubmissionId,
+            "unit.pdf", "application/pdf", file.Length, file));
+        Assert.Equal(DeadlineExtensionWriteStatus.Success, (await extensions.RevokeAsync("teacher", assignmentId, active.Extension!.Id, new(null))).Status);
+        Assert.False(await service.SubmitAsync("student", draft.SubmissionId));
+        Assert.Equal(CourseAssignmentFileAddStatus.SubmissionNotFound, await service.AddFileAsync("student", draft.SubmissionId,
+            "unit.pdf", "application/pdf", file.Length, file));
+        Assert.Equal(DeadlineExtensionWriteStatus.Success, (await extensions.GrantAsync("teacher", assignmentId,
+            new GrantCourseAssignmentDeadlineExtension("student", DateTimeOffset.UtcNow.AddHours(2), "Restored extension"))).Status);
+        Assert.True(await service.SubmitAsync("student", draft.SubmissionId));
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Comprehensive_create_and_review_races_have_one_winner_and_one_audit()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("comprehensive_races");
+        Guid moduleId;
+        Guid courseId;
+        await using (var setup = database.CreateContext())
+        {
+            var seeded = await SeedReadyComprehensiveAsync(setup, 3);
+            moduleId = seeded.Module.Id;
+            courseId = seeded.Course.Id;
+        }
+        await using var dbA = database.CreateContext();
+        await using var dbB = database.CreateContext();
+        var createCommand = new CreateComprehensivePracticeCommand(moduleId, "تدريب", "Practice", "تعليمات", "Instructions", null);
+        var serviceA = new CourseAssignmentService(dbA, new MemoryFileStorage(), new CleanFileScanner(), new NullEmailNotifications(), new ContentAccessService(dbA));
+        var serviceB = new CourseAssignmentService(dbB, new MemoryFileStorage(), new CleanFileScanner(), new NullEmailNotifications(), new ContentAccessService(dbB));
+        var creations = await Task.WhenAll(serviceA.CreateComprehensivePracticeAsync("teacher", createCommand),
+            serviceB.CreateComprehensivePracticeAsync("teacher", createCommand));
+        Assert.Equal(1, creations.Count(x => x.Status == PracticeCreateStatus.Created));
+        Assert.Equal(1, creations.Count(x => x.Status == PracticeCreateStatus.Conflict));
+        var assignmentId = creations.Single(x => x.Status == PracticeCreateStatus.Created).Id!.Value;
+        await using var verify = database.CreateContext();
+        Assert.Single(await verify.CourseAssignments.AsNoTracking().Where(x => x.CourseModuleId == moduleId
+            && x.Purpose == CourseAssignmentPurpose.ComprehensivePractice).ToArrayAsync());
+        Assert.Single(await verify.AuditLogs.AsNoTracking().Where(x => x.Action == "ComprehensivePracticeCreated"
+            && x.EntityId == assignmentId.ToString()).ToArrayAsync());
+        var service = new CourseAssignmentService(verify, new MemoryFileStorage(), new CleanFileScanner(), new NullEmailNotifications(), new ContentAccessService(verify));
+        Assert.True(await service.PublishAsync("teacher", assignmentId, true));
+        var draft = (await service.StartSubmissionAsync("student", assignmentId, null))!;
+        await using var file = new MemoryStream([0x25, 0x50, 0x44, 0x46, 0x2D, 0x31]);
+        Assert.Equal(CourseAssignmentFileAddStatus.Added, await service.AddFileAsync("student", draft.SubmissionId,
+            "unit.pdf", "application/pdf", file.Length, file));
+        Assert.True(await service.SubmitAsync("student", draft.SubmissionId));
+        var enrollment = await verify.Enrollments.SingleAsync(x => x.CourseId == courseId && x.StudentUserId == "student");
+        enrollment.AccessEndsAtUtc = DateTimeOffset.UtcNow.AddHours(-1);
+        await verify.SaveChangesAsync();
+        Assert.Null(await service.StartSubmissionAsync("student", assignmentId, null));
+        await using var reviewA = database.CreateContext();
+        await using var reviewB = database.CreateContext();
+        var reviewerA = new CourseAssignmentService(reviewA, null!, null!, new NullEmailNotifications(), new ContentAccessService(reviewA));
+        var reviewerB = new CourseAssignmentService(reviewB, null!, null!, new NullEmailNotifications(), new ContentAccessService(reviewB));
+        var merit = new ReviewLearningAimPracticeCommand("Merit", "Merit strengths", "Merit gaps", "Merit guidance");
+        var distinction = new ReviewLearningAimPracticeCommand("Distinction", "Distinction strengths", "Distinction gaps", "Distinction guidance");
+        var reviews = await Task.WhenAll(reviewerA.ReviewComprehensivePracticeAsync("teacher", draft.SubmissionId, merit),
+            reviewerB.ReviewComprehensivePracticeAsync("teacher", draft.SubmissionId, distinction));
+        Assert.Equal(1, reviews.Count(x => x == PracticeReviewResult.Finalized));
+        Assert.Equal(1, reviews.Count(x => x == PracticeReviewResult.Conflict));
+        await using var final = database.CreateContext();
+        var winning = reviews[0] == PracticeReviewResult.Finalized ? merit : distinction;
+        var stored = await final.CourseAssignmentSubmissions.AsNoTracking().SingleAsync(x => x.Id == draft.SubmissionId);
+        Assert.Equal(Enum.Parse<TrainingOutcome>(winning.TrainingOutcome), stored.TrainingOutcome);
+        Assert.Equal(winning.Strengths, stored.TrainingStrengths);
+        Assert.Equal(winning.Gaps, stored.TrainingGaps);
+        Assert.Equal(winning.ImprovementGuidance, stored.TrainingImprovementGuidance);
+        Assert.Single(await final.AuditLogs.AsNoTracking().Where(x => x.Action == "ComprehensivePracticeReviewed"
+            && x.EntityId == draft.SubmissionId.ToString()).ToArrayAsync());
+    }
+
+    [Fact]
+    public async Task Comprehensive_criteria_accept_only_existing_canonical_criteria_from_the_same_unit()
+    {
+        await using var db = CreateDb();
+        var (_, module, aims, _) = await SeedAsync(db, 3);
+        var service = new CourseAssignmentService(db, new MemoryFileStorage(), new CleanFileScanner(), new NullEmailNotifications(), new ContentAccessService(db));
+        var created = await service.CreateComprehensivePracticeAsync("teacher", new CreateComprehensivePracticeCommand(
+            module.Id, "تدريب", "Practice", "تعليمات", "Instructions", null));
+        var foreignUnit = new UnitDefinition { QualificationVersionId = module.UnitDefinition!.QualificationVersionId, Code = "U2", ArabicTitle = "أخرى", EnglishTitle = "Other" };
+        var foreignModule = new CourseModule { CourseId = module.CourseId, UnitDefinition = foreignUnit, ArabicTitle = "أخرى", EnglishTitle = "Other" };
+        db.AddRange(foreignUnit, foreignModule);
+        var criteria = aims.Take(2).Select((aim, index) =>
+        {
+            var definition = new AssessmentCriterionDefinition
+            {
+                LearningAimDefinitionId = aim.LearningAimDefinitionId!.Value,
+                Code = $"{aim.Code}.P1",
+                Band = BtecCriterionBand.Pass,
+                ArabicDescription = "معيار",
+                EnglishDescription = "Criterion",
+                SourceReference = "test"
+            };
+            var delivery = new BtecCriterion
+            {
+                CourseModuleId = module.Id,
+                BtecLearningAimId = aim.Id,
+                AssessmentCriterionDefinition = definition,
+                Code = definition.Code,
+                Band = definition.Band,
+                ArabicDescription = "معيار",
+                EnglishDescription = "Criterion"
+            };
+            db.AddRange(definition, delivery);
+            return delivery;
+        }).ToArray();
+        var foreignDefinition = new LearningAimDefinition { UnitDefinition = foreignUnit, Code = "A", ArabicTitle = "هدف", EnglishTitle = "Aim", ArabicDescription = "وصف", EnglishDescription = "Description", SourceReference = "test" };
+        var foreignCriterionDefinition = new AssessmentCriterionDefinition
+        {
+            LearningAimDefinition = foreignDefinition,
+            Code = "A.P2",
+            Band = BtecCriterionBand.Pass,
+            ArabicDescription = "معيار",
+            EnglishDescription = "Criterion",
+            SourceReference = "test"
+        };
+        var foreignCriterion = new BtecCriterion
+        {
+            CourseModule = foreignModule,
+            AssessmentCriterionDefinition = foreignCriterionDefinition,
+            Code = "A.P2",
+            Band = BtecCriterionBand.Pass,
+            ArabicDescription = "معيار",
+            EnglishDescription = "Criterion"
+        };
+        db.AddRange(foreignDefinition, foreignCriterionDefinition, foreignCriterion);
+        await db.SaveChangesAsync();
+        foreach (var criterion in criteria)
+            Assert.NotNull(await service.AddCriterionAsync("teacher", new AddCourseAssignmentCriterionCommand(
+                created.Id!.Value, criterion.Id, "FABRICATED", "Distinction", "fake", "fake", 0)));
+        Assert.Null(await service.AddCriterionAsync("teacher", new AddCourseAssignmentCriterionCommand(
+            created.Id!.Value, criteria[0].Id, null, null, null, null, 0)));
+        Assert.Null(await service.AddCriterionAsync("teacher", new AddCourseAssignmentCriterionCommand(
+            created.Id!.Value, foreignCriterion.Id, null, null, null, null, 0)));
+        Assert.Null(await service.AddCriterionAsync("teacher", new AddCourseAssignmentCriterionCommand(
+            created.Id!.Value, null, "C.D9", "Distinction", "fabricated", "fabricated", 0)));
+        Assert.Equal(new[] { "A.P1", "B.P1" }, (await db.CourseAssignmentCriteria.AsNoTracking()
+            .Where(x => x.CourseAssignmentId == created.Id).OrderBy(x => x.Code).Select(x => x.Code).ToArrayAsync()));
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Comprehensive_authoring_stays_private_until_teacher_publishes_after_configuring_it()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("comprehensive_authoring_race");
+        await using var db = database.CreateContext();
+        var (course, module) = await SeedReadyComprehensiveAsync(db, 3);
+        var aims = await db.BtecLearningAims.AsNoTracking().Where(x => x.CourseModuleId == module.Id)
+            .OrderBy(x => x.Code).Take(2).ToArrayAsync();
+        var sources = aims.Select((aim, index) =>
+        {
+            var definition = new AssessmentCriterionDefinition
+            {
+                LearningAimDefinitionId = aim.LearningAimDefinitionId!.Value,
+                Code = $"{aim.Code}.P1",
+                Band = BtecCriterionBand.Pass,
+                ArabicDescription = "معيار",
+                EnglishDescription = "Criterion",
+                SourceReference = "test"
+            };
+            var source = new BtecCriterion
+            {
+                CourseModuleId = module.Id,
+                BtecLearningAimId = aim.Id,
+                AssessmentCriterionDefinition = definition,
+                Code = definition.Code,
+                Band = definition.Band,
+                ArabicDescription = "معيار",
+                EnglishDescription = "Criterion"
+            };
+            db.AddRange(definition, source);
+            return source;
+        }).ToArray();
+        await db.SaveChangesAsync();
+        var access = new ContentAccessService(db);
+        var service = new CourseAssignmentService(db, new MemoryFileStorage(), new CleanFileScanner(), new NullEmailNotifications(), access);
+        var created = await service.CreateComprehensivePracticeAsync("teacher", new CreateComprehensivePracticeCommand(
+            module.Id, "مسودة", "Draft", "تعليمات", "Instructions", null));
+        var assignmentId = created.Id!.Value;
+        var stored = await db.CourseAssignments.AsNoTracking().SingleAsync(x => x.Id == assignmentId);
+        Assert.False(stored.IsPublished);
+        Assert.Equal(ContentPublicationStatus.Draft, stored.PublicationStatus);
+        Assert.False((await access.CanAccessAsync("student", course.Id, LearningContentType.Assignment, assignmentId)).IsAvailable);
+        Assert.Null(await service.StartSubmissionAsync("student", assignmentId, null));
+        var controller = new CourseAssignmentsController(service, null!, null!, null!, db, access,
+            new CourseAssignmentDeadlineResolver(db), null!)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "student")], "Test"))
+                }
+            }
+        };
+        Assert.IsType<NotFoundResult>(await controller.StartSubmission(assignmentId, new StartAssignmentSubmissionRequest(null), CancellationToken.None));
+        Assert.False(await db.CourseAssignmentSubmissions.AnyAsync(x => x.CourseAssignmentId == assignmentId));
+
+        Assert.True(await service.UpdateComprehensivePracticeAsync("teacher", assignmentId,
+            new UpdateComprehensivePracticeCommand("مهمة الوحدة", "Unit Practice", "تعليمات جديدة", "New instructions", DateTimeOffset.UtcNow.AddDays(1))));
+        Assert.False(await service.UpdateComprehensivePracticeAsync("other-teacher", assignmentId,
+            new UpdateComprehensivePracticeCommand("غير مصرح", "Unauthorized", "تعليمات", "Instructions", null)));
+        var firstLink = await service.AddCriterionAsync("teacher", new AddCourseAssignmentCriterionCommand(
+            assignmentId, sources[0].Id, null, null, null, null, 0));
+        Assert.NotNull(firstLink);
+        Assert.Null(await service.AddCriterionAsync("other-teacher", new AddCourseAssignmentCriterionCommand(
+            assignmentId, sources[1].Id, null, null, null, null, 1)));
+        Assert.True(await service.AddResourceAsync("teacher", assignmentId, "brief.pdf", "private/brief", "application/pdf"));
+        Assert.False(await service.AddResourceAsync("other-teacher", assignmentId, "foreign.pdf", "private/foreign", "application/pdf"));
+        var resourceId = await db.CourseAssignmentResources.AsNoTracking()
+            .Where(x => x.CourseAssignmentId == assignmentId)
+            .Select(x => x.Id)
+            .SingleAsync();
+        Assert.False(await service.PublishAsync("other-teacher", assignmentId, true));
+        Assert.True(await service.PublishAsync("teacher", assignmentId, true));
+        Assert.True((await access.CanAccessAsync("student", course.Id, LearningContentType.Assignment, assignmentId)).IsAvailable);
+        var draft = (await service.StartSubmissionAsync("student", assignmentId, null))!;
+        Assert.False(await service.AddResourceAsync("teacher", assignmentId, "late.pdf", "private/late", "application/pdf"));
+        Assert.False(await service.DeleteResourceAsync("teacher", resourceId));
+        Assert.True(await db.CourseAssignmentResources.AsNoTracking().AnyAsync(x => x.Id == resourceId));
+        await using var evidence = new MemoryStream([0x25, 0x50, 0x44, 0x46, 0x2D, 0x31]);
+        Assert.Equal(CourseAssignmentFileAddStatus.Added, await service.AddFileAsync("student", draft.SubmissionId,
+            "unit.pdf", "application/pdf", evidence.Length, evidence));
+        Assert.True(await service.SubmitAsync("student", draft.SubmissionId));
+        Assert.Null(await service.AddCriterionAsync("teacher", new AddCourseAssignmentCriterionCommand(
+            assignmentId, sources[1].Id, null, null, null, null, 1)));
+        Assert.False(await service.DeleteCriterionAsync("teacher", firstLink!.Value));
+        Assert.False(await service.UpdateComprehensivePracticeAsync("teacher", assignmentId,
+            new UpdateComprehensivePracticeCommand("تعديل", "Changed", "تعليمات", "Instructions", null)));
+        Assert.False(await service.PublishAsync("teacher", assignmentId, false));
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Unpublished_comprehensive_with_a_preexisting_draft_cannot_be_submitted()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("comprehensive_unpublished_submit");
+        await using var db = database.CreateContext();
+        var (_, module) = await SeedReadyComprehensiveAsync(db, 3);
+        var access = new ContentAccessService(db);
+        var service = new CourseAssignmentService(db, new MemoryFileStorage(), new CleanFileScanner(), new NullEmailNotifications(), access);
+        var created = await service.CreateComprehensivePracticeAsync("teacher", new CreateComprehensivePracticeCommand(
+            module.Id, "مسودة", "Draft", "تعليمات", "Instructions", null));
+        var submission = new Betcco.Domain.Assessments.CourseAssignmentSubmission
+        {
+            CourseAssignmentId = created.Id!.Value,
+            StudentUserId = "student"
+        };
+        var version = new Betcco.Domain.Assessments.CourseAssignmentSubmissionVersion { VersionNumber = 1 };
+        version.Files.Add(new Betcco.Domain.Assessments.CourseAssignmentSubmissionFile
+        {
+            OriginalFileName = "unit.pdf",
+            StorageKey = "private/seeded",
+            ContentType = "application/pdf",
+            LengthBytes = 6,
+            ScanStatus = UploadScanStatus.Clean
+        });
+        submission.Versions.Add(version);
+        db.CourseAssignmentSubmissions.Add(submission);
+        await db.SaveChangesAsync();
+        Assert.False(await service.SubmitAsync("student", submission.Id));
+        Assert.Equal(CourseAssignmentSubmissionStatus.Draft,
+            (await db.CourseAssignmentSubmissions.AsNoTracking().SingleAsync(x => x.Id == submission.Id)).Status);
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Comprehensive_migration_upgrades_main_without_changing_existing_practice()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("comprehensive_upgrade",
+            targetMigration: "20260924104739_AddLearningAimPracticeFlow");
+        Guid moduleId;
+        Guid aimAssignmentId;
+        await using (var before = database.CreateContext())
+        {
+            var (_, module, aims, _) = await SeedAsync(before, 3);
+            moduleId = module.Id;
+            var service = new CourseAssignmentService(before, new MemoryFileStorage(), new CleanFileScanner(), new NullEmailNotifications(), new ContentAccessService(before));
+            aimAssignmentId = (await service.CreatePracticeAsync("teacher", new CreateLearningAimPracticeCommand(
+                aims[0].Id, "نشاط", "Practice", "ارفع", "Upload", null)))!.Value;
+        }
+        await using var upgrade = database.CreateContext();
+        await upgrade.GetService<IMigrator>().MigrateAsync();
+        Assert.False(upgrade.Database.HasPendingModelChanges());
+        Assert.True(await upgrade.CourseAssignments.AsNoTracking().AnyAsync(x => x.Id == aimAssignmentId
+            && x.Purpose == CourseAssignmentPurpose.LearningAimPractice));
+        var serviceAfter = new CourseAssignmentService(upgrade, new MemoryFileStorage(), new CleanFileScanner(), new NullEmailNotifications(), new ContentAccessService(upgrade));
+        var created = await serviceAfter.CreateComprehensivePracticeAsync("teacher", new CreateComprehensivePracticeCommand(
+            moduleId, "تدريب", "Practice", "تعليمات", "Instructions", null));
+        Assert.Equal(PracticeCreateStatus.Created, created.Status);
+        Assert.True(await serviceAfter.PublishAsync("teacher", created.Id!.Value, true));
+        Assert.Equal(2, await upgrade.CourseAssignments.AsNoTracking().CountAsync());
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Comprehensive_evidence_download_is_private_and_teacher_review_survives_access_expiry()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("comprehensive_evidence_privacy");
+        await using var db = database.CreateContext();
+        var (course, module) = await SeedReadyComprehensiveAsync(db, 3);
+        var access = new ContentAccessService(db);
+        var storage = new ReadableFileStorage();
+        var service = new CourseAssignmentService(db, storage, new CleanFileScanner(), new NullEmailNotifications(), access);
+        var created = await service.CreateComprehensivePracticeAsync("teacher", new CreateComprehensivePracticeCommand(
+            module.Id, "تدريب", "Practice", "تعليمات", "Instructions", null));
+        Assert.True(await service.PublishAsync("teacher", created.Id!.Value, true));
+        var draft = (await service.StartSubmissionAsync("student", created.Id!.Value, null))!;
+        await using var evidence = new MemoryStream([0x25, 0x50, 0x44, 0x46, 0x2D, 0x31]);
+        Assert.Equal(CourseAssignmentFileAddStatus.Added, await service.AddFileAsync("student", draft.SubmissionId,
+            "unit.pdf", "application/pdf", evidence.Length, evidence));
+        var fileId = await db.CourseAssignmentSubmissionFiles.AsNoTracking()
+            .Where(x => x.CourseAssignmentSubmissionVersion!.CourseAssignmentSubmissionId == draft.SubmissionId)
+            .Select(x => x.Id).SingleAsync();
+
+        CourseAssignmentsController Controller(string userId) => new(service, storage, null!, null!, db, access,
+            new CourseAssignmentDeadlineResolver(db), null!)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, userId)], "Test"))
+                }
+            }
+        };
+
+        Assert.Empty(JsonSerializer.SerializeToElement(Assert.IsType<OkObjectResult>(
+            await Controller("teacher").TeacherComprehensiveSubmissions(course.Id, CancellationToken.None)).Value).EnumerateArray());
+        Assert.IsType<NotFoundResult>(await Controller("teacher").DownloadFile(draft.SubmissionId, fileId, CancellationToken.None));
+        Assert.IsType<NotFoundResult>(await Controller("another-student").DownloadFile(draft.SubmissionId, fileId, CancellationToken.None));
+        Assert.IsType<NotFoundResult>(await Controller("unrelated-teacher").DownloadFile(draft.SubmissionId, fileId, CancellationToken.None));
+        Assert.IsType<FileStreamResult>(await Controller("student").DownloadFile(draft.SubmissionId, fileId, CancellationToken.None));
+        Assert.True(await service.SubmitAsync("student", draft.SubmissionId));
+        var submittedQueue = JsonSerializer.SerializeToElement(Assert.IsType<OkObjectResult>(
+            await Controller("teacher").TeacherComprehensiveSubmissions(course.Id, CancellationToken.None)).Value);
+        Assert.Single(submittedQueue.EnumerateArray());
+        Assert.DoesNotContain("StorageKey", submittedQueue.ToString(), StringComparison.OrdinalIgnoreCase);
+        Assert.IsType<NotFoundResult>(await Controller("unrelated-teacher").TeacherComprehensiveSubmissions(course.Id, CancellationToken.None));
+        Assert.IsType<NotFoundResult>(await Controller("teacher").DownloadFile(Guid.NewGuid(), fileId, CancellationToken.None));
+        Assert.IsType<FileStreamResult>(await Controller("teacher").DownloadFile(draft.SubmissionId, fileId, CancellationToken.None));
+        Assert.IsType<NotFoundResult>(await Controller("another-student").DownloadFile(draft.SubmissionId, fileId, CancellationToken.None));
+        var enrollment = await db.Enrollments.SingleAsync(x => x.CourseId == course.Id && x.StudentUserId == "student");
+        enrollment.AccessEndsAtUtc = DateTimeOffset.UtcNow.AddHours(-1);
+        await db.SaveChangesAsync();
+        Assert.IsType<NotFoundResult>(await Controller("student").DownloadFile(draft.SubmissionId, fileId, CancellationToken.None));
+        Assert.IsType<FileStreamResult>(await Controller("teacher").DownloadFile(draft.SubmissionId, fileId, CancellationToken.None));
+        Assert.Equal(PracticeReviewResult.Finalized, await service.ReviewComprehensivePracticeAsync("teacher", draft.SubmissionId,
+            new ReviewLearningAimPracticeCommand("Merit", "Strong", "Gap", "Improve")));
+        Assert.Single(JsonSerializer.SerializeToElement(Assert.IsType<OkObjectResult>(
+            await Controller("teacher").TeacherComprehensiveSubmissions(course.Id, CancellationToken.None)).Value).EnumerateArray());
+        Assert.IsType<FileStreamResult>(await Controller("teacher").DownloadFile(draft.SubmissionId, fileId, CancellationToken.None));
+        Assert.IsType<NotFoundResult>(await Controller("unrelated-teacher").DownloadFile(draft.SubmissionId, fileId, CancellationToken.None));
+        Assert.IsType<NotFoundResult>(await Controller("another-student").DownloadFile(draft.SubmissionId, fileId, CancellationToken.None));
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Comprehensive_display_uses_effective_deadline_and_precise_unavailable_reason()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("comprehensive_display_deadline");
+        await using var db = database.CreateContext();
+        var (course, module) = await SeedReadyComprehensiveAsync(db, 3);
+        db.Enrollments.Add(new Enrollment { StudentUserId = "student-b", CourseId = course.Id });
+        await db.SaveChangesAsync();
+        var access = new ContentAccessService(db);
+        var service = new CourseAssignmentService(db, new MemoryFileStorage(), new CleanFileScanner(), new NullEmailNotifications(), access);
+        var created = await service.CreateComprehensivePracticeAsync("teacher", new CreateComprehensivePracticeCommand(
+            module.Id, "مهمة", "Practice", "تعليمات", "Instructions", DateTimeOffset.UtcNow.AddHours(2)));
+        Assert.True(await service.PublishAsync("teacher", created.Id!.Value, true));
+        var controller = StudentController(db, "student");
+        async Task<JsonElement> PracticeAsync() => JsonSerializer.SerializeToElement(Assert.IsType<OkObjectResult>(
+            await controller.StudentPractice(course.Id, CancellationToken.None)).Value).EnumerateArray().Single().GetProperty("FinalPractice");
+
+        Assert.Equal("Available", (await PracticeAsync()).GetProperty("Status").GetString());
+        var aimSubmission = await db.CourseAssignmentSubmissions.FirstAsync(x => x.StudentUserId == "student"
+            && x.CourseAssignment!.Purpose == CourseAssignmentPurpose.LearningAimPractice);
+        aimSubmission.Status = CourseAssignmentSubmissionStatus.Draft;
+        await db.SaveChangesAsync();
+        Assert.Equal("LearningAimsIncomplete", (await PracticeAsync()).GetProperty("UnavailableReason").GetString());
+        aimSubmission.Status = CourseAssignmentSubmissionStatus.Finalized;
+        var assignment = await db.CourseAssignments.SingleAsync(x => x.Id == created.Id.Value);
+        assignment.DueAtUtc = DateTimeOffset.UtcNow.AddHours(-2);
+        await db.SaveChangesAsync();
+        Assert.Equal("DeadlineExpired", (await PracticeAsync()).GetProperty("UnavailableReason").GetString());
+        var extensions = new CourseAssignmentDeadlineExtensionService(db);
+        var expired = await extensions.GrantAsync("teacher", assignment.Id,
+            new GrantCourseAssignmentDeadlineExtension("student", DateTimeOffset.UtcNow.AddHours(-1), "Expired extension"));
+        Assert.Equal(DeadlineExtensionWriteStatus.Success, expired.Status);
+        Assert.Equal("DeadlineExpired", (await PracticeAsync()).GetProperty("UnavailableReason").GetString());
+        Assert.Equal(DeadlineExtensionWriteStatus.Success, (await extensions.RevokeAsync("teacher", assignment.Id, expired.Extension!.Id, new(null))).Status);
+        var active = await extensions.GrantAsync("teacher", assignment.Id,
+            new GrantCourseAssignmentDeadlineExtension("student", DateTimeOffset.UtcNow.AddHours(2), "Active extension"));
+        Assert.Equal(DeadlineExtensionWriteStatus.Success, active.Status);
+        Assert.Equal("Available", (await PracticeAsync()).GetProperty("Status").GetString());
+        Assert.Equal(DeadlineExtensionWriteStatus.Success, (await extensions.RevokeAsync("teacher", assignment.Id, active.Extension!.Id, new(null))).Status);
+        Assert.Equal("DeadlineExpired", (await PracticeAsync()).GetProperty("UnavailableReason").GetString());
+        var other = await extensions.GrantAsync("teacher", assignment.Id,
+            new GrantCourseAssignmentDeadlineExtension("student-b", DateTimeOffset.UtcNow.AddHours(2), "Other student"));
+        Assert.Equal(DeadlineExtensionWriteStatus.Success, other.Status);
+        Assert.Equal("DeadlineExpired", (await PracticeAsync()).GetProperty("UnavailableReason").GetString());
+        aimSubmission.Status = CourseAssignmentSubmissionStatus.Draft;
+        await db.SaveChangesAsync();
+        Assert.Equal("LearningAimsIncomplete", (await PracticeAsync()).GetProperty("UnavailableReason").GetString());
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Comprehensive_display_calculates_canonical_aim_progress_once_per_unit()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("comprehensive_single_progress");
+        Guid courseId;
+        await using (var setup = database.CreateContext())
+        {
+            var (course, module) = await SeedReadyComprehensiveAsync(setup, 3);
+            courseId = course.Id;
+            var service = new CourseAssignmentService(setup, new MemoryFileStorage(), new CleanFileScanner(), new NullEmailNotifications(), new ContentAccessService(setup));
+            var created = await service.CreateComprehensivePracticeAsync("teacher", new CreateComprehensivePracticeCommand(
+                module.Id, "مهمة", "Practice", "تعليمات", "Instructions", null));
+            Assert.True(await service.PublishAsync("teacher", created.Id!.Value, true));
+        }
+        var counter = new CanonicalAimQueryCounter();
+        await using var db = database.CreateContext(counter);
+        var controller = StudentController(db, "student");
+        Assert.IsType<OkObjectResult>(await controller.StudentPractice(courseId, CancellationToken.None));
+        Assert.Equal(1, counter.Count);
+    }
+
+    private static CourseAssignmentsController StudentController(BetccoDbContext db, string userId) => new(
+        null!, null!, null!, null!, db, new ContentAccessService(db), new CourseAssignmentDeadlineResolver(db), null!)
+    {
+        ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, userId)], "Test"))
+            }
+        }
+    };
+
+    private sealed class CanonicalAimQueryCounter : DbCommandInterceptor
+    {
+        public int Count { get; private set; }
+        public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command,
+            CommandEventData eventData, InterceptionResult<DbDataReader> result, CancellationToken cancellationToken = default)
+        {
+            if (command.CommandText.Contains("\"LearningAimDefinitions\"", StringComparison.Ordinal)) Count++;
+            return base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
+        }
+    }
+
+    private static async Task<(Course Course, CourseModule Module)> SeedReadyComprehensiveAsync(BetccoDbContext db, int count)
+    {
+        var (course, module, aims, lessons) = await SeedAsync(db, count);
+        foreach (var (aim, lesson) in aims.Zip(lessons))
+        {
+            var assignment = new Betcco.Domain.Assessments.CourseAssignment
+            {
+                CourseId = course.Id,
+                CourseModuleId = module.Id,
+                BtecLearningAimId = aim.Id,
+                Purpose = CourseAssignmentPurpose.LearningAimPractice,
+                ArabicTitle = "نشاط",
+                EnglishTitle = "Practice",
+                ArabicInstructions = "ارفع",
+                EnglishInstructions = "Upload",
+                IsPublished = true,
+                PublicationStatus = ContentPublicationStatus.Published
+            };
+            db.CourseAssignments.Add(assignment);
+            db.CourseAssignmentSubmissions.Add(new Betcco.Domain.Assessments.CourseAssignmentSubmission
+            {
+                CourseAssignment = assignment,
+                StudentUserId = "student",
+                Status = CourseAssignmentSubmissionStatus.Finalized,
+                TrainingOutcome = TrainingOutcome.Pass
+            });
+            db.LessonProgresses.Add(new LessonProgress { StudentUserId = "student", LessonId = lesson.Id, IsCompleted = true });
+        }
+        await db.SaveChangesAsync();
+        return (course, module);
+    }
+
     [Theory]
     [InlineData(3)]
     [InlineData(4)]
@@ -396,6 +993,12 @@ public sealed class LearningAimPracticeFlowTests
     {
         public Task<string> SavePrivateAsync(Stream content, string contentType, CancellationToken cancellationToken = default) => Task.FromResult($"private/{Guid.NewGuid()}");
         public Task<Stream?> OpenPrivateReadAsync(string storageKey, CancellationToken cancellationToken = default) => Task.FromResult<Stream?>(null);
+    }
+    private sealed class ReadableFileStorage : IFileStorage
+    {
+        public Task<string> SavePrivateAsync(Stream content, string contentType, CancellationToken cancellationToken = default) => Task.FromResult($"private/{Guid.NewGuid()}");
+        public Task<Stream?> OpenPrivateReadAsync(string storageKey, CancellationToken cancellationToken = default) =>
+            Task.FromResult<Stream?>(new MemoryStream([0x25, 0x50, 0x44, 0x46, 0x2D, 0x31]));
     }
     private sealed class NullEmailNotifications : IEmailNotificationService
     {
