@@ -420,7 +420,11 @@ type TeacherPractice = {
   courseModuleId: string;
   arabicTitle: string;
   englishTitle: string;
+  arabicInstructions: string;
+  englishInstructions: string;
   dueAtUtc?: string;
+  isPublished: boolean;
+  publicationStatus: string;
   resources: { id: string; displayName: string }[];
   criteria: { id: string; btecCriterionId?: string; code: string }[];
 };
@@ -536,8 +540,17 @@ export function TeacherComprehensivePractice({
             {practice ? (
               <>
                 <p className="text-sm text-muted">
-                  {tr(locale, practice.arabicTitle, practice.englishTitle)}
+                  {tr(locale, practice.arabicTitle, practice.englishTitle)} ·{" "}
+                  {practice.isPublished
+                    ? tr(locale, "منشور", "Published")
+                    : tr(locale, "مسودة غير منشورة", "Unpublished draft")}
                 </p>
+                {!practice.isPublished ? (
+                  <TeacherComprehensiveAuthoring
+                    practice={practice}
+                    onChanged={refresh}
+                  />
+                ) : null}
                 <TeacherComprehensiveCriteria
                   practice={practice}
                   unit={unit}
@@ -650,6 +663,141 @@ export function TeacherComprehensivePractice({
         </p>
       ) : null}
     </section>
+  );
+}
+
+function localDateTimeInput(value?: string) {
+  if (!value) return "";
+  const date = new Date(value);
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60_000)
+    .toISOString()
+    .slice(0, 16);
+}
+
+function TeacherComprehensiveAuthoring({
+  practice,
+  onChanged,
+}: {
+  practice: TeacherPractice;
+  onChanged: () => void;
+}) {
+  const locale = useLocale();
+  const [form, setForm] = useState({
+    arabicTitle: practice.arabicTitle,
+    englishTitle: practice.englishTitle,
+    arabicInstructions: practice.arabicInstructions,
+    englishInstructions: practice.englishInstructions,
+    dueAt: localDateTimeInput(practice.dueAtUtc),
+  });
+  const update = useMutation({
+    mutationFn: () =>
+      api(`/teacher/comprehensive-practice/${practice.id}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          arabicTitle: form.arabicTitle,
+          englishTitle: form.englishTitle,
+          arabicInstructions: form.arabicInstructions,
+          englishInstructions: form.englishInstructions,
+          dueAtUtc: form.dueAt ? new Date(form.dueAt).toISOString() : null,
+        }),
+      }),
+    onSuccess: onChanged,
+  });
+  const publish = useMutation({
+    mutationFn: () =>
+      api(`/teacher/assignments/${practice.id}/publish`, {
+        method: "POST",
+        body: JSON.stringify({ publish: true }),
+      }),
+    onSuccess: onChanged,
+  });
+  return (
+    <div className="grid gap-3 rounded-lg border border-border p-3">
+      <p className="text-sm text-muted">
+        {tr(
+          locale,
+          "أكمل إعداد المهمة والمواد والمعايير، ثم انشرها للطلاب.",
+          "Finish the task, resources and criteria before publishing for learners.",
+        )}
+      </p>
+      <form
+        className="grid gap-2"
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (!update.isPending) update.mutate();
+        }}
+      >
+        {(
+          [
+            ["arabicTitle", "العنوان بالعربية", "Arabic title"],
+            ["englishTitle", "العنوان بالإنجليزية", "English title"],
+            ["arabicInstructions", "التعليمات بالعربية", "Arabic instructions"],
+            [
+              "englishInstructions",
+              "التعليمات بالإنجليزية",
+              "English instructions",
+            ],
+          ] as const
+        ).map(([key, ar, en]) => (
+          <label key={key} className="grid gap-1 text-sm">
+            {tr(locale, ar, en)}
+            <textarea
+              required
+              maxLength={key.includes("Instructions") ? 4000 : 256}
+              value={form[key]}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  [key]: event.target.value,
+                }))
+              }
+              className="rounded-lg border border-border bg-transparent p-2"
+            />
+          </label>
+        ))}
+        <label className="grid gap-1 text-sm">
+          {tr(locale, "الموعد النهائي (اختياري)", "Deadline (optional)")}
+          <input
+            type="datetime-local"
+            value={form.dueAt}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, dueAt: event.target.value }))
+            }
+            className="rounded-lg border border-border bg-transparent p-2"
+          />
+        </label>
+        <button
+          type="submit"
+          disabled={update.isPending || publish.isPending}
+          className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 font-bold text-primary disabled:opacity-50"
+        >
+          {tr(locale, "حفظ التعديلات", "Save changes")}
+        </button>
+      </form>
+      {update.isSuccess ? (
+        <p role="status" className="text-sm text-primary">
+          {tr(locale, "حُفظت التعديلات.", "Changes saved.")}
+        </p>
+      ) : null}
+      {update.isError ? (
+        <p role="alert" className="text-sm text-red-400">
+          {update.error.message}
+        </p>
+      ) : null}
+      <button
+        type="button"
+        disabled={publish.isPending || update.isPending}
+        onClick={() => publish.mutate()}
+        className="focus-ring w-fit rounded-xl bg-primary px-4 py-2 font-bold text-slate-950 disabled:opacity-50"
+      >
+        {tr(locale, "نشر مهمة الوحدة", "Publish Unit Practice")}
+      </button>
+      {publish.isError ? (
+        <p role="alert" className="text-sm text-red-400">
+          {publish.error.message}
+        </p>
+      ) : null}
+    </div>
   );
 }
 

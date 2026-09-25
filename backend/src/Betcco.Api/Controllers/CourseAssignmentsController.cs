@@ -69,6 +69,13 @@ public sealed class CourseAssignmentsController(
     }
 
     [Authorize(Policy = "Teacher")]
+    [HttpPut("teacher/comprehensive-practice/{assignmentId:guid}")]
+    public async Task<IActionResult> UpdateComprehensivePractice(Guid assignmentId, UpdateComprehensivePracticeCommand command, CancellationToken cancellationToken) =>
+        await assignments.UpdateComprehensivePracticeAsync(UserId, assignmentId, command, cancellationToken)
+            ? NoContent()
+            : BadRequest(new { message = "Only an unpublished Unit Practice without student work can be edited." });
+
+    [Authorize(Policy = "Teacher")]
     [HttpGet("teacher/courses/{courseId:guid}/comprehensive-practice")]
     public async Task<IActionResult> TeacherComprehensivePractice(Guid courseId, CancellationToken cancellationToken)
     {
@@ -212,7 +219,8 @@ public sealed class CourseAssignmentsController(
                     ImprovementGuidance = null
                 }).ToArray();
             var finalAssignment = await db.CourseAssignments.AsNoTracking()
-                .Where(x => x.CourseModuleId == module.Id && x.Purpose == CourseAssignmentPurpose.ComprehensivePractice)
+                .Where(x => x.CourseModuleId == module.Id && x.Purpose == CourseAssignmentPurpose.ComprehensivePractice
+                    && x.IsPublished && x.PublicationStatus == ContentPublicationStatus.Published)
                 .Select(x => new
                 {
                     x.Id,

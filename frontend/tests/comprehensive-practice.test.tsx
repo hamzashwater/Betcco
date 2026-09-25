@@ -209,6 +209,92 @@ describe("comprehensive practice", () => {
     );
   });
 
+  it("keeps teacher authoring separate from explicit publication", async () => {
+    let created = false;
+    let published = false;
+    apiMock.mockImplementation(
+      (path: string, options?: { method?: string }) => {
+        if (path.endsWith("/comprehensive-practice/submissions"))
+          return Promise.resolve([]);
+        if (
+          path === "/teacher/comprehensive-practice" &&
+          options?.method === "POST"
+        ) {
+          created = true;
+          return Promise.resolve({ id: "final" });
+        }
+        if (path.endsWith("/comprehensive-practice"))
+          return Promise.resolve(
+            created
+              ? [
+                  {
+                    id: "final",
+                    courseModuleId: "unit",
+                    arabicTitle: "مهمة",
+                    englishTitle: "Practice",
+                    arabicInstructions: "تعليمات",
+                    englishInstructions: "Instructions",
+                    isPublished: published,
+                    publicationStatus: published ? "Published" : "Draft",
+                    resources: [],
+                    criteria: [],
+                  },
+                ]
+              : [],
+          );
+        if (path === "/teacher/assignments/final/publish") published = true;
+        return Promise.resolve(undefined);
+      },
+    );
+    renderWithLocale(
+      <TeacherComprehensivePractice
+        courseId="course"
+        modules={[
+          {
+            id: "unit",
+            unitDefinitionId: "canonical",
+            arabicTitle: "وحدة",
+            englishTitle: "Unit",
+            criteria: [],
+          },
+        ]}
+      />,
+      "en",
+    );
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Create Unit Practice" }),
+    );
+    fireEvent.change(screen.getByLabelText("Arabic title"), {
+      target: { value: "مهمة" },
+    });
+    fireEvent.change(screen.getByLabelText("English title"), {
+      target: { value: "Practice" },
+    });
+    fireEvent.change(screen.getByLabelText("Arabic instructions"), {
+      target: { value: "تعليمات" },
+    });
+    fireEvent.change(screen.getByLabelText("English instructions"), {
+      target: { value: "Instructions" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save Practice" }));
+    expect(await screen.findByText(/Unpublished draft/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+    await waitFor(() =>
+      expect(apiMock).toHaveBeenCalledWith(
+        "/teacher/comprehensive-practice/final",
+        expect.objectContaining({ method: "PUT" }),
+      ),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Publish Unit Practice" }),
+    );
+    await waitFor(() => expect(published).toBe(true));
+    expect(await screen.findByText(/Published/)).toBeTruthy();
+    expect(
+      screen.queryByRole("button", { name: "Publish Unit Practice" }),
+    ).toBeNull();
+  });
+
   it("lets the teacher review a Unit Practice", async () => {
     apiMock.mockImplementation((path: string) => {
       if (path.endsWith("/comprehensive-practice/submissions"))
@@ -228,6 +314,10 @@ describe("comprehensive practice", () => {
             courseModuleId: "unit",
             arabicTitle: "مهمة",
             englishTitle: "Practice",
+            arabicInstructions: "تعليمات",
+            englishInstructions: "Instructions",
+            isPublished: true,
+            publicationStatus: "Published",
             resources: [],
             criteria: [],
           },

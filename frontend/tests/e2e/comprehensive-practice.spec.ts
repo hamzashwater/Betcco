@@ -42,6 +42,10 @@ for (const scenario of [
     const errors = watchErrors(page);
     let role: "Student" | "Teacher" = "Student";
     let configured = false;
+    let published = false;
+    let updated = false;
+    let criterionAttached = false;
+    let resourceUploaded = false;
     let ready = false;
     let draft = false;
     let uploaded = false;
@@ -125,13 +129,14 @@ for (const scenario of [
               isComplete: ready || index < 3,
             })),
             finalPractice: {
-              assignmentId: configured ? assignmentId : null,
+              assignmentId: configured && published ? assignmentId : null,
               arabicTitle: "مهمة الوحدة",
               englishTitle: "Unit Practice",
-              arabicInstructions: ready ? "ارفع عملك" : null,
-              englishInstructions: ready ? "Upload your work" : null,
-              isAvailable: configured && ready && !submitted,
-              status: !configured
+              arabicInstructions: ready && published ? "ارفع عملك" : null,
+              englishInstructions:
+                ready && published ? "Upload your work" : null,
+              isAvailable: configured && published && ready && !submitted,
+              status: !published
                 ? "NotConfigured"
                 : reviewed
                   ? "Finalized"
@@ -177,6 +182,7 @@ for (const scenario of [
             : [],
         );
       if (path === `/api/v1/student/assignments/${assignmentId}/submissions`) {
+        if (!published) return route.fulfill({ status: 404 });
         draft = true;
         return json({ submissionId, versionNumber: 1, status: "Draft" });
       }
@@ -214,7 +220,14 @@ for (const scenario of [
               englishTitle: "Unit one",
               publicationStatus: "Published",
               learningAims: [],
-              criteria: [],
+              criteria: [
+                {
+                  id: "criterion-1",
+                  code: "A.P1",
+                  arabicDescription: "معيار الوحدة",
+                  englishDescription: "Unit criterion",
+                },
+              ],
               lessons: [],
             },
           ],
@@ -228,8 +241,22 @@ for (const scenario of [
                   courseModuleId: "unit-1",
                   arabicTitle: "مهمة الوحدة",
                   englishTitle: "Unit Practice",
-                  resources: [],
-                  criteria: [],
+                  arabicInstructions: "ارفع عملك",
+                  englishInstructions: "Upload your work",
+                  isPublished: published,
+                  publicationStatus: published ? "Published" : "Draft",
+                  resources: resourceUploaded
+                    ? [{ id: "resource-1", displayName: "brief.pdf" }]
+                    : [],
+                  criteria: criterionAttached
+                    ? [
+                        {
+                          id: "link-1",
+                          btecCriterionId: "criterion-1",
+                          code: "A.P1",
+                        },
+                      ]
+                    : [],
                 },
               ]
             : [],
@@ -255,6 +282,22 @@ for (const scenario of [
       if (path === "/api/v1/teacher/comprehensive-practice") {
         configured = true;
         return json({ id: assignmentId });
+      }
+      if (path === `/api/v1/teacher/comprehensive-practice/${assignmentId}`) {
+        updated = true;
+        return route.fulfill({ status: 204 });
+      }
+      if (path === "/api/v1/teacher/assignments/criteria") {
+        criterionAttached = true;
+        return json({ id: "link-1" });
+      }
+      if (path === `/api/v1/teacher/assignments/${assignmentId}/resources`) {
+        resourceUploaded = true;
+        return route.fulfill({ status: 204 });
+      }
+      if (path === `/api/v1/teacher/assignments/${assignmentId}/publish`) {
+        published = true;
+        return route.fulfill({ status: 204 });
       }
       if (
         path ===
@@ -364,6 +407,70 @@ for (const scenario of [
           : /Learning Aims complete: 4 \/ 4/,
       ),
     ).toBeVisible();
+    await expect(
+      finalArea.getByText(
+        scenario.locale === "ar" ? "لم تُنشأ المهمة بعد" : "Not configured",
+      ),
+    ).toBeVisible();
+    await expect(
+      finalArea.getByRole("button", {
+        name: scenario.locale === "ar" ? "فتح التدريب" : "Open Practice",
+      }),
+    ).toHaveCount(0);
+
+    role = "Teacher";
+    await page.goto(
+      `/${scenario.locale}/teacher/courses/${courseId}#assignments`,
+    );
+    await expect(
+      teacherArea.getByText(
+        scenario.locale === "ar" ? /مسودة غير منشورة/ : /Unpublished draft/,
+      ),
+    ).toBeVisible();
+    await teacherArea
+      .getByRole("button", {
+        name: scenario.locale === "ar" ? "حفظ التعديلات" : "Save changes",
+      })
+      .click();
+    await expect.poll(() => updated).toBe(true);
+    await teacherArea
+      .getByLabel(
+        scenario.locale === "ar"
+          ? "اختر معيارًا من الوحدة"
+          : "Choose a criterion from this Unit",
+      )
+      .selectOption("criterion-1");
+    await teacherArea
+      .getByRole("button", {
+        name: scenario.locale === "ar" ? "ربط المعيار" : "Attach criterion",
+      })
+      .click();
+    await expect.poll(() => criterionAttached).toBe(true);
+    await expect(teacherArea.getByText("A.P1")).toBeVisible();
+    await teacherArea.locator('input[type="file"]').setInputFiles({
+      name: "brief.pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.from("%PDF-1.4\n"),
+    });
+    await teacherArea
+      .getByRole("button", {
+        name: scenario.locale === "ar" ? "رفع المواد" : "Upload resources",
+      })
+      .click();
+    await expect.poll(() => resourceUploaded).toBe(true);
+    await expect(teacherArea.getByText("brief.pdf")).toBeVisible();
+    await teacherArea
+      .getByRole("button", {
+        name:
+          scenario.locale === "ar"
+            ? "نشر مهمة الوحدة"
+            : "Publish Unit Practice",
+      })
+      .click();
+    await expect.poll(() => published).toBe(true);
+
+    role = "Student";
+    await page.goto(`/${scenario.locale}/student/learn/${courseId}`);
     await finalArea
       .getByRole("button", {
         name: scenario.locale === "ar" ? "فتح التدريب" : "Open Practice",
