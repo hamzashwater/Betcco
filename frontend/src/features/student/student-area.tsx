@@ -1943,8 +1943,8 @@ function CoursePlayer({
                   href={`/${locale}/student/evaluations/new`}
                 >
                   {locale === "ar"
-                    ? "طلب تقييم BTEC خارجي منفصل"
-                    : "Request a separate external BTEC evaluation"}
+                    ? "تقييم مهمتي المدرسية مع BETCCO"
+                    : "Evaluate my school assignment with BETCCO"}
                 </Link>
               </>
             ) : null}
@@ -3829,6 +3829,7 @@ function MyEvaluations() {
           criteria: string[];
           academic: AssessmentAcademicSummary | null;
           selectedCriteria: string[];
+          submissionAttemptNumber: number;
           calculatedGrade: string | null;
           sectionResults: { section: string; grade: string }[];
           results: {
@@ -3885,7 +3886,8 @@ function MyEvaluations() {
                 {item.price.toFixed(3)} {item.currency}
               </span>
             </div>
-            {item.status === "Completed" && item.results.length > 0 ? (
+            {(item.status === "NeedsRevision" || item.status === "Completed") &&
+            item.results.length > 0 ? (
               <div className="rounded-xl border border-border/70 bg-surface-solid/70 p-4">
                 <h2 className="font-bold">
                   {locale === "ar"
@@ -3894,9 +3896,13 @@ function MyEvaluations() {
                 </h2>
                 <div className="mt-3 rounded-xl border border-primary/30 bg-primary/10 p-4">
                   <p className="text-xs font-black uppercase tracking-wide text-primary">
-                    {locale === "ar"
-                      ? "النتيجة النهائية المعتمدة"
-                      : "Final approved result"}
+                    {item.status === "NeedsRevision"
+                      ? locale === "ar"
+                        ? "النتيجة التقديرية الحالية من BETCCO"
+                        : "Current BETCCO estimated result"
+                      : locale === "ar"
+                        ? "النتيجة التقديرية النهائية من BETCCO"
+                        : "Final BETCCO estimated result"}
                   </p>
                   <p className="mt-1 text-2xl font-black text-foreground">
                     {item.calculatedGrade ?? "—"}
@@ -3918,6 +3924,11 @@ function MyEvaluations() {
                     ))}
                   </div>
                 </div>
+                <p className="mt-3 text-xs leading-5 text-muted">
+                  {locale === "ar"
+                    ? "هذه نتيجة إرشادية من BETCCO لمساعدتك قبل التسليم الرسمي في المدرسة، وليست علامة رسمية."
+                    : "This is BETCCO guidance to help before your official school submission; it is not an official grade."}
+                </p>
                 <ul
                   className="mt-3 grid gap-2"
                   aria-label={
@@ -3950,11 +3961,12 @@ function MyEvaluations() {
                   ))}
                 </ul>
               </div>
-            ) : item.status !== "Completed" ? (
+            ) : item.status !== "Completed" &&
+              item.status !== "NeedsRevision" ? (
               <p className="text-sm text-muted">
                 {locale === "ar"
-                  ? "ستظهر معاييرك ونتيجتك هنا بعد اعتماد التقييم من الإدارة."
-                  : "Your criteria and result will appear here after the admin approves the evaluation."}
+                  ? "ستظهر النتيجة التقديرية وملاحظات المعلم بعد انتهاء مراجعة BETCCO."
+                  : "Your estimated result and teacher feedback will appear after the BETCCO review."}
               </p>
             ) : null}
             {item.evidence.length ? (
@@ -3975,7 +3987,7 @@ function MyEvaluations() {
             {item.feedback.length ? (
               <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
                 <h2 className="font-bold">
-                  {locale === "ar" ? "ملاحظات التقييم" : "Assessment feedback"}
+                  {locale === "ar" ? "ملاحظات المعلم" : "Teacher feedback"}
                 </h2>
                 {item.feedback.map((feedback) => (
                   <p
@@ -3988,7 +4000,7 @@ function MyEvaluations() {
               </div>
             ) : null}
             {item.status === "NeedsRevision" ? (
-              <EvaluationResubmission requestId={item.id} />
+              <EvaluationRevisionSubmission requestId={item.id} />
             ) : null}
             {item.isRetake && item.status === "Draft" ? (
               <RetakePayment requestId={item.id} criteria={item.criteria} />
@@ -4160,7 +4172,7 @@ function RetakePayment({
   );
 }
 
-function EvaluationResubmission({ requestId }: { requestId: string }) {
+function EvaluationRevisionSubmission({ requestId }: { requestId: string }) {
   const locale = useLocale();
   const client = useQueryClient();
   const [files, setFiles] = useState<File[]>([]);
@@ -4176,8 +4188,8 @@ function EvaluationResubmission({ requestId }: { requestId: string }) {
       if (!authenticityConfirmed)
         throw new Error(
           locale === "ar"
-            ? "يجب تأكيد إقرار أصالة العمل قبل إعادة التسليم."
-            : "Confirm the originality declaration before resubmitting.",
+            ? "يجب تأكيد إقرار أصالة النسخة المعدلة قبل إرسالها."
+            : "Confirm the revised-work originality declaration before submitting.",
         );
       for (const file of files) {
         if (file.size > 100 * 1024 * 1024)
@@ -4200,12 +4212,14 @@ function EvaluationResubmission({ requestId }: { requestId: string }) {
   return (
     <section className="rounded-xl border border-primary/30 bg-primary/5 p-4">
       <h2 className="font-black">
-        {locale === "ar" ? "إعادة تسليم المهمة" : "Resubmit assignment"}
+        {locale === "ar"
+          ? "إرسال النسخة المعدلة للفحص"
+          : "Submit revised assignment for checking"}
       </h2>
       <p className="mt-2 text-sm text-muted">
         {locale === "ar"
-          ? "أضف النسخة المعدلة ثم أعد إرسالها إلى المقيّم نفسه."
-          : "Add your updated work and send it back to the same evaluator."}
+          ? "عدّل المهمة بناءً على ملاحظات المعلم، ثم أرسل النسخة الجديدة لاستخدام فرصة الفحص الثانية والأخيرة."
+          : "Revise the assignment using the teacher feedback, then send the updated version for your second and final review check."}
       </p>
       <div className="mt-3">
         <FilePicker
@@ -4252,7 +4266,7 @@ function EvaluationResubmission({ requestId }: { requestId: string }) {
         disabled={resubmit.isPending || !files.length || !authenticityConfirmed}
         className="focus-ring mt-3 rounded-xl bg-primary px-4 py-2 text-sm font-black text-slate-950 disabled:opacity-60"
       >
-        {locale === "ar" ? "إعادة الإرسال" : "Resubmit"}
+        {locale === "ar" ? "إرسال النسخة المعدلة" : "Submit revised assignment"}
       </button>
       {resubmit.isError ? (
         <p role="alert" className="mt-2 text-sm text-red-400">

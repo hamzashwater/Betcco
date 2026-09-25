@@ -34,10 +34,19 @@ public sealed class WorkflowPolicyTests
     }
 
     [Fact]
-    public void Revision_returns_to_the_assigned_evaluator_before_a_new_review()
+    public void Betcco_review_can_finish_or_open_one_revision_directly_from_assigned()
     {
-        Assert.True(EvaluationWorkflow.CanTransition(EvaluationStatus.UnderReview, EvaluationStatus.NeedsRevision));
+        Assert.True(EvaluationWorkflow.CanTransition(EvaluationStatus.Assigned, EvaluationStatus.NeedsRevision));
+        Assert.True(EvaluationWorkflow.CanTransition(EvaluationStatus.Assigned, EvaluationStatus.Completed));
         Assert.True(EvaluationWorkflow.CanTransition(EvaluationStatus.NeedsRevision, EvaluationStatus.Assigned));
         Assert.False(EvaluationWorkflow.CanTransition(EvaluationStatus.NeedsRevision, EvaluationStatus.Completed));
+    }
+
+    [Fact]
+    public void Historical_internal_verification_transition_remains_supported()
+    {
+        Assert.True(EvaluationWorkflow.CanTransition(EvaluationStatus.Assigned, EvaluationStatus.UnderReview));
+        Assert.True(EvaluationWorkflow.CanTransition(EvaluationStatus.UnderReview, EvaluationStatus.NeedsRevision));
+        Assert.True(EvaluationWorkflow.CanTransition(EvaluationStatus.UnderReview, EvaluationStatus.Completed));
     }
 }

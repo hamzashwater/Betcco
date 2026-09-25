@@ -88,7 +88,10 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
 
     [Authorize(Policy = "Student")]
     [HttpPost("{requestId:guid}/resubmit")]
-    public async Task<IActionResult> Resubmit(Guid requestId, CancellationToken cancellationToken) => await evaluations.ResubmitAsync(UserId, requestId, cancellationToken) ? NoContent() : BadRequest(new { message = "Add a clean updated file before resubmitting." });
+    public async Task<IActionResult> Resubmit(Guid requestId, CancellationToken cancellationToken) =>
+        await evaluations.ResubmitAsync(UserId, requestId, cancellationToken)
+            ? NoContent()
+            : BadRequest(new { message = "Add a clean updated file and confirm the revised-work originality declaration before using your revision check." });
 
     [Authorize(Policy = "CourseReviewer")]
     [HttpPost("{requestId:guid}/assign")]
@@ -124,10 +127,27 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
     public async Task<IActionResult> SetCriteriaPlan(Guid requestId, SetEvaluationCriteriaPlanCommand command, CancellationToken cancellationToken) => await evaluations.SetCriteriaPlanAsync(UserId, requestId, command.CriterionCodes, cancellationToken) ? NoContent() : BadRequest(new { message = "Select one or more valid criteria before starting the evaluation." });
 
     [Authorize(Policy = "AssessmentAssessor")]
+    [HttpPost("{requestId:guid}/review")]
+    public async Task<IActionResult> SubmitReview(Guid requestId, SubmitEvaluationReviewCommand command, CancellationToken cancellationToken) =>
+        await evaluations.SubmitReviewAsync(UserId, requestId, command, cancellationToken)
+            ? NoContent()
+            : BadRequest(new { message = "Assess every selected criterion, provide teacher feedback, and use the revision option only on the first review." });
+
+    [Authorize(Policy = "AssessmentAssessor")]
     [HttpPost("{requestId:guid}/results")]
-    public async Task<IActionResult> SubmitResults(Guid requestId, IReadOnlyCollection<CriterionSubmission> results, CancellationToken cancellationToken) => await evaluations.SubmitResultsAsync(UserId, requestId, results, cancellationToken)
-        ? NoContent()
-        : BadRequest(new { message = "Assess every selected criterion with a valid section P/M/D progression before submitting." });
+    public async Task<IActionResult> SubmitResults(Guid requestId, IReadOnlyCollection<CriterionSubmission> results, CancellationToken cancellationToken)
+    {
+        var isHistoricalRetake = await db.EvaluationRequests.AsNoTracking()
+            .AnyAsync(request => request.Id == requestId && request.RetakeOfEvaluationRequestId != null, cancellationToken);
+        if (!isHistoricalRetake) return Conflict(new
+        {
+            code = "BETCCO_REVIEW_FLOW_REQUIRED",
+            message = "Submit the BETCCO assignment review, feedback, and revision decision through the review endpoint."
+        });
+        return await evaluations.SubmitResultsAsync(UserId, requestId, results, cancellationToken)
+            ? NoContent()
+            : BadRequest(new { message = "The historical Retake result could not be submitted." });
+    }
 
     [Authorize(Policy = "AssessmentAssessor")]
     [HttpGet("assigned")]
@@ -145,6 +165,7 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
                 x.EvaluationRequest.EvaluatorCriteriaPlanJson,
                 x.EvaluationRequest.AssessmentScopeSnapshotJson,
                 x.EvaluationRequest.RetakeOfEvaluationRequestId,
+                x.EvaluationRequest.SubmissionAttemptNumber,
                 filesCount = x.EvaluationRequest.SubmissionFiles.Count
             })
             .ToListAsync(cancellationToken);
@@ -157,6 +178,7 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             x.filesCount,
             isRetake = x.RetakeOfEvaluationRequestId != null,
             x.RetakeOfEvaluationRequestId,
+            x.SubmissionAttemptNumber,
             criteria = JsonSerializer.Deserialize<string[]>(x.CriteriaSnapshotJson) ?? [],
             selectedCriteria = JsonSerializer.Deserialize<string[]>(x.EvaluatorCriteriaPlanJson) ?? [],
             academic = AssessmentScopeSnapshotReader.Summary(x.AssessmentScopeSnapshotJson)
@@ -275,6 +297,7 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             request.Price,
             request.Currency,
             request.StudentComment,
+            request.SubmissionAttemptNumber,
             isRetake = request.RetakeOfEvaluationRequestId != null,
             request.RetakeOfEvaluationRequestId,
             academic = AssessmentScopeSnapshotReader.Summary(request.AssessmentScopeSnapshotJson),
@@ -282,11 +305,15 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             selectedCriteria = JsonSerializer.Deserialize<string[]>(request.EvaluatorCriteriaPlanJson) ?? [],
             evidence = request.EvidenceItems.OrderBy(x => x.CriterionCode).Select(x => new { x.CriterionCode, x.Narrative }),
             feedback = request.FeedbackItems.OrderBy(x => x.CreatedAtUtc).Select(x => new { x.Body, x.RequestsResubmission, x.CreatedAtUtc }),
-            // The student sees the teacher's criterion decisions only after the admin
-            // completes the review, while teachers and admins retain their review view.
-            calculatedGrade = request.Status == EvaluationStatus.Completed ? request.CalculatedGrade?.ToString() : null,
-            sectionResults = request.Status == EvaluationStatus.Completed ? ReadSectionResults(request.SectionResultsJson) : [],
-            results = request.Status == EvaluationStatus.Completed
+            // BETCCO is advisory: the learner can see the current estimated result
+            // with first-review feedback, then the final estimate after the revision check.
+            calculatedGrade = request.Status is EvaluationStatus.NeedsRevision or EvaluationStatus.Completed
+                ? request.CalculatedGrade?.ToString()
+                : null,
+            sectionResults = request.Status is EvaluationStatus.NeedsRevision or EvaluationStatus.Completed
+                ? ReadSectionResults(request.SectionResultsJson)
+                : [],
+            results = request.Status is EvaluationStatus.NeedsRevision or EvaluationStatus.Completed
                 ? request.CriterionResults.OrderBy(x => x.CriterionCode).Select(x => new { x.CriterionCode, achievement = x.Achievement.ToString(), x.Evidence, x.Comment })
                 : []
         }));
@@ -307,7 +334,8 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
         var isAssignedAssessor = PlatformPermissionAuthorizationHandler.HasPermission(User, PlatformPermissions.Assess)
             && await db.EvaluatorAssignments.AnyAsync(x => x.EvaluationRequestId == requestId && x.EvaluatorUserId == UserId, cancellationToken);
         if ((!canVerify || sampleRequiresAnotherVerifier) && !isOwner && !isAssignedAssessor) return NotFound();
-        var canViewCalculatedResult = !isOwner || request.Status == EvaluationStatus.Completed;
+        var canViewCalculatedResult = !isOwner
+            || request.Status is EvaluationStatus.NeedsRevision or EvaluationStatus.Completed;
         return Ok(new
         {
             request.Id,
@@ -315,21 +343,22 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             request.Price,
             request.Currency,
             request.StudentComment,
+            request.SubmissionAttemptNumber,
             isRetake = request.RetakeOfEvaluationRequestId != null,
             request.RetakeOfEvaluationRequestId,
             academic = AssessmentScopeSnapshotReader.Summary(request.AssessmentScopeSnapshotJson),
             criteria = JsonSerializer.Deserialize<string[]>(request.CriteriaSnapshotJson) ?? [],
             selectedCriteria = JsonSerializer.Deserialize<string[]>(request.EvaluatorCriteriaPlanJson) ?? [],
-            files = request.SubmissionFiles.Select(x => new { x.Id, x.OriginalFileName, x.ContentType, x.LengthBytes, scanStatus = x.ScanStatus.ToString() }),
+            files = request.SubmissionFiles.Select(x => new { x.Id, x.OriginalFileName, x.ContentType, x.LengthBytes, x.CreatedAtUtc, scanStatus = x.ScanStatus.ToString() }),
             evidence = request.EvidenceItems.OrderBy(x => x.CriterionCode).Select(x => new { x.CriterionCode, x.Narrative }),
             feedback = request.FeedbackItems.OrderBy(x => x.CreatedAtUtc).Select(x => new { x.Body, x.RequestsResubmission, x.CreatedAtUtc }),
             internalVerifications = request.InternalVerifications.Where(_ => !isOwner || canVerify).OrderBy(x => x.VerifiedAtUtc).Select(x => new { x.Decision, x.Comment, x.VerifiedAtUtc }),
             calculatedGrade = canViewCalculatedResult ? request.CalculatedGrade?.ToString() : null,
             sectionResults = canViewCalculatedResult ? ReadSectionResults(request.SectionResultsJson) : [],
-            // A student must not be able to access preliminary teacher results by
-            // calling the detail endpoint directly before the admin completes it.
+            // The learner can see the current estimate after the first BETCCO review
+            // and the final estimate after the one revision check.
             results = request.CriterionResults
-                .Where(_ => !isOwner || request.Status == EvaluationStatus.Completed)
+                .Where(_ => !isOwner || request.Status is EvaluationStatus.NeedsRevision or EvaluationStatus.Completed)
                 .Select(x => new { x.CriterionCode, achievement = x.Achievement.ToString(), x.Evidence, x.Comment })
         });
     }

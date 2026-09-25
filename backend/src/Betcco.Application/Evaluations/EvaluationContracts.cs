@@ -37,6 +37,10 @@ public interface IRetakeService
 // score must never be sent by a client or used to grant an academic outcome.
 public sealed record CriterionSubmission(string CriterionCode, string Achievement, string? Evidence, string? Comment);
 public sealed record SetEvaluationCriteriaPlanCommand(IReadOnlyCollection<string> CriterionCodes);
+public sealed record SubmitEvaluationReviewCommand(
+    IReadOnlyCollection<CriterionSubmission> Results,
+    string Feedback,
+    bool RequestRevision);
 public sealed record EvaluationSectionResult(string Section, string Grade);
 public sealed record EvaluationCalculation(EvaluationGrade Grade, IReadOnlyCollection<EvaluationSectionResult> Sections);
 public sealed record BtecOutcomeRule(string Outcome, IReadOnlyCollection<string> RequiredBands);
@@ -250,6 +254,7 @@ public interface IEvaluationService
     Task<AssignmentResult> AssignWithOutcomeAsync(string adminUserId, Guid requestId, string evaluatorUserId,
         CancellationToken cancellationToken = default);
     Task<bool> SetCriteriaPlanAsync(string teacherUserId, Guid requestId, IReadOnlyCollection<string> criterionCodes, CancellationToken cancellationToken = default);
+    Task<bool> SubmitReviewAsync(string teacherUserId, Guid requestId, SubmitEvaluationReviewCommand command, CancellationToken cancellationToken = default);
     Task<bool> SubmitResultsAsync(string teacherUserId, Guid requestId, IReadOnlyCollection<CriterionSubmission> results, CancellationToken cancellationToken = default);
     Task<bool> CompleteAsync(string adminUserId, Guid requestId, CancellationToken cancellationToken = default);
     Task<bool> AddEvidenceAsync(string studentUserId, Guid requestId, string criterionCode, string narrative, CancellationToken cancellationToken = default);

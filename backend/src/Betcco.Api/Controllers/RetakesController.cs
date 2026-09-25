@@ -1,5 +1,3 @@
-using System.Security.Claims;
-using Betcco.Application.Evaluations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,28 +6,21 @@ namespace Betcco.Api.Controllers;
 [ApiController]
 [Authorize(Policy = "AssessmentAppealReviewer")]
 [Route("api/v1/retakes")]
-public sealed class RetakesController(IRetakeService retakes) : ControllerBase
+public sealed class RetakesController : ControllerBase
 {
+    // Legacy compatibility only. BETCCO no longer creates Pearson-style Retake
+    // requests; historical records remain readable through EvaluationRequest.
     [HttpGet("eligible")]
-    public async Task<IActionResult> Eligible(CancellationToken cancellationToken) =>
-        Ok(await retakes.ListEligibleAsync(UserId, cancellationToken));
+    public IActionResult Eligible() => Ok(Array.Empty<object>());
 
     [HttpPost("{originalEvaluationRequestId:guid}/authorize")]
-    public async Task<IActionResult> Authorize(Guid originalEvaluationRequestId,
-        AuthorizeRetakeCommand command, CancellationToken cancellationToken)
+    public IActionResult Authorize(Guid originalEvaluationRequestId)
     {
-        var result = await retakes.AuthorizeAsync(UserId, originalEvaluationRequestId, command, cancellationToken);
-        return result.Status switch
+        _ = originalEvaluationRequestId;
+        return StatusCode(410, new
         {
-            RetakeAuthorizationStatus.Created => CreatedAtAction(nameof(EvaluationsController.Get), "Evaluations",
-                new { requestId = result.Authorization!.RetakeEvaluationRequestId }, result.Authorization),
-            RetakeAuthorizationStatus.Forbidden => Forbid(),
-            RetakeAuthorizationStatus.NotEligible => BadRequest(new { message = "The original evaluation is not eligible for a Retake." }),
-            RetakeAuthorizationStatus.InvalidScope => BadRequest(new { message = "Select a compatible Pass-only Retake assessment and provide a reason." }),
-            RetakeAuthorizationStatus.Conflict => Conflict(new { message = "A Retake has already been created for this evaluation." }),
-            _ => BadRequest()
-        };
+            code = "BETCCO_REVIEW_FLOW_ONLY",
+            message = "New Retake requests are no longer created. BETCCO reviews include one revision check in the original evaluation service."
+        });
     }
-
-    private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 }

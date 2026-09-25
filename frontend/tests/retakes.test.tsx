@@ -1,6 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { cleanup, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import arMessages from "../messages/ar.json";
@@ -40,69 +39,19 @@ afterEach(() => {
 });
 
 describe("ASSESS Retakes", () => {
-  it("lets LIV select only a server-offered scope and sends a staff rationale without a price", async () => {
-    apiMock.mockImplementation((path: string, options?: RequestInit) => {
-      if (path === "/retakes/eligible")
-        return Promise.resolve([
-          {
-            originalEvaluationRequestId: "original-1",
-            studentUserId: "student-1",
-            unmetPassCriteria: ["A.P1"],
-            academic: {
-              unitCode: "U1",
-              unitEnglishTitle: "Unit",
-              unitArabicTitle: "وحدة",
-              assessmentCode: "ORIGINAL",
-              assessmentEnglishTitle: "Original assessment",
-              assessmentArabicTitle: "التقييم الأصلي",
-            },
-            availableScopes: [
-              {
-                assessmentScopeId: "scope-1",
-                assessmentCode: "RETAKE",
-                assessmentEnglishTitle: "Retake assignment",
-                assessmentArabicTitle: "مهمة الإعادة",
-                criterionCodes: ["A.P1"],
-              },
-            ],
-          },
-        ]);
-      if (
-        path === "/retakes/original-1/authorize" &&
-        options?.method === "POST"
-      )
-        return Promise.resolve({ retakeEvaluationRequestId: "retake-1" });
-      return Promise.reject(new Error("unexpected request"));
-    });
+  it("retires new Retake creation while preserving legacy history messaging", () => {
     renderWithProviders(<RetakeManagement />, "en");
-    const user = userEvent.setup();
-    await user.selectOptions(
-      await screen.findByLabelText("Retake assignment"),
-      "scope-1",
-    );
-    await user.type(
-      screen.getByLabelText("Required staff rationale"),
-      "LIV rationale",
-    );
-    await user.click(
-      screen.getByRole("button", { name: "Authorize and create Retake" }),
-    );
-    await waitFor(() =>
-      expect(apiMock).toHaveBeenCalledWith(
-        "/retakes/original-1/authorize",
-        expect.objectContaining({
-          body: JSON.stringify({
-            retakeAssessmentScopeId: "scope-1",
-            reason: "LIV rationale",
-          }),
-        }),
+
+    expect(screen.getByText("Legacy Retakes")).toBeVisible();
+    expect(
+      screen.getByText(/BETCCO no longer creates new Retake requests/i),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        /Historical Retake records remain available for reading and audit/i,
       ),
-    );
-    expect(await screen.findByText(/retake-1/)).toBeVisible();
-    const authorizeCall = apiMock.mock.calls.find(
-      ([path]) => path === "/retakes/original-1/authorize",
-    );
-    expect(String(authorizeCall?.[1]?.body)).not.toContain("price");
+    ).toBeVisible();
+    expect(apiMock).not.toHaveBeenCalled();
   });
 
   it.each(["en", "ar"] as const)(

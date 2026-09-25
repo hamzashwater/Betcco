@@ -8,6 +8,7 @@ public static class EvaluationWorkflow
         (EvaluationStatus.PendingPayment, EvaluationStatus.PendingAssignment) => true,
         (EvaluationStatus.PendingAssignment, EvaluationStatus.Assigned) => true,
         (EvaluationStatus.Assigned, EvaluationStatus.UnderReview) => true,
+        (EvaluationStatus.Assigned, EvaluationStatus.NeedsRevision or EvaluationStatus.Completed) => true,
         (EvaluationStatus.UnderReview, EvaluationStatus.NeedsRevision or EvaluationStatus.Completed) => true,
         (EvaluationStatus.NeedsRevision, EvaluationStatus.Assigned or EvaluationStatus.Closed) => true,
         (EvaluationStatus.Completed, EvaluationStatus.Closed) => true,
