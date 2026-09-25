@@ -2,21 +2,23 @@
 
 ## Metadata
 
-- Last updated: 2026-09-24
-- Verified implementation baseline SHA: `17dc6c8dd0fcb22ed53fc956eba416b7fce32142`
-- Status verified against origin/main: `17dc6c8dd0fcb22ed53fc956eba416b7fce32142`
-- Local branch: `feature/account-security-ui-phase1` (Lenovo; not pushed)
-- Remote CI for this local branch: NOT RUN; user-managed push, PR, review, and merge remain pending.
+- Last updated: 2026-09-25
+- Verified implementation baseline SHA: `231efd020d2e8cd1d9cf8934edc288586c560024`
+- Status verified against origin/main: `231efd020d2e8cd1d9cf8934edc288586c560024`
+- OPEN / Draft PRs at verification: PR #53 — ASUS Comprehensive Practice Assignment — Final Unit Practice.
+- Parallel workstream coordination is persisted in `docs/WORKSTREAM_COORDINATION.md` and must be rechecked against live GitHub before implementation.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
-## Current Local Feature
+## Recently Merged Account, Security, Learning, and Coordination Work
 
-- Task: Account/Profile/Security UI integration — Phase 1.
-- Status: Local implementation complete on `feature/account-security-ui-phase1`; rebased onto PR #47's merged `main`. Not pushed, reviewed remotely, or merged.
-- Scope: Student, Teacher, and Admin Profile UI; shared account navigation; Account Security, authenticator-based 2FA and active-session UI; Forgot and Reset Password UX. All actions use existing Auth/Profile/Security APIs. Student membership and payment access remains in place.
-- Validation: focused frontend tests 11/11, full frontend Vitest 134/134, typecheck, ESLint, Prettier, and Next.js production build passed. Mocked-API browser checks passed 12/12 across the three roles, English/Arabic, desktop/390px, with RTL, no page errors, and no horizontal overflow; live backend browser behavior was not exercised.
-- Deferred backend gaps: avatar upload/removal, secure email change, authenticated current-password change, Teacher phone-change approval, and logout of other devices while retaining the current session. This Phase made no backend, schema, or migration changes.
+- PR #48 — Account/Profile/Security UI Phase 1 merged at `66b832b5d7b1bc1de94757504c2ea5067375365c`; Student, Teacher, and Admin profile/security UX now uses the existing account/security APIs with EN/AR and responsive coverage.
+- PR #49 — Legacy Quiz System removal merged at `b656e586dea3f57a3ccee863f16ffc25cf116769`; active Quiz functionality was removed while historical lesson/progress data was preserved through the archived legacy lesson type.
+- PR #50 — Account Security Phase 2 merged at `89240b64027826f8bb48b76f3bdee28038120b82`; authenticated password change, secure Student email change, Admin-managed Teacher/SupportAdmin identity updates, logout-other-sessions, SupportAdmin provisioning/freeze authority, separate SupportAdmin-authority revocation, audit coverage, and EN/AR UI are implemented.
+- PR #51 — Learning Aim Practice Flow Slice 1 merged at `b390a4e114e443839305f7aada19d397887ded8d`; formative Practice Activity, Training P/M/D, Learning Aim progression/completion, Course Player integration, and related migration/tests are implemented separately from formal ASSESS.
+- PR #52 — Staff MFA Enforcement Slice 1 merged at `7929f631aa33b3e98f332905943cd9f1eab7d7f9`; mandatory MFA is server-enforced for Admin, SystemAdmin, SupportAdmin, and FinanceAdmin, including restricted enrollment state and session/SecurityStamp handling.
+- PR #54 — Staff MFA Recovery Codes Slice 1 merged at `3693585d44ab43f7c591771e221b7be4cde1a4ea`; Identity recovery codes provide one-time presentation, single-use login, regeneration, and password-plus-unused-code authenticator reset with session revocation and mandatory Staff re-enrollment.
+- PR #55 — ASUS/LENOVO workstream coordination merged at `231efd020d2e8cd1d9cf8934edc288586c560024`; `docs/WORKSTREAM_COORDINATION.md` now records ownership, reserved scope, preflight, overlap, and handoff rules.
 
 ## Recently Merged Academic Work (PR #47)
 
@@ -226,11 +228,12 @@ Live progress is tracked in OPEN Draft PRs, and repository evidence wins over co
 
 Maximum active implementation workstreams: **2**
 
-At the 2026-09-24 preflight, GitHub reported no OPEN PRs. PRs #46 and #47 are merged; the Account/Profile/Security Phase 1 branch remains local. Recheck live GitHub and shared hotspots before its user-managed push.
+At the 2026-09-25 preflight, GitHub reported one OPEN Draft PR: PR #53, owned by ASUS for Comprehensive Practice Assignment — Final Unit Practice. Its reserved scope includes Comprehensive Practice, related CourseAssignment/Learning Aim progression, Student/Teacher UI, and related EF migration/ModelSnapshot areas. LENOVO has no active implementation feature reserved at this snapshot.
 
 ## Next Actions
 
-- Lenovo next action: user-managed push of `feature/account-security-ui-phase1`, then PR, remote CI, review, and merge. Recheck live `main` and open Draft PR scopes before push.
+- ASUS: complete focused review, latest-main synchronization, final CI, Ready-for-Review, final approval, and merge for PR #53.
+- LENOVO: after this documentation reconciliation, run a fresh preflight and select only an independent candidate from `docs/WORKSTREAM_COORDINATION.md`; do not start Student Lifecycle Closure or overlap PR #53 while it remains active.
 - Task 6: DONE — Media / Video Foundation + Secure Delivery. PR #18 merged with required CI green.
 - Slice 1: DONE — ASSESS academic identity foundation. PR #28 merged with required CI green.
 - Slice 2: DONE — Versioned Learning Aims / Criteria + AssessmentDefinition publication/source mapping + Qualification/Rubric compatibility enforcement. PR #30 merged with required CI green.
@@ -265,7 +268,7 @@ Do not reopen these areas merely because a later account lacks conversation memo
 | Area | Status |
 | --- | --- |
 | BTEC Assessment | TECHNICAL CORE COMPLETE |
-| Authentication/Security | PARTIAL |
+| Authentication/Security | TECHNICAL CORE COMPLETE; REPO/DEVICE HARDENING FOLLOW-UPS REMAIN |
 | Privacy/Compliance | TECHNICAL CORE COMPLETE |
 | Payments/Finance | PARTIAL |
 | Storage | FOUNDATION COMPLETE |
@@ -276,7 +279,7 @@ Do not reopen these areas merely because a later account lacks conversation memo
 | i18n/SEO/Performance/Accessibility | NOT STARTED |
 | Early Warning | NOT STARTED |
 | Guardian | NOT STARTED |
-| Community/Formative | NOT STARTED |
+| Community/Formative | PARTIAL — LEARNING AIM PRACTICE FOUNDATION MERGED |
 | AI | NOT STARTED |
 | OneRoster/LTI | NOT STARTED |
 | Final UAT/Launch Hardening | PARTIAL |
@@ -306,7 +309,6 @@ Do not reopen these areas merely because a later account lacks conversation memo
 ### Remaining P0 items
 
 - Resit policy and workflow remains unresolved; broader Retake policy beyond Slice 1 remains unresolved.
-- Staff MFA decision and enforcement remains unresolved.
 - Secret-scanning and push-protection verification remains unresolved.
 - External BTEC/specification/policy dependencies remain unresolved.
 - Payments, legal, and accounting external blockers remain unresolved.
