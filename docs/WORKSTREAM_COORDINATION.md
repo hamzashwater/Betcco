@@ -47,11 +47,12 @@ Snapshot captured: **2026-09-25**
 
 At capture time:
 
-- `main`: `f57726607e8ac3a0c40c1bbbcf18ab3dd5705d4f`
+- `main`: `a0684ce0e65027c45c860e0ebf3db332263c8a0d`
 - PR #53 is merged: Comprehensive Practice Assignment — Final Unit Practice.
 - PR #57 is merged: LENOVO Admin Audit Log Filters — Slice 1.
+- PR #59 is merged: LENOVO Admin Audit Log CSV Export — Slice 2.
+- GitHub Secret Scanning and Push Protection are enabled; 0 open secret-scanning alerts were present at verification.
 - OPEN implementation PRs: none.
-- PR #58 is the docs-only reconciliation carrying this snapshot.
 - ASUS and LENOVO have no active implementation PR at this snapshot.
 
 These SHAs are historical coordination markers only. Re-verify them before using them operationally.
@@ -136,7 +137,9 @@ Includes:
 
 PR #57 — **Admin Audit Log Filters — Slice 1** — is merged into `main` at `f57726607e8ac3a0c40c1bbbcf18ab3dd5705d4f`.
 
-Its merged scope is limited to bounded Admin audit-log filtering, related backend/frontend tests, and EN/AR audit-log messages. It does not overlap the merged Comprehensive Practice implementation.
+PR #59 — **Admin Audit Log CSV Export — Slice 2** — is merged into `main` at `a0684ce0e65027c45c860e0ebf3db332263c8a0d`.
+
+The merged Admin Audit Log scope now includes bounded filtering plus bounded/minimized CSV export. Repository Secret Scanning and Push Protection verification is also complete with both protections enabled and 0 open secret-scanning alerts at verification.
 
 ## LENOVO Candidate Work
 
@@ -145,7 +148,6 @@ These are candidates only, not automatically active/reserved:
 - Resit policy / workflow
 - broader ASSESS Reasonable Adjustments
 - security / repository hardening follow-ups
-- Secret Scanning / Push Protection verification
 - Privacy / Compliance follow-ups
 - independent Admin / Operations workflows
 - repository status/documentation reconciliation

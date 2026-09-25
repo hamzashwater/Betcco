@@ -3,9 +3,9 @@
 ## Metadata
 
 - Last updated: 2026-09-25
-- Verified implementation baseline SHA: `f57726607e8ac3a0c40c1bbbcf18ab3dd5705d4f`
-- Status verified against origin/main: `f57726607e8ac3a0c40c1bbbcf18ab3dd5705d4f`
-- OPEN / Draft implementation PRs at verification: none. PR #58 is the docs-only reconciliation carrying this snapshot.
+- Verified implementation baseline SHA: `a0684ce0e65027c45c860e0ebf3db332263c8a0d`
+- Status verified against origin/main: `a0684ce0e65027c45c860e0ebf3db332263c8a0d`
+- OPEN / Draft implementation PRs at verification: none.
 - Parallel workstream coordination is persisted in `docs/WORKSTREAM_COORDINATION.md` and must be rechecked against live GitHub before implementation.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
@@ -21,6 +21,8 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - PR #55 — ASUS/LENOVO workstream coordination merged at `231efd020d2e8cd1d9cf8934edc288586c560024`; `docs/WORKSTREAM_COORDINATION.md` now records ownership, reserved scope, preflight, overlap, and handoff rules.
 - PR #53 — Comprehensive Practice Assignment — Final Unit Practice merged at `179b4eee25a5bad0cf4d961c3d940d9044461fff`; one formative Final Unit Practice per canonical delivered Unit now follows Draft → Configure → Publish → Student Access, unlocks only after all canonical Learning Aims are complete, uses private scanned evidence, effective learner-specific deadlines, TrainingOutcome feedback, canonical same-Unit criteria, and freezes task structure/resources after learner work starts. It remains separate from formal ASSESS. Post-merge Quality and Security analysis are green.
 - PR #57 — Admin Audit Log Filters — Slice 1 merged at `f57726607e8ac3a0c40c1bbbcf18ab3dd5705d4f`; the existing read-only Admin audit log now supports bounded server-side action/entity/outcome/date filtering with EN/AR responsive UI and no schema, permission, export, or audit-record mutation changes.
+- PR #59 — Admin Audit Log CSV Export — Slice 2 merged at `a0684ce0e65027c45c860e0ebf3db332263c8a0d`; Admin can export the currently filtered audit view as a bounded, minimized CSV (maximum 5,000 events) while excluding sensitive payload fields and neutralizing spreadsheet-formula injection, with EN/AR UI and no schema or authorization changes.
+- Repository security verification on 2026-09-25 confirmed GitHub Secret Scanning and Push Protection are enabled with 0 open secret-scanning alerts. Code Scanning and Dependabot also had 0 open alerts at verification. Validity Checks and Non-provider Patterns remain disabled in the current repository configuration; repository visibility remains Public.
 
 ## Recently Merged Academic Work (PR #47)
 
@@ -230,12 +232,12 @@ Live progress is tracked in OPEN Draft PRs, and repository evidence wins over co
 
 Maximum active implementation workstreams: **2**
 
-At the 2026-09-25 post-merge preflight, PR #53 is merged into `main` at `179b4eee25a5bad0cf4d961c3d940d9044461fff` and PR #57 is merged at `f57726607e8ac3a0c40c1bbbcf18ab3dd5705d4f`. ASUS and LENOVO have no active implementation PR at this snapshot. PR #58 is open only for documentation reconciliation.
+At the 2026-09-25 post-merge preflight, PR #53 is merged into `main` at `179b4eee25a5bad0cf4d961c3d940d9044461fff`, PR #57 is merged at `f57726607e8ac3a0c40c1bbbcf18ab3dd5705d4f`, and PR #59 is merged at `a0684ce0e65027c45c860e0ebf3db332263c8a0d`. ASUS and LENOVO have no active implementation PR at this snapshot.
 
 ## Next Actions
 
 - ASUS: PR #53 is merged. Before starting the next roadmap item, run a fresh preflight against latest `main`, OPEN/Draft PRs, CI, and reserved scopes.
-- LENOVO: PR #57 is merged. Before starting another workstream, run a fresh preflight against latest `main`, OPEN/Draft PRs, CI, and ASUS reserved/planned scope.
+- LENOVO: PR #59 is merged and repository Secret Scanning / Push Protection verification is complete. Before starting another workstream, run a fresh preflight against latest `main`, OPEN/Draft PRs, CI, and ASUS reserved/planned scope.
 - Task 6: DONE — Media / Video Foundation + Secure Delivery. PR #18 merged with required CI green.
 - Slice 1: DONE — ASSESS academic identity foundation. PR #28 merged with required CI green.
 - Slice 2: DONE — Versioned Learning Aims / Criteria + AssessmentDefinition publication/source mapping + Qualification/Rubric compatibility enforcement. PR #30 merged with required CI green.
@@ -311,7 +313,6 @@ Do not reopen these areas merely because a later account lacks conversation memo
 ### Remaining P0 items
 
 - Resit policy and workflow remains unresolved; broader Retake policy beyond Slice 1 remains unresolved.
-- Secret-scanning and push-protection verification remains unresolved.
 - External BTEC/specification/policy dependencies remain unresolved.
 - Payments, legal, and accounting external blockers remain unresolved.
 
