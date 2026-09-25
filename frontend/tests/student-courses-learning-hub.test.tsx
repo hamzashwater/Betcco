@@ -424,6 +424,10 @@ describe("StudentCoursesLearningHub", () => {
     await screen.findByText("Alpha course");
     await user.tab();
     expect(
+      screen.getByRole("link", { name: "Open AI practice" }),
+    ).toHaveFocus();
+    await user.tab();
+    expect(
       screen.getByRole("searchbox", { name: "Search courses" }),
     ).toHaveFocus();
     expect(

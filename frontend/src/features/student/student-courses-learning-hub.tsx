@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   ArrowUpRight,
   BookOpenCheck,
+  BrainCircuit,
   ChevronLeft,
   ChevronRight,
   CircleCheckBig,
@@ -15,6 +16,7 @@ import {
   Layers3,
   LockKeyhole,
   Search,
+  Sparkles,
   UserRound,
   X,
 } from "lucide-react";
@@ -106,6 +108,7 @@ export function StudentCoursesLearningHub({
 }) {
   const locale = useLocale();
   const t = useTranslations("studentCoursesLearningHub");
+  const ai = useTranslations("aiPractice");
   const [search, setSearch] = useState("");
   const [progress, setProgress] = useState<ProgressFilter>("All");
   const [sort, setSort] = useState<CourseSort>("Recent");
@@ -250,6 +253,42 @@ export function StudentCoursesLearningHub({
           {t("description")}
         </p>
       </header>
+
+      <article className="card relative mt-5 overflow-hidden p-5 sm:p-6">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,color-mix(in_srgb,var(--primary)_16%,transparent),transparent_45%)]" />
+        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
+              <BrainCircuit size={24} aria-hidden="true" />
+            </span>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-lg font-black">
+                  {ai("courseBanner.title")}
+                </h2>
+                <span className="inline-flex items-center gap-1 rounded-full border border-primary/35 bg-primary/10 px-2.5 py-1 text-xs font-black text-primary">
+                  <Sparkles size={13} aria-hidden="true" />
+                  {ai("comingSoon")}
+                </span>
+              </div>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
+                {ai("courseBanner.description")}
+              </p>
+            </div>
+          </div>
+          <Link
+            href={`/${locale}/student/ai-practice`}
+            className="focus-ring inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-primary/40 px-4 py-2 text-sm font-black text-primary"
+          >
+            {ai("courseBanner.action")}
+            <ArrowUpRight
+              size={16}
+              className="rtl:-scale-x-100"
+              aria-hidden="true"
+            />
+          </Link>
+        </div>
+      </article>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <SummaryCard
