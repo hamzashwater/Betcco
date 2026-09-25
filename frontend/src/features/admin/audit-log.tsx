@@ -32,15 +32,34 @@ type AuditLogPage = {
 export function AuditLogViewer() {
   const locale = useLocale();
   const t = useTranslations("auditLog");
-  const [searchInput, setSearchInput] = useState("");
-  const [search, setSearch] = useState("");
+  const emptyFilters = {
+    search: "",
+    action: "",
+    entityType: "",
+    outcome: "",
+    fromDate: "",
+    toDate: "",
+  };
+  const [draftFilters, setDraftFilters] = useState(emptyFilters);
+  const [filters, setFilters] = useState(emptyFilters);
   const [page, setPage] = useState(1);
   const result = useQuery({
-    queryKey: ["admin-audit-logs", search, page],
-    queryFn: () =>
-      api<AuditLogPage>(
-        `/admin/audit-logs?page=${page}&pageSize=25&search=${encodeURIComponent(search)}`,
-      ),
+    queryKey: ["admin-audit-logs", filters, page],
+    queryFn: () => {
+      const params = new URLSearchParams({
+        page: String(page),
+        pageSize: "25",
+      });
+      if (filters.search) params.set("search", filters.search);
+      if (filters.action) params.set("action", filters.action);
+      if (filters.entityType) params.set("entityType", filters.entityType);
+      if (filters.outcome) params.set("outcome", filters.outcome);
+      if (filters.fromDate)
+        params.set("fromUtc", `${filters.fromDate}T00:00:00Z`);
+      if (filters.toDate)
+        params.set("toUtc", `${filters.toDate}T23:59:59.999Z`);
+      return api<AuditLogPage>(`/admin/audit-logs?${params.toString()}`);
+    },
     placeholderData: (previous) => previous,
   });
   const values = result.data;
@@ -61,33 +80,102 @@ export function AuditLogViewer() {
         </p>
       </header>
       <form
-        className="mt-6 flex max-w-2xl gap-2 rounded-2xl border border-border bg-surface-solid/50 p-2"
+        className="mt-6 grid gap-3 rounded-2xl border border-border bg-surface-solid/50 p-4 md:grid-cols-2 xl:grid-cols-3"
         onSubmit={(event) => {
           event.preventDefault();
           setPage(1);
-          setSearch(searchInput.trim());
+          setFilters({
+            ...draftFilters,
+            search: draftFilters.search.trim(),
+            action: draftFilters.action.trim(),
+            entityType: draftFilters.entityType.trim(),
+          });
         }}
       >
-        <label className="flex min-w-0 flex-1 items-center gap-2 px-2">
+        <label className="flex min-w-0 items-center gap-2 rounded-xl border border-border px-3 md:col-span-2 xl:col-span-3">
           <Search
             size={17}
             className="shrink-0 text-muted"
             aria-hidden="true"
           />
           <input
-            value={searchInput}
-            onChange={(event) => setSearchInput(event.target.value)}
+            value={draftFilters.search}
+            onChange={(event) =>
+              setDraftFilters((current) => ({
+                ...current,
+                search: event.target.value,
+              }))
+            }
             placeholder={t("searchPlaceholder")}
-            className="min-w-0 flex-1 border-0 bg-transparent py-2 text-sm text-foreground outline-none"
+            className="min-w-0 flex-1 border-0 bg-transparent py-2.5 text-sm text-foreground outline-none"
             aria-label={t("search")}
           />
         </label>
-        <button
-          type="submit"
-          className="focus-ring rounded-xl bg-primary px-4 py-2 text-sm font-black text-slate-950"
-        >
-          {t("search")}
-        </button>
+        <FilterTextField
+          label={t("actionFilter")}
+          value={draftFilters.action}
+          onChange={(value) =>
+            setDraftFilters((current) => ({ ...current, action: value }))
+          }
+        />
+        <FilterTextField
+          label={t("entityFilter")}
+          value={draftFilters.entityType}
+          onChange={(value) =>
+            setDraftFilters((current) => ({ ...current, entityType: value }))
+          }
+        />
+        <label className="grid gap-1.5 text-xs font-bold text-muted">
+          {t("outcomeFilter")}
+          <select
+            value={draftFilters.outcome}
+            onChange={(event) =>
+              setDraftFilters((current) => ({
+                ...current,
+                outcome: event.target.value,
+              }))
+            }
+            className="focus-ring rounded-xl border border-border bg-surface-solid px-3 py-2.5 text-sm text-foreground"
+          >
+            <option value="">{t("outcomeAll")}</option>
+            <option value="Success">{t("outcomeSuccess")}</option>
+            <option value="Failure">{t("outcomeFailure")}</option>
+            <option value="RiskObserved">{t("outcomeRiskObserved")}</option>
+          </select>
+        </label>
+        <DateFilter
+          label={t("fromDate")}
+          value={draftFilters.fromDate}
+          onChange={(value) =>
+            setDraftFilters((current) => ({ ...current, fromDate: value }))
+          }
+        />
+        <DateFilter
+          label={t("toDate")}
+          value={draftFilters.toDate}
+          onChange={(value) =>
+            setDraftFilters((current) => ({ ...current, toDate: value }))
+          }
+        />
+        <div className="flex items-end gap-2">
+          <button
+            type="submit"
+            className="focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950"
+          >
+            {t("search")}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setDraftFilters(emptyFilters);
+              setFilters(emptyFilters);
+              setPage(1);
+            }}
+            className="focus-ring rounded-xl border border-border px-4 py-2.5 text-sm font-bold"
+          >
+            {t("clearFilters")}
+          </button>
+        </div>
       </form>
       {result.isPending ? (
         <div className="card mt-6 p-6" aria-busy>
@@ -217,6 +305,49 @@ export function AuditLogViewer() {
         </>
       )}
     </section>
+  );
+}
+
+function FilterTextField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="grid gap-1.5 text-xs font-bold text-muted">
+      {label}
+      <input
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="focus-ring rounded-xl border border-border bg-surface-solid px-3 py-2.5 text-sm text-foreground"
+      />
+    </label>
+  );
+}
+
+function DateFilter({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="grid gap-1.5 text-xs font-bold text-muted">
+      {label}
+      <input
+        type="date"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="focus-ring rounded-xl border border-border bg-surface-solid px-3 py-2.5 text-sm text-foreground"
+      />
+    </label>
   );
 }
 
