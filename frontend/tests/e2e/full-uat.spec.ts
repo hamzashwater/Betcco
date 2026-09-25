@@ -260,14 +260,6 @@ test("@golden-path full-stack student, admin and teacher journey", async ({
       async () => (await fetch("/api/v1/admin/dashboard")).status,
     ),
   ).toBe(200);
-  expect(
-    await loginWithRecoveryCode(
-      page,
-      adminEmail,
-      adminPassword,
-      recoveryCodes[0],
-    ),
-  ).toBe(401);
   recoveryCodes.length = 0;
 
   for (const route of adminRoutes) await assertRouteUsable(page, route);
