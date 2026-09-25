@@ -4,7 +4,7 @@ public static class EvaluationWorkflow
 {
     public static bool CanTransition(EvaluationStatus from, EvaluationStatus to) => (from, to) switch
     {
-        (EvaluationStatus.Draft, EvaluationStatus.PendingPayment) => true,
+        (EvaluationStatus.Draft, EvaluationStatus.PendingPayment or EvaluationStatus.PendingAssignment) => true,
         (EvaluationStatus.PendingPayment, EvaluationStatus.PendingAssignment) => true,
         (EvaluationStatus.PendingAssignment, EvaluationStatus.Assigned) => true,
         (EvaluationStatus.Assigned, EvaluationStatus.UnderReview) => true,

@@ -3378,6 +3378,15 @@ function EvaluationWizard() {
     queryFn: () =>
       api<AssessmentScopeOption[]>("/evaluations/assessment-scopes"),
   });
+  const includedCredit = useQuery({
+    queryKey: ["included-evaluation-credit", selected.assessmentScopeId],
+    queryFn: () =>
+      api<{ available: boolean }>(
+        `/evaluations/assessment-scopes/${selected.assessmentScopeId}/included-credit`,
+      ),
+    enabled: Boolean(selected.assessmentScopeId),
+  });
+  const hasIncludedCredit = includedCredit.data?.available === true;
   const create = useMutation({
     mutationFn: () =>
       api<{ id: string; criteria: string[] }>("/evaluations/scoped", {
@@ -3398,14 +3407,14 @@ function EvaluationWizard() {
       if (!evaluationId || files.length === 0)
         throw new Error(
           locale === "ar"
-            ? "اختر ملف مهمة واحدًا على الأقل قبل الدفع."
-            : "Choose at least one assignment file before payment.",
+            ? "اختر ملف مهمة واحدًا على الأقل قبل إرسال طلب المراجعة."
+            : "Choose at least one assignment file before submitting the review request.",
         );
       if (!authenticityConfirmed)
         throw new Error(
           locale === "ar"
-            ? "يجب تأكيد إقرار أصالة العمل قبل الدفع."
-            : "Confirm the originality declaration before payment.",
+            ? "يجب تأكيد إقرار أصالة العمل قبل إرسال طلب المراجعة."
+            : "Confirm the originality declaration before submitting the review request.",
         );
       const pendingFiles = files.filter(
         (item) => !uploadedFileKeys.includes(fileKey(item)),
@@ -3424,23 +3433,29 @@ function EvaluationWizard() {
       await api(`/evaluations/${evaluationId}/authenticity-declaration`, {
         method: "POST",
       });
-      return api<{ paymentId: string }>(
-        `/evaluations/${evaluationId}/checkout`,
-        {
-          method: "POST",
-          headers: { "Idempotency-Key": crypto.randomUUID() },
-          body: JSON.stringify({ paymentMethod }),
-        },
-      );
-    },
-    onSuccess: async (payment) => {
-      await api("/payments/fake/confirm", {
+      return api<{
+        includedCreditApplied: boolean;
+        evaluationStatus: string;
+        paymentId: string | null;
+      }>(`/evaluations/${evaluationId}/checkout`, {
         method: "POST",
+        headers: { "Idempotency-Key": crypto.randomUUID() },
         body: JSON.stringify({
-          paymentId: payment.paymentId,
-          providerEventId: `test_${crypto.randomUUID()}`,
+          paymentMethod,
+          expectIncludedCredit: hasIncludedCredit,
         }),
       });
+    },
+    onSuccess: async (result) => {
+      if (!result.includedCreditApplied && result.paymentId) {
+        await api("/payments/fake/confirm", {
+          method: "POST",
+          body: JSON.stringify({
+            paymentId: result.paymentId,
+            providerEventId: `test_${crypto.randomUUID()}`,
+          }),
+        });
+      }
       router.push(`/${locale}/student/evaluations`);
     },
   });
@@ -3631,6 +3646,45 @@ function EvaluationWizard() {
             </p>
           </div>
         ) : null}
+        {selected.assessmentScopeId ? (
+          <div
+            className="rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm"
+            role="status"
+          >
+            {includedCredit.isPending ? (
+              <p className="text-muted">
+                {locale === "ar"
+                  ? "جارٍ التحقق من رصيد تقييم المهمة لهذه الوحدة…"
+                  : "Checking your included evaluation credit for this Unit…"}
+              </p>
+            ) : includedCredit.isError ? (
+              <p className="text-red-500">
+                {locale === "ar"
+                  ? "تعذر التحقق من رصيد التقييم الآن. أعد المحاولة قبل إرسال الطلب."
+                  : "We could not verify your evaluation credit. Retry before submitting."}
+              </p>
+            ) : hasIncludedCredit ? (
+              <>
+                <p className="font-black text-primary">
+                  {locale === "ar"
+                    ? "لديك تقييم مهمة واحد مشمول مع هذه الوحدة"
+                    : "You have 1 assignment evaluation included with this Unit"}
+                </p>
+                <p className="mt-1 text-muted">
+                  {locale === "ar"
+                    ? "يشمل المراجعة الأولى، ملاحظات المعلم، وفحص نسخة معدلة واحدة. لن يتم إنشاء دفعة منفصلة."
+                    : "It includes the initial review, teacher feedback, and one revised-work check. No separate payment will be created."}
+                </p>
+              </>
+            ) : (
+              <p className="text-muted">
+                {locale === "ar"
+                  ? "لا يوجد رصيد تقييم مشمول لهذه الوحدة؛ سيُستخدم مسار الدفع العادي مرة واحدة للخدمة كاملة."
+                  : "No included evaluation credit is available for this Unit; the standard one-time paid review applies."}
+              </p>
+            )}
+          </div>
+        ) : null}
         <FilePicker
           label={locale === "ar" ? "ملفات المهمة" : "Assignment files"}
           files={files}
@@ -3700,7 +3754,10 @@ function EvaluationWizard() {
             ))}
           </section>
         )}
-        {evaluationId && (
+        {evaluationId &&
+        !includedCredit.isPending &&
+        !includedCredit.isError &&
+        !hasIncludedCredit ? (
           <label className="grid gap-1 text-sm font-semibold">
             {locale === "ar" ? "طريقة الدفع" : "Payment method"}
             <select
@@ -3719,7 +3776,7 @@ function EvaluationWizard() {
               </option>
             </select>
           </label>
-        )}
+        ) : null}
         {evaluationId && (
           <label className="flex items-start gap-3 rounded-xl border border-border bg-surface-solid/60 p-3 text-sm leading-6">
             <input
@@ -3759,12 +3816,23 @@ function EvaluationWizard() {
           <button
             type="button"
             onClick={() => checkout.mutate()}
-            disabled={checkout.isPending || !authenticityConfirmed}
-            className="focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-white"
+            disabled={
+              checkout.isPending ||
+              !authenticityConfirmed ||
+              includedCredit.isPending ||
+              includedCredit.isError
+            }
+            className="focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {locale === "ar"
-              ? "دفع التقييم بالطريقة المختارة"
-              : "Pay using selected method"}
+            {checkout.isPending
+              ? "…"
+              : hasIncludedCredit
+                ? locale === "ar"
+                  ? "استخدام تقييم المهمة المشمول مع الوحدة"
+                  : "Use included assignment evaluation"
+                : locale === "ar"
+                  ? "دفع التقييم بالطريقة المختارة"
+                  : "Pay using selected method"}
           </button>
         )}
         {(create.isError || checkout.isError) && (

@@ -24,6 +24,11 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
         Ok(await scopedAssessments.ListOptionsAsync(cancellationToken));
 
     [Authorize(Policy = "Student")]
+    [HttpGet("assessment-scopes/{assessmentScopeId:guid}/included-credit")]
+    public async Task<IActionResult> IncludedCredit(Guid assessmentScopeId, CancellationToken cancellationToken) =>
+        Ok(await commerce.GetIncludedEvaluationCreditStatusAsync(UserId, assessmentScopeId, cancellationToken));
+
+    [Authorize(Policy = "Student")]
     [HttpPost("scoped")]
     public async Task<IActionResult> CreateScoped(ScopedEvaluationCommand command, CancellationToken cancellationToken)
     {
@@ -271,8 +276,44 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
     {
         try
         {
-            var result = await commerce.CreateEvaluationCheckoutAsync(UserId, requestId, request.PaymentMethod, Request.Headers["Idempotency-Key"].ToString(), cancellationToken);
-            return result is null ? BadRequest(new { message = "Add at least one clean file and confirm the originality declaration before payment." }) : Ok(result);
+            var result = await commerce.CreateEvaluationCheckoutAsync(
+                UserId,
+                requestId,
+                request.PaymentMethod,
+                Request.Headers["Idempotency-Key"].ToString(),
+                request.ExpectIncludedCredit,
+                cancellationToken);
+            if (result is null)
+                return BadRequest(new { message = "Add at least one clean file and confirm the originality declaration before submitting the review request." });
+
+            if (result.IncludedCreditApplied)
+            {
+                return Ok(new
+                {
+                    includedCreditApplied = true,
+                    result.EvaluationStatus,
+                    paymentId = (Guid?)null
+                });
+            }
+
+            var payment = result.Payment!;
+            return Ok(new
+            {
+                includedCreditApplied = false,
+                result.EvaluationStatus,
+                payment.PaymentId,
+                payment.Status,
+                payment.Provider,
+                payment.CheckoutReference,
+                payment.RedirectUrl,
+                payment.ProviderSessionStatus,
+                payment.Subtotal,
+                payment.Discount,
+                payment.Tax,
+                payment.Total,
+                payment.Currency,
+                payment.PaymentMethod
+            });
         }
         catch (InvalidOperationException exception) { return BadRequest(new { message = exception.Message }); }
     }
@@ -401,7 +442,7 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
 }
 
 public sealed record AssignEvaluatorRequest(string TeacherUserId);
-public sealed record EvaluationCheckoutRequest(string? PaymentMethod);
+public sealed record EvaluationCheckoutRequest(string? PaymentMethod, bool ExpectIncludedCredit = false);
 public sealed record AddEvaluationEvidenceRequest(string CriterionCode, string Narrative);
 public sealed record InternalVerificationRequest(bool Approve, string? Comment, DateTimeOffset? ResubmissionDueAtUtc);
 internal sealed record EvaluationSectionView(string Section, string Grade);

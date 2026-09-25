@@ -1,4 +1,6 @@
 using Betcco.Domain.Common;
+using Betcco.Domain.Commerce;
+using Betcco.Domain.Learning;
 
 namespace Betcco.Domain.Evaluations;
 
@@ -96,6 +98,29 @@ public sealed class EvaluationRequest : Entity
     public ICollection<EvaluationExpectedCompletionRevision> ExpectedCompletionRevisions { get; } = new List<EvaluationExpectedCompletionRevision>();
     public ICollection<ResubmissionAuthorization> ResubmissionAuthorizations { get; } = new List<ResubmissionAuthorization>();
     public RetakeAuthorization? RetakeAuthorization { get; set; }
+}
+
+/// <summary>
+/// One included BETCCO assignment-review credit granted by a paid course access
+/// for one canonical Unit. The credit is independent of learning progress and is
+/// consumed only when an eligible evaluation is formally submitted.
+/// </summary>
+public sealed class IncludedEvaluationEntitlement : Entity
+{
+    public required string StudentUserId { get; set; }
+    public Guid EnrollmentId { get; set; }
+    public Enrollment? Enrollment { get; set; }
+    public Guid UnitDefinitionId { get; set; }
+    public UnitDefinition? UnitDefinition { get; set; }
+    public Guid GrantedByPaymentId { get; set; }
+    public Payment? GrantedByPayment { get; set; }
+    public DateTimeOffset GrantedAtUtc { get; set; } = DateTimeOffset.UtcNow;
+    public Guid? ConsumedByEvaluationRequestId { get; set; }
+    public EvaluationRequest? ConsumedByEvaluationRequest { get; set; }
+    public DateTimeOffset? ConsumedAtUtc { get; set; }
+    public Guid? RevokedByRefundId { get; set; }
+    public Refund? RevokedByRefund { get; set; }
+    public DateTimeOffset? RevokedAtUtc { get; set; }
 }
 
 /// <summary>

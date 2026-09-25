@@ -4,6 +4,11 @@ public sealed record CartLine(Guid ReferenceId, string ItemType);
 public sealed record CartView(Guid Id, IReadOnlyCollection<CartLineView> Items, decimal Subtotal, decimal Discount, decimal Total, string Currency);
 public sealed record CartLineView(Guid Id, Guid ReferenceId, string ItemType, string Title, decimal Price);
 public sealed record CheckoutResult(Guid PaymentId, string Status, string Provider, string CheckoutReference, string? RedirectUrl, string ProviderSessionStatus, decimal Subtotal, decimal Discount, decimal Tax, decimal Total, string Currency, string PaymentMethod);
+public sealed record EvaluationCheckoutResult(bool IncludedCreditApplied, string EvaluationStatus, CheckoutResult? Payment)
+{
+    public Guid PaymentId => Payment?.PaymentId ?? Guid.Empty;
+}
+public sealed record IncludedEvaluationCreditStatus(bool Available);
 public sealed record PaymentCheckoutRequest(Guid PaymentId, string Currency, decimal Amount, string Description, string CallbackUrl, string ReturnUrl, string PaymentMethod);
 public sealed record PaymentSession(string Provider, string ProviderPaymentId, string? RedirectUrl, bool IsDevelopmentTest);
 public sealed record PaymentCheckoutRecovery(string Provider, string ProfileId, string ProviderPaymentId, string CartId, string Currency, decimal Amount, string? RedirectUrl, bool IsSuccessful, bool IsDefiniteFailure, string? ProviderStatus, string? ProviderResultCode);
@@ -62,7 +67,8 @@ public interface ICommerceService
     Task<CheckoutResult?> CreateCourseCheckoutAsync(string userId, string ownerKey, string? couponCode, string? paymentMethod, string idempotencyKey, CancellationToken cancellationToken = default);
     Task<CheckoutResult?> CreateMembershipCheckoutAsync(string userId, Guid membershipPlanId, string? couponCode, string? paymentMethod, string idempotencyKey, CancellationToken cancellationToken = default);
     Task<CheckoutResult?> CreateCourseSubscriptionCheckoutAsync(string userId, Guid courseSubscriptionPlanId, string? couponCode, string? paymentMethod, string idempotencyKey, CancellationToken cancellationToken = default);
-    Task<CheckoutResult?> CreateEvaluationCheckoutAsync(string userId, Guid evaluationRequestId, string? paymentMethod, string idempotencyKey, CancellationToken cancellationToken = default);
+    Task<EvaluationCheckoutResult?> CreateEvaluationCheckoutAsync(string userId, Guid evaluationRequestId, string? paymentMethod, string idempotencyKey, bool expectIncludedCredit = false, CancellationToken cancellationToken = default);
+    Task<IncludedEvaluationCreditStatus> GetIncludedEvaluationCreditStatusAsync(string userId, Guid assessmentScopeId, CancellationToken cancellationToken = default);
     Task<bool> ConfirmFakeWebhookAsync(Guid paymentId, string providerEventId, string? expectedOwnerUserId = null, CancellationToken cancellationToken = default);
     Task<bool> ConfirmPayTabsCallbackAsync(string cartId, string providerPaymentId, CancellationToken cancellationToken = default);
     Task<PaymentCancellationResult> CancelProcessingPaymentAsync(string userId, Guid paymentId, CancellationToken cancellationToken = default);

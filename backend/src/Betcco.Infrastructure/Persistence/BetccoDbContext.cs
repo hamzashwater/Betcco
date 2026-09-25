@@ -94,6 +94,7 @@ public sealed class BetccoDbContext(
     public DbSet<AssessmentScope> AssessmentScopes => Set<AssessmentScope>();
     public DbSet<RubricCriterion> RubricCriteria => Set<RubricCriterion>();
     public DbSet<EvaluationRequest> EvaluationRequests => Set<EvaluationRequest>();
+    public DbSet<IncludedEvaluationEntitlement> IncludedEvaluationEntitlements => Set<IncludedEvaluationEntitlement>();
     public DbSet<SubmissionFile> SubmissionFiles => Set<SubmissionFile>();
     public DbSet<EvaluatorAssignment> EvaluatorAssignments => Set<EvaluatorAssignment>();
     public DbSet<EvaluatorUnitSpecialism> EvaluatorUnitSpecialisms => Set<EvaluatorUnitSpecialism>();
@@ -1339,6 +1340,28 @@ public sealed class BetccoDbContext(
             .HasForeignKey(x => x.RetakeOfEvaluationRequestId).OnDelete(DeleteBehavior.Restrict);
         builder.Entity<EvaluationRequest>().HasIndex(x => x.RetakeOfEvaluationRequestId).IsUnique()
             .HasFilter("\"RetakeOfEvaluationRequestId\" IS NOT NULL");
+
+        builder.Entity<IncludedEvaluationEntitlement>().Property(x => x.StudentUserId).HasMaxLength(64);
+        builder.Entity<IncludedEvaluationEntitlement>().HasOne(x => x.Enrollment).WithMany()
+            .HasForeignKey(x => x.EnrollmentId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<IncludedEvaluationEntitlement>().HasOne(x => x.UnitDefinition).WithMany()
+            .HasForeignKey(x => x.UnitDefinitionId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<IncludedEvaluationEntitlement>().HasOne(x => x.GrantedByPayment).WithMany()
+            .HasForeignKey(x => x.GrantedByPaymentId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<IncludedEvaluationEntitlement>().HasOne(x => x.ConsumedByEvaluationRequest).WithMany()
+            .HasForeignKey(x => x.ConsumedByEvaluationRequestId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<IncludedEvaluationEntitlement>().HasOne(x => x.RevokedByRefund).WithMany()
+            .HasForeignKey(x => x.RevokedByRefundId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<IncludedEvaluationEntitlement>().HasIndex(x => new { x.GrantedByPaymentId, x.UnitDefinitionId }).IsUnique();
+        builder.Entity<IncludedEvaluationEntitlement>().HasIndex(x => x.ConsumedByEvaluationRequestId).IsUnique()
+            .HasFilter("\"ConsumedByEvaluationRequestId\" IS NOT NULL");
+        builder.Entity<IncludedEvaluationEntitlement>().HasIndex(x => new { x.StudentUserId, x.UnitDefinitionId, x.ConsumedAtUtc, x.RevokedAtUtc });
+        builder.Entity<IncludedEvaluationEntitlement>().Property(x => x.ConsumedByEvaluationRequestId).IsConcurrencyToken();
+        builder.Entity<IncludedEvaluationEntitlement>().Property(x => x.RevokedAtUtc).IsConcurrencyToken();
+        builder.Entity<IncludedEvaluationEntitlement>().ToTable(table => table.HasCheckConstraint(
+            "CK_IncludedEvaluationEntitlements_ConsumedOrRevoked",
+            "NOT (\"ConsumedAtUtc\" IS NOT NULL AND \"RevokedAtUtc\" IS NOT NULL)"));
+
         builder.Entity<CourseAssignmentFeedback>().HasIndex(x => new { x.CourseAssignmentSubmissionId, x.CreatedAtUtc });
         builder.Entity<EvaluatorAssignment>().HasIndex(x => x.EvaluationRequestId).IsUnique();
         builder.Entity<EvaluatorUnitSpecialism>().Property(x => x.RevokeReason).HasMaxLength(500);
