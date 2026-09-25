@@ -425,6 +425,80 @@
       "page": "Page {page} of {pageCount}"
     }
   },
+  "aiPractice": {
+    "comingSoon": "Engine coming soon",
+    "formativeOnly": "Formative practice only",
+    "title": "AI Practice Assistant",
+    "description": "A dedicated workspace for future AI-assisted practice review. Choose learning context, submit training evidence, and receive traceable formative guidance when the engine is connected.",
+    "courseBanner": {
+      "title": "AI Practice Assistant",
+      "description": "Your courses now have a dedicated AI practice workspace ready for a future formative review engine.",
+      "action": "Open AI practice"
+    },
+    "workspace": {
+      "title": "Prepare a practice review",
+      "description": "Choose the learning context first. Unit, Learning Aim, evidence upload, and analysis stay locked until the AI engine is connected."
+    },
+    "fields": {
+      "course": "Course",
+      "chooseCourse": "Choose an enrolled course",
+      "loadingCourses": "Loading enrolled courses…",
+      "courseLoadError": "Enrolled courses could not be loaded.",
+      "unit": "Unit",
+      "unitPlaceholder": "Available after engine connection",
+      "learningAim": "Learning Aim",
+      "learningAimPlaceholder": "Available after engine connection"
+    },
+    "upload": {
+      "title": "Upload practice evidence",
+      "description": "PDF and Word evidence will be added here later. Upload is intentionally disabled in this UI-only slice.",
+      "disabledAction": "Upload not enabled yet"
+    },
+    "ready": {
+      "title": "Choose a course to prepare the workspace",
+      "selected": "{title} selected",
+      "description": "No AI request is made and no practice file is uploaded from this preview."
+    },
+    "analyze": "Analyze practice",
+    "preview": {
+      "eyebrow": "Future result layout",
+      "title": "Formative review preview",
+      "outcome": "Suggested training outcome",
+      "pending": "NYA / P / M / D will only appear after real evidence is analyzed against the selected learning context.",
+      "strengths": "Strengths",
+      "gaps": "Gaps",
+      "guidance": "Improvement guidance",
+      "empty": "This area will show evidence-based feedback after analysis."
+    },
+    "flow": {
+      "title": "How it will work",
+      "step1": {
+        "title": "Choose context",
+        "description": "Select the enrolled course, Unit, and Learning Aim."
+      },
+      "step2": {
+        "title": "Add evidence",
+        "description": "Upload the learner's formative practice evidence."
+      },
+      "step3": {
+        "title": "AI first review",
+        "description": "The future engine will map evidence to the relevant practice expectations."
+      },
+      "step4": {
+        "title": "Teacher decision",
+        "description": "AI remains advisory; the teacher controls the final formative outcome and feedback."
+      }
+    },
+    "boundary": {
+      "title": "Clear assessment boundary",
+      "description": "This workspace is for formative Learning Aim Practice only. It does not issue official BTEC grades and does not change formal ASSESS, Retake, Resit, or payment workflows."
+    },
+    "history": {
+      "title": "AI review history",
+      "empty": "No AI reviews exist yet. History will appear here after the engine and persistence layer are implemented."
+    },
+    "backToCourses": "Back to my courses"
+  },
   "academicCatalogue": {
     "eyebrow": "academic definitions",
     "title": "Academic Catalogue",
