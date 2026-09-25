@@ -39,6 +39,8 @@ function renderAuditLog(locale: "en" | "ar" = "en") {
 afterEach(() => {
   cleanup();
   apiMock.mockReset();
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 describe("Admin audit log filters", () => {
@@ -86,6 +88,59 @@ describe("Admin audit log filters", () => {
     expect(screen.getByLabelText("Action contains")).toHaveValue("");
     expect(screen.getByLabelText("Entity type contains")).toHaveValue("");
     expect(screen.getByLabelText("Outcome")).toHaveValue("");
+  });
+
+  it("exports the currently applied filters as a CSV download", async () => {
+    apiMock.mockResolvedValue({
+      items: [],
+      page: 1,
+      pageSize: 25,
+      totalCount: 0,
+    });
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response("CreatedAtUtc,Actor,Action,EntityType,Outcome", {
+        status: 200,
+        headers: {
+          "content-type": "text/csv",
+          "content-disposition":
+            'attachment; filename="betcco-audit-log-test.csv"',
+        },
+      }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const createObjectURL = vi.fn().mockReturnValue("blob:audit-export");
+    const revokeObjectURL = vi.fn();
+    Object.defineProperty(URL, "createObjectURL", {
+      configurable: true,
+      value: createObjectURL,
+    });
+    Object.defineProperty(URL, "revokeObjectURL", {
+      configurable: true,
+      value: revokeObjectURL,
+    });
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, "click")
+      .mockImplementation(() => undefined);
+
+    renderAuditLog();
+    const user = userEvent.setup();
+    await screen.findByText("No audit events match this search.");
+    await user.type(screen.getByLabelText("Action contains"), "EmailChange");
+    await user.selectOptions(screen.getByLabelText("Outcome"), "Success");
+    await user.click(screen.getByRole("button", { name: "Search" }));
+    await user.click(screen.getByRole("button", { name: "Export CSV" }));
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining(
+          "/api/v1/admin/audit-logs/export?action=EmailChange&outcome=Success",
+        ),
+        expect.objectContaining({ credentials: "include", cache: "no-store" }),
+      ),
+    );
+    expect(createObjectURL).toHaveBeenCalled();
+    expect(click).toHaveBeenCalled();
+    expect(revokeObjectURL).toHaveBeenCalledWith("blob:audit-export");
   });
 
   it("renders the structured filters in Arabic", async () => {
