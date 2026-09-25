@@ -58,6 +58,13 @@ public sealed record CreateLearningAimPracticeCommand(
     Guid LearningAimId, string ArabicTitle, string EnglishTitle,
     string ArabicInstructions, string EnglishInstructions, DateTimeOffset? DueAtUtc);
 
+public sealed record CreateComprehensivePracticeCommand(
+    Guid CourseModuleId, string ArabicTitle, string EnglishTitle,
+    string ArabicInstructions, string EnglishInstructions, DateTimeOffset? DueAtUtc);
+public sealed record UpdateComprehensivePracticeCommand(
+    string ArabicTitle, string EnglishTitle,
+    string ArabicInstructions, string EnglishInstructions, DateTimeOffset? DueAtUtc);
+
 public sealed record ReviewLearningAimPracticeCommand(
     string TrainingOutcome, string Strengths, string Gaps, string ImprovementGuidance);
 public enum PracticeReviewResult { Finalized, Invalid, Conflict }
@@ -68,7 +75,10 @@ public enum CourseAssignmentFileAddStatus { Added, SubmissionNotFound, Rejected,
 public interface ICourseAssignmentService
 {
     Task<Guid?> CreatePracticeAsync(string teacherUserId, CreateLearningAimPracticeCommand command, CancellationToken cancellationToken = default);
+    Task<PracticeCreationResult> CreateComprehensivePracticeAsync(string teacherUserId, CreateComprehensivePracticeCommand command, CancellationToken cancellationToken = default);
+    Task<bool> UpdateComprehensivePracticeAsync(string teacherUserId, Guid assignmentId, UpdateComprehensivePracticeCommand command, CancellationToken cancellationToken = default);
     Task<PracticeReviewResult> ReviewPracticeAsync(string teacherUserId, Guid submissionId, ReviewLearningAimPracticeCommand command, CancellationToken cancellationToken = default);
+    Task<PracticeReviewResult> ReviewComprehensivePracticeAsync(string teacherUserId, Guid submissionId, ReviewLearningAimPracticeCommand command, CancellationToken cancellationToken = default);
     Task<Guid?> CreateAsync(string teacherUserId, CreateCourseAssignmentCommand command, CancellationToken cancellationToken = default);
     Task<bool> UpdateAsync(string teacherUserId, Guid assignmentId, UpdateCourseAssignmentCommand command, CancellationToken cancellationToken = default);
     Task<bool> DeleteAsync(string teacherUserId, Guid assignmentId, CancellationToken cancellationToken = default);
@@ -84,3 +94,6 @@ public interface ICourseAssignmentService
     Task<bool> GradeAsync(string teacherUserId, Guid submissionId, AssignmentGradeCommand command, CancellationToken cancellationToken = default);
     Task<bool> RequestRevisionAsync(string teacherUserId, Guid submissionId, string feedback, CancellationToken cancellationToken = default);
 }
+
+public enum PracticeCreateStatus { Created, Invalid, Conflict }
+public sealed record PracticeCreationResult(PracticeCreateStatus Status, Guid? Id = null);

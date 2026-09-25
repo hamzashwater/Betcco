@@ -3,6 +3,7 @@ using System;
 using Betcco.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Betcco.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(BetccoDbContext))]
-    partial class BetccoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260924205030_AddComprehensivePracticeAssignment")]
+    partial class AddComprehensivePracticeAssignment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -5,6 +5,7 @@
 
 import { FilePicker } from "@/components/forms/file-picker";
 import { TeacherLearningAimPractice } from "@/features/learning/learning-aim-practice";
+import { TeacherComprehensivePractice } from "@/features/learning/comprehensive-practice";
 import {
   CourseWorkspaceNavigation,
   CourseWorkspaceSection,
@@ -4163,6 +4164,10 @@ function CourseAssignmentsEditor({
   return (
     <section className="card grid gap-5 p-5">
       <TeacherLearningAimPractice
+        courseId={course.id}
+        modules={course.modules}
+      />
+      <TeacherComprehensivePractice
         courseId={course.id}
         modules={course.modules}
       />
