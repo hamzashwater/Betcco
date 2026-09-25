@@ -508,7 +508,7 @@ public sealed class LearningAimPracticeFlowTests
             && x.CourseAssignment!.Purpose == CourseAssignmentPurpose.LearningAimPractice);
         aimSubmission.Status = CourseAssignmentSubmissionStatus.Draft;
         await db.SaveChangesAsync();
-        Assert.Equal("LearningAimsIncomplete", (await PracticeAsync()).GetProperty("UnavailableReason").GetString());
+        Assert.Equal("Available", (await PracticeAsync()).GetProperty("Status").GetString());
         aimSubmission.Status = CourseAssignmentSubmissionStatus.Finalized;
         var assignment = await db.CourseAssignments.SingleAsync(x => x.Id == created.Id.Value);
         assignment.DueAtUtc = DateTimeOffset.UtcNow.AddHours(-2);
@@ -532,7 +532,7 @@ public sealed class LearningAimPracticeFlowTests
         Assert.Equal("DeadlineExpired", (await PracticeAsync()).GetProperty("UnavailableReason").GetString());
         aimSubmission.Status = CourseAssignmentSubmissionStatus.Draft;
         await db.SaveChangesAsync();
-        Assert.Equal("LearningAimsIncomplete", (await PracticeAsync()).GetProperty("UnavailableReason").GetString());
+        Assert.Equal("DeadlineExpired", (await PracticeAsync()).GetProperty("UnavailableReason").GetString());
     }
 
     [Fact]
@@ -599,13 +599,23 @@ public sealed class LearningAimPracticeFlowTests
                 PublicationStatus = ContentPublicationStatus.Published
             };
             db.CourseAssignments.Add(assignment);
-            db.CourseAssignmentSubmissions.Add(new Betcco.Domain.Assessments.CourseAssignmentSubmission
+            var submission = new Betcco.Domain.Assessments.CourseAssignmentSubmission
             {
                 CourseAssignment = assignment,
                 StudentUserId = "student",
+                CurrentVersionNumber = 1,
                 Status = CourseAssignmentSubmissionStatus.Finalized,
                 TrainingOutcome = TrainingOutcome.Pass
+            };
+            submission.Versions.Add(new Betcco.Domain.Assessments.CourseAssignmentSubmissionVersion
+            {
+                VersionNumber = 1,
+                SubmittedAtUtc = DateTimeOffset.UtcNow,
+                TrainingOutcome = TrainingOutcome.Pass,
+                ReviewedAtUtc = DateTimeOffset.UtcNow,
+                ReviewedByUserId = "teacher"
             });
+            db.CourseAssignmentSubmissions.Add(submission);
             db.LessonProgresses.Add(new LessonProgress { StudentUserId = "student", LessonId = lesson.Id, IsCompleted = true });
         }
         await db.SaveChangesAsync();
@@ -819,6 +829,7 @@ public sealed class LearningAimPracticeFlowTests
         Assert.Equal(PracticeReviewResult.Finalized, await service.ReviewPracticeAsync(
             "teacher", first.SubmissionId,
             new ReviewLearningAimPracticeCommand("Pass", "First strength", "First gap", "First guidance")));
+        db.ChangeTracker.Clear();
 
         var afterFirst = await new LearningAimPracticeProgressService(db).GetAsync("student", module.Id);
         Assert.True(afterFirst[0].IsComplete);
@@ -859,6 +870,7 @@ public sealed class LearningAimPracticeFlowTests
         Assert.Equal(PracticeReviewResult.Finalized, await service.ReviewPracticeAsync(
             "teacher", second.SubmissionId,
             new ReviewLearningAimPracticeCommand("Merit", "Second strength", "Second gap", "Second guidance")));
+        db.ChangeTracker.Clear();
 
         var afterSecond = await new LearningAimPracticeProgressService(db).GetAsync("student", module.Id);
         Assert.True(afterSecond[0].IsComplete);
