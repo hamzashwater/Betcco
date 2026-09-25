@@ -6,6 +6,7 @@ import { ScrollProgress } from "@/components/visual/scroll-progress";
 import { AnalyticsTracker } from "@/components/analytics-tracker";
 import { PwaRegister } from "@/components/pwa-register";
 import { Providers } from "@/components/providers";
+import { MfaEnrollmentBoundary } from "@/features/auth/mfa-enrollment-boundary";
 import { routing } from "@/i18n/routing";
 import { defaultBrand, publicBrandSettingsQueryKey } from "@/lib/brand";
 import { getPublicBrandSettings } from "@/lib/public-brand-settings.server";
@@ -82,19 +83,20 @@ export default async function LocaleLayout({ children, params }: Props) {
           lang={locale}
           className="relative z-10 flex min-h-screen flex-col"
         >
-          <SiteNavigation />
-          <a className="skip-link" href="#main-content">
-            {locale === "ar"
-              ? "الانتقال إلى المحتوى الرئيسي"
-              : "Skip to main content"}
-          </a>
-          <main
-            id="main-content"
-            tabIndex={-1}
-            className="page-backdrop flex-1"
-          >
-            {children}
-          </main>
+          <MfaEnrollmentBoundary navigation={<SiteNavigation />}>
+            <a className="skip-link" href="#main-content">
+              {locale === "ar"
+                ? "الانتقال إلى المحتوى الرئيسي"
+                : "Skip to main content"}
+            </a>
+            <main
+              id="main-content"
+              tabIndex={-1}
+              className="page-backdrop flex-1"
+            >
+              {children}
+            </main>
+          </MfaEnrollmentBoundary>
           <SiteFooter />
         </div>
         <ScrollProgress />

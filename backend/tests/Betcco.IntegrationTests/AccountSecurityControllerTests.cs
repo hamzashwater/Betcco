@@ -1,11 +1,14 @@
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text.Json;
 using Betcco.Api.Controllers;
+using Betcco.Api.Authorization;
 using Betcco.Application.Common;
 using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Identity;
 using Betcco.Infrastructure.Persistence;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -21,6 +24,280 @@ namespace Betcco.IntegrationTests;
 
 public sealed class AccountSecurityControllerTests
 {
+    [Theory]
+    [InlineData(PlatformRoles.Admin, true)]
+    [InlineData(PlatformRoles.SystemAdmin, true)]
+    [InlineData(PlatformRoles.SupportAdmin, true)]
+    [InlineData(PlatformRoles.FinanceAdmin, true)]
+    [InlineData(PlatformRoles.Student, false)]
+    [InlineData(PlatformRoles.Teacher, false)]
+    [InlineData(PlatformRoles.Assessor, false)]
+    [InlineData(PlatformRoles.InternalVerifier, false)]
+    [InlineData(PlatformRoles.LeadInternalVerifier, false)]
+    [InlineData(PlatformRoles.CourseReviewer, false)]
+    public async Task Staff_mfa_gate_uses_current_roles_and_preserves_public_endpoints(string role, bool enforced)
+    {
+        await using var fixture = await SecurityFixture.CreateAsync();
+        await AddRoleAsync(fixture, role);
+
+        Assert.Equal(enforced, StaffMfaPolicy.RequiresStaffMfa(await fixture.UserManager.GetRolesAsync(fixture.User)));
+        Assert.Equal(enforced ? StatusCodes.Status403Forbidden : StatusCodes.Status204NoContent,
+            await GateStatusAsync(fixture));
+        Assert.Equal(StatusCodes.Status204NoContent, await GateStatusAsync(fixture, bootstrap: true));
+        Assert.Equal(StatusCodes.Status204NoContent, await GateStatusAsync(fixture, publicEndpoint: true));
+    }
+
+    [Fact]
+    public async Task Staff_mfa_gate_handles_multiple_roles_activation_revocation_and_freeze()
+    {
+        await using var fixture = await SecurityFixture.CreateAsync();
+        await AddRoleAsync(fixture, PlatformRoles.Teacher);
+        Assert.Equal(204, await GateStatusAsync(fixture));
+        await AddRoleAsync(fixture, PlatformRoles.SupportAdmin);
+        Assert.Equal(403, await GateStatusAsync(fixture));
+        Assert.True((await fixture.UserManager.SetTwoFactorEnabledAsync(fixture.User, true)).Succeeded);
+        Assert.Equal(204, await GateStatusAsync(fixture));
+        Assert.True((await fixture.UserManager.SetTwoFactorEnabledAsync(fixture.User, false)).Succeeded);
+        Assert.True((await fixture.UserManager.RemoveFromRoleAsync(fixture.User, PlatformRoles.SupportAdmin)).Succeeded);
+        Assert.Equal(204, await GateStatusAsync(fixture));
+        fixture.User.IsFrozen = true;
+        Assert.True((await fixture.UserManager.UpdateAsync(fixture.User)).Succeeded);
+        Assert.Equal(401, await GateStatusAsync(fixture, bootstrap: false));
+    }
+
+    [Fact]
+    public async Task Multi_role_enforcement_and_staff_disable_are_server_owned()
+    {
+        await using var fixture = await SecurityFixture.CreateAsync();
+        await AddRoleAsync(fixture, PlatformRoles.Teacher);
+        await AddRoleAsync(fixture, PlatformRoles.FinanceAdmin);
+        Assert.True(StaffMfaPolicy.RequiresStaffMfa(await fixture.UserManager.GetRolesAsync(fixture.User)));
+        Assert.Equal(403, await GateStatusAsync(fixture));
+        var me = Assert.IsType<OkObjectResult>(await fixture.CreateController(Guid.NewGuid()).Me());
+        Assert.Contains("\"requiresMfaEnrollment\":true", JsonSerializer.Serialize(me.Value));
+        var denied = Assert.IsType<ObjectResult>(await fixture.CreateController(Guid.NewGuid()).DisableTwoFactor(new TwoFactorCodeRequest(null), CancellationToken.None));
+        Assert.Equal(403, denied.StatusCode);
+        Assert.Contains("STAFF_MFA_REQUIRED", JsonSerializer.Serialize(denied.Value));
+    }
+
+    [Fact]
+    public async Task Enabling_staff_mfa_rotates_stamp_and_revokes_other_bootstrap_sessions()
+    {
+        await using var fixture = await SecurityFixture.CreateAsync(mockAuthenticatorProvider: true);
+        await AddRoleAsync(fixture, PlatformRoles.SupportAdmin);
+        var current = Session(fixture.User.Id.ToString(), "Current");
+        var other = Session(fixture.User.Id.ToString(), "Other bootstrap browser");
+        fixture.Db.UserSessions.AddRange(current, other);
+        await fixture.Db.SaveChangesAsync();
+        Assert.True((await fixture.UserManager.ResetAuthenticatorKeyAsync(fixture.User)).Succeeded);
+        var oldStamp = fixture.User.SecurityStamp;
+        var code = await fixture.UserManager.GenerateTwoFactorTokenAsync(fixture.User, TokenOptions.DefaultAuthenticatorProvider);
+
+        var controller = fixture.CreateController(current.Id);
+        var enabled = Assert.IsType<OkObjectResult>(await controller.EnableTwoFactor(new TwoFactorCodeRequest(code), CancellationToken.None));
+        var codes = RecoveryCodes(enabled);
+        Assert.Equal(10, codes.Length);
+        Assert.Equal("no-store", controller.Response.Headers.CacheControl);
+        Assert.Equal(10, await fixture.UserManager.CountRecoveryCodesAsync(fixture.User));
+        Assert.True(await fixture.UserManager.GetTwoFactorEnabledAsync(fixture.User));
+        Assert.NotEqual(oldStamp, fixture.User.SecurityStamp);
+        Assert.Null((await fixture.Db.UserSessions.SingleAsync(x => x.Id == current.Id)).RevokedAtUtc);
+        Assert.NotNull((await fixture.Db.UserSessions.SingleAsync(x => x.Id == other.Id)).RevokedAtUtc);
+        Assert.Contains(fixture.Db.AuditLogs, log => log.Action == "TwoFactorEnabled");
+        Assert.Equal(204, await GateStatusAsync(fixture));
+    }
+
+    [Fact]
+    public async Task Enabling_optional_teacher_mfa_does_not_revoke_other_session_records()
+    {
+        await using var fixture = await SecurityFixture.CreateAsync(mockAuthenticatorProvider: true);
+        await AddRoleAsync(fixture, PlatformRoles.Teacher);
+        var current = Session(fixture.User.Id.ToString(), "Current");
+        var other = Session(fixture.User.Id.ToString(), "Other");
+        fixture.Db.UserSessions.AddRange(current, other);
+        await fixture.Db.SaveChangesAsync();
+        Assert.True((await fixture.UserManager.ResetAuthenticatorKeyAsync(fixture.User)).Succeeded);
+        var code = await fixture.UserManager.GenerateTwoFactorTokenAsync(fixture.User, TokenOptions.DefaultAuthenticatorProvider);
+
+        Assert.IsType<OkObjectResult>(await fixture.CreateController(current.Id).EnableTwoFactor(new TwoFactorCodeRequest(code), CancellationToken.None));
+
+        Assert.True(await fixture.UserManager.GetTwoFactorEnabledAsync(fixture.User));
+        Assert.Null((await fixture.Db.UserSessions.SingleAsync(session => session.Id == other.Id)).RevokedAtUtc);
+    }
+
+    [Fact]
+    public async Task Non_enforced_user_can_still_disable_authenticator_with_a_valid_code()
+    {
+        await using var fixture = await SecurityFixture.CreateAsync(mockAuthenticatorProvider: true);
+        await AddRoleAsync(fixture, PlatformRoles.Teacher);
+        var current = Session(fixture.User.Id.ToString(), "Current");
+        fixture.Db.UserSessions.Add(current);
+        await fixture.Db.SaveChangesAsync();
+        Assert.True((await fixture.UserManager.ResetAuthenticatorKeyAsync(fixture.User)).Succeeded);
+        Assert.True((await fixture.UserManager.SetTwoFactorEnabledAsync(fixture.User, true)).Succeeded);
+        var code = await fixture.UserManager.GenerateTwoFactorTokenAsync(fixture.User, TokenOptions.DefaultAuthenticatorProvider);
+        Assert.IsType<NoContentResult>(await fixture.CreateController(current.Id).DisableTwoFactor(new TwoFactorCodeRequest(code), CancellationToken.None));
+        Assert.False(await fixture.UserManager.GetTwoFactorEnabledAsync(fixture.User));
+    }
+
+    [Fact]
+    public async Task Recovery_codes_are_single_use_and_regeneration_invalidates_the_old_set()
+    {
+        await using var fixture = await SecurityFixture.CreateAsync(mockAuthenticatorProvider: true);
+        await AddRoleAsync(fixture, PlatformRoles.Teacher);
+        var current = Session(fixture.User.Id.ToString(), "Current");
+        fixture.Db.UserSessions.Add(current);
+        await fixture.Db.SaveChangesAsync();
+        Assert.True((await fixture.UserManager.ResetAuthenticatorKeyAsync(fixture.User)).Succeeded);
+        var controller = fixture.CreateController(current.Id);
+        var first = RecoveryCodes(Assert.IsType<OkObjectResult>(await controller.EnableTwoFactor(new TwoFactorCodeRequest("123456"), CancellationToken.None)));
+        var status = Assert.IsType<OkObjectResult>(await controller.TwoFactorStatus());
+        Assert.Contains("\"recoveryCodesLeft\":10", JsonSerializer.Serialize(status.Value));
+        Assert.DoesNotContain(first[0], JsonSerializer.Serialize(status.Value));
+        Assert.True((await fixture.UserManager.RedeemTwoFactorRecoveryCodeAsync(fixture.User, first[0])).Succeeded);
+        Assert.False((await fixture.UserManager.RedeemTwoFactorRecoveryCodeAsync(fixture.User, first[0])).Succeeded);
+        Assert.Equal(9, await fixture.UserManager.CountRecoveryCodesAsync(fixture.User));
+        Assert.IsType<BadRequestObjectResult>(await controller.RegenerateRecoveryCodes(new RecoveryCodeRegenerationRequest("wrong", "123456"), CancellationToken.None));
+        Assert.IsType<BadRequestObjectResult>(await controller.RegenerateRecoveryCodes(new RecoveryCodeRegenerationRequest("T!estPassword123", "000000"), CancellationToken.None));
+        var second = RecoveryCodes(Assert.IsType<OkObjectResult>(await controller.RegenerateRecoveryCodes(new RecoveryCodeRegenerationRequest("T!estPassword123", "123456"), CancellationToken.None)));
+        Assert.Equal(10, second.Length);
+        Assert.False((await fixture.UserManager.RedeemTwoFactorRecoveryCodeAsync(fixture.User, first[1])).Succeeded);
+        Assert.True((await fixture.UserManager.RedeemTwoFactorRecoveryCodeAsync(fixture.User, second[0])).Succeeded);
+        Assert.All(fixture.Db.AuditLogs, log => Assert.True(string.IsNullOrEmpty(log.MetadataJson)));
+    }
+
+    [Fact]
+    public async Task Identity_recovery_token_is_encrypted_at_rest_and_works_across_scopes()
+    {
+        await using var fixture = await SecurityFixture.CreateAsync();
+        var codes = (await fixture.UserManager.GenerateNewTwoFactorRecoveryCodesAsync(fixture.User, 10))!.ToArray();
+
+        var stored = await fixture.Db.Set<IdentityUserToken<Guid>>().AsNoTracking().SingleAsync(token =>
+            token.UserId == fixture.User.Id && token.LoginProvider == "[AspNetUserStore]" && token.Name == "RecoveryCodes");
+        Assert.StartsWith("dp:v1:", stored.Value);
+        Assert.All(codes, code => Assert.DoesNotContain(code, stored.Value));
+
+        using var scope = fixture.Services.CreateScope();
+        var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var user = (await users.FindByIdAsync(fixture.User.Id.ToString()))!;
+        Assert.Equal(10, await users.CountRecoveryCodesAsync(user));
+        Assert.True((await users.RedeemTwoFactorRecoveryCodeAsync(user, codes[0])).Succeeded);
+        Assert.Equal(9, await users.CountRecoveryCodesAsync(user));
+        Assert.False((await users.RedeemTwoFactorRecoveryCodeAsync(user, codes[0])).Succeeded);
+
+        var token = await scope.ServiceProvider.GetRequiredService<BetccoDbContext>()
+            .Set<IdentityUserToken<Guid>>().SingleAsync(value => value.UserId == user.Id && value.Name == "RecoveryCodes");
+        token.Value = string.Join(';', codes);
+        await scope.ServiceProvider.GetRequiredService<BetccoDbContext>().SaveChangesAsync();
+        await Assert.ThrowsAsync<CryptographicException>(() => users.CountRecoveryCodesAsync(user));
+    }
+
+    [Fact]
+    public async Task Login_accepts_exactly_one_second_factor_and_rejects_reused_recovery_codes()
+    {
+        await using var fixture = await SecurityFixture.CreateAsync(mockAuthenticatorProvider: true);
+        await AddRoleAsync(fixture, PlatformRoles.Admin);
+        Assert.True((await fixture.UserManager.ResetAuthenticatorKeyAsync(fixture.User)).Succeeded);
+        Assert.True((await fixture.UserManager.SetTwoFactorEnabledAsync(fixture.User, true)).Succeeded);
+        var codes = (await fixture.UserManager.GenerateNewTwoFactorRecoveryCodesAsync(fixture.User, 10))!.ToArray();
+        var controller = fixture.CreateController(Guid.NewGuid());
+        var email = fixture.User.Email!;
+        Assert.IsType<UnauthorizedObjectResult>(await controller.Login(new LoginRequest(email, "T!estPassword123", false), CancellationToken.None));
+        Assert.IsType<UnauthorizedObjectResult>(await controller.Login(new LoginRequest(email, "T!estPassword123", false, "123456", codes[0]), CancellationToken.None));
+        Assert.Equal(10, await fixture.UserManager.CountRecoveryCodesAsync(fixture.User));
+        Assert.IsType<UnauthorizedObjectResult>(await controller.Login(new LoginRequest(email, "T!estPassword123", false, null, "invalid"), CancellationToken.None));
+        Assert.IsType<OkObjectResult>(await controller.Login(new LoginRequest(email, "T!estPassword123", false, "123456"), CancellationToken.None));
+        Assert.IsType<OkObjectResult>(await controller.Login(new LoginRequest(email, "T!estPassword123", false, null, codes[0]), CancellationToken.None));
+        Assert.Equal(9, await fixture.UserManager.CountRecoveryCodesAsync(fixture.User));
+        Assert.IsType<UnauthorizedObjectResult>(await controller.Login(new LoginRequest(email, "T!estPassword123", false, null, codes[0]), CancellationToken.None));
+        Assert.Contains(fixture.Db.AuditLogs, log => log.Action == "TwoFactorRecoveryCodeUsed" && log.MetadataJson == null);
+        fixture.User.IsFrozen = true;
+        Assert.True((await fixture.UserManager.UpdateAsync(fixture.User)).Succeeded);
+        Assert.IsType<UnauthorizedObjectResult>(await controller.Login(new LoginRequest(email, "T!estPassword123", false, null, codes[1]), CancellationToken.None));
+        Assert.Equal(9, await fixture.UserManager.CountRecoveryCodesAsync(fixture.User));
+    }
+
+    [Fact]
+    public async Task Optional_teacher_reset_does_not_require_reenrollment()
+    {
+        await using var fixture = await SecurityFixture.CreateAsync(mockAuthenticatorProvider: true);
+        await AddRoleAsync(fixture, PlatformRoles.Teacher);
+        Assert.True((await fixture.UserManager.ResetAuthenticatorKeyAsync(fixture.User)).Succeeded);
+        Assert.True((await fixture.UserManager.SetTwoFactorEnabledAsync(fixture.User, true)).Succeeded);
+        var codes = (await fixture.UserManager.GenerateNewTwoFactorRecoveryCodesAsync(fixture.User, 10))!.ToArray();
+        var current = Session(fixture.User.Id.ToString(), "Current");
+        fixture.Db.UserSessions.Add(current);
+        await fixture.Db.SaveChangesAsync();
+        var result = Assert.IsType<OkObjectResult>(await fixture.CreateController(current.Id).ResetAuthenticator(new AuthenticatorRecoveryResetRequest("T!estPassword123", codes[0]), CancellationToken.None));
+        Assert.Contains("\"requiresMfaEnrollment\":false", JsonSerializer.Serialize(result.Value));
+        Assert.Equal(204, await GateStatusAsync(fixture));
+    }
+
+    [Fact]
+    public async Task Recovery_reset_requires_password_and_unused_code_then_reenforces_staff_enrollment()
+    {
+        await using var fixture = await SecurityFixture.CreateAsync(mockAuthenticatorProvider: true);
+        await AddRoleAsync(fixture, PlatformRoles.Teacher);
+        await AddRoleAsync(fixture, PlatformRoles.FinanceAdmin);
+        var current = Session(fixture.User.Id.ToString(), "Current");
+        var other = Session(fixture.User.Id.ToString(), "Other");
+        fixture.Db.UserSessions.Add(current);
+        await fixture.Db.SaveChangesAsync();
+        Assert.True((await fixture.UserManager.ResetAuthenticatorKeyAsync(fixture.User)).Succeeded);
+        var controller = fixture.CreateController(current.Id);
+        var codes = RecoveryCodes(Assert.IsType<OkObjectResult>(await controller.EnableTwoFactor(new TwoFactorCodeRequest("123456"), CancellationToken.None)));
+        fixture.Db.UserSessions.Add(other);
+        await fixture.Db.SaveChangesAsync();
+        var oldStamp = fixture.User.SecurityStamp;
+        Assert.IsType<UnauthorizedResult>(await fixture.CreateController(Guid.NewGuid()).ResetAuthenticator(
+            new AuthenticatorRecoveryResetRequest("T!estPassword123", codes[0]), CancellationToken.None));
+        controller = fixture.CreateController(current.Id);
+        Assert.Equal(10, await fixture.UserManager.CountRecoveryCodesAsync(fixture.User));
+        Assert.IsType<BadRequestObjectResult>(await controller.ResetAuthenticator(new AuthenticatorRecoveryResetRequest("wrong", codes[0]), CancellationToken.None));
+        Assert.True(await fixture.UserManager.GetTwoFactorEnabledAsync(fixture.User));
+        Assert.IsType<BadRequestObjectResult>(await controller.ResetAuthenticator(new AuthenticatorRecoveryResetRequest("T!estPassword123", "invalid"), CancellationToken.None));
+        var reset = Assert.IsType<OkObjectResult>(await controller.ResetAuthenticator(new AuthenticatorRecoveryResetRequest("T!estPassword123", codes[0]), CancellationToken.None));
+        Assert.Contains("\"requiresMfaEnrollment\":true", JsonSerializer.Serialize(reset.Value));
+        Assert.NotEqual(oldStamp, fixture.User.SecurityStamp);
+        Assert.Null((await fixture.Db.UserSessions.SingleAsync(x => x.Id == current.Id)).RevokedAtUtc);
+        Assert.NotNull((await fixture.Db.UserSessions.SingleAsync(x => x.Id == other.Id)).RevokedAtUtc);
+        Assert.False(await fixture.UserManager.GetTwoFactorEnabledAsync(fixture.User));
+        Assert.Equal(403, await GateStatusAsync(fixture));
+        Assert.Equal(204, await GateStatusAsync(fixture, bootstrap: true));
+        Assert.IsType<ConflictObjectResult>(await controller.ResetAuthenticator(new AuthenticatorRecoveryResetRequest("T!estPassword123", codes[0]), CancellationToken.None));
+        var newCodes = RecoveryCodes(Assert.IsType<OkObjectResult>(await controller.EnableTwoFactor(new TwoFactorCodeRequest("123456"), CancellationToken.None)));
+        Assert.Equal(10, newCodes.Length);
+        Assert.Equal(204, await GateStatusAsync(fixture));
+        Assert.False((await fixture.UserManager.RedeemTwoFactorRecoveryCodeAsync(fixture.User, codes[1])).Succeeded);
+    }
+
+    private static string[] RecoveryCodes(OkObjectResult response)
+    {
+        using var document = JsonDocument.Parse(JsonSerializer.Serialize(response.Value));
+        return document.RootElement.GetProperty("recoveryCodes").EnumerateArray().Select(code => code.GetString()!).ToArray();
+    }
+
+    private static async Task AddRoleAsync(SecurityFixture fixture, string role)
+    {
+        var manager = fixture.Services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        if (!await manager.RoleExistsAsync(role)) Assert.True((await manager.CreateAsync(new IdentityRole<Guid>(role))).Succeeded);
+        Assert.True((await fixture.UserManager.AddToRoleAsync(fixture.User, role)).Succeeded);
+    }
+
+    private static async Task<int> GateStatusAsync(SecurityFixture fixture, bool bootstrap = false, bool publicEndpoint = false)
+    {
+        var context = new DefaultHttpContext { RequestServices = fixture.Services };
+        context.Response.Body = new MemoryStream();
+        context.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, fixture.User.Id.ToString())], "test"));
+        var metadata = publicEndpoint ? Array.Empty<object>() : bootstrap
+            ? [new AuthorizeAttribute(), new StaffMfaBootstrapAttribute()]
+            : new object[] { new AuthorizeAttribute() };
+        context.SetEndpoint(new Endpoint(_ => Task.CompletedTask, new EndpointMetadataCollection(metadata), "test"));
+        await new StaffMfaEnrollmentMiddleware(next => { next.Response.StatusCode = 204; return Task.CompletedTask; })
+            .InvokeAsync(context, fixture.UserManager);
+        return context.Response.StatusCode;
+    }
+
     [Fact]
     public async Task Identity_authenticator_provider_creates_a_protected_setup_key()
     {
@@ -161,13 +438,14 @@ public sealed class AccountSecurityControllerTests
             Email = email;
         }
 
-        public static async Task<SecurityFixture> CreateAsync(string? postgresConnectionString = null)
+        public static async Task<SecurityFixture> CreateAsync(string? postgresConnectionString = null, bool mockAuthenticatorProvider = false)
         {
             var services = new ServiceCollection();
+            var inMemoryDatabaseName = Guid.NewGuid().ToString();
             services.AddLogging();
             services.AddDbContext<BetccoDbContext>(options =>
             {
-                if (postgresConnectionString is null) options.UseInMemoryDatabase(Guid.NewGuid().ToString());
+                if (postgresConnectionString is null) options.UseInMemoryDatabase(inMemoryDatabaseName);
                 else options.UseNpgsql(postgresConnectionString);
             });
             services.AddDataProtection();
@@ -182,8 +460,16 @@ public sealed class AccountSecurityControllerTests
             })
                 .AddRoles<IdentityRole<Guid>>()
                 .AddEntityFrameworkStores<BetccoDbContext>()
+                .AddUserStore<ProtectedRecoveryCodeUserStore>()
                 .AddSignInManager()
                 .AddDefaultTokenProviders();
+            if (mockAuthenticatorProvider)
+            {
+                // Isolate controller/session behavior without implementing TOTP in tests.
+                services.AddTransient<TestAuthenticatorProvider>();
+                services.Configure<IdentityOptions>(options => options.Tokens.ProviderMap[TokenOptions.DefaultAuthenticatorProvider] =
+                    new TokenProviderDescriptor(typeof(TestAuthenticatorProvider)));
+            }
             var provider = services.BuildServiceProvider();
             var db = provider.GetRequiredService<BetccoDbContext>();
             var userManager = provider.GetRequiredService<UserManager<ApplicationUser>>();
@@ -222,6 +508,13 @@ public sealed class AccountSecurityControllerTests
             await Db.DisposeAsync();
             await services.DisposeAsync();
         }
+    }
+
+    private sealed class TestAuthenticatorProvider : IUserTwoFactorTokenProvider<ApplicationUser>
+    {
+        public Task<string> GenerateAsync(string purpose, UserManager<ApplicationUser> manager, ApplicationUser user) => Task.FromResult("123456");
+        public Task<bool> ValidateAsync(string purpose, string token, UserManager<ApplicationUser> manager, ApplicationUser user) => Task.FromResult(token == "123456");
+        public Task<bool> CanGenerateTwoFactorTokenAsync(UserManager<ApplicationUser> manager, ApplicationUser user) => Task.FromResult(true);
     }
 
     private sealed class CapturingEmailSender : IEmailSender

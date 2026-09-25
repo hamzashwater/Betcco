@@ -10,7 +10,7 @@ import { AccountSecurity } from "@/features/auth/account-security";
 import { EmailChangeConfirmation } from "@/features/auth/email-change-confirmation";
 import { AccountIdentityManagement } from "@/features/admin/account-identity-management";
 import { SupportAccountArea } from "@/features/support/support-account-area";
-import { ResetPasswordForm } from "@/features/auth/auth-forms";
+import { LoginForm, ResetPasswordForm } from "@/features/auth/auth-forms";
 import { StudentArea } from "@/features/student/student-area";
 import { ApiError } from "@/lib/api";
 
@@ -401,12 +401,24 @@ describe("email confirmation and account administration", () => {
 });
 
 describe("security with existing endpoints", () => {
-  function mockSecurity(enabled: boolean, includeOther = false) {
+  function mockSecurity(
+    enabled: boolean,
+    includeOther = false,
+    isRequired = false,
+    enrollment = false,
+  ) {
     apiMock.mockImplementation((path: string, options?: RequestInit) => {
+      if (path === "/auth/me")
+        return Promise.resolve({
+          roles: isRequired ? ["Admin"] : ["Teacher"],
+          requiresMfaEnrollment: enrollment,
+        });
       if (path === "/auth/two-factor")
         return Promise.resolve({
           isEnabled: enabled,
           hasAuthenticator: enabled,
+          isRequired,
+          recoveryCodesLeft: enabled ? 8 : 0,
         });
       if (path === "/auth/sessions")
         return Promise.resolve({
@@ -423,12 +435,20 @@ describe("security with existing endpoints", () => {
         return Promise.reject(
           new ApiError(400, "Invalid code", "TWO_FACTOR_INVALID"),
         );
+      if (path === "/auth/two-factor/recovery-codes/regenerate")
+        return Promise.resolve({
+          recoveryCodes: ["replacement-code"],
+          recoveryCodesLeft: 1,
+        });
+      if (path === "/auth/two-factor/reset-authenticator")
+        return Promise.resolve({ requiresMfaEnrollment: isRequired });
       if (path === "/auth/sessions/session-1" && options?.method === "DELETE")
         return Promise.resolve({ currentSessionRevoked: true });
       if (path === "/auth/sessions/logout-all") return Promise.resolve();
       if (path === "/auth/sessions/logout-others")
         return Promise.resolve({ revokedCount: 1 });
       if (path === "/auth/change-password") return Promise.resolve();
+      if (path === "/auth/logout") return Promise.resolve();
       return Promise.reject(new Error(`Unexpected ${path}`));
     });
   }
@@ -465,17 +485,189 @@ describe("security with existing endpoints", () => {
   });
 
   it("shows enabled 2FA and live session details with current badge", async () => {
-    mockSecurity(true);
+    mockSecurity(true, false, true);
     renderAccount(<AccountSecurity role="admin" />);
+    expect(await screen.findByText("Lenovo Laptop")).toBeVisible();
+    expect(
+      screen.queryByRole("button", {
+        name: "Disable two-factor authentication",
+      }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText("Lenovo Laptop")).toBeVisible();
+    expect(screen.getByText("This device")).toBeVisible();
+    expect(screen.getByText("Recovery codes remaining: 8")).toBeVisible();
+    expect(screen.getByText(/Chrome · 192\.0\.2\.1/)).toBeVisible();
+    expect(screen.getByRole("button", { name: "Sign out all" })).toBeVisible();
+  });
+
+  it("keeps self-service disable for a non-enforced user", async () => {
+    mockSecurity(true);
+    renderAccount(<AccountSecurity role="teacher" />);
     expect(
       await screen.findByRole("button", {
         name: "Disable two-factor authentication",
       }),
     ).toBeVisible();
-    expect(screen.getByText("Lenovo Laptop")).toBeVisible();
-    expect(screen.getByText("This device")).toBeVisible();
-    expect(screen.getByText(/Chrome · 192\.0\.2\.1/)).toBeVisible();
-    expect(screen.getByRole("button", { name: "Sign out all" })).toBeVisible();
+  });
+
+  it("warns before regeneration and replaces the one-time code display", async () => {
+    mockSecurity(true);
+    renderAccount(<AccountSecurity role="teacher" />);
+    const user = userEvent.setup();
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Generate new recovery codes",
+      }),
+    );
+    expect(
+      screen.getByText("Generating new codes invalidates all old codes."),
+    ).toBeVisible();
+    await user.type(
+      screen.getAllByLabelText("Current password").at(-1)!,
+      "T!estPassword123",
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: "Authenticator code" }),
+      "123456",
+    );
+    await user.click(screen.getByRole("button", { name: "Confirm" }));
+    expect(await screen.findByText("replacement-code")).toBeVisible();
+    expect(screen.getByText("Codes remaining: 1")).toBeVisible();
+    expect(apiMock).toHaveBeenCalledWith(
+      "/auth/two-factor/recovery-codes/regenerate",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
+  it("requires password and recovery code for lost-authenticator reset", async () => {
+    mockSecurity(true, false, true);
+    renderAccount(<AccountSecurity role="admin" />);
+    const user = userEvent.setup();
+    await user.click(
+      await screen.findByRole("button", { name: "Lost your authenticator?" }),
+    );
+    await user.type(
+      screen.getAllByLabelText("Current password").at(-1)!,
+      "T!estPassword123",
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: "Unused recovery code" }),
+      "unused-code",
+    );
+    await user.click(screen.getByRole("button", { name: "Confirm" }));
+    await waitFor(() =>
+      expect(replaceMock).toHaveBeenCalledWith("/en/staff/security"),
+    );
+    expect(apiMock).toHaveBeenCalledWith(
+      "/auth/two-factor/reset-authenticator",
+      expect.objectContaining({
+        body: JSON.stringify({
+          currentPassword: "T!estPassword123",
+          recoveryCode: "unused-code",
+        }),
+      }),
+    );
+  });
+
+  it.each(["en", "ar"] as const)(
+    "shows mandatory staff enrollment and logout in %s",
+    async (locale) => {
+      mockSecurity(false, false, true, true);
+      renderAccount(<AccountSecurity role="staff" />, locale);
+      expect(
+        await screen.findByText(
+          locale === "ar"
+            ? /المصادقة الثنائية إلزامية/
+            : /Multi-factor authentication is required/,
+        ),
+      ).toBeVisible();
+      expect(
+        screen.queryByRole("button", {
+          name: locale === "ar" ? "حفظ كلمة المرور" : "Save password",
+        }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(
+          locale === "ar" ? "الجلسات النشطة" : "Active sessions",
+        ),
+      ).not.toBeInTheDocument();
+      await userEvent.setup().click(
+        screen.getByRole("button", {
+          name: locale === "ar" ? "تسجيل الخروج" : "Sign out",
+        }),
+      );
+      await waitFor(() =>
+        expect(replaceMock).toHaveBeenCalledWith(`/${locale}/login`),
+      );
+    },
+  );
+
+  it("returns enrolled FinanceAdmin to the existing finance workspace", async () => {
+    let enabled = false;
+    apiMock.mockImplementation((path: string) => {
+      if (path === "/auth/me")
+        return Promise.resolve({
+          roles: ["FinanceAdmin"],
+          requiresMfaEnrollment: !enabled,
+        });
+      if (path === "/auth/two-factor")
+        return Promise.resolve({
+          isEnabled: enabled,
+          hasAuthenticator: enabled,
+          isRequired: true,
+          recoveryCodesLeft: enabled ? 10 : 0,
+        });
+      if (path === "/auth/two-factor/setup")
+        return Promise.resolve({
+          sharedKey: "SECRETKEY",
+          authenticatorUri: "otpauth://totp/Betcco?secret=SECRETKEY",
+        });
+      if (path === "/auth/two-factor/enable") {
+        enabled = true;
+        return Promise.resolve({
+          recoveryCodes: ["sample-code-1", "sample-code-2"],
+          recoveryCodesLeft: 2,
+        });
+      }
+      return Promise.reject(new Error(`Unexpected ${path}`));
+    });
+    renderAccount(<AccountSecurity role="staff" />);
+    const user = userEvent.setup();
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Set up an authenticator app",
+      }),
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: "Enter the 6-digit code" }),
+      "123456",
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Confirm and enable" }),
+    );
+    expect(await screen.findByText("sample-code-1")).toBeVisible();
+    expect(replaceMock).not.toHaveBeenCalledWith("/en/admin/wallet");
+    const clipboardDescriptor = Object.getOwnPropertyDescriptor(
+      navigator,
+      "clipboard",
+    );
+    const copy = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: copy },
+    });
+    await user.click(screen.getByRole("button", { name: "Copy all" }));
+    expect(copy).toHaveBeenCalledWith("sample-code-1\nsample-code-2");
+    if (clipboardDescriptor)
+      Object.defineProperty(navigator, "clipboard", clipboardDescriptor);
+    else Reflect.deleteProperty(navigator, "clipboard");
+    await user.click(
+      screen.getByRole("checkbox", { name: "I saved these codes securely" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await waitFor(() =>
+      expect(replaceMock).toHaveBeenCalledWith("/en/admin/wallet"),
+    );
   });
 
   it("revokes a session and redirects when the server says it was current", async () => {
@@ -557,6 +749,75 @@ describe("security with existing endpoints", () => {
     );
     expect(replaceMock).not.toHaveBeenCalledWith("/en/login");
   });
+});
+
+describe("recovery code login", () => {
+  it.each(["en", "ar"] as const)(
+    "switches second-factor methods in %s without OTP constraints",
+    async (locale) => {
+      apiMock.mockImplementation((path: string, options?: RequestInit) => {
+        if (path !== "/auth/login")
+          return Promise.reject(new Error(`Unexpected ${path}`));
+        const body = JSON.parse(String(options?.body)) as {
+          twoFactorCode?: string;
+          twoFactorRecoveryCode?: string;
+        };
+        if (!body.twoFactorRecoveryCode)
+          return Promise.reject(
+            new ApiError(401, "Two factor required", "TWO_FACTOR_REQUIRED"),
+          );
+        return Promise.resolve({
+          user: { roles: ["Teacher"], requiresMfaEnrollment: false },
+        });
+      });
+      renderAccount(<LoginForm />, locale);
+      const user = userEvent.setup();
+      await user.type(
+        screen.getByRole("textbox", {
+          name: locale === "ar" ? "البريد الإلكتروني" : "Email",
+        }),
+        "teacher@example.test",
+      );
+      await user.type(
+        screen.getByLabelText(locale === "ar" ? "كلمة المرور" : "Password"),
+        "T!estPassword123",
+      );
+      await user.click(
+        screen.getByRole("button", {
+          name: locale === "ar" ? "دخول" : "Sign in",
+        }),
+      );
+      const recoveryButton = await screen.findByRole("button", {
+        name: locale === "ar" ? "استخدام رمز استرداد" : "Use a recovery code",
+      });
+      await user.click(recoveryButton);
+      const recoveryInput = screen.getByRole("textbox", {
+        name: locale === "ar" ? "رمز الاسترداد" : "Recovery code",
+      });
+      expect(recoveryInput).not.toHaveAttribute("maxLength", "6");
+      await user.type(recoveryInput, "sample-recovery-code");
+      await user.click(
+        screen.getByRole("button", {
+          name: locale === "ar" ? "دخول" : "Sign in",
+        }),
+      );
+      await waitFor(() =>
+        expect(replaceMock).toHaveBeenCalledWith(
+          `/${locale}/teacher/dashboard`,
+        ),
+      );
+      expect(recoveryInput).toHaveValue("");
+      const lastCall = apiMock.mock.calls
+        .filter((call) => call[0] === "/auth/login")
+        .at(-1);
+      const submitted = JSON.parse(String(lastCall?.[1]?.body)) as {
+        twoFactorCode: string | null;
+        twoFactorRecoveryCode: string | null;
+      };
+      expect(submitted.twoFactorCode).toBeNull();
+      expect(submitted.twoFactorRecoveryCode).toBe("sample-recovery-code");
+    },
+  );
 });
 
 describe("password recovery", () => {

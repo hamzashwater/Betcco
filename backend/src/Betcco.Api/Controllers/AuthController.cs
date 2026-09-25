@@ -4,6 +4,7 @@ using System.Data;
 using System.Text;
 using System.ComponentModel.DataAnnotations;
 using Betcco.Application.Common;
+using Betcco.Api.Authorization;
 using Betcco.Domain.Common;
 using Betcco.Domain.Identity;
 using Betcco.Domain.Platform;
@@ -29,6 +30,7 @@ public sealed class AuthController(
     IWebHostEnvironment environment,
     IConfiguration configuration) : ControllerBase
 {
+    private const int RecoveryCodeCount = 10;
     [HttpPost("register")]
     [EnableRateLimiting("auth")]
     public async Task<IActionResult> Register(RegisterRequest request, CancellationToken cancellationToken)
@@ -188,10 +190,22 @@ public sealed class AuthController(
             return Unauthorized(new { code = "PASSWORD_CHANGE_REQUIRED", message = "You must reset your password before signing in." });
         if (await userManager.GetTwoFactorEnabledAsync(user))
         {
-            var code = NormalizeAuthenticatorCode(request.TwoFactorCode);
-            if (code is null) return Unauthorized(new { code = "TWO_FACTOR_REQUIRED", message = "Enter the six-digit code from your authenticator app." });
-            var valid = await userManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultAuthenticatorProvider, code);
-            if (!valid) return Unauthorized(new { code = "TWO_FACTOR_INVALID", message = "The authenticator code is invalid or expired." });
+            if (!string.IsNullOrWhiteSpace(request.TwoFactorCode) && !string.IsNullOrWhiteSpace(request.TwoFactorRecoveryCode))
+                return Unauthorized(new { code = "TWO_FACTOR_METHOD_INVALID", message = "Choose one two-factor method." });
+            if (!string.IsNullOrWhiteSpace(request.TwoFactorRecoveryCode))
+            {
+                var redeemed = await userManager.RedeemTwoFactorRecoveryCodeAsync(user, request.TwoFactorRecoveryCode.Trim());
+                if (!redeemed.Succeeded)
+                    return Unauthorized(new { code = "TWO_FACTOR_RECOVERY_CODE_INVALID", message = "The recovery code is invalid." });
+                db.AuditLogs.Add(new AuditLog { ActorUserId = user.Id.ToString(), Action = "TwoFactorRecoveryCodeUsed", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success" });
+            }
+            else
+            {
+                var code = NormalizeAuthenticatorCode(request.TwoFactorCode);
+                if (code is null) return Unauthorized(new { code = "TWO_FACTOR_REQUIRED", message = "Enter the six-digit code from your authenticator app." });
+                var valid = await userManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultAuthenticatorProvider, code);
+                if (!valid) return Unauthorized(new { code = "TWO_FACTOR_INVALID", message = "The authenticator code is invalid or expired." });
+            }
         }
         // A browser/device change is a useful security signal, not an access
         // control. Blocking a legitimate student here created lockouts whenever
@@ -199,13 +213,18 @@ public sealed class AuthController(
         // audit trail remain the enforcement mechanisms.
         if (await userManager.IsInRoleAsync(user, PlatformRoles.Student))
             await ObserveStudentDeviceAsync(user, cancellationToken);
+        var roles = await userManager.GetRolesAsync(user);
+        var requiresMfaEnrollment = StaffMfaPolicy.RequiresStaffMfa(roles) && !await userManager.GetTwoFactorEnabledAsync(user);
+        if (requiresMfaEnrollment)
+            db.AuditLogs.Add(new AuditLog { ActorUserId = user.Id.ToString(), Action = "StaffMfaEnrollmentRequired", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success" });
         var session = await CreateSessionAsync(user, cancellationToken);
         await signInManager.SignInWithClaimsAsync(user, request.RememberMe, [new Claim(BetccoAuthClaims.SessionId, session.Id.ToString())]);
-        return Ok(new { user = new { id = user.Id, email = user.Email, displayName = user.DisplayName, roles = await userManager.GetRolesAsync(user) } });
+        return Ok(new { user = new { id = user.Id, email = user.Email, displayName = user.DisplayName, roles, requiresMfaEnrollment } });
     }
 
     [Authorize]
     [HttpPost("logout")]
+    [StaffMfaBootstrap]
     public async Task<IActionResult> Logout(CancellationToken cancellationToken)
     {
         var user = await userManager.GetUserAsync(User);
@@ -216,6 +235,7 @@ public sealed class AuthController(
 
     [Authorize]
     [HttpGet("me")]
+    [StaffMfaBootstrap]
     public async Task<IActionResult> Me()
     {
         var user = await userManager.GetUserAsync(User);
@@ -224,7 +244,16 @@ public sealed class AuthController(
             if (user is not null) await signInManager.SignOutAsync();
             return Unauthorized();
         }
-        return Ok(new { id = user.Id, email = user.Email, displayName = user.DisplayName, roles = await userManager.GetRolesAsync(user), isFrozen = user.IsFrozen });
+        var roles = await userManager.GetRolesAsync(user);
+        return Ok(new
+        {
+            id = user.Id,
+            email = user.Email,
+            displayName = user.DisplayName,
+            roles,
+            isFrozen = user.IsFrozen,
+            requiresMfaEnrollment = StaffMfaPolicy.RequiresStaffMfa(roles) && !await userManager.GetTwoFactorEnabledAsync(user)
+        });
     }
 
     [Authorize]
@@ -414,6 +443,7 @@ public sealed class AuthController(
 
     [Authorize]
     [HttpGet("two-factor")]
+    [StaffMfaBootstrap]
     public async Task<IActionResult> TwoFactorStatus()
     {
         var user = await userManager.GetUserAsync(User);
@@ -422,12 +452,15 @@ public sealed class AuthController(
         return Ok(new
         {
             isEnabled = await userManager.GetTwoFactorEnabledAsync(user),
-            hasAuthenticator = !string.IsNullOrWhiteSpace(authenticatorKey)
+            hasAuthenticator = !string.IsNullOrWhiteSpace(authenticatorKey),
+            isRequired = StaffMfaPolicy.RequiresStaffMfa(await userManager.GetRolesAsync(user)),
+            recoveryCodesLeft = await userManager.CountRecoveryCodesAsync(user)
         });
     }
 
     [Authorize]
     [HttpPost("two-factor/setup")]
+    [StaffMfaBootstrap]
     [EnableRateLimiting("auth")]
     public async Task<IActionResult> SetupTwoFactor(CancellationToken cancellationToken)
     {
@@ -453,6 +486,7 @@ public sealed class AuthController(
 
     [Authorize]
     [HttpPost("two-factor/enable")]
+    [StaffMfaBootstrap]
     [EnableRateLimiting("auth")]
     public async Task<IActionResult> EnableTwoFactor(TwoFactorCodeRequest request, CancellationToken cancellationToken)
     {
@@ -462,21 +496,111 @@ public sealed class AuthController(
         if (!await VerifyAuthenticatorCodeAsync(user, request.Code))
             return BadRequest(new { code = "TWO_FACTOR_INVALID", message = "The authenticator code is invalid or expired." });
 
+        await using var transaction = db.Database.IsRelational()
+            ? await db.Database.BeginTransactionAsync(cancellationToken)
+            : null;
         var result = await userManager.SetTwoFactorEnabledAsync(user, true);
         if (!result.Succeeded) return BadRequest(new ValidationProblemDetails(result.Errors.ToDictionary(x => x.Code, x => new[] { x.Description })));
-        await RefreshCurrentSessionCookieAsync(user, cancellationToken);
+        var recoveryCodes = (await userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, RecoveryCodeCount))?.ToArray();
+        if (recoveryCodes is not { Length: RecoveryCodeCount })
+            return Problem("Unable to generate recovery codes. Please try again.", statusCode: StatusCodes.Status503ServiceUnavailable);
+        if (StaffMfaPolicy.RequiresStaffMfa(await userManager.GetRolesAsync(user)))
+        {
+            var stampResult = await userManager.UpdateSecurityStampAsync(user);
+            if (!stampResult.Succeeded) return BadRequest(new ValidationProblemDetails(stampResult.Errors.ToDictionary(x => x.Code, x => new[] { x.Description })));
+            // A password-only bootstrap session must not gain privileged access when
+            // this browser finishes enrollment. End every other active session.
+            var currentSessionId = GetCurrentSessionId();
+            var otherSessions = await db.UserSessions.Where(session => session.UserId == user.Id.ToString()
+                && session.Id != currentSessionId && session.RevokedAtUtc == null && !session.IsDeleted).ToListAsync(cancellationToken);
+            foreach (var session in otherSessions)
+            {
+                session.RevokedAtUtc = DateTimeOffset.UtcNow;
+                session.RevokedByUserId = user.Id.ToString();
+                session.RevocationReason = "MFA enrolled";
+            }
+        }
         db.AuditLogs.Add(new AuditLog { ActorUserId = user.Id.ToString(), Action = "TwoFactorEnabled", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success" });
+        db.AuditLogs.Add(new AuditLog { ActorUserId = user.Id.ToString(), Action = "TwoFactorRecoveryCodesGenerated", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success" });
         await db.SaveChangesAsync(cancellationToken);
-        return NoContent();
+        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+        await RefreshCurrentSessionCookieAsync(user, cancellationToken);
+        Response.Headers.CacheControl = "no-store";
+        return Ok(new { recoveryCodes, recoveryCodesLeft = recoveryCodes.Length });
+    }
+
+    [Authorize]
+    [HttpPost("two-factor/recovery-codes/regenerate")]
+    [EnableRateLimiting("auth")]
+    public async Task<IActionResult> RegenerateRecoveryCodes(RecoveryCodeRegenerationRequest request, CancellationToken cancellationToken)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null || user.IsFrozen) return Unauthorized();
+        if (!await userManager.GetTwoFactorEnabledAsync(user)) return Conflict(new { code = "TWO_FACTOR_NOT_ENABLED" });
+        var passwordCheck = await signInManager.CheckPasswordSignInAsync(user, request.CurrentPassword, lockoutOnFailure: true);
+        if (!passwordCheck.Succeeded || !await VerifyAuthenticatorCodeAsync(user, request.Code))
+            return BadRequest(new { code = "TWO_FACTOR_CONFIRMATION_INVALID", message = "The password or authenticator code is invalid." });
+        var recoveryCodes = (await userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, RecoveryCodeCount))?.ToArray();
+        if (recoveryCodes is not { Length: RecoveryCodeCount })
+            return Problem("Unable to generate recovery codes. Please try again.", statusCode: StatusCodes.Status503ServiceUnavailable);
+        db.AuditLogs.Add(new AuditLog { ActorUserId = user.Id.ToString(), Action = "TwoFactorRecoveryCodesRegenerated", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success" });
+        await db.SaveChangesAsync(cancellationToken);
+        Response.Headers.CacheControl = "no-store";
+        return Ok(new { recoveryCodes, recoveryCodesLeft = recoveryCodes.Length });
+    }
+
+    [Authorize]
+    [HttpPost("two-factor/reset-authenticator")]
+    [EnableRateLimiting("auth")]
+    public async Task<IActionResult> ResetAuthenticator(AuthenticatorRecoveryResetRequest request, CancellationToken cancellationToken)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null || user.IsFrozen) return Unauthorized();
+        if (!await userManager.GetTwoFactorEnabledAsync(user)) return Conflict(new { code = "TWO_FACTOR_NOT_ENABLED" });
+        var currentSessionId = GetCurrentSessionId();
+        if (currentSessionId is null || !await db.UserSessions.AnyAsync(session => session.Id == currentSessionId &&
+            session.UserId == user.Id.ToString() && session.RevokedAtUtc == null && !session.IsDeleted, cancellationToken))
+            return Unauthorized();
+        var passwordCheck = await signInManager.CheckPasswordSignInAsync(user, request.CurrentPassword, lockoutOnFailure: true);
+        if (!passwordCheck.Succeeded)
+            return BadRequest(new { code = "RECOVERY_RESET_INVALID", message = "The password or recovery code is invalid." });
+
+        await using var transaction = db.Database.IsRelational()
+            ? await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken)
+            : null;
+        if (!(await userManager.RedeemTwoFactorRecoveryCodeAsync(user, request.RecoveryCode.Trim())).Succeeded)
+            return BadRequest(new { code = "RECOVERY_RESET_INVALID", message = "The password or recovery code is invalid." });
+        var reset = await userManager.ResetAuthenticatorKeyAsync(user);
+        if (!reset.Succeeded) return Problem("Unable to reset the authenticator.", statusCode: StatusCodes.Status503ServiceUnavailable);
+        var disabled = await userManager.SetTwoFactorEnabledAsync(user, false);
+        if (!disabled.Succeeded) return Problem("Unable to reset the authenticator.", statusCode: StatusCodes.Status503ServiceUnavailable);
+        var stamp = await userManager.UpdateSecurityStampAsync(user);
+        if (!stamp.Succeeded) return Problem("Unable to reset the authenticator.", statusCode: StatusCodes.Status503ServiceUnavailable);
+        var otherSessions = await db.UserSessions.Where(session => session.UserId == user.Id.ToString()
+            && session.Id != currentSessionId && session.RevokedAtUtc == null && !session.IsDeleted).ToListAsync(cancellationToken);
+        foreach (var session in otherSessions)
+        {
+            session.RevokedAtUtc = DateTimeOffset.UtcNow;
+            session.RevokedByUserId = user.Id.ToString();
+            session.RevocationReason = "Authenticator reset";
+        }
+        db.AuditLogs.Add(new AuditLog { ActorUserId = user.Id.ToString(), Action = "TwoFactorAuthenticatorResetWithRecoveryCode", EntityType = nameof(ApplicationUser), EntityId = user.Id.ToString(), Outcome = "Success" });
+        await db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+        await RefreshCurrentSessionCookieAsync(user, cancellationToken);
+        return Ok(new { requiresMfaEnrollment = StaffMfaPolicy.RequiresStaffMfa(await userManager.GetRolesAsync(user)) });
     }
 
     [Authorize]
     [HttpPost("two-factor/disable")]
+    [StaffMfaBootstrap]
     [EnableRateLimiting("auth")]
     public async Task<IActionResult> DisableTwoFactor(TwoFactorCodeRequest request, CancellationToken cancellationToken)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null) return Unauthorized();
+        if (StaffMfaPolicy.RequiresStaffMfa(await userManager.GetRolesAsync(user)))
+            return StatusCode(StatusCodes.Status403Forbidden, new { code = "STAFF_MFA_REQUIRED", message = "Multi-factor authentication is required for this staff account." });
         if (!await userManager.GetTwoFactorEnabledAsync(user)) return NoContent();
         if (!await VerifyAuthenticatorCodeAsync(user, request.Code))
             return BadRequest(new { code = "TWO_FACTOR_INVALID", message = "The authenticator code is invalid or expired." });
@@ -830,8 +954,10 @@ public sealed record UpdateProfileRequest(
     [param: StringLength(2)] string? CountryCode = null,
     [param: StringLength(24)] string? Gender = null,
     DateOnly? DateOfBirth = null);
-public sealed record LoginRequest(string Email, string Password, bool RememberMe, string? TwoFactorCode = null);
+public sealed record LoginRequest(string Email, string Password, bool RememberMe, string? TwoFactorCode = null, string? TwoFactorRecoveryCode = null);
 public sealed record TwoFactorCodeRequest(string? Code);
+public sealed record RecoveryCodeRegenerationRequest([param: Required] string CurrentPassword, [param: Required] string Code);
+public sealed record AuthenticatorRecoveryResetRequest([param: Required] string CurrentPassword, [param: Required] string RecoveryCode);
 public sealed record DevelopmentConfirmRequest(string Email);
 public sealed record ForgotPasswordRequest(string Email);
 public sealed record ResetPasswordRequest(Guid UserId, string Token, string Password);

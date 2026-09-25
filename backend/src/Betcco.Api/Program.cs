@@ -76,6 +76,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
     options.Password.RequireUppercase = true;
 })
     .AddEntityFrameworkStores<BetccoDbContext>()
+    .AddUserStore<ProtectedRecoveryCodeUserStore>()
     .AddDefaultTokenProviders();
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -93,7 +94,12 @@ builder.Services.ConfigureApplicationCookie(options =>
         var principal = context.Principal;
         var userId = principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var sessionValue = principal?.FindFirst(BetccoAuthClaims.SessionId)?.Value;
-        if (string.IsNullOrWhiteSpace(userId) || !Guid.TryParse(sessionValue, out var sessionId)) return;
+        if (string.IsNullOrWhiteSpace(userId) || !Guid.TryParse(sessionValue, out var sessionId))
+        {
+            context.RejectPrincipal();
+            await context.HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+            return;
+        }
 
         var db = context.HttpContext.RequestServices.GetRequiredService<BetccoDbContext>();
         var session = await db.UserSessions.SingleOrDefaultAsync(item =>
@@ -116,7 +122,20 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 // A frozen or deleted account must lose access on its very next request, rather
 // than keeping a previously issued cookie usable until the default validation window.
-builder.Services.Configure<SecurityStampValidatorOptions>(options => options.ValidationInterval = TimeSpan.Zero);
+builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+{
+    options.ValidationInterval = TimeSpan.Zero;
+    options.OnRefreshingPrincipal = context =>
+    {
+        // Identity recreates the principal after validating its stamp. Keep the
+        // signed session claim so the cookie's per-browser revocation check runs.
+        var sessionClaim = context.CurrentPrincipal?.FindFirst(BetccoAuthClaims.SessionId);
+        if (sessionClaim is not null && context.NewPrincipal?.Identity is ClaimsIdentity identity
+            && !identity.HasClaim(claim => claim.Type == BetccoAuthClaims.SessionId))
+            identity.AddClaim(new Claim(sessionClaim.Type, sessionClaim.Value));
+        return Task.CompletedTask;
+    };
+});
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromDays(7));
 builder.Services.AddAuthorization(options =>
 {
@@ -431,9 +450,11 @@ if (migrationOnly)
 app.UseExceptionHandler();
 if (reverseProxyEnabled) app.UseForwardedHeaders();
 app.UseHttpsRedirection();
+app.UseRouting();
 app.UseRateLimiter();
 app.UseCors("same-origin");
 app.UseAuthentication();
+app.UseMiddleware<StaffMfaEnrollmentMiddleware>();
 app.UseAuthorization();
 app.Use(async (context, next) =>
 {
