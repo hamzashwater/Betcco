@@ -18,6 +18,12 @@ type TwoFactorStatus = {
   isEnabled: boolean;
   hasAuthenticator: boolean;
   isRequired: boolean;
+  recoveryCodesLeft: number;
+};
+
+type RecoveryCodesResponse = {
+  recoveryCodes: string[];
+  recoveryCodesLeft: number;
 };
 
 type CurrentUser = { roles: string[]; requiresMfaEnrollment: boolean };
@@ -76,6 +82,16 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
   const [setup, setSetup] = useState<TwoFactorSetup | null>(null);
   const [verificationCode, setVerificationCode] = useState("");
   const [disableCode, setDisableCode] = useState("");
+  const [recoveryCodes, setRecoveryCodes] = useState<string[] | null>(null);
+  const [codesAcknowledged, setCodesAcknowledged] = useState(false);
+  const [returnWorkspace, setReturnWorkspace] = useState<string | null>(null);
+  const [recoveryPassword, setRecoveryPassword] = useState("");
+  const [recoveryAuthenticatorCode, setRecoveryAuthenticatorCode] =
+    useState("");
+  const [resetRecoveryCode, setResetRecoveryCode] = useState("");
+  const [recoveryAction, setRecoveryAction] = useState<
+    "regenerate" | "reset" | null
+  >(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -118,14 +134,20 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
     },
   });
   const enableTwoFactor = useMutation({
-    mutationFn: () =>
-      api<void>("/auth/two-factor/enable", {
-        method: "POST",
-        body: JSON.stringify({ code: verificationCode }),
-      }),
+    mutationFn: async () => {
+      const result = await api<RecoveryCodesResponse>(
+        "/auth/two-factor/enable",
+        {
+          method: "POST",
+          body: JSON.stringify({ code: verificationCode }),
+        },
+      );
+      setRecoveryCodes(result.recoveryCodes);
+    },
     onSuccess: async () => {
       setSetup(null);
       setVerificationCode("");
+      setCodesAcknowledged(false);
       setNotice(
         locale === "ar"
           ? "تم تفعيل المصادقة الثنائية لهذا الحساب."
@@ -137,10 +159,62 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
         queryFn: () => api<CurrentUser>("/auth/me"),
         staleTime: 0,
       });
-      if (mandatory) {
-        router.replace(`/${locale}/${workspaceFor(user.roles)}`);
+      if (mandatory) setReturnWorkspace(workspaceFor(user.roles));
+    },
+  });
+  const regenerateCodes = useMutation({
+    mutationFn: async () => {
+      const result = await api<RecoveryCodesResponse>(
+        "/auth/two-factor/recovery-codes/regenerate",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            currentPassword: recoveryPassword,
+            code: recoveryAuthenticatorCode,
+          }),
+        },
+      );
+      setRecoveryCodes(result.recoveryCodes);
+    },
+    onSuccess: () => {
+      setCodesAcknowledged(false);
+      setRecoveryAction(null);
+      setRecoveryPassword("");
+      setRecoveryAuthenticatorCode("");
+      refreshSecurity();
+    },
+    onError: () => {
+      setRecoveryPassword("");
+      setRecoveryAuthenticatorCode("");
+    },
+  });
+  const resetAuthenticator = useMutation({
+    mutationFn: () =>
+      api<{ requiresMfaEnrollment: boolean }>(
+        "/auth/two-factor/reset-authenticator",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            currentPassword: recoveryPassword,
+            recoveryCode: resetRecoveryCode,
+          }),
+        },
+      ),
+    onSuccess: async (result) => {
+      setRecoveryPassword("");
+      setResetRecoveryCode("");
+      setRecoveryAction(null);
+      setRecoveryCodes(null);
+      await queryClient.invalidateQueries({ queryKey: ["current-user"] });
+      refreshSecurity();
+      if (result.requiresMfaEnrollment) {
+        router.replace(`/${locale}/staff/security`);
         router.refresh();
       }
+    },
+    onError: () => {
+      setRecoveryPassword("");
+      setResetRecoveryCode("");
     },
   });
   const disableTwoFactor = useMutation({
@@ -221,6 +295,8 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
   const busy =
     startSetup.isPending ||
     enableTwoFactor.isPending ||
+    regenerateCodes.isPending ||
+    resetAuthenticator.isPending ||
     disableTwoFactor.isPending ||
     revokeSession.isPending ||
     logoutAll.isPending ||
@@ -384,7 +460,225 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
             <p role="alert" className="mt-5 text-sm text-red-600">
               {errorMessage(twoFactor.error, locale)}
             </p>
-          ) : twoFactor.data?.isEnabled && !twoFactor.data.isRequired ? (
+          ) : null}
+
+          {recoveryCodes && (
+            <div
+              className="mt-5 grid min-w-0 gap-3 rounded-xl border border-primary/50 p-4"
+              role="region"
+              aria-label={
+                locale === "ar"
+                  ? "رموز الاسترداد الجديدة"
+                  : "New recovery codes"
+              }
+            >
+              <h3 className="font-black">
+                {locale === "ar"
+                  ? "احفظ رموز الاسترداد الآن"
+                  : "Save your recovery codes now"}
+              </h3>
+              <p className="text-sm text-muted">
+                {locale === "ar"
+                  ? "تظهر هذه الرموز الآن فقط. احفظها في مكان آمن غير متصل بالإنترنت. يمكن استخدام كل رمز مرة واحدة."
+                  : "These codes are shown only now. Store them securely offline. Each code can be used once."}
+              </p>
+              <ul
+                dir="ltr"
+                className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-2"
+              >
+                {recoveryCodes.map((code) => (
+                  <li
+                    key={code}
+                    className="min-w-0 break-all rounded-lg border border-border p-2 font-mono text-sm"
+                  >
+                    {code}
+                  </li>
+                ))}
+              </ul>
+              <p className="text-sm font-bold">
+                {locale === "ar"
+                  ? `الرموز المتبقية: ${recoveryCodes.length}`
+                  : `Codes remaining: ${recoveryCodes.length}`}
+              </p>
+              <button
+                type="button"
+                className="focus-ring w-fit rounded-lg border border-border px-3 py-2 text-sm font-bold"
+                onClick={() =>
+                  void navigator.clipboard.writeText(recoveryCodes.join("\n"))
+                }
+              >
+                {locale === "ar" ? "نسخ الكل" : "Copy all"}
+              </button>
+              <label className="flex items-start gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={codesAcknowledged}
+                  onChange={(event) =>
+                    setCodesAcknowledged(event.target.checked)
+                  }
+                />
+                {locale === "ar"
+                  ? "حفظت الرموز في مكان آمن"
+                  : "I saved these codes securely"}
+              </label>
+              <button
+                type="button"
+                disabled={!codesAcknowledged}
+                className="focus-ring w-fit rounded-lg bg-primary px-4 py-2 text-sm font-bold text-slate-950 disabled:opacity-60"
+                onClick={() => {
+                  setRecoveryCodes(null);
+                  if (returnWorkspace) {
+                    router.replace(`/${locale}/${returnWorkspace}`);
+                    router.refresh();
+                  }
+                }}
+              >
+                {locale === "ar" ? "متابعة" : "Continue"}
+              </button>
+            </div>
+          )}
+
+          {twoFactor.data?.isEnabled && !recoveryCodes && (
+            <div className="mt-5 grid gap-3">
+              <p className="text-sm font-bold">
+                {locale === "ar"
+                  ? `رموز الاسترداد المتبقية: ${twoFactor.data.recoveryCodesLeft}`
+                  : `Recovery codes remaining: ${twoFactor.data.recoveryCodesLeft}`}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  className="focus-ring rounded-lg border border-border px-3 py-2 text-sm font-bold"
+                  onClick={() => setRecoveryAction("regenerate")}
+                >
+                  {locale === "ar"
+                    ? "إنشاء رموز استرداد جديدة"
+                    : "Generate new recovery codes"}
+                </button>
+                <button
+                  type="button"
+                  className="focus-ring rounded-lg border border-border px-3 py-2 text-sm font-bold"
+                  onClick={() => setRecoveryAction("reset")}
+                >
+                  {locale === "ar"
+                    ? "فقدت تطبيق المصادقة؟"
+                    : "Lost your authenticator?"}
+                </button>
+              </div>
+              {recoveryAction && (
+                <form
+                  className="grid gap-3 rounded-xl border border-border p-4"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    if (recoveryAction === "regenerate")
+                      regenerateCodes.mutate();
+                    else resetAuthenticator.mutate();
+                  }}
+                >
+                  <h3 className="font-black">
+                    {recoveryAction === "regenerate"
+                      ? locale === "ar"
+                        ? "إنشاء رموز جديدة"
+                        : "Generate new codes"
+                      : locale === "ar"
+                        ? "إعادة إعداد تطبيق المصادقة"
+                        : "Reset authenticator"}
+                  </h3>
+                  <p className="text-sm text-muted">
+                    {recoveryAction === "regenerate"
+                      ? locale === "ar"
+                        ? "إنشاء رموز جديدة يبطل جميع الرموز القديمة."
+                        : "Generating new codes invalidates all old codes."
+                      : locale === "ar"
+                        ? "ستحتاج كلمة مرورك ورمز استرداد غير مستخدم. ستعيد إعداد تطبيق المصادقة بعد ذلك."
+                        : "Enter your password and an unused recovery code. You will set up a new authenticator afterward."}
+                  </p>
+                  <label className="grid gap-1 text-sm font-bold">
+                    {locale === "ar"
+                      ? "كلمة المرور الحالية"
+                      : "Current password"}
+                    <input
+                      type="password"
+                      autoComplete="current-password"
+                      required
+                      value={recoveryPassword}
+                      onChange={(event) =>
+                        setRecoveryPassword(event.target.value)
+                      }
+                      className="focus-ring min-w-0 rounded-lg border border-border bg-transparent px-3 py-2"
+                    />
+                  </label>
+                  {recoveryAction === "regenerate" ? (
+                    <label className="grid gap-1 text-sm font-bold">
+                      {locale === "ar"
+                        ? "رمز تطبيق المصادقة"
+                        : "Authenticator code"}
+                      <input
+                        required
+                        inputMode="numeric"
+                        pattern="[0-9]{6}"
+                        maxLength={6}
+                        value={recoveryAuthenticatorCode}
+                        onChange={(event) =>
+                          setRecoveryAuthenticatorCode(
+                            event.target.value.replace(/\D/g, ""),
+                          )
+                        }
+                        className="focus-ring min-w-0 rounded-lg border border-border bg-transparent px-3 py-2"
+                      />
+                    </label>
+                  ) : (
+                    <label className="grid gap-1 text-sm font-bold">
+                      {locale === "ar"
+                        ? "رمز استرداد غير مستخدم"
+                        : "Unused recovery code"}
+                      <input
+                        required
+                        autoComplete="off"
+                        value={resetRecoveryCode}
+                        onChange={(event) =>
+                          setResetRecoveryCode(event.target.value)
+                        }
+                        className="focus-ring min-w-0 rounded-lg border border-border bg-transparent px-3 py-2"
+                      />
+                    </label>
+                  )}
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      disabled={busy}
+                      className="focus-ring rounded-lg bg-primary px-4 py-2 text-sm font-bold text-slate-950 disabled:opacity-60"
+                    >
+                      {locale === "ar" ? "تأكيد" : "Confirm"}
+                    </button>
+                    <button
+                      type="button"
+                      className="focus-ring rounded-lg border border-border px-4 py-2 text-sm"
+                      onClick={() => {
+                        setRecoveryAction(null);
+                        setRecoveryPassword("");
+                        setResetRecoveryCode("");
+                        setRecoveryAuthenticatorCode("");
+                      }}
+                    >
+                      {locale === "ar" ? "إلغاء" : "Cancel"}
+                    </button>
+                  </div>
+                  {(regenerateCodes.isError || resetAuthenticator.isError) && (
+                    <p role="alert" className="text-sm text-red-600">
+                      {errorMessage(
+                        regenerateCodes.error ?? resetAuthenticator.error,
+                        locale,
+                      )}
+                    </p>
+                  )}
+                </form>
+              )}
+            </div>
+          )}
+
+          {twoFactor.data?.isEnabled &&
+          !twoFactor.data.isRequired &&
+          !recoveryCodes ? (
             <form
               className="mt-5 grid gap-3"
               onSubmit={(event) => {
@@ -430,7 +724,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                 </p>
               )}
             </form>
-          ) : !setup ? (
+          ) : twoFactor.data?.isEnabled ? null : !setup ? (
             <div className="mt-5">
               <button
                 type="button"

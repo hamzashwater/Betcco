@@ -76,6 +76,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
     options.Password.RequireUppercase = true;
 })
     .AddEntityFrameworkStores<BetccoDbContext>()
+    .AddUserStore<ProtectedRecoveryCodeUserStore>()
     .AddDefaultTokenProviders();
 builder.Services.ConfigureApplicationCookie(options =>
 {
