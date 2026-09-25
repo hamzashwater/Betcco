@@ -48,12 +48,20 @@ afterEach(() => {
   apiMock.mockReset();
 });
 
-const unit = (count: number, status: string, outcome?: string) => ({
+const unit = (
+  count: number,
+  status: string,
+  outcome?: string,
+  unavailableReason = status === "Locked"
+    ? "LearningAimsIncomplete"
+    : undefined,
+) => ({
   id: "unit",
   arabicTitle: "وحدة",
   englishTitle: "Unit",
   aims: Array.from({ length: count }, (_, index) => ({
-    isComplete: status !== "Locked" || index < count - 1,
+    isComplete:
+      unavailableReason !== "LearningAimsIncomplete" || index < count - 1,
   })),
   finalPractice: {
     assignmentId: "final",
@@ -63,6 +71,7 @@ const unit = (count: number, status: string, outcome?: string) => ({
     englishInstructions: "Upload your work",
     isAvailable: status === "Available",
     status,
+    unavailableReason,
     trainingOutcome: outcome,
     strengths: "Clear evidence",
     gaps: "Missing chart",
@@ -123,6 +132,37 @@ describe("comprehensive practice", () => {
     ).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Open Practice" })).toBeNull();
   });
+
+  it.each(["en", "ar"] as const)(
+    "shows the effective deadline reason in %s without blaming Learning Aims",
+    async (locale) => {
+      apiMock.mockImplementation((path: string) =>
+        Promise.resolve(
+          path === "/student/assignments/mine"
+            ? []
+            : [unit(3, "Locked", undefined, "DeadlineExpired")],
+        ),
+      );
+      renderWithLocale(
+        <StudentComprehensivePractice courseId="course" />,
+        locale,
+      );
+      expect(
+        await screen.findByText(
+          locale === "ar"
+            ? "انتهى الموعد النهائي لهذه المهمة التدريبية."
+            : "The deadline for this Unit Practice has passed.",
+        ),
+      ).toBeTruthy();
+      expect(
+        screen.queryByText(
+          locale === "ar"
+            ? "أكمل جميع أهداف التعلم ومراجعاتها أولًا."
+            : "Complete all Learning Aims and their reviews first.",
+        ),
+      ).toBeNull();
+    },
+  );
 
   it.each(["en", "ar"] as const)(
     "shows reviewed training outcome, feedback and disclaimer in %s",

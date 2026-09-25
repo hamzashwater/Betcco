@@ -44,6 +44,11 @@ type FinalPractice = {
   }[];
   isAvailable: boolean;
   status: string;
+  unavailableReason?:
+    | "NotConfigured"
+    | "LearningAimsIncomplete"
+    | "DeadlineExpired"
+    | "AccessRestricted";
   trainingOutcome?: string;
   strengths?: string;
   gaps?: string;
@@ -203,12 +208,27 @@ export function StudentComprehensivePractice({
                 )}
               </p>
             ) : null}
-            {!practice.isAvailable && practice.status === "Locked" ? (
+            {!practice.isAvailable &&
+            practice.status !== "Submitted" &&
+            practice.status !== "Finalized" &&
+            practice.unavailableReason === "LearningAimsIncomplete" ? (
               <p className="mt-2 text-sm text-muted">
                 {tr(
                   locale,
                   "أكمل جميع أهداف التعلم ومراجعاتها أولًا.",
                   "Complete all Learning Aims and their reviews first.",
+                )}
+              </p>
+            ) : null}
+            {!practice.isAvailable &&
+            practice.status !== "Submitted" &&
+            practice.status !== "Finalized" &&
+            practice.unavailableReason === "DeadlineExpired" ? (
+              <p className="mt-2 text-sm text-muted">
+                {tr(
+                  locale,
+                  "انتهى الموعد النهائي لهذه المهمة التدريبية.",
+                  "The deadline for this Unit Practice has passed.",
                 )}
               </p>
             ) : null}

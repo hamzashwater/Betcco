@@ -1,4 +1,5 @@
 using Betcco.Application.Assignments;
+using Betcco.Application.Learning;
 using Betcco.Domain.Assessments;
 using Betcco.Domain.Common;
 using Betcco.Domain.Learning;
@@ -134,7 +135,15 @@ public sealed class LearningAimPracticeProgressService(BetccoDbContext db, ICour
         return aims.Any(x => x.Id == target.AimId && x.PracticeAvailable);
     }
 
-    public async Task<bool> CanSubmitComprehensiveAsync(string studentUserId, Guid assignmentId, CancellationToken cancellationToken = default)
+    public Task<bool> CanSubmitComprehensiveAsync(string studentUserId, Guid assignmentId, CancellationToken cancellationToken = default) =>
+        CanSubmitComprehensiveCoreAsync(studentUserId, assignmentId, null, cancellationToken);
+
+    public Task<bool> CanSubmitComprehensiveWithProgressAsync(string studentUserId, Guid assignmentId,
+        ComprehensivePracticeProgressSnapshot progress, CancellationToken cancellationToken = default) =>
+        CanSubmitComprehensiveCoreAsync(studentUserId, assignmentId, progress, cancellationToken);
+
+    private async Task<bool> CanSubmitComprehensiveCoreAsync(string studentUserId, Guid assignmentId,
+        ComprehensivePracticeProgressSnapshot? progress, CancellationToken cancellationToken)
     {
         var assignment = await db.CourseAssignments.AsNoTracking()
             .Where(x => x.Id == assignmentId && x.Purpose == CourseAssignmentPurpose.ComprehensivePractice
@@ -147,6 +156,8 @@ public sealed class LearningAimPracticeProgressService(BetccoDbContext db, ICour
             || assignment.AvailableFromUtc > DateTimeOffset.UtcNow) return false;
         var deadline = await deadlineResolverService.ResolveAsync(assignmentId, studentUserId, assignment.DueAtUtc, cancellationToken);
         if (deadline.EffectiveDueAtUtc < DateTimeOffset.UtcNow) return false;
+        if (progress is not null)
+            return progress.ModuleId == assignment.CourseModuleId && progress.AllAimsComplete;
         var aims = await GetAsync(studentUserId, assignment.CourseModuleId.Value, cancellationToken);
         return aims.Count > 0 && aims.All(x => x.IsComplete);
     }

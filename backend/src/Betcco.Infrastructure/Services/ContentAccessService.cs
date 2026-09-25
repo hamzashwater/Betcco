@@ -23,7 +23,15 @@ public sealed class ContentAccessService(BetccoDbContext db) : IContentAccessSer
         return await EvaluateNodeAsync(studentUserId, courseId, enrollment, new ContentNode(LearningContentType.Course, courseId), [], cancellationToken);
     }
 
-    public async Task<ContentAccessDecision> CanAccessAsync(string studentUserId, Guid courseId, LearningContentType contentType, Guid contentId, CancellationToken cancellationToken = default)
+    public Task<ContentAccessDecision> CanAccessAsync(string studentUserId, Guid courseId, LearningContentType contentType, Guid contentId, CancellationToken cancellationToken = default) =>
+        CanAccessCoreAsync(studentUserId, courseId, contentType, contentId, null, cancellationToken);
+
+    public Task<ContentAccessDecision> CanAccessComprehensiveForDisplayAsync(string studentUserId, Guid courseId, Guid assignmentId,
+        ComprehensivePracticeProgressSnapshot progress, CancellationToken cancellationToken = default) =>
+        CanAccessCoreAsync(studentUserId, courseId, LearningContentType.Assignment, assignmentId, progress, cancellationToken);
+
+    private async Task<ContentAccessDecision> CanAccessCoreAsync(string studentUserId, Guid courseId,
+        LearningContentType contentType, Guid contentId, ComprehensivePracticeProgressSnapshot? comprehensiveProgress, CancellationToken cancellationToken)
     {
         var enrollment = await db.Enrollments.AsNoTracking().SingleOrDefaultAsync(item => item.StudentUserId == studentUserId && item.CourseId == courseId && (item.AccessEndsAtUtc == null || item.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken);
         if (enrollment is null) return Denied("EnrollmentRequired");
@@ -44,7 +52,9 @@ public sealed class ContentAccessService(BetccoDbContext db) : IContentAccessSer
             return Denied("CompleteLearningAimContent");
         if (contentType == LearningContentType.Assignment
             && await db.CourseAssignments.AsNoTracking().AnyAsync(x => x.Id == contentId && x.Purpose == CourseAssignmentPurpose.ComprehensivePractice, cancellationToken)
-            && !await practice.CanSubmitComprehensiveAsync(studentUserId, contentId, cancellationToken))
+            && !(comprehensiveProgress is null
+                ? await practice.CanSubmitComprehensiveAsync(studentUserId, contentId, cancellationToken)
+                : await practice.CanSubmitComprehensiveWithProgressAsync(studentUserId, contentId, comprehensiveProgress, cancellationToken)))
             return Denied("CompleteAllLearningAims");
         return await EvaluateNodeAsync(studentUserId, courseId, enrollment, node, [], cancellationToken);
     }

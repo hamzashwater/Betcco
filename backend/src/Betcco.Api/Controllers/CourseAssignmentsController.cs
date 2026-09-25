@@ -95,6 +95,7 @@ public sealed class CourseAssignmentsController(
         var rows = await db.CourseAssignmentSubmissions.AsNoTracking()
             .Where(x => x.CourseAssignment!.CourseId == courseId
                 && x.CourseAssignment.Purpose == CourseAssignmentPurpose.ComprehensivePractice
+                && (x.Status == CourseAssignmentSubmissionStatus.Submitted || x.Status == CourseAssignmentSubmissionStatus.Finalized)
                 && db.Enrollments.Any(enrollment => enrollment.CourseId == courseId
                     && enrollment.StudentUserId == x.StudentUserId))
             .OrderByDescending(x => x.SubmittedAtUtc)
@@ -241,8 +242,14 @@ public sealed class CourseAssignmentsController(
                 .SingleOrDefaultAsync(cancellationToken);
             var allAimsComplete = aims.Count > 0 && aims.All(x => x.IsComplete);
             var finalAvailable = finalAssignment is not null && unitAccess.IsAvailable && allAimsComplete
-                && (await contentAccess.CanAccessAsync(UserId, courseId, LearningContentType.Assignment, finalAssignment.Id, cancellationToken)).IsAvailable;
+                && (await contentAccess.CanAccessComprehensiveForDisplayAsync(UserId, courseId, finalAssignment.Id,
+                    new ComprehensivePracticeProgressSnapshot(module.Id, allAimsComplete), cancellationToken)).IsAvailable;
             var finalDeadline = finalAssignment is null ? null : await deadlineResolver.ResolveAsync(finalAssignment.Id, UserId, finalAssignment.DueAtUtc, cancellationToken);
+            var unavailableReason = finalAssignment is null ? "NotConfigured"
+                : !unitAccess.IsAvailable ? "AccessRestricted"
+                : !allAimsComplete ? "LearningAimsIncomplete"
+                : finalDeadline?.EffectiveDueAtUtc < DateTimeOffset.UtcNow ? "DeadlineExpired"
+                : !finalAvailable ? "AccessRestricted" : null;
             var reviewed = finalSubmission?.Status == CourseAssignmentSubmissionStatus.Finalized && finalSubmission.TrainingOutcome is not null;
             result.Add(new
             {
@@ -261,6 +268,7 @@ public sealed class CourseAssignmentsController(
                     Resources = finalAvailable ? finalAssignment?.Resources : null,
                     Criteria = finalAvailable ? finalAssignment?.Criteria : null,
                     IsAvailable = finalAvailable,
+                    UnavailableReason = unavailableReason,
                     Status = finalSubmission?.Status.ToString() ?? (finalAssignment is null ? "NotConfigured" : finalAvailable ? "Available" : "Locked"),
                     TrainingOutcome = reviewed && unitAccess.IsAvailable ? finalSubmission?.TrainingOutcome?.ToString() : null,
                     Strengths = reviewed && unitAccess.IsAvailable ? finalSubmission?.TrainingStrengths : null,
@@ -522,6 +530,9 @@ public sealed class CourseAssignmentsController(
         if (file is null) return NotFound();
         var submission = file.CourseAssignmentSubmissionVersion!.CourseAssignmentSubmission!;
         if (!User.IsInRole(PlatformRoles.Admin) && submission.StudentUserId != UserId && submission.CourseAssignment!.Course!.TeacherUserId != UserId) return NotFound();
+        if (submission.CourseAssignment!.Purpose == CourseAssignmentPurpose.ComprehensivePractice
+            && submission.StudentUserId != UserId
+            && submission.Status is not (CourseAssignmentSubmissionStatus.Submitted or CourseAssignmentSubmissionStatus.Finalized)) return NotFound();
         if (submission.StudentUserId == UserId
             && submission.CourseAssignment!.Purpose is CourseAssignmentPurpose.LearningAimPractice or CourseAssignmentPurpose.ComprehensivePractice
             && !await db.Enrollments.AsNoTracking().AnyAsync(x => x.CourseId == submission.CourseAssignment.CourseId

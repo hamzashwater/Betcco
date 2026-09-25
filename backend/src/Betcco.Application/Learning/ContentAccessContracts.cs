@@ -9,6 +9,8 @@ public sealed record ContentAccessDecision(
     LearningContentType? RequiredContentType = null,
     Guid? RequiredContentId = null);
 
+public sealed record ComprehensivePracticeProgressSnapshot(Guid ModuleId, bool AllAimsComplete);
+
 public sealed record ContentReleaseConfiguration(
     Guid CourseId,
     LearningContentType TargetType,
@@ -35,6 +37,11 @@ public interface IContentAccessService
         LearningContentType contentType,
         Guid contentId,
         CancellationToken cancellationToken = default);
+
+    Task<ContentAccessDecision> CanAccessComprehensiveForDisplayAsync(
+        string studentUserId, Guid courseId, Guid assignmentId,
+        ComprehensivePracticeProgressSnapshot progress, CancellationToken cancellationToken = default) =>
+        CanAccessAsync(studentUserId, courseId, LearningContentType.Assignment, assignmentId, cancellationToken);
 
     Task<ContentAccessDecision> CanAccessCourseAsync(string studentUserId, Guid courseId, CancellationToken cancellationToken = default);
 

@@ -47,6 +47,7 @@ for (const scenario of [
     let criterionAttached = false;
     let resourceUploaded = false;
     let ready = false;
+    let deadlineExpired = false;
     let draft = false;
     let uploaded = false;
     let submitted = false;
@@ -135,7 +136,19 @@ for (const scenario of [
               arabicInstructions: ready && published ? "ارفع عملك" : null,
               englishInstructions:
                 ready && published ? "Upload your work" : null,
-              isAvailable: configured && published && ready && !submitted,
+              isAvailable:
+                configured &&
+                published &&
+                ready &&
+                !deadlineExpired &&
+                !submitted,
+              unavailableReason: !published
+                ? "NotConfigured"
+                : !ready
+                  ? "LearningAimsIncomplete"
+                  : deadlineExpired
+                    ? "DeadlineExpired"
+                    : null,
               status: !published
                 ? "NotConfigured"
                 : reviewed
@@ -144,7 +157,7 @@ for (const scenario of [
                     ? "Submitted"
                     : draft
                       ? "Draft"
-                      : ready
+                      : ready && !deadlineExpired
                         ? "Available"
                         : "Locked",
               trainingOutcome: reviewed ? "Merit" : null,
@@ -469,8 +482,34 @@ for (const scenario of [
       .click();
     await expect.poll(() => published).toBe(true);
 
+    ready = false;
     role = "Student";
     await page.goto(`/${scenario.locale}/student/learn/${courseId}`);
+    await expect(
+      finalArea.getByText(
+        scenario.locale === "ar"
+          ? "أكمل جميع أهداف التعلم ومراجعاتها أولًا."
+          : "Complete all Learning Aims and their reviews first.",
+      ),
+    ).toBeVisible();
+    ready = true;
+    deadlineExpired = true;
+    await page.reload();
+    await expect(
+      finalArea.getByText(
+        scenario.locale === "ar"
+          ? "انتهى الموعد النهائي لهذه المهمة التدريبية."
+          : "The deadline for this Unit Practice has passed.",
+      ),
+    ).toBeVisible();
+    await expect(
+      finalArea.getByRole("button", {
+        name: scenario.locale === "ar" ? "فتح التدريب" : "Open Practice",
+      }),
+    ).toHaveCount(0);
+    deadlineExpired = false;
+    await page.reload();
+    role = "Student";
     await finalArea
       .getByRole("button", {
         name: scenario.locale === "ar" ? "فتح التدريب" : "Open Practice",
@@ -487,6 +526,18 @@ for (const scenario of [
       })
       .click();
     await expect(finalArea.getByText("unit.pdf")).toBeVisible();
+    role = "Teacher";
+    await page.goto(
+      `/${scenario.locale}/teacher/courses/${courseId}#assignments`,
+    );
+    await expect(teacherArea.getByText("unit.pdf")).toHaveCount(0);
+    role = "Student";
+    await page.goto(`/${scenario.locale}/student/learn/${courseId}`);
+    await finalArea
+      .getByRole("button", {
+        name: scenario.locale === "ar" ? "متابعة المسودة" : "Continue draft",
+      })
+      .click();
     await finalArea
       .getByRole("button", {
         name: scenario.locale === "ar" ? "تسليم للمعلم" : "Submit to teacher",
