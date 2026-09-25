@@ -235,7 +235,7 @@ public sealed class EvaluationService(
     {
         var assignment = await db.EvaluatorAssignments.SingleOrDefaultAsync(x => x.EvaluationRequestId == requestId && x.EvaluatorUserId == teacherUserId, cancellationToken);
         var request = await db.EvaluationRequests.SingleOrDefaultAsync(x => x.Id == requestId && x.Status == EvaluationStatus.Assigned, cancellationToken);
-        if (assignment is null || request is null) return false;
+        if (assignment is null || request is null || request.SubmissionAttemptNumber != 1) return false;
 
         var selectedCodes = criterionCodes
             .Where(code => !string.IsNullOrWhiteSpace(code))
@@ -254,6 +254,99 @@ public sealed class EvaluationService(
         request.EvaluatorCriteriaPlanJson = JsonSerializer.Serialize(selectedCodes);
         RecordAssessmentEvent(request, teacherUserId, "CriteriaPlanSet", null, null, $"{selectedCodes.Length} criteria selected", request.SubmissionAttemptNumber, null);
         db.AuditLogs.Add(Audit(teacherUserId, "EvaluationCriteriaPlanSet", nameof(EvaluationRequest), requestId.ToString()));
+        await db.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> SubmitReviewAsync(
+        string teacherUserId,
+        Guid requestId,
+        SubmitEvaluationReviewCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        var feedback = command.Feedback?.Trim();
+        if (string.IsNullOrWhiteSpace(feedback) || feedback.Length > 4_000 || command.Results.Count == 0) return false;
+
+        var assignment = await db.EvaluatorAssignments.SingleOrDefaultAsync(
+            x => x.EvaluationRequestId == requestId && x.EvaluatorUserId == teacherUserId,
+            cancellationToken);
+        var request = await db.EvaluationRequests.SingleOrDefaultAsync(
+            x => x.Id == requestId && x.Status == EvaluationStatus.Assigned,
+            cancellationToken);
+        if (assignment is null || request is null
+            || request.RetakeOfEvaluationRequestId is not null
+            || request.SubmissionAttemptNumber is < 1 or > 2
+            || (command.RequestRevision && request.SubmissionAttemptNumber != 1)) return false;
+
+        var validCodes = JsonSerializer.Deserialize<string[]>(request.CriteriaSnapshotJson) ?? [];
+        var selectedCodes = JsonSerializer.Deserialize<string[]>(request.EvaluatorCriteriaPlanJson) ?? [];
+        if (!BtecAssessmentRuleSet.TryRead(request.AssessmentRuleSetSnapshotJson, out var ruleSet)) return false;
+        if (selectedCodes.Length == 0
+            || command.Results.Count != selectedCodes.Length
+            || command.Results.Select(x => x.CriterionCode).Distinct(StringComparer.OrdinalIgnoreCase).Count() != command.Results.Count
+            || command.Results.Any(x =>
+                !validCodes.Contains(x.CriterionCode, StringComparer.OrdinalIgnoreCase)
+                || !selectedCodes.Contains(x.CriterionCode, StringComparer.OrdinalIgnoreCase)
+                || !Enum.TryParse<CriterionAchievement>(x.Achievement, true, out _))) return false;
+
+        var normalizedResults = command.Results.Select(item =>
+        {
+            Enum.TryParse<CriterionAchievement>(item.Achievement, true, out var achievement);
+            var code = item.CriterionCode.Trim().ToUpperInvariant();
+            return new CriterionSubmission(code, achievement.ToString(), item.Evidence?.Trim(), item.Comment?.Trim());
+        }).ToArray();
+        var calculation = EvaluationAssessmentCalculator.Calculate(normalizedResults, ruleSet);
+        var destination = command.RequestRevision ? EvaluationStatus.NeedsRevision : EvaluationStatus.Completed;
+        if (!EvaluationWorkflow.CanTransition(request.Status, destination)) return false;
+
+        var existing = await db.CriterionResults.Where(x => x.EvaluationRequestId == requestId).ToListAsync(cancellationToken);
+        db.CriterionResults.RemoveRange(existing);
+        foreach (var item in normalizedResults)
+        {
+            Enum.TryParse<CriterionAchievement>(item.Achievement, true, out var achievement);
+            db.CriterionResults.Add(new CriterionResult
+            {
+                EvaluationRequestId = requestId,
+                CriterionCode = item.CriterionCode,
+                Achievement = achievement,
+                Score = null,
+                Evidence = item.Evidence,
+                Comment = item.Comment
+            });
+        }
+
+        request.CalculatedGrade = calculation.Grade;
+        request.CalculatedScore = null;
+        request.SectionResultsJson = JsonSerializer.Serialize(calculation.Sections);
+        var previousStatus = request.Status;
+        request.Status = destination;
+
+        db.EvaluationFeedbackItems.Add(new EvaluationFeedback
+        {
+            EvaluationRequestId = request.Id,
+            AuthorUserId = teacherUserId,
+            Body = feedback,
+            RequestsResubmission = command.RequestRevision
+        });
+        var eventType = command.RequestRevision
+            ? "RevisionRequested"
+            : request.SubmissionAttemptNumber == 1 ? "InitialReviewCompleted" : "RevisionCheckCompleted";
+        RecordAssessmentEvent(request, teacherUserId, eventType, previousStatus, destination, feedback,
+            request.SubmissionAttemptNumber, null);
+        db.AuditLogs.Add(Audit(teacherUserId,
+            command.RequestRevision ? "EvaluationRevisionRequested" : "EvaluationReviewCompleted",
+            nameof(EvaluationRequest), requestId.ToString()));
+        db.Notifications.Add(new Notification
+        {
+            UserId = request.StudentUserId,
+            Title = command.RequestRevision ? "BETCCO review feedback ready" : "BETCCO review complete",
+            Body = command.RequestRevision
+                ? "Review your teacher feedback, update your assignment, then use your one revision check."
+                : "Your BETCCO assignment review is complete. The result is guidance for your school submission.",
+            Type = NotificationType.Evaluation,
+            DeepLink = "/student/evaluations"
+        });
+
         await db.SaveChangesAsync(cancellationToken);
         return true;
     }
@@ -329,25 +422,37 @@ public sealed class EvaluationService(
 
     public async Task<bool> ResubmitAsync(string studentUserId, Guid requestId, CancellationToken cancellationToken = default)
     {
-        var request = await db.EvaluationRequests.Include(x => x.SubmissionFiles).SingleOrDefaultAsync(x => x.Id == requestId && x.StudentUserId == studentUserId && x.Status == EvaluationStatus.NeedsRevision, cancellationToken);
-        if (request is null || !request.SubmissionFiles.Any(x => x.ScanStatus == UploadScanStatus.Clean) || !EvaluationWorkflow.CanTransition(request.Status, EvaluationStatus.Assigned)) return false;
-        var nextAttempt = request.SubmissionAttemptNumber + 1;
-        var authorization = await db.ResubmissionAuthorizations.SingleOrDefaultAsync(
-            item => item.EvaluationRequestId == requestId
-                    && item.AttemptNumber == nextAttempt
-                    && item.SubmittedAtUtc == null
-                    && item.RevokedAtUtc == null,
-            cancellationToken);
-        if (authorization is null || authorization.DueAtUtc < DateTimeOffset.UtcNow) return false;
+        var request = await db.EvaluationRequests
+            .Include(x => x.SubmissionFiles)
+            .SingleOrDefaultAsync(x => x.Id == requestId
+                && x.StudentUserId == studentUserId
+                && x.Status == EvaluationStatus.NeedsRevision,
+                cancellationToken);
+        if (request is null
+            || request.RetakeOfEvaluationRequestId is not null
+            || request.SubmissionAttemptNumber != 1
+            || !EvaluationWorkflow.CanTransition(request.Status, EvaluationStatus.Assigned)) return false;
+
+        var revisionFeedbackAt = await db.EvaluationFeedbackItems
+            .Where(item => item.EvaluationRequestId == requestId && item.RequestsResubmission)
+            .OrderByDescending(item => item.CreatedAtUtc)
+            .Select(item => (DateTimeOffset?)item.CreatedAtUtc)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (revisionFeedbackAt is null
+            || !request.SubmissionFiles.Any(file =>
+                file.ScanStatus == UploadScanStatus.Clean
+                && file.CreatedAtUtc > revisionFeedbackAt.Value)) return false;
+
+        const int nextAttempt = 2;
         if (!await db.AuthenticityDeclarations.AnyAsync(
                 item => item.EvaluationRequestId == requestId && item.AttemptNumber == nextAttempt,
                 cancellationToken)) return false;
+
         var previousStatus = request.Status;
         request.Status = EvaluationStatus.Assigned;
         request.SubmissionAttemptNumber = nextAttempt;
-        authorization.SubmittedAtUtc = DateTimeOffset.UtcNow;
-        RecordAssessmentEvent(request, studentUserId, "ResubmissionSubmitted", previousStatus, request.Status, null, nextAttempt, null);
-        db.AuditLogs.Add(Audit(studentUserId, "EvaluationResubmitted", nameof(EvaluationRequest), requestId.ToString()));
+        RecordAssessmentEvent(request, studentUserId, "RevisionSubmitted", previousStatus, request.Status, null, nextAttempt, null);
+        db.AuditLogs.Add(Audit(studentUserId, "EvaluationRevisionSubmitted", nameof(EvaluationRequest), requestId.ToString()));
         await db.SaveChangesAsync(cancellationToken);
         return true;
     }

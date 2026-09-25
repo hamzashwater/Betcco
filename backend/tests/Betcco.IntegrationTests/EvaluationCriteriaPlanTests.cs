@@ -166,7 +166,7 @@ public sealed class EvaluationCriteriaPlanTests
     }
 
     [Fact]
-    public async Task Resubmission_requires_a_fresh_originality_declaration_for_the_next_attempt()
+    public async Task Revision_submission_requires_new_work_and_a_fresh_originality_declaration()
     {
         await using var db = new BetccoDbContext(new DbContextOptionsBuilder<BetccoDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -178,9 +178,20 @@ public sealed class EvaluationCriteriaPlanTests
             SpecializationId = Guid.NewGuid(),
             TaskTypeId = Guid.NewGuid(),
             RubricTemplateId = Guid.NewGuid(),
-            Status = EvaluationStatus.NeedsRevision
+            Status = EvaluationStatus.NeedsRevision,
+            SubmissionAttemptNumber = 1
+        };
+        var feedback = new EvaluationFeedback
+        {
+            EvaluationRequestId = request.Id,
+            AuthorUserId = "teacher",
+            Body = "Add the missing evidence, then send the revised assignment.",
+            RequestsResubmission = true
         };
         db.EvaluationRequests.Add(request);
+        db.EvaluationFeedbackItems.Add(feedback);
+        await db.SaveChangesAsync();
+
         db.SubmissionFiles.Add(new SubmissionFile
         {
             EvaluationRequestId = request.Id,
@@ -188,16 +199,8 @@ public sealed class EvaluationCriteriaPlanTests
             StorageKey = "private/revised.pdf",
             ContentType = "application/pdf",
             LengthBytes = 100,
-            ScanStatus = UploadScanStatus.Clean
-        });
-        db.ResubmissionAuthorizations.Add(new ResubmissionAuthorization
-        {
-            EvaluationRequestId = request.Id,
-            AuthorizedByUserId = "verifier",
-            AttemptNumber = 2,
-            RuleSetVersion = "btec-internal-v1",
-            Reason = "Address the verifier feedback.",
-            DueAtUtc = DateTimeOffset.UtcNow.AddDays(2)
+            ScanStatus = UploadScanStatus.Clean,
+            CreatedAtUtc = feedback.CreatedAtUtc.AddSeconds(1)
         });
         await db.SaveChangesAsync();
 
@@ -208,7 +211,82 @@ public sealed class EvaluationCriteriaPlanTests
 
         Assert.Equal(EvaluationStatus.Assigned, request.Status);
         Assert.Equal(2, request.SubmissionAttemptNumber);
-        Assert.Contains(await db.AssessmentAuditEvents.ToListAsync(), item => item.EventType == "ResubmissionSubmitted" && item.AttemptNumber == 2);
+        Assert.Empty(await db.ResubmissionAuthorizations.ToListAsync());
+        Assert.Contains(await db.AssessmentAuditEvents.ToListAsync(), item => item.EventType == "RevisionSubmitted" && item.AttemptNumber == 2);
+    }
+
+    [Fact]
+    public async Task Betcco_review_allows_one_revision_check_and_then_completes()
+    {
+        await using var db = new BetccoDbContext(new DbContextOptionsBuilder<BetccoDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options);
+        var request = new EvaluationRequest
+        {
+            StudentUserId = "student",
+            GradeId = Guid.NewGuid(),
+            SpecializationId = Guid.NewGuid(),
+            TaskTypeId = Guid.NewGuid(),
+            RubricTemplateId = Guid.NewGuid(),
+            Status = EvaluationStatus.Assigned,
+            SubmissionAttemptNumber = 1,
+            CriteriaSnapshotJson = JsonSerializer.Serialize(new[] { "A.P1" }),
+            EvaluatorCriteriaPlanJson = JsonSerializer.Serialize(new[] { "A.P1" }),
+            AssessmentRuleSetVersion = "btec-internal-v1",
+            AssessmentRuleSetSnapshotJson = BtecAssessmentRuleSet.DefaultJson
+        };
+        db.EvaluationRequests.Add(request);
+        db.EvaluatorAssignments.Add(new EvaluatorAssignment
+        {
+            EvaluationRequestId = request.Id,
+            EvaluatorUserId = "teacher",
+            AssignedByUserId = "admin"
+        });
+        await db.SaveChangesAsync();
+
+        var service = new EvaluationService(db, new NullFileStorage(), new CleanFileScanner());
+        var firstReview = new SubmitEvaluationReviewCommand(
+            [new CriterionSubmission("A.P1", "PartiallyAchieved", "Some evidence", "Needs one more example")],
+            "Add one clear example that directly satisfies P1.",
+            true);
+
+        Assert.True(await service.SubmitReviewAsync("teacher", request.Id, firstReview));
+        Assert.Equal(EvaluationStatus.NeedsRevision, request.Status);
+        Assert.Equal(EvaluationGrade.NotYetAchieved, request.CalculatedGrade);
+        Assert.Single(await db.EvaluationFeedbackItems.Where(item => item.RequestsResubmission).ToListAsync());
+        Assert.Empty(await db.ResubmissionAuthorizations.ToListAsync());
+
+        var feedbackAt = await db.EvaluationFeedbackItems
+            .Where(item => item.EvaluationRequestId == request.Id && item.RequestsResubmission)
+            .Select(item => item.CreatedAtUtc)
+            .SingleAsync();
+        db.SubmissionFiles.Add(new SubmissionFile
+        {
+            EvaluationRequestId = request.Id,
+            OriginalFileName = "revision.pdf",
+            StorageKey = "private/revision.pdf",
+            ContentType = "application/pdf",
+            LengthBytes = 100,
+            ScanStatus = UploadScanStatus.Clean,
+            CreatedAtUtc = feedbackAt.AddSeconds(1)
+        });
+        await db.SaveChangesAsync();
+        Assert.True(await service.DeclareAuthenticityAsync("student", request.Id, "en", null, null, null));
+        Assert.True(await service.ResubmitAsync("student", request.Id));
+        Assert.Equal(2, request.SubmissionAttemptNumber);
+
+        var secondReview = new SubmitEvaluationReviewCommand(
+            [new CriterionSubmission("A.P1", "Achieved", "Revised evidence", "Now achieved")],
+            "The requested revision is now complete.",
+            false);
+        Assert.True(await service.SubmitReviewAsync("teacher", request.Id, secondReview));
+        Assert.Equal(EvaluationStatus.Completed, request.Status);
+        Assert.Equal(EvaluationGrade.Pass, request.CalculatedGrade);
+
+        request.Status = EvaluationStatus.Assigned;
+        await db.SaveChangesAsync();
+        var thirdChance = secondReview with { RequestRevision = true };
+        Assert.False(await service.SubmitReviewAsync("teacher", request.Id, thirdChance));
     }
 
     [Fact]

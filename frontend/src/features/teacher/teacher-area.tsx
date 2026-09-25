@@ -546,6 +546,7 @@ type AssignedEvaluation = {
   filesCount: number;
   criteria: string[];
   selectedCriteria: string[];
+  submissionAttemptNumber: number;
   isRetake: boolean;
   retakeOfEvaluationRequestId: string | null;
 };
@@ -658,12 +659,14 @@ type EvaluationDetail = {
   studentComment?: string;
   criteria: string[];
   selectedCriteria: string[];
+  submissionAttemptNumber: number;
   calculatedGrade: string | null;
   sectionResults: { section: string; grade: string }[];
   files: {
     id: string;
     originalFileName: string;
     lengthBytes: number;
+    createdAtUtc: string;
     scanStatus: string;
   }[];
   results: {
@@ -673,7 +676,11 @@ type EvaluationDetail = {
     comment?: string;
   }[];
   evidence: { criterionCode: string; narrative: string }[];
-  feedback: { body: string; requestsResubmission: boolean }[];
+  feedback: {
+    body: string;
+    requestsResubmission: boolean;
+    createdAtUtc: string;
+  }[];
 };
 
 type ResultDraft = Record<
@@ -684,6 +691,8 @@ type ResultDraft = Record<
 function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
   const locale = useLocale();
   const [draft, setDraft] = useState<ResultDraft>({});
+  const [feedback, setFeedback] = useState("");
+  const [requestRevision, setRequestRevision] = useState(false);
   const [criteriaPlanDraft, setCriteriaPlanDraft] = useState<string[] | null>(
     null,
   );
@@ -692,22 +701,40 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
     queryFn: () => api<EvaluationDetail>(`/evaluations/${evaluationId}`),
   });
   const submit = useMutation({
-    mutationFn: () =>
-      api(`/evaluations/${evaluationId}/results`, {
+    mutationFn: () => {
+      const results =
+        activeCriteria.map((criterion) => {
+          const value = criterionValue(criterion);
+          return {
+            criterionCode: criterion,
+            achievement: value.achievement,
+            evidence: value.evidence || null,
+            comment: value.comment || null,
+          };
+        }) ?? [];
+      if (evaluation.data?.isRetake)
+        return api(`/evaluations/${evaluationId}/results`, {
+          method: "POST",
+          body: JSON.stringify(results),
+        });
+      return api(`/evaluations/${evaluationId}/review`, {
         method: "POST",
-        body: JSON.stringify(
-          activeCriteria.map((criterion) => {
-            const value = criterionValue(criterion);
-            return {
-              criterionCode: criterion,
-              achievement: value.achievement,
-              evidence: value.evidence || null,
-              comment: value.comment || null,
-            };
-          }) ?? [],
-        ),
-      }),
-    onSuccess: () => evaluation.refetch(),
+        body: JSON.stringify({
+          results,
+          feedback: feedback.trim(),
+          requestRevision:
+            evaluation.data?.submissionAttemptNumber === 1
+              ? requestRevision
+              : false,
+        }),
+      });
+    },
+    onSuccess: () => {
+      setDraft({});
+      setFeedback("");
+      setRequestRevision(false);
+      evaluation.refetch();
+    },
   });
   const saveCriteriaPlan = useMutation({
     mutationFn: (criterionCodes: string[]) =>
@@ -767,10 +794,20 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
   const complete = activeCriteria.every((criterion) =>
     Boolean(criterionValue(criterion).achievement),
   );
-  const isPlanning = criteriaPlanDraft !== null || activeCriteria.length === 0;
+  const isPlanning =
+    evaluation.data.submissionAttemptNumber === 1 &&
+    (criteriaPlanDraft !== null || activeCriteria.length === 0);
   const criterionSections = groupCriteriaBySection(evaluation.data.criteria);
   const activeCriterionSections = groupCriteriaBySection(activeCriteria);
+  const awaitingStudentRevision = evaluation.data.status === "NeedsRevision";
   const awaitingAdminApproval = evaluation.data.status === "UnderReview";
+  const revisionRequestedAt = evaluation.data.feedback
+    .filter((item) => item.requestsResubmission)
+    .at(-1)?.createdAtUtc;
+  const isRevisedFile = (createdAtUtc: string) =>
+    evaluation.data.submissionAttemptNumber === 2 &&
+    Boolean(revisionRequestedAt) &&
+    Date.parse(createdAtUtc) > Date.parse(revisionRequestedAt!);
   const togglePlanCriterion = (criterion: string) =>
     setCriteriaPlanDraft((current) => {
       const selected = current ?? evaluation.data.selectedCriteria;
@@ -792,16 +829,21 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
           className="card p-5 sm:p-7"
           onSubmit={(event) => {
             event.preventDefault();
-            if (complete) submit.mutate();
+            if (complete && (evaluation.data.isRetake || feedback.trim()))
+              submit.mutate();
           }}
         >
           <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">
             {evaluation.data.isRetake
-              ? "BETCCO Retake · Pass only"
-              : "BETCCO Evaluation"}
+              ? "Historical Retake"
+              : evaluation.data.submissionAttemptNumber === 1
+                ? "BETCCO Initial Review"
+                : "BETCCO Revision Check"}
           </p>
           <h1 className="mt-2 text-3xl font-black">
-            {locale === "ar" ? "تقييم المعايير" : "Criterion assessment"}
+            {locale === "ar"
+              ? "مراجعة مهمة الطالب"
+              : "Student assignment review"}
           </h1>
           {isPlanning ? (
             <>
@@ -891,6 +933,30 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                 </p>
               )}
             </>
+          ) : awaitingStudentRevision ? (
+            <div
+              className="mt-5 rounded-2xl border border-primary/30 bg-primary/10 p-5"
+              role="status"
+            >
+              <p className="font-black text-foreground">
+                {locale === "ar"
+                  ? "تم إرسال الملاحظات للطالب. بانتظار النسخة المعدلة."
+                  : "Feedback sent. Waiting for the learner's revised assignment."}
+              </p>
+              <p className="mt-2 text-sm text-muted">
+                {locale === "ar"
+                  ? "النتيجة التقديرية الحالية من BETCCO:"
+                  : "Current BETCCO estimated result:"}
+              </p>
+              <p className="mt-2 text-2xl font-black text-primary">
+                {evaluation.data.calculatedGrade ?? "—"}
+              </p>
+              {evaluation.data.feedback.at(-1)?.body ? (
+                <p className="mt-3 rounded-xl border border-border bg-surface-solid/60 p-3 text-sm text-muted">
+                  {evaluation.data.feedback.at(-1)?.body}
+                </p>
+              ) : null}
+            </div>
           ) : awaitingAdminApproval ? (
             <div
               className="mt-5 rounded-2xl border border-primary/30 bg-primary/10 p-5"
@@ -939,15 +1005,16 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                       .join(" · ")}
                   </p>
                 </div>
-                {evaluation.data.status === "Assigned" && (
-                  <button
-                    type="button"
-                    onClick={() => setCriteriaPlanDraft([...activeCriteria])}
-                    className="focus-ring rounded-xl border border-primary/40 px-3 py-2 text-xs font-bold text-primary hover:bg-primary/10"
-                  >
-                    {locale === "ar" ? "تعديل المعايير" : "Edit criteria"}
-                  </button>
-                )}
+                {evaluation.data.status === "Assigned" &&
+                  evaluation.data.submissionAttemptNumber === 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setCriteriaPlanDraft([...activeCriteria])}
+                      className="focus-ring rounded-xl border border-primary/40 px-3 py-2 text-xs font-bold text-primary hover:bg-primary/10"
+                    >
+                      {locale === "ar" ? "تعديل المعايير" : "Edit criteria"}
+                    </button>
+                  )}
               </div>
               <p className="mt-4 text-sm leading-6 text-muted">
                 {locale === "ar"
@@ -1056,23 +1123,96 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                   </section>
                 ))}
               </div>
+              {!evaluation.data.isRetake ? (
+                <div className="mt-6 grid gap-4 rounded-2xl border border-primary/25 bg-primary/5 p-4">
+                  <label className="grid gap-2 text-sm font-bold text-foreground">
+                    {locale === "ar"
+                      ? "ملاحظات المعلم للطالب"
+                      : "Teacher feedback"}
+                    <textarea
+                      required
+                      maxLength={4000}
+                      value={feedback}
+                      onChange={(event) => setFeedback(event.target.value)}
+                      className="min-h-28 rounded-xl border border-border bg-transparent p-3 text-sm font-normal text-foreground"
+                      placeholder={
+                        locale === "ar"
+                          ? "اشرح للطالب ما هو جيد، ما الناقص، وما الذي يجب تعديله قبل التسليم للمدرسة."
+                          : "Explain what is strong, what is missing, and what to revise before the school submission."
+                      }
+                    />
+                  </label>
+                  {evaluation.data.submissionAttemptNumber === 1 ? (
+                    <label className="flex items-start gap-3 rounded-xl border border-border bg-surface-solid/60 p-3 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={requestRevision}
+                        onChange={(event) =>
+                          setRequestRevision(event.target.checked)
+                        }
+                        className="mt-1 size-4 accent-[var(--primary)]"
+                      />
+                      <span>
+                        <strong>
+                          {locale === "ar"
+                            ? "فتح فرصة التعديل الوحيدة"
+                            : "Open the one revision check"}
+                        </strong>
+                        <span className="mt-1 block text-muted">
+                          {locale === "ar"
+                            ? "سيشاهد الطالب النتيجة التقديرية الحالية وملاحظاتك، ثم يرفع نسخة معدلة مرة واحدة."
+                            : "The learner will see the current estimated result and your feedback, then can upload one revised version."}
+                        </span>
+                      </span>
+                    </label>
+                  ) : (
+                    <p className="rounded-xl border border-border bg-surface-solid/60 p-3 text-sm text-muted">
+                      {locale === "ar"
+                        ? "هذه هي مراجعة النسخة المعدلة النهائية. لا توجد محاولة تعديل ثالثة."
+                        : "This is the final revision check. No third revision is available."}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <p className="mt-6 rounded-xl border border-border bg-surface-solid/60 p-3 text-sm text-muted">
+                  {locale === "ar"
+                    ? "هذا Retake تاريخي موجود قبل تبسيط خدمة BETCCO. سيستمر بالمسار القديم حتى يكتمل، ولن يتم إنشاء Retake جديد."
+                    : "This is a historical Retake created before the BETCCO review-flow simplification. It can finish through the legacy path, but no new Retake is created."}
+                </p>
+              )}
               <button
-                disabled={!complete || submit.isPending}
+                disabled={
+                  !complete ||
+                  (!evaluation.data.isRetake && !feedback.trim()) ||
+                  submit.isPending
+                }
                 className="focus-ring mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <BadgeCheck size={18} aria-hidden="true" />
-                {locale === "ar"
-                  ? "إرسال نتيجة التقييم"
-                  : "Submit evaluation result"}
+                {evaluation.data.isRetake
+                  ? locale === "ar"
+                    ? "إرسال نتيجة الـRetake التاريخي"
+                    : "Submit historical Retake result"
+                  : evaluation.data.submissionAttemptNumber === 1
+                    ? locale === "ar"
+                      ? "إرسال المراجعة والملاحظات"
+                      : "Send review and feedback"
+                    : locale === "ar"
+                      ? "إكمال فحص النسخة المعدلة"
+                      : "Complete revision check"}
               </button>
               {submit.isSuccess && (
                 <p
                   className="mt-3 text-sm font-bold text-primary"
                   role="status"
                 >
-                  {locale === "ar"
-                    ? "أُرسلت النتيجة إلى الأدمن للمراجعة النهائية."
-                    : "The result was sent to the administrator for final completion."}
+                  {evaluation.data.isRetake
+                    ? locale === "ar"
+                      ? "تم إرسال نتيجة الـRetake التاريخي للمسار القديم."
+                      : "The historical Retake result was sent through the legacy path."
+                    : locale === "ar"
+                      ? "تم حفظ مراجعة BETCCO وإرسال الملاحظات للطالب."
+                      : "The BETCCO review was saved and the learner was notified."}
                 </p>
               )}
               {submit.isError && (
@@ -1097,19 +1237,31 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                 : "No student note was provided.")}
           </p>
           <div className="mt-4 grid gap-2">
-            {evaluation.data.files.map((file) => (
-              <a
-                key={file.id}
-                href={`/api/v1/evaluations/${evaluationId}/files/${file.id}`}
-                className="focus-ring rounded-xl border border-border bg-white/5 p-3 text-sm font-bold text-primary hover:bg-primary/10"
-              >
-                <span className="block truncate">{file.originalFileName}</span>
-                <span className="mt-1 block text-xs font-normal text-muted">
-                  {(file.lengthBytes / 1024 / 1024).toFixed(2)} MB ·{" "}
-                  {file.scanStatus}
-                </span>
-              </a>
-            ))}
+            {evaluation.data.files.map((file) => {
+              const revised = isRevisedFile(file.createdAtUtc);
+              return (
+                <a
+                  key={file.id}
+                  href={`/api/v1/evaluations/${evaluationId}/files/${file.id}`}
+                  className="focus-ring rounded-xl border border-border bg-white/5 p-3 text-sm font-bold text-primary hover:bg-primary/10"
+                >
+                  <span className="flex items-center justify-between gap-2">
+                    <span className="min-w-0 truncate">
+                      {file.originalFileName}
+                    </span>
+                    {revised ? (
+                      <span className="shrink-0 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-black text-primary">
+                        {locale === "ar" ? "نسخة معدلة" : "Revised file"}
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="mt-1 block text-xs font-normal text-muted">
+                    {(file.lengthBytes / 1024 / 1024).toFixed(2)} MB ·{" "}
+                    {file.scanStatus}
+                  </span>
+                </a>
+              );
+            })}
             {!evaluation.data.files.length && (
               <p className="text-sm text-muted">
                 {locale === "ar"

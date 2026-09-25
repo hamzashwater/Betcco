@@ -129,7 +129,7 @@ export function SiteNavigation() {
         : visibleAccountRole === "admin" &&
             isLeadVerifier &&
             !canManageEvaluatorSpecialisms
-          ? `/${locale}/admin/retakes`
+          ? `/${locale}/admin/evaluations`
           : `/${locale}/${visibleAccountRole}/dashboard`;
   const brandDestination = isWorkspace
     ? workspace === "support"
@@ -222,10 +222,6 @@ export function SiteNavigation() {
                 },
               ]
             : []),
-          {
-            href: `/${locale}/admin/retakes`,
-            label: locale === "ar" ? "إعادات التقييم" : "Retakes",
-          },
           {
             href: `/${locale}/admin/internal-verification`,
             label: locale === "ar" ? "عينات التحقق" : "IV sampling",
