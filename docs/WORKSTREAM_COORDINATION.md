@@ -47,10 +47,12 @@ Snapshot captured: **2026-09-25**
 
 At capture time:
 
-- `main`: `3693585d44ab43f7c591771e221b7be4cde1a4ea`
-- OPEN PRs: PR #53 only
-- PR #53 head: `fee0939003fbe53b0edfd3f310baa5a8bf065a59`
-- PR #53 branch is ahead of current `main` and not behind it.
+- `main`: `f57726607e8ac3a0c40c1bbbcf18ab3dd5705d4f`
+- PR #53 is merged: Comprehensive Practice Assignment — Final Unit Practice.
+- PR #57 is merged: LENOVO Admin Audit Log Filters — Slice 1.
+- OPEN implementation PRs: none.
+- PR #58 is the docs-only reconciliation carrying this snapshot.
+- ASUS and LENOVO have no active implementation PR at this snapshot.
 
 These SHAs are historical coordination markers only. Re-verify them before using them operationally.
 
@@ -60,49 +62,19 @@ These SHAs are historical coordination markers only. Re-verify them before using
 
 ## Current Workstream
 
-PR #53 — **Comprehensive Practice Assignment — Final Unit Practice**
+**No active ASUS implementation PR at this snapshot.**
 
-Branch:
-
-`feature/comprehensive-practice-assignment`
-
-Owner: **ASUS**
-
-Status at the snapshot: Draft / active review and completion workstream.
+PR #53 — **Comprehensive Practice Assignment — Final Unit Practice** — is merged into `main` at `179b4eee25a5bad0cf4d961c3d940d9044461fff`.
 
 ## ASUS Reserved Scope
 
-Coordinate before another workstream edits these areas while PR #53 remains open:
+No active implementation scope is reserved solely by PR #53 after its merge.
 
-- Comprehensive Practice / Final Unit Practice
-- `CourseAssignment` ComprehensivePractice purpose and lifecycle
-- Comprehensive Practice authoring / publication / learner access
-- Learning Aim progression directly related to Comprehensive Practice
-- `TrainingOutcome` integration for this flow
-- Course Player / learner flow directly related to Practice
-- Comprehensive Practice Student UI
-- Comprehensive Practice Teacher UI
-- related `BetccoDbContext`
-- related EF ModelSnapshot
-- related Comprehensive Practice migration
-- related Comprehensive Practice tests
-
-Current PR #53 also touches shared files including Student area and Teacher course editor. Always inspect the live diff before parallel edits.
+The ASUS planned roadmap below remains planning ownership only. Before starting any roadmap item, ASUS must run a fresh preflight against latest `main`, all OPEN/Draft PRs, changed files, CI, and review threads.
 
 ## ASUS Current Completion Sequence
 
-Before PR #53 closes:
-
-1. verify the authoring lifecycle:
-   `Create → Draft → Configure → Publish → Student Access`
-2. verify all previous HIGH / MEDIUM / LOW review findings are resolved or explicitly accepted as non-blocking
-3. run focused follow-up review
-4. synchronize with latest `main` if needed
-5. run final CI
-6. Ready for Review
-7. final independent review
-8. merge PR #53
-9. verify post-merge `main` CI
+PR #53 completion is closed: focused review, remediation, latest-main synchronization, final PR CI, Ready for Review, final review, merge, and post-merge `main` Quality/Security push CI are complete and green.
 
 ## ASUS Planned Roadmap
 
@@ -160,9 +132,11 @@ Includes:
 
 ## Current LENOVO Workstream
 
-**No active implementation feature is reserved at this snapshot.**
+**No active LENOVO implementation PR at this snapshot.**
 
-LENOVO should not start Student Lifecycle Closure while PR #53 is active because that work logically depends on the final Comprehensive Practice behavior and may overlap shared learner/progression files.
+PR #57 — **Admin Audit Log Filters — Slice 1** — is merged into `main` at `f57726607e8ac3a0c40c1bbbcf18ab3dd5705d4f`.
+
+Its merged scope is limited to bounded Admin audit-log filtering, related backend/frontend tests, and EN/AR audit-log messages. It does not overlap the merged Comprehensive Practice implementation.
 
 ## LENOVO Candidate Work
 
@@ -180,14 +154,9 @@ Before selecting any candidate, run the mandatory preflight and check ASUS activ
 
 ## LENOVO Must Coordinate Before Editing
 
-While ASUS PR #53 is open, do not edit without coordination:
+LENOVO has no active implementation workstream at this snapshot. Run the mandatory preflight before selecting the next candidate or expanding into shared files.
 
-- Comprehensive Practice
-- Learning Aim Practice progression involved in PR #53
-- Comprehensive Practice `CourseAssignment` behavior
-- Comprehensive Practice migration / ModelSnapshot
-- Student/Teacher Comprehensive Practice UI
-- any file currently changed by PR #53 if the proposed change is behaviorally related
+Comprehensive Practice is merged and is no longer reserved by an open ASUS PR. Any future change to its `CourseAssignment`, Learning Aim progression, migration/ModelSnapshot, or Student/Teacher Practice UI must still be treated as shared high-risk work and preflighted against active branches.
 
 Also do not take an ASUS roadmap feature after ASUS has started or explicitly reserved it.
 
