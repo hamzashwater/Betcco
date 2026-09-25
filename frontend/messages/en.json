@@ -499,6 +499,64 @@
     },
     "backToCourses": "Back to my courses"
   },
+  "studentProgressIntelligence": {
+    "eyebrow": "BETCCO progress intelligence",
+    "title": "My progress",
+    "description": "A rule-based view of your learning progress, formative practice results, and the next step in each Unit. This does not use AI and does not change any teacher decision.",
+    "loading": "Loading your progress…",
+    "loadError": "Your progress insight could not be loaded.",
+    "loadErrorDescription": "Your learning data is unchanged. Refresh the page and try again.",
+    "metrics": {
+      "content": "Learning content",
+      "aims": "Learning Aims complete",
+      "readyForFinal": "Units ready for Final Practice",
+      "completedUnits": "Unit training complete"
+    },
+    "unitSummary": "{contentCompleted}/{contentTotal} content items · {aimComplete}/{aimTotal} Learning Aims complete",
+    "unitStates": {
+      "learning": "Learning in progress",
+      "aimsComplete": "Learning Aims complete",
+      "readyForFinal": "Ready for Final Unit Practice",
+      "complete": "Unit training complete"
+    },
+    "aim": {
+      "complete": "Complete",
+      "inProgress": "In progress",
+      "locked": "Locked",
+      "content": "Content {completed}/{total}",
+      "attempts": "Attempts {used}/{max} · {remaining} remaining",
+      "latest": "Latest",
+      "best": "Best"
+    },
+    "outcomes": {
+      "notyetachieved": "NYA",
+      "pass": "Pass",
+      "merit": "Merit",
+      "distinction": "Distinction"
+    },
+    "next": {
+      "title": "Next step",
+      "unitTitle": "What to do next",
+      "ruleBased": "This step is derived from your current saved progress and practice status.",
+      "unitComplete": "This Unit's formative training path is complete.",
+      "waitingFinalConfiguration": "All Learning Aims are complete. Wait for the teacher to publish the Final Unit Practice.",
+      "waitingFinalReview": "Your Final Unit Practice is submitted. Wait for the teacher's review.",
+      "startFinalPractice": "All Learning Aims are complete. Start the Final Unit Practice.",
+      "finalDeadlineExpired": "The Final Unit Practice deadline has passed. Contact your teacher.",
+      "finalAccessRestricted": "The Final Unit Practice is currently unavailable.",
+      "waitingFinalAvailability": "All Learning Aims are complete. Wait until the Final Unit Practice becomes available.",
+      "continueLearning": "Continue with the next available learning activity.",
+      "completePreviousAim": "Complete the previous Learning Aim to unlock Aim {aim}.",
+      "unitUnavailable": "This Unit is currently unavailable. Return when your course access opens it.",
+      "waitingAimContent": "Aim {aim} does not have published learning content yet. Wait for the teacher to publish it.",
+      "continueAimContent": "Continue Aim {aim} content ({completed}/{total} complete).",
+      "waitingPracticeConfiguration": "Aim {aim} content is complete. Wait for the teacher to publish its practice activity.",
+      "waitingPracticeReview": "Aim {aim} practice is submitted. Wait for the teacher's review.",
+      "finishPracticeSubmission": "Finish and submit your Aim {aim} practice attempt.",
+      "startAimPractice": "Aim {aim} content is complete. Start its practice activity.",
+      "practiceUnavailable": "Aim {aim} practice is currently unavailable."
+    }
+  },
   "academicCatalogue": {
     "eyebrow": "academic definitions",
     "title": "Academic Catalogue",

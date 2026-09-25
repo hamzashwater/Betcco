@@ -14,6 +14,7 @@ import { StudentEmailChange } from "@/features/auth/student-email-change";
 import { SupportCenter } from "@/features/support/support-center";
 import { EvaluationAppeals } from "@/features/student/evaluation-appeals";
 import { AiPracticeShell } from "@/features/student/ai-practice-shell";
+import { StudentProgressIntelligence } from "@/features/student/student-progress-intelligence";
 import {
   compactStudentCoursesQueryOptions,
   StudentCoursesLearningHub,
@@ -1735,6 +1736,7 @@ function CoursePlayer({
               : "That lesson is unavailable. You were returned to your authorized learning position."}
           </p>
         ) : null}
+        <StudentProgressIntelligence courseId={courseId} />
         <StudentLearningAimPractice courseId={courseId} />
         <StudentComprehensivePractice courseId={courseId} />
         {lesson ? (
