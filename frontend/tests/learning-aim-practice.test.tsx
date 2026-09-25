@@ -90,6 +90,126 @@ describe("learning aim practice", () => {
     },
   );
 
+  it("shows attempt history and lets the learner start an improvement attempt", async () => {
+    apiMock.mockImplementation(
+      (path: string, options?: { method?: string }) => {
+        if (path === "/student/assignments/mine")
+          return Promise.resolve([
+            {
+              id: "submission",
+              assignmentId: "practice",
+              status: "Finalized",
+              currentVersionNumber: 2,
+              versions: [
+                {
+                  versionNumber: 1,
+                  files: [{ id: "file-1", originalFileName: "first.pdf" }],
+                },
+                {
+                  versionNumber: 2,
+                  files: [{ id: "file-2", originalFileName: "second.pdf" }],
+                },
+              ],
+            },
+          ]);
+        if (path === "/student/courses/course/learning-aim-practice")
+          return Promise.resolve([
+            {
+              id: "unit",
+              englishTitle: "Unit",
+              arabicTitle: "وحدة",
+              aims: [
+                {
+                  id: "aim",
+                  code: "A",
+                  arabicTitle: "هدف",
+                  englishTitle: "Aim",
+                  isUnlocked: true,
+                  contentTotal: 1,
+                  contentCompleted: 1,
+                  contentComplete: true,
+                  assignmentId: "practice",
+                  assignmentEnglishTitle: "Practice",
+                  englishInstructions: "Upload work",
+                  practiceAvailable: true,
+                  practiceStatus: "Finalized",
+                  maxAttempts: 3,
+                  attemptsUsed: 2,
+                  attemptsRemaining: 1,
+                  canStartNewAttempt: true,
+                  trainingOutcome: "Merit",
+                  bestTrainingOutcome: "Merit",
+                  strengths: "Better structure",
+                  gaps: "More evidence",
+                  improvementGuidance: "Add evidence",
+                  attemptHistory: [
+                    {
+                      attemptNumber: 1,
+                      status: "Finalized",
+                      submittedAtUtc: "2026-09-10T10:00:00Z",
+                      reviewedAtUtc: "2026-09-10T12:00:00Z",
+                      trainingOutcome: "Pass",
+                      strengths: "First strength",
+                      gaps: "First gap",
+                      improvementGuidance: "First guidance",
+                    },
+                    {
+                      attemptNumber: 2,
+                      status: "Finalized",
+                      submittedAtUtc: "2026-09-15T10:00:00Z",
+                      reviewedAtUtc: "2026-09-15T12:00:00Z",
+                      trainingOutcome: "Merit",
+                      strengths: "Better structure",
+                      gaps: "More evidence",
+                      improvementGuidance: "Add evidence",
+                    },
+                  ],
+                  isComplete: true,
+                },
+              ],
+            },
+          ]);
+        if (
+          path === "/student/assignments/practice/submissions" &&
+          options?.method === "POST"
+        )
+          return Promise.resolve({
+            submissionId: "submission",
+            versionNumber: 3,
+          });
+        return Promise.resolve(undefined);
+      },
+    );
+
+    renderWithLocale(<StudentLearningAimPractice courseId="course" />, "en");
+    expect(await screen.findByText(/Attempts: 2 \/ 3/)).toBeTruthy();
+    expect(screen.getByText(/Remaining: 1/)).toBeTruthy();
+    expect(
+      screen.getByText("Best achieved:", { exact: false }).parentElement
+        ?.textContent,
+    ).toContain("Merit");
+    expect(
+      screen.getByText("Progress:", { exact: false }).parentElement
+        ?.textContent,
+    ).toContain("Pass → Merit");
+    expect(
+      screen.getByRole("link", { name: "first.pdf" }).getAttribute("href"),
+    ).toBe("/api/v1/assignments/submissions/submission/files/file-1");
+    expect(
+      document.querySelector('time[datetime="2026-09-10T10:00:00Z"]'),
+    ).toBeTruthy();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Start improvement attempt" }),
+    );
+    await waitFor(() =>
+      expect(apiMock).toHaveBeenCalledWith(
+        "/student/assignments/practice/submissions",
+        expect.objectContaining({ method: "POST" }),
+      ),
+    );
+  });
+
   it("shows Arabic practice status and training disclaimer", async () => {
     apiMock.mockImplementation((path: string) =>
       Promise.resolve(
@@ -139,6 +259,23 @@ describe("learning aim practice", () => {
             courseAssignmentId: "practice",
             studentUserId: "student",
             status: "Submitted",
+            currentVersionNumber: 2,
+            maxSubmissionAttempts: 2,
+            attemptHistory: [
+              {
+                attemptNumber: 1,
+                status: "Finalized",
+                submittedAtUtc: "2026-09-12T09:00:00Z",
+                reviewedAtUtc: "2026-09-12T11:00:00Z",
+                trainingOutcome: "Pass",
+                trainingStrengths: "Earlier strength",
+                trainingGaps: "Earlier gap",
+                trainingImprovementGuidance: "Earlier guidance",
+                files: [
+                  { id: "old-file", originalFileName: "first-attempt.pdf" },
+                ],
+              },
+            ],
             files: [{ id: "file", originalFileName: "work.pdf" }],
           },
         ]);
@@ -149,6 +286,7 @@ describe("learning aim practice", () => {
             btecLearningAimId: "aim",
             englishTitle: "Practice",
             arabicTitle: "نشاط",
+            maxSubmissionAttempts: 2,
           },
         ]);
       return Promise.resolve(undefined);
@@ -171,6 +309,28 @@ describe("learning aim practice", () => {
       "en",
     );
     expect(await screen.findByText("work.pdf")).toBeTruthy();
+    expect(
+      screen
+        .getByRole("link", { name: "first-attempt.pdf" })
+        .getAttribute("href"),
+    ).toBe("/api/v1/assignments/submissions/submission/files/old-file");
+    expect(
+      document.querySelector('time[datetime="2026-09-12T09:00:00Z"]'),
+    ).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("Maximum attempts"), {
+      target: { value: "3" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save attempt limit" }));
+    await waitFor(() =>
+      expect(apiMock).toHaveBeenCalledWith(
+        "/teacher/practice/practice/attempt-limit",
+        expect.objectContaining({
+          method: "PUT",
+          body: JSON.stringify({ maxSubmissionAttempts: 3 }),
+        }),
+      ),
+    );
+
     fireEvent.change(screen.getByLabelText("Training Outcome"), {
       target: { value: "Merit" },
     });

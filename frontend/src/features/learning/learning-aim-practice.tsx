@@ -22,10 +22,25 @@ type Aim = {
   englishInstructions?: string;
   practiceAvailable: boolean;
   practiceStatus: string;
+  maxAttempts: number;
+  attemptsUsed: number;
+  attemptsRemaining: number;
+  canStartNewAttempt: boolean;
   trainingOutcome?: string;
+  bestTrainingOutcome?: string;
   strengths?: string;
   gaps?: string;
   improvementGuidance?: string;
+  attemptHistory: {
+    attemptNumber: number;
+    status: string;
+    submittedAtUtc?: string;
+    trainingOutcome?: string;
+    strengths?: string;
+    gaps?: string;
+    improvementGuidance?: string;
+    reviewedAtUtc?: string;
+  }[];
   isComplete: boolean;
 };
 type Unit = {
@@ -38,6 +53,7 @@ type Mine = {
   id: string;
   assignmentId: string;
   status: string;
+  currentVersionNumber: number;
   versions: {
     versionNumber: number;
     files: { id: string; originalFileName: string }[];
@@ -48,14 +64,28 @@ type Practice = {
   btecLearningAimId: string;
   arabicTitle: string;
   englishTitle: string;
+  maxSubmissionAttempts: number;
 };
 type PracticeSubmission = {
   id: string;
   courseAssignmentId: string;
   studentUserId: string;
   status: string;
+  currentVersionNumber: number;
+  maxSubmissionAttempts: number;
   trainingOutcome?: string;
   files: { id: string; originalFileName: string }[];
+  attemptHistory: {
+    attemptNumber: number;
+    status: string;
+    submittedAtUtc?: string;
+    trainingOutcome?: string;
+    trainingStrengths?: string;
+    trainingGaps?: string;
+    trainingImprovementGuidance?: string;
+    reviewedAtUtc?: string;
+    files: { id: string; originalFileName: string }[];
+  }[];
 };
 
 const tr = (locale: string, ar: string, en: string) =>
@@ -83,12 +113,22 @@ function trainingOutcomeLabel(locale: string, outcome: string) {
   return locale === "ar" ? (arabic[outcome] ?? outcome) : outcome;
 }
 
+function formatAttemptTimestamp(locale: string, value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat(locale === "ar" ? "ar-JO" : "en-GB", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+}
+
 export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
   const locale = useLocale();
   const client = useQueryClient();
   const [active, setActive] = useState<{
     assignmentId: string;
     submissionId: string;
+    versionNumber: number;
   }>();
   const [files, setFiles] = useState<File[]>([]);
   const [comment, setComment] = useState("");
@@ -112,12 +152,16 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
   };
   const start = useMutation({
     mutationFn: (assignmentId: string) =>
-      api<{ submissionId: string }>(
+      api<{ submissionId: string; versionNumber: number }>(
         `/student/assignments/${assignmentId}/submissions`,
         { method: "POST", body: JSON.stringify({ comment }) },
       ),
     onSuccess: (result, assignmentId) => {
-      setActive({ assignmentId, submissionId: result.submissionId });
+      setActive({
+        assignmentId,
+        submissionId: result.submissionId,
+        versionNumber: result.versionNumber,
+      });
       refresh();
     },
   });
@@ -189,8 +233,14 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                 (item) => item.assignmentId === aim.assignmentId,
               );
               const draft = active?.assignmentId === aim.assignmentId;
+              const activeVersion =
+                active && active.assignmentId === aim.assignmentId
+                  ? active.versionNumber
+                  : submission?.currentVersionNumber;
               const uploaded =
-                submission?.versions.flatMap((version) => version.files) ?? [];
+                submission?.versions.find(
+                  (version) => version.versionNumber === activeVersion,
+                )?.files ?? [];
               return (
                 <article
                   key={aim.id}
@@ -217,6 +267,15 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                     {tr(locale, "التدريب", "Practice")}:{" "}
                     {practiceStatus(locale, aim.practiceStatus)}
                   </p>
+                  {aim.assignmentId ? (
+                    <p className="mt-1 text-sm text-muted">
+                      {tr(locale, "المحاولات", "Attempts")}:{" "}
+                      {aim.attemptsUsed ?? 0} / {aim.maxAttempts ?? 1}
+                      {(aim.attemptsRemaining ?? 0) > 0
+                        ? ` · ${tr(locale, "المتبقي", "Remaining")}: ${aim.attemptsRemaining}`
+                        : ""}
+                    </p>
+                  ) : null}
                   {!aim.isUnlocked ? (
                     <p className="mt-2 text-sm text-muted">
                       {tr(
@@ -287,11 +346,158 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                             </strong>{" "}
                             {aim.improvementGuidance}
                           </p>
+                          {aim.bestTrainingOutcome ? (
+                            <p>
+                              <strong>
+                                {tr(locale, "أفضل نتيجة", "Best achieved")}:
+                              </strong>{" "}
+                              {trainingOutcomeLabel(
+                                locale,
+                                aim.bestTrainingOutcome,
+                              )}
+                            </p>
+                          ) : null}
+                          {(aim.attemptHistory ?? []).some(
+                            (attempt) => attempt.trainingOutcome,
+                          ) ? (
+                            <p>
+                              <strong>
+                                {tr(locale, "مسار التحسن", "Progress")}:
+                              </strong>{" "}
+                              {(aim.attemptHistory ?? [])
+                                .filter((attempt) => attempt.trainingOutcome)
+                                .map((attempt) =>
+                                  trainingOutcomeLabel(
+                                    locale,
+                                    attempt.trainingOutcome!,
+                                  ),
+                                )
+                                .join(" → ")}
+                            </p>
+                          ) : null}
                         </div>
+                      ) : null}
+                      {(aim.attemptHistory ?? []).length ? (
+                        <details className="mt-3 rounded-lg border border-border p-3 text-sm">
+                          <summary className="cursor-pointer font-bold">
+                            {tr(locale, "سجل المحاولات", "Attempt history")}
+                          </summary>
+                          <div className="mt-2 grid gap-2">
+                            {(aim.attemptHistory ?? []).map((attempt) => {
+                              const attemptFiles =
+                                submission?.versions.find(
+                                  (version) =>
+                                    version.versionNumber ===
+                                    attempt.attemptNumber,
+                                )?.files ?? [];
+                              return (
+                                <div
+                                  key={attempt.attemptNumber}
+                                  className="rounded-lg bg-white/5 p-2"
+                                >
+                                  <p className="font-bold">
+                                    {tr(locale, "المحاولة", "Attempt")}{" "}
+                                    {attempt.attemptNumber} ·{" "}
+                                    {practiceStatus(locale, attempt.status)}
+                                  </p>
+                                  {attempt.submittedAtUtc ? (
+                                    <p>
+                                      <strong>
+                                        {tr(
+                                          locale,
+                                          "تاريخ التسليم",
+                                          "Submitted",
+                                        )}
+                                        :
+                                      </strong>{" "}
+                                      <time dateTime={attempt.submittedAtUtc}>
+                                        {formatAttemptTimestamp(
+                                          locale,
+                                          attempt.submittedAtUtc,
+                                        )}
+                                      </time>
+                                    </p>
+                                  ) : null}
+                                  {attempt.reviewedAtUtc ? (
+                                    <p>
+                                      <strong>
+                                        {tr(
+                                          locale,
+                                          "تاريخ المراجعة",
+                                          "Reviewed",
+                                        )}
+                                        :
+                                      </strong>{" "}
+                                      <time dateTime={attempt.reviewedAtUtc}>
+                                        {formatAttemptTimestamp(
+                                          locale,
+                                          attempt.reviewedAtUtc,
+                                        )}
+                                      </time>
+                                    </p>
+                                  ) : null}
+                                  {attemptFiles.length ? (
+                                    <div className="grid gap-1">
+                                      <strong>
+                                        {tr(
+                                          locale,
+                                          "ملفات المحاولة",
+                                          "Attempt files",
+                                        )}
+                                        :
+                                      </strong>
+                                      {attemptFiles.map((file) => (
+                                        <a
+                                          key={file.id}
+                                          href={`/api/v1/assignments/submissions/${submission!.id}/files/${file.id}`}
+                                          className="focus-ring text-primary underline"
+                                        >
+                                          {file.originalFileName}
+                                        </a>
+                                      ))}
+                                    </div>
+                                  ) : null}
+                                  {attempt.trainingOutcome ? (
+                                    <p>
+                                      {tr(locale, "النتيجة", "Result")}:{" "}
+                                      {trainingOutcomeLabel(
+                                        locale,
+                                        attempt.trainingOutcome,
+                                      )}
+                                    </p>
+                                  ) : null}
+                                  {attempt.strengths ? (
+                                    <p>
+                                      {tr(locale, "نقاط القوة", "Strengths")}:{" "}
+                                      {attempt.strengths}
+                                    </p>
+                                  ) : null}
+                                  {attempt.gaps ? (
+                                    <p>
+                                      {tr(locale, "الفجوات", "Missing / gaps")}:{" "}
+                                      {attempt.gaps}
+                                    </p>
+                                  ) : null}
+                                  {attempt.improvementGuidance ? (
+                                    <p>
+                                      {tr(
+                                        locale,
+                                        "إرشادات التحسين",
+                                        "Improvement guidance",
+                                      )}
+                                      : {attempt.improvementGuidance}
+                                    </p>
+                                  ) : null}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </details>
                       ) : null}
                       {aim.practiceAvailable &&
                       aim.practiceStatus !== "Submitted" &&
-                      aim.practiceStatus !== "Finalized" ? (
+                      (aim.practiceStatus !== "Finalized" ||
+                        aim.canStartNewAttempt) ? (
                         <div className="mt-3 grid gap-3">
                           {!draft ? (
                             <button
@@ -302,7 +508,13 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                             >
                               {submission?.status === "Draft"
                                 ? tr(locale, "متابعة المسودة", "Continue draft")
-                                : tr(locale, "بدء التدريب", "Start practice")}
+                                : aim.practiceStatus === "Finalized"
+                                  ? tr(
+                                      locale,
+                                      "بدء محاولة تحسين",
+                                      "Start improvement attempt",
+                                    )
+                                  : tr(locale, "بدء التدريب", "Start practice")}
                             </button>
                           ) : (
                             <>
@@ -433,6 +645,7 @@ export function TeacherLearningAimPractice({
     englishTitle: "",
     arabicInstructions: "",
     englishInstructions: "",
+    maxSubmissionAttempts: 1,
   });
   const practices = useQuery({
     queryKey: ["teacher-practice", courseId],
@@ -464,6 +677,7 @@ export function TeacherLearningAimPractice({
         englishTitle: "",
         arabicInstructions: "",
         englishInstructions: "",
+        maxSubmissionAttempts: 1,
       });
       refresh();
     },
@@ -518,6 +732,10 @@ export function TeacherLearningAimPractice({
                 <p className="text-sm text-muted">
                   {tr(locale, practice.arabicTitle, practice.englishTitle)}
                 </p>
+                <TeacherPracticeAttemptLimit
+                  practice={practice}
+                  onChanged={refresh}
+                />
                 {submissions.data
                   ?.filter((item) => item.courseAssignmentId === practice.id)
                   .map((item) => (
@@ -585,6 +803,23 @@ export function TeacherLearningAimPractice({
               />
             </label>
           ))}
+          <label className="grid gap-1 text-sm">
+            {tr(locale, "الحد الأقصى للمحاولات", "Maximum attempts")}
+            <input
+              type="number"
+              min={1}
+              max={10}
+              required
+              value={form.maxSubmissionAttempts}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  maxSubmissionAttempts: Number(event.target.value),
+                }))
+              }
+              className="rounded-lg border border-border bg-transparent p-2"
+            />
+          </label>
           <button
             type="submit"
             disabled={create.isPending}
@@ -609,6 +844,53 @@ export function TeacherLearningAimPractice({
         </p>
       ) : null}
     </section>
+  );
+}
+
+function TeacherPracticeAttemptLimit({
+  practice,
+  onChanged,
+}: {
+  practice: Practice;
+  onChanged: () => void;
+}) {
+  const locale = useLocale();
+  const [value, setValue] = useState(practice.maxSubmissionAttempts);
+  const update = useMutation({
+    mutationFn: () =>
+      api(`/teacher/practice/${practice.id}/attempt-limit`, {
+        method: "PUT",
+        body: JSON.stringify({ maxSubmissionAttempts: value }),
+      }),
+    onSuccess: onChanged,
+  });
+  return (
+    <div className="flex flex-wrap items-end gap-2 text-sm">
+      <label className="grid gap-1">
+        {tr(locale, "الحد الأقصى للمحاولات", "Maximum attempts")}
+        <input
+          type="number"
+          min={1}
+          max={10}
+          value={value}
+          onChange={(event) => setValue(Number(event.target.value))}
+          className="w-24 rounded-lg border border-border bg-transparent p-2"
+        />
+      </label>
+      <button
+        type="button"
+        disabled={update.isPending}
+        onClick={() => update.mutate()}
+        className="focus-ring rounded-lg border border-primary/40 px-3 py-2 font-bold text-primary disabled:opacity-50"
+      >
+        {tr(locale, "حفظ عدد المحاولات", "Save attempt limit")}
+      </button>
+      {update.isError ? (
+        <p role="alert" className="text-red-400">
+          {update.error.message}
+        </p>
+      ) : null}
+    </div>
   );
 }
 
@@ -640,6 +922,10 @@ function TeacherPracticeReview({
         {tr(locale, "الطالب", "Learner")}: {submission.studentUserId} ·{" "}
         {submission.status}
       </p>
+      <p className="text-muted">
+        {tr(locale, "المحاولة الحالية", "Current attempt")}:{" "}
+        {submission.currentVersionNumber} / {submission.maxSubmissionAttempts}
+      </p>
       {submission.files.map((file) => (
         <a
           key={file.id}
@@ -654,6 +940,82 @@ function TeacherPracticeReview({
           {tr(locale, "النتيجة التدريبية", "Training Outcome")}:{" "}
           {trainingOutcomeLabel(locale, submission.trainingOutcome)}
         </p>
+      ) : null}
+      {(submission.attemptHistory ?? []).length ? (
+        <details className="rounded-lg border border-border p-2">
+          <summary className="cursor-pointer font-bold">
+            {tr(locale, "سجل المحاولات", "Attempt history")}
+          </summary>
+          <div className="mt-2 grid gap-2">
+            {(submission.attemptHistory ?? []).map((attempt) => (
+              <div
+                key={attempt.attemptNumber}
+                className="rounded-lg bg-black/10 p-2"
+              >
+                <p className="font-bold">
+                  {tr(locale, "المحاولة", "Attempt")} {attempt.attemptNumber} ·{" "}
+                  {practiceStatus(locale, attempt.status)}
+                </p>
+                {attempt.submittedAtUtc ? (
+                  <p>
+                    <strong>{tr(locale, "تاريخ التسليم", "Submitted")}:</strong>{" "}
+                    <time dateTime={attempt.submittedAtUtc}>
+                      {formatAttemptTimestamp(locale, attempt.submittedAtUtc)}
+                    </time>
+                  </p>
+                ) : null}
+                {attempt.reviewedAtUtc ? (
+                  <p>
+                    <strong>{tr(locale, "تاريخ المراجعة", "Reviewed")}:</strong>{" "}
+                    <time dateTime={attempt.reviewedAtUtc}>
+                      {formatAttemptTimestamp(locale, attempt.reviewedAtUtc)}
+                    </time>
+                  </p>
+                ) : null}
+                {attempt.files.length ? (
+                  <div className="grid gap-1">
+                    <strong>
+                      {tr(locale, "ملفات المحاولة", "Attempt files")}:
+                    </strong>
+                    {attempt.files.map((file) => (
+                      <a
+                        key={file.id}
+                        href={`/api/v1/assignments/submissions/${submission.id}/files/${file.id}`}
+                        className="focus-ring text-primary underline"
+                      >
+                        {file.originalFileName}
+                      </a>
+                    ))}
+                  </div>
+                ) : null}
+                {attempt.trainingOutcome ? (
+                  <p>
+                    {tr(locale, "النتيجة", "Result")}:{" "}
+                    {trainingOutcomeLabel(locale, attempt.trainingOutcome)}
+                  </p>
+                ) : null}
+                {attempt.trainingStrengths ? (
+                  <p>
+                    {tr(locale, "نقاط القوة", "Strengths")}:{" "}
+                    {attempt.trainingStrengths}
+                  </p>
+                ) : null}
+                {attempt.trainingGaps ? (
+                  <p>
+                    {tr(locale, "الفجوات", "Missing / gaps")}:{" "}
+                    {attempt.trainingGaps}
+                  </p>
+                ) : null}
+                {attempt.trainingImprovementGuidance ? (
+                  <p>
+                    {tr(locale, "إرشادات التحسين", "Improvement guidance")}:{" "}
+                    {attempt.trainingImprovementGuidance}
+                  </p>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </details>
       ) : null}
       {submission.status === "Submitted" ? (
         <form

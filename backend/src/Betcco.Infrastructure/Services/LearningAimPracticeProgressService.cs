@@ -59,7 +59,8 @@ public sealed class LearningAimPracticeProgressService(BetccoDbContext db, ICour
                 x.ArabicInstructions,
                 x.EnglishInstructions,
                 x.AvailableFromUtc,
-                x.DueAtUtc
+                x.DueAtUtc,
+                x.MaxSubmissionAttempts
             })
             .ToArrayAsync(cancellationToken);
         var assignmentIds = assignments.Select(x => x.Id).ToArray();
@@ -71,10 +72,17 @@ public sealed class LearningAimPracticeProgressService(BetccoDbContext db, ICour
             {
                 x.CourseAssignmentId,
                 x.Status,
-                x.TrainingOutcome,
-                x.TrainingStrengths,
-                x.TrainingGaps,
-                x.TrainingImprovementGuidance
+                x.CurrentVersionNumber,
+                Versions = x.Versions.OrderBy(v => v.VersionNumber).Select(v => new
+                {
+                    v.VersionNumber,
+                    v.SubmittedAtUtc,
+                    v.TrainingOutcome,
+                    v.TrainingStrengths,
+                    v.TrainingGaps,
+                    v.TrainingImprovementGuidance,
+                    v.ReviewedAtUtc
+                }).ToArray()
             })
             .ToArrayAsync(cancellationToken);
 
@@ -88,14 +96,37 @@ public sealed class LearningAimPracticeProgressService(BetccoDbContext db, ICour
             var contentComplete = aimLessons.Length > 0 && completedCount == aimLessons.Length;
             var assignment = assignments.SingleOrDefault(x => x.AimId == aim.Id);
             var submission = assignment is null ? null : submissions.SingleOrDefault(x => x.CourseAssignmentId == assignment.Id);
-            var reviewed = submission?.Status == CourseAssignmentSubmissionStatus.Finalized
-                && submission.TrainingOutcome is not null;
+            var reviewedAttempts = submission?.Versions.Where(x => x.TrainingOutcome is not null)
+                .OrderBy(x => x.VersionNumber).ToArray() ?? [];
+            var latestReviewed = reviewedAttempts.LastOrDefault();
+            var reviewed = latestReviewed is not null;
+            TrainingOutcome? bestOutcome = reviewedAttempts.Length == 0
+                ? null
+                : reviewedAttempts.Select(x => x.TrainingOutcome!.Value)
+                    .OrderByDescending(TrainingOutcomeRank).First();
             var effectiveDueAtUtc = assignment is null ? null : deadlines[(assignment.Id, studentUserId)].EffectiveDueAtUtc;
             var available = assignment is not null && assignment.IsPublished
                 && assignment.PublicationStatus == ContentPublicationStatus.Published
                 && (assignment.AvailableFromUtc is null || assignment.AvailableFromUtc <= DateTimeOffset.UtcNow)
                 && (effectiveDueAtUtc is null || effectiveDueAtUtc >= DateTimeOffset.UtcNow);
             var complete = contentComplete && reviewed;
+            var attemptsUsed = submission?.CurrentVersionNumber ?? 0;
+            var maxAttempts = assignment?.MaxSubmissionAttempts ?? 0;
+            var canStartNewAttempt = previousComplete && contentComplete && available
+                && submission?.Status == CourseAssignmentSubmissionStatus.Finalized
+                && attemptsUsed < maxAttempts;
+            var attemptHistory = submission?.Versions.Select(x => new LearningAimPracticeAttemptHistory(
+                x.VersionNumber,
+                x.VersionNumber == submission.CurrentVersionNumber ? submission.Status.ToString()
+                    : x.TrainingOutcome is not null ? CourseAssignmentSubmissionStatus.Finalized.ToString()
+                    : x.SubmittedAtUtc is not null ? CourseAssignmentSubmissionStatus.Submitted.ToString()
+                    : CourseAssignmentSubmissionStatus.Draft.ToString(),
+                x.SubmittedAtUtc,
+                x.TrainingOutcome?.ToString(),
+                x.TrainingStrengths,
+                x.TrainingGaps,
+                x.TrainingImprovementGuidance,
+                x.ReviewedAtUtc)).ToArray() ?? [];
             result.Add(new LearningAimPracticeProgress(
                 aim.Id, definition.Id, moduleId, definition.Code, definition.ArabicTitle, definition.EnglishTitle,
                 previousComplete, aimLessons.Length, completedCount, contentComplete,
@@ -104,15 +135,27 @@ public sealed class LearningAimPracticeProgressService(BetccoDbContext db, ICour
                 previousComplete && contentComplete && available,
                 submission?.Status.ToString() ?? (assignment is null ? "NotConfigured"
                     : previousComplete && contentComplete && available ? "Available" : "Locked"),
-                reviewed ? submission?.TrainingOutcome?.ToString() : null,
-                reviewed ? submission?.TrainingStrengths : null,
-                reviewed ? submission?.TrainingGaps : null,
-                reviewed ? submission?.TrainingImprovementGuidance : null,
+                maxAttempts, attemptsUsed, Math.Max(0, maxAttempts - attemptsUsed), canStartNewAttempt,
+                latestReviewed?.TrainingOutcome?.ToString(),
+                bestOutcome?.ToString(),
+                latestReviewed?.TrainingStrengths,
+                latestReviewed?.TrainingGaps,
+                latestReviewed?.TrainingImprovementGuidance,
+                attemptHistory,
                 complete));
             previousComplete = previousComplete && complete;
         }
         return result;
     }
+
+    private static int TrainingOutcomeRank(TrainingOutcome outcome) => outcome switch
+    {
+        TrainingOutcome.NotYetAchieved => 0,
+        TrainingOutcome.Pass => 1,
+        TrainingOutcome.Merit => 2,
+        TrainingOutcome.Distinction => 3,
+        _ => -1
+    };
 
     public async Task<bool> CanAccessAimAsync(string studentUserId, Guid aimId, CancellationToken cancellationToken = default)
     {
@@ -168,5 +211,10 @@ public sealed record LearningAimPracticeProgress(
     bool IsUnlocked, int ContentTotal, int ContentCompleted, bool ContentComplete,
     Guid? AssignmentId, string? AssignmentArabicTitle, string? AssignmentEnglishTitle,
     string? ArabicInstructions, string? EnglishInstructions, bool PracticeAvailable,
-    string PracticeStatus, string? TrainingOutcome, string? Strengths, string? Gaps,
-    string? ImprovementGuidance, bool IsComplete);
+    string PracticeStatus, int MaxAttempts, int AttemptsUsed, int AttemptsRemaining, bool CanStartNewAttempt,
+    string? TrainingOutcome, string? BestTrainingOutcome, string? Strengths, string? Gaps,
+    string? ImprovementGuidance, IReadOnlyList<LearningAimPracticeAttemptHistory> AttemptHistory, bool IsComplete);
+
+public sealed record LearningAimPracticeAttemptHistory(
+    int AttemptNumber, string Status, DateTimeOffset? SubmittedAtUtc, string? TrainingOutcome,
+    string? Strengths, string? Gaps, string? ImprovementGuidance, DateTimeOffset? ReviewedAtUtc);

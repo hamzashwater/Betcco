@@ -142,11 +142,20 @@ public sealed class CourseAssignmentsController(
                 x.EnglishTitle,
                 x.ArabicInstructions,
                 x.EnglishInstructions,
-                x.DueAtUtc
+                x.DueAtUtc,
+                x.MaxSubmissionAttempts
             })
             .ToArrayAsync(cancellationToken);
         return Ok(rows);
     }
+
+    [Authorize(Policy = "Teacher")]
+    [HttpPut("teacher/practice/{assignmentId:guid}/attempt-limit")]
+    public async Task<IActionResult> UpdatePracticeAttemptLimit(Guid assignmentId,
+        UpdateLearningAimPracticeAttemptLimitCommand command, CancellationToken cancellationToken) =>
+        await assignments.UpdatePracticeAttemptLimitAsync(UserId, assignmentId, command, cancellationToken)
+            ? NoContent()
+            : BadRequest(new { message = "Use 1 to 10 attempts and do not reduce the limit below attempts already started." });
 
     [Authorize(Policy = "Teacher")]
     [HttpGet("teacher/courses/{courseId:guid}/practice/submissions")]
@@ -165,13 +174,30 @@ public sealed class CourseAssignmentsController(
                 x.CourseAssignmentId,
                 x.StudentUserId,
                 Status = x.Status.ToString(),
+                x.CurrentVersionNumber,
+                MaxSubmissionAttempts = x.CourseAssignment!.MaxSubmissionAttempts,
                 TrainingOutcome = x.TrainingOutcome == null ? null : x.TrainingOutcome.ToString(),
                 x.TrainingStrengths,
                 x.TrainingGaps,
                 x.TrainingImprovementGuidance,
                 x.SubmittedAtUtc,
                 Files = x.Versions.Where(v => v.VersionNumber == x.CurrentVersionNumber)
-                    .SelectMany(v => v.Files).Select(file => new { file.Id, file.OriginalFileName, file.ContentType, file.LengthBytes })
+                    .SelectMany(v => v.Files).Select(file => new { file.Id, file.OriginalFileName, file.ContentType, file.LengthBytes }),
+                AttemptHistory = x.Versions.OrderBy(v => v.VersionNumber).Select(v => new
+                {
+                    AttemptNumber = v.VersionNumber,
+                    Status = v.VersionNumber == x.CurrentVersionNumber ? x.Status.ToString()
+                        : v.TrainingOutcome != null ? CourseAssignmentSubmissionStatus.Finalized.ToString()
+                        : v.SubmittedAtUtc != null ? CourseAssignmentSubmissionStatus.Submitted.ToString()
+                        : CourseAssignmentSubmissionStatus.Draft.ToString(),
+                    v.SubmittedAtUtc,
+                    TrainingOutcome = v.TrainingOutcome == null ? null : v.TrainingOutcome.ToString(),
+                    v.TrainingStrengths,
+                    v.TrainingGaps,
+                    v.TrainingImprovementGuidance,
+                    v.ReviewedAtUtc,
+                    Files = v.Files.Select(file => new { file.Id, file.OriginalFileName, file.ContentType, file.LengthBytes })
+                })
             })
             .ToArrayAsync(cancellationToken);
         return Ok(rows);
@@ -495,7 +521,18 @@ public sealed class CourseAssignmentsController(
             calculatedGrade = submission.CalculatedGrade == null ? null : submission.CalculatedGrade.ToString(),
             submission.SubmittedAtUtc,
             submission.GradedAtUtc,
-            versions = submission.Versions.OrderBy(version => version.VersionNumber).Select(version => new { version.VersionNumber, version.StudentComment, version.SubmittedAtUtc, files = version.Files.Select(file => new { file.Id, file.OriginalFileName, file.ContentType, file.LengthBytes, scanStatus = file.ScanStatus.ToString() }) }),
+            versions = submission.Versions.OrderBy(version => version.VersionNumber).Select(version => new
+            {
+                version.VersionNumber,
+                version.StudentComment,
+                version.SubmittedAtUtc,
+                trainingOutcome = version.TrainingOutcome == null ? null : version.TrainingOutcome.ToString(),
+                version.TrainingStrengths,
+                version.TrainingGaps,
+                version.TrainingImprovementGuidance,
+                version.ReviewedAtUtc,
+                files = version.Files.Select(file => new { file.Id, file.OriginalFileName, file.ContentType, file.LengthBytes, scanStatus = file.ScanStatus.ToString() })
+            }),
             results = submission.Status is CourseAssignmentSubmissionStatus.Graded or CourseAssignmentSubmissionStatus.Finalized ? submission.CriterionResults.OrderBy(result => result.CourseAssignmentCriterion!.SortOrder).Select(result => new { result.CourseAssignmentCriterion!.Code, band = result.CourseAssignmentCriterion.Band.ToString(), achievement = result.Achievement.ToString(), result.Feedback }) : [],
             feedback = submission.FeedbackItems.Where(item => !item.IsPrivate).OrderBy(item => item.CreatedAtUtc).Select(item => new { item.Body, item.RequestsResubmission, item.CreatedAtUtc })
         }));
