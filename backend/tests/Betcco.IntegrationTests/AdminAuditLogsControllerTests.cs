@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Betcco.Api.Controllers;
 using Betcco.Domain.Platform;
+using Betcco.Infrastructure.Identity;
 using Betcco.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -98,6 +99,64 @@ public sealed class AdminAuditLogsControllerTests
             cancellationToken: CancellationToken.None);
 
         Assert.IsType<BadRequestObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task Export_is_filtered_bounded_and_excludes_sensitive_audit_payload_fields()
+    {
+        await using var db = CreateDb();
+        var actor = new ApplicationUser
+        {
+            Id = Guid.NewGuid(),
+            UserName = "admin",
+            Email = "admin@betcco.test",
+            DisplayName = "=Injected actor"
+        };
+        db.Users.Add(actor);
+        db.AuditLogs.AddRange(
+            new AuditLog
+            {
+                ActorUserId = actor.Id.ToString(),
+                Action = "StudentEmailChangeConfirmed",
+                EntityType = "User",
+                EntityId = "private-entity-id",
+                CorrelationId = "private-correlation",
+                IpAddress = "192.0.2.10",
+                UserAgent = "private-agent",
+                Outcome = "Success",
+                MetadataJson = "{\"secret\":true}",
+                OldValuesJson = "{\"old\":true}",
+                NewValuesJson = "{\"new\":true}"
+            },
+            new AuditLog
+            {
+                Action = "CoursePublished",
+                EntityType = "Course",
+                Outcome = "Failure"
+            });
+        await db.SaveChangesAsync();
+
+        var result = Assert.IsType<FileContentResult>(await new AdminAuditLogsController(db).Export(
+            search: null,
+            action: "EmailChange",
+            entityType: "User",
+            outcome: "Success",
+            fromUtc: null,
+            toUtc: null,
+            cancellationToken: CancellationToken.None));
+
+        var csv = System.Text.Encoding.UTF8.GetString(result.FileContents);
+        Assert.StartsWith("\uFEFFCreatedAtUtc,Actor,Action,EntityType,Outcome", csv);
+        Assert.Contains("'=Injected actor", csv);
+        Assert.Contains("StudentEmailChangeConfirmed", csv);
+        Assert.DoesNotContain("CoursePublished", csv);
+        Assert.DoesNotContain("private-entity-id", csv);
+        Assert.DoesNotContain("private-correlation", csv);
+        Assert.DoesNotContain("192.0.2.10", csv);
+        Assert.DoesNotContain("private-agent", csv);
+        Assert.DoesNotContain("secret", csv);
+        Assert.Equal("text/csv; charset=utf-8", result.ContentType);
+        Assert.EndsWith(".csv", result.FileDownloadName);
     }
 
     private static BetccoDbContext CreateDb() => new(

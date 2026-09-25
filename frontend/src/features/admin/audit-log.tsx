@@ -2,7 +2,13 @@
 
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, History, Search } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  History,
+  Search,
+} from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -43,6 +49,8 @@ export function AuditLogViewer() {
   const [draftFilters, setDraftFilters] = useState(emptyFilters);
   const [filters, setFilters] = useState(emptyFilters);
   const [page, setPage] = useState(1);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState<string>();
   const result = useQuery({
     queryKey: ["admin-audit-logs", filters, page],
     queryFn: () => {
@@ -62,6 +70,51 @@ export function AuditLogViewer() {
     },
     placeholderData: (previous) => previous,
   });
+  const exportCurrent = async () => {
+    const params = new URLSearchParams();
+    if (filters.search) params.set("search", filters.search);
+    if (filters.action) params.set("action", filters.action);
+    if (filters.entityType) params.set("entityType", filters.entityType);
+    if (filters.outcome) params.set("outcome", filters.outcome);
+    if (filters.fromDate)
+      params.set("fromUtc", `${filters.fromDate}T00:00:00Z`);
+    if (filters.toDate) params.set("toUtc", `${filters.toDate}T23:59:59.999Z`);
+
+    setExportError(undefined);
+    setIsExporting(true);
+    try {
+      const response = await fetch(
+        `/api/v1/admin/audit-logs/export?${params.toString()}`,
+        {
+          credentials: "include",
+          cache: "no-store",
+        },
+      );
+      if (!response.ok) {
+        const body = (await response.json().catch(() => undefined)) as
+          { message?: string } | undefined;
+        throw new Error(body?.message ?? t("exportError"));
+      }
+      const blob = await response.blob();
+      const fileName =
+        response.headers
+          .get("content-disposition")
+          ?.match(/filename="?([^";]+)"?/i)?.[1] ?? "betcco-audit-log.csv";
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = fileName;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      setExportError(error instanceof Error ? error.message : t("exportError"));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const values = result.data;
   const pageCount = values
     ? Math.max(1, Math.ceil(values.totalCount / values.pageSize))
@@ -177,6 +230,23 @@ export function AuditLogViewer() {
           </button>
         </div>
       </form>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={exportCurrent}
+          disabled={isExporting}
+          className="focus-ring inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-bold disabled:opacity-50"
+        >
+          <Download size={16} aria-hidden="true" />
+          {isExporting ? t("exporting") : t("exportCsv")}
+        </button>
+        <p className="text-xs text-muted">{t("exportHint")}</p>
+      </div>
+      {exportError ? (
+        <p className="mt-3 text-sm text-red-500" role="alert">
+          {exportError}
+        </p>
+      ) : null}
       {result.isPending ? (
         <div className="card mt-6 p-6" aria-busy>
           {t("loading")}
