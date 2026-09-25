@@ -386,7 +386,9 @@ public sealed class CourseAssignmentService(
     public async Task<bool> AddResourceAsync(string teacherUserId, Guid assignmentId, string displayName, string storageKey, string contentType, CancellationToken cancellationToken = default)
     {
         var assignment = await OwnedAssignmentAsync(teacherUserId, assignmentId, cancellationToken);
-        if (assignment is null || string.IsNullOrWhiteSpace(displayName) || string.IsNullOrWhiteSpace(storageKey) || string.IsNullOrWhiteSpace(contentType))
+        if (assignment is null || string.IsNullOrWhiteSpace(displayName) || string.IsNullOrWhiteSpace(storageKey) || string.IsNullOrWhiteSpace(contentType)
+            || assignment.Purpose == CourseAssignmentPurpose.ComprehensivePractice
+                && await db.CourseAssignmentSubmissions.AnyAsync(x => x.CourseAssignmentId == assignment.Id, cancellationToken))
             return false;
         db.CourseAssignmentResources.Add(new CourseAssignmentResource
         {
@@ -406,7 +408,10 @@ public sealed class CourseAssignmentService(
         var resource = await db.CourseAssignmentResources
             .Include(item => item.CourseAssignment).ThenInclude(item => item!.Course)
             .SingleOrDefaultAsync(item => item.Id == resourceId && item.CourseAssignment!.Course!.TeacherUserId == teacherUserId, cancellationToken);
-        if (resource is null) return false;
+        if (resource is null
+            || resource.CourseAssignment!.Purpose == CourseAssignmentPurpose.ComprehensivePractice
+                && await db.CourseAssignmentSubmissions.AnyAsync(x => x.CourseAssignmentId == resource.CourseAssignmentId, cancellationToken))
+            return false;
         var deletion = storageLifecycle?.EnqueueDeletion(resource.StorageKey);
         db.CourseAssignmentResources.Remove(resource);
         db.AuditLogs.Add(Audit(teacherUserId, "CourseAssignmentResourceDeleted", nameof(CourseAssignmentResource), resourceId.ToString()));

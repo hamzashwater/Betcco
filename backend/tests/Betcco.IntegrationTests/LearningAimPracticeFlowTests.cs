@@ -338,10 +338,17 @@ public sealed class LearningAimPracticeFlowTests
             assignmentId, sources[1].Id, null, null, null, null, 1)));
         Assert.True(await service.AddResourceAsync("teacher", assignmentId, "brief.pdf", "private/brief", "application/pdf"));
         Assert.False(await service.AddResourceAsync("other-teacher", assignmentId, "foreign.pdf", "private/foreign", "application/pdf"));
+        var resourceId = await db.CourseAssignmentResources.AsNoTracking()
+            .Where(x => x.CourseAssignmentId == assignmentId)
+            .Select(x => x.Id)
+            .SingleAsync();
         Assert.False(await service.PublishAsync("other-teacher", assignmentId, true));
         Assert.True(await service.PublishAsync("teacher", assignmentId, true));
         Assert.True((await access.CanAccessAsync("student", course.Id, LearningContentType.Assignment, assignmentId)).IsAvailable);
         var draft = (await service.StartSubmissionAsync("student", assignmentId, null))!;
+        Assert.False(await service.AddResourceAsync("teacher", assignmentId, "late.pdf", "private/late", "application/pdf"));
+        Assert.False(await service.DeleteResourceAsync("teacher", resourceId));
+        Assert.True(await db.CourseAssignmentResources.AsNoTracking().AnyAsync(x => x.Id == resourceId));
         await using var evidence = new MemoryStream([0x25, 0x50, 0x44, 0x46, 0x2D, 0x31]);
         Assert.Equal(CourseAssignmentFileAddStatus.Added, await service.AddFileAsync("student", draft.SubmissionId,
             "unit.pdf", "application/pdf", evidence.Length, evidence));
