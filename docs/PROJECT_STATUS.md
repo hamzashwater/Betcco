@@ -3,9 +3,9 @@
 ## Metadata
 
 - Last updated: 2026-09-25
-- Verified implementation baseline SHA: `231efd020d2e8cd1d9cf8934edc288586c560024`
-- Status verified against origin/main: `231efd020d2e8cd1d9cf8934edc288586c560024`
-- OPEN / Draft PRs at verification: PR #53 — ASUS Comprehensive Practice Assignment — Final Unit Practice.
+- Verified implementation baseline SHA: `179b4eee25a5bad0cf4d961c3d940d9044461fff`
+- Status verified against origin/main: `179b4eee25a5bad0cf4d961c3d940d9044461fff`
+- OPEN / Draft PRs at verification: PR #57 — LENOVO Admin Audit Log Filters — Slice 1.
 - Parallel workstream coordination is persisted in `docs/WORKSTREAM_COORDINATION.md` and must be rechecked against live GitHub before implementation.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
@@ -19,6 +19,7 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - PR #52 — Staff MFA Enforcement Slice 1 merged at `7929f631aa33b3e98f332905943cd9f1eab7d7f9`; mandatory MFA is server-enforced for Admin, SystemAdmin, SupportAdmin, and FinanceAdmin, including restricted enrollment state and session/SecurityStamp handling.
 - PR #54 — Staff MFA Recovery Codes Slice 1 merged at `3693585d44ab43f7c591771e221b7be4cde1a4ea`; Identity recovery codes provide one-time presentation, single-use login, regeneration, and password-plus-unused-code authenticator reset with session revocation and mandatory Staff re-enrollment.
 - PR #55 — ASUS/LENOVO workstream coordination merged at `231efd020d2e8cd1d9cf8934edc288586c560024`; `docs/WORKSTREAM_COORDINATION.md` now records ownership, reserved scope, preflight, overlap, and handoff rules.
+- PR #53 — Comprehensive Practice Assignment — Final Unit Practice merged at `179b4eee25a5bad0cf4d961c3d940d9044461fff`; one formative Final Unit Practice per canonical delivered Unit now follows Draft → Configure → Publish → Student Access, unlocks only after all canonical Learning Aims are complete, uses private scanned evidence, effective learner-specific deadlines, TrainingOutcome feedback, canonical same-Unit criteria, and freezes task structure/resources after learner work starts. It remains separate from formal ASSESS. Post-merge Quality and Security analysis are green.
 
 ## Recently Merged Academic Work (PR #47)
 
@@ -228,12 +229,12 @@ Live progress is tracked in OPEN Draft PRs, and repository evidence wins over co
 
 Maximum active implementation workstreams: **2**
 
-At the 2026-09-25 preflight, GitHub reported one OPEN Draft PR: PR #53, owned by ASUS for Comprehensive Practice Assignment — Final Unit Practice. Its reserved scope includes Comprehensive Practice, related CourseAssignment/Learning Aim progression, Student/Teacher UI, and related EF migration/ModelSnapshot areas. LENOVO has no active implementation feature reserved at this snapshot.
+At the 2026-09-25 post-merge preflight, PR #53 is merged into `main` at `179b4eee25a5bad0cf4d961c3d940d9044461fff`. ASUS has no active implementation PR. GitHub reports one OPEN Draft PR: PR #57, owned by LENOVO for Admin Audit Log Filters — Slice 1; its live diff is limited to the Admin audit-log controller/tests, audit-log UI/tests, and EN/AR messages, with no overlap with the merged Comprehensive Practice files.
 
 ## Next Actions
 
-- ASUS: complete focused review, latest-main synchronization, final CI, Ready-for-Review, final approval, and merge for PR #53.
-- LENOVO: after this documentation reconciliation, run a fresh preflight and select only an independent candidate from `docs/WORKSTREAM_COORDINATION.md`; do not start Student Lifecycle Closure or overlap PR #53 while it remains active.
+- ASUS: PR #53 is merged. Before starting the next roadmap item, run a fresh preflight against latest `main`, PR #57, CI, and reserved scopes.
+- LENOVO: continue PR #57 Admin Audit Log Filters — Slice 1 only within its reserved Admin/Operations files; re-preflight after any new merge before expanding scope.
 - Task 6: DONE — Media / Video Foundation + Secure Delivery. PR #18 merged with required CI green.
 - Slice 1: DONE — ASSESS academic identity foundation. PR #28 merged with required CI green.
 - Slice 2: DONE — Versioned Learning Aims / Criteria + AssessmentDefinition publication/source mapping + Qualification/Rubric compatibility enforcement. PR #30 merged with required CI green.
@@ -279,7 +280,7 @@ Do not reopen these areas merely because a later account lacks conversation memo
 | i18n/SEO/Performance/Accessibility | NOT STARTED |
 | Early Warning | NOT STARTED |
 | Guardian | NOT STARTED |
-| Community/Formative | PARTIAL — LEARNING AIM PRACTICE FOUNDATION MERGED |
+| Community/Formative | PARTIAL — LEARNING AIM PRACTICE + FINAL UNIT COMPREHENSIVE PRACTICE MERGED |
 | AI | NOT STARTED |
 | OneRoster/LTI | NOT STARTED |
 | Final UAT/Launch Hardening | PARTIAL |
