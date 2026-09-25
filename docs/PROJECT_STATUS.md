@@ -3,8 +3,8 @@
 ## Metadata
 
 - Last updated: 2026-09-26
-- Verified implementation baseline SHA: `29bacc0de0a4faeec5125edffa8c04f6a2bb045e`
-- Status verified against origin/main: `29bacc0de0a4faeec5125edffa8c04f6a2bb045e`
+- Verified implementation baseline SHA: `7ddb361bfff2f570f7cb4035f7bafe253213a79a`
+- Status verified against origin/main: `7ddb361bfff2f570f7cb4035f7bafe253213a79a`
 - OPEN implementation PRs at verification: none.
 - Parallel workstream coordination is persisted in `docs/WORKSTREAM_COORDINATION.md` and must be rechecked against live GitHub before implementation.
 
@@ -235,12 +235,12 @@ Live progress is tracked in OPEN Draft PRs, and repository evidence wins over co
 
 Maximum active implementation workstreams: **2**
 
-At the 2026-09-26 preflight, PR #66 is merged into `main` at `ce752d35b4b7ec824491e6506b05789eb2bcf14f`, and PR #65 is merged at `29bacc0de0a4faeec5125edffa8c04f6a2bb045e`. No OPEN implementation PRs were present at this snapshot. The included evaluation credit implementation is part of merged `main`.
+At the 2026-09-26 preflight, PR #65 is merged at `29bacc0de0a4faeec5125edffa8c04f6a2bb045e` and its corrective follow-up PR #67 is merged at `7ddb361bfff2f570f7cb4035f7bafe253213a79a`. No OPEN implementation PRs were present at this snapshot. The Included Evaluation Credit implementation and its identified follow-up corrections are part of merged `main`.
 
 ## Next Actions
 
 - ASUS: PR #64 AI Practice UI Shell is merged with post-merge Quality and Security green. The actual AI engine/API/RAG work is explicitly deferred; before starting another roadmap item, run a fresh preflight against latest `main`, OPEN/Draft PRs, CI, and reserved scopes.
-- LENOVO: At this merged baseline, PR #65 still needs a follow-up for undefined numeric criterion achievements, duplicate-Unit credits across two paid enrollments in one payment, and the Student credit-check retry path. Apply the corrective index migration and verify the upgrade before treating the follow-up as complete. Recheck latest `main`, CI, and ASUS reserved/planned scope before starting another workstream.
+- LENOVO: PR #67 completed the corrective follow-up to PR #65: undefined numeric CriterionAchievement values are rejected, included evaluation credits are granted per paid Enrollment + Unit within a Payment, and the Student credit lookup exposes a retry action. The corrective EF index migration is merged and its upgrade path was verified before merge. No additional Included Evaluation Credit follow-up is currently recorded; recheck latest `main`, CI, and ASUS reserved/planned scope before starting another workstream.
 - Task 6: DONE — Media / Video Foundation + Secure Delivery. PR #18 merged with required CI green.
 - Slice 1: DONE — ASSESS academic identity foundation. PR #28 merged with required CI green.
 - Slice 2: DONE — Versioned Learning Aims / Criteria + AssessmentDefinition publication/source mapping + Qualification/Rubric compatibility enforcement. PR #30 merged with required CI green.

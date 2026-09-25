@@ -47,7 +47,7 @@ Snapshot captured: **2026-09-26**
 
 At capture time:
 
-- `main`: `29bacc0de0a4faeec5125edffa8c04f6a2bb045e`
+- `main`: `7ddb361bfff2f570f7cb4035f7bafe253213a79a`
 - PR #53 is merged: Comprehensive Practice Assignment — Final Unit Practice.
 - PR #57 is merged: LENOVO Admin Audit Log Filters — Slice 1.
 - PR #59 is merged: LENOVO Admin Audit Log CSV Export — Slice 2.
@@ -56,6 +56,7 @@ At capture time:
 - PR #64 is merged: ASUS AI Practice UI Shell — Slice 1.
 - PR #66 is merged: AI Practice UI Shell status reconciliation.
 - PR #65 is merged: Included Evaluation Credit / Entitlement — Slice 1.
+- PR #67 is merged: corrective Included Evaluation Credit handling follow-up.
 - GitHub Secret Scanning and Push Protection are enabled; 0 open secret-scanning alerts were present at verification.
 - OPEN implementation PRs: none.
 - ASUS and LENOVO have no active implementation PR at this snapshot.
@@ -142,7 +143,7 @@ Includes:
 
 ## Current LENOVO Workstream
 
-**No active LENOVO implementation PR at this snapshot.** PR #65 — Included Evaluation Credit / Entitlement — Slice 1 is merged into `main` at `29bacc0de0a4faeec5125edffa8c04f6a2bb045e`. Its scope includes the included-credit data model and migration, course payment grant and refund revocation, evaluation checkout consumption, and the Student evaluation wizard. At this baseline, a follow-up is needed for credits on two paid enrollments sharing a Unit, undefined numeric criterion achievements, and retrying a failed Student credit check.
+**No active LENOVO implementation PR at this snapshot.** PR #65 — Included Evaluation Credit / Entitlement — Slice 1 is merged into `main` at `29bacc0de0a4faeec5125edffa8c04f6a2bb045e`. PR #67 — corrective Included Evaluation Credit handling — is merged at `7ddb361bfff2f570f7cb4035f7bafe253213a79a` and closes the recorded follow-up for duplicate-Unit credits across two paid enrollments in one payment, undefined numeric CriterionAchievement values, and the Student credit-check retry path. No active Included Evaluation Credit follow-up remains recorded at this snapshot.
 
 PR #57 — **Admin Audit Log Filters — Slice 1** — is merged into `main` at `f57726607e8ac3a0c40c1bbbcf18ab3dd5705d4f`.
 
