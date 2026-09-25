@@ -1214,6 +1214,10 @@ public sealed class BetccoDbContext(
         builder.Entity<CourseAssignmentSubmission>().Property(x => x.TrainingStrengths).HasMaxLength(4_000);
         builder.Entity<CourseAssignmentSubmission>().Property(x => x.TrainingGaps).HasMaxLength(4_000);
         builder.Entity<CourseAssignmentSubmission>().Property(x => x.TrainingImprovementGuidance).HasMaxLength(4_000);
+        builder.Entity<CourseAssignmentSubmissionVersion>().Property(x => x.TrainingStrengths).HasMaxLength(4_000);
+        builder.Entity<CourseAssignmentSubmissionVersion>().Property(x => x.TrainingGaps).HasMaxLength(4_000);
+        builder.Entity<CourseAssignmentSubmissionVersion>().Property(x => x.TrainingImprovementGuidance).HasMaxLength(4_000);
+        builder.Entity<CourseAssignmentSubmissionVersion>().Property(x => x.ReviewedByUserId).HasMaxLength(64);
         builder.Entity<CourseAssignmentDeadlineExtension>().Property(x => x.StudentUserId).HasMaxLength(64);
         builder.Entity<CourseAssignmentDeadlineExtension>().Property(x => x.GrantedByUserId).HasMaxLength(64);
         builder.Entity<CourseAssignmentDeadlineExtension>().Property(x => x.RevokedByUserId).HasMaxLength(64);

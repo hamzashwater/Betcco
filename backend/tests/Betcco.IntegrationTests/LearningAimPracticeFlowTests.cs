@@ -508,7 +508,7 @@ public sealed class LearningAimPracticeFlowTests
             && x.CourseAssignment!.Purpose == CourseAssignmentPurpose.LearningAimPractice);
         aimSubmission.Status = CourseAssignmentSubmissionStatus.Draft;
         await db.SaveChangesAsync();
-        Assert.Equal("LearningAimsIncomplete", (await PracticeAsync()).GetProperty("UnavailableReason").GetString());
+        Assert.Equal("Available", (await PracticeAsync()).GetProperty("Status").GetString());
         aimSubmission.Status = CourseAssignmentSubmissionStatus.Finalized;
         var assignment = await db.CourseAssignments.SingleAsync(x => x.Id == created.Id.Value);
         assignment.DueAtUtc = DateTimeOffset.UtcNow.AddHours(-2);
@@ -532,7 +532,7 @@ public sealed class LearningAimPracticeFlowTests
         Assert.Equal("DeadlineExpired", (await PracticeAsync()).GetProperty("UnavailableReason").GetString());
         aimSubmission.Status = CourseAssignmentSubmissionStatus.Draft;
         await db.SaveChangesAsync();
-        Assert.Equal("LearningAimsIncomplete", (await PracticeAsync()).GetProperty("UnavailableReason").GetString());
+        Assert.Equal("DeadlineExpired", (await PracticeAsync()).GetProperty("UnavailableReason").GetString());
     }
 
     [Fact]
@@ -599,13 +599,23 @@ public sealed class LearningAimPracticeFlowTests
                 PublicationStatus = ContentPublicationStatus.Published
             };
             db.CourseAssignments.Add(assignment);
-            db.CourseAssignmentSubmissions.Add(new Betcco.Domain.Assessments.CourseAssignmentSubmission
+            var submission = new Betcco.Domain.Assessments.CourseAssignmentSubmission
             {
                 CourseAssignment = assignment,
                 StudentUserId = "student",
+                CurrentVersionNumber = 1,
                 Status = CourseAssignmentSubmissionStatus.Finalized,
                 TrainingOutcome = TrainingOutcome.Pass
+            };
+            submission.Versions.Add(new Betcco.Domain.Assessments.CourseAssignmentSubmissionVersion
+            {
+                VersionNumber = 1,
+                SubmittedAtUtc = DateTimeOffset.UtcNow,
+                TrainingOutcome = TrainingOutcome.Pass,
+                ReviewedAtUtc = DateTimeOffset.UtcNow,
+                ReviewedByUserId = "teacher"
             });
+            db.CourseAssignmentSubmissions.Add(submission);
             db.LessonProgresses.Add(new LessonProgress { StudentUserId = "student", LessonId = lesson.Id, IsCompleted = true });
         }
         await db.SaveChangesAsync();
@@ -780,6 +790,116 @@ public sealed class LearningAimPracticeFlowTests
         Assert.Equal(DeadlineExtensionWriteStatus.Success, (await extensions.GrantAsync("teacher", assignmentId, command)).Status);
         Assert.True(await submissions.SubmitAsync("student", draft.SubmissionId));
         Assert.False((await progress.GetAsync("student", module.Id))[1].IsUnlocked);
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Learning_aim_practice_attempt_history_respects_teacher_limit_and_preserves_progress()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("practice_attempt_history");
+        await using var db = database.CreateContext();
+        var (course, module, aims, lessons) = await SeedAsync(db, 2);
+        db.LessonProgresses.Add(new LessonProgress
+        {
+            StudentUserId = "student",
+            LessonId = lessons[0].Id,
+            IsCompleted = true
+        });
+        await db.SaveChangesAsync();
+
+        var access = new ContentAccessService(db);
+        var service = new CourseAssignmentService(
+            db, new MemoryFileStorage(), new CleanFileScanner(), new NullEmailNotifications(), access);
+        var assignmentId = (await service.CreatePracticeAsync("teacher", new CreateLearningAimPracticeCommand(
+            aims[0].Id, "نشاط", "Practice", "ارفع عملك", "Upload your work", null, 2)))!.Value;
+
+        Assert.False(await service.UpdatePracticeAttemptLimitAsync(
+            "other-teacher", assignmentId, new UpdateLearningAimPracticeAttemptLimitCommand(3)));
+        Assert.False(await service.UpdatePracticeAttemptLimitAsync(
+            "teacher", assignmentId, new UpdateLearningAimPracticeAttemptLimitCommand(11)));
+
+        var first = (await service.StartSubmissionAsync("student", assignmentId, "First attempt"))!;
+        Assert.Equal(1, first.VersionNumber);
+        await using (var file = new MemoryStream([0x25, 0x50, 0x44, 0x46, 0x2D, 0x31]))
+        {
+            Assert.Equal(CourseAssignmentFileAddStatus.Added,
+                await service.AddFileAsync("student", first.SubmissionId, "first.pdf", "application/pdf", file.Length, file));
+        }
+        Assert.True(await service.SubmitAsync("student", first.SubmissionId));
+        Assert.Equal(PracticeReviewResult.Finalized, await service.ReviewPracticeAsync(
+            "teacher", first.SubmissionId,
+            new ReviewLearningAimPracticeCommand("Pass", "First strength", "First gap", "First guidance")));
+        db.ChangeTracker.Clear();
+
+        var afterFirst = await new LearningAimPracticeProgressService(db).GetAsync("student", module.Id);
+        Assert.True(afterFirst[0].IsComplete);
+        Assert.True(afterFirst[1].IsUnlocked);
+        Assert.Equal(2, afterFirst[0].MaxAttempts);
+        Assert.Equal(1, afterFirst[0].AttemptsUsed);
+        Assert.Equal(1, afterFirst[0].AttemptsRemaining);
+        Assert.True(afterFirst[0].CanStartNewAttempt);
+        Assert.Equal("Pass", afterFirst[0].TrainingOutcome);
+        Assert.Equal("Pass", afterFirst[0].BestTrainingOutcome);
+        Assert.Single(afterFirst[0].AttemptHistory);
+        Assert.Equal("First strength", afterFirst[0].AttemptHistory[0].Strengths);
+
+        var second = (await service.StartSubmissionAsync("student", assignmentId, "Improve it"))!;
+        Assert.Equal(first.SubmissionId, second.SubmissionId);
+        Assert.Equal(2, second.VersionNumber);
+        Assert.False(await service.UpdatePracticeAttemptLimitAsync(
+            "teacher", assignmentId, new UpdateLearningAimPracticeAttemptLimitCommand(1)));
+
+        var duringSecond = await new LearningAimPracticeProgressService(db).GetAsync("student", module.Id);
+        Assert.True(duringSecond[0].IsComplete);
+        Assert.True(duringSecond[1].IsUnlocked);
+        Assert.Equal("Pass", duringSecond[0].TrainingOutcome);
+        Assert.Equal(2, duringSecond[0].AttemptsUsed);
+        Assert.Equal(0, duringSecond[0].AttemptsRemaining);
+        Assert.False(duringSecond[0].CanStartNewAttempt);
+        Assert.Equal(2, duringSecond[0].AttemptHistory.Count);
+        Assert.Equal("Draft", duringSecond[0].AttemptHistory[1].Status);
+
+        // Evidence from attempt 1 must never satisfy attempt 2.
+        Assert.False(await service.SubmitAsync("student", second.SubmissionId));
+        await using (var file = new MemoryStream([0x25, 0x50, 0x44, 0x46, 0x2D, 0x31]))
+        {
+            Assert.Equal(CourseAssignmentFileAddStatus.Added,
+                await service.AddFileAsync("student", second.SubmissionId, "second.pdf", "application/pdf", file.Length, file));
+        }
+        Assert.True(await service.SubmitAsync("student", second.SubmissionId));
+        Assert.Equal(PracticeReviewResult.Finalized, await service.ReviewPracticeAsync(
+            "teacher", second.SubmissionId,
+            new ReviewLearningAimPracticeCommand("Merit", "Second strength", "Second gap", "Second guidance")));
+        db.ChangeTracker.Clear();
+
+        var afterSecond = await new LearningAimPracticeProgressService(db).GetAsync("student", module.Id);
+        Assert.True(afterSecond[0].IsComplete);
+        Assert.True(afterSecond[1].IsUnlocked);
+        Assert.Equal("Merit", afterSecond[0].TrainingOutcome);
+        Assert.Equal("Merit", afterSecond[0].BestTrainingOutcome);
+        Assert.Equal(2, afterSecond[0].AttemptHistory.Count);
+        Assert.Equal(new[] { "Pass", "Merit" },
+            afterSecond[0].AttemptHistory.Select(x => x.TrainingOutcome).ToArray());
+        Assert.Null(await service.StartSubmissionAsync("student", assignmentId, "Third attempt"));
+
+        Assert.True(await service.UpdatePracticeAttemptLimitAsync(
+            "teacher", assignmentId, new UpdateLearningAimPracticeAttemptLimitCommand(3)));
+        var third = await service.StartSubmissionAsync("student", assignmentId, "Third attempt");
+        Assert.NotNull(third);
+        Assert.Equal(3, third!.VersionNumber);
+
+        var storedVersions = await db.CourseAssignmentSubmissionVersions.AsNoTracking()
+            .Where(x => x.CourseAssignmentSubmissionId == first.SubmissionId)
+            .OrderBy(x => x.VersionNumber)
+            .ToArrayAsync();
+        Assert.Equal(3, storedVersions.Length);
+        Assert.Equal(TrainingOutcome.Pass, storedVersions[0].TrainingOutcome);
+        Assert.Equal(TrainingOutcome.Merit, storedVersions[1].TrainingOutcome);
+        Assert.Null(storedVersions[2].TrainingOutcome);
+        Assert.Equal("First guidance", storedVersions[0].TrainingImprovementGuidance);
+        Assert.Equal("Second guidance", storedVersions[1].TrainingImprovementGuidance);
+        Assert.All(storedVersions.Take(2), x => Assert.Equal("teacher", x.ReviewedByUserId));
+        Assert.Empty(await db.EvaluationRequests.AsNoTracking().ToArrayAsync());
     }
 
     [Fact]

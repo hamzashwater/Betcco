@@ -120,6 +120,14 @@ public sealed class CourseAssignmentSubmissionVersion : Entity
     public int VersionNumber { get; set; }
     public string? StudentComment { get; set; }
     public DateTimeOffset? SubmittedAtUtc { get; set; }
+    // Learning Aim Practice uses versions as independent formative attempts.
+    // These fields preserve each reviewed attempt without changing formal ASSESS.
+    public TrainingOutcome? TrainingOutcome { get; set; }
+    public string? TrainingStrengths { get; set; }
+    public string? TrainingGaps { get; set; }
+    public string? TrainingImprovementGuidance { get; set; }
+    public DateTimeOffset? ReviewedAtUtc { get; set; }
+    public string? ReviewedByUserId { get; set; }
     public ICollection<CourseAssignmentSubmissionFile> Files { get; } = new List<CourseAssignmentSubmissionFile>();
 }
 

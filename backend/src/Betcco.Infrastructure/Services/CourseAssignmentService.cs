@@ -98,6 +98,7 @@ public sealed class CourseAssignmentService(
             || string.IsNullOrWhiteSpace(command.ArabicInstructions) || string.IsNullOrWhiteSpace(command.EnglishInstructions)
             || command.ArabicTitle.Length > 256 || command.EnglishTitle.Length > 256
             || command.ArabicInstructions.Length > 4_000 || command.EnglishInstructions.Length > 4_000
+            || command.MaxSubmissionAttempts is < 1 or > 10
             || command.DueAtUtc <= DateTimeOffset.UtcNow
             || await db.CourseAssignments.AnyAsync(x => x.Purpose == CourseAssignmentPurpose.LearningAimPractice
                 && x.BtecLearningAimId == command.LearningAimId, cancellationToken)) return null;
@@ -113,7 +114,7 @@ public sealed class CourseAssignmentService(
             EnglishInstructions = command.EnglishInstructions.Trim(),
             DueAtUtc = command.DueAtUtc,
             MaxScore = null,
-            MaxSubmissionAttempts = 1,
+            MaxSubmissionAttempts = command.MaxSubmissionAttempts,
             AllowResubmission = false,
             IsPublished = true,
             PublicationStatus = ContentPublicationStatus.Published
@@ -122,6 +123,26 @@ public sealed class CourseAssignmentService(
         db.AuditLogs.Add(Audit(teacherUserId, "LearningAimPracticeCreated", nameof(CourseAssignment), assignment.Id.ToString()));
         await db.SaveChangesAsync(cancellationToken);
         return assignment.Id;
+    }
+
+    public async Task<bool> UpdatePracticeAttemptLimitAsync(string teacherUserId, Guid assignmentId,
+        UpdateLearningAimPracticeAttemptLimitCommand command, CancellationToken cancellationToken = default)
+    {
+        if (command.MaxSubmissionAttempts is < 1 or > 10) return false;
+        var assignment = await OwnedAssignmentAsync(teacherUserId, assignmentId, cancellationToken);
+        if (assignment is null
+            || assignment.Purpose != CourseAssignmentPurpose.LearningAimPractice
+            || !CanManageAssignments(assignment.Course!.Status)) return false;
+        var highestStartedAttempt = await db.CourseAssignmentSubmissions.AsNoTracking()
+            .Where(x => x.CourseAssignmentId == assignmentId)
+            .Select(x => (int?)x.CurrentVersionNumber)
+            .MaxAsync(cancellationToken) ?? 0;
+        if (command.MaxSubmissionAttempts < highestStartedAttempt) return false;
+        assignment.MaxSubmissionAttempts = command.MaxSubmissionAttempts;
+        db.AuditLogs.Add(Audit(teacherUserId, "LearningAimPracticeAttemptLimitUpdated",
+            nameof(CourseAssignment), assignment.Id.ToString(), command.MaxSubmissionAttempts.ToString()));
+        await db.SaveChangesAsync(cancellationToken);
+        return true;
     }
 
     public Task<PracticeReviewResult> ReviewPracticeAsync(string teacherUserId, Guid submissionId, ReviewLearningAimPracticeCommand command, CancellationToken cancellationToken = default) =>
@@ -136,7 +157,14 @@ public sealed class CourseAssignmentService(
             .Where(x => x.Id == submissionId
                 && x.CourseAssignment!.Purpose == purpose
                 && x.CourseAssignment.Course!.TeacherUserId == teacherUserId)
-            .Select(x => new { x.StudentUserId, x.Status, x.CourseAssignment!.CourseId, x.CourseAssignment.Purpose })
+            .Select(x => new
+            {
+                x.StudentUserId,
+                x.Status,
+                x.CurrentVersionNumber,
+                x.CourseAssignment!.CourseId,
+                x.CourseAssignment.Purpose
+            })
             .SingleOrDefaultAsync(cancellationToken);
         if (submission is null || !Enum.TryParse<TrainingOutcome>(command.TrainingOutcome, true, out var outcome)
             || !Enum.IsDefined(outcome)
@@ -169,6 +197,22 @@ public sealed class CourseAssignmentService(
                 .SetProperty(x => x.GradedAtUtc, now)
                 .SetProperty(x => x.UpdatedAtUtc, now), cancellationToken);
         if (updated != 1) return PracticeReviewResult.Conflict;
+        if (purpose == CourseAssignmentPurpose.LearningAimPractice)
+        {
+            var attemptUpdated = await db.CourseAssignmentSubmissionVersions
+                .Where(x => x.CourseAssignmentSubmissionId == submissionId
+                    && x.VersionNumber == submission.CurrentVersionNumber
+                    && x.TrainingOutcome == null)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(x => x.TrainingOutcome, (TrainingOutcome?)outcome)
+                    .SetProperty(x => x.TrainingStrengths, strengths)
+                    .SetProperty(x => x.TrainingGaps, gaps)
+                    .SetProperty(x => x.TrainingImprovementGuidance, guidance)
+                    .SetProperty(x => x.ReviewedAtUtc, now)
+                    .SetProperty(x => x.ReviewedByUserId, teacherUserId)
+                    .SetProperty(x => x.UpdatedAtUtc, now), cancellationToken);
+            if (attemptUpdated != 1) return PracticeReviewResult.Conflict;
+        }
         db.AuditLogs.Add(Audit(teacherUserId, submission.Purpose == CourseAssignmentPurpose.ComprehensivePractice
             ? "ComprehensivePracticeReviewed" : "LearningAimPracticeReviewed", nameof(CourseAssignmentSubmission), submissionId.ToString(), outcome.ToString()));
         await db.SaveChangesAsync(cancellationToken);
@@ -452,6 +496,25 @@ public sealed class CourseAssignmentService(
         {
             var version = submission.Versions.Single(item => item.VersionNumber == submission.CurrentVersionNumber);
             version.StudentComment = TrimOrNull(comment);
+        }
+        else if (assignment.Purpose == CourseAssignmentPurpose.LearningAimPractice
+            && submission.Status == CourseAssignmentSubmissionStatus.Finalized
+            && submission.CurrentVersionNumber < assignment.MaxSubmissionAttempts)
+        {
+            submission.CurrentVersionNumber++;
+            submission.Status = CourseAssignmentSubmissionStatus.Draft;
+            submission.TrainingOutcome = null;
+            submission.TrainingStrengths = null;
+            submission.TrainingGaps = null;
+            submission.TrainingImprovementGuidance = null;
+            submission.SubmittedAtUtc = null;
+            submission.GradedAtUtc = null;
+            db.CourseAssignmentSubmissionVersions.Add(new CourseAssignmentSubmissionVersion
+            {
+                CourseAssignmentSubmissionId = submission.Id,
+                VersionNumber = submission.CurrentVersionNumber,
+                StudentComment = TrimOrNull(comment)
+            });
         }
         else if (submission.Status == CourseAssignmentSubmissionStatus.NeedsRevision
             && assignment.AllowResubmission
