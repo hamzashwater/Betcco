@@ -47,11 +47,12 @@ Snapshot captured: **2026-09-25**
 
 At capture time:
 
-- `main`: `179b4eee25a5bad0cf4d961c3d940d9044461fff`
+- `main`: `f57726607e8ac3a0c40c1bbbcf18ab3dd5705d4f`
 - PR #53 is merged: Comprehensive Practice Assignment — Final Unit Practice.
-- OPEN PRs: PR #57 only.
-- PR #57: LENOVO Admin Audit Log Filters — Slice 1, Draft.
-- ASUS has no active implementation PR at this snapshot.
+- PR #57 is merged: LENOVO Admin Audit Log Filters — Slice 1.
+- OPEN implementation PRs: none.
+- PR #58 is the docs-only reconciliation carrying this snapshot.
+- ASUS and LENOVO have no active implementation PR at this snapshot.
 
 These SHAs are historical coordination markers only. Re-verify them before using them operationally.
 
@@ -131,26 +132,11 @@ Includes:
 
 ## Current LENOVO Workstream
 
-PR #57 — **Admin Audit Log Filters — Slice 1**
+**No active LENOVO implementation PR at this snapshot.**
 
-Branch:
+PR #57 — **Admin Audit Log Filters — Slice 1** — is merged into `main` at `f57726607e8ac3a0c40c1bbbcf18ab3dd5705d4f`.
 
-`feature/admin-audit-log-filters-slice1`
-
-Owner: **LENOVO**
-
-Status at the snapshot: Draft / active independent Admin/Operations workstream.
-
-Reserved scope from the live PR diff:
-
-- `backend/src/Betcco.Api/Controllers/AdminAuditLogsController.cs`
-- `backend/tests/Betcco.IntegrationTests/AdminAuditLogsControllerTests.cs`
-- `frontend/src/features/admin/audit-log.tsx`
-- `frontend/tests/audit-log.test.tsx`
-- `frontend/messages/en.json`
-- `frontend/messages/ar.json`
-
-PR #57 does not overlap the merged Comprehensive Practice implementation files.
+Its merged scope is limited to bounded Admin audit-log filtering, related backend/frontend tests, and EN/AR audit-log messages. It does not overlap the merged Comprehensive Practice implementation.
 
 ## LENOVO Candidate Work
 
@@ -168,9 +154,9 @@ Before selecting any candidate, run the mandatory preflight and check ASUS activ
 
 ## LENOVO Must Coordinate Before Editing
 
-While PR #57 is active, keep the workstream limited to its Admin Audit Log filtering scope unless a fresh preflight confirms an independent expansion.
+LENOVO has no active implementation workstream at this snapshot. Run the mandatory preflight before selecting the next candidate or expanding into shared files.
 
-Comprehensive Practice is now merged and is no longer reserved by an open ASUS PR. Any future change to its `CourseAssignment`, Learning Aim progression, migration/ModelSnapshot, or Student/Teacher Practice UI must still be treated as shared high-risk work and preflighted against active branches.
+Comprehensive Practice is merged and is no longer reserved by an open ASUS PR. Any future change to its `CourseAssignment`, Learning Aim progression, migration/ModelSnapshot, or Student/Teacher Practice UI must still be treated as shared high-risk work and preflighted against active branches.
 
 Also do not take an ASUS roadmap feature after ASUS has started or explicitly reserved it.
 
