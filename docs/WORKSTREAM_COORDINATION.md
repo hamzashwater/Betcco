@@ -47,11 +47,13 @@ Snapshot captured: **2026-09-25**
 
 At capture time:
 
-- `main`: `713dd95732ac44b334b6581b171d13ec1a49fb93`
+- `main`: `649b3cd9676563d64c06dc0a245e29b6b4f7c39f`
 - PR #53 is merged: Comprehensive Practice Assignment — Final Unit Practice.
 - PR #57 is merged: LENOVO Admin Audit Log Filters — Slice 1.
 - PR #59 is merged: LENOVO Admin Audit Log CSV Export — Slice 2.
 - PR #61 is merged: ASUS Learning Aim Practice Attempt History — Slice 1.
+- PR #63 is merged: LENOVO Simplify BETCCO Assignment Review Flow — Slice 1.
+- PR #64 is merged: ASUS AI Practice UI Shell — Slice 1.
 - GitHub Secret Scanning and Push Protection are enabled; 0 open secret-scanning alerts were present at verification.
 - OPEN implementation PRs: none.
 - ASUS and LENOVO have no active implementation PR at this snapshot.
@@ -66,31 +68,34 @@ These SHAs are historical coordination markers only. Re-verify them before using
 
 **No active ASUS implementation PR at this snapshot.**
 
-PR #61 — **Learning Aim Practice Attempt History — Slice 1** — is merged into `main` at `713dd95732ac44b334b6581b171d13ec1a49fb93`.
+PR #64 — **AI Practice UI Shell — Slice 1** — is merged into `main` at `649b3cd9676563d64c06dc0a245e29b6b4f7c39f`.
+
+PR #61 — **Learning Aim Practice Attempt History — Slice 1** — remains merged at `713dd95732ac44b334b6581b171d13ec1a49fb93`.
 
 PR #53 — **Comprehensive Practice Assignment — Final Unit Practice** — remains merged at `179b4eee25a5bad0cf4d961c3d940d9044461fff`.
 
 ## ASUS Reserved Scope
 
-No active ASUS implementation scope is reserved after PR #61 and PR #53 merged.
+No active ASUS implementation scope is reserved after PR #64 merged. The AI engine/API/RAG/persistence work is deliberately deferred and is not an active workstream.
 
 The ASUS planned roadmap below remains planning ownership only. Before starting any roadmap item, ASUS must run a fresh preflight against latest `main`, all OPEN/Draft PRs, changed files, CI, and review threads.
 
 ## ASUS Current Completion Sequence
 
-PR #61 completion is closed: required PR Quality, Full UAT Matrix, and Security analysis checks were green before merge, and post-merge `main` Quality #181 plus Security analysis #183 are complete and green.
+PR #64 completion is closed at the implementation/CI level: required PR Quality #186, Full UAT Matrix #81, and Security analysis #188 were green before merge, and post-merge `main` Quality #187 plus Security analysis #189 are complete and green. This reconciliation records the merged state.
 
 ## ASUS Planned Roadmap
 
 These items are treated as ASUS-owned planning scope unless coordination explicitly changes ownership:
 
-1. AI Practice Evaluator
-2. Student Progress Intelligence
-3. Teacher Intervention Dashboard
-4. Evaluate My Assignment
-5. Commerce / Entitlements
-6. Production Hardening
-7. Final UI/UX Redesign
+1. Student Progress Intelligence
+2. Teacher Intervention Dashboard
+3. Evaluate My Assignment
+4. Commerce / Entitlements
+5. Production Hardening
+6. Final UI/UX Redesign
+
+Deferred by current product decision: AI Practice Engine / provider integration / RAG / persistence. PR #64 provides only the UI shell and must not be treated as an active AI-engine implementation.
 
 A roadmap item is not automatically an active implementation branch. Re-run preflight before starting each item.
 
@@ -140,6 +145,8 @@ Includes:
 PR #57 — **Admin Audit Log Filters — Slice 1** — is merged into `main` at `f57726607e8ac3a0c40c1bbbcf18ab3dd5705d4f`.
 
 PR #59 — **Admin Audit Log CSV Export — Slice 2** — is merged into `main` at `a0684ce0e65027c45c860e0ebf3db332263c8a0d`.
+
+PR #63 — **Simplify BETCCO Assignment Review Flow — Slice 1** — is merged into `main` at `11a7c5fd4dc606c222236947dd8292886f9302ea`; new Pearson-style Retake creation/authorization is retired in favor of the advisory BETCCO review flow, while historical Retake records remain readable/completable.
 
 The merged Admin Audit Log scope now includes bounded filtering plus bounded/minimized CSV export. Repository Secret Scanning and Push Protection verification is also complete with both protections enabled and 0 open secret-scanning alerts at verification.
 
