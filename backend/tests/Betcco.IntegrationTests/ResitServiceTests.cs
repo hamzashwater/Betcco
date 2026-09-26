@@ -378,6 +378,25 @@ public sealed class ResitServiceTests
     }
 
     [Fact]
+    public async Task Controller_validates_actor_before_pagination_bounds()
+    {
+        await using var db = InMemory();
+        var controller = new ResitsController(new ResitService(db))
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity())
+                }
+            }
+        };
+
+        Assert.IsType<UnauthorizedResult>(await controller.Eligible(0, 0));
+        Assert.IsType<UnauthorizedResult>(await controller.Authorizations(0, 0));
+    }
+
+    [Fact]
     public void Resit_controller_is_course_reviewer_only()
     {
         var attribute = Assert.Single(typeof(ResitsController).GetCustomAttributes<AuthorizeAttribute>());
