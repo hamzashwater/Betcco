@@ -13,6 +13,7 @@ import { AccountLayout } from "@/features/auth/account-layout";
 import { StudentEmailChange } from "@/features/auth/student-email-change";
 import { SupportCenter } from "@/features/support/support-center";
 import { EvaluationAppeals } from "@/features/student/evaluation-appeals";
+import { useStudentEvaluations } from "@/features/student/student-evaluation-page";
 import { AiPracticeShell } from "@/features/student/ai-practice-shell";
 import { StudentProgressIntelligence } from "@/features/student/student-progress-intelligence";
 import {
@@ -4237,59 +4238,54 @@ function Select({
 
 function MyEvaluations() {
   const locale = useLocale();
-  const result = useQuery({
-    queryKey: ["evaluations"],
-    queryFn: () =>
-      api<
-        {
-          id: string;
-          status: string;
-          price: number;
-          currency: string;
-          isRetake: boolean;
-          retakeOfEvaluationRequestId: string | null;
-          criteria: string[];
-          academic: AssessmentAcademicSummary | null;
-          selectedCriteria: string[];
-          submissionAttemptNumber: number;
-          revisionDueAtUtc: string | null;
-          effectiveRevisionDueAtUtc: string | null;
-          calculatedGrade: string | null;
-          sectionResults: { section: string; grade: string }[];
-          results: {
-            criterionCode: string;
-            achievement: string;
-            evidence: string | null;
-            comment: string | null;
-          }[];
-          evidence: { criterionCode: string; narrative: string }[];
-          feedback: {
-            body: string;
-            requestsResubmission: boolean;
-            createdAtUtc: string;
-          }[];
-        }[]
-      >("/evaluations/mine"),
-  });
+  const result = useStudentEvaluations<{
+    id: string;
+    status: string;
+    price: number;
+    currency: string;
+    isRetake: boolean;
+    retakeOfEvaluationRequestId: string | null;
+    criteria: string[];
+    academic: AssessmentAcademicSummary | null;
+    selectedCriteria: string[];
+    submissionAttemptNumber: number;
+    revisionDueAtUtc: string | null;
+    effectiveRevisionDueAtUtc: string | null;
+    calculatedGrade: string | null;
+    sectionResults: { section: string; grade: string }[];
+    results: {
+      criterionCode: string;
+      achievement: string;
+      evidence: string | null;
+      comment: string | null;
+    }[];
+    evidence: { criterionCode: string; narrative: string }[];
+    feedback: {
+      body: string;
+      requestsResubmission: boolean;
+      createdAtUtc: string;
+    }[];
+  }>();
   if (result.isPending)
     return (
       <div className="card p-5" aria-busy>
         …
       </div>
     );
-  if (result.isError)
+  if (result.isError && !result.data)
     return (
       <p className="card p-5">
         {locale === "ar" ? "تعذر تحميل الطلبات." : "Unable to load requests."}
       </p>
     );
+  const items = result.data?.pages.flatMap((page) => page.items) ?? [];
   return (
     <section className="shell py-10">
       <h1 className="text-3xl font-black">
         {locale === "ar" ? "طلبات التقييم" : "Evaluation requests"}
       </h1>
       <div className="mt-6 space-y-3">
-        {result.data.map((item) => (
+        {items.map((item) => (
           <article key={item.id} className="card grid gap-4 p-4">
             {item.isRetake ? (
               <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3">
@@ -4444,6 +4440,29 @@ function MyEvaluations() {
           </article>
         ))}
       </div>
+      {result.isFetchNextPageError ? (
+        <p role="alert" className="mt-4 text-sm text-red-500">
+          {locale === "ar"
+            ? "تعذر تحميل المزيد من الطلبات."
+            : "Unable to load more requests."}
+        </p>
+      ) : null}
+      {result.hasNextPage || result.isFetchNextPageError ? (
+        <button
+          type="button"
+          className="focus-ring mt-5 rounded-xl border border-border px-4 py-2 font-semibold disabled:opacity-50"
+          disabled={result.isFetchingNextPage}
+          onClick={() => void result.fetchNextPage()}
+        >
+          {result.isFetchingNextPage
+            ? locale === "ar"
+              ? "جارٍ التحميل…"
+              : "Loading…"
+            : locale === "ar"
+              ? "عرض المزيد من الطلبات"
+              : "Load more requests"}
+        </button>
+      ) : null}
     </section>
   );
 }

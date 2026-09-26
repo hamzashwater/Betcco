@@ -43,39 +43,46 @@ afterEach(() => {
 describe("BETCCO assignment review flow", () => {
   it("shows the learner an advisory estimate and one revision check", async () => {
     apiMock.mockImplementation((path: string) => {
-      if (path !== "/evaluations/mine") return Promise.resolve([]);
-      return Promise.resolve([
-        {
-          id: "evaluation-1",
-          status: "NeedsRevision",
-          price: 5,
-          currency: "JOD",
-          isRetake: false,
-          retakeOfEvaluationRequestId: null,
-          criteria: ["A.P1"],
-          academic: null,
-          selectedCriteria: ["A.P1"],
-          submissionAttemptNumber: 1,
-          calculatedGrade: "Pass",
-          sectionResults: [{ section: "A", grade: "Pass" }],
-          results: [
-            {
-              criterionCode: "A.P1",
-              achievement: "Achieved",
-              evidence: "Current evidence",
-              comment: "Strengthen the example",
-            },
-          ],
-          evidence: [],
-          feedback: [
-            {
-              body: "Add one clearer example before your school submission.",
-              requestsResubmission: true,
-              createdAtUtc: "2026-09-25T17:00:00Z",
-            },
-          ],
-        },
-      ]);
+      if (path !== "/evaluations/mine?page=1&pageSize=20")
+        return Promise.resolve([]);
+      return Promise.resolve({
+        items: [
+          {
+            id: "evaluation-1",
+            status: "NeedsRevision",
+            price: 5,
+            currency: "JOD",
+            isRetake: false,
+            retakeOfEvaluationRequestId: null,
+            criteria: ["A.P1"],
+            academic: null,
+            selectedCriteria: ["A.P1"],
+            submissionAttemptNumber: 1,
+            calculatedGrade: "Pass",
+            sectionResults: [{ section: "A", grade: "Pass" }],
+            results: [
+              {
+                criterionCode: "A.P1",
+                achievement: "Achieved",
+                evidence: "Current evidence",
+                comment: "Strengthen the example",
+              },
+            ],
+            evidence: [],
+            feedback: [
+              {
+                body: "Add one clearer example before your school submission.",
+                requestsResubmission: true,
+                createdAtUtc: "2026-09-25T17:00:00Z",
+              },
+            ],
+          },
+        ],
+        page: 1,
+        pageSize: 20,
+        totalCount: 1,
+        hasNextPage: false,
+      });
     });
 
     renderWithProviders(<StudentArea segment={["evaluations"]} />);
