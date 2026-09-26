@@ -10,6 +10,12 @@ public sealed record ResitEligibilityView(
     string FinalEstimatedGrade,
     int SubmissionAttemptNumber);
 
+public sealed record ResitEligibilityPage(
+    IReadOnlyList<ResitEligibilityView> Items,
+    int Page,
+    int PageSize,
+    bool HasNextPage);
+
 public sealed record ResitAuthorizationStaffView(
     Guid AuthorizationId,
     Guid OriginalEvaluationRequestId,
@@ -20,6 +26,12 @@ public sealed record ResitAuthorizationStaffView(
     DateTimeOffset? RevokedAtUtc,
     Guid? RevokedByUserId,
     string? RevocationReason);
+
+public sealed record ResitAuthorizationPage(
+    IReadOnlyList<ResitAuthorizationStaffView> Items,
+    int Page,
+    int PageSize,
+    bool HasNextPage);
 
 public enum ResitAuthorizationWriteStatus
 {
@@ -39,12 +51,16 @@ public sealed record ResitAuthorizationWriteResult(
 
 public interface IResitService
 {
-    Task<IReadOnlyList<ResitEligibilityView>> ListEligibleAsync(
+    Task<ResitEligibilityPage> ListEligibleAsync(
         Guid actorUserId,
+        int page = 1,
+        int pageSize = 20,
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<ResitAuthorizationStaffView>> ListAuthorizationsAsync(
+    Task<ResitAuthorizationPage> ListAuthorizationsAsync(
         Guid actorUserId,
+        int page = 1,
+        int pageSize = 20,
         CancellationToken cancellationToken = default);
 
     Task<ResitAuthorizationWriteResult> AuthorizeAsync(

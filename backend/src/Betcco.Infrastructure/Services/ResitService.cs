@@ -11,13 +11,17 @@ namespace Betcco.Infrastructure.Services;
 
 public sealed class ResitService(BetccoDbContext db) : IResitService
 {
-    public async Task<IReadOnlyList<ResitEligibilityView>> ListEligibleAsync(
+    public async Task<ResitEligibilityPage> ListEligibleAsync(
         Guid actorUserId,
+        int page = 1,
+        int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
-        if (!await ValidActorAsync(actorUserId, cancellationToken)) return [];
+        ValidatePage(page, pageSize);
+        if (!await ValidActorAsync(actorUserId, cancellationToken))
+            return new([], page, pageSize, false);
 
-        var candidates = await db.EvaluationRequests.AsNoTracking()
+        var candidates = db.EvaluationRequests.AsNoTracking()
             .Where(request =>
                 request.Status == EvaluationStatus.Completed
                 && request.CalculatedGrade == EvaluationGrade.NotYetAchieved
@@ -25,6 +29,7 @@ public sealed class ResitService(BetccoDbContext db) : IResitService
                 && request.RevisionDueAtUtc != null
                 && request.RetakeOfEvaluationRequestId == null
                 && request.AssessmentScopeId != null
+                && db.AssessmentScopes.Any(scope => scope.Id == request.AssessmentScopeId.Value)
                 && request.AssessmentScopeSnapshotJson != null
                 && !db.EvaluationRequests.Any(item =>
                     item.RetakeOfEvaluationRequestId == request.Id)
@@ -41,51 +46,79 @@ public sealed class ResitService(BetccoDbContext db) : IResitService
                     assignment.EvaluationRequestId == request.Id
                     && assignment.EvaluatorUserId == actorUserId.ToString()))
             .OrderByDescending(request => request.UpdatedAtUtc)
+            .ThenByDescending(request => request.Id)
             .Select(request => new
             {
                 request.Id,
-                request.AssessmentScopeId,
                 request.AssessmentScopeSnapshotJson,
                 request.CalculatedGrade,
                 request.SubmissionAttemptNumber
-            })
-            .ToArrayAsync(cancellationToken);
+            });
 
-        var scopeIds = candidates.Select(item => item.AssessmentScopeId!.Value).Distinct().ToArray();
-        var existingScopes = await db.AssessmentScopes.AsNoTracking()
-            .Where(scope => scopeIds.Contains(scope.Id))
-            .Select(scope => scope.Id)
-            .ToArrayAsync(cancellationToken);
-        var existing = existingScopes.ToHashSet();
-
-        var output = new List<ResitEligibilityView>();
-        foreach (var item in candidates)
+        // Snapshot validation is not SQL-translatable. Scan fixed-size database batches
+        // so logical page boundaries count only candidates with valid snapshots.
+        const int batchSize = 50;
+        var validToSkip = (long)(page - 1) * pageSize;
+        var validSeen = 0L;
+        var databaseOffset = 0;
+        var output = new List<ResitEligibilityView>(pageSize + 1);
+        while (true)
         {
-            if (item.AssessmentScopeId is not Guid scopeId || !existing.Contains(scopeId)) continue;
-            var academic = AssessmentScopeSnapshotReader.Summary(item.AssessmentScopeSnapshotJson);
-            if (academic is null) continue;
-            output.Add(new ResitEligibilityView(
-                item.Id,
-                academic,
-                item.CalculatedGrade!.Value.ToString(),
-                item.SubmissionAttemptNumber));
+            var batch = await candidates.Skip(databaseOffset).Take(batchSize)
+                .ToArrayAsync(cancellationToken);
+            foreach (var item in batch)
+            {
+                var academic = AssessmentScopeSnapshotReader.Summary(item.AssessmentScopeSnapshotJson);
+                if (academic is null) continue;
+                if (validSeen++ < validToSkip) continue;
+                output.Add(new ResitEligibilityView(
+                    item.Id,
+                    academic,
+                    item.CalculatedGrade!.Value.ToString(),
+                    item.SubmissionAttemptNumber));
+                if (output.Count > pageSize)
+                    return new(output.Take(pageSize).ToArray(), page, pageSize, true);
+            }
+
+            if (batch.Length < batchSize) break;
+            databaseOffset += batch.Length;
         }
 
-        return output;
+        return new(output, page, pageSize, false);
     }
 
-    public async Task<IReadOnlyList<ResitAuthorizationStaffView>> ListAuthorizationsAsync(
+    public async Task<ResitAuthorizationPage> ListAuthorizationsAsync(
         Guid actorUserId,
+        int page = 1,
+        int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
-        if (!await ValidActorAsync(actorUserId, cancellationToken)) return [];
+        ValidatePage(page, pageSize);
+        if (!await ValidActorAsync(actorUserId, cancellationToken))
+            return new([], page, pageSize, false);
 
-        return (await db.ResitAuthorizations.AsNoTracking()
+        var authorizations = db.ResitAuthorizations.AsNoTracking();
+        var offset = (long)(page - 1) * pageSize;
+        if (offset >= await authorizations.LongCountAsync(cancellationToken))
+            return new([], page, pageSize, false);
+
+        var items = await authorizations
             .OrderByDescending(item => item.AuthorizedAtUtc)
-            .Take(200)
-            .ToArrayAsync(cancellationToken))
-            .Select(View)
-            .ToArray();
+            .ThenByDescending(item => item.Id)
+            .Skip(checked((int)offset))
+            .Take(pageSize + 1)
+            .Select(item => new ResitAuthorizationStaffView(
+                item.Id,
+                item.OriginalEvaluationRequestId,
+                item.ResitEvaluationRequestId,
+                item.AuthorizedAtUtc,
+                item.Reason,
+                item.ActivatedAtUtc,
+                item.RevokedAtUtc,
+                item.RevokedByUserId,
+                item.RevocationReason))
+            .ToArrayAsync(cancellationToken);
+        return new(items.Take(pageSize).ToArray(), page, pageSize, items.Length > pageSize);
     }
 
     public async Task<ResitAuthorizationWriteResult> AuthorizeAsync(
@@ -264,6 +297,12 @@ public sealed class ResitService(BetccoDbContext db) : IResitService
             : db.Users.AsNoTracking().AnyAsync(
                 user => user.Id == actorUserId && !user.IsFrozen,
                 cancellationToken);
+
+    private static void ValidatePage(int page, int pageSize)
+    {
+        if (page < 1) throw new ArgumentOutOfRangeException(nameof(page));
+        if (pageSize is < 1 or > 50) throw new ArgumentOutOfRangeException(nameof(pageSize));
+    }
 
     private static bool TryReason(string? value, out string reason)
     {
