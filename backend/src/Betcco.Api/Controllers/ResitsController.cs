@@ -18,8 +18,14 @@ public sealed class ResitsController(IResitService resits) : ControllerBase
         CancellationToken cancellationToken = default)
     {
         if (!TryActor(out var actorUserId)) return Unauthorized();
-        if (!ValidPage(page, pageSize)) return InvalidPage();
-        return Ok(await resits.ListEligibleAsync(actorUserId, page, pageSize, cancellationToken));
+        try
+        {
+            return Ok(await resits.ListEligibleAsync(actorUserId, page, pageSize, cancellationToken));
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return InvalidPage();
+        }
     }
 
     [HttpGet("authorizations")]
@@ -29,8 +35,14 @@ public sealed class ResitsController(IResitService resits) : ControllerBase
         CancellationToken cancellationToken = default)
     {
         if (!TryActor(out var actorUserId)) return Unauthorized();
-        if (!ValidPage(page, pageSize)) return InvalidPage();
-        return Ok(await resits.ListAuthorizationsAsync(actorUserId, page, pageSize, cancellationToken));
+        try
+        {
+            return Ok(await resits.ListAuthorizationsAsync(actorUserId, page, pageSize, cancellationToken));
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return InvalidPage();
+        }
     }
 
     [HttpPost("{originalEvaluationRequestId:guid}/authorize")]
@@ -66,7 +78,6 @@ public sealed class ResitsController(IResitService resits) : ControllerBase
     private bool TryActor(out Guid actorUserId) =>
         Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out actorUserId);
 
-    private static bool ValidPage(int page, int pageSize) => page >= 1 && pageSize is >= 1 and <= 50;
 
     private BadRequestObjectResult InvalidPage() => BadRequest(new
     {
