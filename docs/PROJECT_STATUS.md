@@ -3,8 +3,8 @@
 ## Metadata
 
 - Last updated: 2026-09-26
-- Verified implementation baseline SHA: `7ddb361bfff2f570f7cb4035f7bafe253213a79a`
-- Status verified against origin/main: `7ddb361bfff2f570f7cb4035f7bafe253213a79a`
+- Verified implementation baseline SHA: `34445cdc2c1afe1f927cc006e8295fc97c310b1f`
+- Status verified against origin/main: `34445cdc2c1afe1f927cc006e8295fc97c310b1f`
 - OPEN implementation PRs at verification: none.
 - Parallel workstream coordination is persisted in `docs/WORKSTREAM_COORDINATION.md` and must be rechecked against live GitHub before implementation.
 
@@ -19,6 +19,8 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - PR #61 — Learning Aim Practice Attempt History — Slice 1 merged at `713dd95732ac44b334b6581b171d13ec1a49fb93`; teachers can configure bounded Learning Aim Practice attempt limits, reviewed attempts preserve independent evidence/feedback/outcomes, learners and teachers can inspect chronological attempt history, and progress exposes latest/best formative outcomes without reopening completed Learning Aims or changing Final Unit Practice, formal ASSESS, Retake, Resubmission, payments, or entitlements. Required PR Quality, Full UAT Matrix, and Security analysis checks were green before merge.
 - PR #63 — Simplify BETCCO Assignment Review Flow — Slice 1 merged at `11a7c5fd4dc606c222236947dd8292886f9302ea`; paid BETCCO assignment review is explicitly advisory/estimated, supports one revised-work check, retires creation/authorization of new Pearson-style Retakes while preserving readable/completable historical Retake records, and adds no schema or migration changes.
 - PR #64 — AI Practice UI Shell — Slice 1 merged at `649b3cd9676563d64c06dc0a245e29b6b4f7c39f`; Student My Courses now links to a dedicated bilingual formative AI Practice workspace shell with real enrolled-course selection and intentionally disabled Unit/Learning Aim/upload/analysis placeholders. No AI provider, RAG, embeddings, document extraction, backend service, database, formal ASSESS, Retake/Resit, payment, or entitlement behavior was added. Post-merge Quality #187 and Security analysis #189 are green.
+- PR #69 — Student Progress Intelligence — Slice 1 merged at `8109ba70361ba7d1d4feb6f3a5262591eabdd19a`; the Student Course Player now exposes a bilingual rule-based progress panel derived from existing LEARN/formative state, including content completion, Learning Aim completion, latest/best formative outcomes, attempt usage, Final Unit Practice readiness, and deterministic next-step guidance. No AI, formal ASSESS, payment, entitlement, Retake/Resit, backend schema, or migration changes were introduced. Required PR Quality #198, Full UAT Matrix #88, and Security analysis #200 were green before merge; post-merge `main` Quality #199 and Security analysis #201 are green.
+- PR #70 — Teacher Intervention Dashboard — Formative Signals Slice 1 merged at `34445cdc2c1afe1f927cc006e8295fc97c310b1f`; the existing Teacher Student Follow-Up workspace now surfaces teacher-scoped formative intervention signals for submitted practice awaiting review, latest/repeated NYA, one attempt remaining, incomplete Learning Aim practice, Final Unit Practice readiness, and submitted Final Unit Practice awaiting review, with Course/Unit/Aim context and latest/best outcomes. No AI, formal ASSESS, payment, entitlement, Retake/Resit, database schema, or migration changes were introduced. Required PR Quality #200, Full UAT Matrix #89, and Security analysis #202 were green before merge; post-merge `main` Quality #201 and Security analysis #203 are green.
 - PR #52 — Staff MFA Enforcement Slice 1 merged at `7929f631aa33b3e98f332905943cd9f1eab7d7f9`; mandatory MFA is server-enforced for Admin, SystemAdmin, SupportAdmin, and FinanceAdmin, including restricted enrollment state and session/SecurityStamp handling.
 - PR #54 — Staff MFA Recovery Codes Slice 1 merged at `3693585d44ab43f7c591771e221b7be4cde1a4ea`; Identity recovery codes provide one-time presentation, single-use login, regeneration, and password-plus-unused-code authenticator reset with session revocation and mandatory Staff re-enrollment.
 - PR #55 — ASUS/LENOVO workstream coordination merged at `231efd020d2e8cd1d9cf8934edc288586c560024`; `docs/WORKSTREAM_COORDINATION.md` now records ownership, reserved scope, preflight, overlap, and handoff rules.
@@ -217,7 +219,7 @@ Remaining: Admin-configurable Retake pricing, live payment and payout providers,
 
 ### Teacher and student experience
 
-Done: Main contains BTEC result views, internal-verification and appeal workspaces, protected privacy surfaces, these three Teacher slices, and one completed Student learning slice:
+Done: Main contains BTEC result views, internal-verification and appeal workspaces, protected privacy surfaces, and the following merged Teacher/Student learning UX slices:
 
 1. Teacher Course Workspace Navigation, with responsive navigation, stable deep links, active state, Arabic RTL/English LTR behavior, keyboard accessibility, mobile overflow handling, and usable sticky review/sidebar behavior.
 2. Teacher Courses Management UX, with bilingual title search, status filters, deterministic sorting, course metadata, responsive management and compact dashboard presentations, and consistent Show all courses reset behavior.
@@ -226,6 +228,8 @@ Done: Main contains BTEC result views, internal-verification and appeal workspac
 5. Student Course Player + Resume Learning, with server-authoritative resume/current lesson selection, authorized deep links, saved position restoration, server-owned completion, preserved video threshold, accessible navigation, Course Hub Continue integration, and EN/AR responsive/accessibility validation.
 6. Media / Video Foundation + Secure Delivery, with secure private MP4/WEBM upload, replacement/removal lifecycle handling, authorization, range/seek delivery, and resilient CoursePlayer media states. FOUNDATION COMPLETE; advanced media platform work remains outside this slice.
 7. Reasonable Adjustments Slice 1, with teacher grant/revoke/history UI and student-specific LEARN coursework deadlines shown without the private staff rationale; other students retain the shared deadline.
+8. Student Progress Intelligence — Slice 1, with a bilingual Course Player progress panel, latest/best formative outcomes, attempts used/remaining, Final Unit Practice readiness, and deterministic next-step guidance derived from existing saved learning state.
+9. Teacher Intervention Dashboard — Formative Signals Slice 1, extending the existing Student Follow-Up workspace with teacher-scoped formative intervention reasons and Course/Unit/Learning Aim context for review queues, NYA patterns, attempt pressure, incomplete practice, and Final Unit Practice readiness/review.
 
 Remaining: Broader Teacher UX remains incomplete. Student UX remains partial: the broader Student learning lifecycle remains. The broader course lifecycle and learning experience remain incomplete.
 
@@ -235,11 +239,11 @@ Live progress is tracked in OPEN Draft PRs, and repository evidence wins over co
 
 Maximum active implementation workstreams: **2**
 
-At the 2026-09-26 preflight, PR #65 is merged at `29bacc0de0a4faeec5125edffa8c04f6a2bb045e` and its corrective follow-up PR #67 is merged at `7ddb361bfff2f570f7cb4035f7bafe253213a79a`. No OPEN implementation PRs were present at this snapshot. The Included Evaluation Credit implementation and its identified follow-up corrections are part of merged `main`.
+At the 2026-09-26 reconciliation snapshot, PR #69 is merged at `8109ba70361ba7d1d4feb6f3a5262591eabdd19a` and PR #70 is merged at `34445cdc2c1afe1f927cc006e8295fc97c310b1f`. Post-merge Quality and Security checks are green for both merged states. No OPEN implementation PRs were present at this snapshot, and no ASUS implementation workstream is active.
 
 ## Next Actions
 
-- ASUS: PR #64 AI Practice UI Shell is merged with post-merge Quality and Security green. The actual AI engine/API/RAG work is explicitly deferred; before starting another roadmap item, run a fresh preflight against latest `main`, OPEN/Draft PRs, CI, and reserved scopes.
+- ASUS: Student Progress Intelligence — Slice 1 (PR #69) and Teacher Intervention Dashboard — Formative Signals Slice 1 (PR #70) are DONE, merged, and post-merge green. No active ASUS implementation workstream is reserved. The next planned roadmap item is Evaluate My Assignment; run a fresh preflight before implementation. AI engine/API/RAG/persistence remains explicitly deferred.
 - LENOVO: PR #67 completed the corrective follow-up to PR #65: undefined numeric CriterionAchievement values are rejected, included evaluation credits are granted per paid Enrollment + Unit within a Payment, and the Student credit lookup exposes a retry action. The corrective EF index migration is merged and its upgrade path was verified before merge. No additional Included Evaluation Credit follow-up is currently recorded; recheck latest `main`, CI, and ASUS reserved/planned scope before starting another workstream.
 - Task 6: DONE — Media / Video Foundation + Secure Delivery. PR #18 merged with required CI green.
 - Slice 1: DONE — ASSESS academic identity foundation. PR #28 merged with required CI green.
@@ -281,12 +285,12 @@ Do not reopen these areas merely because a later account lacks conversation memo
 | Storage | FOUNDATION COMPLETE |
 | Media/Video | FOUNDATION COMPLETE |
 | Operations/Deployment | FOUNDATION COMPLETE |
-| Teacher UX | PARTIAL |
-| Student UX | PARTIAL |
+| Teacher UX | PARTIAL — FORMATIVE INTERVENTION SIGNALS MERGED |
+| Student UX | PARTIAL — STUDENT PROGRESS INTELLIGENCE MERGED |
 | i18n/SEO/Performance/Accessibility | NOT STARTED |
-| Early Warning | NOT STARTED |
+| Early Warning | PARTIAL — TEACHER FORMATIVE INTERVENTION SIGNALS MERGED |
 | Guardian | NOT STARTED |
-| Community/Formative | PARTIAL — LEARNING AIM PRACTICE + ATTEMPT HISTORY/IMPROVEMENT TRACKING + FINAL UNIT COMPREHENSIVE PRACTICE MERGED |
+| Community/Formative | PARTIAL — LEARNING AIM PRACTICE + ATTEMPT HISTORY/IMPROVEMENT TRACKING + FINAL UNIT COMPREHENSIVE PRACTICE + STUDENT PROGRESS INTELLIGENCE + TEACHER FORMATIVE INTERVENTION SIGNALS MERGED |
 | AI | UI SHELL MERGED — ENGINE / API / RAG / PERSISTENCE DEFERRED |
 | OneRoster/LTI | NOT STARTED |
 | Final UAT/Launch Hardening | PARTIAL |
