@@ -499,6 +499,64 @@
     },
     "backToCourses": "العودة إلى دوراتي"
   },
+  "studentProgressIntelligence": {
+    "eyebrow": "ذكاء التقدم في BETCCO",
+    "title": "تقدمي",
+    "description": "عرض مبني على قواعد واضحة يوضح تقدمك في التعلم ونتائج التدريب التكويني والخطوة التالية في كل وحدة. لا يستخدم الذكاء الاصطناعي ولا يغيّر أي قرار للمعلم.",
+    "loading": "جارٍ تحميل تقدمك…",
+    "loadError": "تعذر تحميل ملخص تقدمك.",
+    "loadErrorDescription": "بيانات تعلمك لم تتغير. حدّث الصفحة وحاول مرة أخرى.",
+    "metrics": {
+      "content": "محتوى التعلم",
+      "aims": "أهداف التعلم المكتملة",
+      "readyForFinal": "وحدات جاهزة للتدريب النهائي",
+      "completedUnits": "تدريب الوحدة مكتمل"
+    },
+    "unitSummary": "اكتمل {contentCompleted}/{contentTotal} من المحتوى · {aimComplete}/{aimTotal} من أهداف التعلم",
+    "unitStates": {
+      "learning": "التعلم قيد التقدم",
+      "aimsComplete": "أهداف التعلم مكتملة",
+      "readyForFinal": "جاهز للتدريب النهائي للوحدة",
+      "complete": "تدريب الوحدة مكتمل"
+    },
+    "aim": {
+      "complete": "مكتمل",
+      "inProgress": "قيد التقدم",
+      "locked": "مقفل",
+      "content": "المحتوى {completed}/{total}",
+      "attempts": "المحاولات {used}/{max} · المتبقي {remaining}",
+      "latest": "آخر نتيجة",
+      "best": "أفضل نتيجة"
+    },
+    "outcomes": {
+      "notyetachieved": "لم يتحقق بعد",
+      "pass": "نجاح",
+      "merit": "جدارة",
+      "distinction": "تميز"
+    },
+    "next": {
+      "title": "الخطوة التالية",
+      "unitTitle": "ماذا تعمل الآن",
+      "ruleBased": "هذه الخطوة مشتقة من تقدمك المحفوظ وحالة الأنشطة التدريبية الحالية.",
+      "unitComplete": "اكتمل المسار التدريبي التكويني لهذه الوحدة.",
+      "waitingFinalConfiguration": "أكملت جميع أهداف التعلم. انتظر نشر المعلم للتدريب النهائي للوحدة.",
+      "waitingFinalReview": "تم تسليم التدريب النهائي للوحدة. انتظر مراجعة المعلم.",
+      "startFinalPractice": "أكملت جميع أهداف التعلم. ابدأ التدريب النهائي للوحدة.",
+      "finalDeadlineExpired": "انتهى موعد التدريب النهائي للوحدة. تواصل مع المعلم.",
+      "finalAccessRestricted": "التدريب النهائي للوحدة غير متاح حاليًا.",
+      "waitingFinalAvailability": "أكملت جميع أهداف التعلم. انتظر إتاحة التدريب النهائي للوحدة.",
+      "continueLearning": "تابع نشاط التعلم التالي المتاح.",
+      "completePreviousAim": "أكمل هدف التعلم السابق لفتح الهدف {aim}.",
+      "unitUnavailable": "هذه الوحدة غير متاحة حاليًا. ارجع إليها عندما يفتحها وصول الدورة.",
+      "waitingAimContent": "لا يوجد محتوى تعلم منشور للهدف {aim} بعد. انتظر نشره من المعلم.",
+      "continueAimContent": "تابع محتوى هدف التعلم {aim} ({completed}/{total} مكتمل).",
+      "waitingPracticeConfiguration": "اكتمل محتوى الهدف {aim}. انتظر نشر المعلم للنشاط التدريبي الخاص به.",
+      "waitingPracticeReview": "تم تسليم تدريب الهدف {aim}. انتظر مراجعة المعلم.",
+      "finishPracticeSubmission": "أكمل وسلّم محاولة تدريب الهدف {aim}.",
+      "startAimPractice": "اكتمل محتوى الهدف {aim}. ابدأ النشاط التدريبي الخاص به.",
+      "practiceUnavailable": "تدريب الهدف {aim} غير متاح حاليًا."
+    }
+  },
   "academicCatalogue": {
     "eyebrow": "التعريفات الأكاديمية",
     "title": "الكتالوج الأكاديمي",
