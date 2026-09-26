@@ -136,7 +136,7 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
     public async Task<IActionResult> SubmitReview(Guid requestId, SubmitEvaluationReviewCommand command, CancellationToken cancellationToken) =>
         await evaluations.SubmitReviewAsync(UserId, requestId, command, cancellationToken)
             ? NoContent()
-            : BadRequest(new { message = "Assess every selected criterion, provide teacher feedback, and use the revision option only on the first review." });
+            : BadRequest(new { message = "Assess every selected criterion, provide teacher feedback, and when opening the one revision check provide a future revision deadline." });
 
     [Authorize(Policy = "AssessmentAssessor")]
     [HttpPost("{requestId:guid}/results")]
@@ -327,6 +327,7 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             .Include(x => x.CriterionResults)
             .Include(x => x.EvidenceItems)
             .Include(x => x.FeedbackItems)
+            .Include(x => x.RevisionDeadlineAdjustments)
             .Where(x => x.StudentUserId == UserId)
             .OrderByDescending(x => x.CreatedAtUtc)
             .ToListAsync(cancellationToken);
@@ -339,6 +340,12 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             request.Currency,
             request.StudentComment,
             request.SubmissionAttemptNumber,
+            revisionDueAtUtc = request.RevisionDueAtUtc,
+            effectiveRevisionDueAtUtc = request.RevisionDeadlineAdjustments
+                .Where(item => item.RevokedAtUtc == null)
+                .OrderByDescending(item => item.GrantedAtUtc)
+                .Select(item => (DateTimeOffset?)item.ExtendedDueAtUtc)
+                .FirstOrDefault() ?? request.RevisionDueAtUtc,
             isRetake = request.RetakeOfEvaluationRequestId != null,
             request.RetakeOfEvaluationRequestId,
             academic = AssessmentScopeSnapshotReader.Summary(request.AssessmentScopeSnapshotJson),
@@ -363,7 +370,7 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
     [HttpGet("{requestId:guid}")]
     public async Task<IActionResult> Get(Guid requestId, CancellationToken cancellationToken)
     {
-        var request = await db.EvaluationRequests.Include(x => x.SubmissionFiles).Include(x => x.CriterionResults).Include(x => x.EvidenceItems).Include(x => x.FeedbackItems).Include(x => x.InternalVerifications).AsNoTracking().SingleOrDefaultAsync(x => x.Id == requestId, cancellationToken);
+        var request = await db.EvaluationRequests.Include(x => x.SubmissionFiles).Include(x => x.CriterionResults).Include(x => x.EvidenceItems).Include(x => x.FeedbackItems).Include(x => x.InternalVerifications).Include(x => x.RevisionDeadlineAdjustments).AsNoTracking().SingleOrDefaultAsync(x => x.Id == requestId, cancellationToken);
         if (request is null) return NotFound();
         var isOwner = request.StudentUserId == UserId;
         var canVerify = PlatformPermissionAuthorizationHandler.HasPermission(User, PlatformPermissions.VerifyAssessments);
@@ -385,6 +392,12 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             request.Currency,
             request.StudentComment,
             request.SubmissionAttemptNumber,
+            revisionDueAtUtc = request.RevisionDueAtUtc,
+            effectiveRevisionDueAtUtc = request.RevisionDeadlineAdjustments
+                .Where(item => item.RevokedAtUtc == null)
+                .OrderByDescending(item => item.GrantedAtUtc)
+                .Select(item => (DateTimeOffset?)item.ExtendedDueAtUtc)
+                .FirstOrDefault() ?? request.RevisionDueAtUtc,
             isRetake = request.RetakeOfEvaluationRequestId != null,
             request.RetakeOfEvaluationRequestId,
             academic = AssessmentScopeSnapshotReader.Summary(request.AssessmentScopeSnapshotJson),

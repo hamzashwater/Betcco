@@ -265,7 +265,11 @@ public sealed class EvaluationService(
         CancellationToken cancellationToken = default)
     {
         var feedback = command.Feedback?.Trim();
+        var revisionDueAtUtc = command.RevisionDueAtUtc?.ToUniversalTime();
         if (string.IsNullOrWhiteSpace(feedback) || feedback.Length > 4_000 || command.Results.Count == 0) return false;
+        if (command.RequestRevision
+            ? revisionDueAtUtc is null || revisionDueAtUtc <= DateTimeOffset.UtcNow
+            : command.RevisionDueAtUtc is not null) return false;
 
         var assignment = await db.EvaluatorAssignments.SingleOrDefaultAsync(
             x => x.EvaluationRequestId == requestId && x.EvaluatorUserId == teacherUserId,
@@ -321,6 +325,8 @@ public sealed class EvaluationService(
         request.SectionResultsJson = JsonSerializer.Serialize(calculation.Sections);
         var previousStatus = request.Status;
         request.Status = destination;
+        if (command.RequestRevision)
+            request.RevisionDueAtUtc = revisionDueAtUtc;
 
         db.EvaluationFeedbackItems.Add(new EvaluationFeedback
         {
@@ -437,6 +443,33 @@ public sealed class EvaluationService(
             || request.SubmissionAttemptNumber != 1
             || !EvaluationWorkflow.CanTransition(request.Status, EvaluationStatus.Assigned)) return false;
 
+        const int nextAttempt = 2;
+        ResubmissionAuthorization? authorization = null;
+        if (request.RevisionDueAtUtc is not null)
+        {
+            var adjustedDueAtUtc = await db.EvaluationRevisionDeadlineAdjustments.AsNoTracking()
+                .Where(item => item.EvaluationRequestId == requestId
+                    && item.RevokedAtUtc == null)
+                .Select(item => (DateTimeOffset?)item.ExtendedDueAtUtc)
+                .SingleOrDefaultAsync(cancellationToken);
+            var effectiveDueAtUtc = adjustedDueAtUtc ?? request.RevisionDueAtUtc.Value;
+            if (effectiveDueAtUtc <= DateTimeOffset.UtcNow) return false;
+        }
+        else
+        {
+            // Compatibility for historical formal ASSESS resubmissions. New
+            // BETCCO advisory revision checks use RevisionDueAtUtc above.
+            authorization = await db.ResubmissionAuthorizations
+                .SingleOrDefaultAsync(item => item.EvaluationRequestId == requestId
+                    && item.AttemptNumber == nextAttempt,
+                    cancellationToken);
+            if (authorization is not null
+                && (authorization.SubmittedAtUtc is not null
+                    || authorization.RevokedAtUtc is not null
+                    || authorization.DueAtUtc <= DateTimeOffset.UtcNow))
+                return false;
+        }
+
         var revisionFeedbackAt = await db.EvaluationFeedbackItems
             .Where(item => item.EvaluationRequestId == requestId && item.RequestsResubmission)
             .OrderByDescending(item => item.CreatedAtUtc)
@@ -447,7 +480,6 @@ public sealed class EvaluationService(
                 file.ScanStatus == UploadScanStatus.Clean
                 && file.CreatedAtUtc > revisionFeedbackAt.Value)) return false;
 
-        const int nextAttempt = 2;
         if (!await db.AuthenticityDeclarations.AnyAsync(
                 item => item.EvaluationRequestId == requestId && item.AttemptNumber == nextAttempt,
                 cancellationToken)) return false;
@@ -455,6 +487,7 @@ public sealed class EvaluationService(
         var previousStatus = request.Status;
         request.Status = EvaluationStatus.Assigned;
         request.SubmissionAttemptNumber = nextAttempt;
+        if (authorization is not null) authorization.SubmittedAtUtc = DateTimeOffset.UtcNow;
         RecordAssessmentEvent(request, studentUserId, "RevisionSubmitted", previousStatus, request.Status, null, nextAttempt, null);
         db.AuditLogs.Add(Audit(studentUserId, "EvaluationRevisionSubmitted", nameof(EvaluationRequest), requestId.ToString()));
         await db.SaveChangesAsync(cancellationToken);

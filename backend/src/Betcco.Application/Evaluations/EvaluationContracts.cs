@@ -40,7 +40,8 @@ public sealed record SetEvaluationCriteriaPlanCommand(IReadOnlyCollection<string
 public sealed record SubmitEvaluationReviewCommand(
     IReadOnlyCollection<CriterionSubmission> Results,
     string Feedback,
-    bool RequestRevision);
+    bool RequestRevision,
+    DateTimeOffset? RevisionDueAtUtc);
 public sealed record EvaluationSectionResult(string Section, string Grade);
 public sealed record EvaluationCalculation(EvaluationGrade Grade, IReadOnlyCollection<EvaluationSectionResult> Sections);
 public sealed record BtecOutcomeRule(string Outcome, IReadOnlyCollection<string> RequiredBands);

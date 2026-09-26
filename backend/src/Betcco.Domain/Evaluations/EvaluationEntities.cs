@@ -78,6 +78,10 @@ public sealed class EvaluationRequest : Entity
     // Starts at one for the first formal submission. A resubmission is a new
     // academic attempt and therefore needs its own authenticity declaration.
     public int SubmissionAttemptNumber { get; set; } = 1;
+    // Operational deadline for BETCCO's single learner revision check. It is
+    // chosen explicitly when the first review opens that revision window; no
+    // platform-wide duration is invented by the assessment engine.
+    public DateTimeOffset? RevisionDueAtUtc { get; set; }
     public Guid? PaymentId { get; set; }
     // A Retake is a new aggregate with its own payment, evidence and result.
     // This nullable self-reference is the only link back to the immutable
@@ -97,6 +101,7 @@ public sealed class EvaluationRequest : Entity
     public ICollection<AssessmentAuditEvent> AssessmentAuditEvents { get; } = new List<AssessmentAuditEvent>();
     public ICollection<EvaluationExpectedCompletionRevision> ExpectedCompletionRevisions { get; } = new List<EvaluationExpectedCompletionRevision>();
     public ICollection<ResubmissionAuthorization> ResubmissionAuthorizations { get; } = new List<ResubmissionAuthorization>();
+    public ICollection<EvaluationRevisionDeadlineAdjustment> RevisionDeadlineAdjustments { get; } = new List<EvaluationRevisionDeadlineAdjustment>();
     public RetakeAuthorization? RetakeAuthorization { get; set; }
 }
 
@@ -431,4 +436,23 @@ public sealed class ResubmissionAuthorization : Entity
     public DateTimeOffset DueAtUtc { get; set; }
     public DateTimeOffset? SubmittedAtUtc { get; set; }
     public DateTimeOffset? RevokedAtUtc { get; set; }
+}
+
+/// <summary>
+/// Staff-authorised reasonable adjustment for BETCCO's single revision-check
+/// deadline. The private rationale is retained for staff audit only and never
+/// changes criteria, outcomes, payments, entitlements, or attempt counts.
+/// </summary>
+public sealed class EvaluationRevisionDeadlineAdjustment : Entity
+{
+    public Guid EvaluationRequestId { get; set; }
+    public EvaluationRequest? EvaluationRequest { get; set; }
+    public DateTimeOffset BaseDueAtUtcSnapshot { get; set; }
+    public DateTimeOffset ExtendedDueAtUtc { get; set; }
+    public Guid GrantedByUserId { get; set; }
+    public DateTimeOffset GrantedAtUtc { get; set; } = DateTimeOffset.UtcNow;
+    public required string Reason { get; set; }
+    public DateTimeOffset? RevokedAtUtc { get; set; }
+    public Guid? RevokedByUserId { get; set; }
+    public string? RevocationReason { get; set; }
 }

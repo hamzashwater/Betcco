@@ -109,6 +109,7 @@ public sealed class BetccoDbContext(
     public DbSet<AssessmentAuditEvent> AssessmentAuditEvents => Set<AssessmentAuditEvent>();
     public DbSet<EvaluationExpectedCompletionRevision> EvaluationExpectedCompletionRevisions => Set<EvaluationExpectedCompletionRevision>();
     public DbSet<ResubmissionAuthorization> ResubmissionAuthorizations => Set<ResubmissionAuthorization>();
+    public DbSet<EvaluationRevisionDeadlineAdjustment> EvaluationRevisionDeadlineAdjustments => Set<EvaluationRevisionDeadlineAdjustment>();
     public DbSet<RetakeAuthorization> RetakeAuthorizations => Set<RetakeAuthorization>();
     public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
     public DbSet<LegalDocument> LegalDocuments => Set<LegalDocument>();
@@ -1419,6 +1420,23 @@ public sealed class BetccoDbContext(
             .HasIndex(x => new { x.EvaluationRequestId, x.RevisionNumber }).IsUnique();
         builder.Entity<ResubmissionAuthorization>().HasIndex(x => new { x.EvaluationRequestId, x.AttemptNumber }).IsUnique();
         builder.Entity<ResubmissionAuthorization>().HasIndex(x => new { x.DueAtUtc, x.SubmittedAtUtc, x.RevokedAtUtc });
+        builder.Entity<EvaluationRevisionDeadlineAdjustment>().Property(x => x.Reason).HasMaxLength(500);
+        builder.Entity<EvaluationRevisionDeadlineAdjustment>().Property(x => x.RevocationReason).HasMaxLength(500);
+        builder.Entity<EvaluationRevisionDeadlineAdjustment>().Property(x => x.RevokedAtUtc).IsConcurrencyToken();
+        builder.Entity<EvaluationRevisionDeadlineAdjustment>().HasOne(x => x.EvaluationRequest)
+            .WithMany(x => x.RevisionDeadlineAdjustments).HasForeignKey(x => x.EvaluationRequestId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<EvaluationRevisionDeadlineAdjustment>().HasOne<ApplicationUser>().WithMany()
+            .HasForeignKey(x => x.GrantedByUserId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<EvaluationRevisionDeadlineAdjustment>().HasOne<ApplicationUser>().WithMany()
+            .HasForeignKey(x => x.RevokedByUserId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<EvaluationRevisionDeadlineAdjustment>().HasIndex(x => x.EvaluationRequestId)
+            .IsUnique().HasFilter("\"RevokedAtUtc\" IS NULL");
+        builder.Entity<EvaluationRevisionDeadlineAdjustment>()
+            .HasIndex(x => new { x.EvaluationRequestId, x.GrantedAtUtc });
+        builder.Entity<EvaluationRevisionDeadlineAdjustment>().ToTable(table => table.HasCheckConstraint(
+            "CK_EvaluationRevisionDeadlineAdjustments_ExtendsBase",
+            "\"ExtendedDueAtUtc\" > \"BaseDueAtUtcSnapshot\""));
         builder.Entity<RetakeAuthorization>().Property(x => x.AuthorizedByUserId).HasMaxLength(128);
         builder.Entity<RetakeAuthorization>().Property(x => x.Reason).HasMaxLength(2_000);
         builder.Entity<RetakeAuthorization>().HasIndex(x => x.OriginalEvaluationRequestId).IsUnique();

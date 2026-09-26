@@ -136,6 +136,10 @@ describe("BETCCO assignment review flow", () => {
         name: /Open the one revision check/,
       }),
     );
+    await user.type(
+      screen.getByLabelText("Revision check deadline"),
+      "2030-01-03T12:00",
+    );
     await user.click(
       screen.getByRole("button", { name: "Send review and feedback" }),
     );
@@ -156,6 +160,7 @@ describe("BETCCO assignment review flow", () => {
             ],
             feedback: "Add one clearer example before your school submission.",
             requestRevision: true,
+            revisionDueAtUtc: new Date("2030-01-03T12:00").toISOString(),
           }),
         }),
       ),
