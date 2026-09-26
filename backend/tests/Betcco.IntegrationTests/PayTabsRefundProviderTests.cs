@@ -5,10 +5,12 @@ using Betcco.Domain.Common;
 using Betcco.Domain.Commerce;
 using Betcco.Domain.Evaluations;
 using Betcco.Domain.Learning;
+using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Persistence;
 using Betcco.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Xunit.Abstractions;
 
@@ -16,6 +18,75 @@ namespace Betcco.IntegrationTests;
 
 public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
 {
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Verified_PayTabs_full_refund_of_taxed_course_finalizes_accounting()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("paytabs_taxed_refund");
+        Guid paymentId;
+        Guid entitlementId;
+        await using (var purchaseDb = database.CreateContext())
+        {
+            var cart = await AddTaxedCourseCartAsync(purchaseDb);
+            var saleHandler = new PaidCourseSaleHandler();
+            var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["PayTabs:ProfileId"] = "123456",
+                ["APP_PUBLIC_URL"] = "https://betcco.test"
+            }).Build();
+            var commerce = new CommerceService(purchaseDb, CreateProvider(saleHandler), null, configuration);
+            var checkout = await commerce.CreateCourseCheckoutAsync("student", cart.OwnerKey, null, "Card", "taxed-course-checkout");
+            Assert.NotNull(checkout);
+            paymentId = checkout.PaymentId;
+            Assert.True(await commerce.ConfirmPayTabsCallbackAsync(PayTabsPaymentProvider.CartId(paymentId), PaidCourseSaleHandler.SaleReference));
+            Assert.Equal(2, saleHandler.RequestCount);
+
+            var payment = await purchaseDb.Payments.SingleAsync(item => item.Id == paymentId);
+            Assert.Equal(PaymentStatus.Paid, payment.Status);
+            Assert.Equal(100m, payment.Subtotal);
+            Assert.Equal(16m, payment.Tax);
+            Assert.Equal(116m, payment.Total);
+            var allocation = Assert.Single(await purchaseDb.CourseSaleAllocations.Where(item => item.PaymentId == paymentId).ToListAsync());
+            Assert.Equal(100m, allocation.NetAmount);
+            var sale = Assert.Single(await purchaseDb.LedgerTransactions.Include(item => item.Entries).Where(item => item.PaymentId == paymentId).ToListAsync());
+            Assert.Equal(sale.Entries.Where(item => item.Side == LedgerEntrySide.Debit).Sum(item => item.Amount),
+                sale.Entries.Where(item => item.Side == LedgerEntrySide.Credit).Sum(item => item.Amount));
+            Assert.Equal(2, await purchaseDb.WalletTransactions.CountAsync(item => item.PaymentId == paymentId));
+            var entitlement = Assert.Single(await purchaseDb.IncludedEvaluationEntitlements.Where(item => item.GrantedByPaymentId == paymentId).ToListAsync());
+            entitlementId = entitlement.Id;
+            Assert.Null(entitlement.ConsumedAtUtc);
+            Assert.Null(entitlement.RevokedAtUtc);
+        }
+
+        await using var refundDb = database.CreateContext();
+        var refundHandler = new RefundHandler();
+        var result = await new RefundService(refundDb, CreateProvider(refundHandler))
+            .InitiatePayTabsRefundAsync("finance", new(paymentId, "CustomerRequest", null, "taxed-full-refund"));
+
+        await using var observed = database.CreateContext();
+        var persistedPayment = await observed.Payments.SingleAsync(item => item.Id == paymentId);
+        var persistedRefund = await observed.Refunds.SingleAsync(item => item.PaymentId == paymentId);
+        var persistedEntitlement = await observed.IncludedEvaluationEntitlements.SingleAsync(item => item.Id == entitlementId);
+        var allocationNetTotal = await observed.CourseSaleAllocations.Where(item => item.PaymentId == paymentId).SumAsync(item => item.NetAmount);
+        var ledgerReversals = await observed.LedgerTransactions.CountAsync(item => item.RefundId == persistedRefund.Id);
+        var walletReversals = await observed.WalletTransactions.CountAsync(item => item.RefundId == persistedRefund.Id);
+        await using var replayDb = database.CreateContext();
+        var replay = await new RefundService(replayDb, CreateProvider(refundHandler)).VerifyPayTabsRefundAsync("finance", persistedRefund.Id);
+        output.WriteLine($"Payment: Subtotal={persistedPayment.Subtotal}, Tax={persistedPayment.Tax}, Total={persistedPayment.Total}, Status={persistedPayment.Status}; AllocationNetTotal={allocationNetTotal}; Refund: Amount={persistedRefund.Amount}, Status={persistedRefund.Status}, ProviderReferenceRetained={persistedRefund.ProviderRefundReference is not null}; ResultFailureCode={result.FailureCode}; ReplayFailureCode={replay.FailureCode}; ProviderRequests={refundHandler.RequestBodies.Count}; LedgerReversals={ledgerReversals}; WalletReversals={walletReversals}; CreditRevoked={persistedEntitlement.RevokedAtUtc is not null}");
+
+        Assert.Equal(100m, allocationNetTotal);
+        Assert.Equal(116m, persistedRefund.Amount);
+        Assert.Equal(2, refundHandler.RequestBodies.Count);
+        Assert.NotNull(persistedRefund.ProviderRefundReference);
+        Assert.Single(await observed.RefundStatusTransitions.Where(item => item.RefundId == persistedRefund.Id && item.NewStatus == RefundStatus.ProviderVerified).ToListAsync());
+        Assert.Null(result.FailureCode);
+        Assert.Equal(RefundStatus.InternallyRecorded, persistedRefund.Status);
+        Assert.Equal(PaymentStatus.Refunded, persistedPayment.Status);
+        Assert.Equal(1, ledgerReversals);
+        Assert.Equal(2, walletReversals);
+        Assert.Equal(persistedRefund.Id, persistedEntitlement.RevokedByRefundId);
+    }
+
     [Fact]
     [Trait("Category", "PostgreSQLFinance")]
     public async Task Verified_PayTabs_full_refund_with_unused_included_credit_finalizes_accounting_and_revokes_credit()
@@ -195,6 +266,60 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
     }
 
     private static PayTabsPaymentProvider CreateProvider(HttpMessageHandler handler) => new(new HttpClient(handler) { BaseAddress = new Uri("https://secure-jordan.paytabs.com/") }, Options.Create(new PayTabsOptions { ProfileId = 123456, ServerKey = "server-key-test", BaseUrl = "https://secure-jordan.paytabs.com", Environment = PayTabsEnvironment.Test }));
+
+    private static async Task<Cart> AddTaxedCourseCartAsync(BetccoDbContext db)
+    {
+        var token = Guid.NewGuid().ToString("N");
+        var track = new LearningTrack { Slug = $"taxed-refund-track-{token}", ArabicName = "مسار", EnglishName = "Track" };
+        var qualification = new Qualification { Code = $"TAXED-REFUND-{token}", ArabicName = "مؤهل", EnglishName = "Qualification" };
+        var version = new QualificationVersion { Qualification = qualification, VersionCode = "V1", SourceReference = "integration test" };
+        var unit = new UnitDefinition { QualificationVersion = version, Code = "U1", ArabicTitle = "وحدة", EnglishTitle = "Unit", IsActive = true };
+        var course = new Course { Slug = $"taxed-refund-course-{token}", ArabicTitle = "دورة", EnglishTitle = "Course", ArabicDescription = "وصف", EnglishDescription = "Description", LearningTrack = track, TeacherUserId = "teacher", Status = CourseStatus.Published, Price = 100m };
+        course.Modules.Add(new CourseModule { Course = course, UnitDefinition = unit, ArabicTitle = "وحدة", EnglishTitle = "Unit", UnitCode = unit.Code, IsPublished = true });
+        var cart = new Cart { OwnerKey = $"taxed-refund-cart-{token}", UserId = "student" };
+        cart.Items.Add(new CartItem { ItemType = CartItemType.Course, ReferenceId = course.Id });
+        var taxSetting = await db.SiteSettings.SingleOrDefaultAsync(item => item.Key == "SalesTaxPercent");
+        if (taxSetting is null)
+            db.SiteSettings.Add(new SiteSetting { Key = "SalesTaxPercent", ArabicValue = "16", EnglishValue = "16" });
+        else
+            taxSetting.EnglishValue = "16";
+        db.AddRange(track, qualification, version, unit, course, cart);
+        await db.SaveChangesAsync();
+        return cart;
+    }
+
+    private sealed class PaidCourseSaleHandler : HttpMessageHandler
+    {
+        public const string SaleReference = "SALE-TAXED-REF";
+        public int RequestCount { get; private set; }
+        private string? cartId;
+        private decimal amount;
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            RequestCount++;
+            using var body = JsonDocument.Parse(await request.Content!.ReadAsStringAsync(cancellationToken));
+            if (request.RequestUri!.AbsolutePath.EndsWith("/payment/request", StringComparison.Ordinal))
+            {
+                cartId = body.RootElement.GetProperty("cart_id").GetString();
+                amount = body.RootElement.GetProperty("cart_amount").GetDecimal();
+                return new(HttpStatusCode.OK) { Content = new StringContent(JsonSerializer.Serialize(new { tran_ref = SaleReference, redirect_url = "https://secure-jordan.paytabs.com/payment/page/test" })) };
+            }
+
+            return new(HttpStatusCode.OK)
+            {
+                Content = new StringContent(JsonSerializer.Serialize(new
+                {
+                    profile_id = 123456,
+                    tran_ref = SaleReference,
+                    cart_id = cartId,
+                    cart_currency = "JOD",
+                    cart_amount = amount,
+                    payment_result = new { response_status = "A", response_code = "100" }
+                }))
+            };
+        }
+    }
 
     private static async Task<Payment> AddPaidCourseSaleAsync(BetccoDbContext db)
     {
