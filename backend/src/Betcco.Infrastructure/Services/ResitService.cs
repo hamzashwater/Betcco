@@ -17,9 +17,9 @@ public sealed class ResitService(BetccoDbContext db) : IResitService
         int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
-        ValidatePage(page, pageSize);
         if (!await ValidActorAsync(actorUserId, cancellationToken))
             return new([], page, pageSize, false);
+        ValidatePage(page, pageSize);
 
         var candidates = db.EvaluationRequests.AsNoTracking()
             .Where(request =>
@@ -93,9 +93,9 @@ public sealed class ResitService(BetccoDbContext db) : IResitService
         int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
-        ValidatePage(page, pageSize);
         if (!await ValidActorAsync(actorUserId, cancellationToken))
             return new([], page, pageSize, false);
+        ValidatePage(page, pageSize);
 
         var authorizations = db.ResitAuthorizations.AsNoTracking();
         var offset = (long)(page - 1) * pageSize;
