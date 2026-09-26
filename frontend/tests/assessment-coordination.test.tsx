@@ -179,4 +179,80 @@ describe("Assessment coordination queue", () => {
     ).toBeVisible();
     expect(screen.getByLabelText("تصفية حسب الحالة")).toBeVisible();
   });
+
+  it("grants a staff-only reasonable adjustment for the one revision check deadline", async () => {
+    const requestId = "12345678-1111-2222-3333-444444444444";
+    apiMock.mockImplementation((path: string, options?: RequestInit) => {
+      if (path.includes("/reasonable-adjustments/revision-deadline")) {
+        if (options?.method === "POST") return Promise.resolve(undefined);
+        return Promise.resolve({
+          evaluationRequestId: requestId,
+          baseDueAtUtc: "2030-01-01T12:00:00Z",
+          effectiveDueAtUtc: "2030-01-01T12:00:00Z",
+          activeAdjustmentId: null,
+          history: [],
+        });
+      }
+      return Promise.resolve({
+        items: [
+          {
+            id: requestId,
+            status: "NeedsRevision",
+            updatedAtUtc: "2026-09-23T10:00:00Z",
+            isRetake: false,
+            qualificationCode: "Q",
+            qualificationVersionCode: "V1",
+            unitCode: "U1",
+            unitEnglishTitle: "Unit",
+            unitArabicTitle: "وحدة",
+            evaluatorDisplayName: "Assessor",
+            hasEligibleEvaluator: null,
+            blockerCode: null,
+            expectedCompletionAtUtc: null,
+            expectedCompletionState: "NotSet",
+            revisionDueAtUtc: "2030-01-01T12:00:00Z",
+            effectiveRevisionDueAtUtc: "2030-01-01T12:00:00Z",
+            activeDeadlineAdjustmentId: null,
+          },
+        ],
+        page: 1,
+        pageSize: 10,
+        totalCount: 1,
+      });
+    });
+
+    renderQueue();
+    const user = userEvent.setup();
+    expect(
+      await screen.findByText("One revision check deadline"),
+    ).toBeVisible();
+    await user.click(
+      screen.getByRole("button", { name: "Manage reasonable adjustment" }),
+    );
+    expect(await screen.findByText("No previous adjustments.")).toBeVisible();
+    await user.type(
+      screen.getByLabelText("Adjusted deadline"),
+      "2030-01-03T12:00",
+    );
+    await user.type(
+      screen.getByLabelText("Private staff reason"),
+      "Approved access adjustment",
+    );
+    await user.click(screen.getByRole("button", { name: "Grant extension" }));
+
+    await waitFor(() =>
+      expect(apiMock).toHaveBeenCalledWith(
+        `/assessment-coordination/${requestId}/reasonable-adjustments/revision-deadline`,
+        expect.objectContaining({ method: "POST" }),
+      ),
+    );
+    const write = apiMock.mock.calls.find(
+      ([path, options]) =>
+        path.includes("/reasonable-adjustments/revision-deadline") &&
+        options?.method === "POST",
+    );
+    expect(JSON.parse(write?.[1].body as string)).toEqual(
+      expect.objectContaining({ reason: "Approved access adjustment" }),
+    );
+  });
 });

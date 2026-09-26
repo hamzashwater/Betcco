@@ -660,6 +660,8 @@ type EvaluationDetail = {
   criteria: string[];
   selectedCriteria: string[];
   submissionAttemptNumber: number;
+  revisionDueAtUtc: string | null;
+  effectiveRevisionDueAtUtc: string | null;
   calculatedGrade: string | null;
   sectionResults: { section: string; grade: string }[];
   files: {
@@ -693,6 +695,7 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
   const [draft, setDraft] = useState<ResultDraft>({});
   const [feedback, setFeedback] = useState("");
   const [requestRevision, setRequestRevision] = useState(false);
+  const [revisionDueLocal, setRevisionDueLocal] = useState("");
   const [criteriaPlanDraft, setCriteriaPlanDraft] = useState<string[] | null>(
     null,
   );
@@ -702,6 +705,15 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
   });
   const submit = useMutation({
     mutationFn: () => {
+      if (
+        requestRevision &&
+        (!revisionDueLocal || !Number.isFinite(Date.parse(revisionDueLocal)))
+      )
+        throw new Error(
+          locale === "ar"
+            ? "حدد موعدًا صالحًا لفرصة التعديل الوحيدة."
+            : "Choose a valid deadline for the one revision check.",
+        );
       const results =
         activeCriteria.map((criterion) => {
           const value = criterionValue(criterion);
@@ -726,6 +738,10 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
             evaluation.data?.submissionAttemptNumber === 1
               ? requestRevision
               : false,
+          revisionDueAtUtc:
+            evaluation.data?.submissionAttemptNumber === 1 && requestRevision
+              ? new Date(revisionDueLocal).toISOString()
+              : null,
         }),
       });
     },
@@ -733,6 +749,7 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
       setDraft({});
       setFeedback("");
       setRequestRevision(false);
+      setRevisionDueLocal("");
       evaluation.refetch();
     },
   });
@@ -794,6 +811,10 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
   const complete = activeCriteria.every((criterion) =>
     Boolean(criterionValue(criterion).achievement),
   );
+  const revisionDeadlineValid =
+    !requestRevision ||
+    (Boolean(revisionDueLocal) &&
+      Number.isFinite(Date.parse(revisionDueLocal)));
   const isPlanning =
     evaluation.data.submissionAttemptNumber === 1 &&
     (criteriaPlanDraft !== null || activeCriteria.length === 0);
@@ -829,7 +850,11 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
           className="card p-5 sm:p-7"
           onSubmit={(event) => {
             event.preventDefault();
-            if (complete && (evaluation.data.isRetake || feedback.trim()))
+            if (
+              complete &&
+              (evaluation.data.isRetake || feedback.trim()) &&
+              revisionDeadlineValid
+            )
               submit.mutate();
           }}
         >
@@ -1143,28 +1168,47 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                     />
                   </label>
                   {evaluation.data.submissionAttemptNumber === 1 ? (
-                    <label className="flex items-start gap-3 rounded-xl border border-border bg-surface-solid/60 p-3 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={requestRevision}
-                        onChange={(event) =>
-                          setRequestRevision(event.target.checked)
-                        }
-                        className="mt-1 size-4 accent-[var(--primary)]"
-                      />
-                      <span>
-                        <strong>
-                          {locale === "ar"
-                            ? "فتح فرصة التعديل الوحيدة"
-                            : "Open the one revision check"}
-                        </strong>
-                        <span className="mt-1 block text-muted">
-                          {locale === "ar"
-                            ? "سيشاهد الطالب النتيجة التقديرية الحالية وملاحظاتك، ثم يرفع نسخة معدلة مرة واحدة."
-                            : "The learner will see the current estimated result and your feedback, then can upload one revised version."}
+                    <div className="grid gap-3">
+                      <label className="flex items-start gap-3 rounded-xl border border-border bg-surface-solid/60 p-3 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={requestRevision}
+                          onChange={(event) => {
+                            setRequestRevision(event.target.checked);
+                            if (!event.target.checked) setRevisionDueLocal("");
+                          }}
+                          className="mt-1 size-4 accent-[var(--primary)]"
+                        />
+                        <span>
+                          <strong>
+                            {locale === "ar"
+                              ? "فتح فرصة التعديل الوحيدة"
+                              : "Open the one revision check"}
+                          </strong>
+                          <span className="mt-1 block text-muted">
+                            {locale === "ar"
+                              ? "سيشاهد الطالب النتيجة التقديرية الحالية وملاحظاتك، ثم يرفع نسخة معدلة مرة واحدة."
+                              : "The learner will see the current estimated result and your feedback, then can upload one revised version."}
+                          </span>
                         </span>
-                      </span>
-                    </label>
+                      </label>
+                      {requestRevision && (
+                        <label className="grid gap-2 text-sm font-bold text-foreground">
+                          {locale === "ar"
+                            ? "آخر موعد للمراجعة الثانية"
+                            : "Revision check deadline"}
+                          <input
+                            type="datetime-local"
+                            required
+                            value={revisionDueLocal}
+                            onChange={(event) =>
+                              setRevisionDueLocal(event.target.value)
+                            }
+                            className="rounded-xl border border-border bg-transparent p-3 text-sm font-normal text-foreground"
+                          />
+                        </label>
+                      )}
+                    </div>
                   ) : (
                     <p className="rounded-xl border border-border bg-surface-solid/60 p-3 text-sm text-muted">
                       {locale === "ar"
@@ -1184,6 +1228,7 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                 disabled={
                   !complete ||
                   (!evaluation.data.isRetake && !feedback.trim()) ||
+                  !revisionDeadlineValid ||
                   submit.isPending
                 }
                 className="focus-ring mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"

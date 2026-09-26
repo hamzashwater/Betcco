@@ -19,7 +19,9 @@ public sealed record AssessmentCoordinationItem(
     string? UnitCode, string? UnitArabicTitle, string? UnitEnglishTitle,
     string? EvaluatorDisplayName, DateTimeOffset? AssignedAtUtc,
     bool? HasEligibleEvaluator, string? BlockerCode,
-    DateTimeOffset? ExpectedCompletionAtUtc, string ExpectedCompletionState);
+    DateTimeOffset? ExpectedCompletionAtUtc, string ExpectedCompletionState,
+    DateTimeOffset? RevisionDueAtUtc, DateTimeOffset? EffectiveRevisionDueAtUtc,
+    Guid? ActiveDeadlineAdjustmentId);
 
 public sealed record AssessmentCoordinationPage(
     IReadOnlyList<AssessmentCoordinationItem> Items, int Page, int PageSize, int TotalCount);

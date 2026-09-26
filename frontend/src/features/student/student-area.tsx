@@ -4252,6 +4252,8 @@ function MyEvaluations() {
           academic: AssessmentAcademicSummary | null;
           selectedCriteria: string[];
           submissionAttemptNumber: number;
+          revisionDueAtUtc: string | null;
+          effectiveRevisionDueAtUtc: string | null;
           calculatedGrade: string | null;
           sectionResults: { section: string; grade: string }[];
           results: {
@@ -4422,7 +4424,19 @@ function MyEvaluations() {
               </div>
             ) : null}
             {item.status === "NeedsRevision" ? (
-              <EvaluationRevisionSubmission requestId={item.id} />
+              <>
+                {item.effectiveRevisionDueAtUtc && (
+                  <p className="rounded-xl border border-primary/30 bg-primary/5 p-3 text-sm font-semibold">
+                    {locale === "ar"
+                      ? "آخر موعد للمراجعة الثانية: "
+                      : "Revision check deadline: "}
+                    {new Date(item.effectiveRevisionDueAtUtc).toLocaleString(
+                      locale === "ar" ? "ar-JO" : "en-GB",
+                    )}
+                  </p>
+                )}
+                <EvaluationRevisionSubmission requestId={item.id} />
+              </>
             ) : null}
             {item.isRetake && item.status === "Draft" ? (
               <RetakePayment requestId={item.id} criteria={item.criteria} />

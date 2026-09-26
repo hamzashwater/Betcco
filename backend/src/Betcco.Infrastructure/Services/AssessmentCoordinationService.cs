@@ -57,11 +57,19 @@ public sealed class AssessmentCoordinationService(
                 row.Request.SpecializationId,
                 row.Request.RubricTemplateId,
                 row.Request.RetakeOfEvaluationRequestId,
+                row.Request.SubmissionAttemptNumber,
+                row.Request.RevisionDueAtUtc,
                 row.ExpectedCompletionAtUtc
             })
             .ToListAsync(cancellationToken);
 
         var requestIds = rows.Select(row => row.Id).ToArray();
+        var activeAdjustments = await db.EvaluationRevisionDeadlineAdjustments.AsNoTracking()
+            .Where(item => requestIds.Contains(item.EvaluationRequestId)
+                && item.RevokedAtUtc == null)
+            .Select(item => new { item.Id, item.EvaluationRequestId, item.ExtendedDueAtUtc })
+            .ToDictionaryAsync(item => item.EvaluationRequestId, cancellationToken);
+
         var scopeIds = rows.Where(row => row.AssessmentScopeId is not null)
             .Select(row => row.AssessmentScopeId!.Value).Distinct().ToArray();
         var academicContexts = await db.AssessmentScopes.AsNoTracking()
@@ -134,13 +142,24 @@ public sealed class AssessmentCoordinationService(
                 && context.RubricTemplateId == row.RubricTemplateId
                 && blocker != "AcademicMappingRequired"
                     ? context : null;
+            var revisionWindowActive = row.Status == EvaluationStatus.NeedsRevision
+                && row.SubmissionAttemptNumber == 1
+                && row.RetakeOfEvaluationRequestId is null
+                && row.RevisionDueAtUtc is not null;
+            var adjustment = revisionWindowActive
+                && activeAdjustments.TryGetValue(row.Id, out var activeAdjustment)
+                    ? activeAdjustment : null;
+            var revisionDueAtUtc = revisionWindowActive ? row.RevisionDueAtUtc : null;
             items.Add(new AssessmentCoordinationItem(
                 row.Id, row.Status.ToString(), row.CreatedAtUtc, row.UpdatedAtUtc,
                 row.RetakeOfEvaluationRequestId is not null,
                 academic?.QualificationCode, academic?.QualificationVersionCode,
                 academic?.UnitCode, academic?.UnitArabicTitle, academic?.UnitEnglishTitle,
                 evaluatorName, assignment?.AssignedAtUtc, hasEligibleEvaluator, blocker,
-                row.ExpectedCompletionAtUtc, ExpectedCompletionStates.Resolve(row.ExpectedCompletionAtUtc, now)));
+                row.ExpectedCompletionAtUtc, ExpectedCompletionStates.Resolve(row.ExpectedCompletionAtUtc, now),
+                revisionDueAtUtc,
+                adjustment?.ExtendedDueAtUtc ?? revisionDueAtUtc,
+                adjustment?.Id));
         }
 
         return new AssessmentCoordinationPage(items, page, pageSize, totalCount);

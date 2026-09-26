@@ -256,7 +256,8 @@ public sealed class EvaluationCriteriaPlanTests
         var firstReview = new SubmitEvaluationReviewCommand(
             [new CriterionSubmission("A.P1", "PartiallyAchieved", "Some evidence", "Needs one more example")],
             "Add one clear example that directly satisfies P1.",
-            true);
+            true,
+            DateTimeOffset.UtcNow.AddDays(2));
 
         Assert.False(await service.SubmitReviewAsync("teacher", request.Id, firstReview with
         {
@@ -292,14 +293,19 @@ public sealed class EvaluationCriteriaPlanTests
         var secondReview = new SubmitEvaluationReviewCommand(
             [new CriterionSubmission("A.P1", "Achieved", "Revised evidence", "Now achieved")],
             "The requested revision is now complete.",
-            false);
+            false,
+            null);
         Assert.True(await service.SubmitReviewAsync("teacher", request.Id, secondReview));
         Assert.Equal(EvaluationStatus.Completed, request.Status);
         Assert.Equal(EvaluationGrade.Pass, request.CalculatedGrade);
 
         request.Status = EvaluationStatus.Assigned;
         await db.SaveChangesAsync();
-        var thirdChance = secondReview with { RequestRevision = true };
+        var thirdChance = secondReview with
+        {
+            RequestRevision = true,
+            RevisionDueAtUtc = DateTimeOffset.UtcNow.AddDays(1)
+        };
         Assert.False(await service.SubmitReviewAsync("teacher", request.Id, thirdChance));
     }
 

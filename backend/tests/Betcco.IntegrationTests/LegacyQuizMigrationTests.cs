@@ -119,13 +119,34 @@ public sealed class LegacyQuizMigrationTests
         await using (var before = database.CreateContext())
         {
             before.AddRange(track, grade, specialization, taskType, rubric, course, module, legacy, regular,
-                enrollment, progress, note, bookmark, resource, evaluation, payment,
+                enrollment, progress, note, bookmark, resource,
                 keepRule, keepAssignmentRule, removeRule, removeQuizRule, removeQuizPreviousRule,
                 keepPrerequisite, removePrerequisite, removeQuizPrerequisite, removeQuizRequiredPrerequisite);
             await before.SaveChangesAsync();
 
-            // This test seeds a previous schema. The current EF model includes
-            // additive practice columns that do not exist until the upgrade.
+            // This test deliberately seeds a historical schema. Current EF entities
+            // can contain additive columns that do not exist until later migrations,
+            // so historical rows must be inserted using only columns present at the
+            // target migration.
+            await before.Database.ExecuteSqlInterpolatedAsync($"""
+                INSERT INTO "EvaluationRequests" (
+                    "Id", "StudentUserId", "GradeId", "SpecializationId", "TaskTypeId", "RubricTemplateId",
+                    "Status", "Price", "Currency", "CriteriaSnapshotJson", "EvaluatorCriteriaPlanJson",
+                    "AssessmentRuleSetVersion", "AssessmentRuleSetSnapshotJson", "SectionResultsJson",
+                    "SubmissionAttemptNumber", "CreatedAtUtc", "UpdatedAtUtc", "IsDeleted")
+                VALUES (
+                    {evaluation.Id}, {evaluation.StudentUserId}, {evaluation.GradeId}, {evaluation.SpecializationId},
+                    {evaluation.TaskTypeId}, {evaluation.RubricTemplateId}, {(int)evaluation.Status}, {evaluation.Price},
+                    {evaluation.Currency}, {evaluation.CriteriaSnapshotJson}, {evaluation.EvaluatorCriteriaPlanJson},
+                    {evaluation.AssessmentRuleSetVersion}, {evaluation.AssessmentRuleSetSnapshotJson},
+                    {evaluation.SectionResultsJson}, {evaluation.SubmissionAttemptNumber},
+                    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, FALSE);
+                """);
+            before.Payments.Add(payment);
+            await before.SaveChangesAsync();
+
+            // CourseAssignment also has additive practice columns that do not exist
+            // until the upgrade, so seed it with the historical column set.
             await before.Database.ExecuteSqlInterpolatedAsync($"""
                 INSERT INTO "CourseAssignments" ("Id", "CourseId", "CourseModuleId", "ArabicTitle", "EnglishTitle", "ArabicInstructions", "EnglishInstructions", "MaxSubmissionAttempts", "IsPublished", "CreatedAtUtc", "UpdatedAtUtc", "IsDeleted")
                 VALUES ({assignment.Id}, {course.Id}, {module.Id}, 'واجب', 'Assignment', 'تعليمات', 'Instructions', 1, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, FALSE);
