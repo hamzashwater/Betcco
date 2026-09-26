@@ -276,6 +276,7 @@ public sealed class ResitServiceTests
         Assert.Equal(expected.Skip(2), (await service.ListEligibleAsync(ReviewerId, 2, 2))
             .Items.Select(item => item.OriginalEvaluationRequestId));
         Assert.Empty((await service.ListEligibleAsync(Guid.Empty)).Items);
+        Assert.Empty((await service.ListEligibleAsync(Guid.Empty, 0, 0)).Items);
         Assert.Empty((await service.ListEligibleAsync(OtherStaffId)).Items);
         Assert.Equal(ResitAuthorizationWriteStatus.InvalidActor,
             (await service.AuthorizeAsync(Guid.Empty, requests[0].Id,
@@ -330,6 +331,7 @@ public sealed class ResitServiceTests
         Assert.Equal(originals[215].Id, activated.ResitEvaluationRequestId);
         Assert.Equal(authorizations[1].ActivatedAtUtc, activated.ActivatedAtUtc);
         Assert.Empty((await service.ListAuthorizationsAsync(Guid.Empty)).Items);
+        Assert.Empty((await service.ListAuthorizationsAsync(Guid.Empty, 0, 0)).Items);
     }
 
     [Fact]
