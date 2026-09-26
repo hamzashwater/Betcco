@@ -319,7 +319,14 @@
       "All": "All reasons",
       "LowProgress": "Low progress",
       "MissedAssignments": "Missed assignments",
-      "Inactive14Days": "Inactive for 14 days"
+      "Inactive14Days": "Inactive for 14 days",
+      "AwaitingPracticeReview": "Practice awaiting review",
+      "NotYetAchieved": "Latest outcome is NYA",
+      "RepeatedNotYetAchieved": "Repeated NYA",
+      "OneAttemptRemaining": "One attempt remaining",
+      "AimPracticeIncomplete": "Aim practice incomplete",
+      "ReadyForFinalPractice": "Ready for Final Unit Practice",
+      "AwaitingFinalReview": "Final Unit Practice awaiting review"
     },
     "sort": {
       "priority": "Attention priority",
@@ -331,6 +338,28 @@
       "progress": "Progress",
       "missedAssignments": "Missed assignments",
       "lastActivity": "Last activity"
+    },
+    "formative": {
+      "title": "Formative intervention",
+      "aim": "Aim {code}",
+      "finalPractice": "Final Unit Practice",
+      "latest": "Latest outcome",
+      "best": "Best outcome",
+      "attempts": "Attempts",
+      "attemptValue": "{used}/{max} used · {remaining} remaining",
+      "outcomes": {
+        "NotYetAchieved": "NYA",
+        "Pass": "Pass",
+        "Merit": "Merit",
+        "Distinction": "Distinction"
+      },
+      "actions": {
+        "AwaitingPracticeReview": "Review this submitted Learning Aim Practice and return formative feedback.",
+        "NotYetAchieved": "The latest reviewed attempt is NYA. Check the gaps and support the learner before the next attempt.",
+        "AimPracticeIncomplete": "Learning content is complete but the formative practice is not yet completed. Check publication, access, or learner follow-through.",
+        "ReadyForFinalPractice": "All Learning Aims in this Unit are complete. Confirm the Final Unit Practice is ready for the learner.",
+        "AwaitingFinalReview": "Review the submitted Final Unit Practice and return the formative outcome and feedback."
+      }
     },
     "unavailable": "Not available",
     "paginationLabel": "Student follow-up pages",

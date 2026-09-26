@@ -17,7 +17,43 @@ import { useMemo, useState } from "react";
 
 export type AttentionLevel = "High" | "Medium";
 export type FollowUpReason =
-  "LowProgress" | "MissedAssignments" | "Inactive14Days";
+  | "LowProgress"
+  | "MissedAssignments"
+  | "Inactive14Days"
+  | "AwaitingPracticeReview"
+  | "NotYetAchieved"
+  | "RepeatedNotYetAchieved"
+  | "OneAttemptRemaining"
+  | "AimPracticeIncomplete"
+  | "ReadyForFinalPractice"
+  | "AwaitingFinalReview";
+
+export type FormativeSignalReason =
+  | "AwaitingPracticeReview"
+  | "NotYetAchieved"
+  | "AimPracticeIncomplete"
+  | "ReadyForFinalPractice"
+  | "AwaitingFinalReview";
+
+export type TeacherFormativeSignal = {
+  reason: FormativeSignalReason;
+  priority: number;
+  courseId: string;
+  courseArabicTitle: string;
+  courseEnglishTitle: string;
+  unitId: string;
+  unitArabicTitle: string;
+  unitEnglishTitle: string;
+  learningAimId?: string | null;
+  learningAimCode?: string | null;
+  learningAimArabicTitle?: string | null;
+  learningAimEnglishTitle?: string | null;
+  latestOutcome?: string | null;
+  bestOutcome?: string | null;
+  attemptsUsed: number;
+  maxAttempts: number;
+  attemptsRemaining: number;
+};
 type AttentionFilter = "All" | AttentionLevel;
 type ReasonFilter = "All" | FollowUpReason;
 type FollowUpSort =
@@ -31,6 +67,7 @@ export type TeacherFollowUpStudent = {
   progressPercent: number;
   missedAssignments: number;
   lastActiveAtUtc?: string | null;
+  formativeSignals?: TeacherFormativeSignal[];
 };
 
 export type TeacherAnalytics = {
@@ -50,6 +87,13 @@ const reasonFilters: FollowUpReason[] = [
   "LowProgress",
   "MissedAssignments",
   "Inactive14Days",
+  "AwaitingPracticeReview",
+  "NotYetAchieved",
+  "RepeatedNotYetAchieved",
+  "OneAttemptRemaining",
+  "AimPracticeIncomplete",
+  "ReadyForFinalPractice",
+  "AwaitingFinalReview",
 ];
 const pageSize = 10;
 
@@ -318,6 +362,21 @@ export function TeacherStudentFollowUp() {
                         }
                       />
                     </dl>
+                    {student.formativeSignals?.length ? (
+                      <div className="mt-4 rounded-2xl border border-primary/20 bg-primary/5 p-4">
+                        <p className="text-xs font-black uppercase tracking-[0.12em] text-primary">
+                          {t("formative.title")}
+                        </p>
+                        <div className="mt-3 grid gap-3">
+                          {student.formativeSignals.map((signal, index) => (
+                            <FormativeSignalCard
+                              key={`${signal.unitId}-${signal.learningAimId ?? "final"}-${signal.reason}-${index}`}
+                              signal={signal}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
                   </article>
                 </li>
               ))}
@@ -461,6 +520,11 @@ export function TeacherFollowUpPreview({
                   progress: student.progressPercent,
                 })}
               </p>
+              {student.formativeSignals?.[0] ? (
+                <p className="mt-2 text-xs font-bold text-primary">
+                  {t(`reasons.${student.formativeSignals[0].reason}`)}
+                </p>
+              ) : null}
             </li>
           ))}
         </ul>
@@ -478,6 +542,82 @@ export function TeacherFollowUpPreview({
         </p>
       ) : null}
     </section>
+  );
+}
+
+function FormativeSignalCard({ signal }: { signal: TeacherFormativeSignal }) {
+  const locale = useLocale();
+  const t = useTranslations("teacherStudentFollowUp");
+  const courseTitle =
+    locale === "ar" ? signal.courseArabicTitle : signal.courseEnglishTitle;
+  const unitTitle =
+    locale === "ar" ? signal.unitArabicTitle : signal.unitEnglishTitle;
+  const aimTitle =
+    locale === "ar"
+      ? signal.learningAimArabicTitle
+      : signal.learningAimEnglishTitle;
+  const outcomeLabel = (value?: string | null) => {
+    switch (value) {
+      case "NotYetAchieved":
+        return t("formative.outcomes.NotYetAchieved");
+      case "Pass":
+        return t("formative.outcomes.Pass");
+      case "Merit":
+        return t("formative.outcomes.Merit");
+      case "Distinction":
+        return t("formative.outcomes.Distinction");
+      default:
+        return t("unavailable");
+    }
+  };
+
+  return (
+    <article
+      className="rounded-xl border border-border bg-surface-solid/65 p-3"
+      data-formative-signal={signal.reason}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <p className="text-sm font-black text-foreground">
+          {t(`reasons.${signal.reason}`)}
+        </p>
+        <span className="rounded-full border border-border px-2 py-1 text-[11px] font-bold text-muted">
+          {signal.learningAimCode
+            ? t("formative.aim", { code: signal.learningAimCode })
+            : t("formative.finalPractice")}
+        </span>
+      </div>
+      <p className="mt-1 text-xs leading-5 text-muted">
+        {courseTitle} · {unitTitle}
+        {aimTitle ? ` · ${aimTitle}` : ""}
+      </p>
+      <p className="mt-2 text-sm font-semibold leading-6 text-foreground">
+        {t(`formative.actions.${signal.reason}`)}
+      </p>
+      {signal.learningAimId ? (
+        <dl className="mt-3 grid gap-2 text-xs sm:grid-cols-3">
+          <StudentMetric
+            label={t("formative.latest")}
+            value={outcomeLabel(signal.latestOutcome)}
+          />
+          <StudentMetric
+            label={t("formative.best")}
+            value={outcomeLabel(signal.bestOutcome)}
+          />
+          <StudentMetric
+            label={t("formative.attempts")}
+            value={
+              signal.maxAttempts > 0
+                ? t("formative.attemptValue", {
+                    used: signal.attemptsUsed,
+                    max: signal.maxAttempts,
+                    remaining: signal.attemptsRemaining,
+                  })
+                : t("unavailable")
+            }
+          />
+        </dl>
+      ) : null}
+    </article>
   );
 }
 

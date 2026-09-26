@@ -78,6 +78,23 @@ type AssessmentScopeOption = {
   criteria: { code: string; band: string }[];
 };
 
+type EvaluationCheckoutResponse = {
+  includedCreditApplied: boolean;
+  evaluationStatus: string;
+  paymentId: string | null;
+  status?: string;
+  provider?: string;
+  checkoutReference?: string;
+  redirectUrl?: string | null;
+  providerSessionStatus?: string;
+  subtotal?: number;
+  discount?: number;
+  tax?: number;
+  total?: number;
+  currency?: string;
+  paymentMethod?: string;
+};
+
 type AssessmentAcademicSummary = {
   qualificationCode: string;
   qualificationArabicName: string;
@@ -446,11 +463,11 @@ function StudentDashboard() {
         />
         <DashboardLink
           href="evaluations/new"
-          title={locale === "ar" ? "طلب تقييم" : "Request evaluation"}
+          title={locale === "ar" ? "قيّم مهمتك" : "Evaluate my assignment"}
           text={
             locale === "ar"
-              ? "ارفع المهمة واحصل على نتيجة واضحة."
-              : "Submit work and receive a clear result."
+              ? "ارفع مهمتك، واستخدم تقييم الوحدة المشمول إن كان متاحًا، أو اطلب مراجعة مدفوعة مرة واحدة."
+              : "Upload your assignment, use an included Unit evaluation when available, or request a one-time paid review."
           }
           icon={ClipboardCheck}
         />
@@ -3354,12 +3371,18 @@ function EvaluationWizard() {
   const [files, setFiles] = useState<File[]>([]);
   const [evaluationId, setEvaluationId] = useState<string>();
   const [evaluationCriteria, setEvaluationCriteria] = useState<string[]>([]);
+  const [evaluationPrice, setEvaluationPrice] = useState<{
+    price: number;
+    currency: string;
+  } | null>(null);
   const [evidenceDrafts, setEvidenceDrafts] = useState<Record<string, string>>(
     {},
   );
   const [uploadedFileKeys, setUploadedFileKeys] = useState<string[]>([]);
   const [paymentMethod, setPaymentMethod] = useState("Card");
   const [authenticityConfirmed, setAuthenticityConfirmed] = useState(false);
+  const [paymentSession, setPaymentSession] =
+    useState<EvaluationCheckoutResponse | null>(null);
   const maxFileBytes = 100 * 1024 * 1024;
   const fileKey = (item: File) =>
     `${item.name}:${item.size}:${item.lastModified}`;
@@ -3394,16 +3417,23 @@ function EvaluationWizard() {
   const hasIncludedCredit = includedCredit.data?.available === true;
   const create = useMutation({
     mutationFn: () =>
-      api<{ id: string; criteria: string[] }>("/evaluations/scoped", {
-        method: "POST",
-        body: JSON.stringify({
-          assessmentScopeId: selected.assessmentScopeId,
-          studentComment: selected.comment,
-        }),
-      }),
+      api<{ id: string; criteria: string[]; price: number; currency: string }>(
+        "/evaluations/scoped",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            assessmentScopeId: selected.assessmentScopeId,
+            studentComment: selected.comment,
+          }),
+        },
+      ),
     onSuccess: async (response) => {
       setEvaluationId(response.id);
       setEvaluationCriteria(response.criteria);
+      setEvaluationPrice({
+        price: response.price,
+        currency: response.currency,
+      });
       await uploadFiles(response.id, files);
     },
   });
@@ -3438,31 +3468,51 @@ function EvaluationWizard() {
       await api(`/evaluations/${evaluationId}/authenticity-declaration`, {
         method: "POST",
       });
-      return api<{
-        includedCreditApplied: boolean;
-        evaluationStatus: string;
-        paymentId: string | null;
-      }>(`/evaluations/${evaluationId}/checkout`, {
+      return api<EvaluationCheckoutResponse>(
+        `/evaluations/${evaluationId}/checkout`,
+        {
+          method: "POST",
+          headers: { "Idempotency-Key": crypto.randomUUID() },
+          body: JSON.stringify({
+            paymentMethod,
+            expectIncludedCredit: hasIncludedCredit,
+          }),
+        },
+      );
+    },
+    onSuccess: (result) => {
+      setPaymentSession(null);
+      if (result.includedCreditApplied) {
+        router.push(`/${locale}/student/evaluations`);
+        return;
+      }
+      if (result.redirectUrl) {
+        window.location.assign(result.redirectUrl);
+        return;
+      }
+      setPaymentSession(result);
+    },
+  });
+  const confirmDevelopmentPayment = useMutation({
+    mutationFn: async () => {
+      if (
+        !paymentSession?.paymentId ||
+        !paymentSession.provider?.startsWith("Fake")
+      )
+        throw new Error(
+          locale === "ar"
+            ? "لا توجد دفعة اختبارية صالحة لإتمامها."
+            : "There is no valid development test payment to complete.",
+        );
+      return api("/payments/fake/confirm", {
         method: "POST",
-        headers: { "Idempotency-Key": crypto.randomUUID() },
         body: JSON.stringify({
-          paymentMethod,
-          expectIncludedCredit: hasIncludedCredit,
+          paymentId: paymentSession.paymentId,
+          providerEventId: `evaluation_test_${crypto.randomUUID()}`,
         }),
       });
     },
-    onSuccess: async (result) => {
-      if (!result.includedCreditApplied && result.paymentId) {
-        await api("/payments/fake/confirm", {
-          method: "POST",
-          body: JSON.stringify({
-            paymentId: result.paymentId,
-            providerEventId: `test_${crypto.randomUUID()}`,
-          }),
-        });
-      }
-      router.push(`/${locale}/student/evaluations`);
-    },
+    onSuccess: () => router.push(`/${locale}/student/evaluations`),
   });
   if (options.isPending)
     return (
@@ -3543,12 +3593,45 @@ function EvaluationWizard() {
         }}
         className="card mx-auto grid min-w-0 max-w-2xl grid-cols-[minmax(0,1fr)] gap-4 p-6"
       >
-        <p className="font-bold text-primary">BETCCO BTEC Evaluation</p>
+        <p className="font-bold text-primary">
+          {locale === "ar"
+            ? "BETCCO · قيّم مهمتك"
+            : "BETCCO · Evaluate my assignment"}
+        </p>
         <h1 className="text-3xl font-black">
           {locale === "ar"
-            ? "اكتشف المعايير التي حققتها"
-            : "Discover the criteria you achieved"}
+            ? "اعرف مستوى مهمتك قبل التسليم الرسمي"
+            : "Understand your assignment before official submission"}
         </h1>
+        <p className="text-sm leading-7 text-muted">
+          {locale === "ar"
+            ? "اختر الوحدة والمهمة، ارفع عملك وأدلته، ثم استخدم تقييم الوحدة المشمول إن كان متاحًا. إذا لم يكن لديك رصيد مشمول، يمكنك طلب مراجعة BETCCO مدفوعة مرة واحدة. النتيجة إرشادية وليست علامة رسمية من Pearson."
+            : "Choose the Unit and assignment, upload your work and evidence, then use an included Unit evaluation when available. If no included credit is available, you can request a one-time paid BETCCO review. The result is guidance, not an official Pearson grade."}
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
+            <p className="font-black text-primary">
+              {locale === "ar"
+                ? "لديك تقييم مشمول؟"
+                : "Have an included evaluation?"}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-muted">
+              {locale === "ar"
+                ? "إذا كانت وحدتك المدفوعة تحتوي على رصيد غير مستخدم، سيُطبّق تلقائيًا بدون إنشاء دفعة جديدة."
+                : "If your paid Unit has an unused included credit, it is applied automatically without creating a new payment."}
+            </p>
+          </div>
+          <div className="rounded-xl border border-border bg-surface-solid/60 p-4">
+            <p className="font-black">
+              {locale === "ar" ? "بدون رصيد مشمول" : "No included credit"}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-muted">
+              {locale === "ar"
+                ? "يُستخدم مسار الدفع العادي مرة واحدة للمراجعة كاملة، مع انتظار تأكيد مزود الدفع من الخادم."
+                : "The standard one-time payment flow is used for the full review, with server-side provider confirmation required."}
+            </p>
+          </div>
+        </div>
         {scopes.length === 0 ? (
           <p role="status" className="text-muted">
             {locale === "ar"
@@ -3775,24 +3858,42 @@ function EvaluationWizard() {
         !includedCredit.isPending &&
         !includedCredit.isError &&
         !hasIncludedCredit ? (
-          <label className="grid gap-1 text-sm font-semibold">
-            {locale === "ar" ? "طريقة الدفع" : "Payment method"}
-            <select
-              value={paymentMethod}
-              onChange={(event) => setPaymentMethod(event.target.value)}
-              className="rounded-lg border bg-transparent p-3"
-            >
-              <option value="Card">
-                {locale === "ar" ? "بطاقة بنكية" : "Bank card"}
-              </option>
-              <option value="BankTransfer">
-                {locale === "ar" ? "تحويل بنكي" : "Bank transfer"}
-              </option>
-              <option value="EWallet">
-                {locale === "ar" ? "محفظة إلكترونية" : "E-wallet"}
-              </option>
-            </select>
-          </label>
+          <section className="grid gap-3 rounded-xl border border-border bg-surface-solid/60 p-4">
+            <div>
+              <p className="font-black">
+                {locale === "ar"
+                  ? "مراجعة مدفوعة مرة واحدة"
+                  : "One-time paid review"}
+              </p>
+              <p className="mt-1 text-sm text-muted">
+                {evaluationPrice
+                  ? locale === "ar"
+                    ? `السعر المحدد من الخادم: ${evaluationPrice.price.toFixed(3)} ${evaluationPrice.currency}. تُحسب أي ضريبة مطبقة عند الدفع.`
+                    : `Server-owned review price: ${evaluationPrice.price.toFixed(3)} ${evaluationPrice.currency}. Any applicable tax is calculated at checkout.`
+                  : locale === "ar"
+                    ? "سيتم تأكيد السعر من الخادم قبل إنشاء الدفع."
+                    : "The price will be confirmed by the server before payment is created."}
+              </p>
+            </div>
+            <label className="grid gap-1 text-sm font-semibold">
+              {locale === "ar" ? "طريقة الدفع" : "Payment method"}
+              <select
+                value={paymentMethod}
+                onChange={(event) => setPaymentMethod(event.target.value)}
+                className="rounded-lg border bg-transparent p-3"
+              >
+                <option value="Card">
+                  {locale === "ar" ? "بطاقة بنكية" : "Bank card"}
+                </option>
+                <option value="BankTransfer">
+                  {locale === "ar" ? "تحويل بنكي" : "Bank transfer"}
+                </option>
+                <option value="EWallet">
+                  {locale === "ar" ? "محفظة إلكترونية" : "E-wallet"}
+                </option>
+              </select>
+            </label>
+          </section>
         ) : null}
         {evaluationId && (
           <label className="flex items-start gap-3 rounded-xl border border-border bg-surface-solid/60 p-3 text-sm leading-6">
@@ -3835,6 +3936,7 @@ function EvaluationWizard() {
             onClick={() => checkout.mutate()}
             disabled={
               checkout.isPending ||
+              Boolean(paymentSession) ||
               !authenticityConfirmed ||
               includedCredit.isPending ||
               includedCredit.isError
@@ -3848,14 +3950,75 @@ function EvaluationWizard() {
                   ? "استخدام تقييم المهمة المشمول مع الوحدة"
                   : "Use included assignment evaluation"
                 : locale === "ar"
-                  ? "دفع التقييم بالطريقة المختارة"
-                  : "Pay using selected method"}
+                  ? "متابعة إلى الدفع"
+                  : "Continue to payment"}
           </button>
         )}
-        {(create.isError || checkout.isError) && (
+        {paymentSession ? (
+          <section
+            className="rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm"
+            aria-live="polite"
+          >
+            {paymentSession.provider?.startsWith("Fake") ? (
+              <>
+                <p className="font-black text-primary">
+                  {locale === "ar"
+                    ? "دفعة اختبارية — بيئة التطوير فقط"
+                    : "Development test payment only"}
+                </p>
+                <p className="mt-1 leading-6 text-muted">
+                  {locale === "ar"
+                    ? "تم إنشاء جلسة دفع تجريبية. أكملها يدويًا أدناه؛ هذا الزر لا يظهر كبديل عن تأكيد مزود الدفع الحقيقي في الإنتاج."
+                    : "A fake development payment session was created. Complete it explicitly below; this is not a substitute for real provider confirmation in production."}
+                </p>
+                {typeof paymentSession.total === "number" &&
+                paymentSession.currency ? (
+                  <p className="mt-2 font-black">
+                    {locale === "ar" ? "المجموع:" : "Total:"}{" "}
+                    {paymentSession.total.toFixed(3)} {paymentSession.currency}
+                  </p>
+                ) : null}
+                <button
+                  type="button"
+                  disabled={confirmDevelopmentPayment.isPending}
+                  onClick={() => confirmDevelopmentPayment.mutate()}
+                  className="focus-ring mt-3 rounded-lg border border-primary px-3 py-2 font-black text-primary disabled:opacity-50"
+                >
+                  {confirmDevelopmentPayment.isPending
+                    ? "…"
+                    : locale === "ar"
+                      ? "إتمام الدفع الاختباري"
+                      : "Complete test payment"}
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="font-black">
+                  {locale === "ar"
+                    ? "تم إنشاء جلسة الدفع"
+                    : "Payment session created"}
+                </p>
+                <p className="mt-1 leading-6 text-muted">
+                  {locale === "ar"
+                    ? "لم يُرجع مزود الدفع رابط تحويل. لا تعِد إرسال الطلب؛ تابع حالة الدفع من سجل دفعاتك أو تواصل مع الدعم إذا بقيت الحالة معلقة."
+                    : "The payment provider did not return a redirect URL. Do not resubmit the request; check your payment history or contact support if the payment remains pending."}
+                </p>
+              </>
+            )}
+          </section>
+        ) : null}
+        {(create.isError ||
+          checkout.isError ||
+          confirmDevelopmentPayment.isError) && (
           <p role="alert" className="text-sm text-red-600">
-            {(create.error ?? checkout.error) instanceof Error
-              ? (create.error ?? checkout.error)?.message
+            {(create.error ??
+              checkout.error ??
+              confirmDevelopmentPayment.error) instanceof Error
+              ? (
+                  create.error ??
+                  checkout.error ??
+                  confirmDevelopmentPayment.error
+                )?.message
               : "Request failed."}
           </p>
         )}

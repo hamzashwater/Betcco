@@ -72,7 +72,12 @@ function mockFetch(
       if (path.endsWith("/security/antiforgery"))
         return Response.json({ token: "csrf" });
       if (path.endsWith("/evaluations/scoped"))
-        return Response.json({ id: "request-1", criteria: ["A.P1"] });
+        return Response.json({
+          id: "request-1",
+          criteria: ["A.P1"],
+          price: 5,
+          currency: "JOD",
+        });
       if (path.includes("/evaluations/request-1/files"))
         return new Response(null, { status: 204 });
       if (path.endsWith("/authenticity-declaration"))
@@ -89,6 +94,17 @@ function mockFetch(
                 includedCreditApplied: false,
                 evaluationStatus: "PendingPayment",
                 paymentId: "payment-1",
+                status: "Processing",
+                provider: "FakeDevelopment",
+                checkoutReference: "fake-checkout-1",
+                redirectUrl: null,
+                providerSessionStatus: "Ready",
+                subtotal: 5,
+                discount: 0,
+                tax: 0,
+                total: 5,
+                currency: "JOD",
+                paymentMethod: "Card",
               },
         );
       if (path.endsWith("/payments/fake/confirm"))
@@ -255,10 +271,18 @@ describe("Student scoped evaluation wizard", () => {
     ).toBe(false);
   });
 
-  it("keeps the standard one-time payment flow when no included credit exists", async () => {
+  it("uses an explicit development payment confirmation and never auto-confirms paid reviews", async () => {
     const fetchMock = mockFetch([scope], false, false);
     const user = userEvent.setup();
     renderWizard();
+
+    expect(
+      await screen.findByRole("heading", {
+        name: "Understand your assignment before official submission",
+      }),
+    ).toBeVisible();
+    expect(screen.getByText("Have an included evaluation?")).toBeVisible();
+    expect(screen.getByText("No included credit")).toBeVisible();
 
     await selectPrimaryScope(user);
     expect(
@@ -274,10 +298,15 @@ describe("Student scoped evaluation wizard", () => {
     const originality = await screen.findByRole("checkbox", {
       name: /Originality declaration/,
     });
+    expect(
+      screen.getByText(
+        "Server-owned review price: 5.000 JOD. Any applicable tax is calculated at checkout.",
+      ),
+    ).toBeVisible();
     expect(screen.getByLabelText("Payment method")).toBeVisible();
     await user.click(originality);
     await user.click(
-      screen.getByRole("button", { name: "Pay using selected method" }),
+      screen.getByRole("button", { name: "Continue to payment" }),
     );
 
     await waitFor(() =>
@@ -290,6 +319,19 @@ describe("Student scoped evaluation wizard", () => {
           }),
         }),
       ),
+    );
+    expect(
+      await screen.findByText("Development test payment only"),
+    ).toBeVisible();
+    expect(screen.getByText("Total: 5.000 JOD")).toBeVisible();
+    expect(
+      fetchMock.mock.calls.some(([input]) =>
+        String(input).includes("/payments/fake/confirm"),
+      ),
+    ).toBe(false);
+
+    await user.click(
+      screen.getByRole("button", { name: "Complete test payment" }),
     );
     await waitFor(() =>
       expect(

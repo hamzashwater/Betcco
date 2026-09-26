@@ -201,6 +201,231 @@ public sealed class TeacherAnalyticsControllerTests
         Assert.DoesNotContain(row.GetProperty("reasons").EnumerateArray(), reason => reason.GetString() == "MissedAssignments");
     }
 
+    [Fact]
+    public async Task Formative_nya_signals_are_filterable_and_include_attempt_context()
+    {
+        await using var fixture = await AnalyticsFixture.CreateAsync();
+        var course = await fixture.Db.Courses.SingleAsync(item => item.TeacherUserId == "teacher-1");
+        var unit = await fixture.Db.CourseModules.SingleAsync(item => item.CourseId == course.Id);
+        var student = await fixture.Db.Users.SingleAsync(item => item.DisplayName == "Basma progress");
+        var aim = new BtecLearningAim
+        {
+            CourseModule = unit,
+            CourseModuleId = unit.Id,
+            Code = "A",
+            ArabicTitle = "الهدف أ",
+            EnglishTitle = "Aim A",
+            PublicationStatus = ContentPublicationStatus.Published
+        };
+        var practice = new CourseAssignment
+        {
+            Course = course,
+            CourseId = course.Id,
+            CourseModule = unit,
+            CourseModuleId = unit.Id,
+            BtecLearningAim = aim,
+            BtecLearningAimId = aim.Id,
+            Purpose = CourseAssignmentPurpose.LearningAimPractice,
+            ArabicTitle = "تدريب أ",
+            EnglishTitle = "Aim A practice",
+            ArabicInstructions = "تعليمات",
+            EnglishInstructions = "Instructions",
+            MaxSubmissionAttempts = 3,
+            IsPublished = true,
+            PublicationStatus = ContentPublicationStatus.Published
+        };
+        var submission = new CourseAssignmentSubmission
+        {
+            CourseAssignment = practice,
+            CourseAssignmentId = practice.Id,
+            StudentUserId = student.Id.ToString(),
+            Status = CourseAssignmentSubmissionStatus.Finalized,
+            CurrentVersionNumber = 2,
+            TrainingOutcome = TrainingOutcome.NotYetAchieved
+        };
+        submission.Versions.Add(new CourseAssignmentSubmissionVersion
+        {
+            CourseAssignmentSubmission = submission,
+            CourseAssignmentSubmissionId = submission.Id,
+            VersionNumber = 1,
+            TrainingOutcome = TrainingOutcome.NotYetAchieved,
+            ReviewedAtUtc = DateTimeOffset.UtcNow.AddDays(-2)
+        });
+        submission.Versions.Add(new CourseAssignmentSubmissionVersion
+        {
+            CourseAssignmentSubmission = submission,
+            CourseAssignmentSubmissionId = submission.Id,
+            VersionNumber = 2,
+            TrainingOutcome = TrainingOutcome.NotYetAchieved,
+            ReviewedAtUtc = DateTimeOffset.UtcNow.AddDays(-1)
+        });
+        var foreignCourse = await fixture.Db.Courses.SingleAsync(item => item.TeacherUserId == "teacher-2");
+        var foreignUnit = await fixture.Db.CourseModules.SingleAsync(item => item.CourseId == foreignCourse.Id);
+        var foreignStudent = await fixture.Db.Users.SingleAsync(item => item.DisplayName == "Foreign student");
+        var foreignAim = new BtecLearningAim
+        {
+            CourseModule = foreignUnit,
+            CourseModuleId = foreignUnit.Id,
+            Code = "A",
+            ArabicTitle = "هدف خارجي",
+            EnglishTitle = "Foreign Aim",
+            PublicationStatus = ContentPublicationStatus.Published
+        };
+        var foreignPractice = new CourseAssignment
+        {
+            Course = foreignCourse,
+            CourseId = foreignCourse.Id,
+            CourseModule = foreignUnit,
+            CourseModuleId = foreignUnit.Id,
+            BtecLearningAim = foreignAim,
+            BtecLearningAimId = foreignAim.Id,
+            Purpose = CourseAssignmentPurpose.LearningAimPractice,
+            ArabicTitle = "تدريب خارجي",
+            EnglishTitle = "Foreign practice",
+            ArabicInstructions = "تعليمات",
+            EnglishInstructions = "Instructions",
+            MaxSubmissionAttempts = 2,
+            IsPublished = true,
+            PublicationStatus = ContentPublicationStatus.Published
+        };
+        var foreignSubmission = new CourseAssignmentSubmission
+        {
+            CourseAssignment = foreignPractice,
+            CourseAssignmentId = foreignPractice.Id,
+            StudentUserId = foreignStudent.Id.ToString(),
+            Status = CourseAssignmentSubmissionStatus.Finalized,
+            CurrentVersionNumber = 1,
+            TrainingOutcome = TrainingOutcome.NotYetAchieved
+        };
+        foreignSubmission.Versions.Add(new CourseAssignmentSubmissionVersion
+        {
+            CourseAssignmentSubmission = foreignSubmission,
+            CourseAssignmentSubmissionId = foreignSubmission.Id,
+            VersionNumber = 1,
+            TrainingOutcome = TrainingOutcome.NotYetAchieved
+        });
+        fixture.Db.AddRange(aim, practice, submission, foreignAim, foreignPractice, foreignSubmission);
+        await fixture.Db.SaveChangesAsync();
+
+        var json = await GetJsonAsync(fixture.Controller, followUp: true, reason: "OneAttemptRemaining");
+        var row = Assert.Single(json.GetProperty("studentsAtRisk").EnumerateArray());
+
+        Assert.Equal("Basma progress", row.GetProperty("studentName").GetString());
+        var reasons = row.GetProperty("reasons").EnumerateArray().Select(item => item.GetString()).ToArray();
+        Assert.Contains("NotYetAchieved", reasons);
+        Assert.Contains("RepeatedNotYetAchieved", reasons);
+        Assert.Contains("OneAttemptRemaining", reasons);
+        var signal = Assert.Single(row.GetProperty("formativeSignals").EnumerateArray());
+        Assert.Equal("NotYetAchieved", signal.GetProperty("reason").GetString());
+        Assert.Equal("Aim A", signal.GetProperty("learningAimEnglishTitle").GetString());
+        Assert.Equal("NotYetAchieved", signal.GetProperty("latestOutcome").GetString());
+        Assert.Equal("NotYetAchieved", signal.GetProperty("bestOutcome").GetString());
+        Assert.Equal(2, signal.GetProperty("attemptsUsed").GetInt32());
+        Assert.Equal(3, signal.GetProperty("maxAttempts").GetInt32());
+        Assert.Equal(1, signal.GetProperty("attemptsRemaining").GetInt32());
+    }
+
+    [Fact]
+    public async Task Completed_aims_surface_final_practice_readiness_then_submitted_final_review()
+    {
+        await using var fixture = await AnalyticsFixture.CreateAsync();
+        var course = await fixture.Db.Courses.SingleAsync(item => item.TeacherUserId == "teacher-1");
+        var unit = await fixture.Db.CourseModules.SingleAsync(item => item.CourseId == course.Id);
+        var student = await fixture.Db.Users.SingleAsync(item => item.DisplayName == "Dalia active");
+        var lessons = await fixture.Db.Lessons.Where(item => item.CourseModuleId == unit.Id).ToArrayAsync();
+        var aim = new BtecLearningAim
+        {
+            CourseModule = unit,
+            CourseModuleId = unit.Id,
+            Code = "A",
+            ArabicTitle = "الهدف أ",
+            EnglishTitle = "Aim A",
+            PublicationStatus = ContentPublicationStatus.Published
+        };
+        foreach (var lesson in lessons)
+        {
+            lesson.BtecLearningAim = aim;
+            lesson.BtecLearningAimId = aim.Id;
+        }
+        var practice = new CourseAssignment
+        {
+            Course = course,
+            CourseId = course.Id,
+            CourseModule = unit,
+            CourseModuleId = unit.Id,
+            BtecLearningAim = aim,
+            BtecLearningAimId = aim.Id,
+            Purpose = CourseAssignmentPurpose.LearningAimPractice,
+            ArabicTitle = "تدريب أ",
+            EnglishTitle = "Aim A practice",
+            ArabicInstructions = "تعليمات",
+            EnglishInstructions = "Instructions",
+            MaxSubmissionAttempts = 2,
+            IsPublished = true,
+            PublicationStatus = ContentPublicationStatus.Published
+        };
+        var practiceSubmission = new CourseAssignmentSubmission
+        {
+            CourseAssignment = practice,
+            CourseAssignmentId = practice.Id,
+            StudentUserId = student.Id.ToString(),
+            Status = CourseAssignmentSubmissionStatus.Finalized,
+            CurrentVersionNumber = 1,
+            TrainingOutcome = TrainingOutcome.Merit
+        };
+        practiceSubmission.Versions.Add(new CourseAssignmentSubmissionVersion
+        {
+            CourseAssignmentSubmission = practiceSubmission,
+            CourseAssignmentSubmissionId = practiceSubmission.Id,
+            VersionNumber = 1,
+            TrainingOutcome = TrainingOutcome.Merit,
+            ReviewedAtUtc = DateTimeOffset.UtcNow.AddHours(-2)
+        });
+        var finalPractice = new CourseAssignment
+        {
+            Course = course,
+            CourseId = course.Id,
+            CourseModule = unit,
+            CourseModuleId = unit.Id,
+            Purpose = CourseAssignmentPurpose.ComprehensivePractice,
+            ArabicTitle = "التدريب النهائي",
+            EnglishTitle = "Final Unit Practice",
+            ArabicInstructions = "تعليمات",
+            EnglishInstructions = "Instructions",
+            MaxSubmissionAttempts = 1,
+            IsPublished = true,
+            PublicationStatus = ContentPublicationStatus.Published
+        };
+        fixture.Db.AddRange(aim, practice, practiceSubmission, finalPractice);
+        await fixture.Db.SaveChangesAsync();
+
+        var readyJson = await GetJsonAsync(fixture.Controller, followUp: true, reason: "ReadyForFinalPractice");
+        var readyRow = Assert.Single(readyJson.GetProperty("studentsAtRisk").EnumerateArray());
+        Assert.Equal("Dalia active", readyRow.GetProperty("studentName").GetString());
+        Assert.Equal(
+            "ReadyForFinalPractice",
+            Assert.Single(readyRow.GetProperty("formativeSignals").EnumerateArray()).GetProperty("reason").GetString());
+
+        var finalSubmission = new CourseAssignmentSubmission
+        {
+            CourseAssignment = finalPractice,
+            CourseAssignmentId = finalPractice.Id,
+            StudentUserId = student.Id.ToString(),
+            Status = CourseAssignmentSubmissionStatus.Submitted,
+            CurrentVersionNumber = 1,
+            SubmittedAtUtc = DateTimeOffset.UtcNow
+        };
+        fixture.Db.Add(finalSubmission);
+        await fixture.Db.SaveChangesAsync();
+
+        var submittedJson = await GetJsonAsync(fixture.Controller, followUp: true, reason: "AwaitingFinalReview");
+        var submittedRow = Assert.Single(submittedJson.GetProperty("studentsAtRisk").EnumerateArray());
+        Assert.Equal("Dalia active", submittedRow.GetProperty("studentName").GetString());
+        Assert.Equal(
+            "AwaitingFinalReview",
+            Assert.Single(submittedRow.GetProperty("formativeSignals").EnumerateArray()).GetProperty("reason").GetString());
+    }
+
     private static async Task<JsonElement> GetJsonAsync(
         TeacherAnalyticsController controller,
         bool followUp = false,
