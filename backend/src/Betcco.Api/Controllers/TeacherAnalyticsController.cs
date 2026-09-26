@@ -27,7 +27,13 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db, ICourseAssign
         [FromQuery] string sort = "priority")
     {
         var allowedAttentionLevels = new[] { "High", "Medium" };
-        var allowedReasons = new[] { "LowProgress", "MissedAssignments", "Inactive14Days" };
+        var allowedReasons = new[]
+        {
+            "LowProgress", "MissedAssignments", "Inactive14Days",
+            "AwaitingPracticeReview", "NotYetAchieved", "RepeatedNotYetAchieved",
+            "OneAttemptRemaining", "AimPracticeIncomplete",
+            "ReadyForFinalPractice", "AwaitingFinalReview"
+        };
         var allowedSorts = new[] { "priority", "progress", "missedAssignments", "lastActivity" };
         if (followUp && (page < 1 || pageSize is < 1 or > 100
             || search?.Length > 200
@@ -72,7 +78,14 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db, ICourseAssign
         var publishedLessonsByCourse = courses.ToDictionary(course => course.Id, course => course.PublishedLessons);
         var publishedLessons = await db.Lessons.AsNoTracking()
             .Where(lesson => courseIds.Contains(lesson.CourseModule!.CourseId) && lesson.CourseModule.IsPublished && lesson.IsPublished && lesson.Type != LessonType.LegacyArchived)
-            .Select(lesson => new { lesson.Id, CourseId = lesson.CourseModule!.CourseId })
+            .Select(lesson => new
+            {
+                lesson.Id,
+                CourseId = lesson.CourseModule!.CourseId,
+                ModuleId = lesson.CourseModuleId,
+                AimId = lesson.BtecLearningAimId
+                    ?? (lesson.BtecTopic == null ? (Guid?)null : lesson.BtecTopic.BtecLearningAimId)
+            })
             .ToListAsync(cancellationToken);
         var lessonIds = publishedLessons.Select(lesson => lesson.Id).ToArray();
         var completedProgress = lessonIds.Length == 0 || studentUserIds.Length == 0
@@ -119,6 +132,213 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db, ICourseAssign
         var submissionByStudentAndAssignment = assignmentSubmissions.ToDictionary(
             submission => (submission.StudentUserId, submission.CourseAssignmentId),
             submission => submission.Status);
+
+        var publishedAims = await db.BtecLearningAims.AsNoTracking()
+            .Where(aim => courseIds.Contains(aim.CourseModule!.CourseId)
+                && aim.CourseModule.IsPublished
+                && aim.PublicationStatus == ContentPublicationStatus.Published)
+            .Select(aim => new
+            {
+                aim.Id,
+                aim.CourseModuleId,
+                aim.Code,
+                aim.ArabicTitle,
+                aim.EnglishTitle,
+                CourseId = aim.CourseModule!.CourseId,
+                CourseArabicTitle = aim.CourseModule.Course!.ArabicTitle,
+                CourseEnglishTitle = aim.CourseModule.Course.EnglishTitle,
+                UnitArabicTitle = aim.CourseModule.UnitDefinition != null
+                    ? aim.CourseModule.UnitDefinition.ArabicTitle
+                    : aim.CourseModule.ArabicTitle,
+                UnitEnglishTitle = aim.CourseModule.UnitDefinition != null
+                    ? aim.CourseModule.UnitDefinition.EnglishTitle
+                    : aim.CourseModule.EnglishTitle
+            })
+            .ToListAsync(cancellationToken);
+        var formativeAssignments = await db.CourseAssignments.AsNoTracking()
+            .Where(assignment => courseIds.Contains(assignment.CourseId)
+                && assignment.CourseModuleId != null
+                && (assignment.Purpose == CourseAssignmentPurpose.LearningAimPractice
+                    || assignment.Purpose == CourseAssignmentPurpose.ComprehensivePractice))
+            .Select(assignment => new
+            {
+                assignment.Id,
+                assignment.CourseId,
+                assignment.CourseModuleId,
+                assignment.BtecLearningAimId,
+                assignment.Purpose,
+                assignment.MaxSubmissionAttempts,
+                assignment.IsPublished,
+                assignment.PublicationStatus
+            })
+            .ToListAsync(cancellationToken);
+        var formativeAssignmentIds = formativeAssignments.Select(assignment => assignment.Id).ToArray();
+        var formativeSubmissions = formativeAssignmentIds.Length == 0 || studentUserIds.Length == 0
+            ? []
+            : await db.CourseAssignmentSubmissions.AsNoTracking()
+                .Where(submission => formativeAssignmentIds.Contains(submission.CourseAssignmentId)
+                    && studentUserIds.Contains(submission.StudentUserId))
+                .Select(submission => new
+                {
+                    submission.Id,
+                    submission.CourseAssignmentId,
+                    submission.StudentUserId,
+                    submission.Status,
+                    submission.CurrentVersionNumber,
+                    Versions = submission.Versions.OrderBy(version => version.VersionNumber)
+                        .Select(version => new
+                        {
+                            version.VersionNumber,
+                            version.TrainingOutcome
+                        })
+                        .ToArray()
+                })
+                .ToListAsync(cancellationToken);
+        var publishedAimsByModule = publishedAims
+            .GroupBy(aim => aim.CourseModuleId)
+            .ToDictionary(group => group.Key, group => group.OrderBy(aim => aim.Code).ToArray());
+        var publishedLessonsByAim = publishedLessons
+            .Where(lesson => lesson.AimId != null)
+            .GroupBy(lesson => lesson.AimId!.Value)
+            .ToDictionary(group => group.Key, group => group.Select(lesson => lesson.Id).ToArray());
+        var practiceAssignmentByAim = formativeAssignments
+            .Where(assignment => assignment.Purpose == CourseAssignmentPurpose.LearningAimPractice
+                && assignment.BtecLearningAimId != null)
+            .GroupBy(assignment => assignment.BtecLearningAimId!.Value)
+            .ToDictionary(
+                group => group.Key,
+                group => group.OrderByDescending(assignment => assignment.IsPublished
+                        && assignment.PublicationStatus == ContentPublicationStatus.Published)
+                    .ThenBy(assignment => assignment.Id)
+                    .First());
+        var finalAssignmentByModule = formativeAssignments
+            .Where(assignment => assignment.Purpose == CourseAssignmentPurpose.ComprehensivePractice
+                && assignment.CourseModuleId != null)
+            .GroupBy(assignment => assignment.CourseModuleId!.Value)
+            .ToDictionary(
+                group => group.Key,
+                group => group.OrderByDescending(assignment => assignment.IsPublished
+                        && assignment.PublicationStatus == ContentPublicationStatus.Published)
+                    .ThenBy(assignment => assignment.Id)
+                    .First());
+        var formativeSubmissionByStudentAndAssignment = formativeSubmissions
+            .ToDictionary(
+                submission => (submission.StudentUserId, submission.CourseAssignmentId),
+                submission => submission);
+        var formativeSignalsByStudent = new Dictionary<string, List<FormativeSignal>>();
+        var formativeReasonsByStudent = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+
+        void AddFormativeSignal(string studentUserId, FormativeSignal signal, params string[] relatedReasons)
+        {
+            if (!formativeSignalsByStudent.TryGetValue(studentUserId, out var signals))
+                formativeSignalsByStudent[studentUserId] = signals = [];
+            signals.Add(signal);
+            if (!formativeReasonsByStudent.TryGetValue(studentUserId, out var reasons))
+                formativeReasonsByStudent[studentUserId] = reasons = new HashSet<string>(StringComparer.Ordinal);
+            reasons.Add(signal.Reason);
+            foreach (var relatedReason in relatedReasons) reasons.Add(relatedReason);
+        }
+
+        foreach (var studentUserId in studentUserIds)
+        {
+            var enrolledCourseIds = enrolledCoursesByStudent.GetValueOrDefault(studentUserId, []);
+            var completedLessonIds = completedLessonsByStudent.GetValueOrDefault(studentUserId, []);
+            foreach (var module in publishedAimsByModule.Values
+                .Where(aims => aims.Length > 0 && enrolledCourseIds.Contains(aims[0].CourseId)))
+            {
+                var allAimsComplete = true;
+                foreach (var aim in module)
+                {
+                    var lessonIdsForAim = publishedLessonsByAim.GetValueOrDefault(aim.Id, []);
+                    var contentComplete = lessonIdsForAim.Length > 0
+                        && lessonIdsForAim.All(completedLessonIds.Contains);
+                    practiceAssignmentByAim.TryGetValue(aim.Id, out var assignment);
+                    var submission = assignment is null
+                        ? null
+                        : formativeSubmissionByStudentAndAssignment.GetValueOrDefault((studentUserId, assignment.Id));
+                    var reviewedAttempts = submission?.Versions
+                        .Where(version => version.TrainingOutcome != null)
+                        .OrderBy(version => version.VersionNumber)
+                        .ToArray() ?? [];
+                    var latestReviewed = reviewedAttempts.LastOrDefault();
+                    TrainingOutcome? bestOutcome = reviewedAttempts.Length == 0
+                        ? null
+                        : reviewedAttempts.Select(version => version.TrainingOutcome!.Value)
+                            .OrderByDescending(TrainingOutcomeRank)
+                            .First();
+                    var reviewed = latestReviewed is not null;
+                    allAimsComplete = allAimsComplete && contentComplete && reviewed;
+                    var attemptsUsed = submission?.CurrentVersionNumber ?? 0;
+                    var maxAttempts = assignment?.MaxSubmissionAttempts ?? 0;
+                    var attemptsRemaining = Math.Max(0, maxAttempts - attemptsUsed);
+
+                    if (submission?.Status == CourseAssignmentSubmissionStatus.Submitted)
+                    {
+                        AddFormativeSignal(studentUserId, new FormativeSignal(
+                            "AwaitingPracticeReview", 0,
+                            aim.CourseId, aim.CourseArabicTitle, aim.CourseEnglishTitle,
+                            aim.CourseModuleId, aim.UnitArabicTitle, aim.UnitEnglishTitle,
+                            aim.Id, aim.Code, aim.ArabicTitle, aim.EnglishTitle,
+                            latestReviewed?.TrainingOutcome?.ToString(), bestOutcome?.ToString(),
+                            attemptsUsed, maxAttempts, attemptsRemaining));
+                    }
+                    else if (latestReviewed?.TrainingOutcome == TrainingOutcome.NotYetAchieved)
+                    {
+                        var relatedReasons = new List<string>();
+                        if (reviewedAttempts.Count(version => version.TrainingOutcome == TrainingOutcome.NotYetAchieved) >= 2)
+                            relatedReasons.Add("RepeatedNotYetAchieved");
+                        if (attemptsRemaining == 1)
+                            relatedReasons.Add("OneAttemptRemaining");
+                        AddFormativeSignal(studentUserId, new FormativeSignal(
+                            "NotYetAchieved", 2,
+                            aim.CourseId, aim.CourseArabicTitle, aim.CourseEnglishTitle,
+                            aim.CourseModuleId, aim.UnitArabicTitle, aim.UnitEnglishTitle,
+                            aim.Id, aim.Code, aim.ArabicTitle, aim.EnglishTitle,
+                            latestReviewed.TrainingOutcome?.ToString(), bestOutcome?.ToString(),
+                            attemptsUsed, maxAttempts, attemptsRemaining),
+                            relatedReasons.ToArray());
+                    }
+                    else if (contentComplete && !reviewed)
+                    {
+                        AddFormativeSignal(studentUserId, new FormativeSignal(
+                            "AimPracticeIncomplete", 3,
+                            aim.CourseId, aim.CourseArabicTitle, aim.CourseEnglishTitle,
+                            aim.CourseModuleId, aim.UnitArabicTitle, aim.UnitEnglishTitle,
+                            aim.Id, aim.Code, aim.ArabicTitle, aim.EnglishTitle,
+                            null, null, attemptsUsed, maxAttempts, attemptsRemaining));
+                    }
+                }
+
+                finalAssignmentByModule.TryGetValue(module[0].CourseModuleId, out var finalAssignment);
+                var finalSubmission = finalAssignment is null
+                    ? null
+                    : formativeSubmissionByStudentAndAssignment.GetValueOrDefault((studentUserId, finalAssignment.Id));
+                if (finalSubmission?.Status == CourseAssignmentSubmissionStatus.Submitted)
+                {
+                    AddFormativeSignal(studentUserId, new FormativeSignal(
+                        "AwaitingFinalReview", 1,
+                        module[0].CourseId, module[0].CourseArabicTitle, module[0].CourseEnglishTitle,
+                        module[0].CourseModuleId, module[0].UnitArabicTitle, module[0].UnitEnglishTitle,
+                        null, null, null, null, null, null,
+                        finalSubmission.CurrentVersionNumber,
+                        finalAssignment?.MaxSubmissionAttempts ?? 1,
+                        Math.Max(0, (finalAssignment?.MaxSubmissionAttempts ?? 1) - finalSubmission.CurrentVersionNumber)));
+                }
+                else if (allAimsComplete && finalSubmission is null)
+                {
+                    AddFormativeSignal(studentUserId, new FormativeSignal(
+                        "ReadyForFinalPractice", 4,
+                        module[0].CourseId, module[0].CourseArabicTitle, module[0].CourseEnglishTitle,
+                        module[0].CourseModuleId, module[0].UnitArabicTitle, module[0].UnitEnglishTitle,
+                        null, null, null, null, null, null,
+                        finalSubmission?.CurrentVersionNumber ?? 0,
+                        finalAssignment?.MaxSubmissionAttempts ?? 1,
+                        Math.Max(0, (finalAssignment?.MaxSubmissionAttempts ?? 1)
+                            - (finalSubmission?.CurrentVersionNumber ?? 0))));
+                }
+            }
+        }
+
         var studentsAtRisk = studentUserIds.Select(studentUserId =>
         {
             var enrolledCourseIds = enrolledCoursesByStudent.GetValueOrDefault(studentUserId, []);
@@ -134,6 +354,9 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db, ICourseAssign
             if (expectedLessons > 0 && progressPercent < 40m) reasons.Add("LowProgress");
             if (missedAssignments > 0) reasons.Add("MissedAssignments");
             if (lastActiveAtUtc != default && lastActiveAtUtc <= now.AddDays(-14)) reasons.Add("Inactive14Days");
+            if (formativeReasonsByStudent.TryGetValue(studentUserId, out var formativeReasons))
+                reasons.AddRange(formativeReasons.Order(StringComparer.Ordinal));
+            reasons = reasons.Distinct(StringComparer.Ordinal).ToList();
             var riskLevel = reasons.Count switch
             {
                 0 => "Low",
@@ -148,7 +371,34 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db, ICourseAssign
                 reasons,
                 progressPercent,
                 missedAssignments,
-                lastActiveAtUtc = lastActiveAtUtc == default ? (DateTimeOffset?)null : lastActiveAtUtc
+                lastActiveAtUtc = lastActiveAtUtc == default ? (DateTimeOffset?)null : lastActiveAtUtc,
+                formativeSignals = formativeSignalsByStudent.GetValueOrDefault(studentUserId, [])
+                    .OrderBy(signal => signal.Priority)
+                    .ThenBy(signal => signal.CourseEnglishTitle, StringComparer.OrdinalIgnoreCase)
+                    .ThenBy(signal => signal.UnitEnglishTitle, StringComparer.OrdinalIgnoreCase)
+                    .ThenBy(signal => signal.LearningAimCode, StringComparer.OrdinalIgnoreCase)
+                    .Take(5)
+                    .Select(signal => new
+                    {
+                        reason = signal.Reason,
+                        priority = signal.Priority,
+                        courseId = signal.CourseId,
+                        courseArabicTitle = signal.CourseArabicTitle,
+                        courseEnglishTitle = signal.CourseEnglishTitle,
+                        unitId = signal.UnitId,
+                        unitArabicTitle = signal.UnitArabicTitle,
+                        unitEnglishTitle = signal.UnitEnglishTitle,
+                        learningAimId = signal.LearningAimId,
+                        learningAimCode = signal.LearningAimCode,
+                        learningAimArabicTitle = signal.LearningAimArabicTitle,
+                        learningAimEnglishTitle = signal.LearningAimEnglishTitle,
+                        latestOutcome = signal.LatestOutcome,
+                        bestOutcome = signal.BestOutcome,
+                        attemptsUsed = signal.AttemptsUsed,
+                        maxAttempts = signal.MaxAttempts,
+                        attemptsRemaining = signal.AttemptsRemaining
+                    })
+                    .ToArray()
             };
         }).Where(student => student.reasons.Count > 0).OrderByDescending(student => student.riskLevel == "High").ThenByDescending(student => student.reasons.Count).ThenBy(student => student.studentName).ToArray();
         if (!followUp)
@@ -207,4 +457,32 @@ public sealed class TeacherAnalyticsController(BetccoDbContext db, ICourseAssign
             pageSize
         });
     }
+
+    private static int TrainingOutcomeRank(TrainingOutcome outcome) => outcome switch
+    {
+        TrainingOutcome.NotYetAchieved => 0,
+        TrainingOutcome.Pass => 1,
+        TrainingOutcome.Merit => 2,
+        TrainingOutcome.Distinction => 3,
+        _ => -1
+    };
+
+    private sealed record FormativeSignal(
+        string Reason,
+        int Priority,
+        Guid CourseId,
+        string CourseArabicTitle,
+        string CourseEnglishTitle,
+        Guid UnitId,
+        string UnitArabicTitle,
+        string UnitEnglishTitle,
+        Guid? LearningAimId,
+        string? LearningAimCode,
+        string? LearningAimArabicTitle,
+        string? LearningAimEnglishTitle,
+        string? LatestOutcome,
+        string? BestOutcome,
+        int AttemptsUsed,
+        int MaxAttempts,
+        int AttemptsRemaining);
 }

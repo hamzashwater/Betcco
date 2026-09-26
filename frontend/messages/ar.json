@@ -319,7 +319,14 @@
       "All": "جميع الأسباب",
       "LowProgress": "تقدم منخفض",
       "MissedAssignments": "مهام فائتة",
-      "Inactive14Days": "غير نشط منذ 14 يومًا"
+      "Inactive14Days": "غير نشط منذ 14 يومًا",
+      "AwaitingPracticeReview": "تدريب بانتظار المراجعة",
+      "NotYetAchieved": "آخر نتيجة لم تتحقق بعد",
+      "RepeatedNotYetAchieved": "تكرار نتيجة لم تتحقق بعد",
+      "OneAttemptRemaining": "بقيت محاولة واحدة",
+      "AimPracticeIncomplete": "تدريب هدف التعلم غير مكتمل",
+      "ReadyForFinalPractice": "جاهز للتدريب النهائي للوحدة",
+      "AwaitingFinalReview": "التدريب النهائي بانتظار المراجعة"
     },
     "sort": {
       "priority": "أولوية المتابعة",
@@ -331,6 +338,28 @@
       "progress": "التقدم",
       "missedAssignments": "المهام الفائتة",
       "lastActivity": "آخر نشاط"
+    },
+    "formative": {
+      "title": "التدخل التدريبي",
+      "aim": "الهدف {code}",
+      "finalPractice": "التدريب النهائي للوحدة",
+      "latest": "آخر نتيجة",
+      "best": "أفضل نتيجة",
+      "attempts": "المحاولات",
+      "attemptValue": "استُخدمت {used}/{max} · المتبقي {remaining}",
+      "outcomes": {
+        "NotYetAchieved": "لم يتحقق بعد",
+        "Pass": "نجاح",
+        "Merit": "جدارة",
+        "Distinction": "تميز"
+      },
+      "actions": {
+        "AwaitingPracticeReview": "راجع تدريب هدف التعلم المُسلَّم وأعد للطالب التغذية الراجعة التكوينية.",
+        "NotYetAchieved": "آخر محاولة تمت مراجعتها نتيجتها لم تتحقق بعد. راجع نقاط النقص وادعم الطالب قبل المحاولة التالية.",
+        "AimPracticeIncomplete": "محتوى التعلم مكتمل لكن التدريب التكويني لم يكتمل بعد. تحقق من النشر أو الوصول أو متابعة الطالب.",
+        "ReadyForFinalPractice": "اكتملت جميع أهداف التعلم في هذه الوحدة. تأكد أن التدريب النهائي للوحدة جاهز للطالب.",
+        "AwaitingFinalReview": "راجع التدريب النهائي للوحدة المُسلَّم وأعد النتيجة التكوينية والتغذية الراجعة."
+      }
     },
     "unavailable": "غير متوفر",
     "paginationLabel": "صفحات متابعة الطلاب",
