@@ -92,6 +92,7 @@ public sealed class EvaluationRequest : Entity
     public ICollection<EvaluationRequest> Retakes { get; } = new List<EvaluationRequest>();
     public ICollection<SubmissionFile> SubmissionFiles { get; } = new List<SubmissionFile>();
     public ICollection<CriterionResult> CriterionResults { get; } = new List<CriterionResult>();
+    public ICollection<EvaluationReviewDecision> ReviewDecisions { get; } = new List<EvaluationReviewDecision>();
     public ICollection<EvaluationEvidence> EvidenceItems { get; } = new List<EvaluationEvidence>();
     public ICollection<EvaluationFeedback> FeedbackItems { get; } = new List<EvaluationFeedback>();
     public ICollection<InternalVerification> InternalVerifications { get; } = new List<InternalVerification>();
@@ -318,6 +319,37 @@ public sealed class CriterionResult : Entity
     public required string CriterionCode { get; set; }
     public CriterionAchievement Achievement { get; set; }
     public decimal? Score { get; set; }
+    public string? Evidence { get; set; }
+    public string? Comment { get; set; }
+}
+
+public enum EvaluationReviewStage { InitialReview, RevisionCheck }
+
+/// <summary>A completed BETCCO review decision, independent of the current result projection.</summary>
+public sealed class EvaluationReviewDecision : Entity
+{
+    public Guid EvaluationRequestId { get; set; }
+    public EvaluationRequest? EvaluationRequest { get; set; }
+    public int AttemptNumber { get; set; }
+    public EvaluationReviewStage ReviewStage { get; set; }
+    public required string ReviewerUserId { get; set; }
+    public DateTimeOffset DecidedAtUtc { get; set; }
+    public EvaluationGrade CalculatedGrade { get; set; }
+    public required string SectionResultsJson { get; set; }
+    public required string Feedback { get; set; }
+    public int CriterionCount { get; set; }
+    public bool RequestsRevision { get; set; }
+    public DateTimeOffset? RevisionDueAtUtc { get; set; }
+    public ICollection<EvaluationReviewCriterionDecision> CriterionDecisions { get; } = new List<EvaluationReviewCriterionDecision>();
+}
+
+/// <summary>A criterion decision at one completed review checkpoint.</summary>
+public sealed class EvaluationReviewCriterionDecision : Entity
+{
+    public Guid EvaluationReviewDecisionId { get; set; }
+    public EvaluationReviewDecision? EvaluationReviewDecision { get; set; }
+    public required string CriterionCode { get; set; }
+    public CriterionAchievement Achievement { get; set; }
     public string? Evidence { get; set; }
     public string? Comment { get; set; }
 }
