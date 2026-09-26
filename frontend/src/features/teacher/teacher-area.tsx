@@ -705,6 +705,15 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
   });
   const submit = useMutation({
     mutationFn: () => {
+      if (
+        requestRevision &&
+        (!revisionDueLocal || !Number.isFinite(Date.parse(revisionDueLocal)))
+      )
+        throw new Error(
+          locale === "ar"
+            ? "حدد موعدًا صالحًا لفرصة التعديل الوحيدة."
+            : "Choose a valid deadline for the one revision check.",
+        );
       const results =
         activeCriteria.map((criterion) => {
           const value = criterionValue(criterion);
@@ -805,8 +814,7 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
   const revisionDeadlineValid =
     !requestRevision ||
     (Boolean(revisionDueLocal) &&
-      Number.isFinite(Date.parse(revisionDueLocal)) &&
-      Date.parse(revisionDueLocal) > Date.now());
+      Number.isFinite(Date.parse(revisionDueLocal)));
   const isPlanning =
     evaluation.data.submissionAttemptNumber === 1 &&
     (criteriaPlanDraft !== null || activeCriteria.length === 0);
