@@ -3,16 +3,69 @@ using System.Text.Json;
 using Betcco.Application.Commerce;
 using Betcco.Domain.Common;
 using Betcco.Domain.Commerce;
+using Betcco.Domain.Evaluations;
+using Betcco.Domain.Learning;
 using Betcco.Infrastructure.Persistence;
 using Betcco.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Options;
+using Xunit.Abstractions;
 
 namespace Betcco.IntegrationTests;
 
-public sealed class PayTabsRefundProviderTests
+public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
 {
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Verified_PayTabs_full_refund_with_unused_included_credit_finalizes_accounting_and_revokes_credit()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("paytabs_unused_credit");
+        await using var seed = database.CreateContext();
+        var (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(seed);
+        await using var db = database.CreateContext();
+        var handler = new RefundHandler();
+        var service = new RefundService(db, CreateProvider(handler));
+
+        try
+        {
+            var result = await service.InitiatePayTabsRefundAsync("finance", new(paymentId, "CustomerRequest", null, "paytabs-unused-credit"));
+            var refund = Assert.IsType<RefundView>(result.Refund);
+            Assert.Equal(nameof(RefundStatus.InternallyRecorded), refund.Status);
+            Assert.Equal(nameof(RefundEntitlementDisposition.UnusedIncludedEvaluationCreditsRevoked), refund.EntitlementDisposition);
+            Assert.Equal(2, handler.RequestBodies.Count);
+
+            await using var verify = database.CreateContext();
+            Assert.Equal(PaymentStatus.Refunded, await verify.Payments.Where(item => item.Id == paymentId).Select(item => item.Status).SingleAsync());
+            var credit = await verify.IncludedEvaluationEntitlements.SingleAsync(item => item.Id == entitlementId);
+            Assert.Equal(refund.Id, credit.RevokedByRefundId);
+            Assert.NotNull(credit.RevokedAtUtc);
+            Assert.Null(credit.ConsumedByEvaluationRequestId);
+            Assert.Equal(RefundEntitlementDisposition.UnusedIncludedEvaluationCreditsRevoked,
+                await verify.Refunds.Where(item => item.Id == refund.Id).Select(item => item.EntitlementDisposition).SingleAsync());
+            Assert.Single(await verify.LedgerTransactions.Where(item => item.RefundId == refund.Id).ToListAsync());
+            Assert.Equal(2, await verify.WalletTransactions.CountAsync(item => item.RefundId == refund.Id));
+            Assert.Single(await verify.PaymentStatusTransitions.Where(item => item.PaymentId == paymentId && item.NewStatus == PaymentStatus.Refunded).ToListAsync());
+        }
+        catch (Exception exception)
+        {
+            await using var verify = database.CreateContext();
+            var paymentStatus = await verify.Payments.Where(item => item.Id == paymentId).Select(item => item.Status).SingleAsync();
+            var persistedRefund = await verify.Refunds.SingleOrDefaultAsync(item => item.PaymentId == paymentId);
+            var credit = await verify.IncludedEvaluationEntitlements.SingleAsync(item => item.Id == entitlementId);
+            var reversals = await verify.LedgerTransactions.CountAsync(item => item.RefundId != null);
+            var modifiedRefundProperties = db.ChangeTracker.Entries<Refund>()
+                .SelectMany(entry => entry.Properties.Where(property => property.IsModified).Select(property => property.Metadata.Name))
+                .Distinct()
+                .OrderBy(name => name)
+                .ToArray();
+            output.WriteLine($"Failure: {exception.GetType().Name}: {exception.Message}");
+            output.WriteLine($"Tracked Refund changes: {string.Join(", ", modifiedRefundProperties)}");
+            output.WriteLine($"Provider requests: {handler.RequestBodies.Count}; Provider reference retained: {persistedRefund?.ProviderRefundReference is not null}; Payment: {paymentStatus}; Refund: {persistedRefund?.Status}; Disposition: {persistedRefund?.EntitlementDisposition}; Credit revoked: {credit.RevokedAtUtc is not null}; Ledger reversals: {reversals}");
+            throw;
+        }
+    }
+
     [Fact]
     public async Task Verified_full_refund_uses_trusted_sale_data_and_finalizes_accounting_once()
     {
@@ -144,6 +197,33 @@ public sealed class PayTabsRefundProviderTests
             new WalletTransaction { UserId = "teacher", Type = "TeacherCourseEarning", Amount = 70m, Currency = "JOD", PaymentId = payment.Id, Description = "sale" });
         await db.SaveChangesAsync();
         return payment;
+    }
+
+    private static async Task<(Guid PaymentId, Guid EntitlementId)> AddPaidCourseSaleWithUnusedCreditAsync(BetccoDbContext db)
+    {
+        var token = Guid.NewGuid().ToString("N");
+        var track = new LearningTrack { Slug = $"refund-track-{token}", ArabicName = "مسار", EnglishName = "Track" };
+        var qualification = new Qualification { Code = $"REFUND-{token}", ArabicName = "مؤهل", EnglishName = "Qualification" };
+        var version = new QualificationVersion { Qualification = qualification, VersionCode = "V1", SourceReference = "integration test" };
+        var unit = new UnitDefinition { QualificationVersion = version, Code = "U1", ArabicTitle = "وحدة", EnglishTitle = "Unit", IsActive = true };
+        var course = new Course { Slug = $"refund-course-{token}", ArabicTitle = "دورة", EnglishTitle = "Course", ArabicDescription = "وصف", EnglishDescription = "Description", LearningTrack = track, TeacherUserId = "teacher", Status = CourseStatus.Published, Price = 100m };
+        course.Modules.Add(new CourseModule { Course = course, UnitDefinition = unit, ArabicTitle = "وحدة", EnglishTitle = "Unit", UnitCode = unit.Code, IsPublished = true });
+        var payment = new Payment { UserId = "student", Purpose = "CourseCart", ReferenceId = Guid.NewGuid(), Status = PaymentStatus.Paid, Subtotal = 100m, Total = 100m, Currency = "JOD", Provider = "PayTabs", ProviderPaymentId = "SALE-TRUSTED-REF" };
+        var enrollment = new Enrollment { StudentUserId = "student", Course = course, PaymentId = payment.Id };
+        var entitlement = new IncludedEvaluationEntitlement { StudentUserId = "student", Enrollment = enrollment, UnitDefinition = unit, GrantedByPayment = payment };
+        var allocation = new CourseSaleAllocation { PaymentId = payment.Id, CourseId = course.Id, TeacherUserId = "teacher", GrossAmount = 100m, NetAmount = 100m, PlatformCommission = 30m, TeacherEarning = 70m, Currency = "JOD" };
+        var clearing = new LedgerAccount { Code = LedgerAccountCode.CourseSaleClearing, Currency = "JOD" };
+        var commission = new LedgerAccount { Code = LedgerAccountCode.PlatformCommission, Currency = "JOD" };
+        var teacher = new LedgerAccount { Code = LedgerAccountCode.TeacherEarningsPayable, Currency = "JOD" };
+        var sale = new LedgerTransaction { EventType = LedgerEventType.PaidCourseSale, Currency = "JOD", Payment = payment, IdempotencyKey = "sale", BusinessEventReference = $"sale:{token}" };
+        sale.Entries.Add(new LedgerEntry { LedgerAccount = clearing, CourseSaleAllocation = allocation, Side = LedgerEntrySide.Debit, Amount = 100m, Currency = "JOD" });
+        sale.Entries.Add(new LedgerEntry { LedgerAccount = commission, CourseSaleAllocation = allocation, Side = LedgerEntrySide.Credit, Amount = 30m, Currency = "JOD" });
+        sale.Entries.Add(new LedgerEntry { LedgerAccount = teacher, CourseSaleAllocation = allocation, Side = LedgerEntrySide.Credit, Amount = 70m, Currency = "JOD" });
+        db.AddRange(track, qualification, version, unit, course, payment, enrollment, entitlement, allocation, clearing, commission, teacher, sale,
+            new WalletTransaction { UserId = "platform", Type = "PlatformCommission", Amount = 30m, Currency = "JOD", PaymentId = payment.Id, Description = "sale" },
+            new WalletTransaction { UserId = "teacher", Type = "TeacherCourseEarning", Amount = 70m, Currency = "JOD", PaymentId = payment.Id, Description = "sale" });
+        await db.SaveChangesAsync();
+        return (payment.Id, entitlement.Id);
     }
 
     private static BetccoDbContext CreateDb() => new(new DbContextOptionsBuilder<BetccoDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).ConfigureWarnings(warnings => warnings.Ignore(InMemoryEventId.TransactionIgnoredWarning)).Options);
