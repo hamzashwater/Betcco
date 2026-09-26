@@ -46,6 +46,21 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
             Assert.Single(await verify.LedgerTransactions.Where(item => item.RefundId == refund.Id).ToListAsync());
             Assert.Equal(2, await verify.WalletTransactions.CountAsync(item => item.RefundId == refund.Id));
             Assert.Single(await verify.PaymentStatusTransitions.Where(item => item.PaymentId == paymentId && item.NewStatus == PaymentStatus.Refunded).ToListAsync());
+
+            await using var replayDb = database.CreateContext();
+            var replay = await new RefundService(replayDb, CreateProvider(handler)).VerifyPayTabsRefundAsync("finance", refund.Id);
+            Assert.True(replay.IsIdempotentReplay);
+            Assert.Equal(2, handler.RequestBodies.Count);
+            Assert.Single(await replayDb.LedgerTransactions.Where(item => item.RefundId == refund.Id).ToListAsync());
+            Assert.Equal(2, await replayDb.WalletTransactions.CountAsync(item => item.RefundId == refund.Id));
+            Assert.Single(await replayDb.AuditLogs.Where(item => item.Action == "IncludedEvaluationCreditRevokedByRefund" && item.EntityId == entitlementId.ToString()).ToListAsync());
+            Assert.Equal(credit.RevokedAtUtc,
+                await replayDb.IncludedEvaluationEntitlements.Where(item => item.Id == entitlementId).Select(item => item.RevokedAtUtc).SingleAsync());
+
+            await using var mutationDb = database.CreateContext();
+            var recordedRefund = await mutationDb.Refunds.SingleAsync(item => item.Id == refund.Id);
+            recordedRefund.EntitlementDisposition = RefundEntitlementDisposition.NotChangedPendingBusinessPolicy;
+            await Assert.ThrowsAsync<InvalidOperationException>(() => mutationDb.SaveChangesAsync());
         }
         catch (Exception exception)
         {

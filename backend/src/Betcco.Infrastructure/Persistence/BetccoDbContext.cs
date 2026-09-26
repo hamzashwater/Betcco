@@ -578,10 +578,47 @@ public sealed class BetccoDbContext(
                 nameof(Refund.ProviderResultUnknownAtUtc), nameof(Refund.FailureCode), nameof(Refund.InternallyRecordedByUserId),
                 nameof(Refund.InternallyRecordedAtUtc), nameof(Refund.UpdatedAtUtc), nameof(Refund.UpdatedByUserId)
             };
+            var status = entry.Property(refund => refund.Status);
+            var disposition = entry.Property(refund => refund.EntitlementDisposition);
+            if (disposition.IsModified)
+            {
+                var controlledFinalization = disposition.OriginalValue == RefundEntitlementDisposition.NotChangedPendingBusinessPolicy
+                    && disposition.CurrentValue == RefundEntitlementDisposition.UnusedIncludedEvaluationCreditsRevoked
+                    && status.IsModified
+                    && status.OriginalValue == RefundStatus.ProviderVerified
+                    && status.CurrentValue == RefundStatus.InternallyRecorded
+                    && ChangeTracker.Entries<RefundStatusTransition>().Any(transition =>
+                        transition.State == EntityState.Added
+                        && transition.Entity.RefundId == entry.Entity.Id
+                        && transition.Entity.PreviousStatus == RefundStatus.ProviderVerified
+                        && transition.Entity.NewStatus == RefundStatus.InternallyRecorded
+                        && transition.Entity.Source == RefundTransitionSource.InternalAccounting)
+                    && ChangeTracker.Entries<IncludedEvaluationEntitlement>().Any(credit =>
+                        credit.State == EntityState.Modified
+                        && credit.Entity.GrantedByPaymentId == entry.Entity.PaymentId
+                        && credit.Property(item => item.GrantedByPaymentId).OriginalValue == entry.Entity.PaymentId
+                        && credit.Entity.ConsumedByEvaluationRequestId == null
+                        && credit.Property(item => item.ConsumedByEvaluationRequestId).OriginalValue == null
+                        && credit.Entity.ConsumedAtUtc == null
+                        && credit.Property(item => item.ConsumedAtUtc).OriginalValue == null
+                        && credit.Property(item => item.RevokedAtUtc).IsModified
+                        && credit.Property(item => item.RevokedAtUtc).OriginalValue == null
+                        && credit.Entity.RevokedAtUtc != null
+                        && credit.Property(item => item.RevokedByRefundId).IsModified
+                        && credit.Property(item => item.RevokedByRefundId).OriginalValue == null
+                        && credit.Entity.RevokedByRefundId == entry.Entity.Id)
+                    && ChangeTracker.Entries<AuditLog>().Any(audit =>
+                        audit.State == EntityState.Added
+                        && audit.Entity.Action == "RefundEntitlementDispositionApplied"
+                        && audit.Entity.EntityType == nameof(Refund)
+                        && audit.Entity.EntityId == entry.Entity.Id.ToString());
+                if (!controlledFinalization)
+                    throw new InvalidOperationException("Refund entitlement disposition can only change during controlled finalization with unused credit revocation evidence.");
+                allowed.Add(nameof(Refund.EntitlementDisposition));
+            }
             if (entry.Properties.Any(property => property.IsModified && !allowed.Contains(property.Metadata.Name)))
                 throw new InvalidOperationException("Refund evidence cannot be rewritten.");
 
-            var status = entry.Property(refund => refund.Status);
             if (status.IsModified && (!RefundWorkflow.CanTransition(status.OriginalValue, status.CurrentValue) ||
                 !ChangeTracker.Entries<RefundStatusTransition>().Any(transition => transition.State == EntityState.Added && transition.Entity.RefundId == entry.Entity.Id && transition.Entity.PreviousStatus == status.OriginalValue && transition.Entity.NewStatus == status.CurrentValue)))
                 throw new InvalidOperationException("Refund state changes require an allowed server-controlled transition with append-only evidence.");
