@@ -17,8 +17,8 @@ public sealed class ResitsController(IResitService resits) : ControllerBase
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
-        if (!ValidPage(page, pageSize)) return InvalidPage();
         if (!TryActor(out var actorUserId)) return Unauthorized();
+        if (!ValidPage(page, pageSize)) return InvalidPage();
         return Ok(await resits.ListEligibleAsync(actorUserId, page, pageSize, cancellationToken));
     }
 
@@ -28,8 +28,8 @@ public sealed class ResitsController(IResitService resits) : ControllerBase
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
-        if (!ValidPage(page, pageSize)) return InvalidPage();
         if (!TryActor(out var actorUserId)) return Unauthorized();
+        if (!ValidPage(page, pageSize)) return InvalidPage();
         return Ok(await resits.ListAuthorizationsAsync(actorUserId, page, pageSize, cancellationToken));
     }
 
