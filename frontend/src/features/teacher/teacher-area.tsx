@@ -138,8 +138,8 @@ function TeacherDashboard() {
           }
           detail={
             locale === "ar"
-              ? "تسليمات مهام فعلية"
-              : "Actual coursework submissions"
+              ? "تسليمات مهام وتدريب تكويني"
+              : "Submitted coursework and formative practice"
           }
           icon={ClipboardCheck}
           tone="warm"
@@ -167,8 +167,8 @@ function TeacherDashboard() {
           }
           detail={
             locale === "ar"
-              ? "بناءً على التقدم والمهام"
-              : "Based on progress and assignments"
+              ? "بناءً على التقدم والمهام والتدريب التكويني"
+              : "Based on progress, coursework, and formative practice"
           }
           icon={AlertTriangle}
           tone="warm"

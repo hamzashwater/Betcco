@@ -375,6 +375,76 @@ describe("TeacherStudentFollowUp", () => {
     expect(within(card!).getByText("Follow-up needed")).toBeVisible();
   });
 
+  it("renders formative intervention context and requests formative reason filters", async () => {
+    const formativeStudent: TeacherFollowUpStudent = {
+      studentUserId: "farah",
+      studentName: "Farah formative",
+      riskLevel: "High",
+      reasons: [
+        "NotYetAchieved",
+        "RepeatedNotYetAchieved",
+        "OneAttemptRemaining",
+      ],
+      progressPercent: 72,
+      missedAssignments: 0,
+      lastActiveAtUtc: "2026-09-25T10:00:00Z",
+      formativeSignals: [
+        {
+          reason: "NotYetAchieved",
+          priority: 2,
+          courseId: "course-1",
+          courseArabicTitle: "دورة تقنية المعلومات",
+          courseEnglishTitle: "Information Technology",
+          unitId: "unit-1",
+          unitArabicTitle: "الوحدة الأولى",
+          unitEnglishTitle: "Unit one",
+          learningAimId: "aim-a",
+          learningAimCode: "A",
+          learningAimArabicTitle: "الهدف أ",
+          learningAimEnglishTitle: "Aim A",
+          latestOutcome: "NotYetAchieved",
+          bestOutcome: "Pass",
+          attemptsUsed: 2,
+          maxAttempts: 3,
+          attemptsRemaining: 1,
+        },
+      ],
+    };
+    const source = [...students, formativeStudent];
+    const fetchMock = installFetch(source);
+    const user = userEvent.setup();
+    renderWorkspace();
+
+    const student = await screen.findByText("Farah formative");
+    const card = student.closest("article")!;
+    expect(within(card).getByText("Formative intervention")).toBeVisible();
+    expect(
+      within(card).getByText("Information Technology · Unit one · Aim A"),
+    ).toBeVisible();
+    expect(
+      within(card).getByText("Latest outcome").parentElement,
+    ).toHaveTextContent("NYA");
+    expect(
+      within(card).getByText("Best outcome").parentElement,
+    ).toHaveTextContent("Pass");
+    expect(within(card).getByText("Attempts").parentElement).toHaveTextContent(
+      "2/3 used · 1 remaining",
+    );
+    expect(
+      within(card).getByText(/support the learner before the next attempt/i),
+    ).toBeVisible();
+
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Filter by follow-up reason" }),
+      "One attempt remaining",
+    );
+    await waitFor(() =>
+      expect(String(fetchMock.mock.lastCall?.[0])).toContain(
+        "reason=OneAttemptRemaining",
+      ),
+    );
+  });
+
   it("uses the Arabic catalog and RTL direction", async () => {
     renderWorkspace("ar");
 
