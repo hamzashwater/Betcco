@@ -265,11 +265,27 @@ public sealed class EvaluationCriteriaPlanTests
         }));
         Assert.Equal(EvaluationStatus.Assigned, request.Status);
         Assert.Empty(await db.CriterionResults.Where(item => item.EvaluationRequestId == request.Id).ToListAsync());
+        Assert.False(await service.SubmitReviewAsync("other-teacher", request.Id, firstReview));
         Assert.True(await service.SubmitReviewAsync("teacher", request.Id, firstReview));
         Assert.Equal(EvaluationStatus.NeedsRevision, request.Status);
         Assert.Equal(EvaluationGrade.NotYetAchieved, request.CalculatedGrade);
         Assert.Single(await db.EvaluationFeedbackItems.Where(item => item.RequestsResubmission).ToListAsync());
         Assert.Empty(await db.ResubmissionAuthorizations.ToListAsync());
+        var initialDecision = await db.EvaluationReviewDecisions.AsNoTracking()
+            .Include(item => item.CriterionDecisions).SingleAsync();
+        Assert.Equal(1, initialDecision.AttemptNumber);
+        Assert.Equal(EvaluationReviewStage.InitialReview, initialDecision.ReviewStage);
+        Assert.Equal("teacher", initialDecision.ReviewerUserId);
+        Assert.Equal(EvaluationGrade.NotYetAchieved, initialDecision.CalculatedGrade);
+        Assert.Equal(request.SectionResultsJson, initialDecision.SectionResultsJson);
+        Assert.True(initialDecision.RequestsRevision);
+        Assert.Equal(firstReview.Feedback, initialDecision.Feedback);
+        var initialCriterion = Assert.Single(initialDecision.CriterionDecisions);
+        Assert.Equal("A.P1", initialCriterion.CriterionCode);
+        Assert.Equal(CriterionAchievement.PartiallyAchieved, initialCriterion.Achievement);
+        Assert.Equal("Some evidence", initialCriterion.Evidence);
+        Assert.Equal("Needs one more example", initialCriterion.Comment);
+        Assert.False(await service.ResubmitAsync("other-student", request.Id));
 
         var feedbackAt = await db.EvaluationFeedbackItems
             .Where(item => item.EvaluationRequestId == request.Id && item.RequestsResubmission)
@@ -298,6 +314,29 @@ public sealed class EvaluationCriteriaPlanTests
         Assert.True(await service.SubmitReviewAsync("teacher", request.Id, secondReview));
         Assert.Equal(EvaluationStatus.Completed, request.Status);
         Assert.Equal(EvaluationGrade.Pass, request.CalculatedGrade);
+        var decisions = await db.EvaluationReviewDecisions.AsNoTracking()
+            .Include(item => item.CriterionDecisions)
+            .OrderBy(item => item.AttemptNumber).ToListAsync();
+        Assert.Equal(2, decisions.Count);
+        Assert.Equal(new[] { EvaluationReviewStage.InitialReview, EvaluationReviewStage.RevisionCheck },
+            decisions.Select(item => item.ReviewStage).ToArray());
+        Assert.Equal(initialDecision.Id, decisions[0].Id);
+        Assert.Equal(initialDecision.DecidedAtUtc, decisions[0].DecidedAtUtc);
+        Assert.Equal(initialDecision.SectionResultsJson, decisions[0].SectionResultsJson);
+        Assert.Equal(initialDecision.CalculatedGrade, decisions[0].CalculatedGrade);
+        Assert.Equal(CriterionAchievement.PartiallyAchieved, Assert.Single(decisions[0].CriterionDecisions).Achievement);
+        Assert.Equal("Some evidence", Assert.Single(decisions[0].CriterionDecisions).Evidence);
+        Assert.Equal(2, decisions[1].AttemptNumber);
+        Assert.Equal(EvaluationGrade.Pass, decisions[1].CalculatedGrade);
+        Assert.False(decisions[1].RequestsRevision);
+        Assert.Equal(CriterionAchievement.Achieved, Assert.Single(decisions[1].CriterionDecisions).Achievement);
+        Assert.Equal("Revised evidence", Assert.Single(decisions[1].CriterionDecisions).Evidence);
+        Assert.Equal(CriterionAchievement.Achieved,
+            (await db.CriterionResults.SingleAsync(item => item.EvaluationRequestId == request.Id)).Achievement);
+        Assert.Contains(await db.AssessmentAuditEvents.ToListAsync(),
+            item => item.EventType == "RevisionRequested" && item.AttemptNumber == 1);
+        Assert.Contains(await db.AssessmentAuditEvents.ToListAsync(),
+            item => item.EventType == "RevisionCheckCompleted" && item.AttemptNumber == 2);
 
         request.Status = EvaluationStatus.Assigned;
         await db.SaveChangesAsync();
@@ -307,6 +346,7 @@ public sealed class EvaluationCriteriaPlanTests
             RevisionDueAtUtc = DateTimeOffset.UtcNow.AddDays(1)
         };
         Assert.False(await service.SubmitReviewAsync("teacher", request.Id, thirdChance));
+        Assert.Equal(2, await db.EvaluationReviewDecisions.CountAsync());
     }
 
     [Fact]
