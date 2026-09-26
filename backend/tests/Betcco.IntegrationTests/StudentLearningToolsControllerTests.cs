@@ -3,6 +3,7 @@ using System.Text.Json;
 using Betcco.Api.Controllers;
 using Betcco.Domain.Common;
 using Betcco.Domain.Commerce;
+using Betcco.Domain.Evaluations;
 using Betcco.Domain.Learning;
 using Betcco.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Http;
@@ -120,6 +121,114 @@ public sealed class StudentLearningToolsControllerTests
     }
 
     [Fact]
+    public async Task Entitlements_are_scoped_to_active_student_access_and_project_credit_state()
+    {
+        await using var db = CreateDb();
+        var payment = new Payment
+        {
+            UserId = "student-1",
+            Purpose = "CourseCart",
+            Status = PaymentStatus.Paid,
+            Total = 40m,
+            Currency = "JOD"
+        };
+        var permanentCourse = Course("permanent", "Permanent course");
+        var timedCourse = Course("timed", "Timed course");
+        var expiredCourse = Course("expired", "Expired course");
+        var foreignCourse = Course("foreign", "Foreign course");
+        var permanentEnrollment = new Enrollment
+        {
+            StudentUserId = "student-1",
+            Course = permanentCourse,
+            PaymentId = payment.Id
+        };
+        var timedEnrollment = new Enrollment
+        {
+            StudentUserId = "student-1",
+            Course = timedCourse,
+            AccessEndsAtUtc = DateTimeOffset.UtcNow.AddDays(10)
+        };
+        var expiredEnrollment = new Enrollment
+        {
+            StudentUserId = "student-1",
+            Course = expiredCourse,
+            AccessEndsAtUtc = DateTimeOffset.UtcNow.AddMinutes(-5)
+        };
+        var foreignEnrollment = new Enrollment
+        {
+            StudentUserId = "student-2",
+            Course = foreignCourse
+        };
+        var availableUnit = Unit("U1", "Available unit");
+        var consumedUnit = Unit("U2", "Consumed unit");
+        var revokedUnit = Unit("U3", "Revoked unit");
+        db.AddRange(payment, permanentCourse, timedCourse, expiredCourse, foreignCourse, permanentEnrollment, timedEnrollment, expiredEnrollment, foreignEnrollment, availableUnit, consumedUnit, revokedUnit);
+        await db.SaveChangesAsync();
+        db.IncludedEvaluationEntitlements.AddRange(
+            new IncludedEvaluationEntitlement
+            {
+                StudentUserId = "student-1",
+                EnrollmentId = permanentEnrollment.Id,
+                UnitDefinitionId = availableUnit.Id,
+                GrantedByPaymentId = payment.Id
+            },
+            new IncludedEvaluationEntitlement
+            {
+                StudentUserId = "student-1",
+                EnrollmentId = permanentEnrollment.Id,
+                UnitDefinitionId = consumedUnit.Id,
+                GrantedByPaymentId = payment.Id,
+                ConsumedByEvaluationRequestId = Guid.NewGuid(),
+                ConsumedAtUtc = DateTimeOffset.UtcNow
+            },
+            new IncludedEvaluationEntitlement
+            {
+                StudentUserId = "student-1",
+                EnrollmentId = permanentEnrollment.Id,
+                UnitDefinitionId = revokedUnit.Id,
+                GrantedByPaymentId = payment.Id,
+                RevokedByRefundId = Guid.NewGuid(),
+                RevokedAtUtc = DateTimeOffset.UtcNow
+            },
+            new IncludedEvaluationEntitlement
+            {
+                StudentUserId = "student-2",
+                EnrollmentId = foreignEnrollment.Id,
+                UnitDefinitionId = availableUnit.Id,
+                GrantedByPaymentId = Guid.NewGuid()
+            });
+        await db.SaveChangesAsync();
+
+        var controller = Controller(db, "student-1");
+        var result = await controller.Entitlements("en", CancellationToken.None);
+
+        var response = Assert.IsType<OkObjectResult>(result);
+        using var document = JsonDocument.Parse(JsonSerializer.Serialize(response.Value, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        }));
+        var items = document.RootElement.GetProperty("items");
+        Assert.Equal(2, items.GetArrayLength());
+        Assert.DoesNotContain(items.EnumerateArray(), item => item.GetProperty("courseTitle").GetString() == "Expired course");
+        Assert.DoesNotContain(items.EnumerateArray(), item => item.GetProperty("courseTitle").GetString() == "Foreign course");
+
+        var permanent = Assert.Single(items.EnumerateArray(), item => item.GetProperty("courseTitle").GetString() == "Permanent course");
+        Assert.Equal("Permanent", permanent.GetProperty("accessType").GetString());
+        Assert.Equal("CourseCart", permanent.GetProperty("sourcePurpose").GetString());
+        Assert.Equal(payment.Id.ToString(), permanent.GetProperty("sourcePaymentId").GetString());
+        var credits = permanent.GetProperty("includedEvaluationCredits");
+        Assert.Equal(3, credits.GetArrayLength());
+        Assert.Contains(credits.EnumerateArray(), item => item.GetProperty("unitCode").GetString() == "U1" && item.GetProperty("status").GetString() == "Available");
+        Assert.Contains(credits.EnumerateArray(), item => item.GetProperty("unitCode").GetString() == "U2" && item.GetProperty("status").GetString() == "Consumed");
+        Assert.Contains(credits.EnumerateArray(), item => item.GetProperty("unitCode").GetString() == "U3" && item.GetProperty("status").GetString() == "Revoked");
+
+        var timed = Assert.Single(items.EnumerateArray(), item => item.GetProperty("courseTitle").GetString() == "Timed course");
+        Assert.Equal("Timed", timed.GetProperty("accessType").GetString());
+        Assert.Equal("DirectEnrollment", timed.GetProperty("sourcePurpose").GetString());
+        Assert.Equal(JsonValueKind.String, timed.GetProperty("accessEndsAtUtc").ValueKind);
+    }
+
+    [Fact]
     public async Task Archived_legacy_lesson_history_is_hidden_from_student_tools_and_questions()
     {
         await using var db = CreateDb();
@@ -178,6 +287,38 @@ public sealed class StudentLearningToolsControllerTests
         Assert.IsType<CreatedResult>(await community.Ask(course.Id,
             new AskCourseQuestionRequest("Question", regular.Id), CancellationToken.None));
     }
+
+    private static StudentLearningToolsController Controller(BetccoDbContext db, string studentId) => new(db, null!, null!)
+    {
+        ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity(
+                    [new Claim(ClaimTypes.NameIdentifier, studentId)], "Test"))
+            }
+        }
+    };
+
+    private static Course Course(string slug, string englishTitle) => new()
+    {
+        Slug = slug,
+        ArabicTitle = englishTitle,
+        EnglishTitle = englishTitle,
+        ArabicDescription = "Description",
+        EnglishDescription = "Description",
+        Status = CourseStatus.Published
+    };
+
+    private static UnitDefinition Unit(string code, string title) => new()
+    {
+        Source = AcademicSource.AdminCustom,
+        Code = code,
+        ArabicTitle = title,
+        EnglishTitle = title,
+        SourceReference = $"test:{code}",
+        IsActive = true
+    };
 
     private static BetccoDbContext CreateDb() => new(new DbContextOptionsBuilder<BetccoDbContext>()
         .UseInMemoryDatabase(Guid.NewGuid().ToString())
