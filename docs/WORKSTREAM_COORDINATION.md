@@ -88,9 +88,9 @@ PR #53 — **Comprehensive Practice Assignment — Final Unit Practice** — rem
 
 ## ASUS Reserved Scope
 
-No active ASUS implementation scope is reserved after PR #72 merged. Evaluate My Assignment, Student Progress Intelligence, and Teacher Intervention Dashboard are closed at the implementation/CI level. The AI engine/API/RAG/persistence work remains deliberately deferred and is not an active workstream.
+No active ASUS implementation branch is reserved at this snapshot. PR #75 — Student Entitlement Visibility — Slice 1 is merged and closed; Evaluate My Assignment, Student Progress Intelligence, Teacher Intervention Dashboard, and Student Entitlement Visibility are closed at the implementation/CI level. The AI engine/API/RAG/persistence work remains deliberately deferred and is not an active workstream.
 
-The ASUS planned roadmap below remains planning ownership only. Before starting any roadmap item, ASUS must run a fresh preflight against latest `main`, all OPEN/Draft PRs, changed files, CI, and review threads.
+ASUS retains planning ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign. Its immediate next action is a fresh read-only Commerce / Entitlements gap analysis on latest `main`. Refund → Course Access remains a product-policy decision and must not be implemented implicitly. Before starting any roadmap item, ASUS must run a fresh preflight against latest `main`, all OPEN/Draft PRs, changed files, CI, and review threads.
 
 ## ASUS Current Completion Sequence
 
@@ -99,6 +99,8 @@ PR #69 completion is closed at the implementation/CI level: required PR Quality 
 PR #70 completion is closed at the implementation/CI level: required PR Quality #200, Full UAT Matrix #89, and Security analysis #202 were green before merge; post-merge `main` Quality #201 and Security analysis #203 are green.
 
 PR #72 completion is closed at the implementation/CI level: required PR Quality #204, Full UAT Matrix #91, and Security analysis #206 were green before merge; post-merge `main` Quality #205 and Security analysis #207 are green. Evaluate My Assignment is no longer an active or reserved implementation scope.
+
+PR #75 completion is closed at the implementation/CI level: required PR Quality #209, Full UAT Matrix #94, and Security analysis #211 were green before merge; post-merge `main` Quality #211 and Security analysis #213 are green. Student Entitlement Visibility is no longer an active implementation scope.
 
 ## ASUS Planned Roadmap
 
@@ -153,7 +155,11 @@ Includes:
 
 ## Current LENOVO Workstream
 
-**No active LENOVO implementation PR at this snapshot.** PR #65 — Included Evaluation Credit / Entitlement — Slice 1 is merged into `main` at `29bacc0de0a4faeec5125edffa8c04f6a2bb045e`. PR #67 — corrective Included Evaluation Credit handling — is merged at `7ddb361bfff2f570f7cb4035f7bafe253213a79a` and closes the recorded follow-up for duplicate-Unit credits across two paid enrollments in one payment, undefined numeric CriterionAchievement values, and the Student credit-check retry path. No active Included Evaluation Credit follow-up remains recorded at this snapshot.
+**No active LENOVO implementation PR at this snapshot.** PR #74 — Broader ASSESS Reasonable Adjustments — Slice 1 is merged into `main` at `ffaea9bc9baf38fb7bb256e7dbeeb51133e659cb`; the one revised-work check now has a server-owned revision deadline with staff-authorised extension grant/revoke/history and effective-deadline enforcement. Required PR Quality #212, Full UAT Matrix #96, and Security analysis #214 were green before merge; post-merge `main` Quality #213 and Security analysis #215 are green.
+
+LENOVO's next planning lane is Resit policy / workflow. It must begin with a fresh read-only preflight and policy/design analysis; no implementation branch should be created until the exact BETCCO Resit policy is approved. LENOVO must not take Commerce / Entitlements, payment/refund/access logic, or other ASUS-reserved roadmap work. If future Resit work needs a shared file such as `frontend/src/features/student/student-area.tsx`, an overlap review is required before editing.
+
+PR #65 — Included Evaluation Credit / Entitlement — Slice 1 is merged into `main` at `29bacc0de0a4faeec5125edffa8c04f6a2bb045e`. PR #67 — corrective Included Evaluation Credit handling — is merged at `7ddb361bfff2f570f7cb4035f7bafe253213a79a` and closes the recorded follow-up for duplicate-Unit credits across two paid enrollments in one payment, undefined numeric CriterionAchievement values, and the Student credit-check retry path. No active Included Evaluation Credit follow-up remains recorded at this snapshot.
 
 PR #57 — **Admin Audit Log Filters — Slice 1** — is merged into `main` at `f57726607e8ac3a0c40c1bbbcf18ab3dd5705d4f`.
 
@@ -167,8 +173,8 @@ The merged Admin Audit Log scope now includes bounded filtering plus bounded/min
 
 These are candidates only, not automatically active/reserved:
 
-- Resit policy / workflow
-- broader ASSESS Reasonable Adjustments
+- Resit policy / workflow — next LENOVO planning lane; read-only policy/design analysis first
+- additional ASSESS accommodations beyond PR #74 only when separately evidenced and scoped
 - security / repository hardening follow-ups
 - Privacy / Compliance follow-ups
 - independent Admin / Operations workflows
@@ -178,7 +184,7 @@ Before selecting any candidate, run the mandatory preflight and check ASUS activ
 
 ## LENOVO Must Coordinate Before Editing
 
-LENOVO has no active implementation workstream at this snapshot. Run the mandatory preflight before selecting the next candidate or expanding into shared files.
+LENOVO has no active implementation branch at this snapshot. Its next planning lane is Resit policy / workflow; run the mandatory preflight and complete policy/design analysis before reserving an implementation branch. Do not modify Commerce / Entitlements, payment/refund/access logic, or ASUS-reserved roadmap files without explicit coordination.
 
 Comprehensive Practice is merged and is no longer reserved by an open ASUS PR. Any future change to its `CourseAssignment`, Learning Aim progression, migration/ModelSnapshot, or Student/Teacher Practice UI must still be treated as shared high-risk work and preflighted against active branches.
 
