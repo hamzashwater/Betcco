@@ -111,6 +111,7 @@ public sealed class BetccoDbContext(
     public DbSet<ResubmissionAuthorization> ResubmissionAuthorizations => Set<ResubmissionAuthorization>();
     public DbSet<EvaluationRevisionDeadlineAdjustment> EvaluationRevisionDeadlineAdjustments => Set<EvaluationRevisionDeadlineAdjustment>();
     public DbSet<RetakeAuthorization> RetakeAuthorizations => Set<RetakeAuthorization>();
+    public DbSet<ResitAuthorization> ResitAuthorizations => Set<ResitAuthorization>();
     public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
     public DbSet<LegalDocument> LegalDocuments => Set<LegalDocument>();
     public DbSet<LegalAcceptance> LegalAcceptances => Set<LegalAcceptance>();
@@ -1447,6 +1448,36 @@ public sealed class BetccoDbContext(
             .HasForeignKey(x => x.RetakeEvaluationRequestId).OnDelete(DeleteBehavior.Restrict);
         builder.Entity<RetakeAuthorization>().HasOne(x => x.RetakeAssessmentScope).WithMany()
             .HasForeignKey(x => x.RetakeAssessmentScopeId).OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<ResitAuthorization>().Property(x => x.Reason).HasMaxLength(2_000);
+        builder.Entity<ResitAuthorization>().Property(x => x.RevocationReason).HasMaxLength(2_000);
+        builder.Entity<ResitAuthorization>().Property(x => x.RevokedAtUtc).IsConcurrencyToken();
+        builder.Entity<ResitAuthorization>().Property(x => x.ActivatedAtUtc).IsConcurrencyToken();
+        builder.Entity<ResitAuthorization>().Property(x => x.ResitEvaluationRequestId).IsConcurrencyToken();
+        builder.Entity<ResitAuthorization>().HasOne(x => x.OriginalEvaluationRequest).WithMany()
+            .HasForeignKey(x => x.OriginalEvaluationRequestId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<ResitAuthorization>().HasOne(x => x.ResitEvaluationRequest).WithMany()
+            .HasForeignKey(x => x.ResitEvaluationRequestId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<ResitAuthorization>().HasOne<ApplicationUser>().WithMany()
+            .HasForeignKey(x => x.AuthorizedByUserId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<ResitAuthorization>().HasOne<ApplicationUser>().WithMany()
+            .HasForeignKey(x => x.RevokedByUserId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<ResitAuthorization>().HasIndex(x => x.OriginalEvaluationRequestId).IsUnique();
+        builder.Entity<ResitAuthorization>().HasIndex(x => x.ResitEvaluationRequestId).IsUnique()
+            .HasFilter("\"ResitEvaluationRequestId\" IS NOT NULL");
+        builder.Entity<ResitAuthorization>().ToTable(table =>
+        {
+            table.HasCheckConstraint(
+                "CK_ResitAuthorizations_ActivationPair",
+                "((\"ResitEvaluationRequestId\" IS NULL AND \"ActivatedAtUtc\" IS NULL) OR " +
+                "(\"ResitEvaluationRequestId\" IS NOT NULL AND \"ActivatedAtUtc\" IS NOT NULL))");
+            table.HasCheckConstraint(
+                "CK_ResitAuthorizations_NotActivatedAndRevoked",
+                "NOT (\"ActivatedAtUtc\" IS NOT NULL AND \"RevokedAtUtc\" IS NOT NULL)");
+            table.HasCheckConstraint(
+                "CK_ResitAuthorizations_NotSelfLinked",
+                "\"ResitEvaluationRequestId\" IS NULL OR \"ResitEvaluationRequestId\" <> \"OriginalEvaluationRequestId\"");
+        });
 
         foreach (var entity in builder.Model.GetEntityTypes().Where(type => type.ClrType.Namespace?.StartsWith("Betcco.Domain", StringComparison.Ordinal) == true))
         {
