@@ -3,8 +3,8 @@
 ## Metadata
 
 - Last updated: 2026-09-26
-- Verified implementation baseline SHA: `34445cdc2c1afe1f927cc006e8295fc97c310b1f`
-- Status verified against origin/main: `34445cdc2c1afe1f927cc006e8295fc97c310b1f`
+- Verified implementation baseline SHA: `78d3d178e1923a34071215248a95cc990bd54531`
+- Status verified against origin/main: `78d3d178e1923a34071215248a95cc990bd54531`
 - OPEN implementation PRs at verification: none.
 - Parallel workstream coordination is persisted in `docs/WORKSTREAM_COORDINATION.md` and must be rechecked against live GitHub before implementation.
 
@@ -21,6 +21,7 @@ The embedded SHA is a verification baseline, not a permanent current repository 
 - PR #64 — AI Practice UI Shell — Slice 1 merged at `649b3cd9676563d64c06dc0a245e29b6b4f7c39f`; Student My Courses now links to a dedicated bilingual formative AI Practice workspace shell with real enrolled-course selection and intentionally disabled Unit/Learning Aim/upload/analysis placeholders. No AI provider, RAG, embeddings, document extraction, backend service, database, formal ASSESS, Retake/Resit, payment, or entitlement behavior was added. Post-merge Quality #187 and Security analysis #189 are green.
 - PR #69 — Student Progress Intelligence — Slice 1 merged at `8109ba70361ba7d1d4feb6f3a5262591eabdd19a`; the Student Course Player now exposes a bilingual rule-based progress panel derived from existing LEARN/formative state, including content completion, Learning Aim completion, latest/best formative outcomes, attempt usage, Final Unit Practice readiness, and deterministic next-step guidance. No AI, formal ASSESS, payment, entitlement, Retake/Resit, backend schema, or migration changes were introduced. Required PR Quality #198, Full UAT Matrix #88, and Security analysis #200 were green before merge; post-merge `main` Quality #199 and Security analysis #201 are green.
 - PR #70 — Teacher Intervention Dashboard — Formative Signals Slice 1 merged at `34445cdc2c1afe1f927cc006e8295fc97c310b1f`; the existing Teacher Student Follow-Up workspace now surfaces teacher-scoped formative intervention signals for submitted practice awaiting review, latest/repeated NYA, one attempt remaining, incomplete Learning Aim practice, Final Unit Practice readiness, and submitted Final Unit Practice awaiting review, with Course/Unit/Aim context and latest/best outcomes. No AI, formal ASSESS, payment, entitlement, Retake/Resit, database schema, or migration changes were introduced. Required PR Quality #200, Full UAT Matrix #89, and Security analysis #202 were green before merge; post-merge `main` Quality #201 and Security analysis #203 are green.
+- PR #72 — Evaluate My Assignment — Slice 1 merged at `78d3d178e1923a34071215248a95cc990bd54531`; the Student evaluation entry point and wizard now present the advisory BETCCO review flow as Evaluate My Assignment, surface server-owned included Unit evaluation credit when available, otherwise preserve the standard paid review path, redirect to a payment provider when the backend supplies a redirect URL, and expose fake confirmation only as an explicit development-only action. No database, entitlement-rule, pricing, formal ASSESS, AI/RAG, Retake/Resit, or teacher-workflow changes were introduced. Required PR Quality #204, Full UAT Matrix #91, and Security analysis #206 were green before merge; post-merge `main` Quality #205 and Security analysis #207 are green.
 - PR #52 — Staff MFA Enforcement Slice 1 merged at `7929f631aa33b3e98f332905943cd9f1eab7d7f9`; mandatory MFA is server-enforced for Admin, SystemAdmin, SupportAdmin, and FinanceAdmin, including restricted enrollment state and session/SecurityStamp handling.
 - PR #54 — Staff MFA Recovery Codes Slice 1 merged at `3693585d44ab43f7c591771e221b7be4cde1a4ea`; Identity recovery codes provide one-time presentation, single-use login, regeneration, and password-plus-unused-code authenticator reset with session revocation and mandatory Staff re-enrollment.
 - PR #55 — ASUS/LENOVO workstream coordination merged at `231efd020d2e8cd1d9cf8934edc288586c560024`; `docs/WORKSTREAM_COORDINATION.md` now records ownership, reserved scope, preflight, overlap, and handoff rules.
@@ -230,6 +231,7 @@ Done: Main contains BTEC result views, internal-verification and appeal workspac
 7. Reasonable Adjustments Slice 1, with teacher grant/revoke/history UI and student-specific LEARN coursework deadlines shown without the private staff rationale; other students retain the shared deadline.
 8. Student Progress Intelligence — Slice 1, with a bilingual Course Player progress panel, latest/best formative outcomes, attempts used/remaining, Final Unit Practice readiness, and deterministic next-step guidance derived from existing saved learning state.
 9. Teacher Intervention Dashboard — Formative Signals Slice 1, extending the existing Student Follow-Up workspace with teacher-scoped formative intervention reasons and Course/Unit/Learning Aim context for review queues, NYA patterns, attempt pressure, incomplete practice, and Final Unit Practice readiness/review.
+10. Evaluate My Assignment — Slice 1, clarifying the Student advisory evaluation wizard around included Unit evaluation credit versus standard paid review while preserving server-owned entitlement/payment decisions and safe provider redirect behavior.
 
 Remaining: Broader Teacher UX remains incomplete. Student UX remains partial: the broader Student learning lifecycle remains. The broader course lifecycle and learning experience remain incomplete.
 
@@ -239,11 +241,11 @@ Live progress is tracked in OPEN Draft PRs, and repository evidence wins over co
 
 Maximum active implementation workstreams: **2**
 
-At the 2026-09-26 reconciliation snapshot, PR #69 is merged at `8109ba70361ba7d1d4feb6f3a5262591eabdd19a` and PR #70 is merged at `34445cdc2c1afe1f927cc006e8295fc97c310b1f`. Post-merge Quality and Security checks are green for both merged states. No OPEN implementation PRs were present at this snapshot, and no ASUS implementation workstream is active.
+At the 2026-09-26 reconciliation snapshot, PR #72 — Evaluate My Assignment — Slice 1 is merged at `78d3d178e1923a34071215248a95cc990bd54531`; PR #69 and PR #70 remain merged. Required PR Quality #204, Full UAT Matrix #91, and Security analysis #206 were green before PR #72 merged; post-merge `main` Quality #205 and Security analysis #207 are green. No OPEN implementation PRs were present at this snapshot, and no ASUS or LENOVO implementation workstream is active.
 
 ## Next Actions
 
-- ASUS: Student Progress Intelligence — Slice 1 (PR #69) and Teacher Intervention Dashboard — Formative Signals Slice 1 (PR #70) are DONE, merged, and post-merge green. No active ASUS implementation workstream is reserved. The next planned roadmap item is Evaluate My Assignment; run a fresh preflight before implementation. AI engine/API/RAG/persistence remains explicitly deferred.
+- ASUS: Evaluate My Assignment — Slice 1 (PR #72) is DONE, merged at `78d3d178e1923a34071215248a95cc990bd54531`, and post-merge Quality #205 / Security analysis #207 are green. No active ASUS implementation workstream is reserved. The next planned roadmap item is Commerce / Entitlements; run a fresh preflight before implementation. AI engine/API/RAG/persistence remains explicitly deferred.
 - LENOVO: PR #67 completed the corrective follow-up to PR #65: undefined numeric CriterionAchievement values are rejected, included evaluation credits are granted per paid Enrollment + Unit within a Payment, and the Student credit lookup exposes a retry action. The corrective EF index migration is merged and its upgrade path was verified before merge. No additional Included Evaluation Credit follow-up is currently recorded; recheck latest `main`, CI, and ASUS reserved/planned scope before starting another workstream.
 - Task 6: DONE — Media / Video Foundation + Secure Delivery. PR #18 merged with required CI green.
 - Slice 1: DONE — ASSESS academic identity foundation. PR #28 merged with required CI green.

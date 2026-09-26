@@ -47,7 +47,7 @@ Snapshot captured: **2026-09-26**
 
 At capture time:
 
-- `main`: `34445cdc2c1afe1f927cc006e8295fc97c310b1f`
+- `main`: `78d3d178e1923a34071215248a95cc990bd54531`
 - PR #53 is merged: Comprehensive Practice Assignment — Final Unit Practice.
 - PR #57 is merged: LENOVO Admin Audit Log Filters — Slice 1.
 - PR #59 is merged: LENOVO Admin Audit Log CSV Export — Slice 2.
@@ -59,6 +59,7 @@ At capture time:
 - PR #67 is merged: corrective Included Evaluation Credit handling follow-up.
 - PR #69 is merged: ASUS Student Progress Intelligence — Slice 1.
 - PR #70 is merged: ASUS Teacher Intervention Dashboard — Formative Signals Slice 1.
+- PR #72 is merged: ASUS Evaluate My Assignment — Slice 1.
 - GitHub Secret Scanning and Push Protection are enabled; 0 open secret-scanning alerts were present at verification.
 - OPEN implementation PRs: none.
 - ASUS and LENOVO have no active implementation PR at this snapshot.
@@ -73,6 +74,8 @@ These SHAs are historical coordination markers only. Re-verify them before using
 
 **No active ASUS implementation PR at this snapshot.**
 
+PR #72 — **Evaluate My Assignment — Slice 1** — is merged into `main` at `78d3d178e1923a34071215248a95cc990bd54531`.
+
 PR #70 — **Teacher Intervention Dashboard — Formative Signals Slice 1** — is merged into `main` at `34445cdc2c1afe1f927cc006e8295fc97c310b1f`.
 
 PR #69 — **Student Progress Intelligence — Slice 1** — is merged into `main` at `8109ba70361ba7d1d4feb6f3a5262591eabdd19a`.
@@ -85,7 +88,7 @@ PR #53 — **Comprehensive Practice Assignment — Final Unit Practice** — rem
 
 ## ASUS Reserved Scope
 
-No active ASUS implementation scope is reserved after PR #70 merged. Student Progress Intelligence and Teacher Intervention Dashboard are closed at the implementation/CI level. The AI engine/API/RAG/persistence work remains deliberately deferred and is not an active workstream.
+No active ASUS implementation scope is reserved after PR #72 merged. Evaluate My Assignment, Student Progress Intelligence, and Teacher Intervention Dashboard are closed at the implementation/CI level. The AI engine/API/RAG/persistence work remains deliberately deferred and is not an active workstream.
 
 The ASUS planned roadmap below remains planning ownership only. Before starting any roadmap item, ASUS must run a fresh preflight against latest `main`, all OPEN/Draft PRs, changed files, CI, and review threads.
 
@@ -93,16 +96,17 @@ The ASUS planned roadmap below remains planning ownership only. Before starting 
 
 PR #69 completion is closed at the implementation/CI level: required PR Quality #198, Full UAT Matrix #88, and Security analysis #200 were green before merge; post-merge `main` Quality #199 and Security analysis #201 are green.
 
-PR #70 completion is closed at the implementation/CI level: required PR Quality #200, Full UAT Matrix #89, and Security analysis #202 were green before merge; post-merge `main` Quality #201 and Security analysis #203 are green. This reconciliation records both merged states.
+PR #70 completion is closed at the implementation/CI level: required PR Quality #200, Full UAT Matrix #89, and Security analysis #202 were green before merge; post-merge `main` Quality #201 and Security analysis #203 are green.
+
+PR #72 completion is closed at the implementation/CI level: required PR Quality #204, Full UAT Matrix #91, and Security analysis #206 were green before merge; post-merge `main` Quality #205 and Security analysis #207 are green. Evaluate My Assignment is no longer an active or reserved implementation scope.
 
 ## ASUS Planned Roadmap
 
 These items are treated as ASUS-owned planning scope unless coordination explicitly changes ownership:
 
-1. Evaluate My Assignment
-2. Commerce / Entitlements
-3. Production Hardening
-4. Final UI/UX Redesign
+1. Commerce / Entitlements
+2. Production Hardening
+3. Final UI/UX Redesign
 
 Deferred by current product decision: AI Practice Engine / provider integration / RAG / persistence. PR #64 provides only the UI shell and must not be treated as an active AI-engine implementation.
 
