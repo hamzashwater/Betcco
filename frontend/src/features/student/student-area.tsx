@@ -603,6 +603,32 @@ type StudentPurchaseHistory = {
   totalCount: number;
 };
 
+type StudentIncludedEvaluationCredit = {
+  unitDefinitionId: string;
+  unitCode: string;
+  unitTitle: string;
+  status: "Available" | "Consumed" | "Revoked";
+  grantedAtUtc: string;
+  consumedAtUtc: string | null;
+  revokedAtUtc: string | null;
+};
+
+type StudentEntitlement = {
+  enrollmentId: string;
+  courseId: string;
+  courseTitle: string;
+  accessType: "Permanent" | "Timed";
+  enrolledAtUtc: string;
+  accessEndsAtUtc: string | null;
+  sourcePaymentId: string | null;
+  sourcePurpose: string;
+  includedEvaluationCredits: StudentIncludedEvaluationCredit[];
+};
+
+type StudentEntitlementResponse = {
+  items: StudentEntitlement[];
+};
+
 function StudentAccount() {
   const locale = useLocale();
   const client = useQueryClient();
@@ -875,6 +901,13 @@ function StudentPurchases() {
         `/student-tools/purchases?page=${page}&pageSize=12`,
       ),
   });
+  const entitlements = useQuery({
+    queryKey: ["student-entitlements", locale],
+    queryFn: () =>
+      api<StudentEntitlementResponse>(
+        `/student-tools/entitlements?locale=${locale}`,
+      ),
+  });
   const labelForPurpose = (purpose: string) => {
     const labels: Record<string, [string, string]> = {
       CoursePurchase: ["شراء دورة", "Course purchase"],
@@ -904,6 +937,28 @@ function StudentPurchases() {
       currency,
       maximumFractionDigits: 2,
     }).format(amount);
+  const labelForSource = (purpose: string) => {
+    const labels: Record<string, [string, string]> = {
+      CourseCart: ["شراء دورة", "Course purchase"],
+      Membership: ["عضوية", "Membership"],
+      CourseSubscription: ["اشتراك دورة", "Course subscription"],
+      DirectEnrollment: ["وصول مباشر", "Direct enrollment"],
+    };
+    return labels[purpose]?.[locale === "ar" ? 0 : 1] ?? purpose;
+  };
+  const labelForCreditStatus = (
+    status: StudentIncludedEvaluationCredit["status"],
+  ) => {
+    const labels: Record<
+      StudentIncludedEvaluationCredit["status"],
+      [string, string]
+    > = {
+      Available: ["متاح", "Available"],
+      Consumed: ["مستخدم", "Consumed"],
+      Revoked: ["ملغى", "Revoked"],
+    };
+    return labels[status][locale === "ar" ? 0 : 1];
+  };
   return (
     <section className="shell py-10">
       <DashboardHeader
@@ -924,6 +979,125 @@ function StudentPurchases() {
           </Link>
         }
       />
+      <section
+        className="card mt-6 p-5 sm:p-6"
+        aria-labelledby="student-entitlements-heading"
+      >
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h2
+              id="student-entitlements-heading"
+              className="text-xl font-black"
+            >
+              {locale === "ar" ? "صلاحيات الوصول للدورات" : "My course access"}
+            </h2>
+            <p className="mt-1 max-w-3xl text-sm leading-6 text-muted">
+              {locale === "ar"
+                ? "هذه الصلاحيات تأتي من التسجيلات الفعلية المسجلة على الخادم. ويظهر رصيد تقييم الوحدة المشمول بحالته الحالية فقط."
+                : "These access rights come from server-owned enrollments. Included Unit evaluation credits are shown with their current recorded state."}
+            </p>
+          </div>
+          <LockKeyhole size={22} className="text-primary" aria-hidden="true" />
+        </div>
+        {entitlements.isPending ? (
+          <p className="mt-5 text-sm text-muted" aria-busy>
+            …
+          </p>
+        ) : entitlements.isError || !entitlements.data ? (
+          <p role="alert" className="mt-5 text-sm text-red-600">
+            {locale === "ar"
+              ? "تعذر تحميل صلاحيات الوصول الحالية."
+              : "Your current course access could not be loaded."}
+          </p>
+        ) : entitlements.data.items.length ? (
+          <div className="mt-5 grid gap-4">
+            {entitlements.data.items.map((entitlement) => (
+              <article
+                key={entitlement.enrollmentId}
+                className="rounded-2xl border border-border bg-muted/15 p-4 sm:p-5"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-black">{entitlement.courseTitle}</p>
+                    <p className="mt-1 text-xs text-muted">
+                      {locale === "ar" ? "المصدر:" : "Source:"}{" "}
+                      {labelForSource(entitlement.sourcePurpose)}
+                    </p>
+                    {entitlement.sourcePaymentId ? (
+                      <p className="mt-1 break-all font-mono text-[11px] text-muted">
+                        {entitlement.sourcePaymentId}
+                      </p>
+                    ) : null}
+                  </div>
+                  <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-black text-primary">
+                    {entitlement.accessType === "Permanent"
+                      ? locale === "ar"
+                        ? "وصول دائم"
+                        : "Permanent access"
+                      : locale === "ar"
+                        ? "وصول محدد المدة"
+                        : "Timed access"}
+                  </span>
+                </div>
+                {entitlement.accessEndsAtUtc ? (
+                  <p className="mt-3 text-xs text-muted">
+                    {locale === "ar" ? "ينتهي الوصول:" : "Access ends:"}{" "}
+                    {new Intl.DateTimeFormat(locale === "ar" ? "ar-JO" : "en", {
+                      dateStyle: "medium",
+                    }).format(new Date(entitlement.accessEndsAtUtc))}
+                  </p>
+                ) : null}
+                <div className="mt-4 border-t border-border pt-4">
+                  <p className="text-sm font-black">
+                    {locale === "ar"
+                      ? "أرصدة تقييم الوحدات المشمولة"
+                      : "Included Unit evaluation credits"}
+                  </p>
+                  {entitlement.includedEvaluationCredits.length ? (
+                    <div className="mt-3 grid gap-2">
+                      {entitlement.includedEvaluationCredits.map((credit) => (
+                        <div
+                          key={credit.unitDefinitionId}
+                          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-background/40 px-3 py-2.5"
+                        >
+                          <div className="min-w-0">
+                            <p className="text-sm font-bold">
+                              {credit.unitCode} · {credit.unitTitle}
+                            </p>
+                          </div>
+                          <span
+                            className={`rounded-full px-2.5 py-1 text-xs font-black ${
+                              credit.status === "Available"
+                                ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                                : credit.status === "Revoked"
+                                  ? "bg-red-500/10 text-red-700 dark:text-red-300"
+                                  : "bg-muted text-muted"
+                            }`}
+                          >
+                            {labelForCreditStatus(credit.status)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-sm text-muted">
+                      {locale === "ar"
+                        ? "لا توجد أرصدة تقييم وحدات مشمولة مسجلة لهذا الوصول."
+                        : "No included Unit evaluation credits are recorded for this access."}
+                    </p>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-5 rounded-xl border border-dashed border-border p-4 text-sm text-muted">
+            {locale === "ar"
+              ? "لا يوجد وصول نشط إلى دورات في هذا الحساب حاليًا."
+              : "There is no active course access on this account."}
+          </p>
+        )}
+      </section>
       {purchases.isPending ? (
         <div className="card mt-6 p-6" aria-busy>
           …

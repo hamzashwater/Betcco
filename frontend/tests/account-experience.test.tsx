@@ -92,6 +92,59 @@ describe("account profiles", () => {
     );
   });
 
+  it("shows server-owned course access and included evaluation credit state", async () => {
+    apiMock.mockImplementation((path: string) => {
+      if (path.startsWith("/student-tools/purchases"))
+        return Promise.resolve({
+          items: [],
+          page: 1,
+          pageSize: 12,
+          totalCount: 0,
+        });
+      if (path === "/student-tools/entitlements?locale=en")
+        return Promise.resolve({
+          items: [
+            {
+              enrollmentId: "enrollment-1",
+              courseId: "course-1",
+              courseTitle: "Permanent course",
+              accessType: "Permanent",
+              enrolledAtUtc: "2026-09-25T10:00:00Z",
+              accessEndsAtUtc: null,
+              sourcePaymentId: "payment-1",
+              sourcePurpose: "CourseCart",
+              includedEvaluationCredits: [
+                {
+                  unitDefinitionId: "unit-1",
+                  unitCode: "U1",
+                  unitTitle: "Unit one",
+                  status: "Available",
+                  grantedAtUtc: "2026-09-25T10:00:00Z",
+                  consumedAtUtc: null,
+                  revokedAtUtc: null,
+                },
+              ],
+            },
+          ],
+        });
+      return Promise.reject(new Error(`Unexpected ${path}`));
+    });
+
+    renderAccount(<StudentArea segment={["purchases"]} />);
+
+    expect(
+      await screen.findByRole("heading", { name: "My course access" }),
+    ).toBeVisible();
+    expect(await screen.findByText("Permanent course")).toBeVisible();
+    expect(screen.getByText("Permanent access")).toBeVisible();
+    expect(screen.getByText(/Course purchase/)).toBeVisible();
+    expect(screen.getByText(/U1.*Unit one/)).toBeVisible();
+    expect(screen.getByText("Available")).toBeVisible();
+    expect(apiMock).toHaveBeenCalledWith(
+      "/student-tools/entitlements?locale=en",
+    );
+  });
+
   it("updates only supported student fields", async () => {
     apiMock.mockImplementation((path: string, options?: RequestInit) => {
       if (path === "/auth/profile" && options?.method === "PUT")

@@ -232,6 +232,69 @@ public sealed class StudentLearningToolsController(
         return Ok(new { items, page, pageSize, totalCount });
     }
 
+    [HttpGet("entitlements")]
+    public async Task<IActionResult> Entitlements([FromQuery] string locale = "ar", CancellationToken cancellationToken = default)
+    {
+        var studentId = UserId!;
+        var now = DateTimeOffset.UtcNow;
+        var enrollments = await db.Enrollments.AsNoTracking()
+            .Include(item => item.Course)
+            .Where(item => item.StudentUserId == studentId
+                && (item.AccessEndsAtUtc == null || item.AccessEndsAtUtc > now))
+            .OrderBy(item => item.Course!.EnglishTitle)
+            .ThenBy(item => item.EnrolledAtUtc)
+            .ToListAsync(cancellationToken);
+
+        var enrollmentIds = enrollments.Select(item => item.Id).ToArray();
+        var paymentIds = enrollments.Where(item => item.PaymentId.HasValue).Select(item => item.PaymentId!.Value).Distinct().ToArray();
+        var paymentPurposes = paymentIds.Length == 0
+            ? new Dictionary<Guid, string>()
+            : await db.Payments.AsNoTracking()
+                .Where(item => item.UserId == studentId && paymentIds.Contains(item.Id))
+                .ToDictionaryAsync(item => item.Id, item => item.Purpose, cancellationToken);
+        var credits = enrollmentIds.Length == 0
+            ? []
+            : await db.IncludedEvaluationEntitlements.AsNoTracking()
+                .Include(item => item.UnitDefinition)
+                .Where(item => item.StudentUserId == studentId && enrollmentIds.Contains(item.EnrollmentId))
+                .OrderBy(item => item.GrantedAtUtc)
+                .ToListAsync(cancellationToken);
+        var creditsByEnrollment = credits
+            .GroupBy(item => item.EnrollmentId)
+            .ToDictionary(group => group.Key, group => group.ToArray());
+
+        var items = enrollments.Select(enrollment =>
+        {
+            var sourcePurpose = enrollment.PaymentId is { } paymentId && paymentPurposes.TryGetValue(paymentId, out var purpose)
+                ? purpose
+                : "DirectEnrollment";
+            var enrollmentCredits = creditsByEnrollment.GetValueOrDefault(enrollment.Id) ?? [];
+            return new
+            {
+                enrollmentId = enrollment.Id,
+                enrollment.CourseId,
+                courseTitle = Localize(locale, enrollment.Course!.ArabicTitle, enrollment.Course.EnglishTitle),
+                accessType = enrollment.AccessEndsAtUtc is null ? "Permanent" : "Timed",
+                enrollment.EnrolledAtUtc,
+                enrollment.AccessEndsAtUtc,
+                sourcePaymentId = enrollment.PaymentId,
+                sourcePurpose,
+                includedEvaluationCredits = enrollmentCredits.Select(credit => new
+                {
+                    credit.UnitDefinitionId,
+                    unitCode = credit.UnitDefinition!.Code,
+                    unitTitle = Localize(locale, credit.UnitDefinition.ArabicTitle, credit.UnitDefinition.EnglishTitle),
+                    status = credit.RevokedAtUtc is not null ? "Revoked" : credit.ConsumedByEvaluationRequestId is not null ? "Consumed" : "Available",
+                    credit.GrantedAtUtc,
+                    credit.ConsumedAtUtc,
+                    credit.RevokedAtUtc
+                }).ToArray()
+            };
+        }).ToArray();
+
+        return Ok(new { items });
+    }
+
     [HttpDelete("notes/{lessonId:guid}")]
     public async Task<IActionResult> DeleteNote(Guid lessonId, CancellationToken cancellationToken)
     {
