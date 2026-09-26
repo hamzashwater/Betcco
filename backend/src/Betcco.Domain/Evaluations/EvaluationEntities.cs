@@ -162,6 +162,33 @@ public sealed class RetakeAuthorization : Entity
 }
 
 /// <summary>
+/// Staff-only authorization for one future BETCCO Resit review after the
+/// learner has completed the original review and its single revision check
+/// with a final NotYetAchieved estimate. Authorization does not itself create
+/// or fund the Resit evaluation.
+/// </summary>
+public sealed class ResitAuthorization : Entity
+{
+    public Guid OriginalEvaluationRequestId { get; set; }
+    public EvaluationRequest? OriginalEvaluationRequest { get; set; }
+
+    // Reserved for a later activation slice. Slice 1 never creates or links a
+    // Resit request, but the nullable link lets the database prevent chains and
+    // preserve a stable authorization-to-request relationship when activated.
+    public Guid? ResitEvaluationRequestId { get; set; }
+    public EvaluationRequest? ResitEvaluationRequest { get; set; }
+
+    public Guid AuthorizedByUserId { get; set; }
+    public DateTimeOffset AuthorizedAtUtc { get; set; } = DateTimeOffset.UtcNow;
+    public required string Reason { get; set; }
+
+    public DateTimeOffset? ActivatedAtUtc { get; set; }
+    public DateTimeOffset? RevokedAtUtc { get; set; }
+    public Guid? RevokedByUserId { get; set; }
+    public string? RevocationReason { get; set; }
+}
+
+/// <summary>
 /// A centre-configured educational qualification. BETCCO does not seed or
 /// claim any Pearson specification: authorised staff must register the exact
 /// qualification and its evidence source before it is linked to an assessment

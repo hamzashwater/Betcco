@@ -427,6 +427,7 @@ builder.Services.AddScoped<IAssessmentReasonableAdjustmentService, AssessmentRea
 builder.Services.AddScoped<IEvaluatorSpecialismService, EvaluatorSpecialismService>();
 builder.Services.AddScoped<IScopedAssessmentService, ScopedAssessmentService>();
 builder.Services.AddScoped<IRetakeService, RetakeService>();
+builder.Services.AddScoped<IResitService, ResitService>();
 builder.Services.AddScoped<IInternalVerificationSamplingService, InternalVerificationSamplingService>();
 builder.Services.AddScoped<IEvaluationAppealService, EvaluationAppealService>();
 builder.Services.AddScoped<IAssessmentAuditExportService, AssessmentAuditExportService>();
