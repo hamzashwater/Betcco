@@ -853,13 +853,22 @@ function AdminWallet() {
       }),
     onSuccess: refresh,
   });
-  const pay = useMutation({
+  const execute = useMutation({
     mutationFn: (payoutId: string) =>
-      api(`/admin/wallet/payouts/${payoutId}/pay`, { method: "POST" }),
+      api(`/admin/wallet/payouts/${payoutId}/execute`, { method: "POST" }),
+    onSuccess: refresh,
+  });
+  const settle = useMutation({
+    mutationFn: (payoutId: string) =>
+      api(`/admin/wallet/payouts/${payoutId}/settle`, { method: "POST" }),
     onSuccess: refresh,
   });
   const values = wallet.data;
-  const pendingAction = approve.isPending || reject.isPending || pay.isPending;
+  const pendingAction =
+    approve.isPending ||
+    reject.isPending ||
+    execute.isPending ||
+    settle.isPending;
   return (
     <section className="shell py-10">
       <DashboardHeader
@@ -996,10 +1005,20 @@ function AdminWallet() {
                       <button
                         type="button"
                         disabled={pendingAction}
-                        onClick={() => pay.mutate(payout.id)}
+                        onClick={() => execute.mutate(payout.id)}
                         className="focus-ring rounded-lg bg-primary px-3 py-2 text-sm font-black text-slate-950 disabled:opacity-50"
                       >
                         {locale === "ar" ? "تنفيذ الدفع" : "Execute payout"}
+                      </button>
+                    )}
+                    {payout.status === "Paid" && (
+                      <button
+                        type="button"
+                        disabled={pendingAction}
+                        onClick={() => settle.mutate(payout.id)}
+                        className="focus-ring rounded-lg border border-primary px-3 py-2 text-sm font-black text-primary disabled:opacity-50"
+                      >
+                        {locale === "ar" ? "تسوية الدفعة" : "Settle payout"}
                       </button>
                     )}
                   </div>
@@ -1012,7 +1031,10 @@ function AdminWallet() {
                     : "No withdrawal requests yet."}
                 </p>
               )}
-              {(approve.isError || reject.isError || pay.isError) && (
+              {(approve.isError ||
+                reject.isError ||
+                execute.isError ||
+                settle.isError) && (
                 <p role="alert" className="text-sm text-red-400">
                   {locale === "ar"
                     ? "تعذّر تنفيذ إجراء المحفظة. راجع حالة الطلب ثم حاول مجددًا."
