@@ -99,6 +99,8 @@ public sealed class BetccoDbContext(
     public DbSet<EvaluatorAssignment> EvaluatorAssignments => Set<EvaluatorAssignment>();
     public DbSet<EvaluatorUnitSpecialism> EvaluatorUnitSpecialisms => Set<EvaluatorUnitSpecialism>();
     public DbSet<CriterionResult> CriterionResults => Set<CriterionResult>();
+    public DbSet<EvaluationReviewDecision> EvaluationReviewDecisions => Set<EvaluationReviewDecision>();
+    public DbSet<EvaluationReviewCriterionDecision> EvaluationReviewCriterionDecisions => Set<EvaluationReviewCriterionDecision>();
     public DbSet<EvaluationEvidence> EvaluationEvidenceItems => Set<EvaluationEvidence>();
     public DbSet<EvaluationFeedback> EvaluationFeedbackItems => Set<EvaluationFeedback>();
     public DbSet<InternalVerification> InternalVerifications => Set<InternalVerification>();
@@ -159,6 +161,7 @@ public sealed class BetccoDbContext(
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
         EnsureAssessmentAuditEventsAreAppendOnly();
+        EnsureEvaluationReviewDecisionsAreAppendOnly();
         EnsureExpectedCompletionRevisionsAreAppendOnly();
         EnsureConsentRecordsAreAppendOnly();
         EnsureGuardianConsentsAreAppendOnly();
@@ -213,6 +216,22 @@ public sealed class BetccoDbContext(
             .FirstOrDefault(entry => entry.State is EntityState.Modified or EntityState.Deleted);
         if (invalidChange is not null)
             throw new InvalidOperationException("Assessment audit events are append-only and cannot be changed or deleted.");
+    }
+
+    private void EnsureEvaluationReviewDecisionsAreAppendOnly()
+    {
+        var decisions = ChangeTracker.Entries<EvaluationReviewDecision>().ToArray();
+        var criteria = ChangeTracker.Entries<EvaluationReviewCriterionDecision>().ToArray();
+        var addedDecisions = decisions.Where(entry => entry.State == EntityState.Added).ToArray();
+        var addedCriteria = criteria.Where(entry => entry.State == EntityState.Added).ToArray();
+        if (decisions.Any(entry => entry.State is EntityState.Modified or EntityState.Deleted)
+            || criteria.Any(entry => entry.State is EntityState.Modified or EntityState.Deleted)
+            || addedDecisions.Any(decision => decision.Entity.CriterionCount <= 0
+                || addedCriteria.Count(criterion => criterion.Entity.EvaluationReviewDecisionId == decision.Entity.Id)
+                    != decision.Entity.CriterionCount)
+            || addedCriteria.Any(criterion => !addedDecisions.Any(decision =>
+                decision.Entity.Id == criterion.Entity.EvaluationReviewDecisionId)))
+            throw new InvalidOperationException("Completed evaluation review decisions are append-only.");
     }
 
     private void EnsureExpectedCompletionRevisionsAreAppendOnly()
@@ -1411,6 +1430,21 @@ public sealed class BetccoDbContext(
         builder.Entity<AuthenticityDeclaration>().HasIndex(x => new { x.StudentUserId, x.DeclaredAtUtc });
         builder.Entity<AssessmentAuditEvent>().HasIndex(x => new { x.EvaluationRequestId, x.OccurredAtUtc });
         builder.Entity<AssessmentAuditEvent>().HasIndex(x => new { x.ActorUserId, x.OccurredAtUtc });
+        builder.Entity<EvaluationReviewDecision>().Property(x => x.ReviewerUserId).HasMaxLength(128);
+        builder.Entity<EvaluationReviewDecision>().Property(x => x.Feedback).HasMaxLength(4_000);
+        builder.Entity<EvaluationReviewDecision>().HasIndex(x => new { x.EvaluationRequestId, x.AttemptNumber }).IsUnique();
+        builder.Entity<EvaluationReviewDecision>().HasOne(x => x.EvaluationRequest)
+            .WithMany(x => x.ReviewDecisions).HasForeignKey(x => x.EvaluationRequestId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<EvaluationReviewDecision>().ToTable(table => table.HasCheckConstraint(
+            "CK_EvaluationReviewDecisions_AttemptStage",
+            "(\"AttemptNumber\" = 1 AND \"ReviewStage\" = 0) OR (\"AttemptNumber\" = 2 AND \"ReviewStage\" = 1)"));
+        builder.Entity<EvaluationReviewDecision>().ToTable(table => table.HasCheckConstraint(
+            "CK_EvaluationReviewDecisions_CriterionCount", "\"CriterionCount\" > 0"));
+        builder.Entity<EvaluationReviewCriterionDecision>().HasIndex(x => new { x.EvaluationReviewDecisionId, x.CriterionCode }).IsUnique();
+        builder.Entity<EvaluationReviewCriterionDecision>().HasOne(x => x.EvaluationReviewDecision)
+            .WithMany(x => x.CriterionDecisions).HasForeignKey(x => x.EvaluationReviewDecisionId)
+            .OnDelete(DeleteBehavior.Restrict);
         builder.Entity<EvaluationExpectedCompletionRevision>().Property(x => x.Reason).HasMaxLength(500);
         builder.Entity<EvaluationExpectedCompletionRevision>().HasOne(x => x.EvaluationRequest)
             .WithMany(x => x.ExpectedCompletionRevisions).HasForeignKey(x => x.EvaluationRequestId)
@@ -1489,6 +1523,7 @@ public sealed class BetccoDbContext(
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         EnsureAssessmentAuditEventsAreAppendOnly();
+        EnsureEvaluationReviewDecisionsAreAppendOnly();
         EnsureExpectedCompletionRevisionsAreAppendOnly();
         EnsureConsentRecordsAreAppendOnly();
         EnsureGuardianConsentsAreAppendOnly();

@@ -322,11 +322,40 @@ public sealed class EvaluationService(
 
         request.CalculatedGrade = calculation.Grade;
         request.CalculatedScore = null;
-        request.SectionResultsJson = JsonSerializer.Serialize(calculation.Sections);
+        var sectionResultsJson = JsonSerializer.Serialize(calculation.Sections);
+        request.SectionResultsJson = sectionResultsJson;
         var previousStatus = request.Status;
         request.Status = destination;
         if (command.RequestRevision)
             request.RevisionDueAtUtc = revisionDueAtUtc;
+
+        var decision = new EvaluationReviewDecision
+        {
+            EvaluationRequestId = requestId,
+            AttemptNumber = request.SubmissionAttemptNumber,
+            ReviewStage = request.SubmissionAttemptNumber == 1
+                ? EvaluationReviewStage.InitialReview : EvaluationReviewStage.RevisionCheck,
+            ReviewerUserId = teacherUserId,
+            DecidedAtUtc = DateTimeOffset.UtcNow,
+            CalculatedGrade = calculation.Grade,
+            SectionResultsJson = sectionResultsJson,
+            Feedback = feedback,
+            CriterionCount = normalizedResults.Length,
+            RequestsRevision = command.RequestRevision,
+            RevisionDueAtUtc = command.RequestRevision ? revisionDueAtUtc : null
+        };
+        foreach (var item in normalizedResults)
+        {
+            Enum.TryParse<CriterionAchievement>(item.Achievement, true, out var achievement);
+            decision.CriterionDecisions.Add(new EvaluationReviewCriterionDecision
+            {
+                CriterionCode = item.CriterionCode,
+                Achievement = achievement,
+                Evidence = item.Evidence,
+                Comment = item.Comment
+            });
+        }
+        db.EvaluationReviewDecisions.Add(decision);
 
         db.EvaluationFeedbackItems.Add(new EvaluationFeedback
         {
