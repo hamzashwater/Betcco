@@ -95,6 +95,8 @@ docker compose --env-file /secure/path/betcco.env -f compose.deploy.yml build
 
 The API and frontend images are multi-stage production images. The frontend uses Next.js standalone output and targets the private API service name. Build staging and production with the same reviewed commit; keep environment secret files separate.
 
+Before operating on an existing database, take and verify a restorable PostgreSQL backup according to the deployment owner's recovery plan. Review the immutable API and web image identifiers before continuing.
+
 ## Database migration
 
 Migrations are an explicit one-off operation. Application replicas never apply migrations during normal staging or production startup.
@@ -106,9 +108,26 @@ docker compose --env-file /secure/path/betcco.env \
 
 The migration container uses the same immutable API image, applies the committed EF Core migrations, and exits. A migration exception produces a non-zero exit code. Do not start or update application containers when this command fails.
 
+## First administrator bootstrap
+
+On a new migrated database with no Admin, supply `BootstrapAdmin__Email` and `BootstrapAdmin__Password` as temporary operator environment variables from the secret manager. Both are required by `--bootstrap-admin` and have no defaults. Do not use the Development-only `SEED_ADMIN_*` variables. Do not put the bootstrap password in the Compose file, the persistent deployment environment file, shell history, or a command argument. Ensure the temporary password meets the Identity policy: at least 12 characters with an uppercase and non-alphanumeric character. The operator must arrange for access to the configured SMTP service for the required password-reset step.
+
+After exporting the two values into the operator shell through the approved secret-manager workflow, run the reviewed API image once:
+
+```bash
+docker compose --env-file /secure/path/betcco.env \
+  -f compose.deploy.yml --profile operations run --rm --no-deps \
+  -e BootstrapAdmin__Email -e BootstrapAdmin__Password \
+  migrate --bootstrap-admin
+```
+
+Unset both temporary variables immediately after the command. Restrict access to the operator shell and container runtime while they are present. The command checks for pending migrations, creates only the Admin, Student, Teacher, and SupportAdmin Identity roles needed by current registration/staff provisioning paths, creates one confirmed Admin with `MustChangePassword`, records a system-originated audit event, and exits without starting HTTP. It creates no catalogue or demonstration data. A replay prints `ADMIN_BOOTSTRAP_ALREADY_COMPLETED` and changes nothing. An existing non-Admin with the supplied email causes `ADMIN_BOOTSTRAP_EMAIL_ALREADY_IN_USE`; resolve that account conflict manually without elevating it through this command.
+
+For a database that already has an Admin, skip this operation. `--migrate` and normal API startup never bootstrap an Admin. After startup, the initial Admin must use the existing password-reset flow, sign in, enroll staff MFA, save recovery codes, and verify authorised Admin access. No privileged endpoint should be usable before MFA enrollment.
+
 ## Deploy
 
-After the migration succeeds:
+After the migration and, for a new installation, first Admin bootstrap succeed:
 
 ```bash
 docker compose --env-file /secure/path/betcco.env \
