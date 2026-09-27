@@ -50,10 +50,16 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
                     return await RejectAndCommitAsync(financeAdminUserId, payment.Id, "REFUND_CURRENCY_UNSUPPORTED", "Refund currency precision is not configured.", transaction, cancellationToken);
                 if (!MoneyPolicy.IsRepresentable(payment.Currency, request.Amount))
                     return await RejectAndCommitAsync(financeAdminUserId, payment.Id, "REFUND_AMOUNT_SCALE_INVALID", "Refund amount must conform to the supported currency precision.", transaction, cancellationToken);
+                if (!MoneyPolicy.IsRepresentable(payment.Currency, payment.Total)
+                    || !MoneyPolicy.IsRepresentable(payment.Currency, payment.Tax))
+                    return await RejectAndCommitAsync(financeAdminUserId, payment.Id, "REFUND_HISTORICAL_MONEY_REVIEW_REQUIRED", "The payment monetary snapshot requires review.", transaction, cancellationToken);
 
-                var alreadyRefunded = await db.Refunds.AsNoTracking()
+                var finalizedAmounts = await db.Refunds.AsNoTracking()
                     .Where(item => item.PaymentId == payment.Id && item.Status == RefundStatus.InternallyRecorded)
-                    .SumAsync(item => (decimal?)item.Amount, cancellationToken) ?? 0m;
+                    .Select(item => item.Amount).ToListAsync(cancellationToken);
+                if (finalizedAmounts.Any(amount => !MoneyPolicy.IsRepresentable(payment.Currency, amount)))
+                    return await RejectAndCommitAsync(financeAdminUserId, payment.Id, "REFUND_HISTORICAL_MONEY_REVIEW_REQUIRED", "A prior refund monetary snapshot requires review.", transaction, cancellationToken);
+                var alreadyRefunded = finalizedAmounts.Sum();
                 var refundableBalance = payment.Total - alreadyRefunded;
                 if (request.Amount > refundableBalance)
                     return await RejectAndCommitAsync(financeAdminUserId, payment.Id, "REFUND_AMOUNT_EXCEEDS_BALANCE", "Refund amount exceeds the trusted refundable balance.", transaction, cancellationToken);
@@ -62,32 +68,21 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
                 db.Refunds.Add(refund);
                 Audit(financeAdminUserId, "RefundRequested", refund.Id, new { refund.PaymentId, refund.Amount, refund.Currency, refund.ReasonCode });
 
-                // No existing business rule defines how a partial refund is split
-                // across platform commission and teacher earnings. Preserve an
-                // auditable request without creating financial effects.
-                if (request.Amount < refundableBalance || alreadyRefunded > 0m)
+                var accountingFailure = await FinalizeInternalAccountingAsync(financeAdminUserId, payment, refund, RefundStatus.Requested, cancellationToken);
+                if (accountingFailure is not null)
                 {
-                    refund.FailureCode = "PARTIAL_REFUND_ALLOCATION_POLICY_REQUIRED";
-                    Audit(financeAdminUserId, "RefundAllocationPolicyRequired", refund.Id, new { refund.PaymentId, refund.Amount, refundableBalance });
-                    await db.SaveChangesAsync(cancellationToken);
-                    await transaction.CommitAsync(cancellationToken);
-                    return new(ToView(refund));
-                }
-
-                if (!await FinalizeInternalAccountingAsync(financeAdminUserId, payment, refund, RefundStatus.Requested, cancellationToken))
-                {
-                    refund.FailureCode = "REFUND_ALLOCATION_POLICY_REQUIRED";
-                    Audit(financeAdminUserId, "RefundAllocationPolicyRequired", refund.Id, new { refund.PaymentId, payment.Purpose });
+                    refund.FailureCode = accountingFailure;
+                    Audit(financeAdminUserId, "RefundAccountingRejected", refund.Id, new { refund.PaymentId, payment.Purpose, accountingFailure });
                 }
                 await db.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
                 return new(ToView(refund));
             }
-            catch (DbUpdateConcurrencyException) when (attempt == 0)
+            catch (DbUpdateConcurrencyException)
             {
                 db.ChangeTracker.Clear();
             }
-            catch (Exception exception) when (attempt == 0 && IsPostgresConcurrencyConflict(exception))
+            catch (Exception exception) when (IsPostgresConcurrencyConflict(exception))
             {
                 db.ChangeTracker.Clear();
             }
@@ -232,7 +227,7 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
         Audit(financeAdminUserId, "PayTabsRefundProviderVerified", refund.Id, new { refund.PaymentId, refund.ProviderRefundReference, refund.ProviderStatusCode });
         await db.SaveChangesAsync(cancellationToken);
 
-        if (!await FinalizeInternalAccountingAsync(financeAdminUserId, payment, refund, RefundStatus.ProviderVerified, cancellationToken))
+        if (await FinalizeInternalAccountingAsync(financeAdminUserId, payment, refund, RefundStatus.ProviderVerified, cancellationToken) is not null)
         {
             await transaction.CommitAsync(cancellationToken);
             return new(ToView(refund), FailureCode: "REFUND_ALLOCATION_POLICY_REQUIRED", FailureMessage: "Provider refund is verified, but internal allocation policy requires review.");
@@ -261,7 +256,7 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
                     || !await HasTrustedStoredVerificationAsync(refund, payment, cancellationToken))
                     return new(ToView(refund), FailureCode: "PAYTABS_REFUND_REQUIRES_REVIEW", FailureMessage: "Stored provider verification evidence requires review.");
 
-                if (!await FinalizeInternalAccountingAsync(financeAdminUserId, payment, refund, RefundStatus.ProviderVerified, cancellationToken))
+                if (await FinalizeInternalAccountingAsync(financeAdminUserId, payment, refund, RefundStatus.ProviderVerified, cancellationToken) is not null)
                     return new(ToView(refund), FailureCode: "REFUND_ALLOCATION_POLICY_REQUIRED", FailureMessage: "Provider refund is verified, but internal allocation policy requires review.");
 
                 await db.SaveChangesAsync(cancellationToken);
@@ -312,25 +307,57 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
             && !await db.IncludedEvaluationEntitlements.AsNoTracking().AnyAsync(item => item.RevokedByRefundId == refund.Id, cancellationToken);
     }
 
-    private async Task<bool> FinalizeInternalAccountingAsync(string financeAdminUserId, Payment payment, Refund refund, RefundStatus previousStatus, CancellationToken cancellationToken)
+    private async Task<string?> FinalizeInternalAccountingAsync(string financeAdminUserId, Payment payment, Refund refund, RefundStatus previousStatus, CancellationToken cancellationToken)
     {
-        var allocations = await db.CourseSaleAllocations.Where(item => item.PaymentId == payment.Id).ToListAsync(cancellationToken);
-        if (payment.Tax < 0m || payment.Total < payment.Tax || refund.Amount != payment.Total
-            || allocations.Count == 0
-            || allocations.Any(item => !string.Equals(item.Currency, payment.Currency, StringComparison.OrdinalIgnoreCase))
-            || allocations.Sum(item => item.NetAmount) != payment.Total - payment.Tax)
-            return false;
+        if (!string.Equals(payment.Purpose, "CourseCart", StringComparison.Ordinal))
+            return "REFUND_PURPOSE_REVIEW_REQUIRED";
+        if (!MoneyPolicy.IsSupportedCurrency(payment.Currency))
+            return "REFUND_CURRENCY_UNSUPPORTED";
+        if (!MoneyPolicy.IsRepresentable(payment.Currency, refund.Amount))
+            return "REFUND_HISTORICAL_MONEY_REVIEW_REQUIRED";
+
+        var otherRefunds = await db.Refunds.AsNoTracking()
+            .Where(item => item.PaymentId == payment.Id && item.Id != refund.Id).ToListAsync(cancellationToken);
+        if (otherRefunds.Any(item => item.Status is RefundStatus.ProviderProcessing or RefundStatus.ProviderVerified or RefundStatus.ProviderResultUnknown))
+            return "REFUND_PRIOR_PROVIDER_REVIEW_REQUIRED";
+        var priorRefunds = otherRefunds.Where(item => item.Status == RefundStatus.InternallyRecorded).ToArray();
+        var priorRefunded = priorRefunds.Sum(item => item.Amount);
+        if ((priorRefunded == 0m && payment.Status != PaymentStatus.Paid)
+            || (priorRefunded > 0m && payment.Status != PaymentStatus.PartiallyRefunded))
+            return "REFUND_HISTORICAL_ACCOUNTING_REVIEW_REQUIRED";
+        if (refund.Amount > payment.Total - priorRefunded)
+            return "REFUND_AMOUNT_EXCEEDS_BALANCE";
+
+        var allocations = await db.CourseSaleAllocations
+            .Where(item => item.PaymentId == payment.Id).OrderBy(item => item.Id).ToListAsync(cancellationToken);
+        if (allocations.Count == 0 || allocations.Any(item => !string.Equals(item.Currency, payment.Currency, StringComparison.OrdinalIgnoreCase)))
+            return "REFUND_ALLOCATION_POLICY_REQUIRED";
+        var prior = await LoadPriorAccountingAsync(payment, allocations, priorRefunds, cancellationToken);
+        if (prior is null) return "REFUND_HISTORICAL_ACCOUNTING_REVIEW_REQUIRED";
+
+        var (plan, failureCode) = RefundAccountingCalculator.Calculate(payment.Currency, payment.Total, payment.Tax,
+            priorRefunded, prior.Revenue, refund.Amount, allocations.Select(item => new RefundAllocationSnapshot(
+                item.Id, item.NetAmount, item.PlatformCommission, item.TeacherEarning,
+                prior.Net.GetValueOrDefault(item.Id), prior.Platform.GetValueOrDefault(item.Id), prior.Teacher.GetValueOrDefault(item.Id))).ToArray());
+        if (plan is null) return failureCode;
+
+        var previousPaymentStatus = payment.Status;
+        var nextPaymentStatus = priorRefunded + refund.Amount == payment.Total
+            ? PaymentStatus.Refunded : PaymentStatus.PartiallyRefunded;
+        if (!PaymentWorkflow.CanTransition(previousPaymentStatus, nextPaymentStatus))
+            return "REFUND_PAYMENT_TRANSITION_REVIEW_REQUIRED";
 
         refund.Status = RefundStatus.InternallyRecorded;
+        refund.FailureCode = null;
         refund.InternallyRecordedAtUtc = DateTimeOffset.UtcNow;
         refund.InternallyRecordedByUserId = financeAdminUserId;
         AddRefundTransition(refund, previousStatus, RefundStatus.InternallyRecorded, RefundTransitionSource.InternalAccounting, financeAdminUserId, refund.ProviderRefundReference, refund.ReasonCode);
-        payment.Status = PaymentStatus.Refunded;
+        payment.Status = nextPaymentStatus;
         db.PaymentStatusTransitions.Add(new PaymentStatusTransition
         {
             PaymentId = payment.Id,
-            PreviousStatus = PaymentStatus.Paid,
-            NewStatus = PaymentStatus.Refunded,
+            PreviousStatus = previousPaymentStatus,
+            NewStatus = nextPaymentStatus,
             Source = PaymentTransitionSource.InternalRefundRecorded,
             ActorContext = financeAdminUserId,
             Provider = payment.Provider,
@@ -339,19 +366,128 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
             ReasonCode = refund.ReasonCode,
             CorrelationId = refund.CorrelationReference
         });
-        await BookFullCourseSaleRefundAsync(payment, refund, allocations, cancellationToken);
-        AddWalletReversals(payment, refund, allocations);
-        var revokedCredits = await RevokeUnusedIncludedEvaluationCreditsAsync(payment, refund, cancellationToken);
+        await BookCourseSaleRefundAsync(payment, refund, allocations, plan, cancellationToken);
+        AddWalletReversals(payment, refund, allocations, plan);
+        var revokedCredits = nextPaymentStatus == PaymentStatus.Refunded
+            ? await RevokeUnusedIncludedEvaluationCreditsAsync(payment, refund, cancellationToken) : 0;
         if (revokedCredits > 0)
             refund.EntitlementDisposition = RefundEntitlementDisposition.UnusedIncludedEvaluationCreditsRevoked;
-        Audit(financeAdminUserId, "RefundInternallyRecorded", refund.Id, new { refund.PaymentId, refund.Amount, refund.Currency, providerRefundVerified = !string.IsNullOrWhiteSpace(refund.ProviderRefundReference) });
+        Audit(financeAdminUserId, "RefundInternallyRecorded", refund.Id, new { refund.PaymentId, refund.Amount, refund.Currency, plan.TaxComponent, plan.RevenueComponent, providerRefundVerified = !string.IsNullOrWhiteSpace(refund.ProviderRefundReference) });
         Audit(financeAdminUserId, "RefundEntitlementDispositionApplied", refund.Id, new
         {
             refund.PaymentId,
             disposition = refund.EntitlementDisposition.ToString(),
             revokedIncludedEvaluationCredits = revokedCredits
         });
-        return true;
+        return null;
+    }
+
+    private sealed record PriorAccounting(decimal Revenue, Dictionary<Guid, decimal> Net,
+        Dictionary<Guid, decimal> Platform, Dictionary<Guid, decimal> Teacher);
+
+    private async Task<PriorAccounting?> LoadPriorAccountingAsync(Payment payment,
+        IReadOnlyCollection<CourseSaleAllocation> allocations, IReadOnlyCollection<Refund> priorRefunds,
+        CancellationToken cancellationToken)
+    {
+        var net = new Dictionary<Guid, decimal>();
+        var platform = new Dictionary<Guid, decimal>();
+        var teacher = new Dictionary<Guid, decimal>();
+        if (priorRefunds.Count == 0) return new(0m, net, platform, teacher);
+
+        var ids = priorRefunds.Select(item => item.Id).ToHashSet();
+        var allocationById = allocations.ToDictionary(item => item.Id);
+        var ledgers = await db.LedgerTransactions.AsNoTracking()
+            .Where(item => item.RefundId.HasValue && ids.Contains(item.RefundId.Value))
+            .Include(item => item.Entries).ThenInclude(item => item.LedgerAccount)
+            .ToListAsync(cancellationToken);
+        var wallets = await db.WalletTransactions.AsNoTracking()
+            .Where(item => item.RefundId.HasValue && ids.Contains(item.RefundId.Value))
+            .ToListAsync(cancellationToken);
+        var transitions = await db.RefundStatusTransitions.AsNoTracking()
+            .Where(item => ids.Contains(item.RefundId) && item.NewStatus == RefundStatus.InternallyRecorded)
+            .ToListAsync(cancellationToken);
+        var paymentTransitions = await db.PaymentStatusTransitions.AsNoTracking()
+            .Where(item => item.PaymentId == payment.Id && item.Source == PaymentTransitionSource.InternalRefundRecorded)
+            .ToListAsync(cancellationToken);
+        decimal revenue = 0m;
+        foreach (var priorRefund in priorRefunds)
+        {
+            if (!string.Equals(priorRefund.Currency, payment.Currency, StringComparison.OrdinalIgnoreCase)
+                || !MoneyPolicy.IsRepresentable(payment.Currency, priorRefund.Amount)
+                || priorRefund.InternallyRecordedAtUtc is null
+                || transitions.Count(item => item.RefundId == priorRefund.Id
+                    && item.Source == RefundTransitionSource.InternalAccounting) != 1
+                || paymentTransitions.Count(item => item.CorrelationId == priorRefund.CorrelationReference
+                    && item.IdempotencyKey == priorRefund.IdempotencyKey) != 1)
+                return null;
+
+            var ledger = ledgers.Where(item => item.RefundId == priorRefund.Id).ToArray();
+            if (ledger.Length != 1 || ledger[0].EventType != LedgerEventType.PaidCourseSaleRefund
+                || !string.Equals(ledger[0].Currency, payment.Currency, StringComparison.OrdinalIgnoreCase))
+                return null;
+            var currentNet = new Dictionary<Guid, decimal>();
+            var currentPlatform = new Dictionary<Guid, decimal>();
+            var currentTeacher = new Dictionary<Guid, decimal>();
+            foreach (var entry in ledger[0].Entries)
+            {
+                if (entry.CourseSaleAllocationId is not Guid allocationId || !allocationById.ContainsKey(allocationId)
+                    || entry.LedgerAccount is null || entry.Amount <= 0m
+                    || !MoneyPolicy.IsRepresentable(payment.Currency, entry.Amount)
+                    || !string.Equals(entry.Currency, payment.Currency, StringComparison.OrdinalIgnoreCase)
+                    || !string.Equals(entry.LedgerAccount.Currency, payment.Currency, StringComparison.OrdinalIgnoreCase))
+                    return null;
+                var target = (entry.LedgerAccount.Code, entry.Side) switch
+                {
+                    (LedgerAccountCode.CourseSaleClearing, LedgerEntrySide.Credit) => currentNet,
+                    (LedgerAccountCode.PlatformCommission, LedgerEntrySide.Debit) => currentPlatform,
+                    (LedgerAccountCode.TeacherEarningsPayable, LedgerEntrySide.Debit) => currentTeacher,
+                    _ => null
+                };
+                if (target is null) return null;
+                target[allocationId] = target.GetValueOrDefault(allocationId) + entry.Amount;
+            }
+
+            var currentRevenue = currentNet.Values.Sum();
+            if (currentRevenue <= 0m || currentRevenue != currentPlatform.Values.Sum() + currentTeacher.Values.Sum()
+                || currentRevenue > priorRefund.Amount
+                || currentNet.Any(pair => pair.Value != currentPlatform.GetValueOrDefault(pair.Key) + currentTeacher.GetValueOrDefault(pair.Key))
+                || currentPlatform.Keys.Concat(currentTeacher.Keys).Any(id => !currentNet.ContainsKey(id)))
+                return null;
+
+            var expectedWallets = new Dictionary<(string UserId, string Type), decimal>();
+            AddExpected("platform", "PlatformCommissionRefundReversal", -currentPlatform.Values.Sum());
+            foreach (var pair in currentTeacher)
+            {
+                var userId = allocationById[pair.Key].TeacherUserId;
+                AddExpected(string.IsNullOrWhiteSpace(userId) ? "platform" : userId,
+                    string.IsNullOrWhiteSpace(userId) ? "UnassignedCourseRevenueRefundReversal" : "TeacherCourseEarningRefundReversal", -pair.Value);
+            }
+            var actualWallets = wallets.Where(item => item.RefundId == priorRefund.Id).ToArray();
+            if (actualWallets.Length != expectedWallets.Count
+                || actualWallets.Any(item => item.PaymentId != payment.Id
+                    || !string.Equals(item.Currency, payment.Currency, StringComparison.OrdinalIgnoreCase)
+                    || !MoneyPolicy.IsRepresentable(payment.Currency, item.Amount)
+                    || !expectedWallets.TryGetValue((item.UserId, item.Type), out var amount) || amount != item.Amount)
+                || actualWallets.Select(item => (item.UserId, item.Type)).Distinct().Count() != actualWallets.Length)
+                return null;
+
+            foreach (var pair in currentNet) Add(net, pair.Key, pair.Value);
+            foreach (var pair in currentPlatform) Add(platform, pair.Key, pair.Value);
+            foreach (var pair in currentTeacher) Add(teacher, pair.Key, pair.Value);
+            revenue += currentRevenue;
+
+            void AddExpected(string userId, string type, decimal amount)
+            {
+                if (amount == 0m) return;
+                var key = (userId, type);
+                expectedWallets[key] = expectedWallets.GetValueOrDefault(key) + amount;
+            }
+        }
+
+        return new(revenue, net, platform, teacher);
+
+        static void Add(Dictionary<Guid, decimal> totals, Guid id, decimal amount) =>
+            totals[id] = totals.GetValueOrDefault(id) + amount;
     }
 
     private async Task<int> RevokeUnusedIncludedEvaluationCreditsAsync(
@@ -454,7 +590,8 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
         code = null; message = null; return true;
     }
 
-    private async Task BookFullCourseSaleRefundAsync(Payment payment, Refund refund, IReadOnlyCollection<CourseSaleAllocation> allocations, CancellationToken cancellationToken)
+    private async Task BookCourseSaleRefundAsync(Payment payment, Refund refund, IReadOnlyCollection<CourseSaleAllocation> allocations,
+        RefundAccountingPlan plan, CancellationToken cancellationToken)
     {
         var clearing = await LedgerAccountAsync(LedgerAccountCode.CourseSaleClearing, payment.Currency, cancellationToken);
         var commission = await LedgerAccountAsync(LedgerAccountCode.PlatformCommission, payment.Currency, cancellationToken);
@@ -468,20 +605,29 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
             BusinessEventReference = $"refund:{refund.Id:N}:paid-course-sale-reversal",
             CorrelationId = refund.CorrelationReference
         };
-        foreach (var allocation in allocations)
+        var allocationById = allocations.ToDictionary(item => item.Id);
+        foreach (var delta in plan.Allocations)
         {
-            reversal.Entries.Add(new LedgerEntry { LedgerAccount = clearing, CourseSaleAllocation = allocation, Side = LedgerEntrySide.Credit, Amount = allocation.NetAmount, Currency = allocation.Currency });
-            reversal.Entries.Add(new LedgerEntry { LedgerAccount = commission, CourseSaleAllocation = allocation, Side = LedgerEntrySide.Debit, Amount = allocation.PlatformCommission, Currency = allocation.Currency });
-            reversal.Entries.Add(new LedgerEntry { LedgerAccount = teacherPayable, CourseSaleAllocation = allocation, Side = LedgerEntrySide.Debit, Amount = allocation.TeacherEarning, Currency = allocation.Currency });
+            var allocation = allocationById[delta.Id];
+            if (delta.NetAmount > 0m)
+                reversal.Entries.Add(new LedgerEntry { LedgerAccount = clearing, CourseSaleAllocation = allocation, Side = LedgerEntrySide.Credit, Amount = delta.NetAmount, Currency = allocation.Currency });
+            if (delta.PlatformCommission > 0m)
+                reversal.Entries.Add(new LedgerEntry { LedgerAccount = commission, CourseSaleAllocation = allocation, Side = LedgerEntrySide.Debit, Amount = delta.PlatformCommission, Currency = allocation.Currency });
+            if (delta.TeacherEarning > 0m)
+                reversal.Entries.Add(new LedgerEntry { LedgerAccount = teacherPayable, CourseSaleAllocation = allocation, Side = LedgerEntrySide.Debit, Amount = delta.TeacherEarning, Currency = allocation.Currency });
         }
         db.LedgerTransactions.Add(reversal);
     }
 
-    private void AddWalletReversals(Payment payment, Refund refund, IReadOnlyCollection<CourseSaleAllocation> allocations)
+    private void AddWalletReversals(Payment payment, Refund refund, IReadOnlyCollection<CourseSaleAllocation> allocations,
+        RefundAccountingPlan plan)
     {
-        AddWalletReversal("platform", "PlatformCommissionRefundReversal", -allocations.Sum(item => item.PlatformCommission), "Platform commission reversed for internal refund");
-        AddWalletReversal("platform", "UnassignedCourseRevenueRefundReversal", -allocations.Where(item => string.IsNullOrWhiteSpace(item.TeacherUserId)).Sum(item => item.TeacherEarning), "Unassigned course revenue reversed for internal refund");
-        foreach (var teacher in allocations.Where(item => !string.IsNullOrWhiteSpace(item.TeacherUserId)).GroupBy(item => item.TeacherUserId!))
+        var allocationById = allocations.ToDictionary(item => item.Id);
+        AddWalletReversal("platform", "PlatformCommissionRefundReversal", -plan.Allocations.Sum(item => item.PlatformCommission), "Platform commission reversed for internal refund");
+        AddWalletReversal("platform", "UnassignedCourseRevenueRefundReversal", -plan.Allocations
+            .Where(item => string.IsNullOrWhiteSpace(allocationById[item.Id].TeacherUserId)).Sum(item => item.TeacherEarning), "Unassigned course revenue reversed for internal refund");
+        foreach (var teacher in plan.Allocations.Where(item => !string.IsNullOrWhiteSpace(allocationById[item.Id].TeacherUserId))
+            .GroupBy(item => allocationById[item.Id].TeacherUserId!))
             AddWalletReversal(teacher.Key, "TeacherCourseEarningRefundReversal", -teacher.Sum(item => item.TeacherEarning), "Teacher earning reversed for internal refund");
 
         void AddWalletReversal(string userId, string type, decimal amount, string description)
