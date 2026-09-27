@@ -10,6 +10,20 @@ namespace Betcco.Api.Configuration;
 /// </summary>
 public static class StartupConfigurationValidator
 {
+    public static void ThrowIfInvalidBootstrap(IConfiguration configuration, IHostEnvironment environment)
+    {
+        var errors = new List<string>();
+        if (!environment.IsProduction() && !environment.IsStaging())
+            errors.Add("ADMIN_BOOTSTRAP_DEPLOYMENT_ENVIRONMENT_REQUIRED");
+        if (string.IsNullOrWhiteSpace(configuration.GetConnectionString("Postgres") ?? configuration["ConnectionStrings__Postgres"]))
+            errors.Add("ADMIN_BOOTSTRAP_DATABASE_REQUIRED");
+        if (string.IsNullOrWhiteSpace(configuration["BootstrapAdmin:Email"]))
+            errors.Add("ADMIN_BOOTSTRAP_EMAIL_REQUIRED");
+        if (string.IsNullOrWhiteSpace(configuration["BootstrapAdmin:Password"]))
+            errors.Add("ADMIN_BOOTSTRAP_PASSWORD_REQUIRED");
+        if (errors.Count > 0) throw new InvalidOperationException(string.Join(" ", errors));
+    }
+
     public static void ThrowIfInvalid(IConfiguration configuration, IHostEnvironment environment)
     {
         var errors = new List<string>();

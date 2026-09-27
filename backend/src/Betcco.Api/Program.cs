@@ -30,9 +30,23 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
-var migrationOnly = args.Any(argument => string.Equals(argument, "--migrate", StringComparison.OrdinalIgnoreCase));
-var applicationArguments = args.Where(argument => !string.Equals(argument, "--migrate", StringComparison.OrdinalIgnoreCase)).ToArray();
+var (operation, applicationArguments) = OperationalCommandParser.Parse(args);
 var builder = WebApplication.CreateBuilder(applicationArguments);
+if (operation == OperationalCommand.BootstrapAdmin)
+{
+    StartupConfigurationValidator.ThrowIfInvalidBootstrap(builder.Configuration, builder.Environment);
+    builder.Services.AddDbContext<BetccoDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")
+        ?? builder.Configuration["ConnectionStrings__Postgres"]));
+    builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(PlatformIdentityOptions.Configure)
+        .AddEntityFrameworkStores<BetccoDbContext>();
+    builder.Services.AddScoped<ProductionAdminBootstrapper>();
+    await using var bootstrapApp = builder.Build();
+    await using var bootstrapScope = bootstrapApp.Services.CreateAsyncScope();
+    var outcome = await bootstrapScope.ServiceProvider.GetRequiredService<ProductionAdminBootstrapper>().BootstrapAsync(
+        builder.Configuration["BootstrapAdmin:Email"], builder.Configuration["BootstrapAdmin:Password"]);
+    Console.WriteLine(outcome == AdminBootstrapResult.Created ? "ADMIN_BOOTSTRAP_CREATED" : "ADMIN_BOOTSTRAP_ALREADY_COMPLETED");
+    return;
+}
 StartupConfigurationValidator.ThrowIfInvalid(builder.Configuration, builder.Environment);
 var deploymentEnvironment = builder.Environment.IsProduction() || builder.Environment.IsStaging();
 var connectionString = builder.Configuration.GetConnectionString("Postgres")
@@ -64,17 +78,7 @@ if (!string.IsNullOrWhiteSpace(dataProtectionCertificatePath))
         builder.Configuration["DataProtection:CertificatePassword"]);
     dataProtection.ProtectKeysWithCertificate(certificate);
 }
-builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
-{
-    options.User.RequireUniqueEmail = true;
-    options.SignIn.RequireConfirmedEmail = true;
-    options.Lockout.AllowedForNewUsers = true;
-    options.Lockout.MaxFailedAccessAttempts = 5;
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
-    options.Password.RequiredLength = 12;
-    options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequireUppercase = true;
-})
+builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(PlatformIdentityOptions.Configure)
     .AddEntityFrameworkStores<BetccoDbContext>()
     .AddUserStore<ProtectedRecoveryCodeUserStore>()
     .AddDefaultTokenProviders();
@@ -440,7 +444,7 @@ builder.Services.AddScoped<IDeliveryPlanningService, DeliveryPlanningService>();
 builder.Services.AddScoped<DatabaseInitializer>();
 
 var app = builder.Build();
-if (migrationOnly)
+if (operation == OperationalCommand.Migrate)
 {
     await using var scope = app.Services.CreateAsyncScope();
     var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Betcco.Migrations");
