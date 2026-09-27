@@ -5,7 +5,12 @@ import {
   type APIRequestContext,
   type ConsoleMessage,
   type Page,
+  type Response,
 } from "@playwright/test";
+import {
+  isKnownWebKitUatAccessControlNoise,
+  isSameOriginServerError,
+} from "./uat-error-classification";
 
 test.describe.configure({ mode: "serial" });
 // The enrollment page displays a live authenticator secret. Keep test artifacts
@@ -79,13 +84,59 @@ const adminRoutes = [
 
 test("@public-matrix public pages remain usable in English LTR and Arabic RTL", async ({
   page,
-}) => {
-  const pageErrors: string[] = [];
-  page.on("pageerror", (error) => pageErrors.push(error.message));
+}, testInfo) => {
+  const fatalPageErrors: string[] = [];
+  const knownWebKitEnvironmentNoise: string[] = [];
+  const sameOriginServerErrors: string[] = [];
+  const baseUrl = testInfo.project.use.baseURL;
+  if (!baseUrl) throw new Error("Full UAT requires a Playwright baseURL.");
+  let currentRoute = "<before first route>";
 
-  for (const route of publicRoutes) await assertRouteUsable(page, route);
+  const diagnostic = (category: string, resource: string) =>
+    `${category}: project=${testInfo.project.name} route=${currentRoute} resource=${resource}`;
+  const onPageError = (error: Error) => {
+    if (
+      isKnownWebKitUatAccessControlNoise(
+        testInfo.project.name,
+        error.message,
+        baseUrl,
+      )
+    ) {
+      knownWebKitEnvironmentNoise.push(
+        diagnostic("KNOWN_WEBKIT_UAT_NOISE", error.message),
+      );
+    } else {
+      fatalPageErrors.push(diagnostic("FATAL_PAGE_ERROR", error.message));
+    }
+  };
+  const onResponse = (response: Response) => {
+    if (isSameOriginServerError(response.url(), response.status(), baseUrl))
+      sameOriginServerErrors.push(
+        diagnostic(
+          "SAME_ORIGIN_HTTP_5XX",
+          `${response.status()} ${response.url()}`,
+        ),
+      );
+  };
 
-  expect(pageErrors).toEqual([]);
+  page.on("pageerror", onPageError);
+  page.on("response", onResponse);
+  try {
+    for (const route of publicRoutes) {
+      currentRoute = route;
+      await test.step(`[${testInfo.project.name}] ${route}`, async () => {
+        await assertRouteUsable(page, route);
+        expect(fatalPageErrors).toEqual([]);
+        expect(sameOriginServerErrors).toEqual([]);
+      });
+    }
+    expect(fatalPageErrors).toEqual([]);
+    expect(sameOriginServerErrors).toEqual([]);
+  } finally {
+    page.off("pageerror", onPageError);
+    page.off("response", onResponse);
+    for (const noise of knownWebKitEnvironmentNoise) console.log(noise);
+  }
 });
 
 test("@about-hydration /en/about keeps English SSR and hydrated content aligned", async ({
@@ -398,10 +449,10 @@ async function loginWithRecoveryCode(
 
 async function assertRouteUsable(page: Page, route: string) {
   const response = await page.goto(route, { waitUntil: "domcontentloaded" });
-  expect(response, `No navigation response for ${route}`).not.toBeNull();
+  expect(response, `MAIN_NAVIGATION_NO_RESPONSE route=${route}`).not.toBeNull();
   expect(
     response!.status(),
-    `Unexpected HTTP status for ${route}`,
+    `MAIN_NAVIGATION_HTTP_ERROR route=${route} resource=${response!.url()} status=${response!.status()}`,
   ).toBeLessThan(400);
   await expect(page.locator("body")).toBeVisible();
   const locale = route.split("/")[1];
