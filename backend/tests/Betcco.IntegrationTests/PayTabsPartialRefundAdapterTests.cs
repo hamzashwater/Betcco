@@ -15,6 +15,60 @@ public sealed class PayTabsPartialRefundAdapterTests
 {
     private const string ProviderRefundReference = "REFUND-25-123";
 
+    // PayTabs status contract: https://support.paytabs.com/en/support/solutions/articles/60000711358
+    [Theory]
+    [InlineData("A", true, false)]
+    [InlineData("P", false, false)]
+    [InlineData("H", false, false)]
+    [InlineData("D", false, true)]
+    [InlineData("E", false, true)]
+    [InlineData("X", false, true)]
+    [InlineData("V", false, false)]
+    [InlineData("Z", false, false)]
+    public async Task Refund_create_and_query_classify_only_documented_final_outcomes(
+        string status, bool successful, bool definiteFailure)
+    {
+        var refundId = Guid.NewGuid();
+        var cartId = PayTabsPaymentProvider.RefundCartId(refundId);
+        var handler = new ScriptedHandler((_, _, _) => Task.FromResult(Response(25.123m, cartId, responseStatus: status)));
+        var provider = Provider(handler);
+
+        var created = await provider.CreateRefundAsync(Request(refundId, 25.123m));
+        var queried = await provider.VerifyRefundAsync(ProviderRefundReference);
+
+        foreach (var result in new[] { created, queried })
+        {
+            Assert.Equal(status, result.Status);
+            Assert.Equal(successful, result.IsSuccessful);
+            Assert.Equal(definiteFailure, result.IsDefiniteFailure);
+            Assert.Equal(25.123m, result.Amount);
+            Assert.Equal("JOD", result.Currency);
+            Assert.Equal("refund", result.TransactionType);
+            Assert.Equal(ProviderRefundReference, result.ProviderRefundReference);
+            Assert.Equal(cartId, result.CartId);
+            Assert.Equal("100", result.Code);
+            Assert.True(result.ProfileMatchesConfigured);
+        }
+    }
+
+    [Theory]
+    [InlineData("D")]
+    [InlineData("E")]
+    [InlineData("X")]
+    public async Task Http_failure_with_final_status_remains_inconclusive(string status)
+    {
+        var refundId = Guid.NewGuid();
+        var handler = new ScriptedHandler((_, _, _) => Task.FromResult(Response(
+            25.123m, PayTabsPaymentProvider.RefundCartId(refundId), HttpStatusCode.ServiceUnavailable, status)));
+
+        var result = await Provider(handler).CreateRefundAsync(Request(refundId, 25.123m));
+
+        Assert.False(result.IsSuccessful);
+        Assert.False(result.IsDefiniteFailure);
+        Assert.Equal(status, result.Status);
+        Assert.Equal(ProviderRefundReference, result.ProviderRefundReference);
+    }
+
     [Theory]
     [InlineData("0.001")]
     [InlineData("1.234")]
@@ -175,7 +229,7 @@ public sealed class PayTabsPartialRefundAdapterTests
             }));
 
     private static HttpResponseMessage Response(
-        decimal amount, string cartId, HttpStatusCode status = HttpStatusCode.OK) =>
+        decimal amount, string cartId, HttpStatusCode status = HttpStatusCode.OK, string responseStatus = "A") =>
         new(status)
         {
             Content = new StringContent(JsonSerializer.Serialize(new
@@ -186,7 +240,7 @@ public sealed class PayTabsPartialRefundAdapterTests
                 cart_id = cartId,
                 cart_currency = "JOD",
                 cart_amount = amount,
-                payment_result = new { response_status = "A", response_code = "100" }
+                payment_result = new { response_status = responseStatus, response_code = "100" }
             }))
         };
 
