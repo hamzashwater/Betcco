@@ -109,6 +109,8 @@ public sealed class ResitServiceTests
         Assert.Equal(authorization.Id, Assert.Single(page.Items).AuthorizationId);
         controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity());
         Assert.IsType<UnauthorizedResult>(await controller.List());
+        Assert.IsType<UnauthorizedResult>(await controller.List(0));
+        Assert.IsType<UnauthorizedResult>(await controller.List(1, 51));
     }
 
     [Fact]
