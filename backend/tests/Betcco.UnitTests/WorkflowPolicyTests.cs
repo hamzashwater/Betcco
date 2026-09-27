@@ -11,6 +11,7 @@ public sealed class WorkflowPolicyTests
         Assert.True(EvaluationWorkflow.CanTransition(EvaluationStatus.Draft, EvaluationStatus.PendingPayment));
         Assert.True(EvaluationWorkflow.CanTransition(EvaluationStatus.Draft, EvaluationStatus.PendingAssignment));
         Assert.True(EvaluationWorkflow.CanTransition(EvaluationStatus.PendingPayment, EvaluationStatus.PendingAssignment));
+        Assert.True(EvaluationWorkflow.CanTransition(EvaluationStatus.PendingPayment, EvaluationStatus.Draft));
     }
 
     [Fact]

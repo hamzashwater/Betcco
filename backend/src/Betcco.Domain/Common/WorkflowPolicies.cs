@@ -6,6 +6,8 @@ public static class EvaluationWorkflow
     {
         (EvaluationStatus.Draft, EvaluationStatus.PendingPayment or EvaluationStatus.PendingAssignment) => true,
         (EvaluationStatus.PendingPayment, EvaluationStatus.PendingAssignment) => true,
+        // Commerce may reopen the draft only after a safe cancellation or definite payment failure.
+        (EvaluationStatus.PendingPayment, EvaluationStatus.Draft) => true,
         (EvaluationStatus.PendingAssignment, EvaluationStatus.Assigned) => true,
         (EvaluationStatus.Assigned, EvaluationStatus.UnderReview) => true,
         (EvaluationStatus.Assigned, EvaluationStatus.NeedsRevision or EvaluationStatus.Completed) => true,
