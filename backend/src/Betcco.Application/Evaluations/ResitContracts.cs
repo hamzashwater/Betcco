@@ -49,8 +49,30 @@ public sealed record ResitAuthorizationWriteResult(
     ResitAuthorizationWriteStatus Status,
     ResitAuthorizationStaffView? Authorization = null);
 
+public enum ResitActivationStatus
+{
+    Activated,
+    AlreadyActivated,
+    NotFound,
+    InvalidActor,
+    Revoked,
+    OriginalNoLongerValid,
+    AcademicSnapshotInvalid,
+    Conflict
+}
+
+public sealed record ResitActivationResult(
+    ResitActivationStatus Status,
+    Guid? OriginalEvaluationRequestId = null,
+    Guid? ResitEvaluationRequestId = null);
+
 public interface IResitService
 {
+    Task<ResitActivationResult> ActivateAsync(
+        string studentUserId,
+        Guid authorizationId,
+        CancellationToken cancellationToken = default);
+
     Task<ResitEligibilityPage> ListEligibleAsync(
         Guid actorUserId,
         int page = 1,

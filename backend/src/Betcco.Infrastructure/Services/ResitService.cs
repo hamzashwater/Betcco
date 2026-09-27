@@ -1,4 +1,5 @@
 using System.Data;
+using System.Text.Json;
 using Betcco.Application.Evaluations;
 using Betcco.Domain.Common;
 using Betcco.Domain.Evaluations;
@@ -11,6 +12,198 @@ namespace Betcco.Infrastructure.Services;
 
 public sealed class ResitService(BetccoDbContext db) : IResitService
 {
+    public async Task<ResitActivationResult> ActivateAsync(
+        string studentUserId,
+        Guid authorizationId,
+        CancellationToken cancellationToken = default)
+    {
+        if (!Guid.TryParse(studentUserId, out var studentId)
+            || studentId == Guid.Empty
+            || !await db.Users.AsNoTracking().AnyAsync(
+                user => user.Id == studentId && !user.IsFrozen, cancellationToken))
+            return new(ResitActivationStatus.InvalidActor);
+
+        const int maxAttempts = 3;
+        for (var attempt = 0; attempt < maxAttempts; attempt++)
+        {
+            await using var transaction = db.Database.IsRelational()
+                ? await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken)
+                : null;
+
+            try
+            {
+                // Revoke takes this same row lock first. Reload on a write conflict
+                // so a losing activation observes the committed terminal state.
+                var authorization = db.Database.IsRelational()
+                    ? (await db.ResitAuthorizations.FromSqlInterpolated($"""
+                        SELECT * FROM "ResitAuthorizations"
+                        WHERE "Id" = {authorizationId}
+                        FOR UPDATE
+                        """).ToListAsync(cancellationToken)).SingleOrDefault()
+                    : await db.ResitAuthorizations.SingleOrDefaultAsync(
+                        item => item.Id == authorizationId, cancellationToken);
+
+                if (authorization is null) return new(ResitActivationStatus.NotFound);
+
+                var original = await db.EvaluationRequests.AsNoTracking().SingleOrDefaultAsync(
+                    request => request.Id == authorization.OriginalEvaluationRequestId,
+                    cancellationToken);
+                if (original is null || original.StudentUserId != studentUserId)
+                    return new(ResitActivationStatus.NotFound);
+
+                if (authorization.ResitEvaluationRequestId is not null
+                    && authorization.ActivatedAtUtc is not null)
+                    return new(ResitActivationStatus.AlreadyActivated,
+                        original.Id, authorization.ResitEvaluationRequestId);
+                if (authorization.RevokedAtUtc is not null)
+                    return new(ResitActivationStatus.Revoked);
+                if (authorization.ResitEvaluationRequestId is not null
+                    || authorization.ActivatedAtUtc is not null)
+                    return new(ResitActivationStatus.Conflict);
+
+                if (original.Status != EvaluationStatus.Completed
+                    || original.CalculatedGrade != EvaluationGrade.NotYetAchieved
+                    || original.SubmissionAttemptNumber != 2
+                    || original.RevisionDueAtUtc is null
+                    || original.RetakeOfEvaluationRequestId is not null
+                    || original.AssessmentScopeId is null
+                    || !await db.AssessmentScopes.AsNoTracking().AnyAsync(
+                        scope => scope.Id == original.AssessmentScopeId.Value, cancellationToken)
+                    || await db.EvaluationRequests.AsNoTracking().AnyAsync(
+                        request => request.RetakeOfEvaluationRequestId == original.Id,
+                        cancellationToken)
+                    || await db.RetakeAuthorizations.AsNoTracking().AnyAsync(
+                        item => item.OriginalEvaluationRequestId == original.Id,
+                        cancellationToken)
+                    || await db.ResitAuthorizations.AsNoTracking().AnyAsync(
+                        item => item.ResitEvaluationRequestId == original.Id
+                            || (item.OriginalEvaluationRequestId == original.Id
+                                && item.Id != authorization.Id), cancellationToken)
+                    || await db.EvaluationAppeals.AsNoTracking().AnyAsync(
+                        appeal => appeal.EvaluationRequestId == original.Id
+                            && (appeal.Status == EvaluationAppealStatus.Submitted
+                                || appeal.Status == EvaluationAppealStatus.UnderReview),
+                        cancellationToken))
+                    return new(ResitActivationStatus.OriginalNoLongerValid);
+
+                var scopeSnapshot = AssessmentScopeSnapshotReader.Read(
+                    original.AssessmentScopeSnapshotJson);
+                if (scopeSnapshot is null
+                    || !BtecAssessmentRuleSet.TryRead(
+                        original.AssessmentRuleSetSnapshotJson, out var ruleSet)
+                    || !string.Equals(ruleSet.Version, original.AssessmentRuleSetVersion,
+                        StringComparison.Ordinal)
+                    || !ValidCriteria(original.CriteriaSnapshotJson, scopeSnapshot, ruleSet)
+                    || (original.QualificationVersionId is null)
+                        != (original.QualificationVersionSnapshotJson is null))
+                    return new(ResitActivationStatus.AcademicSnapshotInvalid);
+
+                var resit = new EvaluationRequest
+                {
+                    StudentUserId = original.StudentUserId,
+                    GradeId = original.GradeId,
+                    SpecializationId = original.SpecializationId,
+                    TaskTypeId = original.TaskTypeId,
+                    RubricTemplateId = original.RubricTemplateId,
+                    CriteriaSnapshotJson = original.CriteriaSnapshotJson,
+                    AssessmentRuleSetVersion = original.AssessmentRuleSetVersion,
+                    AssessmentRuleSetSnapshotJson = original.AssessmentRuleSetSnapshotJson,
+                    QualificationVersionId = original.QualificationVersionId,
+                    QualificationVersionSnapshotJson = original.QualificationVersionSnapshotJson,
+                    AssessmentScopeId = original.AssessmentScopeId,
+                    AssessmentScopeSnapshotJson = original.AssessmentScopeSnapshotJson,
+                    Status = EvaluationStatus.Draft,
+                    SubmissionAttemptNumber = 1,
+                    StudentComment = null,
+                    PaymentId = null,
+                    CalculatedGrade = null,
+                    CalculatedScore = null,
+                    SectionResultsJson = "[]",
+                    EvaluatorCriteriaPlanJson = "[]",
+                    RevisionDueAtUtc = null,
+                    RetakeOfEvaluationRequestId = null,
+                    Price = AssessmentPricing.StandardEvaluationPrice,
+                    Currency = "JOD"
+                };
+                db.EvaluationRequests.Add(resit);
+                authorization.ResitEvaluationRequestId = resit.Id;
+                authorization.ActivatedAtUtc = DateTimeOffset.UtcNow;
+
+                db.AssessmentAuditEvents.AddRange(
+                    new AssessmentAuditEvent
+                    {
+                        EvaluationRequestId = original.Id,
+                        ActorUserId = studentUserId,
+                        EventType = "ResitActivated",
+                        FromStatus = original.Status.ToString(),
+                        ToStatus = original.Status.ToString(),
+                        AttemptNumber = original.SubmissionAttemptNumber,
+                        CorrelationId = authorization.Id.ToString()
+                    },
+                    new AssessmentAuditEvent
+                    {
+                        EvaluationRequestId = resit.Id,
+                        ActorUserId = studentUserId,
+                        EventType = "ResitDraftCreated",
+                        FromStatus = EvaluationStatus.Draft.ToString(),
+                        ToStatus = EvaluationStatus.Draft.ToString(),
+                        AttemptNumber = 1,
+                        CorrelationId = authorization.Id.ToString()
+                    });
+                db.AuditLogs.Add(new AuditLog
+                {
+                    ActorUserId = studentUserId,
+                    Action = "EvaluationResitActivated",
+                    EntityType = nameof(ResitAuthorization),
+                    EntityId = authorization.Id.ToString(),
+                    Outcome = "Success",
+                    MetadataJson = JsonSerializer.Serialize(new
+                    {
+                        OriginalEvaluationRequestId = original.Id,
+                        ResitEvaluationRequestId = resit.Id
+                    })
+                });
+
+                await db.SaveChangesAsync(cancellationToken);
+                if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+                return new(ResitActivationStatus.Activated, original.Id, resit.Id);
+            }
+            catch (Exception error) when (IsWriteConflict(error))
+            {
+                if (transaction is not null) await transaction.RollbackAsync(cancellationToken);
+                db.ChangeTracker.Clear();
+                if (attempt == maxAttempts - 1)
+                    return new(ResitActivationStatus.Conflict);
+            }
+        }
+
+        return new(ResitActivationStatus.Conflict);
+    }
+
+    private static bool ValidCriteria(
+        string? json,
+        AssessmentScopeSnapshot scopeSnapshot,
+        BtecAssessmentRuleSet ruleSet)
+    {
+        if (string.IsNullOrWhiteSpace(json)) return false;
+        try
+        {
+            var codes = JsonSerializer.Deserialize<string[]>(json);
+            return codes is { Length: > 0 }
+                && codes.All(code => !string.IsNullOrWhiteSpace(code))
+                && codes.Distinct(StringComparer.OrdinalIgnoreCase).Count() == codes.Length
+                && scopeSnapshot.Rubric.CriterionCodes is { Count: > 0 } rubricCodes
+                && codes.Length == rubricCodes.Count
+                && codes.ToHashSet(StringComparer.OrdinalIgnoreCase)
+                    .SetEquals(rubricCodes)
+                && ruleSet.HasValidPlan(codes);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
     public async Task<ResitEligibilityPage> ListEligibleAsync(
         Guid actorUserId,
         int page = 1,
@@ -194,13 +387,16 @@ public sealed class ResitService(BetccoDbContext db) : IResitService
         if (!await ValidActorAsync(actorUserId, cancellationToken))
             return new(ResitAuthorizationWriteStatus.InvalidActor);
 
-        await using var transaction = db.Database.IsRelational()
-            ? await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken)
-            : null;
-
-        try
+        const int maxAttempts = 3;
+        for (var attempt = 0; attempt < maxAttempts; attempt++)
         {
-            var authorization = db.Database.IsRelational()
+            await using var transaction = db.Database.IsRelational()
+                ? await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken)
+                : null;
+
+            try
+            {
+                var authorization = db.Database.IsRelational()
                 ? (await db.ResitAuthorizations.FromSqlInterpolated($"""
                     SELECT * FROM "ResitAuthorizations"
                     WHERE "Id" = {authorizationId}
@@ -210,39 +406,43 @@ public sealed class ResitService(BetccoDbContext db) : IResitService
                     item => item.Id == authorizationId,
                     cancellationToken);
 
-            if (authorization is null) return new(ResitAuthorizationWriteStatus.NotFound);
-            if (authorization.ActivatedAtUtc is not null || authorization.ResitEvaluationRequestId is not null)
-                return new(ResitAuthorizationWriteStatus.AlreadyActivated);
-            if (authorization.RevokedAtUtc is not null)
-                return new(ResitAuthorizationWriteStatus.Conflict);
+                if (authorization is null) return new(ResitAuthorizationWriteStatus.NotFound);
+                if (authorization.ActivatedAtUtc is not null || authorization.ResitEvaluationRequestId is not null)
+                    return new(ResitAuthorizationWriteStatus.AlreadyActivated);
+                if (authorization.RevokedAtUtc is not null)
+                    return new(ResitAuthorizationWriteStatus.Conflict);
 
-            authorization.RevokedAtUtc = DateTimeOffset.UtcNow;
-            authorization.RevokedByUserId = actorUserId;
-            authorization.RevocationReason = reason;
+                authorization.RevokedAtUtc = DateTimeOffset.UtcNow;
+                authorization.RevokedByUserId = actorUserId;
+                authorization.RevocationReason = reason;
 
-            var original = await db.EvaluationRequests.AsNoTracking()
-                .SingleAsync(request => request.Id == authorization.OriginalEvaluationRequestId, cancellationToken);
-            db.AssessmentAuditEvents.Add(new AssessmentAuditEvent
+                var original = await db.EvaluationRequests.AsNoTracking()
+                    .SingleAsync(request => request.Id == authorization.OriginalEvaluationRequestId, cancellationToken);
+                db.AssessmentAuditEvents.Add(new AssessmentAuditEvent
+                {
+                    EvaluationRequestId = original.Id,
+                    ActorUserId = actorUserId.ToString(),
+                    EventType = "ResitAuthorizationRevoked",
+                    FromStatus = original.Status.ToString(),
+                    ToStatus = original.Status.ToString(),
+                    AttemptNumber = original.SubmissionAttemptNumber
+                });
+                db.AuditLogs.Add(Audit(actorUserId, "EvaluationResitAuthorizationRevoked", authorization.Id));
+
+                await db.SaveChangesAsync(cancellationToken);
+                if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+                return new(ResitAuthorizationWriteStatus.Revoked, View(authorization));
+            }
+            catch (Exception error) when (IsWriteConflict(error))
             {
-                EvaluationRequestId = original.Id,
-                ActorUserId = actorUserId.ToString(),
-                EventType = "ResitAuthorizationRevoked",
-                FromStatus = original.Status.ToString(),
-                ToStatus = original.Status.ToString(),
-                AttemptNumber = original.SubmissionAttemptNumber
-            });
-            db.AuditLogs.Add(Audit(actorUserId, "EvaluationResitAuthorizationRevoked", authorization.Id));
+                if (transaction is not null) await transaction.RollbackAsync(cancellationToken);
+                db.ChangeTracker.Clear();
+                if (attempt == maxAttempts - 1)
+                    return new(ResitAuthorizationWriteStatus.Conflict);
+            }
+        }
 
-            await db.SaveChangesAsync(cancellationToken);
-            if (transaction is not null) await transaction.CommitAsync(cancellationToken);
-            return new(ResitAuthorizationWriteStatus.Revoked, View(authorization));
-        }
-        catch (Exception error) when (IsWriteConflict(error))
-        {
-            if (transaction is not null) await transaction.RollbackAsync(cancellationToken);
-            db.ChangeTracker.Clear();
-            return new(ResitAuthorizationWriteStatus.Conflict);
-        }
+        return new(ResitAuthorizationWriteStatus.Conflict);
     }
 
     private async Task<bool> IsEligibleAsync(
