@@ -47,7 +47,9 @@ Snapshot captured: **2026-09-27**
 
 At capture time:
 
-- `main`: `fcf1fd324f450c890cd7b45bf60b0f8a8eabce64`
+- `main`: `3109adfcf1f370338e0f348ceadf72e84a14f749` (PR #104 merge).
+- PR #103 — ASUS Production Readiness & Hardening Gap Audit — is merged; its production-hardening findings remain separate from Resit completion.
+- PR #104 — LENOVO Resit End-to-End Hardening — L13 is merged at the current `main` SHA. Its Full UAT and all required Quality/Security/CodeQL checks passed on final head `e404539ac7f2488d7cc85a50ceb02d4f8c02f529` before merge.
 - PR #98 — Student Resit UI — L11 is merged.
 - PR #99 — PayTabs partial-refund contract tests are merged; partial provider refund execution remains disabled.
 - PR #100 — PayTabs refund pending-state hardening is merged.
@@ -68,8 +70,9 @@ At capture time:
 - PR #78 is merged: ASUS Admin Payout Lifecycle UI Contract — Slice 1.
 - PR #77 is merged: LENOVO Resit Authorization Foundation — Slice 1.
 - GitHub Secret Scanning and Push Protection are enabled; 0 open secret-scanning alerts were present at verification.
-- OPEN/Draft PRs before ASUS-10A: none (live GitHub REST query).
-- No ASUS or LENOVO implementation PR was active at this snapshot. ASUS-10A is a read-only audit/documentation workstream and does not change the reserved LENOVO Resit/ASSESS scope.
+- OPEN/Draft PRs at verification: none (live GitHub query on 2026-09-27).
+- No ASUS or LENOVO implementation PR was active at this snapshot. PR #102's Resit Commerce integration is merged; ASUS's broader Commerce / Entitlements planning ownership remains unchanged.
+- LENOVO's Resit implementation lane L1–L13 is complete and closed; no follow-on Resit implementation branch is reserved.
 
 These SHAs are historical coordination markers only. Re-verify them before using them operationally.
 
@@ -97,7 +100,7 @@ PR #53 — **Comprehensive Practice Assignment — Final Unit Practice** — rem
 
 No active ASUS implementation branch is reserved at this snapshot. PR #78 — Admin Payout Lifecycle UI Contract — Slice 1 and PR #75 — Student Entitlement Visibility — Slice 1 are merged and closed; Evaluate My Assignment, Student Progress Intelligence, Teacher Intervention Dashboard, Student Entitlement Visibility, and the bounded payout UI contract are closed at the implementation/CI level. The AI engine/API/RAG/persistence work remains deliberately deferred and is not an active workstream.
 
-ASUS retains planning ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign. ASUS-10A records the read-only production-readiness audit at `fcf1fd324f450c890cd7b45bf60b0f8a8eabce64`; its recommended first implementation slice after independent review is ASUS-10B — Production Admin Bootstrap (P0-01). The following migration/recovery, operations, and release tasks are sequenced in `docs/production-readiness-audit.md`. Refund → Course Access remains a product-policy decision and must not be implemented implicitly. Before starting any roadmap item, ASUS must run a fresh preflight against latest `main`, all OPEN/Draft PRs, changed files, CI, and review threads.
+ASUS retains planning ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign. Resit L12's paid Commerce integration is merged in PR #102; ASUS is not still implementing that slice. ASUS-10A records the read-only production-readiness audit at `fcf1fd324f450c890cd7b45bf60b0f8a8eabce64`; its recommended first implementation slice after independent review is ASUS-10B — Production Admin Bootstrap (P0-01). The following migration/recovery, operations, and release tasks are sequenced in `docs/production-readiness-audit.md`. Refund → Course Access remains a product-policy decision and must not be implemented implicitly. Before starting any roadmap item, ASUS must run a fresh preflight against latest `main`, all OPEN/Draft PRs, changed files, CI, and review threads.
 
 ## ASUS Current Completion Sequence
 
@@ -162,9 +165,7 @@ Includes:
 
 ## Current LENOVO Workstream
 
-**No active LENOVO implementation PR at this snapshot.** PR #77 — Resit Authorization Foundation — Slice 1 is merged into `main` at `0bea28b9d99c41345406fdddf416d885076535e1`; CourseReviewer-only eligibility/authorization, one lifetime authorization per original, historical-Retake/Resit-chain and active-appeal blockers, revoke-before-activation, staff-only rationale, audit evidence, additive persistence, and PostgreSQL-backed constraints are complete. Required PR Quality, Full UAT Matrix, and Security analysis were green before merge; post-merge `main` Application quality and both CodeQL jobs are green.
-
-LENOVO's next planning lane is Resit Activation / `EvaluationRequest` Lifecycle. It must begin with a fresh read-only preflight and analysis/design of activation from the merged authorization foundation, new-request linkage, fresh evidence/authenticity, evaluator assignment, single final advisory review, result/history preservation, and the Commerce handoff boundary. LENOVO must not take Commerce / Entitlements, payment/refund/access logic, or other ASUS-reserved roadmap work. If future Resit UI work needs a shared file such as `frontend/src/features/student/student-area.tsx`, an overlap review is required before editing.
+**No active LENOVO implementation PR at this snapshot.** Resit L1–L13 is complete and closed at PR #104's merge commit `3109adfcf1f370338e0f348ceadf72e84a14f749`. The implemented scope now includes CourseReviewer authorization, separate Resit `EvaluationRequest` activation, fresh evidence/authenticity, independent evaluator assignment, one final advisory review, Student history/UI, staff coordination, paid Commerce handoff, and a passing real full-stack UAT golden path. No next Resit implementation lane or branch is automatically reserved after L14. Historical Retake remains separate; normal Resubmission remains a distinct one revised-work check.
 
 PR #65 — Included Evaluation Credit / Entitlement — Slice 1 is merged into `main` at `29bacc0de0a4faeec5125edffa8c04f6a2bb045e`. PR #67 — corrective Included Evaluation Credit handling — is merged at `7ddb361bfff2f570f7cb4035f7bafe253213a79a` and closes the recorded follow-up for duplicate-Unit credits across two paid enrollments in one payment, undefined numeric CriterionAchievement values, and the Student credit-check retry path. No active Included Evaluation Credit follow-up remains recorded at this snapshot.
 
@@ -180,18 +181,16 @@ The merged Admin Audit Log scope now includes bounded filtering plus bounded/min
 
 These are candidates only, not automatically active/reserved:
 
-- Resit Activation / `EvaluationRequest` Lifecycle — next LENOVO planning lane; read-only analysis/design first
 - additional ASSESS accommodations beyond PR #74 only when separately evidenced and scoped
 - security / repository hardening follow-ups
 - Privacy / Compliance follow-ups
 - independent Admin / Operations workflows
-- repository status/documentation reconciliation
 
 Before selecting any candidate, run the mandatory preflight and check ASUS active/reserved scope.
 
 ## LENOVO Must Coordinate Before Editing
 
-LENOVO has no active implementation branch at this snapshot. Resit Authorization Foundation is complete through PR #77; its next planning lane is Resit Activation / `EvaluationRequest` Lifecycle. Run the mandatory preflight and complete analysis/design before reserving an implementation branch. Do not modify Commerce / Entitlements, payment/refund/access logic, or ASUS-reserved roadmap files without explicit coordination.
+LENOVO has no active implementation branch at this snapshot. Resit L1–L13 is closed; no follow-on Resit branch is reserved. Any future work must be separately evidenced and scoped after the mandatory preflight. Do not modify Commerce / Entitlements, payment/refund/access logic, or ASUS-reserved roadmap files without explicit coordination.
 
 Comprehensive Practice is merged and is no longer reserved by an open ASUS PR. Any future change to its `CourseAssignment`, Learning Aim progression, migration/ModelSnapshot, or Student/Teacher Practice UI must still be treated as shared high-risk work and preflighted against active branches.
 
