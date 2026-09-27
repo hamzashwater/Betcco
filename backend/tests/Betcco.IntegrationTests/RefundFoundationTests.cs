@@ -138,6 +138,46 @@ public sealed class RefundFoundationTests
     }
 
     [Fact]
+    public async Task Extra_precision_jod_refund_is_rejected_without_financial_or_entitlement_effects()
+    {
+        await using var db = CreateDb();
+        var paid = await AddPaidCoursePaymentAsync(db);
+        var credit = await db.IncludedEvaluationEntitlements.SingleAsync();
+        var service = new RefundService(db);
+
+        var result = await service.RecordInternalRefundAsync("finance", Request(paid.Payment.Id, 1.2345m, "JOD", "extra-precision"));
+
+        Assert.Equal("REFUND_AMOUNT_SCALE_INVALID", result.FailureCode);
+        Assert.Null(result.Refund);
+        Assert.Empty(await db.Refunds.ToListAsync());
+        Assert.Equal(PaymentStatus.Paid, (await db.Payments.SingleAsync(item => item.Id == paid.Payment.Id)).Status);
+        Assert.Empty(await db.PaymentStatusTransitions.Where(item => item.NewStatus == PaymentStatus.Refunded).ToListAsync());
+        Assert.Single(await db.LedgerTransactions.ToListAsync());
+        Assert.Equal(2, await db.WalletTransactions.CountAsync());
+        await db.Entry(credit).ReloadAsync();
+        Assert.Null(credit.RevokedAtUtc);
+        Assert.Null(credit.RevokedByRefundId);
+        Assert.Single(await db.Enrollments.Where(item => item.PaymentId == paid.Payment.Id).ToListAsync());
+    }
+
+    [Fact]
+    public async Task Representable_jod_partial_refund_still_requires_allocation_policy()
+    {
+        await using var db = CreateDb();
+        var paid = await AddPaidCoursePaymentAsync(db);
+
+        var result = await new RefundService(db).RecordInternalRefundAsync("finance", Request(paid.Payment.Id, 1.234m, "JOD", "representable-partial"));
+
+        var refund = Assert.IsType<RefundView>(result.Refund);
+        Assert.Equal(1.234m, refund.Amount);
+        Assert.Equal(nameof(RefundStatus.Requested), refund.Status);
+        Assert.Equal("PARTIAL_REFUND_ALLOCATION_POLICY_REQUIRED", refund.FailureCode);
+        Assert.Equal(PaymentStatus.Paid, (await db.Payments.SingleAsync(item => item.Id == paid.Payment.Id)).Status);
+        Assert.Single(await db.LedgerTransactions.ToListAsync());
+        Assert.Equal(2, await db.WalletTransactions.CountAsync());
+    }
+
+    [Fact]
     public async Task Duplicate_and_competing_refund_requests_cannot_duplicate_or_over_refund()
     {
         await using var db = CreateDb();
