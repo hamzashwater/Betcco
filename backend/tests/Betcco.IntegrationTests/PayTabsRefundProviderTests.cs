@@ -192,6 +192,25 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
     }
 
     [Theory]
+    [InlineData(-1, 100)]
+    [InlineData(101, 100)]
+    public async Task Invalid_paid_payment_tax_snapshot_never_finalizes_internal_accounting(int tax, int total)
+    {
+        await using var db = CreateDb();
+        var payment = await AddPaidCourseSaleAsync(db, tax, total);
+        var service = new RefundService(db, CreateProvider(new RefundHandler()));
+
+        var result = await service.InitiatePayTabsRefundAsync("finance", new(payment.Id, "CustomerRequest", null, $"invalid-tax-{tax}"));
+
+        Assert.Equal("REFUND_ALLOCATION_POLICY_REQUIRED", result.FailureCode);
+        Assert.Equal(nameof(RefundStatus.ProviderVerified), result.Refund!.Status);
+        Assert.Equal(PaymentStatus.Paid, (await db.Payments.SingleAsync()).Status);
+        Assert.Empty(await db.PaymentStatusTransitions.Where(item => item.NewStatus == PaymentStatus.Refunded).ToListAsync());
+        Assert.Empty(await db.LedgerTransactions.Where(item => item.RefundId == result.Refund.Id).ToListAsync());
+        Assert.Empty(await db.WalletTransactions.Where(item => item.RefundId == result.Refund.Id).ToListAsync());
+    }
+
+    [Theory]
     [InlineData(RefundResponseMode.Declined, "ProviderFailed")]
     [InlineData(RefundResponseMode.AmountMismatch, "ProviderResultUnknown")]
     [InlineData(RefundResponseMode.CurrencyMismatch, "ProviderResultUnknown")]
@@ -321,9 +340,9 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
         }
     }
 
-    private static async Task<Payment> AddPaidCourseSaleAsync(BetccoDbContext db)
+    private static async Task<Payment> AddPaidCourseSaleAsync(BetccoDbContext db, decimal tax = 0m, decimal total = 100m)
     {
-        var payment = new Payment { UserId = "student", Purpose = "CourseCart", ReferenceId = Guid.NewGuid(), Status = PaymentStatus.Paid, Subtotal = 100m, Total = 100m, Currency = "JOD", Provider = "PayTabs", ProviderPaymentId = "SALE-TRUSTED-REF" };
+        var payment = new Payment { UserId = "student", Purpose = "CourseCart", ReferenceId = Guid.NewGuid(), Status = PaymentStatus.Paid, Subtotal = 100m, Tax = tax, Total = total, Currency = "JOD", Provider = "PayTabs", ProviderPaymentId = "SALE-TRUSTED-REF" };
         var allocation = new CourseSaleAllocation { PaymentId = payment.Id, CourseId = Guid.NewGuid(), TeacherUserId = "teacher", GrossAmount = 100m, NetAmount = 100m, PlatformCommission = 30m, TeacherEarning = 70m, Currency = "JOD" };
         var clearing = new LedgerAccount { Code = LedgerAccountCode.CourseSaleClearing, Currency = "JOD" };
         var commission = new LedgerAccount { Code = LedgerAccountCode.PlatformCommission, Currency = "JOD" };

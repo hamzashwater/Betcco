@@ -239,7 +239,10 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
     private async Task<bool> FinalizeInternalAccountingAsync(string financeAdminUserId, Payment payment, Refund refund, RefundStatus previousStatus, CancellationToken cancellationToken)
     {
         var allocations = await db.CourseSaleAllocations.Where(item => item.PaymentId == payment.Id).ToListAsync(cancellationToken);
-        if (allocations.Count == 0 || allocations.Any(item => !string.Equals(item.Currency, payment.Currency, StringComparison.OrdinalIgnoreCase)) || allocations.Sum(item => item.NetAmount) != refund.Amount)
+        if (payment.Tax < 0m || payment.Total < payment.Tax || refund.Amount != payment.Total
+            || allocations.Count == 0
+            || allocations.Any(item => !string.Equals(item.Currency, payment.Currency, StringComparison.OrdinalIgnoreCase))
+            || allocations.Sum(item => item.NetAmount) != payment.Total - payment.Tax)
             return false;
 
         refund.Status = RefundStatus.InternallyRecorded;
