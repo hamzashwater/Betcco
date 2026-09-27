@@ -110,8 +110,15 @@ function snapshot(originalId: string, resitId: string, password: string) {
   return fixture<State>("snapshot", password, originalId, resitId);
 }
 
-async function signIn(page: Page, email: string, password: string) {
-  await page.context().clearCookies();
+async function signIn(
+  page: Page,
+  email: string,
+  password: string,
+  signedInIdentities: Set<string>,
+) {
+  if (signedInIdentities.has(email)) {
+    throw new Error(`UAT identity signed in more than once: ${email}`);
+  }
   await page.goto("/en/login");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
@@ -123,6 +130,7 @@ async function signIn(page: Page, email: string, password: string) {
   await page.getByRole("button", { name: "Sign in" }).click();
   expect((await response).status()).toBe(200);
   await expect(page).not.toHaveURL(/\/en\/login$/);
+  signedInIdentities.add(email);
 }
 
 // Browser-origin requests retain the real auth cookie, CSRF token, API proxy,
@@ -173,8 +181,25 @@ async function api<T>(
 }
 
 test("@resit-golden real PostgreSQL Resit lifecycle through browser and API", async ({
-  page,
-}) => {
+  browser,
+}, testInfo) => {
+  const contextOptions = {
+    baseURL: testInfo.project.use.baseURL as string,
+    ignoreHTTPSErrors: true,
+    viewport: { width: 1440, height: 900 },
+  };
+  const contexts = await Promise.all(
+    Array.from({ length: 5 }, () => browser.newContext(contextOptions)),
+  );
+  const [
+    reviewerPage,
+    otherStudentPage,
+    studentPage,
+    originalEvaluatorPage,
+    independentEvaluatorPage,
+  ] = await Promise.all(contexts.map((context) => context.newPage()));
+  let page: Page = reviewerPage;
+  const signedInIdentities = new Set<string>();
   const password = `Aa!${randomUUID()}ResitUat`;
   const seed = fixture<Seed>("seed", password);
   const originalBefore = snapshot(seed.originalId, emptyId, password);
@@ -192,15 +217,23 @@ test("@resit-golden real PostgreSQL Resit lifecycle through browser and API", as
   };
   const pageErrors: string[] = [];
   const serverErrors: string[] = [];
-  page.on("pageerror", (error) => pageErrors.push(error.message));
-  page.on("response", (response) => {
-    if (response.url().includes("/api/v1/") && response.status() >= 500)
-      serverErrors.push(`${response.status()} ${response.url()}`);
-  });
+  for (const rolePage of [
+    reviewerPage,
+    otherStudentPage,
+    studentPage,
+    originalEvaluatorPage,
+    independentEvaluatorPage,
+  ]) {
+    rolePage.on("pageerror", (error) => pageErrors.push(error.message));
+    rolePage.on("response", (response) => {
+      if (response.url().includes("/api/v1/") && response.status() >= 500)
+        serverErrors.push(`${response.status()} ${response.url()}`);
+    });
+  }
 
   let authorizationId = "";
   await test.step("CourseReviewer authorizes the eligible original", async () => {
-    await signIn(page, seed.reviewerEmail, password);
+    await signIn(page, seed.reviewerEmail, password, signedInIdentities);
     const eligible = await api<{
       items: { originalEvaluationRequestId: string }[];
     }>(page, "/resits/eligible?page=1&pageSize=20");
@@ -231,7 +264,8 @@ test("@resit-golden real PostgreSQL Resit lifecycle through browser and API", as
   });
 
   await test.step("A different student cannot read or activate the opportunity", async () => {
-    await signIn(page, seed.otherStudentEmail, password);
+    page = otherStudentPage;
+    await signIn(page, seed.otherStudentEmail, password, signedInIdentities);
     const original = await api(page, `/evaluations/${seed.originalId}`);
     expect(original.status).toBe(404);
     const privateFile = await api(
@@ -255,7 +289,8 @@ test("@resit-golden real PostgreSQL Resit lifecycle through browser and API", as
 
   let resitId = "";
   await test.step("Student activates a separate Draft from the real UI", async () => {
-    await signIn(page, seed.studentEmail, password);
+    page = studentPage;
+    await signIn(page, seed.studentEmail, password, signedInIdentities);
     const credit = await api<{ available: boolean }>(
       page,
       `/evaluations/assessment-scopes/${seed.scopeId}/included-credit`,
@@ -465,7 +500,7 @@ test("@resit-golden real PostgreSQL Resit lifecycle through browser and API", as
   });
 
   await test.step("Staff queue sees the link and rejects both dependent assessors", async () => {
-    await signIn(page, seed.reviewerEmail, password);
+    page = reviewerPage;
     const queue = await api<
       { id: string; isResit: boolean; resitOfEvaluationRequestId: string }[]
     >(page, "/evaluations/pending-assignment");
@@ -548,8 +583,16 @@ test("@resit-golden real PostgreSQL Resit lifecycle through browser and API", as
       requestRevision: false,
       revisionDueAtUtc: null,
     };
-    for (const email of [seed.originalEvaluatorEmail, seed.reviewerEmail]) {
-      await signIn(page, email, password);
+    for (const [rolePage, email] of [
+      [originalEvaluatorPage, seed.originalEvaluatorEmail],
+      [reviewerPage, seed.reviewerEmail],
+    ] as const) {
+      page = rolePage;
+      if (email === seed.reviewerEmail) {
+        expect(signedInIdentities.has(email)).toBe(true);
+      } else {
+        await signIn(page, email, password, signedInIdentities);
+      }
       const denied = await api(
         page,
         `/evaluations/${resitId}/review`,
@@ -558,7 +601,13 @@ test("@resit-golden real PostgreSQL Resit lifecycle through browser and API", as
       );
       expect(denied.status).toBe(400);
     }
-    await signIn(page, seed.independentEvaluatorEmail, password);
+    page = independentEvaluatorPage;
+    await signIn(
+      page,
+      seed.independentEvaluatorEmail,
+      password,
+      signedInIdentities,
+    );
     const assignedDetail = await api<Record<string, unknown>>(
       page,
       `/evaluations/${resitId}`,
@@ -611,7 +660,7 @@ test("@resit-golden real PostgreSQL Resit lifecycle through browser and API", as
   });
 
   await test.step("Student sees two separate results without private rationale", async () => {
-    await signIn(page, seed.studentEmail, password);
+    page = studentPage;
     const credit = await api<{ available: boolean }>(
       page,
       `/evaluations/assessment-scopes/${seed.scopeId}/included-credit`,
@@ -666,4 +715,14 @@ test("@resit-golden real PostgreSQL Resit lifecycle through browser and API", as
 
   expect(pageErrors).toEqual([]);
   expect(serverErrors).toEqual([]);
+  expect(signedInIdentities).toEqual(
+    new Set([
+      seed.reviewerEmail,
+      seed.otherStudentEmail,
+      seed.studentEmail,
+      seed.originalEvaluatorEmail,
+      seed.independentEvaluatorEmail,
+    ]),
+  );
+  await Promise.all(contexts.map((context) => context.close()));
 });

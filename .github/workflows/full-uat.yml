@@ -76,7 +76,7 @@ jobs:
 
       - name: Start development API with seeded UAT data
         run: |
-          nohup dotnet run --project backend/src/Betcco.Api --no-build --urls http://127.0.0.1:5085 > /tmp/betcco-api.log 2>&1 &
+          nohup setsid dotnet run --project backend/src/Betcco.Api --no-build --urls http://127.0.0.1:5085 > /tmp/betcco-api.log 2>&1 &
           echo $! > /tmp/betcco-api.pid
           for attempt in {1..60}; do
             if curl --fail --silent http://127.0.0.1:5085/health/ready >/dev/null; then break; fi
@@ -111,7 +111,39 @@ jobs:
             -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
 
       - name: Run full UAT browser matrix
-        run: pnpm --dir frontend exec playwright test --config=playwright.uat.config.ts tests/e2e/full-uat.spec.ts tests/e2e/resit-full-uat.spec.ts
+        run: pnpm --dir frontend exec playwright test --config=playwright.uat.config.ts tests/e2e/full-uat.spec.ts
+
+      - name: Restart API to isolate Resit login rate limits
+        run: |
+          api_pid="$(cat /tmp/betcco-api.pid)"
+          if ! [[ "$api_pid" =~ ^[0-9]+$ ]]; then
+            echo "Invalid API process group ID in /tmp/betcco-api.pid" >&2
+            exit 1
+          fi
+          if ! kill -0 -- "-$api_pid" 2>/dev/null; then
+            echo "API process group $api_pid is not running" >&2
+            exit 1
+          fi
+          kill -TERM -- "-$api_pid"
+          for attempt in {1..30}; do
+            if ! kill -0 -- "-$api_pid" 2>/dev/null; then break; fi
+            sleep 1
+          done
+          if kill -0 -- "-$api_pid" 2>/dev/null; then
+            echo "API process group $api_pid did not stop" >&2
+            exit 1
+          fi
+
+          nohup setsid dotnet run --project backend/src/Betcco.Api --no-build --urls http://127.0.0.1:5085 >> /tmp/betcco-api.log 2>&1 &
+          echo $! > /tmp/betcco-api.pid
+          for attempt in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:5085/health/ready >/dev/null; then break; fi
+            if [ "$attempt" = 60 ]; then cat /tmp/betcco-api.log; exit 1; fi
+            sleep 2
+          done
+
+      - name: Run isolated Resit golden path
+        run: pnpm --dir frontend exec playwright test --config=playwright.uat.config.ts --project=chromium-desktop-1440 tests/e2e/resit-full-uat.spec.ts
 
       - name: Upload UAT report
         if: always()
