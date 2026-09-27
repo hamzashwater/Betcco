@@ -2,6 +2,7 @@ using Betcco.Application.Commerce;
 using Betcco.Domain.Common;
 using Betcco.Domain.Commerce;
 using Betcco.Domain.Learning;
+using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Persistence;
 using Betcco.Infrastructure.Services;
 using Microsoft.AspNetCore.DataProtection;
@@ -266,6 +267,102 @@ public sealed class PostgresFinanceConcurrencyTests
 
     [Fact]
     [Trait("Category", "PostgreSQLFinance")]
+    public async Task Competing_partial_refunds_cannot_finalize_more_than_payment_total()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("partial_refund_race");
+        var paid = await CreatePaidCoursePaymentAsync(database, "partial-refund-student");
+        await using var firstDb = database.CreateContext();
+        await using var secondDb = database.CreateContext();
+
+        var outcomes = await Task.WhenAll(
+            CaptureAsync(() => new RefundService(firstDb).RecordInternalRefundAsync("finance",
+                new(paid.PaymentId, 70m, "JOD", "CustomerRequest", null, "pg-partial-a"))),
+            CaptureAsync(() => new RefundService(secondDb).RecordInternalRefundAsync("finance",
+                new(paid.PaymentId, 70m, "JOD", "CustomerRequest", null, "pg-partial-b"))));
+
+        Assert.All(outcomes, outcome => Assert.Null(outcome.Error));
+        Assert.Single(outcomes, outcome => outcome.Value?.Refund?.Status == nameof(RefundStatus.InternallyRecorded));
+        Assert.Single(outcomes, outcome => outcome.Value?.FailureCode == "REFUND_AMOUNT_EXCEEDS_BALANCE");
+        await using var verify = database.CreateContext();
+        Assert.Equal(PaymentStatus.PartiallyRefunded,
+            await verify.Payments.Where(item => item.Id == paid.PaymentId).Select(item => item.Status).SingleAsync());
+        Assert.Equal(70m, await verify.Refunds.Where(item => item.PaymentId == paid.PaymentId
+            && item.Status == RefundStatus.InternallyRecorded).SumAsync(item => item.Amount));
+        Assert.Equal(1, await verify.LedgerTransactions.CountAsync(item => item.RefundId != null));
+        Assert.Equal(2, await verify.WalletTransactions.CountAsync(item => item.RefundId != null));
+        Assert.Equal(1, await verify.PaymentStatusTransitions.CountAsync(item => item.PaymentId == paid.PaymentId
+            && item.NewStatus == PaymentStatus.PartiallyRefunded));
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Concurrent_same_key_partial_refunds_have_one_accounting_effect()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("partial_refund_replay");
+        var paid = await CreatePaidCoursePaymentAsync(database, "partial-replay-student");
+        await using var firstDb = database.CreateContext();
+        await using var secondDb = database.CreateContext();
+        var request = new RecordInternalRefund(paid.PaymentId, 40m, "JOD", "CustomerRequest", null, "pg-partial-same-key");
+
+        var outcomes = await Task.WhenAll(
+            CaptureAsync(() => new RefundService(firstDb).RecordInternalRefundAsync("finance", request)),
+            CaptureAsync(() => new RefundService(secondDb).RecordInternalRefundAsync("finance", request)));
+
+        Assert.All(outcomes, outcome => Assert.Null(outcome.Error));
+        Assert.Equal(outcomes[0].Value?.Refund?.Id, outcomes[1].Value?.Refund?.Id);
+        await using var verify = database.CreateContext();
+        Assert.Equal(1, await verify.Refunds.CountAsync(item => item.PaymentId == paid.PaymentId));
+        Assert.Equal(1, await verify.LedgerTransactions.CountAsync(item => item.RefundId != null));
+        Assert.Equal(2, await verify.WalletTransactions.CountAsync(item => item.RefundId != null));
+        Assert.Equal(1, await verify.PaymentStatusTransitions.CountAsync(item => item.PaymentId == paid.PaymentId
+            && item.NewStatus == PaymentStatus.PartiallyRefunded));
+        Assert.Equal(1, await verify.RefundStatusTransitions.CountAsync(item => item.NewStatus == RefundStatus.InternallyRecorded));
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Taxed_partial_sequence_reconstructs_persisted_accounting_and_converges_to_full()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("taxed_partial_sequence");
+        var paid = await CreatePaidCoursePaymentAsync(database, "taxed-partial-student", taxed: true);
+        Assert.Equal(116m, paid.Total);
+
+        foreach (var (amount, key) in new[] { (20m, "first"), (30m, "second"), (66m, "final") })
+        {
+            await using var db = database.CreateContext();
+            var result = await new RefundService(db).RecordInternalRefundAsync("finance",
+                new(paid.PaymentId, amount, "JOD", "CustomerRequest", null, $"pg-tax-{key}"));
+            Assert.Equal(nameof(RefundStatus.InternallyRecorded), result.Refund?.Status);
+        }
+
+        await using var verify = database.CreateContext();
+        Assert.Equal(PaymentStatus.Refunded,
+            await verify.Payments.Where(item => item.Id == paid.PaymentId).Select(item => item.Status).SingleAsync());
+        Assert.Equal(3, await verify.Refunds.CountAsync(item => item.PaymentId == paid.PaymentId
+            && item.Status == RefundStatus.InternallyRecorded));
+        var ledger = await verify.LedgerTransactions.Include(item => item.Entries)
+            .Where(item => item.RefundId != null).ToListAsync();
+        Assert.Equal(3, ledger.Count);
+        Assert.All(ledger, transaction => Assert.Equal(
+            transaction.Entries.Where(item => item.Side == LedgerEntrySide.Debit).Sum(item => item.Amount),
+            transaction.Entries.Where(item => item.Side == LedgerEntrySide.Credit).Sum(item => item.Amount)));
+        Assert.Equal(100m, ledger.SelectMany(item => item.Entries)
+            .Where(item => item.Side == LedgerEntrySide.Credit).Sum(item => item.Amount));
+        var original = await verify.CourseSaleAllocations.SingleAsync(item => item.PaymentId == paid.PaymentId);
+        Assert.Equal(-original.PlatformCommission, await verify.WalletTransactions.Where(item => item.RefundId != null
+            && item.Type == "PlatformCommissionRefundReversal").SumAsync(item => item.Amount));
+        Assert.Equal(-original.TeacherEarning, await verify.WalletTransactions.Where(item => item.RefundId != null
+            && item.Type == "TeacherCourseEarningRefundReversal").SumAsync(item => item.Amount));
+        var transitions = await verify.PaymentStatusTransitions.Where(item => item.PaymentId == paid.PaymentId
+            && item.Source == PaymentTransitionSource.InternalRefundRecorded).OrderBy(item => item.CreatedAtUtc).ToListAsync();
+        Assert.Equal(3, transitions.Count);
+        Assert.Equal((PaymentStatus.Paid, PaymentStatus.PartiallyRefunded), (transitions[0].PreviousStatus, transitions[0].NewStatus));
+        Assert.Equal((PaymentStatus.PartiallyRefunded, PaymentStatus.PartiallyRefunded), (transitions[1].PreviousStatus, transitions[1].NewStatus));
+        Assert.Equal((PaymentStatus.PartiallyRefunded, PaymentStatus.Refunded), (transitions[2].PreviousStatus, transitions[2].NewStatus));
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
     public async Task Ledger_effects_balance_and_database_constraints_reject_duplicate_or_invalid_persistence()
     {
         await using var database = await PostgresTestDatabase.CreateAsync("ledger");
@@ -425,11 +522,16 @@ public sealed class PostgresFinanceConcurrencyTests
         return new(course.Id, carts.Select(item => new CartIdentity(item.Id, item.OwnerKey)).ToArray());
     }
 
-    private static async Task<PaidPayment> CreatePaidCoursePaymentAsync(PostgresTestDatabase database, string userId)
+    private static async Task<PaidPayment> CreatePaidCoursePaymentAsync(PostgresTestDatabase database, string userId, bool taxed = false)
     {
         var scenario = await SeedCourseCartsAsync(database, [userId]);
         var provider = new CountingPaymentProvider();
         await using var db = database.CreateContext();
+        if (taxed)
+        {
+            db.SiteSettings.Add(new SiteSetting { Key = "SalesTaxPercent", ArabicValue = "16", EnglishValue = "16" });
+            await db.SaveChangesAsync();
+        }
         var checkout = Assert.IsType<CheckoutResult>(await CreateCommerce(db, provider)
             .CreateCourseCheckoutAsync(userId, scenario.Carts[0].OwnerKey, null, "Card", $"paid-{Guid.NewGuid():N}"));
         Assert.True(await CreateCommerce(db, provider).ConfirmFakeWebhookAsync(checkout.PaymentId, $"confirm-{Guid.NewGuid():N}"));

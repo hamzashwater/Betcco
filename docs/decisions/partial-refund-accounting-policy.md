@@ -2,11 +2,23 @@
 
 ## Status and boundary
 
-**PROPOSED INTERNAL POLICY — REVIEW REQUIRED.** ASUS-07 is documentation only. None of the partial financial, provider, document, or status rules below is implemented or enabled. The previously approved product rule is narrower: a partial refund is a **price concession** with no automatic course-access or included-credit change (`docs/decisions/refund-course-access-policy.md`, “Partial Refund Policy”). This proposal covers only partial refunds of course and course-cart Payments; the verified checkout purpose in current code is `CourseCart` (`CommerceService.CreateCourseCheckoutAsync`). Any legacy course purpose needs explicit evidence before inclusion. It defines no policy for Evaluation, Resit, Retake, Payout, Subscription, Membership, Package, or AI/RAG payments. Resit Commerce remains a separate ASUS/LENOVO handoff.
+**INTERNAL ACCOUNTING IMPLEMENTED — PROVIDER PARTIAL EXECUTION DISABLED.** ASUS-08B implements provider-independent accounting for the verified `CourseCart` payment purpose through the manual/internal refund path. A partial refund is a **price concession** with no automatic course-access or included-credit change (`docs/decisions/refund-course-access-policy.md`, “Partial Refund Policy”). Legacy course purposes and Evaluation, Resit, Retake, Payout, Subscription, Membership, Package, and AI/RAG payments remain unsupported and review-required. PayTabs partial execution and partial CreditNotes remain disabled. Resit Commerce remains a separate ASUS/LENOVO handoff.
 
 This document describes **internal engineering allocation**, not statutory Jordan tax treatment, JoFotara submission, a tax-liability adjustment, or a complete general ledger. Tax must never be treated as teacher or platform revenue. The existing approved full-refund snapshot principle in `docs/decisions/taxed-full-refund-accounting-policy.md` remains the baseline; that document's historical status and reproduction narrative predate the full-refund changes now on `main` and must not be read as a current runtime audit.
 
-## Verified repository facts at this baseline
+## ASUS-08B implementation
+
+`RefundService.RecordInternalRefundAsync` still rejects direct PayTabs requests without independently verified provider evidence. Its accounting finalizer uses persisted Payment, Refund, CourseSaleAllocation, prior finalized refund ledger/wallet evidence, and the centralized `MoneyPolicy`; the calculation itself has no provider-specific amounts or PayTabs dependency. The PayTabs initiation API remains full-refund-only.
+
+For each supported refund, cumulative tax is `MoneyPolicy.RoundCalculated("JOD", Payment.Tax * cumulativeRefunded / Payment.Total)`; an exact cumulative full refund targets the original tax exactly. Previous tax is reconstructed as previous finalized Refund amounts minus their linked revenue-ledger reversals and checked against the same cumulative formula. Current revenue is the requested amount less the current tax increment. Tax is not booked as course revenue or teacher/platform earnings.
+
+The pure `RefundAccountingCalculator` sets cumulative course targets from the original `CourseSaleAllocation.NetAmount` weights, then subtracts verified prior reversals. It rounds calculated targets with `MoneyPolicy`, clamps them between previously booked amounts and original caps, and assigns any residual in stable allocation-ID order using the largest target deficit or excess. It adjusts in bounded amounts per allocation, not one `0.001` iteration per refunded unit. The same method derives cumulative platform and teacher targets from each original persisted split; teacher and platform deltas sum to each course's revenue delta. Full cumulative refund converges exactly to the original tax, net revenue, platform commission, and teacher earnings.
+
+Each successful partial Refund becomes `InternallyRecorded`. Payment transitions Paid → PartiallyRefunded → PartiallyRefunded as needed → Refunded when cumulative refunds equal `Payment.Total`. Each Refund gets one balanced revenue-only ledger reversal and grouped negative wallet reversals, with zero legs omitted. Replay by PaymentId and idempotency key does not duplicate effects. A tax-only increment returns `REFUND_TAX_ONLY_INCREMENT_REQUIRES_REVIEW`; unsupported purposes, invalid historical precision, and inconsistent prior accounting remain Requested/review-required with no financial finalization.
+
+Partial finalization leaves Enrollment, access expiry, academic history, and IncludedEvaluationEntitlement unchanged. Only the final cumulative full refund invokes the existing unused-credit revocation policy. Partial CreditNote issuance remains `CREDIT_NOTE_PARTIAL_OR_MISMATCHED_REFUND_UNSUPPORTED`; internal accounting is not a statutory document. No schema change, migration, or historical snapshot rewrite is part of ASUS-08B. Live/sandbox PayTabs partial-refund behavior remains unverified.
+
+## Historical ASUS-07 repository facts (before ASUS-08B)
 
 Baseline: `origin/main` at `0fd09553782c2833e74efe25f10fb18629c9bbfd` (2026-09-27). PR #88 (LENOVO Resit Activation Core) is merged; the open-PR search returned none. No Resit file is changed here.
 
@@ -55,7 +67,7 @@ The cumulative method bases every step on one immutable snapshot, prevents repea
 
 Require the original allocations to be present, all in the Payment currency, nonnegative, with `SUM(NetAmount) == originalRevenue` and each `PlatformCommission + TeacherEarning == NetAmount`. Use **all** original allocations. An amount alone does not identify a customer's intended course; a course-line refund is outside this policy.
 
-Allocate the **cumulative revenue target** across original `CourseSaleAllocation.NetAmount` weights, then book only each allocation's increase over its previously finalized reversal. Use a fixed minor monetary unit determined by the centralized rounding rule below. The deterministic residual procedure is:
+Allocate the **cumulative revenue target** across original `CourseSaleAllocation.NetAmount` weights, then book only each allocation's increase over its previously finalized reversal. The following unit-by-unit procedure was proposed in ASUS-07; ASUS-08B uses the bounded capped-target strategy described above instead:
 
 1. Sort allocations by `CourseId`, then `CourseSaleAllocation.Id` ascending. Convert validated original amounts and cumulative targets to integer minor units.
 2. Starting from the already finalized cumulative assignments, for each additional revenue minor unit, consider allocations still below their original `NetAmount`. Give the unit to the allocation with the largest deficit `n * originalNetUnits / originalRevenueUnits - assignedUnits`, where `n` is the next cumulative revenue-unit count. Break equal deficits by the stable order above.
@@ -67,7 +79,7 @@ This monotone cumulative procedure is chosen to avoid a rounded independent-per-
 
 ## Rounding and precision gate
 
-**Observed convention, not yet a formal currency contract:** current course sale/tax/wallet code uses decimal arithmetic and three decimal places, generally `MidpointRounding.AwayFromZero`. Proposed internal JOD calculations use a `0.001` unit and `AwayFromZero` for the cumulative tax target **only if** ASUS-08 centralizes and verifies that unit against Payment, Refund, ledger, wallet, invoice, and PayTabs request/query contracts. All source snapshots and requested amounts must be exact multiples of the supported unit; reject unrepresentable amounts rather than silently round a customer refund. No binary floating point. If the provider uses another scale, precision or normalization remains a blocker and partial execution stays disabled. Other currencies need a separately verified unit; do not apply the JOD assumption to them.
+**Current contract:** `MoneyPolicy` centralizes JOD's `0.001` unit and `MidpointRounding.AwayFromZero` for calculated values. Required historical snapshots and requested amounts must be representable without silent rounding. No binary floating point is used. Other currencies require separate configuration. Provider precision remains unverified for partial execution.
 
 ## Status, access, and evidence policy
 

@@ -119,7 +119,7 @@ public sealed class RefundFoundationTests
     }
 
     [Fact]
-    public async Task Partial_refund_is_preserved_as_requested_without_inventing_allocation_or_access_policy()
+    public async Task Partial_refund_finalizes_accounting_without_changing_access_or_credit()
     {
         await using var db = CreateDb();
         var paid = await AddPaidCoursePaymentAsync(db);
@@ -128,13 +128,14 @@ public sealed class RefundFoundationTests
         var result = await service.RecordInternalRefundAsync("finance", Request(paid.Payment.Id, 25m, "JOD", "partial"));
 
         var refund = Assert.IsType<RefundView>(result.Refund);
-        Assert.Equal(nameof(RefundStatus.Requested), refund.Status);
-        Assert.Equal("PARTIAL_REFUND_ALLOCATION_POLICY_REQUIRED", refund.FailureCode);
-        Assert.Equal(PaymentStatus.Paid, (await db.Payments.SingleAsync(item => item.Id == paid.Payment.Id)).Status);
-        Assert.Single(await db.LedgerTransactions.ToListAsync());
-        Assert.Equal(2, await db.WalletTransactions.CountAsync());
+        Assert.Equal(nameof(RefundStatus.InternallyRecorded), refund.Status);
+        Assert.Null(refund.FailureCode);
+        Assert.Equal(PaymentStatus.PartiallyRefunded, (await db.Payments.SingleAsync(item => item.Id == paid.Payment.Id)).Status);
+        Assert.Equal(2, await db.LedgerTransactions.CountAsync());
+        Assert.Equal(4, await db.WalletTransactions.CountAsync());
         Assert.Single(await db.Enrollments.Where(item => item.PaymentId == paid.Payment.Id).ToListAsync());
-        Assert.Contains(db.AuditLogs, item => item.Action == "RefundAllocationPolicyRequired");
+        Assert.Null((await db.IncludedEvaluationEntitlements.SingleAsync()).RevokedAtUtc);
+        Assert.Contains(db.AuditLogs, item => item.Action == "RefundInternallyRecorded");
     }
 
     [Fact]
@@ -161,7 +162,7 @@ public sealed class RefundFoundationTests
     }
 
     [Fact]
-    public async Task Representable_jod_partial_refund_still_requires_allocation_policy()
+    public async Task Representable_jod_partial_refund_finalizes_without_input_rounding()
     {
         await using var db = CreateDb();
         var paid = await AddPaidCoursePaymentAsync(db);
@@ -170,11 +171,11 @@ public sealed class RefundFoundationTests
 
         var refund = Assert.IsType<RefundView>(result.Refund);
         Assert.Equal(1.234m, refund.Amount);
-        Assert.Equal(nameof(RefundStatus.Requested), refund.Status);
-        Assert.Equal("PARTIAL_REFUND_ALLOCATION_POLICY_REQUIRED", refund.FailureCode);
-        Assert.Equal(PaymentStatus.Paid, (await db.Payments.SingleAsync(item => item.Id == paid.Payment.Id)).Status);
-        Assert.Single(await db.LedgerTransactions.ToListAsync());
-        Assert.Equal(2, await db.WalletTransactions.CountAsync());
+        Assert.Equal(nameof(RefundStatus.InternallyRecorded), refund.Status);
+        Assert.Null(refund.FailureCode);
+        Assert.Equal(PaymentStatus.PartiallyRefunded, (await db.Payments.SingleAsync(item => item.Id == paid.Payment.Id)).Status);
+        Assert.Equal(2, await db.LedgerTransactions.CountAsync());
+        Assert.Equal(4, await db.WalletTransactions.CountAsync());
     }
 
     [Fact]
@@ -211,8 +212,8 @@ public sealed class RefundFoundationTests
 
         entity.Amount = 1m;
         await Assert.ThrowsAsync<InvalidOperationException>(() => db.SaveChangesAsync());
-        db.Entry(entity).State = EntityState.Unchanged;
-        db.Refunds.Remove(entity);
+        db.ChangeTracker.Clear();
+        db.Refunds.Remove(await db.Refunds.SingleAsync(item => item.Id == refund.Id));
         await Assert.ThrowsAsync<InvalidOperationException>(() => db.SaveChangesAsync());
     }
 
