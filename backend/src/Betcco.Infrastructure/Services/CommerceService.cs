@@ -28,6 +28,7 @@ public sealed class CommerceService(
     private static readonly ConcurrentDictionary<Guid, SemaphoreSlim> CartCheckoutLocks = new();
     private static readonly ConcurrentDictionary<Guid, SemaphoreSlim> PaymentSessionLocks = new();
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> EvaluationCreditLocks = new(StringComparer.Ordinal);
+    private static readonly ConcurrentDictionary<Guid, SemaphoreSlim> EvaluationCheckoutLocks = new();
     public async Task<CartView> GetCartAsync(string ownerKey, string? userId, string locale, CancellationToken cancellationToken = default)
     {
         var cart = await db.Carts.Include(x => x.Items).SingleOrDefaultAsync(x => x.OwnerKey == ownerKey, cancellationToken);
@@ -399,6 +400,20 @@ public sealed class CommerceService(
         var payment = await payments.SingleOrDefaultAsync(cancellationToken);
         if (payment is null) return false;
         var existingEvent = await db.WebhookEvents.SingleOrDefaultAsync(x => x.Provider == payment.Provider && x.ProviderEventId == providerEventId, cancellationToken);
+        if (payment.Purpose == "Evaluation" && (existingEvent is not null || payment.Status == PaymentStatus.Paid)
+            && !await IsEvaluationPaidLocallyAsync(payment, cancellationToken))
+        {
+            if (expectedProvider == "PayTabs")
+            {
+                if (existingEvent is null)
+                    db.WebhookEvents.Add(new WebhookEvent { Provider = payment.Provider!, ProviderEventId = providerEventId, EventType = "payment.succeeded.reconciliation_required" });
+                await OpenReconciliationCaseAsync(payment, ProviderReconciliationCaseType.LocalPaidProviderDisagreement, providerEventId, "EVALUATION_PAID_STATE_REQUIRES_RECONCILIATION", payment.Total, cancellationToken);
+                db.AuditLogs.Add(Audit("system:paytabs", "EvaluationPaidStateRequiresReconciliation", nameof(Payment), payment.Id.ToString()));
+                await db.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+            }
+            return false;
+        }
         if (existingEvent is not null)
         {
             if (existingEvent.EventType == "payment.succeeded.reconciliation_required")
@@ -488,11 +503,24 @@ public sealed class CommerceService(
         if (payment.Purpose == "Evaluation")
         {
             var evaluation = await db.EvaluationRequests.SingleOrDefaultAsync(x => x.Id == payment.ReferenceId && x.StudentUserId == payment.UserId, cancellationToken);
-            if (evaluation is not null && EvaluationWorkflow.CanTransition(evaluation.Status, EvaluationStatus.PendingAssignment))
+            if (evaluation is null || evaluation.Status != EvaluationStatus.PendingPayment
+                || !EvaluationWorkflow.CanTransition(evaluation.Status, EvaluationStatus.PendingAssignment) || evaluation.PaymentId is not null
+                || evaluation.Price != payment.Subtotal || !string.Equals(evaluation.Currency, payment.Currency, StringComparison.OrdinalIgnoreCase)
+                || !await IsValidResitRelationshipAsync(evaluation, cancellationToken))
             {
-                evaluation.PaymentId = payment.Id;
-                evaluation.Status = EvaluationStatus.PendingAssignment;
+                db.ChangeTracker.Clear();
+                if (expectedProvider == "PayTabs")
+                {
+                    db.WebhookEvents.Add(new WebhookEvent { Provider = payment.Provider!, ProviderEventId = providerEventId, EventType = "payment.succeeded.reconciliation_required" });
+                    await OpenReconciliationCaseAsync(payment, ProviderReconciliationCaseType.LocalPaidProviderDisagreement, providerEventId, "EVALUATION_FINALIZATION_REQUIRES_RECONCILIATION", payment.Total, cancellationToken);
+                    db.AuditLogs.Add(Audit("system:paytabs", "EvaluationPaymentFinalizationRequiresReconciliation", nameof(Payment), payment.Id.ToString()));
+                    await db.SaveChangesAsync(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
+                }
+                return false;
             }
+            evaluation.PaymentId = payment.Id;
+            evaluation.Status = EvaluationStatus.PendingAssignment;
         }
         if (includedCreditCourseIds.Length > 0)
             await GrantIncludedEvaluationEntitlementsAsync(payment.UserId, includedCreditCourseIds, payment.Id, cancellationToken);
@@ -570,13 +598,13 @@ public sealed class CommerceService(
             await transaction.CommitAsync(cancellationToken);
             return new(false, FailureCode: "PAYMENT_NOT_CANCELLABLE", FailureMessage: "Only a processing payment can be cancelled.");
         }
-        var providerSessionMayExist = payment.Provider is not null
-            && !payment.Provider.StartsWith("Fake", StringComparison.Ordinal)
-            && (payment.ProviderSessionStatus is ProviderSessionStatus.Creating
-                or ProviderSessionStatus.Unknown
-                or ProviderSessionStatus.Ready
-                or ProviderSessionStatus.RequiresReconciliation
-                || payment.ProviderSessionStatus is null && !string.IsNullOrWhiteSpace(payment.ProviderPaymentId));
+        var providerSessionMayExist = payment.ProviderSessionStatus is ProviderSessionStatus.Creating
+            or ProviderSessionStatus.Unknown
+            or ProviderSessionStatus.RequiresReconciliation
+            || payment.Provider is not null
+                && !payment.Provider.StartsWith("Fake", StringComparison.Ordinal)
+                && (payment.ProviderSessionStatus == ProviderSessionStatus.Ready
+                    || payment.ProviderSessionStatus is null && !string.IsNullOrWhiteSpace(payment.ProviderPaymentId));
         if (providerSessionMayExist)
         {
             db.AuditLogs.Add(Audit(userId, "PaymentCancellationRejectedProviderSessionUnresolved", nameof(Payment), payment.Id.ToString()));
@@ -593,6 +621,8 @@ public sealed class CommerceService(
         }
 
         await ReleaseCouponReservationAsync(payment, cancellationToken);
+        if (!await RestoreEvaluationDraftAsync(payment, cancellationToken))
+            return new(false, FailureCode: "EVALUATION_PAYMENT_REQUIRES_RECONCILIATION", FailureMessage: "The evaluation payment requires review before cancellation.");
         TransitionPaymentToCancelled(payment, userId);
         db.AuditLogs.Add(Audit(userId, "PaymentCancelledByCustomer", nameof(Payment), payment.Id.ToString()));
         await db.SaveChangesAsync(cancellationToken);
@@ -621,6 +651,14 @@ public sealed class CommerceService(
         }
 
         await ReleaseCouponReservationAsync(payment, cancellationToken);
+        if (!await RestoreEvaluationDraftAsync(payment, cancellationToken))
+        {
+            await OpenReconciliationCaseAsync(payment, ProviderReconciliationCaseType.LocalPaidProviderDisagreement, providerPaymentId, "EVALUATION_FAILURE_REQUIRES_RECONCILIATION", payment.Total, cancellationToken);
+            db.AuditLogs.Add(Audit("system:paytabs", "EvaluationPaymentFailureRequiresReconciliation", nameof(Payment), payment.Id.ToString()));
+            await db.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+            return false;
+        }
         TransitionPaymentToFailed(payment, providerPaymentId, providerResultCode);
         db.AuditLogs.Add(Audit("system:paytabs", "PayTabsPaymentFailed", nameof(Payment), payment.Id.ToString()));
         await db.SaveChangesAsync(cancellationToken);
@@ -711,50 +749,106 @@ public sealed class CommerceService(
     public async Task<EvaluationCheckoutResult?> CreateEvaluationCheckoutAsync(string userId, Guid evaluationRequestId, string? paymentMethod, string idempotencyKey, bool expectIncludedCredit = false, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(idempotencyKey)) throw new InvalidOperationException("An idempotency key is required.");
-
-        var existing = await db.Payments.SingleOrDefaultAsync(x => x.UserId == userId && x.IdempotencyKey == idempotencyKey, cancellationToken);
-        if (existing is not null)
+        var gate = EvaluationCheckoutLocks.GetOrAdd(evaluationRequestId, _ => new SemaphoreSlim(1, 1));
+        await gate.WaitAsync(cancellationToken);
+        try
         {
-            var status = await db.EvaluationRequests.AsNoTracking()
-                .Where(item => item.Id == evaluationRequestId && item.StudentUserId == userId)
-                .Select(item => item.Status)
-                .SingleOrDefaultAsync(cancellationToken);
-            return new(false, status.ToString(), await ResumeCheckoutAsync(existing, cancellationToken));
+            var isResit = await db.ResitAuthorizations.AsNoTracking().AnyAsync(
+                authorization => authorization.ResitEvaluationRequestId == evaluationRequestId, cancellationToken);
+            if (isResit && expectIncludedCredit)
+                throw new InvalidOperationException("RESIT_INCLUDED_CREDIT_NOT_ALLOWED");
+
+            var existing = await db.Payments.SingleOrDefaultAsync(x => x.UserId == userId && x.IdempotencyKey == idempotencyKey, cancellationToken);
+            if (existing is not null && (existing.Purpose != "Evaluation" || existing.ReferenceId != evaluationRequestId))
+                throw new InvalidOperationException("EVALUATION_IDEMPOTENCY_KEY_CONFLICT");
+
+            var ownedRequest = await db.EvaluationRequests.AsNoTracking().SingleOrDefaultAsync(
+                item => item.Id == evaluationRequestId && item.StudentUserId == userId, cancellationToken);
+            if (ownedRequest is null) return null;
+            if (existing is not null)
+            {
+                if ((isResit && !await IsValidResitRelationshipAsync(ownedRequest, cancellationToken))
+                    || (existing.Status == PaymentStatus.Processing && ownedRequest.Status != EvaluationStatus.PendingPayment)
+                    || (existing.Status == PaymentStatus.Paid && !await IsEvaluationPaidLocallyAsync(existing, cancellationToken)))
+                    throw new InvalidOperationException("EVALUATION_PAYMENT_REQUIRES_RECONCILIATION");
+                return new(false, ownedRequest.Status.ToString(), await ResumeCheckoutAsync(existing, cancellationToken));
+            }
+
+            var included = await TryConsumeIncludedEvaluationCreditAsync(userId, evaluationRequestId, cancellationToken);
+            if (included is not null) return included;
+            if (expectIncludedCredit)
+                throw new InvalidOperationException("Your included evaluation credit could not be applied. Refresh the page before choosing a paid review.");
+
+            Payment payment;
+            EvaluationStatus status;
+            await using (var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken))
+            {
+                var request = db.Database.IsNpgsql()
+                    ? (await db.EvaluationRequests.FromSqlInterpolated($"SELECT * FROM \"EvaluationRequests\" WHERE \"Id\" = {evaluationRequestId} FOR UPDATE")
+                        .ToListAsync(cancellationToken)).SingleOrDefault()
+                    : await db.EvaluationRequests.SingleOrDefaultAsync(item => item.Id == evaluationRequestId && item.StudentUserId == userId, cancellationToken);
+                if (request is null || request.StudentUserId != userId) return null;
+                var linkedResit = await db.ResitAuthorizations.AnyAsync(
+                    authorization => authorization.ResitEvaluationRequestId == evaluationRequestId, cancellationToken);
+                if (linkedResit && expectIncludedCredit)
+                    throw new InvalidOperationException("RESIT_INCLUDED_CREDIT_NOT_ALLOWED");
+                if (linkedResit && (!await IsValidResitRelationshipAsync(request, cancellationToken)
+                    || request.SubmissionAttemptNumber != 1 || request.RetakeOfEvaluationRequestId is not null))
+                    throw new InvalidOperationException("RESIT_AUTHORIZATION_INVALID");
+
+                existing = await db.Payments.SingleOrDefaultAsync(x => x.UserId == userId && x.IdempotencyKey == idempotencyKey, cancellationToken);
+                if (existing is not null && (existing.Purpose != "Evaluation" || existing.ReferenceId != evaluationRequestId))
+                    throw new InvalidOperationException("EVALUATION_IDEMPOTENCY_KEY_CONFLICT");
+                var active = await db.Payments.SingleOrDefaultAsync(x => x.UserId == userId && x.Purpose == "Evaluation"
+                    && x.ReferenceId == evaluationRequestId && x.Status == PaymentStatus.Processing, cancellationToken);
+                if (active is not null)
+                {
+                    if (request.Status != EvaluationStatus.PendingPayment)
+                        throw new InvalidOperationException("EVALUATION_PAYMENT_REQUIRES_RECONCILIATION");
+                    payment = active;
+                }
+                else
+                {
+                    if (existing is not null || request.Status != EvaluationStatus.Draft
+                        || !MoneyPolicy.IsSupportedCurrency(request.Currency)
+                        || !MoneyPolicy.IsRepresentable(request.Currency, request.Price) || request.Price <= 0
+                        || !await db.SubmissionFiles.AnyAsync(x => x.EvaluationRequestId == evaluationRequestId && x.ScanStatus == UploadScanStatus.Clean, cancellationToken)
+                        || !await db.AuthenticityDeclarations.AnyAsync(x => x.EvaluationRequestId == evaluationRequestId && x.AttemptNumber == request.SubmissionAttemptNumber, cancellationToken))
+                        return null;
+                    if (!EvaluationWorkflow.CanTransition(request.Status, EvaluationStatus.PendingPayment)) return null;
+
+                    request.Status = EvaluationStatus.PendingPayment;
+                    var tax = await CalculateTaxAsync(request.Price, cancellationToken);
+                    payment = new Payment
+                    {
+                        UserId = userId,
+                        Purpose = "Evaluation",
+                        ReferenceId = request.Id,
+                        Status = PaymentStatus.Processing,
+                        Subtotal = request.Price,
+                        Tax = tax,
+                        Total = request.Price + tax,
+                        Currency = request.Currency,
+                        Method = ResolvePaymentMethod(paymentMethod),
+                        Provider = paymentProvider.ProviderName,
+                        ProviderSessionStatus = ProviderSessionStatus.NotStarted,
+                        IdempotencyKey = idempotencyKey,
+                        LineItemsJson = "[]"
+                    };
+                    db.Payments.Add(payment);
+                    db.AuditLogs.Add(Audit(userId, linkedResit ? "ResitCheckoutCreated" : "EvaluationCheckoutCreated", nameof(Payment), payment.Id.ToString()));
+                    await db.SaveChangesAsync(cancellationToken);
+                }
+                status = request.Status;
+                await transaction.CommitAsync(cancellationToken);
+            }
+
+            return new(false, status.ToString(), await ResumeCheckoutAsync(payment, cancellationToken));
         }
-
-        var included = await TryConsumeIncludedEvaluationCreditAsync(userId, evaluationRequestId, cancellationToken);
-        if (included is not null) return included;
-        if (expectIncludedCredit)
-            throw new InvalidOperationException("Your included evaluation credit could not be applied. Refresh the page before choosing a paid review.");
-
-        var request = await db.EvaluationRequests.SingleOrDefaultAsync(x => x.Id == evaluationRequestId && x.StudentUserId == userId && x.Status == EvaluationStatus.Draft, cancellationToken);
-        if (request is null
-            || !await db.SubmissionFiles.AnyAsync(x => x.EvaluationRequestId == evaluationRequestId && x.ScanStatus == UploadScanStatus.Clean, cancellationToken)
-            || !await db.AuthenticityDeclarations.AnyAsync(x => x.EvaluationRequestId == evaluationRequestId && x.AttemptNumber == request.SubmissionAttemptNumber, cancellationToken)) return null;
-        if (!EvaluationWorkflow.CanTransition(request.Status, EvaluationStatus.PendingPayment)) return null;
-
-        request.Status = EvaluationStatus.PendingPayment;
-        var tax = await CalculateTaxAsync(request.Price, cancellationToken);
-        var method = ResolvePaymentMethod(paymentMethod);
-        var payment = new Payment
+        finally
         {
-            UserId = userId,
-            Purpose = "Evaluation",
-            ReferenceId = request.Id,
-            Status = PaymentStatus.Processing,
-            Subtotal = request.Price,
-            Tax = tax,
-            Total = request.Price + tax,
-            Currency = request.Currency,
-            Method = method,
-            Provider = paymentProvider.ProviderName,
-            ProviderSessionStatus = ProviderSessionStatus.NotStarted,
-            IdempotencyKey = idempotencyKey,
-            LineItemsJson = "[]"
-        };
-        db.Payments.Add(payment);
-        await db.SaveChangesAsync(cancellationToken);
-        return new(false, request.Status.ToString(), await ResumeCheckoutAsync(payment, cancellationToken));
+            gate.Release();
+        }
     }
 
     private async Task<EvaluationCheckoutResult?> TryConsumeIncludedEvaluationCreditAsync(
@@ -795,6 +889,14 @@ public sealed class CommerceService(
             })
             .SingleOrDefaultAsync(cancellationToken);
         if (snapshot is null || snapshot.RetakeOfEvaluationRequestId is not null) return null;
+        if (await db.ResitAuthorizations.AsNoTracking().AnyAsync(
+            authorization => authorization.ResitEvaluationRequestId == evaluationRequestId, cancellationToken))
+        {
+            if (await db.IncludedEvaluationEntitlements.AsNoTracking().AnyAsync(
+                item => item.ConsumedByEvaluationRequestId == evaluationRequestId, cancellationToken))
+                throw new InvalidOperationException("RESIT_INCLUDED_CREDIT_RECONCILIATION_REQUIRED");
+            return null;
+        }
 
         var replay = await db.IncludedEvaluationEntitlements.AsNoTracking()
             .AnyAsync(item => item.StudentUserId == userId && item.ConsumedByEvaluationRequestId == evaluationRequestId, cancellationToken);
@@ -826,6 +928,15 @@ public sealed class CommerceService(
                 cancellationToken);
             if (request is null || request.RetakeOfEvaluationRequestId is not null)
             {
+                if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+                return null;
+            }
+            if (await db.ResitAuthorizations.AnyAsync(
+                authorization => authorization.ResitEvaluationRequestId == evaluationRequestId, cancellationToken))
+            {
+                if (await db.IncludedEvaluationEntitlements.AnyAsync(
+                    item => item.ConsumedByEvaluationRequestId == evaluationRequestId, cancellationToken))
+                    throw new InvalidOperationException("RESIT_INCLUDED_CREDIT_RECONCILIATION_REQUIRED");
                 if (transaction is not null) await transaction.CommitAsync(cancellationToken);
                 return null;
             }
@@ -909,6 +1020,56 @@ public sealed class CommerceService(
             .Where(scope => scope.Id == assessmentScopeId)
             .Select(scope => (Guid?)scope.AssessmentDefinition!.UnitDefinitionId)
             .SingleOrDefaultAsync(cancellationToken);
+
+    private async Task<bool> IsValidResitRelationshipAsync(EvaluationRequest request, CancellationToken cancellationToken)
+    {
+        var authorization = await db.ResitAuthorizations.AsNoTracking()
+            .Where(item => item.ResitEvaluationRequestId == request.Id)
+            .Select(item => new
+            {
+                item.ActivatedAtUtc,
+                item.RevokedAtUtc,
+                OriginalStudentUserId = item.OriginalEvaluationRequest!.StudentUserId
+            })
+            .SingleOrDefaultAsync(cancellationToken);
+        return authorization is null
+            || authorization.ActivatedAtUtc is not null
+                && authorization.RevokedAtUtc is null
+                && authorization.OriginalStudentUserId == request.StudentUserId
+                && request.RetakeOfEvaluationRequestId is null
+                && request.SubmissionAttemptNumber == 1;
+    }
+
+    private async Task<bool> IsEvaluationPaidLocallyAsync(Payment payment, CancellationToken cancellationToken)
+    {
+        var evaluation = await db.EvaluationRequests.AsNoTracking().SingleOrDefaultAsync(
+            item => item.Id == payment.ReferenceId && item.StudentUserId == payment.UserId, cancellationToken);
+        return evaluation is not null && evaluation.PaymentId == payment.Id
+            && evaluation.Status is not (EvaluationStatus.Draft or EvaluationStatus.PendingPayment or EvaluationStatus.PaymentFailed or EvaluationStatus.Cancelled)
+            && await IsValidResitRelationshipAsync(evaluation, cancellationToken);
+    }
+
+    private async Task<bool> RestoreEvaluationDraftAsync(Payment payment, CancellationToken cancellationToken)
+    {
+        if (payment.Purpose != "Evaluation") return true;
+        var evaluation = await db.EvaluationRequests.SingleOrDefaultAsync(
+            item => item.Id == payment.ReferenceId && item.StudentUserId == payment.UserId, cancellationToken);
+        if (evaluation is null || evaluation.Status != EvaluationStatus.PendingPayment
+            || !EvaluationWorkflow.CanTransition(evaluation.Status, EvaluationStatus.Draft) || evaluation.PaymentId is not null
+            || !await IsValidResitRelationshipAsync(evaluation, cancellationToken)
+            || await db.Payments.AsNoTracking().AnyAsync(item => item.Id != payment.Id
+                && item.Purpose == "Evaluation" && item.ReferenceId == evaluation.Id
+                && (item.Status == PaymentStatus.Processing || item.Status == PaymentStatus.Paid), cancellationToken)
+            || await db.ProviderReconciliationCases.AsNoTracking().AnyAsync(item => item.PaymentId == payment.Id
+                && item.Status != ProviderReconciliationCaseStatus.Resolved, cancellationToken)
+            || await db.WebhookEvents.AsNoTracking().AnyAsync(item => item.Provider == payment.Provider
+                && item.ProviderEventId == payment.ProviderPaymentId
+                && item.EventType.StartsWith("payment.succeeded"), cancellationToken))
+            return false;
+        evaluation.Status = EvaluationStatus.Draft;
+        db.AuditLogs.Add(Audit(payment.UserId, "EvaluationPaymentReturnedToDraft", nameof(EvaluationRequest), evaluation.Id.ToString()));
+        return true;
+    }
 
     private async Task<CheckoutResult> ResumeCheckoutAsync(Payment payment, CancellationToken cancellationToken)
     {
@@ -1162,6 +1323,12 @@ public sealed class CommerceService(
         payment.ProviderSessionResolvedAtUtc = DateTimeOffset.UtcNow;
         if (payment.Status == PaymentStatus.Processing)
         {
+            if (!await RestoreEvaluationDraftAsync(payment, cancellationToken))
+            {
+                await RequireSessionReconciliationAsync(payment, ProviderReconciliationCaseType.LocalPaidProviderDisagreement,
+                    providerReference, "EVALUATION_SESSION_FAILURE_REQUIRES_RECONCILIATION", cancellationToken);
+                return;
+            }
             await ReleaseCouponReservationAsync(payment, cancellationToken);
             TransitionPaymentToFailed(payment, providerReference ?? $"session-creation:{payment.Id:N}", failureCode, PaymentTransitionSource.ProviderSessionCreationRejected);
         }

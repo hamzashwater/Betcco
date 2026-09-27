@@ -40,6 +40,10 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
                 var payment = await db.Payments.SingleOrDefaultAsync(item => item.Id == request.PaymentId, cancellationToken);
                 if (payment is null)
                     return await RejectAndCommitAsync(financeAdminUserId, request.PaymentId, "REFUND_PAYMENT_NOT_FOUND", "The payment was not found.", transaction, cancellationToken);
+                if (payment.Purpose == "Evaluation" && await db.ResitAuthorizations.AsNoTracking().AnyAsync(
+                    item => item.ResitEvaluationRequestId == payment.ReferenceId, cancellationToken))
+                    return await RejectAndCommitAsync(financeAdminUserId, payment.Id, "RESIT_REFUND_REVIEW_REQUIRED",
+                        "Resit refunds require finance review before any accounting or provider action.", transaction, cancellationToken);
                 if (payment.Status is not (PaymentStatus.Paid or PaymentStatus.PartiallyRefunded))
                     return await RejectAndCommitAsync(financeAdminUserId, payment.Id, "REFUND_PAYMENT_NOT_PAID", "Only paid payments can be refunded.", transaction, cancellationToken);
                 if (string.Equals(payment.Provider, "PayTabs", StringComparison.OrdinalIgnoreCase))
@@ -112,6 +116,14 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
             payment = await db.Payments.SingleOrDefaultAsync(item => item.Id == request.PaymentId, cancellationToken);
             if (payment is null)
                 return await RejectProviderAndCommitAsync(financeAdminUserId, request.PaymentId, "REFUND_PAYMENT_NOT_FOUND", "The payment was not found.", transaction, cancellationToken);
+            if (payment.Purpose == "Evaluation")
+            {
+                var isResit = await db.ResitAuthorizations.AsNoTracking().AnyAsync(
+                    item => item.ResitEvaluationRequestId == payment.ReferenceId, cancellationToken);
+                return await RejectProviderAndCommitAsync(financeAdminUserId, payment.Id,
+                    isResit ? "RESIT_REFUND_REVIEW_REQUIRED" : "REFUND_PURPOSE_REVIEW_REQUIRED",
+                    "Evaluation refunds require finance review before provider execution.", transaction, cancellationToken);
+            }
             if (payment.Status != PaymentStatus.Paid)
                 return await RejectProviderAndCommitAsync(financeAdminUserId, payment.Id, "REFUND_PAYMENT_NOT_PAID", "Only fully paid payments can receive a PayTabs full refund.", transaction, cancellationToken);
             if (!string.Equals(payment.Provider, "PayTabs", StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(payment.ProviderPaymentId))

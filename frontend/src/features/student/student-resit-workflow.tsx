@@ -7,7 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 type Academic = {
   qualificationCode: string;
@@ -41,6 +41,8 @@ type AuthorizationPage = {
 type Detail = {
   id: string;
   status: string;
+  price: number;
+  currency: string;
   isResit: boolean;
   resitOfEvaluationRequestId: string | null;
   academic: Academic | null;
@@ -275,10 +277,20 @@ export function StudentResitOpportunities() {
 
 export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
   const locale = useLocale();
+  const router = useRouter();
   const client = useQueryClient();
   const [files, setFiles] = useState<File[]>([]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [confirmOriginality, setConfirmOriginality] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("Card");
+  const [paymentSession, setPaymentSession] = useState<{
+    paymentId: string;
+    provider: string;
+    redirectUrl: string | null;
+    total: number;
+    currency: string;
+  } | null>(null);
+  const checkoutKey = useRef<string | null>(null);
   const detail = useQuery({
     queryKey: ["evaluations", "detail", evaluationId],
     queryFn: () => api<Detail>(`/evaluations/${evaluationId}`),
@@ -325,6 +337,55 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
     onSuccess: async () => {
       setConfirmOriginality(false);
       await refresh();
+    },
+  });
+  const checkout = useMutation({
+    mutationFn: async () => {
+      checkoutKey.current ??= crypto.randomUUID();
+      const result = await api<{
+        includedCreditApplied: boolean;
+        paymentId: string;
+        provider: string;
+        redirectUrl: string | null;
+        total: number;
+        currency: string;
+      }>(`/evaluations/${evaluationId}/checkout`, {
+        method: "POST",
+        headers: { "Idempotency-Key": checkoutKey.current },
+        body: JSON.stringify({ paymentMethod, expectIncludedCredit: false }),
+      });
+      if (result.includedCreditApplied)
+        throw new Error("RESIT_INCLUDED_CREDIT_INVARIANT_VIOLATION");
+      return result;
+    },
+    onSuccess: async (result) => {
+      checkoutKey.current = null;
+      if (result.redirectUrl) {
+        window.location.assign(result.redirectUrl);
+        return;
+      }
+      setPaymentSession(result);
+      await refresh();
+    },
+  });
+  const confirmDevelopmentPayment = useMutation({
+    mutationFn: async () => {
+      if (!paymentSession?.provider.startsWith("Fake"))
+        throw new Error("No development test payment is available.");
+      await api("/payments/fake/confirm", {
+        method: "POST",
+        body: JSON.stringify({
+          paymentId: paymentSession.paymentId,
+          providerEventId: `resit_test_${crypto.randomUUID()}`,
+        }),
+      });
+    },
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: ["evaluations"] });
+      await client.invalidateQueries({
+        queryKey: ["student", "resit-authorizations"],
+      });
+      router.push(`/${locale}/student/evaluations`);
     },
   });
   const data = detail.data;
@@ -536,19 +597,104 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
                     : "Preparation complete."}
                 </p>
               ) : null}
-              {/* L12 owns Resit checkout enablement after Commerce excludes Resits from included credits and defines paid confirmation/refund semantics. */}
-              <p
-                role="status"
-                className="rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm"
-              >
-                {data.files.length || data.evidence.length
-                  ? locale === "ar"
-                    ? "تم حفظ ملفات وأدلة إعادة التقييم. ستتاح خطوة الدفع والإرسال بعد تفعيل مسار دفع الـResit."
-                    : "Your Resit evidence is saved. Payment and submission will become available once the Resit payment step is enabled."
-                  : locale === "ar"
-                    ? "ستتاح خطوة الدفع والإرسال بعد تفعيل مسار دفع الـResit."
-                    : "Payment and submission will become available once the Resit payment step is enabled."}
-              </p>
+              <div className="grid gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm">
+                <p className="font-black">
+                  {locale === "ar"
+                    ? "مراجعة Resit مدفوعة"
+                    : "Paid Resit review"}
+                </p>
+                <p>
+                  {locale === "ar"
+                    ? `السعر المحدد من الخادم: ${data.price.toFixed(3)} ${data.currency}. تُحسب أي ضريبة مطبقة عند الدفع.`
+                    : `Server-owned Resit review price: ${data.price.toFixed(3)} ${data.currency}. Any applicable tax is calculated at checkout.`}
+                </p>
+                <label className="grid gap-1 font-semibold">
+                  {locale === "ar" ? "طريقة الدفع" : "Payment method"}
+                  <select
+                    value={paymentMethod}
+                    onChange={(event) => setPaymentMethod(event.target.value)}
+                    className="rounded-lg border bg-transparent p-3"
+                  >
+                    <option value="Card">
+                      {locale === "ar" ? "بطاقة بنكية" : "Bank card"}
+                    </option>
+                    <option value="BankTransfer">
+                      {locale === "ar" ? "تحويل بنكي" : "Bank transfer"}
+                    </option>
+                    <option value="EWallet">
+                      {locale === "ar" ? "محفظة إلكترونية" : "E-wallet"}
+                    </option>
+                  </select>
+                </label>
+                <button
+                  type="button"
+                  className="focus-ring w-fit rounded-xl bg-primary px-4 py-2 font-bold text-white disabled:opacity-50"
+                  disabled={
+                    checkout.isPending ||
+                    !data.files.some((file) => file.scanStatus === "Clean") ||
+                    !data.hasAuthenticityDeclaration
+                  }
+                  onClick={() => checkout.mutate()}
+                >
+                  {checkout.isPending
+                    ? "…"
+                    : locale === "ar"
+                      ? "المتابعة إلى الدفع"
+                      : "Continue to payment"}
+                </button>
+                {checkout.isError ? (
+                  <p role="alert" className="text-red-500">
+                    {checkout.error.message ===
+                    "RESIT_INCLUDED_CREDIT_INVARIANT_VIOLATION"
+                      ? locale === "ar"
+                        ? "تعارض في حالة الدفع. تواصل مع الدعم."
+                        : "Payment state conflict. Contact support."
+                      : locale === "ar"
+                        ? "تعذر بدء الدفع. حدّث حالة الطلب قبل المحاولة مجددًا."
+                        : "Unable to start payment. Refresh the request status before retrying."}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          ) : data.status === "PendingPayment" ? (
+            <div className="card grid gap-3 p-5" aria-live="polite">
+              <h2 className="text-xl font-black">
+                {locale === "ar" ? "الدفع قيد الانتظار" : "Payment pending"}
+              </h2>
+              {paymentSession?.provider.startsWith("Fake") ? (
+                <>
+                  <p>
+                    {locale === "ar"
+                      ? "دفعة اختبارية — بيئة التطوير فقط. أكملها يدويًا؛ هذا ليس بديلًا عن تأكيد مزود الدفع الحقيقي."
+                      : "Development test payment only. Complete it explicitly; this is not a substitute for real provider confirmation."}
+                  </p>
+                  <button
+                    type="button"
+                    className="focus-ring w-fit rounded-lg border border-primary px-3 py-2 font-black text-primary disabled:opacity-50"
+                    disabled={confirmDevelopmentPayment.isPending}
+                    onClick={() => confirmDevelopmentPayment.mutate()}
+                  >
+                    {confirmDevelopmentPayment.isPending
+                      ? "…"
+                      : locale === "ar"
+                        ? "إتمام الدفع الاختباري"
+                        : "Complete test payment"}
+                  </button>
+                  {confirmDevelopmentPayment.isError ? (
+                    <p role="alert">
+                      {locale === "ar"
+                        ? "تعذر تأكيد الدفع الاختباري."
+                        : "Unable to confirm test payment."}
+                    </p>
+                  ) : null}
+                </>
+              ) : (
+                <p>
+                  {locale === "ar"
+                    ? "تحقق من سجل دفعاتك أو تواصل مع الدعم إذا بقيت الحالة معلقة. لا تبدأ دفعة أخرى."
+                    : "Check your payment history or contact support if this remains pending. Do not start another payment."}
+                </p>
+              )}
             </div>
           ) : data.status === "Completed" ? (
             <div className="card grid gap-3 p-5">
