@@ -43,11 +43,16 @@ Do not force-push, reset, clean, or overwrite uncommitted work without explicit 
 
 ## Live Snapshot
 
-Snapshot captured: **2026-09-26**
+Snapshot captured: **2026-09-27**
 
 At capture time:
 
-- `main`: `0bea28b9d99c41345406fdddf416d885076535e1`
+- `main`: `fcf1fd324f450c890cd7b45bf60b0f8a8eabce64`
+- PR #98 — Student Resit UI — L11 is merged.
+- PR #99 — PayTabs partial-refund contract tests are merged; partial provider refund execution remains disabled.
+- PR #100 — PayTabs refund pending-state hardening is merged.
+- PR #101 — PayTabs refund recovery/reconciliation is merged.
+- PR #102 — Resit Commerce / Payment Contract — L12 is merged.
 - PR #53 is merged: Comprehensive Practice Assignment — Final Unit Practice.
 - PR #57 is merged: LENOVO Admin Audit Log Filters — Slice 1.
 - PR #59 is merged: LENOVO Admin Audit Log CSV Export — Slice 2.
@@ -63,8 +68,8 @@ At capture time:
 - PR #78 is merged: ASUS Admin Payout Lifecycle UI Contract — Slice 1.
 - PR #77 is merged: LENOVO Resit Authorization Foundation — Slice 1.
 - GitHub Secret Scanning and Push Protection are enabled; 0 open secret-scanning alerts were present at verification.
-- OPEN implementation PRs: none.
-- ASUS and LENOVO have no active implementation PR at this snapshot.
+- OPEN/Draft PRs before ASUS-10A: none (live GitHub REST query).
+- No ASUS or LENOVO implementation PR was active at this snapshot. ASUS-10A is a read-only audit/documentation workstream and does not change the reserved LENOVO Resit/ASSESS scope.
 
 These SHAs are historical coordination markers only. Re-verify them before using them operationally.
 
@@ -92,7 +97,7 @@ PR #53 — **Comprehensive Practice Assignment — Final Unit Practice** — rem
 
 No active ASUS implementation branch is reserved at this snapshot. PR #78 — Admin Payout Lifecycle UI Contract — Slice 1 and PR #75 — Student Entitlement Visibility — Slice 1 are merged and closed; Evaluate My Assignment, Student Progress Intelligence, Teacher Intervention Dashboard, Student Entitlement Visibility, and the bounded payout UI contract are closed at the implementation/CI level. The AI engine/API/RAG/persistence work remains deliberately deferred and is not an active workstream.
 
-ASUS retains planning ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign. Its immediate next action is a fresh read-only Commerce / Entitlements gap analysis on latest `main`. Refund → Course Access remains a product-policy decision and must not be implemented implicitly. Before starting any roadmap item, ASUS must run a fresh preflight against latest `main`, all OPEN/Draft PRs, changed files, CI, and review threads.
+ASUS retains planning ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign. ASUS-10A records the read-only production-readiness audit at `fcf1fd324f450c890cd7b45bf60b0f8a8eabce64`; its recommended first implementation slice after independent review is ASUS-10B — Production Admin Bootstrap (P0-01). The following migration/recovery, operations, and release tasks are sequenced in `docs/production-readiness-audit.md`. Refund → Course Access remains a product-policy decision and must not be implemented implicitly. Before starting any roadmap item, ASUS must run a fresh preflight against latest `main`, all OPEN/Draft PRs, changed files, CI, and review threads.
 
 ## ASUS Current Completion Sequence
 

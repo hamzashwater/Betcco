@@ -2,10 +2,11 @@
 
 ## Metadata
 
-- Last updated: 2026-09-26
-- Verified implementation baseline SHA: `0bea28b9d99c41345406fdddf416d885076535e1`
-- Status verified against origin/main: `0bea28b9d99c41345406fdddf416d885076535e1`
-- OPEN implementation PRs at verification: none.
+- Last updated: 2026-09-27
+- Verified implementation baseline SHA: `fcf1fd324f450c890cd7b45bf60b0f8a8eabce64`
+- Status verified against origin/main: `fcf1fd324f450c890cd7b45bf60b0f8a8eabce64`
+- OPEN/Draft PRs at verification: none.
+- ASUS-10A production-readiness audit recorded in `docs/production-readiness-audit.md`; next ASUS implementation slice is production Admin bootstrap, subject to independent review.
 - Parallel workstream coordination is persisted in `docs/WORKSTREAM_COORDINATION.md` and must be rechecked against live GitHub before implementation.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
@@ -245,11 +246,11 @@ Live progress is tracked in OPEN Draft PRs, and repository evidence wins over co
 
 Maximum active implementation workstreams: **2**
 
-At the 2026-09-26 reconciliation snapshot, PR #78 — Admin Payout Lifecycle UI Contract — Slice 1 is merged at `3d5affe6ac3ca98bda78273f41d9bf455a51c03f`, and PR #77 — Resit Authorization Foundation — Slice 1 is merged at `0bea28b9d99c41345406fdddf416d885076535e1`; PR #75 and PR #74 remain merged. Required PR checks for #77 were green before merge, and post-merge `main` Application quality plus both CodeQL jobs are green. No OPEN implementation PRs were present at this snapshot, and no ASUS or LENOVO implementation workstream is active.
+At the 2026-09-27 verification snapshot, `main` is `fcf1fd324f450c890cd7b45bf60b0f8a8eabce64`. PRs #98–#102 have merged, including Student Resit UI L11, PayTabs refund pending-state hardening, PayTabs refund recovery/reconciliation, and the Resit Commerce / Payment Contract L12. No OPEN/Draft PRs were present in the live GitHub query before this audit; no ASUS or LENOVO implementation workstream was active. ASUS-10A is the current read-only documentation audit branch.
 
 ## Next Actions
 
-- ASUS: PR #78 — Admin Payout Lifecycle UI Contract — Slice 1 is DONE at `3d5affe6ac3ca98bda78273f41d9bf455a51c03f`; PR #75 remains DONE. ASUS retains ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign. Production provider validation and the unresolved Refund → Course Access business policy remain separate product decisions; no refund/access policy change is implied by PR #78. ASUS must not take Resit/ASSESS work reserved to LENOVO. AI engine/API/RAG/persistence remains explicitly deferred.
+- ASUS: ASUS-10A is a read-only production-readiness audit on `fcf1fd324f450c890cd7b45bf60b0f8a8eabce64`, documented in `docs/production-readiness-audit.md`. After independent review, the recommended first implementation slice is ASUS-10B — Production Admin Bootstrap (P0-01). Follow with the migration/recovery and operations/release hardening sequence in the audit. ASUS retains ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign, and must not take Resit/ASSESS workflow work reserved to LENOVO. AI engine/API/RAG/persistence remains explicitly deferred.
 - LENOVO: PR #77 — Resit Authorization Foundation — Slice 1 is DONE at `0bea28b9d99c41345406fdddf416d885076535e1`. The next ASSESS planning lane is Resit Activation / `EvaluationRequest` Lifecycle — analysis and design first: define activation from an existing authorization, new-request linkage without reviving Retake semantics, fresh evidence/authenticity, evaluator assignment, single final advisory review, result/history preservation, and the Commerce handoff boundary. LENOVO must not edit Commerce / Entitlements, payment/refund/access logic, or ASUS-reserved roadmap work. If a later Resit UI slice needs shared files such as `student-area.tsx`, perform overlap review before editing.
 - Task 6: DONE — Media / Video Foundation + Secure Delivery. PR #18 merged with required CI green.
 - Slice 1: DONE — ASSESS academic identity foundation. PR #28 merged with required CI green.
