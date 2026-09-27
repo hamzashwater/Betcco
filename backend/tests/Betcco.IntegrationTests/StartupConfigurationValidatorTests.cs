@@ -44,6 +44,81 @@ public sealed class StartupConfigurationValidatorTests
     }
 
     [Fact]
+    public void Production_allows_an_unconfigured_s3_endpoint_for_the_regional_sdk_endpoint()
+    {
+        var values = SecureDeploymentValues();
+
+        StartupConfigurationValidator.ThrowIfInvalid(Configuration(values), new TestHostEnvironment(Environments.Production));
+    }
+
+    [Theory]
+    [InlineData("https://s3.example.com")]
+    [InlineData("https://storage.example.com:9443")]
+    [InlineData("https://storage.example.com/private/s3/path")]
+    public void Production_accepts_custom_https_s3_endpoints(string endpoint)
+    {
+        var values = SecureDeploymentValues();
+        values["Storage:S3:Endpoint"] = endpoint;
+
+        StartupConfigurationValidator.ThrowIfInvalid(Configuration(values), new TestHostEnvironment(Environments.Production));
+    }
+
+    [Theory]
+    [InlineData("http://s3.example.com")]
+    [InlineData("http://localhost:9000")]
+    [InlineData("https://")]
+    [InlineData("storage.example.com")]
+    [InlineData("ftp://storage.example.com")]
+    [InlineData("https://user:password@storage.example.com")]
+    public void Production_rejects_invalid_custom_s3_endpoints_without_exposing_values(string endpoint)
+    {
+        var values = SecureDeploymentValues();
+        values["Storage:S3:Endpoint"] = endpoint;
+
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            StartupConfigurationValidator.ThrowIfInvalid(Configuration(values), new TestHostEnvironment(Environments.Production)));
+
+        Assert.Contains("Storage:S3:Endpoint must be an absolute HTTPS URL in staging and production when configured.", exception.Message);
+        Assert.DoesNotContain("password", exception.Message);
+        Assert.DoesNotContain(endpoint, exception.Message);
+    }
+
+    [Fact]
+    public void Staging_rejects_custom_http_s3_endpoint()
+    {
+        var values = SecureDeploymentValues();
+        values["Storage:S3:Endpoint"] = "http://s3.internal:9000";
+
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            StartupConfigurationValidator.ThrowIfInvalid(Configuration(values), new TestHostEnvironment(Environments.Staging)));
+
+        Assert.Contains("Storage:S3:Endpoint must be an absolute HTTPS URL in staging and production when configured.", exception.Message);
+    }
+
+    [Fact]
+    public void Staging_accepts_custom_https_s3_endpoint()
+    {
+        var values = SecureDeploymentValues();
+        values["Storage:S3:Endpoint"] = "https://storage.internal:9443/private";
+
+        StartupConfigurationValidator.ThrowIfInvalid(Configuration(values), new TestHostEnvironment(Environments.Staging));
+    }
+
+    [Theory]
+    [InlineData("Development")]
+    [InlineData("Testing")]
+    public void Development_and_testing_preserve_local_http_minio_endpoint(string environment)
+    {
+        var configuration = Configuration(new Dictionary<string, string?>
+        {
+            ["ConnectionStrings:Postgres"] = "Host=localhost;Database=betcco;Username=betcco;Password=not-logged",
+            ["Storage:S3:Endpoint"] = "http://localhost:9000"
+        });
+
+        StartupConfigurationValidator.ThrowIfInvalid(configuration, new TestHostEnvironment(environment));
+    }
+
+    [Fact]
     public void Staging_rejects_live_paytabs_configuration()
     {
         var values = SecureDeploymentValues();

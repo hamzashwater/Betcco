@@ -19,7 +19,7 @@
 | Classification | Count | Summary |
 | --- | ---: | --- |
 | P0 — Launch Blocker | 1 | No reachable, documented first-administrator bootstrap exists in the production deployment path. |
-| P1 — Required Production Hardening | 5 | A merged migration drops legacy quiz records; restore evidence, operational alerts/runbooks, same-artifact promotion, and HTTPS enforcement for custom S3 endpoints are not established. |
+| P1 — Required Production Hardening | 4 | A merged migration drops legacy quiz records; restore evidence, operational alerts/runbooks, and same-artifact promotion are not established. P1-05 is closed in the current implementation branch, pending PR merge. |
 | P2 — Post-launch Improvement | 3 | Production image inputs are mutable tags; .NET transitive restore is not locked; in-process rate limits are not shared across API replicas. |
 | EXTERNAL | 5 | Live hosting/provider/legal/operational decisions and credentials cannot be verified from this repository. |
 | SAFE | 15 | Important controls are implemented and/or demonstrated by current code and baseline CI. |
@@ -163,12 +163,14 @@
 
 ### P1-05 — Custom production S3 endpoint accepts plain HTTP
 
+**Status:** CLOSED in the current implementation branch; merged implementation evidence is pending PR merge.
+
 **Severity:** P1 — Required Production Hardening
 **Area:** S3 configuration / transport security
 **Evidence:**
 
 - `backend/src/Betcco.Api/Program.cs`, S3 client registration: when `Storage:S3:Endpoint` is non-empty, its text is assigned to `AmazonS3Config.ServiceURL` without checking that it is an absolute HTTPS URI.
-- `backend/src/Betcco.Api/Configuration/StartupConfigurationValidator.cs`, production storage checks: validates provider, bucket, region, paired credentials, and scanner, but does not validate `Storage:S3:Endpoint` scheme.
+- `backend/src/Betcco.Api/Configuration/StartupConfigurationValidator.cs`, `ValidateSecureS3Endpoint`: Staging/Production now require any configured custom endpoint to be an absolute HTTPS URL with a host and no embedded userinfo; an empty endpoint remains valid.
 - `deploy.env.example` shows an HTTPS example endpoint, but example guidance does not enforce the runtime boundary.
 
 **Production scenario:** an operator configures a custom `http://` S3-compatible endpoint in Production. Object contents and/or access-key authentication traffic could then traverse the API-to-storage network without TLS, depending on network topology. The default regional endpoint is not implicated when no custom endpoint is supplied.
