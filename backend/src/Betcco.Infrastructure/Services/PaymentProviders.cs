@@ -212,7 +212,11 @@ public sealed class PayTabsPaymentProvider(HttpClient client, IOptions<PayTabsOp
         var amountText = OptionalString(root, "cart_amount");
         var hasAmount = decimal.TryParse(amountText, NumberStyles.Number, CultureInfo.InvariantCulture, out var amount);
         var successful = httpSucceeded && string.Equals(status, "A", StringComparison.OrdinalIgnoreCase);
-        var definiteFailure = !successful && !string.IsNullOrWhiteSpace(status) && !string.Equals(status, "A", StringComparison.OrdinalIgnoreCase);
+        // A transport error or an unrecognized provider status is inconclusive.
+        // PayTabs documents P (refund pending) and H (hold) as non-final.
+        var definiteFailure = httpSucceeded && (string.Equals(status, "D", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(status, "E", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(status, "X", StringComparison.OrdinalIgnoreCase));
         return new PaymentProviderRefundTransaction(
             ProviderName,
             profile,

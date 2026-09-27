@@ -399,6 +399,98 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
         Assert.Equal(2, handler.RequestBodies.Count);
     }
 
+    [Theory]
+    [InlineData("P")]
+    [InlineData("H")]
+    [InlineData("Z")]
+    public async Task Nonfinal_create_response_retains_reference_without_financial_effects_or_retry(string status)
+    {
+        await using var db = CreateDb();
+        var (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(db);
+        var handler = new RefundHandler(createStatus: status);
+        var service = new RefundService(db, CreateProvider(handler));
+        var request = new InitiatePayTabsRefund(paymentId, "CustomerRequest", null, $"nonfinal-{status}");
+
+        var result = await service.InitiatePayTabsRefundAsync("finance", request);
+        var replay = await service.InitiatePayTabsRefundAsync("finance", request);
+
+        var refund = Assert.IsType<RefundView>(result.Refund);
+        Assert.Equal(nameof(RefundStatus.ProviderResultUnknown), refund.Status);
+        Assert.Equal("REFUND-TRUSTED-REF", (await db.Refunds.SingleAsync()).ProviderRefundReference);
+        Assert.True(replay.IsIdempotentReplay);
+        Assert.Single(await db.Refunds.ToListAsync());
+        Assert.Single(handler.RequestBodies);
+        await AssertNoRefundEffectsAsync(db, paymentId, refund.Id, entitlementId);
+    }
+
+    [Theory]
+    [InlineData("P")]
+    [InlineData("H")]
+    [InlineData("Z")]
+    public async Task Nonfinal_refund_query_stays_recoverable_then_authorized_query_finalizes_once(string queryStatus)
+    {
+        await using var db = CreateDb();
+        var (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(db);
+        var handler = new RefundHandler(createStatus: "P", queryStatus: queryStatus);
+        var service = new RefundService(db, CreateProvider(handler));
+
+        var created = await service.InitiatePayTabsRefundAsync("finance", new(paymentId, "CustomerRequest", null, "pending-then-authorized"));
+        var refundId = created.Refund!.Id;
+        var pending = await service.VerifyPayTabsRefundAsync("finance", refundId);
+
+        Assert.Equal(nameof(RefundStatus.ProviderResultUnknown), pending.Refund!.Status);
+        Assert.Equal("REFUND-TRUSTED-REF", (await db.Refunds.SingleAsync()).ProviderRefundReference);
+        Assert.Equal(2, handler.RequestBodies.Count);
+        await AssertNoRefundEffectsAsync(db, paymentId, refundId, entitlementId);
+
+        handler.QueryStatus = "A";
+        var authorized = await service.VerifyPayTabsRefundAsync("finance", refundId);
+        var replay = await service.VerifyPayTabsRefundAsync("finance", refundId);
+
+        Assert.Equal(nameof(RefundStatus.InternallyRecorded), authorized.Refund!.Status);
+        Assert.True(replay.IsIdempotentReplay);
+        Assert.Equal(3, handler.RequestBodies.Count);
+        Assert.Equal(PaymentStatus.Refunded, (await db.Payments.SingleAsync()).Status);
+        Assert.Single(await db.LedgerTransactions.Where(item => item.RefundId == refundId).ToListAsync());
+        Assert.Equal(2, await db.WalletTransactions.CountAsync(item => item.RefundId == refundId));
+        Assert.Single(await db.RefundStatusTransitions.Where(item => item.RefundId == refundId && item.NewStatus == RefundStatus.ProviderVerified).ToListAsync());
+        Assert.Single(await db.PaymentStatusTransitions.Where(item => item.PaymentId == paymentId && item.NewStatus == PaymentStatus.Refunded).ToListAsync());
+        Assert.Equal(refundId, (await db.IncludedEvaluationEntitlements.SingleAsync(item => item.Id == entitlementId)).RevokedByRefundId);
+    }
+
+    [Theory]
+    [InlineData("D")]
+    [InlineData("E")]
+    public async Task Pending_refund_then_final_query_failure_has_no_accounting(string finalStatus)
+    {
+        await using var db = CreateDb();
+        var (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(db);
+        var handler = new RefundHandler(createStatus: "P", queryStatus: finalStatus);
+        var service = new RefundService(db, CreateProvider(handler));
+
+        var created = await service.InitiatePayTabsRefundAsync("finance", new(paymentId, "CustomerRequest", null, $"pending-then-{finalStatus}"));
+        var refundId = created.Refund!.Id;
+        var failed = await service.VerifyPayTabsRefundAsync("finance", refundId);
+
+        Assert.Equal(nameof(RefundStatus.ProviderFailed), failed.Refund!.Status);
+        Assert.Equal("REFUND-TRUSTED-REF", (await db.Refunds.SingleAsync()).ProviderRefundReference);
+        Assert.Equal(2, handler.RequestBodies.Count);
+        await AssertNoRefundEffectsAsync(db, paymentId, refundId, entitlementId);
+    }
+
+    private static async Task AssertNoRefundEffectsAsync(BetccoDbContext db, Guid paymentId, Guid refundId, Guid entitlementId)
+    {
+        Assert.Equal(PaymentStatus.Paid, (await db.Payments.SingleAsync(item => item.Id == paymentId)).Status);
+        Assert.Empty(await db.PaymentStatusTransitions.Where(item => item.PaymentId == paymentId && item.NewStatus == PaymentStatus.Refunded).ToListAsync());
+        Assert.Empty(await db.LedgerTransactions.Where(item => item.RefundId == refundId).ToListAsync());
+        Assert.Empty(await db.WalletTransactions.Where(item => item.RefundId == refundId).ToListAsync());
+        Assert.Equal(RefundEntitlementDisposition.NotChangedPendingBusinessPolicy, (await db.Refunds.SingleAsync(item => item.Id == refundId)).EntitlementDisposition);
+        var credit = await db.IncludedEvaluationEntitlements.SingleAsync(item => item.Id == entitlementId);
+        Assert.Null(credit.RevokedAtUtc);
+        Assert.Null(credit.RevokedByRefundId);
+        Assert.Null((await db.Enrollments.SingleAsync(item => item.PaymentId == paymentId)).AccessEndsAtUtc);
+    }
+
     [Fact]
     public async Task Existing_partial_refund_evidence_cannot_be_sent_to_paytabs()
     {
@@ -608,9 +700,10 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
 
     public enum RefundResponseMode { Success, Declined, AmountMismatch, CurrencyMismatch, CartMismatch, ReferenceMismatch, Timeout, QueryTimeout }
 
-    private sealed class RefundHandler(RefundResponseMode mode = RefundResponseMode.Success) : HttpMessageHandler
+    private sealed class RefundHandler(RefundResponseMode mode = RefundResponseMode.Success, string createStatus = "A", string queryStatus = "A") : HttpMessageHandler
     {
         public List<string> RequestBodies { get; } = [];
+        public string QueryStatus { get; set; } = queryStatus;
         private string? refundCart;
         private decimal refundAmount;
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -633,7 +726,7 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
                 cart_id = mode == RefundResponseMode.CartMismatch ? $"{cart}-unexpected" : cart,
                 cart_currency = mode == RefundResponseMode.CurrencyMismatch ? "USD" : "JOD",
                 cart_amount = mode == RefundResponseMode.AmountMismatch ? amount - 1m : amount,
-                payment_result = new { response_status = mode == RefundResponseMode.Declined ? "D" : "A", response_code = mode == RefundResponseMode.Declined ? "500" : "100" }
+                payment_result = new { response_status = mode == RefundResponseMode.Declined ? "D" : RequestBodies.Count == 1 ? createStatus : QueryStatus, response_code = mode == RefundResponseMode.Declined ? "500" : "100" }
             };
             return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(JsonSerializer.Serialize(response)) };
         }
