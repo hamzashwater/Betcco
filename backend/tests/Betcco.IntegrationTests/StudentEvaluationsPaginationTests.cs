@@ -310,7 +310,7 @@ public sealed class StudentEvaluationsPaginationTests
     }
 
     [Fact]
-    public async Task Detail_links_the_owner_only_and_preserves_existing_access_rules()
+    public async Task Detail_links_the_owner_and_assigned_assessor_and_preserves_existing_access_rules()
     {
         await using var db = NewContext();
         var original = NewRequest("student", DateTimeOffset.UtcNow, status: EvaluationStatus.Completed);
@@ -340,14 +340,63 @@ public sealed class StudentEvaluationsPaginationTests
 
         var assessor = ControllerFor(db, "assessor", "Assessor");
         var staffJson = DetailJson(await assessor.Get(resit.Id, default));
-        Assert.False(staffJson.GetProperty("isResit").GetBoolean());
-        Assert.Equal(JsonValueKind.Null, staffJson.GetProperty("resitOfEvaluationRequestId").ValueKind);
+        Assert.True(staffJson.GetProperty("isResit").GetBoolean());
+        Assert.Equal(original.Id, staffJson.GetProperty("resitOfEvaluationRequestId").GetGuid());
+        Assert.IsType<NotFoundResult>(await ControllerFor(db, "unassigned", "Assessor").Get(resit.Id, default));
         foreach (var json in new[] { resitJson, originalJson, staffJson })
         {
             var text = json.GetRawText();
             Assert.DoesNotContain("Private staff rationale", text, StringComparison.OrdinalIgnoreCase);
             Assert.DoesNotContain("authorizedByUserId", text, StringComparison.OrdinalIgnoreCase);
             Assert.DoesNotContain("revocationReason", text, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    [Fact]
+    public async Task Staff_lists_identify_linked_resit_without_private_authorization_fields()
+    {
+        await using var db = NewContext();
+        var original = NewRequest("student", DateTimeOffset.UtcNow, status: EvaluationStatus.Completed);
+        var resit = NewRequest("student", DateTimeOffset.UtcNow.AddMinutes(1),
+            status: EvaluationStatus.PendingAssignment);
+        var normal = NewRequest("student", DateTimeOffset.UtcNow.AddMinutes(2),
+            status: EvaluationStatus.PendingAssignment);
+        db.EvaluationRequests.AddRange(original, resit, normal);
+        db.ResitAuthorizations.Add(Link(original, resit));
+        await db.SaveChangesAsync();
+
+        var pending = JsonSerializer.SerializeToElement(
+            Assert.IsType<OkObjectResult>(await ControllerFor(db, "reviewer", "CourseReviewer")
+                .PendingAssignment(default)).Value,
+            new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        var pendingResit = pending.EnumerateArray().Single(item => item.GetProperty("id").GetGuid() == resit.Id);
+        var pendingNormal = pending.EnumerateArray().Single(item => item.GetProperty("id").GetGuid() == normal.Id);
+        Assert.True(pendingResit.GetProperty("isResit").GetBoolean());
+        Assert.Equal(original.Id, pendingResit.GetProperty("resitOfEvaluationRequestId").GetGuid());
+        Assert.False(pendingNormal.GetProperty("isResit").GetBoolean());
+        Assert.Equal(JsonValueKind.Null, pendingNormal.GetProperty("resitOfEvaluationRequestId").ValueKind);
+
+        db.EvaluatorAssignments.Add(new EvaluatorAssignment
+        {
+            EvaluationRequestId = resit.Id,
+            EvaluatorUserId = "assessor",
+            AssignedByUserId = "reviewer"
+        });
+        resit.Status = EvaluationStatus.Assigned;
+        await db.SaveChangesAsync();
+        var assigned = JsonSerializer.SerializeToElement(
+            Assert.IsType<OkObjectResult>(await ControllerFor(db, "assessor", "Assessor")
+                .Assigned(default)).Value,
+            new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        var assignedResit = Assert.Single(assigned.EnumerateArray());
+        Assert.True(assignedResit.GetProperty("isResit").GetBoolean());
+        Assert.Equal(original.Id, assignedResit.GetProperty("resitOfEvaluationRequestId").GetGuid());
+        foreach (var json in new[] { pending, assigned })
+        {
+            var serialized = json.GetRawText();
+            Assert.DoesNotContain("Private staff rationale", serialized, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("authorizedByUserId", serialized, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("revocationReason", serialized, StringComparison.OrdinalIgnoreCase);
         }
     }
 

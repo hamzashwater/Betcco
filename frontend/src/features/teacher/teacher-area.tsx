@@ -548,6 +548,8 @@ type AssignedEvaluation = {
   selectedCriteria: string[];
   submissionAttemptNumber: number;
   isRetake: boolean;
+  isResit: boolean;
+  resitOfEvaluationRequestId: string | null;
   retakeOfEvaluationRequestId: string | null;
 };
 
@@ -603,11 +605,22 @@ function TeacherEvaluations() {
                       ? locale === "ar"
                         ? "Retake مسند · Pass فقط"
                         : "Assigned Retake · Pass only"
-                      : locale === "ar"
-                        ? "طلب تقييم مسند"
-                        : "Assigned evaluation"}
+                      : evaluation.isResit
+                        ? locale === "ar"
+                          ? "مراجعة Resit نهائية"
+                          : "Resit final review"
+                        : locale === "ar"
+                          ? "طلب تقييم مسند"
+                          : "Assigned evaluation"}
                   </span>
                 </div>
+                {evaluation.isResit &&
+                  evaluation.resitOfEvaluationRequestId && (
+                    <p className="mt-2 text-xs text-muted">
+                      {locale === "ar" ? "الطلب الأصلي:" : "Original request:"}{" "}
+                      {evaluation.resitOfEvaluationRequestId.slice(0, 8)}
+                    </p>
+                  )}
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">
                   {evaluation.studentComment ||
                     (locale === "ar"
@@ -655,6 +668,8 @@ type EvaluationDetail = {
   id: string;
   status: string;
   isRetake: boolean;
+  isResit: boolean;
+  resitOfEvaluationRequestId: string | null;
   retakeOfEvaluationRequestId: string | null;
   studentComment?: string;
   criteria: string[];
@@ -707,6 +722,7 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
     mutationFn: () => {
       if (
         requestRevision &&
+        !evaluation.data?.isResit &&
         (!revisionDueLocal || !Number.isFinite(Date.parse(revisionDueLocal)))
       )
         throw new Error(
@@ -735,11 +751,14 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
           results,
           feedback: feedback.trim(),
           requestRevision:
+            !evaluation.data?.isResit &&
             evaluation.data?.submissionAttemptNumber === 1
               ? requestRevision
               : false,
           revisionDueAtUtc:
-            evaluation.data?.submissionAttemptNumber === 1 && requestRevision
+            !evaluation.data?.isResit &&
+            evaluation.data?.submissionAttemptNumber === 1 &&
+            requestRevision
               ? new Date(revisionDueLocal).toISOString()
               : null,
         }),
@@ -812,6 +831,7 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
     Boolean(criterionValue(criterion).achievement),
   );
   const revisionDeadlineValid =
+    evaluation.data.isResit ||
     !requestRevision ||
     (Boolean(revisionDueLocal) &&
       Number.isFinite(Date.parse(revisionDueLocal)));
@@ -861,15 +881,26 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
           <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">
             {evaluation.data.isRetake
               ? "Historical Retake"
-              : evaluation.data.submissionAttemptNumber === 1
-                ? "BETCCO Initial Review"
-                : "BETCCO Revision Check"}
+              : evaluation.data.isResit
+                ? locale === "ar"
+                  ? "المراجعة الاستشارية النهائية للـ Resit"
+                  : "Final Resit advisory review"
+                : evaluation.data.submissionAttemptNumber === 1
+                  ? "BETCCO Initial Review"
+                  : "BETCCO Revision Check"}
           </p>
           <h1 className="mt-2 text-3xl font-black">
             {locale === "ar"
               ? "مراجعة مهمة الطالب"
               : "Student assignment review"}
           </h1>
+          {evaluation.data.isResit &&
+            evaluation.data.resitOfEvaluationRequestId && (
+              <p className="mt-2 text-sm text-muted">
+                {locale === "ar" ? "الطلب الأصلي:" : "Original request:"}{" "}
+                {evaluation.data.resitOfEvaluationRequestId.slice(0, 8)}
+              </p>
+            )}
           {isPlanning ? (
             <>
               <p className="mt-3 text-sm leading-6 text-muted">
@@ -1167,7 +1198,8 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                       }
                     />
                   </label>
-                  {evaluation.data.submissionAttemptNumber === 1 ? (
+                  {evaluation.data.isResit ? null : evaluation.data
+                      .submissionAttemptNumber === 1 ? (
                     <div className="grid gap-3">
                       <label className="flex items-start gap-3 rounded-xl border border-border bg-surface-solid/60 p-3 text-sm">
                         <input

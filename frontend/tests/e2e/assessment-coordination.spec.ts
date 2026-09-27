@@ -29,6 +29,28 @@ for (const scenario of [
           json: { displayName: "Reviewer", roles: ["CourseReviewer"] },
         });
       if (path.endsWith("/notifications")) return route.fulfill({ json: [] });
+      if (path.endsWith("/resits/authorizations"))
+        return route.fulfill({
+          json: {
+            items: [
+              {
+                authorizationId: "authorization-1",
+                originalEvaluationRequestId:
+                  "ABCD1234-1111-2222-3333-444444444444",
+                resitEvaluationRequestId:
+                  "12345678-1111-2222-3333-444444444444",
+                authorizedAtUtc: "2026-09-23T10:00:00Z",
+                activatedAtUtc: "2026-09-24T10:00:00Z",
+                revokedAtUtc: null,
+                reason: "Private staff rationale",
+                revocationReason: null,
+              },
+            ],
+            page: 1,
+            pageSize: 10,
+            hasNextPage: false,
+          },
+        });
       if (path.includes("/assessment-coordination/queue"))
         return route.fulfill({
           json: {
@@ -37,7 +59,10 @@ for (const scenario of [
                 id: "12345678-1111-2222-3333-444444444444",
                 status: "PendingAssignment",
                 updatedAtUtc: "2026-09-23T10:00:00Z",
-                isRetake: true,
+                isRetake: false,
+                isResit: true,
+                resitOfEvaluationRequestId:
+                  "ABCD1234-1111-2222-3333-444444444444",
                 qualificationCode: "Q",
                 qualificationVersionCode: "V1",
                 unitCode: "U1",
@@ -68,6 +93,27 @@ for (const scenario of [
           : "Assessment coordination",
     });
     await expect(queue).toBeVisible();
+    await expect(
+      queue.getByText(
+        scenario.locale === "ar" ? "إعادة تقييم استثنائية" : "Resit",
+      ),
+    ).toBeVisible();
+    await expect(
+      queue.getByText(
+        scenario.locale === "ar"
+          ? "الطلب الأصلي: ABCD1234"
+          : "Original request: ABCD1234",
+      ),
+    ).toBeVisible();
+    const lifecycle = page.getByRole("region", {
+      name: scenario.locale === "ar" ? "متابعة Resit" : "Resit coordination",
+    });
+    await expect(lifecycle).toBeVisible();
+    await expect(
+      lifecycle.getByText(scenario.locale === "ar" ? "مفعّل" : "Activated", {
+        exact: true,
+      }),
+    ).toBeVisible();
     await expect(queue.getByText(/Q V1 · U1/)).toBeVisible();
     await expect(
       queue.locator('p[role="status"]').filter({ hasText: /^(متأخر|Overdue)/ }),

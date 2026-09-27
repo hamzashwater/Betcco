@@ -15,7 +15,8 @@ public static class AssessmentCoordinationStatuses
 
 public sealed record AssessmentCoordinationItem(
     Guid Id, string Status, DateTimeOffset CreatedAtUtc, DateTimeOffset UpdatedAtUtc,
-    bool IsRetake, string? QualificationCode, string? QualificationVersionCode,
+    bool IsRetake, bool IsResit, Guid? ResitOfEvaluationRequestId,
+    string? QualificationCode, string? QualificationVersionCode,
     string? UnitCode, string? UnitArabicTitle, string? UnitEnglishTitle,
     string? EvaluatorDisplayName, DateTimeOffset? AssignedAtUtc,
     bool? HasEligibleEvaluator, string? BlockerCode,
