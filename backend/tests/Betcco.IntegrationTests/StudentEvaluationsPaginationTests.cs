@@ -194,6 +194,176 @@ public sealed class StudentEvaluationsPaginationTests
         Assert.Empty(hidden.Results);
     }
 
+    [Fact]
+    public async Task Mine_links_only_owned_resits_and_keeps_their_results_separate()
+    {
+        await using var db = NewContext();
+        var now = DateTimeOffset.UtcNow;
+        var original = NewRequest("student", now, status: EvaluationStatus.Completed);
+        var resit = NewRequest("student", now.AddMinutes(1), status: EvaluationStatus.Completed);
+        var otherOriginal = NewRequest("other-student", now.AddMinutes(2));
+        var otherResit = NewRequest("other-student", now.AddMinutes(3));
+        var normal = NewRequest("student", now.AddMinutes(4));
+        var retake = NewRequest("student", now.AddMinutes(5));
+        retake.RetakeOfEvaluationRequestId = normal.Id;
+        original.CalculatedGrade = EvaluationGrade.NotYetAchieved;
+        original.SectionResultsJson = "[{\"Section\":\"Original\",\"Grade\":\"NotYetAchieved\"}]";
+        resit.CalculatedGrade = EvaluationGrade.Pass;
+        resit.SectionResultsJson = "[{\"Section\":\"Resit\",\"Grade\":\"Pass\"}]";
+        db.EvaluationRequests.AddRange(original, resit, otherOriginal, otherResit, normal, retake);
+        db.ResitAuthorizations.AddRange(
+            Link(original, resit), Link(otherOriginal, otherResit));
+        foreach (var request in new[] { original, resit })
+        {
+            db.CriterionResults.Add(new CriterionResult
+            {
+                EvaluationRequestId = request.Id,
+                CriterionCode = "A.P1",
+                Achievement = CriterionAchievement.Achieved,
+                Evidence = $"result-{request.Id}",
+                Comment = $"comment-{request.Id}"
+            });
+            db.EvaluationFeedbackItems.Add(new EvaluationFeedback
+            {
+                EvaluationRequestId = request.Id,
+                AuthorUserId = "teacher",
+                Body = $"feedback-{request.Id}"
+            });
+        }
+        await db.SaveChangesAsync();
+        foreach (var (request, index) in new[] { original, resit, otherOriginal, otherResit, normal, retake }
+            .Select((request, index) => (request, index)))
+            request.CreatedAtUtc = now.AddMinutes(index);
+        await db.SaveChangesAsync();
+
+        var page = Page(await ControllerFor(db, "student").Mine(1, 2));
+        Assert.Equal(4, page.TotalCount);
+        Assert.True(page.HasNextPage);
+        Assert.Equal(new[] { retake.Id, normal.Id }, page.Items.Select(item => item.Id));
+        var all = Page(await ControllerFor(db, "student").Mine(1, 50));
+        Assert.Equal(new[] { retake.Id, normal.Id, resit.Id, original.Id }, all.Items.Select(item => item.Id));
+        Assert.All(all.Items, item => Assert.DoesNotContain(item.Id, new[] { otherOriginal.Id, otherResit.Id }));
+        Assert.False(all.Items.Single(item => item.Id == normal.Id).IsResit);
+        Assert.Null(all.Items.Single(item => item.Id == normal.Id).ResitOfEvaluationRequestId);
+        Assert.True(all.Items.Single(item => item.Id == retake.Id).IsRetake);
+        Assert.Equal(normal.Id, all.Items.Single(item => item.Id == retake.Id).RetakeOfEvaluationRequestId);
+        Assert.False(all.Items.Single(item => item.Id == retake.Id).IsResit);
+        Assert.Null(all.Items.Single(item => item.Id == retake.Id).ResitOfEvaluationRequestId);
+
+        var originalItem = all.Items.Single(item => item.Id == original.Id);
+        var resitItem = all.Items.Single(item => item.Id == resit.Id);
+        Assert.NotEqual(originalItem.Id, resitItem.Id);
+        Assert.False(originalItem.IsResit);
+        Assert.Null(originalItem.ResitOfEvaluationRequestId);
+        Assert.False(resitItem.IsRetake);
+        Assert.Null(resitItem.RetakeOfEvaluationRequestId);
+        Assert.True(resitItem.IsResit);
+        Assert.Equal(original.Id, resitItem.ResitOfEvaluationRequestId);
+        Assert.Equal("NotYetAchieved", originalItem.CalculatedGrade);
+        Assert.Equal("Pass", resitItem.CalculatedGrade);
+        Assert.Equal("Original", Assert.Single(originalItem.SectionResults).Section);
+        Assert.Equal("Resit", Assert.Single(resitItem.SectionResults).Section);
+        foreach (var item in new[] { originalItem, resitItem })
+        {
+            Assert.Equal($"result-{item.Id}", Assert.Single(item.Results).Evidence);
+            Assert.Equal($"comment-{item.Id}", Assert.Single(item.Results).Comment);
+            Assert.Equal($"feedback-{item.Id}", Assert.Single(item.Feedback).Body);
+        }
+        var serialized = JsonSerializer.Serialize(all, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        Assert.DoesNotContain("private staff rationale", serialized, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("authorizedByUserId", serialized, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("revocationReason", serialized, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("revokedByUserId", serialized, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(otherOriginal.Id.ToString(), serialized, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task Linked_resit_identity_is_visible_before_completion_but_result_is_hidden()
+    {
+        await using var db = NewContext();
+        var original = NewRequest("student", DateTimeOffset.UtcNow);
+        var resit = NewRequest("student", DateTimeOffset.UtcNow.AddMinutes(1), status: EvaluationStatus.UnderReview);
+        resit.CalculatedGrade = EvaluationGrade.Pass;
+        resit.SectionResultsJson = "[{\"Section\":\"A\",\"Grade\":\"Pass\"}]";
+        db.EvaluationRequests.AddRange(original, resit);
+        db.ResitAuthorizations.Add(Link(original, resit));
+        db.CriterionResults.Add(new CriterionResult
+        {
+            EvaluationRequestId = resit.Id,
+            CriterionCode = "A.P1",
+            Achievement = CriterionAchievement.Achieved
+        });
+        await db.SaveChangesAsync();
+
+        var item = Page(await ControllerFor(db, "student").Mine()).Items.Single(x => x.Id == resit.Id);
+        Assert.True(item.IsResit);
+        Assert.Equal(original.Id, item.ResitOfEvaluationRequestId);
+        Assert.Null(item.CalculatedGrade);
+        Assert.Empty(item.SectionResults);
+        Assert.Empty(item.Results);
+        var detail = DetailJson(await ControllerFor(db, "student").Get(resit.Id, default));
+        Assert.True(detail.GetProperty("isResit").GetBoolean());
+        Assert.Equal(original.Id, detail.GetProperty("resitOfEvaluationRequestId").GetGuid());
+        Assert.Equal(JsonValueKind.Null, detail.GetProperty("calculatedGrade").ValueKind);
+        Assert.Empty(detail.GetProperty("sectionResults").EnumerateArray());
+        Assert.Empty(detail.GetProperty("results").EnumerateArray());
+    }
+
+    [Fact]
+    public async Task Detail_links_the_owner_only_and_preserves_existing_access_rules()
+    {
+        await using var db = NewContext();
+        var original = NewRequest("student", DateTimeOffset.UtcNow, status: EvaluationStatus.Completed);
+        var resit = NewRequest("student", DateTimeOffset.UtcNow.AddMinutes(1), status: EvaluationStatus.Completed);
+        original.CalculatedGrade = EvaluationGrade.NotYetAchieved;
+        resit.CalculatedGrade = EvaluationGrade.Pass;
+        db.EvaluationRequests.AddRange(original, resit);
+        db.ResitAuthorizations.Add(Link(original, resit));
+        db.EvaluatorAssignments.Add(new EvaluatorAssignment
+        {
+            EvaluationRequestId = resit.Id,
+            EvaluatorUserId = "assessor",
+            AssignedByUserId = "coordinator"
+        });
+        await db.SaveChangesAsync();
+
+        var owner = ControllerFor(db, "student");
+        var resitJson = DetailJson(await owner.Get(resit.Id, default));
+        Assert.True(resitJson.GetProperty("isResit").GetBoolean());
+        Assert.Equal(original.Id, resitJson.GetProperty("resitOfEvaluationRequestId").GetGuid());
+        Assert.Equal("Pass", resitJson.GetProperty("calculatedGrade").GetString());
+        var originalJson = DetailJson(await owner.Get(original.Id, default));
+        Assert.False(originalJson.GetProperty("isResit").GetBoolean());
+        Assert.Equal(JsonValueKind.Null, originalJson.GetProperty("resitOfEvaluationRequestId").ValueKind);
+        Assert.Equal("NotYetAchieved", originalJson.GetProperty("calculatedGrade").GetString());
+        Assert.IsType<NotFoundResult>(await ControllerFor(db, "other-student").Get(resit.Id, default));
+
+        var assessor = ControllerFor(db, "assessor", "Assessor");
+        var staffJson = DetailJson(await assessor.Get(resit.Id, default));
+        Assert.False(staffJson.GetProperty("isResit").GetBoolean());
+        Assert.Equal(JsonValueKind.Null, staffJson.GetProperty("resitOfEvaluationRequestId").ValueKind);
+        foreach (var json in new[] { resitJson, originalJson, staffJson })
+        {
+            var text = json.GetRawText();
+            Assert.DoesNotContain("Private staff rationale", text, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("authorizedByUserId", text, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("revocationReason", text, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    private static ResitAuthorization Link(EvaluationRequest original, EvaluationRequest resit) => new()
+    {
+        OriginalEvaluationRequestId = original.Id,
+        ResitEvaluationRequestId = resit.Id,
+        AuthorizedByUserId = Guid.NewGuid(),
+        AuthorizedAtUtc = DateTimeOffset.UtcNow,
+        ActivatedAtUtc = DateTimeOffset.UtcNow,
+        Reason = "Private staff rationale"
+    };
+
+    private static JsonElement DetailJson(IActionResult result) => JsonSerializer.SerializeToElement(
+        Assert.IsType<OkObjectResult>(result).Value, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
     private static EvaluationRevisionDeadlineAdjustment Adjustment(Guid requestId, DateTimeOffset baseDue,
         DateTimeOffset extendedDue, DateTimeOffset grantedAt, bool revoked = false) => new()
         {
@@ -222,14 +392,14 @@ public sealed class StudentEvaluationsPaginationTests
     private static BetccoDbContext NewContext() => new(new DbContextOptionsBuilder<BetccoDbContext>()
         .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
 
-    private static EvaluationsController ControllerFor(BetccoDbContext db, string student)
+    private static EvaluationsController ControllerFor(BetccoDbContext db, string student, string role = "Student")
     {
         var controller = new EvaluationsController(null!, null!, null!, db, null!, null!)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
         controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
-            [new Claim(ClaimTypes.NameIdentifier, student), new Claim(ClaimTypes.Role, "Student")], "test"));
+            [new Claim(ClaimTypes.NameIdentifier, student), new Claim(ClaimTypes.Role, role)], "test"));
         return controller;
     }
 

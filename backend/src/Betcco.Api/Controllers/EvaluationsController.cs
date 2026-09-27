@@ -346,9 +346,21 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             .Take(pageSize)
             .ToListAsync(cancellationToken);
 
+        var pageRequestIds = requests.Select(request => request.Id).ToArray();
+        var resitOriginalIds = await db.ResitAuthorizations.AsNoTracking()
+            .Where(authorization => authorization.ResitEvaluationRequestId != null
+                && pageRequestIds.Contains(authorization.ResitEvaluationRequestId.Value))
+            .Select(authorization => new
+            {
+                ResitId = authorization.ResitEvaluationRequestId!.Value,
+                authorization.OriginalEvaluationRequestId
+            })
+            .ToDictionaryAsync(link => link.ResitId, link => link.OriginalEvaluationRequestId, cancellationToken);
+
         var items = requests.Select(request =>
         {
             var showResult = request.Status is EvaluationStatus.NeedsRevision or EvaluationStatus.Completed;
+            var isResit = resitOriginalIds.TryGetValue(request.Id, out var resitOriginalId);
             return new StudentEvaluationItem(
                 request.Id, request.Status.ToString(), request.Price, request.Currency, request.StudentComment,
                 request.SubmissionAttemptNumber, request.RevisionDueAtUtc,
@@ -358,6 +370,7 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
                     .Select(item => (DateTimeOffset?)item.ExtendedDueAtUtc)
                     .FirstOrDefault() ?? request.RevisionDueAtUtc,
                 request.RetakeOfEvaluationRequestId != null, request.RetakeOfEvaluationRequestId,
+                isResit, isResit ? resitOriginalId : null,
                 AssessmentScopeSnapshotReader.Summary(request.AssessmentScopeSnapshotJson),
                 JsonSerializer.Deserialize<string[]>(request.CriteriaSnapshotJson) ?? [],
                 JsonSerializer.Deserialize<string[]>(request.EvaluatorCriteriaPlanJson) ?? [],
@@ -393,6 +406,12 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
         var isAssignedAssessor = PlatformPermissionAuthorizationHandler.HasPermission(User, PlatformPermissions.Assess)
             && await db.EvaluatorAssignments.AnyAsync(x => x.EvaluationRequestId == requestId && x.EvaluatorUserId == UserId, cancellationToken);
         if ((!canVerify || sampleRequiresAnotherVerifier) && !isOwner && !isAssignedAssessor) return NotFound();
+        var resitOriginalId = isOwner
+            ? await db.ResitAuthorizations.AsNoTracking()
+                .Where(x => x.ResitEvaluationRequestId == requestId)
+                .Select(x => (Guid?)x.OriginalEvaluationRequestId)
+                .SingleOrDefaultAsync(cancellationToken)
+            : null;
         var canViewCalculatedResult = !isOwner
             || request.Status is EvaluationStatus.NeedsRevision or EvaluationStatus.Completed;
         return Ok(new
@@ -411,6 +430,8 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
                 .FirstOrDefault() ?? request.RevisionDueAtUtc,
             isRetake = request.RetakeOfEvaluationRequestId != null,
             request.RetakeOfEvaluationRequestId,
+            isResit = resitOriginalId.HasValue,
+            resitOfEvaluationRequestId = resitOriginalId,
             academic = AssessmentScopeSnapshotReader.Summary(request.AssessmentScopeSnapshotJson),
             criteria = JsonSerializer.Deserialize<string[]>(request.CriteriaSnapshotJson) ?? [],
             selectedCriteria = JsonSerializer.Deserialize<string[]>(request.EvaluatorCriteriaPlanJson) ?? [],
@@ -476,7 +497,8 @@ public sealed record StudentEvaluationCriterionResult(string CriterionCode, stri
 public sealed record StudentEvaluationItem(
     Guid Id, string Status, decimal Price, string Currency, string? StudentComment,
     int SubmissionAttemptNumber, DateTimeOffset? RevisionDueAtUtc, DateTimeOffset? EffectiveRevisionDueAtUtc,
-    bool IsRetake, Guid? RetakeOfEvaluationRequestId, AssessmentAcademicSummary? Academic,
+    bool IsRetake, Guid? RetakeOfEvaluationRequestId,
+    bool IsResit, Guid? ResitOfEvaluationRequestId, AssessmentAcademicSummary? Academic,
     IReadOnlyList<string> Criteria, IReadOnlyList<string> SelectedCriteria,
     IReadOnlyList<StudentEvaluationEvidence> Evidence, IReadOnlyList<StudentEvaluationFeedback> Feedback,
     string? CalculatedGrade, IReadOnlyCollection<EvaluationSectionView> SectionResults,
