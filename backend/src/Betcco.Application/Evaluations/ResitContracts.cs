@@ -33,6 +33,21 @@ public sealed record ResitAuthorizationPage(
     int PageSize,
     bool HasNextPage);
 
+public sealed record StudentResitAuthorizationView(
+    Guid AuthorizationId,
+    Guid OriginalEvaluationRequestId,
+    Guid? ResitEvaluationRequestId,
+    DateTimeOffset AuthorizedAtUtc,
+    DateTimeOffset? ActivatedAtUtc,
+    string State,
+    AssessmentAcademicSummary? Academic);
+
+public sealed record StudentResitAuthorizationPage(
+    IReadOnlyList<StudentResitAuthorizationView> Items,
+    int Page,
+    int PageSize,
+    bool HasNextPage);
+
 public enum ResitAuthorizationWriteStatus
 {
     Created,
@@ -68,6 +83,12 @@ public sealed record ResitActivationResult(
 
 public interface IResitService
 {
+    Task<StudentResitAuthorizationPage> ListStudentAuthorizationsAsync(
+        string studentUserId,
+        int page = 1,
+        int pageSize = 20,
+        CancellationToken cancellationToken = default);
+
     Task<ResitActivationResult> ActivateAsync(
         string studentUserId,
         Guid authorizationId,
