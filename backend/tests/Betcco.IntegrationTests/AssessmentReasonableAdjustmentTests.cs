@@ -140,6 +140,117 @@ public sealed class AssessmentReasonableAdjustmentTests
     }
 
     [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Resit_has_no_revision_adjustment_window_even_when_its_state_is_corrupted()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("assess_resit_adjustment_guard");
+        await using var db = database.CreateContext();
+        var now = DateTimeOffset.UtcNow;
+        var actor = new ApplicationUser
+        {
+            Id = Guid.NewGuid(),
+            UserName = "reviewer@betcco.test",
+            Email = "reviewer@betcco.test",
+            DisplayName = "Course Reviewer"
+        };
+        var original = new EvaluationRequest
+        {
+            StudentUserId = "student-original",
+            Status = EvaluationStatus.NeedsRevision,
+            SubmissionAttemptNumber = 1,
+            RevisionDueAtUtc = now.AddHours(1)
+        };
+        var resit = new EvaluationRequest
+        {
+            StudentUserId = "student-resit",
+            Status = EvaluationStatus.NeedsRevision,
+            SubmissionAttemptNumber = 1,
+            RetakeOfEvaluationRequestId = null,
+            RevisionDueAtUtc = now.AddHours(1)
+        };
+        var retakeOriginal = new EvaluationRequest
+        {
+            StudentUserId = "student-retake-original",
+            Status = EvaluationStatus.Completed
+        };
+        var retake = new EvaluationRequest
+        {
+            StudentUserId = "student-retake",
+            Status = EvaluationStatus.NeedsRevision,
+            SubmissionAttemptNumber = 1,
+            RetakeOfEvaluationRequestId = retakeOriginal.Id,
+            RevisionDueAtUtc = now.AddHours(1)
+        };
+        db.AddRange(actor, original, resit, retakeOriginal, retake);
+        db.ResitAuthorizations.Add(new ResitAuthorization
+        {
+            OriginalEvaluationRequestId = original.Id,
+            ResitEvaluationRequestId = resit.Id,
+            AuthorizedByUserId = actor.Id,
+            AuthorizedAtUtc = now,
+            ActivatedAtUtc = now,
+            Reason = "Authorized Resit"
+        });
+        await db.SaveChangesAsync();
+
+        var service = new AssessmentReasonableAdjustmentService(db);
+        var extension = now.AddHours(4);
+
+        // The original remains eligible even though it authorizes a linked Resit.
+        Assert.Equal(EvaluationReasonableAdjustmentWriteResult.Success,
+            await service.GrantRevisionDeadlineAsync(actor.Id, original.Id,
+                new(extension, "Original evaluation adjustment")));
+
+        // Resit identity comes only from the persisted ResitEvaluationRequestId link.
+        Assert.Equal(EvaluationReasonableAdjustmentWriteResult.NoActiveRevisionWindow,
+            await service.GrantRevisionDeadlineAsync(actor.Id, resit.Id,
+                new(extension, "Must not be granted to Resit")));
+        Assert.Empty(await db.EvaluationRevisionDeadlineAdjustments.AsNoTracking()
+            .Where(item => item.EvaluationRequestId == resit.Id).ToListAsync());
+        var resitSummary = await service.GetRevisionDeadlineSummaryAsync(resit.Id);
+        Assert.NotNull(resitSummary);
+        Assert.Null(resitSummary!.ActiveAdjustmentId);
+        Assert.Equal(resit.RevisionDueAtUtc!.Value.ToUnixTimeMilliseconds(),
+            resitSummary.EffectiveDueAtUtc!.Value.ToUnixTimeMilliseconds());
+        Assert.Empty(resitSummary.History);
+
+        Assert.Equal(EvaluationReasonableAdjustmentWriteResult.NoActiveRevisionWindow,
+            await service.GrantRevisionDeadlineAsync(actor.Id, retake.Id,
+                new(extension, "Historical Retake remains blocked")));
+
+        // Preserve invalid historical evidence, but never activate or revoke it as a normal window.
+        var historicalAdjustment = new EvaluationRevisionDeadlineAdjustment
+        {
+            EvaluationRequestId = resit.Id,
+            BaseDueAtUtcSnapshot = resit.RevisionDueAtUtc.Value,
+            ExtendedDueAtUtc = extension,
+            GrantedByUserId = actor.Id,
+            GrantedAtUtc = now,
+            Reason = "Historical invalid adjustment"
+        };
+        db.EvaluationRevisionDeadlineAdjustments.Add(historicalAdjustment);
+        await db.SaveChangesAsync();
+
+        resitSummary = await service.GetRevisionDeadlineSummaryAsync(resit.Id);
+        Assert.Null(resitSummary!.ActiveAdjustmentId);
+        Assert.Equal(resit.RevisionDueAtUtc.Value.ToUnixTimeMilliseconds(),
+            resitSummary.EffectiveDueAtUtc!.Value.ToUnixTimeMilliseconds());
+        Assert.Equal(historicalAdjustment.Id, Assert.Single(resitSummary.History).Id);
+        Assert.Equal(EvaluationReasonableAdjustmentWriteResult.NoActiveRevisionWindow,
+            await service.RevokeRevisionDeadlineAsync(actor.Id, resit.Id, historicalAdjustment.Id,
+                new("Must remain historical")));
+        var preservedAdjustment = await db.EvaluationRevisionDeadlineAdjustments.AsNoTracking()
+            .SingleAsync(item => item.Id == historicalAdjustment.Id);
+        Assert.Null(preservedAdjustment.RevokedAtUtc);
+
+        var resitAuditLogs = await db.AuditLogs.AsNoTracking()
+            .Where(item => item.EntityType == nameof(EvaluationRevisionDeadlineAdjustment))
+            .ToListAsync();
+        Assert.DoesNotContain(resitAuditLogs,
+            item => item.MetadataJson?.Contains(resit.Id.ToString(), StringComparison.Ordinal) == true);
+    }
+
+    [Fact]
     public async Task Grant_requires_an_active_one_revision_check_window()
     {
         await using var db = new BetccoDbContext(new DbContextOptionsBuilder<BetccoDbContext>()
@@ -165,6 +276,104 @@ public sealed class AssessmentReasonableAdjustmentTests
             await service.GrantRevisionDeadlineAsync(actor.Id, request.Id,
                 new(DateTimeOffset.UtcNow.AddDays(2), "No revision deadline exists")));
         Assert.Empty(db.EvaluationRevisionDeadlineAdjustments);
+    }
+
+    [Fact]
+    public async Task Resit_link_blocks_grant_summary_and_revoke_without_blocking_its_original()
+    {
+        await using var db = new BetccoDbContext(new DbContextOptionsBuilder<BetccoDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+        var now = DateTimeOffset.UtcNow;
+        var actor = new ApplicationUser
+        {
+            Id = Guid.NewGuid(),
+            UserName = "reviewer@betcco.test",
+            DisplayName = "Reviewer"
+        };
+        var original = new EvaluationRequest
+        {
+            StudentUserId = "student-original",
+            Status = EvaluationStatus.NeedsRevision,
+            SubmissionAttemptNumber = 1,
+            RevisionDueAtUtc = now.AddHours(1)
+        };
+        var resit = new EvaluationRequest
+        {
+            StudentUserId = "student-resit",
+            Status = EvaluationStatus.NeedsRevision,
+            SubmissionAttemptNumber = 1,
+            RevisionDueAtUtc = now.AddHours(1)
+        };
+        var retakeOriginal = new EvaluationRequest
+        {
+            StudentUserId = "student-retake-original",
+            Status = EvaluationStatus.Completed
+        };
+        var retake = new EvaluationRequest
+        {
+            StudentUserId = "student-retake",
+            Status = EvaluationStatus.NeedsRevision,
+            SubmissionAttemptNumber = 1,
+            RetakeOfEvaluationRequestId = retakeOriginal.Id,
+            RevisionDueAtUtc = now.AddHours(1)
+        };
+        db.AddRange(actor, original, resit, retakeOriginal, retake);
+        db.ResitAuthorizations.Add(new ResitAuthorization
+        {
+            OriginalEvaluationRequestId = original.Id,
+            ResitEvaluationRequestId = resit.Id,
+            AuthorizedByUserId = actor.Id,
+            AuthorizedAtUtc = now,
+            ActivatedAtUtc = now,
+            Reason = "Authorized Resit"
+        });
+        await db.SaveChangesAsync();
+
+        var service = new AssessmentReasonableAdjustmentService(db);
+        var extended = now.AddHours(3);
+        Assert.Equal(EvaluationReasonableAdjustmentWriteResult.Success,
+            await service.GrantRevisionDeadlineAsync(actor.Id, original.Id,
+                new(extended, "Original remains eligible")));
+        var originalSummary = await service.GetRevisionDeadlineSummaryAsync(original.Id);
+        Assert.Equal(extended, originalSummary!.EffectiveDueAtUtc);
+        Assert.NotNull(originalSummary.ActiveAdjustmentId);
+        Assert.Equal(EvaluationReasonableAdjustmentWriteResult.Success,
+            await service.RevokeRevisionDeadlineAsync(actor.Id, original.Id,
+                originalSummary.ActiveAdjustmentId.Value, new("No longer required")));
+        originalSummary = await service.GetRevisionDeadlineSummaryAsync(original.Id);
+        Assert.Null(originalSummary!.ActiveAdjustmentId);
+        Assert.Equal(original.RevisionDueAtUtc, originalSummary.EffectiveDueAtUtc);
+        Assert.Equal(EvaluationReasonableAdjustmentWriteResult.NoActiveRevisionWindow,
+            await service.GrantRevisionDeadlineAsync(actor.Id, resit.Id,
+                new(extended, "Resit must be blocked")));
+        Assert.Equal(EvaluationReasonableAdjustmentWriteResult.NoActiveRevisionWindow,
+            await service.GrantRevisionDeadlineAsync(actor.Id, retake.Id,
+                new(extended, "Historical Retake remains blocked")));
+        Assert.Empty(await db.EvaluationRevisionDeadlineAdjustments.AsNoTracking()
+            .Where(item => item.EvaluationRequestId == resit.Id).ToListAsync());
+
+        var invalidHistory = new EvaluationRevisionDeadlineAdjustment
+        {
+            EvaluationRequestId = resit.Id,
+            BaseDueAtUtcSnapshot = resit.RevisionDueAtUtc!.Value,
+            ExtendedDueAtUtc = extended,
+            GrantedByUserId = actor.Id,
+            GrantedAtUtc = now,
+            Reason = "Invalid historical data"
+        };
+        db.EvaluationRevisionDeadlineAdjustments.Add(invalidHistory);
+        await db.SaveChangesAsync();
+        var summary = await service.GetRevisionDeadlineSummaryAsync(resit.Id);
+        Assert.Null(summary!.ActiveAdjustmentId);
+        Assert.Equal(resit.RevisionDueAtUtc.Value, summary.EffectiveDueAtUtc);
+        Assert.Equal(invalidHistory.Id, Assert.Single(summary.History).Id);
+
+        Assert.Equal(EvaluationReasonableAdjustmentWriteResult.NoActiveRevisionWindow,
+            await service.RevokeRevisionDeadlineAsync(actor.Id, resit.Id, invalidHistory.Id,
+                new("Still not an active revision window")));
+        Assert.Null(await db.EvaluationRevisionDeadlineAdjustments.AsNoTracking()
+            .Where(item => item.Id == invalidHistory.Id)
+            .Select(item => item.RevokedAtUtc).SingleAsync());
     }
 
     private sealed class NullFileStorage : IFileStorage
