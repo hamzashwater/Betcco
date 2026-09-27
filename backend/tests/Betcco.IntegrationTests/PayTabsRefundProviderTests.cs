@@ -1,3 +1,4 @@
+using System.Data.Common;
 using System.Net;
 using System.Text.Json;
 using Betcco.Application.Commerce;
@@ -150,6 +151,137 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
             output.WriteLine($"Provider requests: {handler.RequestBodies.Count}; Provider reference retained: {persistedRefund?.ProviderRefundReference is not null}; Payment: {paymentStatus}; Refund: {persistedRefund?.Status}; Disposition: {persistedRefund?.EntitlementDisposition}; Credit revoked: {credit.RevokedAtUtc is not null}; Ledger reversals: {reversals}");
             throw;
         }
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Persisted_provider_verified_taxed_refund_recovers_locally_and_replay_has_no_new_effects()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("paytabs_verified_recovery");
+        Guid paymentId;
+        Guid entitlementId;
+        Guid refundId;
+        await using (var seed = database.CreateContext())
+        {
+            (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(seed, 16m, 116m);
+            refundId = await AddProviderVerifiedRefundAsync(seed, paymentId);
+        }
+
+        var handler = new RefundHandler();
+        await using (var recoveryDb = database.CreateContext())
+        {
+            var result = await new RefundService(recoveryDb, CreateProvider(handler)).VerifyPayTabsRefundAsync("finance", refundId);
+            Assert.Null(result.FailureCode);
+            Assert.Equal(nameof(RefundStatus.InternallyRecorded), result.Refund!.Status);
+            Assert.False(result.IsIdempotentReplay);
+        }
+
+        await using (var replayDb = database.CreateContext())
+        {
+            var replay = await new RefundService(replayDb, CreateProvider(handler)).VerifyPayTabsRefundAsync("finance", refundId);
+            Assert.True(replay.IsIdempotentReplay);
+            Assert.Null(replay.FailureCode);
+        }
+
+        await using var verify = database.CreateContext();
+        await AssertRecoveredOnceAsync(verify, paymentId, refundId, entitlementId);
+        Assert.Empty(handler.RequestBodies);
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, true)]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Invalid_stored_provider_verification_requires_review_without_financial_mutation(bool includeVerificationTransition, bool mismatchReference)
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("paytabs_invalid_evidence");
+        Guid paymentId;
+        Guid entitlementId;
+        Guid refundId;
+        await using (var seed = database.CreateContext())
+        {
+            (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(seed, 16m, 116m);
+            refundId = await AddProviderVerifiedRefundAsync(seed, paymentId, includeVerificationTransition, mismatchReference);
+        }
+
+        var handler = new RefundHandler();
+        await using (var recoveryDb = database.CreateContext())
+        {
+            var result = await new RefundService(recoveryDb, CreateProvider(handler)).VerifyPayTabsRefundAsync("finance", refundId);
+            Assert.Equal("PAYTABS_REFUND_REQUIRES_REVIEW", result.FailureCode);
+            Assert.Equal(nameof(RefundStatus.ProviderVerified), result.Refund!.Status);
+        }
+
+        await using var verify = database.CreateContext();
+        Assert.Equal(PaymentStatus.Paid, await verify.Payments.Where(item => item.Id == paymentId).Select(item => item.Status).SingleAsync());
+        Assert.Equal(RefundStatus.ProviderVerified, await verify.Refunds.Where(item => item.Id == refundId).Select(item => item.Status).SingleAsync());
+        Assert.Empty(await verify.LedgerTransactions.Where(item => item.RefundId == refundId).ToListAsync());
+        Assert.Empty(await verify.WalletTransactions.Where(item => item.RefundId == refundId).ToListAsync());
+        Assert.Empty(await verify.PaymentStatusTransitions.Where(item => item.PaymentId == paymentId && item.NewStatus == PaymentStatus.Refunded).ToListAsync());
+        Assert.Empty(await verify.RefundStatusTransitions.Where(item => item.RefundId == refundId && item.NewStatus == RefundStatus.InternallyRecorded).ToListAsync());
+        Assert.Null(await verify.IncludedEvaluationEntitlements.Where(item => item.Id == entitlementId).Select(item => item.RevokedAtUtc).SingleAsync());
+        Assert.Empty(handler.RequestBodies);
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Provider_verified_recovery_with_invalid_revenue_allocation_stays_verified()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("paytabs_recovery_allocation");
+        Guid paymentId;
+        Guid entitlementId;
+        Guid refundId;
+        await using (var seed = database.CreateContext())
+        {
+            (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(seed, 15m, 116m);
+            refundId = await AddProviderVerifiedRefundAsync(seed, paymentId);
+        }
+
+        var handler = new RefundHandler();
+        await using (var recoveryDb = database.CreateContext())
+        {
+            var result = await new RefundService(recoveryDb, CreateProvider(handler)).VerifyPayTabsRefundAsync("finance", refundId);
+            Assert.Equal("REFUND_ALLOCATION_POLICY_REQUIRED", result.FailureCode);
+            Assert.Equal(nameof(RefundStatus.ProviderVerified), result.Refund!.Status);
+        }
+
+        await using var verify = database.CreateContext();
+        Assert.Equal(PaymentStatus.Paid, await verify.Payments.Where(item => item.Id == paymentId).Select(item => item.Status).SingleAsync());
+        Assert.Empty(await verify.LedgerTransactions.Where(item => item.RefundId == refundId).ToListAsync());
+        Assert.Empty(await verify.WalletTransactions.Where(item => item.RefundId == refundId).ToListAsync());
+        Assert.Null(await verify.IncludedEvaluationEntitlements.Where(item => item.Id == entitlementId).Select(item => item.RevokedAtUtc).SingleAsync());
+        Assert.Empty(handler.RequestBodies);
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Concurrent_provider_verified_recovery_commits_one_set_of_financial_effects()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("paytabs_concurrent_recovery");
+        Guid paymentId;
+        Guid entitlementId;
+        Guid refundId;
+        await using (var seed = database.CreateContext())
+        {
+            (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(seed, 16m, 116m);
+            refundId = await AddProviderVerifiedRefundAsync(seed, paymentId);
+        }
+
+        var barrier = new RefundUpdateBarrier();
+        var handler = new RefundHandler();
+        await using var firstDb = database.CreateContext(barrier);
+        await using var secondDb = database.CreateContext(barrier);
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        var first = new RefundService(firstDb, CreateProvider(handler)).VerifyPayTabsRefundAsync("finance-one", refundId, timeout.Token);
+        var second = new RefundService(secondDb, CreateProvider(handler)).VerifyPayTabsRefundAsync("finance-two", refundId, timeout.Token);
+        var results = await Task.WhenAll(first, second);
+
+        Assert.Equal(2, barrier.Arrivals);
+        Assert.All(results, result => Assert.Null(result.FailureCode));
+        Assert.Single(results, result => result.IsIdempotentReplay);
+        await using var verify = database.CreateContext();
+        await AssertRecoveredOnceAsync(verify, paymentId, refundId, entitlementId);
+        Assert.Empty(handler.RequestBodies);
     }
 
     [Fact]
@@ -358,7 +490,7 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
         return payment;
     }
 
-    private static async Task<(Guid PaymentId, Guid EntitlementId)> AddPaidCourseSaleWithUnusedCreditAsync(BetccoDbContext db)
+    private static async Task<(Guid PaymentId, Guid EntitlementId)> AddPaidCourseSaleWithUnusedCreditAsync(BetccoDbContext db, decimal tax = 0m, decimal total = 100m)
     {
         var token = Guid.NewGuid().ToString("N");
         var track = new LearningTrack { Slug = $"refund-track-{token}", ArabicName = "مسار", EnglishName = "Track" };
@@ -367,7 +499,7 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
         var unit = new UnitDefinition { QualificationVersion = version, Code = "U1", ArabicTitle = "وحدة", EnglishTitle = "Unit", IsActive = true };
         var course = new Course { Slug = $"refund-course-{token}", ArabicTitle = "دورة", EnglishTitle = "Course", ArabicDescription = "وصف", EnglishDescription = "Description", LearningTrack = track, TeacherUserId = "teacher", Status = CourseStatus.Published, Price = 100m };
         course.Modules.Add(new CourseModule { Course = course, UnitDefinition = unit, ArabicTitle = "وحدة", EnglishTitle = "Unit", UnitCode = unit.Code, IsPublished = true });
-        var payment = new Payment { UserId = "student", Purpose = "CourseCart", ReferenceId = Guid.NewGuid(), Status = PaymentStatus.Paid, Subtotal = 100m, Total = 100m, Currency = "JOD", Provider = "PayTabs", ProviderPaymentId = "SALE-TRUSTED-REF" };
+        var payment = new Payment { UserId = "student", Purpose = "CourseCart", ReferenceId = Guid.NewGuid(), Status = PaymentStatus.Paid, Subtotal = 100m, Tax = tax, Total = total, Currency = "JOD", Provider = "PayTabs", ProviderPaymentId = "SALE-TRUSTED-REF" };
         var enrollment = new Enrollment { StudentUserId = "student", Course = course, PaymentId = payment.Id };
         var entitlement = new IncludedEvaluationEntitlement { StudentUserId = "student", Enrollment = enrollment, UnitDefinition = unit, GrantedByPayment = payment };
         var allocation = new CourseSaleAllocation { PaymentId = payment.Id, CourseId = course.Id, TeacherUserId = "teacher", GrossAmount = 100m, NetAmount = 100m, PlatformCommission = 30m, TeacherEarning = 70m, Currency = "JOD" };
@@ -383,6 +515,93 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
             new WalletTransaction { UserId = "teacher", Type = "TeacherCourseEarning", Amount = 70m, Currency = "JOD", PaymentId = payment.Id, Description = "sale" });
         await db.SaveChangesAsync();
         return (payment.Id, entitlement.Id);
+    }
+
+    private static async Task<Guid> AddProviderVerifiedRefundAsync(BetccoDbContext db, Guid paymentId, bool includeVerificationTransition = true, bool mismatchReference = false)
+    {
+        var refund = new Refund
+        {
+            PaymentId = paymentId,
+            Amount = 116m,
+            Currency = "JOD",
+            Status = RefundStatus.ProviderVerified,
+            ReasonCode = "CustomerRequest",
+            RequestedByUserId = "finance",
+            IdempotencyKey = $"verified-{Guid.NewGuid():N}",
+            ProviderName = "PayTabs",
+            ProviderRefundReference = $"REFUND-{Guid.NewGuid():N}",
+            ProviderInitiatedAtUtc = DateTimeOffset.UtcNow.AddMinutes(-2),
+            ProviderVerifiedAtUtc = DateTimeOffset.UtcNow.AddMinutes(-1),
+            CorrelationReference = $"refund:{Guid.NewGuid():N}",
+            CreatedByUserId = "finance"
+        };
+        db.Refunds.Add(refund);
+        db.RefundStatusTransitions.Add(new RefundStatusTransition
+        {
+            RefundId = refund.Id,
+            PreviousStatus = RefundStatus.Requested,
+            NewStatus = RefundStatus.ProviderProcessing,
+            Source = RefundTransitionSource.PayTabsProviderInitiation,
+            ActorContext = "finance",
+            CorrelationId = refund.CorrelationReference
+        });
+        if (includeVerificationTransition)
+            db.RefundStatusTransitions.Add(new RefundStatusTransition
+            {
+                RefundId = refund.Id,
+                PreviousStatus = RefundStatus.ProviderProcessing,
+                NewStatus = RefundStatus.ProviderVerified,
+                Source = RefundTransitionSource.PayTabsProviderVerification,
+                ActorContext = "finance",
+                ProviderReference = mismatchReference ? "DIFFERENT-REFUND-REFERENCE" : refund.ProviderRefundReference,
+                CorrelationId = refund.CorrelationReference
+            });
+        await db.SaveChangesAsync();
+        return refund.Id;
+    }
+
+    private static async Task AssertRecoveredOnceAsync(BetccoDbContext db, Guid paymentId, Guid refundId, Guid entitlementId)
+    {
+        Assert.Equal(PaymentStatus.Refunded, await db.Payments.Where(item => item.Id == paymentId).Select(item => item.Status).SingleAsync());
+        var refund = await db.Refunds.SingleAsync(item => item.Id == refundId);
+        Assert.Equal(RefundStatus.InternallyRecorded, refund.Status);
+        Assert.Equal(116m, refund.Amount);
+        Assert.NotNull(refund.ProviderVerifiedAtUtc);
+        Assert.Equal(RefundEntitlementDisposition.UnusedIncludedEvaluationCreditsRevoked, refund.EntitlementDisposition);
+        Assert.Single(await db.PaymentStatusTransitions.Where(item => item.PaymentId == paymentId && item.PreviousStatus == PaymentStatus.Paid && item.NewStatus == PaymentStatus.Refunded).ToListAsync());
+        Assert.Single(await db.RefundStatusTransitions.Where(item => item.RefundId == refundId && item.Source == RefundTransitionSource.PayTabsProviderVerification).ToListAsync());
+        Assert.Single(await db.RefundStatusTransitions.Where(item => item.RefundId == refundId && item.PreviousStatus == RefundStatus.ProviderVerified && item.NewStatus == RefundStatus.InternallyRecorded).ToListAsync());
+        var reversal = Assert.Single(await db.LedgerTransactions.Include(item => item.Entries).Where(item => item.RefundId == refundId && item.EventType == LedgerEventType.PaidCourseSaleRefund).ToListAsync());
+        Assert.Equal(100m, reversal.Entries.Where(item => item.Side == LedgerEntrySide.Credit).Sum(item => item.Amount));
+        Assert.Equal(100m, reversal.Entries.Where(item => item.Side == LedgerEntrySide.Debit).Sum(item => item.Amount));
+        var walletReversals = await db.WalletTransactions.Where(item => item.RefundId == refundId).ToListAsync();
+        Assert.Equal(2, walletReversals.Count);
+        Assert.Contains(walletReversals, item => item.Type == "PlatformCommissionRefundReversal" && item.Amount == -30m);
+        Assert.Contains(walletReversals, item => item.Type == "TeacherCourseEarningRefundReversal" && item.Amount == -70m);
+        var credit = await db.IncludedEvaluationEntitlements.SingleAsync(item => item.Id == entitlementId);
+        Assert.Equal(refundId, credit.RevokedByRefundId);
+        Assert.NotNull(credit.RevokedAtUtc);
+        Assert.Single(await db.AuditLogs.Where(item => item.Action == "IncludedEvaluationCreditRevokedByRefund" && item.EntityId == entitlementId.ToString()).ToListAsync());
+        Assert.Single(await db.AuditLogs.Where(item => item.Action == "RefundInternallyRecorded" && item.EntityId == refundId.ToString()).ToListAsync());
+    }
+
+    private sealed class RefundUpdateBarrier : DbCommandInterceptor
+    {
+        private readonly TaskCompletionSource bothArrived = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private int arrivals;
+
+        public int Arrivals => arrivals;
+
+        public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+            DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result, CancellationToken cancellationToken = default)
+        {
+            if (command.CommandText.Contains("UPDATE \"Refunds\"", StringComparison.Ordinal))
+            {
+                if (Interlocked.Increment(ref arrivals) == 2) bothArrived.TrySetResult();
+                await bothArrived.Task.WaitAsync(cancellationToken);
+            }
+            return result;
+        }
     }
 
     private static BetccoDbContext CreateDb() => new(new DbContextOptionsBuilder<BetccoDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).ConfigureWarnings(warnings => warnings.Ignore(InMemoryEventId.TransactionIgnoredWarning)).Options);

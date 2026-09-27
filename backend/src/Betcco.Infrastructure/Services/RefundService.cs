@@ -182,6 +182,8 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
         var snapshot = await db.Refunds.AsNoTracking().SingleOrDefaultAsync(item => item.Id == refundId, cancellationToken);
         if (snapshot is null) return await RejectProviderAsync(financeAdminUserId, refundId, "REFUND_NOT_FOUND", "The refund was not found.", cancellationToken);
         if (snapshot.Status == RefundStatus.InternallyRecorded) return new(ToView(snapshot), true);
+        if (snapshot.Status == RefundStatus.ProviderVerified)
+            return await RecoverProviderVerifiedRefundAsync(financeAdminUserId, refundId, cancellationToken);
         if (snapshot.Status is not (RefundStatus.ProviderProcessing or RefundStatus.ProviderResultUnknown) || string.IsNullOrWhiteSpace(snapshot.ProviderRefundReference))
             return new(ToView(snapshot), FailureCode: "PAYTABS_REFUND_REQUIRES_REVIEW", FailureMessage: "A provider refund reference and eligible provider state are required.");
         if (paymentProvider is null || !string.Equals(paymentProvider.ProviderName, "PayTabs", StringComparison.OrdinalIgnoreCase))
@@ -234,6 +236,76 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
         await db.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return new(ToView(refund));
+    }
+
+    private async Task<RefundProviderWorkflowResult> RecoverProviderVerifiedRefundAsync(string financeAdminUserId, Guid refundId, CancellationToken cancellationToken)
+    {
+        for (var attempt = 0; attempt < 2; attempt++)
+        {
+            try
+            {
+                await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+                var refund = await db.Refunds.SingleAsync(item => item.Id == refundId, cancellationToken);
+                if (refund.Status == RefundStatus.InternallyRecorded)
+                {
+                    await transaction.CommitAsync(cancellationToken);
+                    return new(ToView(refund), true);
+                }
+
+                var payment = await db.Payments.SingleOrDefaultAsync(item => item.Id == refund.PaymentId, cancellationToken);
+                if (refund.Status != RefundStatus.ProviderVerified || payment is null
+                    || !await HasTrustedStoredVerificationAsync(refund, payment, cancellationToken))
+                    return new(ToView(refund), FailureCode: "PAYTABS_REFUND_REQUIRES_REVIEW", FailureMessage: "Stored provider verification evidence requires review.");
+
+                if (!await FinalizeInternalAccountingAsync(financeAdminUserId, payment, refund, RefundStatus.ProviderVerified, cancellationToken))
+                    return new(ToView(refund), FailureCode: "REFUND_ALLOCATION_POLICY_REQUIRED", FailureMessage: "Provider refund is verified, but internal allocation policy requires review.");
+
+                await db.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+                return new(ToView(refund));
+            }
+            catch (DbUpdateConcurrencyException) when (attempt == 0)
+            {
+                db.ChangeTracker.Clear();
+            }
+            catch (Exception exception) when (attempt == 0 && IsPostgresConcurrencyConflict(exception))
+            {
+                db.ChangeTracker.Clear();
+            }
+        }
+
+        throw new InvalidOperationException("Provider-verified refund recovery did not complete after a concurrency retry.");
+    }
+
+    private async Task<bool> HasTrustedStoredVerificationAsync(Refund refund, Payment payment, CancellationToken cancellationToken)
+    {
+        if (refund.PaymentId == Guid.Empty || refund.PaymentId != payment.Id
+            || !string.Equals(refund.ProviderName, "PayTabs", StringComparison.OrdinalIgnoreCase)
+            || string.IsNullOrWhiteSpace(refund.ProviderRefundReference)
+            || refund.ProviderInitiatedAtUtc is null
+            || refund.ProviderVerifiedAtUtc is null
+            || refund.ProviderVerifiedAtUtc < refund.ProviderInitiatedAtUtc
+            || string.IsNullOrWhiteSpace(refund.CorrelationReference)
+            || !string.Equals(payment.Provider, "PayTabs", StringComparison.OrdinalIgnoreCase)
+            || string.IsNullOrWhiteSpace(payment.ProviderPaymentId)
+            || payment.Status != PaymentStatus.Paid
+            || refund.Amount != payment.Total
+            || string.IsNullOrWhiteSpace(payment.Currency)
+            || !string.Equals(refund.Currency, payment.Currency, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        return await db.RefundStatusTransitions.AsNoTracking().AnyAsync(item =>
+            item.RefundId == refund.Id
+            && item.NewStatus == RefundStatus.ProviderVerified
+            && (item.PreviousStatus == RefundStatus.ProviderProcessing || item.PreviousStatus == RefundStatus.ProviderResultUnknown)
+            && item.Source == RefundTransitionSource.PayTabsProviderVerification
+            && item.ProviderReference == refund.ProviderRefundReference
+            && item.CorrelationId == refund.CorrelationReference, cancellationToken)
+            && !await db.RefundStatusTransitions.AsNoTracking().AnyAsync(item => item.RefundId == refund.Id && item.NewStatus == RefundStatus.InternallyRecorded, cancellationToken)
+            && !await db.PaymentStatusTransitions.AsNoTracking().AnyAsync(item => item.PaymentId == payment.Id && item.NewStatus == PaymentStatus.Refunded, cancellationToken)
+            && !await db.LedgerTransactions.AsNoTracking().AnyAsync(item => item.RefundId == refund.Id, cancellationToken)
+            && !await db.WalletTransactions.AsNoTracking().AnyAsync(item => item.RefundId == refund.Id, cancellationToken)
+            && !await db.IncludedEvaluationEntitlements.AsNoTracking().AnyAsync(item => item.RevokedByRefundId == refund.Id, cancellationToken);
     }
 
     private async Task<bool> FinalizeInternalAccountingAsync(string financeAdminUserId, Payment payment, Refund refund, RefundStatus previousStatus, CancellationToken cancellationToken)
