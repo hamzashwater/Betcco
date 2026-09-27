@@ -40,7 +40,7 @@ export default defineConfig({
   projects: [
     {
       name: "chromium-desktop-1440",
-      grep: /@public-matrix|@golden-path/,
+      grep: /@public-matrix|@golden-path|@resit-golden/,
       use: {
         ...devices["Desktop Chrome"],
         ...chromiumHttpsUse,

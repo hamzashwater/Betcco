@@ -45,6 +45,7 @@ jobs:
       BETCCO_UAT_BASE_URL: https://localhost:3000
       BETCCO_UAT_TLS_CERT: /tmp/betcco-uat.crt
       BETCCO_UAT_TLS_KEY: /tmp/betcco-uat.key
+      Storage__LocalRoot: /tmp/betcco-uat-private-storage
 
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
@@ -71,6 +72,7 @@ jobs:
           dotnet tool restore
           dotnet restore backend/Betcco.sln
           dotnet build backend/Betcco.sln --no-restore
+          dotnet build backend/tests/Betcco.ResitUatFixture/Betcco.ResitUatFixture.csproj
 
       - name: Start development API with seeded UAT data
         run: |
@@ -109,7 +111,7 @@ jobs:
             -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
 
       - name: Run full UAT browser matrix
-        run: pnpm --dir frontend exec playwright test --config=playwright.uat.config.ts tests/e2e/full-uat.spec.ts
+        run: pnpm --dir frontend exec playwright test --config=playwright.uat.config.ts tests/e2e/full-uat.spec.ts tests/e2e/resit-full-uat.spec.ts
 
       - name: Upload UAT report
         if: always()
