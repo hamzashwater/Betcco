@@ -15,6 +15,8 @@ type CoordinationItem = {
   createdAtUtc: string;
   updatedAtUtc: string;
   isRetake: boolean;
+  isResit: boolean;
+  resitOfEvaluationRequestId: string | null;
   qualificationCode: string | null;
   qualificationVersionCode: string | null;
   unitCode: string | null;
@@ -364,8 +366,19 @@ export function AssessmentCoordinationQueue() {
                           {ar ? "إعادة تقييم" : "Retake"}
                         </span>
                       )}
+                      {item.isResit && (
+                        <span className="rounded-full border border-border px-3 py-1">
+                          {ar ? "إعادة تقييم استثنائية" : "Resit"}
+                        </span>
+                      )}
                     </div>
                   </div>
+                  {item.isResit && item.resitOfEvaluationRequestId && (
+                    <p className="mt-2 text-xs text-muted">
+                      {ar ? "الطلب الأصلي:" : "Original request:"}{" "}
+                      {item.resitOfEvaluationRequestId.slice(0, 8)}
+                    </p>
+                  )}
                   <p className="mt-3 text-sm text-muted">
                     {item.evaluatorDisplayName
                       ? ar

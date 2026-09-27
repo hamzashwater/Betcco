@@ -36,6 +36,70 @@ afterEach(() => {
 });
 
 describe("Assessment coordination queue", () => {
+  it.each(["en", "ar"] as const)(
+    "identifies a Resit in %s without losing Retake",
+    async (locale) => {
+      apiMock.mockResolvedValue({
+        items: [
+          {
+            id: "12345678-1111-2222-3333-444444444444",
+            status: "Assigned",
+            updatedAtUtc: "2026-09-23T10:00:00Z",
+            isRetake: false,
+            isResit: true,
+            resitOfEvaluationRequestId: "ABCD1234-1111-2222-3333-444444444444",
+            qualificationCode: "Q",
+            qualificationVersionCode: "V1",
+            unitCode: "U1",
+            unitEnglishTitle: "Unit",
+            unitArabicTitle: "وحدة",
+            evaluatorDisplayName: null,
+            hasEligibleEvaluator: null,
+            blockerCode: null,
+            expectedCompletionAtUtc: null,
+            expectedCompletionState: "NotSet",
+          },
+          {
+            id: "87654321-1111-2222-3333-444444444444",
+            status: "Assigned",
+            updatedAtUtc: "2026-09-23T10:00:00Z",
+            isRetake: true,
+            isResit: false,
+            resitOfEvaluationRequestId: null,
+            qualificationCode: "Q",
+            qualificationVersionCode: "V1",
+            unitCode: "U1",
+            unitEnglishTitle: "Unit",
+            unitArabicTitle: "وحدة",
+            evaluatorDisplayName: null,
+            hasEligibleEvaluator: null,
+            blockerCode: null,
+            expectedCompletionAtUtc: null,
+            expectedCompletionState: "NotSet",
+          },
+        ],
+        page: 1,
+        pageSize: 10,
+        totalCount: 2,
+      });
+      renderQueue(locale);
+      expect(
+        await screen.findByText(
+          locale === "ar" ? "إعادة تقييم استثنائية" : "Resit",
+        ),
+      ).toBeVisible();
+      expect(
+        screen.getByText(
+          locale === "ar"
+            ? "الطلب الأصلي: ABCD1234"
+            : "Original request: ABCD1234",
+        ),
+      ).toBeVisible();
+      expect(
+        screen.getByText(locale === "ar" ? "إعادة تقييم" : "Retake"),
+      ).toBeVisible();
+    },
+  );
   it("sets a future target with an internal reason and filters overdue requests", async () => {
     apiMock.mockImplementation((path: string, options?: RequestInit) => {
       if (options?.method === "PUT") return Promise.resolve(undefined);

@@ -159,7 +159,7 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
     [HttpGet("assigned")]
     public async Task<IActionResult> Assigned(CancellationToken cancellationToken)
     {
-        var requests = await db.EvaluatorAssignments
+        var requests = await db.EvaluatorAssignments.AsNoTracking()
             .Where(x => x.EvaluatorUserId == UserId)
             .OrderByDescending(x => x.AssignedAtUtc)
             .Select(x => new
@@ -176,6 +176,17 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             })
             .ToListAsync(cancellationToken);
 
+        var requestIds = requests.Select(request => request.id).ToArray();
+        var resitOriginalIds = await db.ResitAuthorizations.AsNoTracking()
+            .Where(authorization => authorization.ResitEvaluationRequestId != null
+                && requestIds.Contains(authorization.ResitEvaluationRequestId.Value))
+            .Select(authorization => new
+            {
+                ResitId = authorization.ResitEvaluationRequestId!.Value,
+                authorization.OriginalEvaluationRequestId
+            })
+            .ToDictionaryAsync(link => link.ResitId, link => link.OriginalEvaluationRequestId, cancellationToken);
+
         return Ok(requests.Select(x => new
         {
             x.id,
@@ -184,6 +195,8 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             x.filesCount,
             isRetake = x.RetakeOfEvaluationRequestId != null,
             x.RetakeOfEvaluationRequestId,
+            isResit = resitOriginalIds.ContainsKey(x.id),
+            resitOfEvaluationRequestId = resitOriginalIds.TryGetValue(x.id, out var originalId) ? originalId : (Guid?)null,
             x.SubmissionAttemptNumber,
             criteria = JsonSerializer.Deserialize<string[]>(x.CriteriaSnapshotJson) ?? [],
             selectedCriteria = JsonSerializer.Deserialize<string[]>(x.EvaluatorCriteriaPlanJson) ?? [],
@@ -195,7 +208,7 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
     [HttpGet("pending-assignment")]
     public async Task<IActionResult> PendingAssignment(CancellationToken cancellationToken)
     {
-        var requests = await db.EvaluationRequests
+        var requests = await db.EvaluationRequests.AsNoTracking()
             .Where(x => x.Status == EvaluationStatus.PendingAssignment)
             .OrderBy(x => x.CreatedAtUtc)
             .Select(x => new
@@ -210,6 +223,17 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             })
             .ToListAsync(cancellationToken);
 
+        var requestIds = requests.Select(request => request.Id).ToArray();
+        var resitOriginalIds = await db.ResitAuthorizations.AsNoTracking()
+            .Where(authorization => authorization.ResitEvaluationRequestId != null
+                && requestIds.Contains(authorization.ResitEvaluationRequestId.Value))
+            .Select(authorization => new
+            {
+                ResitId = authorization.ResitEvaluationRequestId!.Value,
+                authorization.OriginalEvaluationRequestId
+            })
+            .ToDictionaryAsync(link => link.ResitId, link => link.OriginalEvaluationRequestId, cancellationToken);
+
         return Ok(requests.Select(x => new
         {
             x.Id,
@@ -218,6 +242,8 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             x.filesCount,
             isRetake = x.RetakeOfEvaluationRequestId != null,
             x.RetakeOfEvaluationRequestId,
+            isResit = resitOriginalIds.ContainsKey(x.Id),
+            resitOfEvaluationRequestId = resitOriginalIds.TryGetValue(x.Id, out var originalId) ? originalId : (Guid?)null,
             criteria = JsonSerializer.Deserialize<string[]>(x.CriteriaSnapshotJson) ?? [],
             academic = AssessmentScopeSnapshotReader.Summary(x.AssessmentScopeSnapshotJson)
         }));
@@ -406,7 +432,7 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
         var isAssignedAssessor = PlatformPermissionAuthorizationHandler.HasPermission(User, PlatformPermissions.Assess)
             && await db.EvaluatorAssignments.AnyAsync(x => x.EvaluationRequestId == requestId && x.EvaluatorUserId == UserId, cancellationToken);
         if ((!canVerify || sampleRequiresAnotherVerifier) && !isOwner && !isAssignedAssessor) return NotFound();
-        var resitOriginalId = isOwner
+        var resitOriginalId = isOwner || isAssignedAssessor
             ? await db.ResitAuthorizations.AsNoTracking()
                 .Where(x => x.ResitEvaluationRequestId == requestId)
                 .Select(x => (Guid?)x.OriginalEvaluationRequestId)

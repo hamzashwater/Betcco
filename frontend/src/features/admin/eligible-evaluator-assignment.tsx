@@ -12,6 +12,8 @@ type PendingEvaluation = {
   studentComment?: string;
   filesCount: number;
   criteria: string[];
+  isResit: boolean;
+  resitOfEvaluationRequestId: string | null;
 };
 type Candidate = { id: string; displayName: string };
 
@@ -63,6 +65,19 @@ export function EligibleEvaluatorAssignment({
                 ? "لا توجد ملاحظة من الطالب."
                 : "No student note was provided.")}
           </p>
+          {evaluation.isResit && (
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+              <span className="rounded-full border border-border px-3 py-1 font-bold">
+                {ar ? "إعادة تقييم استثنائية" : "Resit"}
+              </span>
+              {evaluation.resitOfEvaluationRequestId && (
+                <span className="text-muted">
+                  {ar ? "الطلب الأصلي:" : "Original request:"}{" "}
+                  {evaluation.resitOfEvaluationRequestId.slice(0, 8)}
+                </span>
+              )}
+            </div>
+          )}
           <p className="mt-3 text-xs text-muted">
             {evaluation.filesCount} {ar ? "ملفات" : "files"} ·{" "}
             {evaluation.criteria.length} {ar ? "معايير" : "criteria"}

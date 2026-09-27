@@ -41,6 +41,8 @@ const evaluation = {
   studentComment: "",
   filesCount: 1,
   criteria: ["A.P1"],
+  isResit: false,
+  resitOfEvaluationRequestId: null,
 };
 
 afterEach(() => {

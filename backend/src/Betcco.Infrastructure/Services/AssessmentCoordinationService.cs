@@ -64,6 +64,15 @@ public sealed class AssessmentCoordinationService(
             .ToListAsync(cancellationToken);
 
         var requestIds = rows.Select(row => row.Id).ToArray();
+        var resitOriginalIds = await db.ResitAuthorizations.AsNoTracking()
+            .Where(authorization => authorization.ResitEvaluationRequestId != null
+                && requestIds.Contains(authorization.ResitEvaluationRequestId.Value))
+            .Select(authorization => new
+            {
+                ResitId = authorization.ResitEvaluationRequestId!.Value,
+                authorization.OriginalEvaluationRequestId
+            })
+            .ToDictionaryAsync(link => link.ResitId, link => link.OriginalEvaluationRequestId, cancellationToken);
         var activeAdjustments = await db.EvaluationRevisionDeadlineAdjustments.AsNoTracking()
             .Where(item => requestIds.Contains(item.EvaluationRequestId)
                 && item.RevokedAtUtc == null)
@@ -153,6 +162,8 @@ public sealed class AssessmentCoordinationService(
             items.Add(new AssessmentCoordinationItem(
                 row.Id, row.Status.ToString(), row.CreatedAtUtc, row.UpdatedAtUtc,
                 row.RetakeOfEvaluationRequestId is not null,
+                resitOriginalIds.ContainsKey(row.Id),
+                resitOriginalIds.TryGetValue(row.Id, out var resitOriginalId) ? resitOriginalId : null,
                 academic?.QualificationCode, academic?.QualificationVersionCode,
                 academic?.UnitCode, academic?.UnitArabicTitle, academic?.UnitEnglishTitle,
                 evaluatorName, assignment?.AssignedAtUtc, hasEligibleEvaluator, blocker,
