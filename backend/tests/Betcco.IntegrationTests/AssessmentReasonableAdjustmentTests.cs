@@ -334,6 +334,15 @@ public sealed class AssessmentReasonableAdjustmentTests
         Assert.Equal(EvaluationReasonableAdjustmentWriteResult.Success,
             await service.GrantRevisionDeadlineAsync(actor.Id, original.Id,
                 new(extended, "Original remains eligible")));
+        var originalSummary = await service.GetRevisionDeadlineSummaryAsync(original.Id);
+        Assert.Equal(extended, originalSummary!.EffectiveDueAtUtc);
+        Assert.NotNull(originalSummary.ActiveAdjustmentId);
+        Assert.Equal(EvaluationReasonableAdjustmentWriteResult.Success,
+            await service.RevokeRevisionDeadlineAsync(actor.Id, original.Id,
+                originalSummary.ActiveAdjustmentId.Value, new("No longer required")));
+        originalSummary = await service.GetRevisionDeadlineSummaryAsync(original.Id);
+        Assert.Null(originalSummary!.ActiveAdjustmentId);
+        Assert.Equal(original.RevisionDueAtUtc, originalSummary.EffectiveDueAtUtc);
         Assert.Equal(EvaluationReasonableAdjustmentWriteResult.NoActiveRevisionWindow,
             await service.GrantRevisionDeadlineAsync(actor.Id, resit.Id,
                 new(extended, "Resit must be blocked")));
