@@ -207,7 +207,12 @@ public sealed class EvaluatorSpecialismPostgresTests
         Assert.Equal(original.Id, persistedAuthorization.OriginalEvaluationRequestId);
         Assert.Equal(resitId, persistedAuthorization.ResitEvaluationRequestId);
         Assert.Equal(authorizer.Id, persistedAuthorization.AuthorizedByUserId);
-        Assert.Equal(activatedAt, persistedAuthorization.ActivatedAtUtc);
+        Assert.NotNull(activatedAt);
+        Assert.NotNull(persistedAuthorization.ActivatedAtUtc);
+        Assert.InRange(
+            (persistedAuthorization.ActivatedAtUtc.Value - activatedAt.Value).Duration(),
+            TimeSpan.Zero,
+            TimeSpan.FromTicks(9));
         Assert.Equal(authorization.Reason, persistedAuthorization.Reason);
     }
 
