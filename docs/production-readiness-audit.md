@@ -18,13 +18,13 @@
 
 | Classification | Count | Summary |
 | --- | ---: | --- |
-| P0 — Launch Blocker | 1 | No reachable, documented first-administrator bootstrap exists in the production deployment path. |
+| P0 — Launch Blocker | 0 | P0-01 was closed by merged PR #106 with an explicit one-off production Admin bootstrap command. |
 | P1 — Required Production Hardening | 4 | A merged migration drops legacy quiz records; restore evidence, operational alerts/runbooks, and same-artifact promotion are not established. P1-05 is closed in the current implementation branch, pending PR merge. |
 | P2 — Post-launch Improvement | 3 | Production image inputs are mutable tags; .NET transitive restore is not locked; in-process rate limits are not shared across API replicas. |
 | EXTERNAL | 5 | Live hosting/provider/legal/operational decisions and credentials cannot be verified from this repository. |
 | SAFE | 15 | Important controls are implemented and/or demonstrated by current code and baseline CI. |
 
-**Readiness conclusion:** the repository has a substantial deployment and security foundation, but the repository alone does not establish that an operator can provision the first production administrator, restore production data, monitor incidents, or promote a verified artifact. Paid checkout and payouts are intentionally disabled in the deployment Compose file. Resolve P0-01 and the P1 items before opening a real learner-facing production service. Whether disabled commerce is launch-blocking depends on the approved launch scope; it is not classified as a code defect.
+**Readiness conclusion:** the repository has a substantial deployment and security foundation, and merged PR #106 provides an explicit one-off production Admin bootstrap path. Remaining repository hardening is concentrated in the P1 items: restore evidence, operational monitoring/runbooks, same-artifact promotion, and—pending this PR merge—the custom S3 HTTPS guard. Paid checkout and payouts are intentionally disabled in the deployment Compose file. Whether disabled commerce is launch-blocking depends on the approved launch scope; it is not classified as a code defect.
 
 ## Configuration / Secret Audit
 
@@ -42,7 +42,7 @@
 | `BETCCO_DATA_PROTECTION_CERTIFICATE_PATH` → `DataProtection__CertificatePath` | API PFX file path; non-secret | Required absolute host path, mounted read-only in container | Compose fails if absent; Program loads PFX at startup, so absent/unreadable/invalid PFX stops startup. Documented. |
 | `BETCCO_DATA_PROTECTION_CERTIFICATE_PASSWORD` | API key encryption; secret | Required; no default | Compose and validator reject empty. PFX password is not emitted by startup validation. Documented. |
 | `Storage__Provider`, `BETCCO_S3_BUCKET`, `BETCCO_S3_REGION` | API object store; non-secret | Compose fixes `S3Compatible`; bucket/region required; endpoint optional (SDK regional endpoint); path-style optional/default false; auto-create fixed false; SDK retries default 3 and timeout default 100 seconds | Validator rejects Local/empty bucket/region; startup probes existing bucket and stops if unavailable. No local-storage fallback and no production auto-create. Documented. |
-| `BETCCO_S3_ENDPOINT` → `Storage__S3__Endpoint` | API object-store endpoint; non-secret | Optional; `.env.example` uses local HTTP for development and `deploy.env.example` uses an HTTPS placeholder | If set, `Program.cs` passes the value to `AmazonS3Config.ServiceURL`; Production validation checks neither URI scheme nor host. A configured HTTP endpoint is therefore accepted (P1-05). |
+| `BETCCO_S3_ENDPOINT` → `Storage__S3__Endpoint` | API object-store endpoint; non-secret | Optional; `.env.example` uses local HTTP for development and `deploy.env.example` uses an HTTPS placeholder | In Staging/Production, any configured custom endpoint must be an absolute HTTPS URL with a valid host and no embedded userinfo; an empty endpoint remains allowed for the AWS SDK regional endpoint. Development/Testing may still use local HTTP MinIO. P1-05 is closed in this branch pending merge. |
 | `Storage:CleanupIntervalSeconds`, `Storage:StagingGraceMinutes` | API storage lifecycle; non-secret | `appsettings.json` defaults to 300 seconds and 15 minutes | Used by lifecycle worker for staged-object cleanup; not a production endpoint or credential. Documented as app defaults. |
 | `BETCCO_S3_ACCESS_KEY` / `BETCCO_S3_SECRET_KEY` → `Storage__S3__AccessKey/SecretKey` | API object-store credentials; secret pair | Both or neither; either an explicit pair or provider credential chain | Validator rejects half-pairs; SDK uses configured credential chain if both omitted. Secret pair placeholders only in deployment example. Documented. |
 | `BETCCO_CLAMAV_HOST` / `BETCCO_CLAMAV_PORT` | API-to-scanner endpoint; host non-secret | Host required; port optional, defaults to `3310`; scanner provider fixed `ClamAv` | Validator rejects missing host/invalid port or non-ClamAv provider. Runtime scan transport/protocol failure returns Unavailable and blocks upload. Documented. |
@@ -51,14 +51,14 @@
 | `BETCCO_API_URL` build argument | Next.js server rewrite; non-secret | Deployment Docker build defaults to private Compose host `http://api:8080`; local `next.config.ts` fallback is `http://localhost:5085` | Server rewrite targets API; the localhost fallback is not selected by `frontend/Dockerfile`/Compose production build. Not a `NEXT_PUBLIC_*` secret. Documented in Compose/Dockerfile. |
 | `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_ANALYTICS_ENDPOINT` | Next.js public values; non-secret | Public canonical origin can be supplied for metadata/sitemap; analytics endpoint optional and remains consent-gated | Public exposure is intentional; no secret is named `NEXT_PUBLIC_*`. Deployment supplies `APP_PUBLIC_URL`; tracking remains disabled unless configured/consented. `.env.example` documents local values. |
 | `Payments__Provider`, `PayTabs__ProfileId`, `PayTabs__ServerKey`, `PayTabs__BaseUrl`, `PayTabs__Environment` | Commerce/API; server key secret, others non-secret except possibly profile metadata | Deployment pins provider `Disabled`; enabling PayTabs requires positive profile, nonempty key, HTTPS base URL, explicit `Test` or `Live`; PayTabs adapter only accepts `Test` in current code | Missing PayTabs fields fail startup if provider selected. Safe unconfigured provider otherwise rejects checkout. No production live mode path; do not treat as launch-ready. Keys are blank in examples. Documented as disabled/deferred. |
-| `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` | Development initializer; email non-secret, password secret | Optional pair with no defaults in `.env.example`; initializer forces password change | No production bootstrap behavior: production never invokes `DatabaseInitializer` (P0-01). No secret is logged. README documents the variables but not their Development-only scope. |
+| `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` | Development initializer; email non-secret, password secret | Optional pair with no defaults in `.env.example`; initializer forces password change | Development-only seeding remains unchanged. Production now uses the separate explicit `--bootstrap-admin` operation with ephemeral `BootstrapAdmin__Email` / `BootstrapAdmin__Password`; no default credential or public bootstrap API exists. P0-01 was closed by PR #106. |
 | `Payouts__Provider` and bank/e-wallet credentials | Commerce/API; credentials secret | Deployment pins `Disabled`; validator accepts only `Disabled` or `Manual` | Fake payout is not selected in Production; unconfigured provider refuses transfers. Real provider fields are intentionally not in deploy template. Documented as disabled/deferred. |
 | JoFotara, AI, assessment PDF, demo data | API providers; optional credentials secret if separately enabled | Compose fixes JoFotara, AI, PDF, and demo data off | Each remains disabled unless a separately reviewed config path is added. Optional JoFotara/AI settings are validated when enabled; PDF licensing/fonts are validated when enabled. Documented. |
 | Monitoring, metrics, tracing, backup schedules, object versioning, alert destinations | Operator/hosting; may contain secrets | No runtime config contract or real values in repository | Not silently configured by app. Provider/host proof required; see P1-02/P1-03 and EX-01. |
 
 **Secret scan result:** no real credential value was found in the tracked example templates/source reviewed; local example values are labeled for development or are placeholders. `.gitignore` and `.dockerignore` exclude deployment env files and key/certificate material while retaining example templates. This says nothing about untracked operator files or the actual production secret store.
 
-## P0 Launch Blockers
+## P0 Launch Blockers — Closed
 
 | ID | Area | Title | Confidence |
 | --- | --- | --- | --- |
@@ -66,7 +66,11 @@
 
 ### P0-01 — Production has no reachable first-Admin provisioning path
 
-**Severity:** P0 — Launch Blocker
+**Status:** CLOSED by merged PR #106 (`[ASUS] Production Admin Bootstrap`).
+
+**Closure evidence:** Production now exposes an explicit one-off `--bootstrap-admin` operational command against an already migrated PostgreSQL database. It uses ephemeral operator-supplied bootstrap credentials, creates no default credential or public HTTP bootstrap route, preserves forced password change and staff MFA, is replay-safe, and serializes concurrent first-bootstrap attempts with a PostgreSQL transaction-scoped advisory lock.
+
+**Severity:** P0 — Launch Blocker (historical finding)
 **Area:** Admin bootstrap / operations
 **Evidence:**
 
