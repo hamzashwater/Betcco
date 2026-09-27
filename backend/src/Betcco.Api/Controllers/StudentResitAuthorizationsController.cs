@@ -19,10 +19,15 @@ public sealed class StudentResitAuthorizationsController(IResitService resits) :
     {
         var studentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrWhiteSpace(studentUserId)) return Unauthorized();
-        if (page < 1 || pageSize is < 1 or > 50)
+        try
+        {
+            return Ok(await resits.ListStudentAuthorizationsAsync(
+                studentUserId, page, pageSize, cancellationToken));
+        }
+        catch (ArgumentOutOfRangeException error) when (error.ParamName is nameof(page) or nameof(pageSize))
+        {
             return BadRequest(new { code = "RESIT_PAGE_INVALID" });
-        return Ok(await resits.ListStudentAuthorizationsAsync(
-            studentUserId, page, pageSize, cancellationToken));
+        }
     }
 
     [HttpPost("{authorizationId:guid}/activate")]
