@@ -57,7 +57,7 @@ describe("ASSESS Retakes", () => {
   it.each(["en", "ar"] as const)(
     "labels the independent student Retake payment state without exposing staff rationale in %s",
     async (locale) => {
-      apiMock.mockResolvedValue({
+      const history = {
         items: [
           {
             id: "retake-1",
@@ -81,7 +81,17 @@ describe("ASSESS Retakes", () => {
         pageSize: 20,
         totalCount: 1,
         hasNextPage: false,
-      });
+      };
+      apiMock.mockImplementation((path: string) =>
+        path.includes("/resit-authorizations")
+          ? Promise.resolve({
+              items: [],
+              page: 1,
+              pageSize: 10,
+              hasNextPage: false,
+            })
+          : Promise.resolve(history),
+      );
       renderWithProviders(<StudentArea segment={["evaluations"]} />, locale);
       expect(
         await screen.findByText(

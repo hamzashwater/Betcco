@@ -14,6 +14,10 @@ import { StudentEmailChange } from "@/features/auth/student-email-change";
 import { SupportCenter } from "@/features/support/support-center";
 import { EvaluationAppeals } from "@/features/student/evaluation-appeals";
 import { useStudentEvaluations } from "@/features/student/student-evaluation-page";
+import {
+  StudentResitDetail,
+  StudentResitOpportunities,
+} from "@/features/student/student-resit-workflow";
 import { AiPracticeShell } from "@/features/student/ai-practice-shell";
 import { StudentProgressIntelligence } from "@/features/student/student-progress-intelligence";
 import {
@@ -174,6 +178,8 @@ export function StudentArea({
     );
   if (current === "evaluations/new") content = <EvaluationWizard />;
   if (current === "evaluations") content = <MyEvaluations />;
+  if (current.startsWith("evaluations/") && segment[1] && segment[1] !== "new")
+    content = <StudentResitDetail evaluationId={segment[1]} />;
   if (current === "appeals") content = <EvaluationAppeals />;
   if (current === "planner")
     content = <LearningOrganizer initialTab="planner" />;
@@ -4244,6 +4250,8 @@ function MyEvaluations() {
     price: number;
     currency: string;
     isRetake: boolean;
+    isResit: boolean;
+    resitOfEvaluationRequestId: string | null;
     retakeOfEvaluationRequestId: string | null;
     criteria: string[];
     academic: AssessmentAcademicSummary | null;
@@ -4266,28 +4274,42 @@ function MyEvaluations() {
       createdAtUtc: string;
     }[];
   }>();
-  if (result.isPending)
-    return (
-      <div className="card p-5" aria-busy>
-        …
-      </div>
-    );
-  if (result.isError && !result.data)
-    return (
-      <p className="card p-5">
-        {locale === "ar" ? "تعذر تحميل الطلبات." : "Unable to load requests."}
-      </p>
-    );
   const items = result.data?.pages.flatMap((page) => page.items) ?? [];
   return (
     <section className="shell py-10">
       <h1 className="text-3xl font-black">
         {locale === "ar" ? "طلبات التقييم" : "Evaluation requests"}
       </h1>
+      <StudentResitOpportunities />
+      {result.isPending ? (
+        <div className="card mt-6 p-5" aria-busy>
+          …
+        </div>
+      ) : null}
+      {result.isError && !result.data ? (
+        <p role="alert" className="card mt-6 p-5">
+          {locale === "ar" ? "تعذر تحميل الطلبات." : "Unable to load requests."}
+        </p>
+      ) : null}
       <div className="mt-6 space-y-3">
         {items.map((item) => (
           <article key={item.id} className="card grid gap-4 p-4">
-            {item.isRetake ? (
+            {item.isResit ? (
+              <div className="grid gap-1 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3">
+                <strong className="text-primary">
+                  {locale === "ar"
+                    ? "مراجعة Resit نهائية"
+                    : "Resit final review"}
+                </strong>
+                {item.resitOfEvaluationRequestId ? (
+                  <span className="text-xs text-muted">
+                    {locale === "ar" ? "الطلب الأصلي" : "Original request"}:{" "}
+                    {item.resitOfEvaluationRequestId.slice(0, 8)}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
+            {item.isRetake && !item.isResit ? (
               <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3">
                 <strong className="text-primary">
                   {locale === "ar" ? "طلب Retake" : "Retake evaluation"}
@@ -4320,9 +4342,13 @@ function MyEvaluations() {
                       ? locale === "ar"
                         ? "النتيجة التقديرية الحالية من BETCCO"
                         : "Current BETCCO estimated result"
-                      : locale === "ar"
-                        ? "النتيجة التقديرية النهائية من BETCCO"
-                        : "Final BETCCO estimated result"}
+                      : item.isResit
+                        ? locale === "ar"
+                          ? "النتيجة الاستشارية النهائية للـ Resit"
+                          : "Final Resit advisory result"
+                        : locale === "ar"
+                          ? "النتيجة التقديرية النهائية من BETCCO"
+                          : "Final BETCCO estimated result"}
                   </p>
                   <p className="mt-1 text-2xl font-black text-foreground">
                     {item.calculatedGrade ?? "—"}
@@ -4419,7 +4445,7 @@ function MyEvaluations() {
                 ))}
               </div>
             ) : null}
-            {item.status === "NeedsRevision" ? (
+            {item.status === "NeedsRevision" && !item.isResit ? (
               <>
                 {item.effectiveRevisionDueAtUtc && (
                   <p className="rounded-xl border border-primary/30 bg-primary/5 p-3 text-sm font-semibold">
@@ -4434,8 +4460,18 @@ function MyEvaluations() {
                 <EvaluationRevisionSubmission requestId={item.id} />
               </>
             ) : null}
-            {item.isRetake && item.status === "Draft" ? (
+            {item.isRetake && !item.isResit && item.status === "Draft" ? (
               <RetakePayment requestId={item.id} criteria={item.criteria} />
+            ) : null}
+            {item.isResit && item.status === "Draft" ? (
+              <Link
+                className="focus-ring w-fit font-bold text-primary underline"
+                href={`/${locale}/student/evaluations/${item.id}`}
+              >
+                {locale === "ar"
+                  ? "متابعة تجهيز إعادة التقييم"
+                  : "Continue Resit preparation"}
+              </Link>
             ) : null}
           </article>
         ))}

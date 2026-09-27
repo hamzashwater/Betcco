@@ -12,6 +12,46 @@ namespace Betcco.Infrastructure.Services;
 
 public sealed class ResitService(BetccoDbContext db) : IResitService
 {
+    public async Task<StudentResitAuthorizationPage> ListStudentAuthorizationsAsync(
+        string studentUserId,
+        int page = 1,
+        int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        ValidatePage(page, pageSize);
+        var authorizations = db.ResitAuthorizations.AsNoTracking()
+            .Where(item => item.OriginalEvaluationRequest != null
+                && item.OriginalEvaluationRequest.StudentUserId == studentUserId);
+        var offset = (long)(page - 1) * pageSize;
+        if (offset >= await authorizations.LongCountAsync(cancellationToken))
+            return new([], page, pageSize, false);
+
+        var rows = await authorizations
+            .OrderByDescending(item => item.AuthorizedAtUtc)
+            .ThenByDescending(item => item.Id)
+            .Skip(checked((int)offset))
+            .Take(pageSize + 1)
+            .Select(item => new
+            {
+                item.Id,
+                item.OriginalEvaluationRequestId,
+                item.ResitEvaluationRequestId,
+                item.AuthorizedAtUtc,
+                item.ActivatedAtUtc,
+                item.RevokedAtUtc,
+                Snapshot = item.OriginalEvaluationRequest!.AssessmentScopeSnapshotJson
+            })
+            .ToArrayAsync(cancellationToken);
+        var items = rows.Take(pageSize).Select(item => new StudentResitAuthorizationView(
+            item.Id, item.OriginalEvaluationRequestId, item.ResitEvaluationRequestId,
+            item.AuthorizedAtUtc, item.ActivatedAtUtc,
+            item.RevokedAtUtc is not null ? "Revoked"
+                : item.ActivatedAtUtc is not null && item.ResitEvaluationRequestId is not null
+                    ? "Activated" : "Authorized",
+            AssessmentScopeSnapshotReader.Summary(item.Snapshot))).ToArray();
+        return new(items, page, pageSize, rows.Length > pageSize);
+    }
+
     public async Task<ResitActivationResult> ActivateAsync(
         string studentUserId,
         Guid authorizationId,

@@ -27,6 +27,169 @@ public sealed class ResitServiceTests
     private static readonly Guid OtherStudentId = Guid.Parse("44444444-4444-4444-4444-444444444444");
 
     [Fact]
+    public async Task Student_authorization_list_filters_owner_derives_states_and_bounds_pages()
+    {
+        await using var db = InMemory();
+        var (original, authorized) = await SeedActivationAsync(db);
+        var activatedOriginal = Eligible(original.AssessmentScopeId!.Value);
+        activatedOriginal.StudentUserId = StudentId.ToString();
+        var revokedOriginal = Eligible(original.AssessmentScopeId.Value);
+        revokedOriginal.StudentUserId = StudentId.ToString();
+        revokedOriginal.AssessmentScopeSnapshotJson = "invalid historical snapshot";
+        var otherOriginal = Eligible(original.AssessmentScopeId.Value);
+        otherOriginal.StudentUserId = OtherStudentId.ToString();
+        var activated = new ResitAuthorization
+        {
+            OriginalEvaluationRequestId = activatedOriginal.Id,
+            AuthorizedByUserId = ReviewerId,
+            Reason = "Private activation rationale",
+            AuthorizedAtUtc = authorized.AuthorizedAtUtc.AddMinutes(-1),
+            ActivatedAtUtc = DateTimeOffset.UtcNow,
+            ResitEvaluationRequestId = Guid.NewGuid()
+        };
+        var revoked = new ResitAuthorization
+        {
+            OriginalEvaluationRequestId = revokedOriginal.Id,
+            AuthorizedByUserId = ReviewerId,
+            Reason = "Private revocation rationale",
+            AuthorizedAtUtc = authorized.AuthorizedAtUtc.AddMinutes(-2),
+            RevokedAtUtc = DateTimeOffset.UtcNow,
+            RevocationReason = "Do not disclose this"
+        };
+        var other = new ResitAuthorization
+        {
+            OriginalEvaluationRequestId = otherOriginal.Id,
+            AuthorizedByUserId = ReviewerId,
+            Reason = "Other student private rationale"
+        };
+        db.EvaluationRequests.AddRange(activatedOriginal, revokedOriginal, otherOriginal);
+        db.ResitAuthorizations.AddRange(activated, revoked, other);
+        await db.SaveChangesAsync();
+
+        var service = new ResitService(db);
+        var page = await service.ListStudentAuthorizationsAsync(StudentId.ToString(), 1, 2);
+        Assert.Equal(["Authorized", "Activated"], page.Items.Select(x => x.State));
+        Assert.True(page.HasNextPage);
+        Assert.Equal(activated.ResitEvaluationRequestId, page.Items[1].ResitEvaluationRequestId);
+        Assert.NotNull(page.Items[0].Academic);
+        var last = await service.ListStudentAuthorizationsAsync(StudentId.ToString(), 2, 2);
+        Assert.Equal("Revoked", Assert.Single(last.Items).State);
+        Assert.Null(last.Items[0].Academic);
+        Assert.False(last.HasNextPage);
+        Assert.DoesNotContain("Do not disclose this", JsonSerializer.Serialize(last));
+        Assert.Empty((await service.ListStudentAuthorizationsAsync(StudentId.ToString(), 9, 2)).Items);
+        Assert.Equal(other.Id, Assert.Single((await service.ListStudentAuthorizationsAsync(
+            OtherStudentId.ToString())).Items).AuthorizationId);
+        var json = JsonSerializer.Serialize(page, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        Assert.DoesNotContain("reason", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("authorizedBy", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(other.Id.ToString(), json);
+        Assert.Throws<ArgumentOutOfRangeException>(() => service.ListStudentAuthorizationsAsync(StudentId.ToString(), 0).GetAwaiter().GetResult());
+        Assert.Throws<ArgumentOutOfRangeException>(() => service.ListStudentAuthorizationsAsync(StudentId.ToString(), 1, 0).GetAwaiter().GetResult());
+        Assert.Throws<ArgumentOutOfRangeException>(() => service.ListStudentAuthorizationsAsync(StudentId.ToString(), 1, 51).GetAwaiter().GetResult());
+    }
+
+    [Fact]
+    public async Task Student_authorization_controller_uses_claim_and_rejects_invalid_page()
+    {
+        await using var db = InMemory();
+        var (_, authorization) = await SeedActivationAsync(db);
+        var controller = new StudentResitAuthorizationsController(new ResitService(db))
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+        controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim(ClaimTypes.NameIdentifier, StudentId.ToString())], "test"));
+        Assert.NotNull(typeof(StudentResitAuthorizationsController).GetMethod("List")!
+            .GetCustomAttribute<HttpGetAttribute>());
+        Assert.IsType<BadRequestObjectResult>(await controller.List(0));
+        Assert.IsType<BadRequestObjectResult>(await controller.List(1, 51));
+        var page = Assert.IsType<StudentResitAuthorizationPage>(
+            Assert.IsType<OkObjectResult>(await controller.List()).Value);
+        Assert.Equal(authorization.Id, Assert.Single(page.Items).AuthorizationId);
+        controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity());
+        Assert.IsType<UnauthorizedResult>(await controller.List());
+        Assert.IsType<UnauthorizedResult>(await controller.List(0));
+        Assert.IsType<UnauthorizedResult>(await controller.List(1, 51));
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLAssessment")]
+    public async Task PostgreSQL_student_authorization_list_persists_owner_and_activation_link()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("resit_student_authorizations");
+        var authorizationId = await SeedPostgresActivationAsync(database);
+        Guid resitId;
+        Guid otherId;
+        await using (var seed = database.CreateContext())
+        {
+            var original = await seed.EvaluationRequests.SingleAsync(x => x.StudentUserId == StudentId.ToString());
+            var otherOriginal = Eligible(original.AssessmentScopeId!.Value);
+            otherOriginal.StudentUserId = OtherStudentId.ToString();
+            otherOriginal.GradeId = original.GradeId;
+            otherOriginal.SpecializationId = original.SpecializationId;
+            otherOriginal.TaskTypeId = original.TaskTypeId;
+            otherOriginal.RubricTemplateId = original.RubricTemplateId;
+            var other = new ResitAuthorization
+            {
+                OriginalEvaluationRequestId = otherOriginal.Id,
+                AuthorizedByUserId = ReviewerId,
+                Reason = "Private other-student rationale"
+            };
+            otherId = other.Id;
+            seed.AddRange(otherOriginal, other, User(OtherStudentId, "Other Student"));
+            await seed.SaveChangesAsync();
+            var result = await new ResitService(seed).ActivateAsync(StudentId.ToString(), authorizationId);
+            resitId = Assert.IsType<Guid>(result.ResitEvaluationRequestId);
+        }
+
+        await using var verify = database.CreateContext();
+        var page = await new ResitService(verify).ListStudentAuthorizationsAsync(StudentId.ToString());
+        var item = Assert.Single(page.Items);
+        Assert.Equal("Activated", item.State);
+        Assert.Equal(authorizationId, item.AuthorizationId);
+        Assert.Equal(resitId, item.ResitEvaluationRequestId);
+        Assert.DoesNotContain(otherId.ToString(), JsonSerializer.Serialize(page));
+        Assert.DoesNotContain("Reason", JsonSerializer.Serialize(item), StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task Owned_resit_detail_reports_persisted_attempt_authenticity_without_private_fields()
+    {
+        await using var db = InMemory();
+        var (_, authorization) = await SeedActivationAsync(db);
+        var activated = await new ResitService(db).ActivateAsync(StudentId.ToString(), authorization.Id);
+        var resitId = Assert.IsType<Guid>(activated.ResitEvaluationRequestId);
+        var controller = new EvaluationsController(null!, null!, null!, db, null!, null!)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+        controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim(ClaimTypes.NameIdentifier, StudentId.ToString()), new Claim(ClaimTypes.Role, "Student")], "test"));
+        string DetailJson() => JsonSerializer.Serialize(
+            Assert.IsType<OkObjectResult>(controller.Get(resitId, CancellationToken.None)
+                .GetAwaiter().GetResult()).Value,
+            new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        Assert.Contains("\"hasAuthenticityDeclaration\":false", DetailJson());
+        db.AuthenticityDeclarations.Add(new AuthenticityDeclaration
+        {
+            EvaluationRequestId = resitId,
+            StudentUserId = StudentId.ToString(),
+            AttemptNumber = 1,
+            PolicyVersion = "test",
+            StatementSnapshot = "PRIVATE STATEMENT",
+            IpAddress = "203.0.113.10",
+            UserAgent = "PRIVATE AGENT"
+        });
+        await db.SaveChangesAsync();
+        var json = DetailJson();
+        Assert.Contains("\"hasAuthenticityDeclaration\":true", json);
+        Assert.DoesNotContain("PRIVATE STATEMENT", json);
+        Assert.DoesNotContain("PRIVATE AGENT", json);
+        Assert.DoesNotContain("203.0.113.10", json);
+    }
+
+    [Fact]
     [Trait("Category", "PostgreSQLAssessment")]
     public async Task PostgreSQL_staff_coordination_reads_persisted_resit_link_without_rationale()
     {
