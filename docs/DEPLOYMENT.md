@@ -70,6 +70,8 @@ Copy `deploy.env.example` to a secure location outside the repository. Restrict 
 
 Development continues to use `.env` and `docker-compose.yml`. CI/Test uses disposable credentials in GitHub Actions. Staging and Production use `compose.deploy.yml` and a secret environment file outside Git.
 
+When `BETCCO_S3_ENDPOINT` is set in Staging or Production, it must be an absolute HTTPS URL with a valid host and no embedded credentials; endpoint paths are allowed. Leave it empty when using the AWS SDK's regional endpoint. Local HTTP MinIO endpoints are for Development/Testing only. Production object-storage credentials and objects must never travel over plaintext HTTP.
+
 ### Assessment PDF reporting
 
 Assessment PDF reporting remains an explicit deployment opt-in. Before enabling it, confirm the applicable QuestPDF license tier and deploy an Arabic-capable TrueType or OpenType font with the API image or as a read-only mount. Configure all four values together:

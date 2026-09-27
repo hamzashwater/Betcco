@@ -42,6 +42,7 @@ public static class StartupConfigurationValidator
         }
 
         RequireHttpsUrl(configuration["APP_PUBLIC_URL"] ?? configuration["NEXT_PUBLIC_APP_URL"], "APP_PUBLIC_URL", errors);
+        ValidateSecureS3Endpoint(configuration["Storage:S3:Endpoint"], errors);
 
         var origins = configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
         if (origins.Length == 0)
@@ -115,6 +116,18 @@ public static class StartupConfigurationValidator
             || !string.IsNullOrEmpty(uri.Query)
             || !string.IsNullOrEmpty(uri.Fragment))
             errors.Add($"{key} must be an absolute HTTPS URL in staging and production.");
+    }
+
+    private static void ValidateSecureS3Endpoint(string? value, ICollection<string> errors)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return;
+
+        if (!Uri.TryCreate(value, UriKind.Absolute, out var uri)
+            || !uri.IsWellFormedOriginalString()
+            || !string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
+            || string.IsNullOrWhiteSpace(uri.Host)
+            || !string.IsNullOrEmpty(uri.UserInfo))
+            errors.Add("Storage:S3:Endpoint must be an absolute HTTPS URL in staging and production when configured.");
     }
 
     private static void ValidateDeploymentEmail(IConfiguration configuration, ICollection<string> errors)
