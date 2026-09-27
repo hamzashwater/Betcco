@@ -194,6 +194,9 @@ public sealed class EvaluationService(
                 : await db.EvaluatorUnitSpecialisms.SingleOrDefaultAsync(x => x.EvaluatorUserId == evaluatorId
                     && x.UnitDefinitionId == unitId && x.RevokedAtUtc == null, cancellationToken);
             if (grant is null) return AssignmentResult.UnitSpecialismRequired;
+            var excludedIds = await EvaluatorSpecialismService.ResitExcludedEvaluatorIdsAsync(
+                db, requestId, cancellationToken);
+            if (excludedIds.Contains(evaluatorId)) return AssignmentResult.ResitIndependenceRequired;
             if (!EvaluationWorkflow.CanTransition(request.Status, EvaluationStatus.Assigned))
                 return AssignmentResult.RequestNotAssignable;
             db.EvaluatorAssignments.Add(new EvaluatorAssignment

@@ -109,6 +109,7 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             AssignmentResult.AcademicMappingRequired => Conflict(new { code = "ACADEMIC_MAPPING_REQUIRED" }),
             AssignmentResult.EvaluatorNotEligible => BadRequest(new { code = "EVALUATOR_NOT_ELIGIBLE" }),
             AssignmentResult.UnitSpecialismRequired => Conflict(new { code = "UNIT_SPECIALISM_REQUIRED" }),
+            AssignmentResult.ResitIndependenceRequired => Conflict(new { code = "RESIT_EVALUATOR_INDEPENDENCE_REQUIRED" }),
             AssignmentResult.Conflict => Conflict(new { code = "ASSIGNMENT_CONFLICT" }),
             _ => Conflict(new { code = "REQUEST_NOT_ASSIGNABLE" })
         };

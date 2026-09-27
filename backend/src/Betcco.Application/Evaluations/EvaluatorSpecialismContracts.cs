@@ -19,6 +19,7 @@ public enum AssignmentResult
     AcademicMappingRequired,
     EvaluatorNotEligible,
     UnitSpecialismRequired,
+    ResitIndependenceRequired,
     Conflict
 }
 
