@@ -492,6 +492,290 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
     }
 
     [Fact]
+    public async Task Create_timeout_then_empty_cart_query_stays_unknown_without_resending()
+    {
+        await using var db = CreateDb();
+        var (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(db);
+        var handler = new RecoveryHandler();
+        var service = new RefundService(db, CreateProvider(handler));
+
+        var created = await service.InitiatePayTabsRefundAsync("finance", new(paymentId, "CustomerRequest", null, "recover-empty"));
+        var refundId = created.Refund!.Id;
+        var first = await service.VerifyPayTabsRefundAsync("finance", refundId);
+        var second = await service.VerifyPayTabsRefundAsync("finance", refundId);
+
+        Assert.Equal("PAYTABS_REFUND_RECOVERY_NOT_FOUND", first.FailureCode);
+        Assert.Equal("PAYTABS_REFUND_RECOVERY_NOT_FOUND", second.FailureCode);
+        Assert.Equal(nameof(RefundStatus.ProviderResultUnknown), second.Refund!.Status);
+        Assert.Null((await db.Refunds.SingleAsync()).ProviderRefundReference);
+        Assert.Equal(1, handler.CreateCalls);
+        Assert.Equal(2, handler.CartQueries);
+        Assert.Equal(0, handler.ReferenceQueries);
+        await AssertNoRefundEffectsAsync(db, paymentId, refundId, entitlementId);
+    }
+
+    [Theory]
+    [InlineData("P")]
+    [InlineData("H")]
+    [InlineData("V")]
+    [InlineData("Z")]
+    public async Task Recovered_reference_with_nonfinal_query_remains_unknown(string status)
+    {
+        await using var db = CreateDb();
+        var (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(db);
+        var handler = new RecoveryHandler { Candidates = [new()], ReferenceStatus = status };
+        var service = new RefundService(db, CreateProvider(handler));
+
+        var created = await service.InitiatePayTabsRefundAsync("finance", new(paymentId, "CustomerRequest", null, $"recover-{status}"));
+        var refundId = created.Refund!.Id;
+        var recovered = await service.VerifyPayTabsRefundAsync("finance", refundId);
+        var repeated = await service.VerifyPayTabsRefundAsync("finance", refundId);
+
+        Assert.Equal(nameof(RefundStatus.ProviderResultUnknown), recovered.Refund!.Status);
+        Assert.Equal(nameof(RefundStatus.ProviderResultUnknown), repeated.Refund!.Status);
+        Assert.Equal("REFUND-RECOVERED", (await db.Refunds.SingleAsync()).ProviderRefundReference);
+        Assert.Equal(1, handler.CreateCalls);
+        Assert.Equal(1, handler.CartQueries);
+        Assert.Equal(2, handler.ReferenceQueries);
+        Assert.Single(await db.AuditLogs.Where(item => item.Action == "PayTabsRefundReferenceRecovered" && item.EntityId == refundId.ToString()).ToListAsync());
+        await AssertNoRefundEffectsAsync(db, paymentId, refundId, entitlementId);
+    }
+
+    [Theory]
+    [InlineData("D")]
+    [InlineData("E")]
+    [InlineData("X")]
+    public async Task Recovered_reference_with_final_failure_has_no_financial_effects(string status)
+    {
+        await using var db = CreateDb();
+        var (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(db);
+        var handler = new RecoveryHandler { Candidates = [new()], ReferenceStatus = status };
+        var service = new RefundService(db, CreateProvider(handler));
+
+        var created = await service.InitiatePayTabsRefundAsync("finance", new(paymentId, "CustomerRequest", null, $"recover-failed-{status}"));
+        var refundId = created.Refund!.Id;
+        var failed = await service.VerifyPayTabsRefundAsync("finance", refundId);
+
+        Assert.Equal(nameof(RefundStatus.ProviderFailed), failed.Refund!.Status);
+        Assert.Equal("REFUND-RECOVERED", (await db.Refunds.SingleAsync(item => item.Id == refundId)).ProviderRefundReference);
+        Assert.Equal(1, handler.CreateCalls);
+        Assert.Equal(1, handler.CartQueries);
+        Assert.Equal(1, handler.ReferenceQueries);
+        await AssertNoRefundEffectsAsync(db, paymentId, refundId, entitlementId);
+    }
+
+    [Fact]
+    public async Task Two_trusted_cart_candidates_are_ambiguous_even_if_one_is_authorized()
+    {
+        await using var db = CreateDb();
+        var (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(db);
+        var handler = new RecoveryHandler { Candidates = [new(), new RecoveryCandidate(Reference: "REFUND-SECOND", Status: "A")] };
+        var service = new RefundService(db, CreateProvider(handler));
+
+        var created = await service.InitiatePayTabsRefundAsync("finance", new(paymentId, "CustomerRequest", null, "recover-ambiguous"));
+        var refundId = created.Refund!.Id;
+        var result = await service.VerifyPayTabsRefundAsync("finance", refundId);
+
+        Assert.Equal("PAYTABS_REFUND_RECOVERY_AMBIGUOUS", result.FailureCode);
+        Assert.Null((await db.Refunds.SingleAsync()).ProviderRefundReference);
+        Assert.Equal(0, handler.ReferenceQueries);
+        Assert.Equal(1, handler.CreateCalls);
+        await AssertNoRefundEffectsAsync(db, paymentId, refundId, entitlementId);
+    }
+
+    [Fact]
+    public async Task One_trusted_candidate_can_be_recovered_among_untrusted_results()
+    {
+        await using var db = CreateDb();
+        var (paymentId, _) = await AddPaidCourseSaleWithUnusedCreditAsync(db);
+        var handler = new RecoveryHandler { Candidates = [new RecoveryCandidate(Reference: "OTHER-REFUND", Amount: 99m), new()] };
+        var service = new RefundService(db, CreateProvider(handler));
+
+        var created = await service.InitiatePayTabsRefundAsync("finance", new(paymentId, "CustomerRequest", null, "recover-one-match"));
+        var result = await service.VerifyPayTabsRefundAsync("finance", created.Refund!.Id);
+
+        Assert.Equal(nameof(RefundStatus.InternallyRecorded), result.Refund!.Status);
+        Assert.Equal("REFUND-RECOVERED", (await db.Refunds.SingleAsync()).ProviderRefundReference);
+        Assert.Equal(1, handler.CreateCalls);
+        Assert.Equal(1, handler.CartQueries);
+        Assert.Equal(1, handler.ReferenceQueries);
+    }
+
+    [Theory]
+    [InlineData("amount")]
+    [InlineData("currency")]
+    [InlineData("cart")]
+    [InlineData("profile")]
+    [InlineData("type")]
+    [InlineData("previous")]
+    [InlineData("missing-previous")]
+    [InlineData("missing-reference")]
+    public async Task Mismatched_cart_candidate_cannot_bind_reference(string mismatch)
+    {
+        await using var db = CreateDb();
+        var (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(db);
+        var candidate = mismatch switch
+        {
+            "amount" => new RecoveryCandidate(Amount: 99m),
+            "currency" => new RecoveryCandidate(Currency: "USD"),
+            "cart" => new RecoveryCandidate(CartId: "WRONG-CART"),
+            "profile" => new RecoveryCandidate(ProfileId: 99),
+            "type" => new RecoveryCandidate(TransactionType: "sale"),
+            "previous" => new RecoveryCandidate(PreviousReference: "WRONG-SALE"),
+            "missing-previous" => new RecoveryCandidate(PreviousReference: null),
+            "missing-reference" => new RecoveryCandidate(Reference: null),
+            _ => throw new InvalidOperationException()
+        };
+        var handler = new RecoveryHandler { Candidates = [candidate] };
+        var service = new RefundService(db, CreateProvider(handler));
+
+        var created = await service.InitiatePayTabsRefundAsync("finance", new(paymentId, "CustomerRequest", null, $"recover-mismatch-{mismatch}"));
+        var refundId = created.Refund!.Id;
+        var result = await service.VerifyPayTabsRefundAsync("finance", refundId);
+
+        Assert.Equal("PAYTABS_REFUND_RECOVERY_UNVERIFIED", result.FailureCode);
+        Assert.Null((await db.Refunds.SingleAsync()).ProviderRefundReference);
+        Assert.Equal(0, handler.ReferenceQueries);
+        Assert.Equal(1, handler.CreateCalls);
+        await AssertNoRefundEffectsAsync(db, paymentId, refundId, entitlementId);
+    }
+
+    [Fact]
+    public async Task Recovered_reference_already_bound_to_another_refund_requires_review()
+    {
+        await using var db = CreateDb();
+        var (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(db);
+        var handler = new RecoveryHandler { Candidates = [new()] };
+        var service = new RefundService(db, CreateProvider(handler));
+
+        var created = await service.InitiatePayTabsRefundAsync("finance", new(paymentId, "CustomerRequest", null, "recover-conflict"));
+        var refundId = created.Refund!.Id;
+        db.Refunds.Add(new Refund { PaymentId = paymentId, Amount = 100m, Currency = "JOD", ReasonCode = "Existing", RequestedByUserId = "finance", IdempotencyKey = "other", ProviderName = "PayTabs", ProviderRefundReference = "REFUND-RECOVERED", CorrelationReference = "refund:other", CreatedByUserId = "finance" });
+        await db.SaveChangesAsync();
+
+        var result = await service.VerifyPayTabsRefundAsync("finance", refundId);
+
+        Assert.Equal("PAYTABS_REFUND_REFERENCE_CONFLICT", result.FailureCode);
+        Assert.Null((await db.Refunds.SingleAsync(item => item.Id == refundId)).ProviderRefundReference);
+        Assert.Single(await db.AuditLogs.Where(item => item.Action == "PayTabsRefundReferenceConflict" && item.EntityId == refundId.ToString()).ToListAsync());
+        Assert.Equal(0, handler.ReferenceQueries);
+        await AssertNoRefundEffectsAsync(db, paymentId, refundId, entitlementId);
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.ServiceUnavailable)]
+    [InlineData(HttpStatusCode.BadGateway)]
+    public async Task Unavailable_cart_query_stays_unknown(HttpStatusCode status)
+    {
+        await using var db = CreateDb();
+        var (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(db);
+        var handler = new RecoveryHandler { DiscoveryStatus = status };
+        var service = new RefundService(db, CreateProvider(handler));
+
+        var created = await service.InitiatePayTabsRefundAsync("finance", new(paymentId, "CustomerRequest", null, $"recover-http-{status}"));
+        var refundId = created.Refund!.Id;
+        var result = await service.VerifyPayTabsRefundAsync("finance", refundId);
+
+        Assert.Equal("PAYTABS_REFUND_RECOVERY_RESULT_UNKNOWN", result.FailureCode);
+        Assert.Equal(nameof(RefundStatus.ProviderResultUnknown), result.Refund!.Status);
+        Assert.Null((await db.Refunds.SingleAsync()).ProviderRefundReference);
+        Assert.Equal(1, handler.CreateCalls);
+        await AssertNoRefundEffectsAsync(db, paymentId, refundId, entitlementId);
+    }
+
+    [Fact]
+    public async Task Invalid_cart_query_shape_stays_unknown()
+    {
+        await using var db = CreateDb();
+        var (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(db);
+        var handler = new RecoveryHandler { DiscoveryPayloadOverride = "{}" };
+        var service = new RefundService(db, CreateProvider(handler));
+
+        var created = await service.InitiatePayTabsRefundAsync("finance", new(paymentId, "CustomerRequest", null, "recover-invalid-shape"));
+        var refundId = created.Refund!.Id;
+        var result = await service.VerifyPayTabsRefundAsync("finance", refundId);
+
+        Assert.Equal("PAYTABS_REFUND_RECOVERY_RESULT_UNKNOWN", result.FailureCode);
+        Assert.Null((await db.Refunds.SingleAsync()).ProviderRefundReference);
+        Assert.Equal(1, handler.CreateCalls);
+        await AssertNoRefundEffectsAsync(db, paymentId, refundId, entitlementId);
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Timed_out_taxed_full_refund_recovers_reference_and_finalizes_once()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("refund_cart_recovery");
+        Guid paymentId;
+        Guid entitlementId;
+        await using (var seed = database.CreateContext())
+            (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(seed, tax: 16m, total: 116m);
+        var handler = new RecoveryHandler { Candidates = [new()] };
+        Guid refundId;
+        await using (var createDb = database.CreateContext())
+        {
+            var created = await new RefundService(createDb, CreateProvider(handler))
+                .InitiatePayTabsRefundAsync("finance", new(paymentId, "CustomerRequest", null, "recover-taxed-full"));
+            refundId = created.Refund!.Id;
+            Assert.Equal(nameof(RefundStatus.ProviderResultUnknown), created.Refund.Status);
+            Assert.Null(created.Refund.ProviderRefundReference);
+        }
+
+        await using (var verifyDb = database.CreateContext())
+        {
+            var recovered = await new RefundService(verifyDb, CreateProvider(handler)).VerifyPayTabsRefundAsync("finance", refundId);
+            Assert.Equal(nameof(RefundStatus.InternallyRecorded), recovered.Refund!.Status);
+        }
+        await using (var replayDb = database.CreateContext())
+        {
+            var replay = await new RefundService(replayDb, CreateProvider(handler)).VerifyPayTabsRefundAsync("finance", refundId);
+            Assert.True(replay.IsIdempotentReplay);
+        }
+
+        await using var observed = database.CreateContext();
+        await AssertRecoveredOnceAsync(observed, paymentId, refundId, entitlementId);
+        Assert.Equal("REFUND-RECOVERED", (await observed.Refunds.SingleAsync(item => item.Id == refundId)).ProviderRefundReference);
+        Assert.Null((await observed.Enrollments.SingleAsync(item => item.PaymentId == paymentId)).AccessEndsAtUtc);
+        Assert.Single(await observed.AuditLogs.Where(item => item.Action == "PayTabsRefundReferenceRecovered" && item.EntityId == refundId.ToString()).ToListAsync());
+        Assert.Equal(1, handler.CreateCalls);
+        Assert.Equal(1, handler.CartQueries);
+        Assert.Equal(1, handler.ReferenceQueries);
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Competing_reference_recoveries_bind_and_finalize_taxed_refund_once()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("refund_cart_race");
+        Guid paymentId;
+        Guid entitlementId;
+        await using (var seed = database.CreateContext())
+            (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(seed, tax: 16m, total: 116m);
+        var handler = new RecoveryHandler { Candidates = [new()] };
+        Guid refundId;
+        await using (var createDb = database.CreateContext())
+            refundId = (await new RefundService(createDb, CreateProvider(handler))
+                .InitiatePayTabsRefundAsync("finance", new(paymentId, "CustomerRequest", null, "recover-race"))).Refund!.Id;
+
+        var barrier = new RefundUpdateBarrier();
+        await using var firstDb = database.CreateContext(barrier);
+        await using var secondDb = database.CreateContext(barrier);
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(45));
+        var first = new RefundService(firstDb, CreateProvider(handler)).VerifyPayTabsRefundAsync("finance-one", refundId, timeout.Token);
+        var second = new RefundService(secondDb, CreateProvider(handler)).VerifyPayTabsRefundAsync("finance-two", refundId, timeout.Token);
+        var results = await Task.WhenAll(first, second).WaitAsync(timeout.Token);
+
+        Assert.True(barrier.Arrivals >= 2);
+        Assert.All(results, result => Assert.Equal(nameof(RefundStatus.InternallyRecorded), result.Refund!.Status));
+        await using var observed = database.CreateContext();
+        await AssertRecoveredOnceAsync(observed, paymentId, refundId, entitlementId);
+        Assert.Single(await observed.AuditLogs.Where(item => item.Action == "PayTabsRefundReferenceRecovered" && item.EntityId == refundId.ToString()).ToListAsync());
+        Assert.Equal(1, handler.CreateCalls);
+        Assert.Equal(2, handler.CartQueries);
+        Assert.InRange(handler.ReferenceQueries, 1, 2);
+    }
+
+    [Fact]
     public async Task Existing_partial_refund_evidence_cannot_be_sent_to_paytabs()
     {
         await using var db = CreateDb();
@@ -699,6 +983,76 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
     private static BetccoDbContext CreateDb() => new(new DbContextOptionsBuilder<BetccoDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).ConfigureWarnings(warnings => warnings.Ignore(InMemoryEventId.TransactionIgnoredWarning)).Options);
 
     public enum RefundResponseMode { Success, Declined, AmountMismatch, CurrencyMismatch, CartMismatch, ReferenceMismatch, Timeout, QueryTimeout }
+
+    private sealed record RecoveryCandidate(
+        string? Reference = "REFUND-RECOVERED",
+        long ProfileId = 123456,
+        string? CartId = null,
+        string Currency = "JOD",
+        decimal? Amount = null,
+        string TransactionType = "refund",
+        string? PreviousReference = "SALE-TRUSTED-REF",
+        string Status = "P");
+
+    private sealed class RecoveryHandler : HttpMessageHandler
+    {
+        private int createCalls;
+        private int cartQueries;
+        private int referenceQueries;
+        private string? originalCartId;
+        private decimal originalAmount;
+
+        public int CreateCalls => Volatile.Read(ref createCalls);
+        public int CartQueries => Volatile.Read(ref cartQueries);
+        public int ReferenceQueries => Volatile.Read(ref referenceQueries);
+        public IReadOnlyList<RecoveryCandidate> Candidates { get; init; } = [];
+        public string ReferenceStatus { get; init; } = "A";
+        public HttpStatusCode DiscoveryStatus { get; init; } = HttpStatusCode.OK;
+        public string? DiscoveryPayloadOverride { get; init; }
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            using var body = JsonDocument.Parse(await request.Content!.ReadAsStringAsync(cancellationToken));
+            var root = body.RootElement;
+            if (request.RequestUri!.AbsolutePath.EndsWith("/payment/request", StringComparison.Ordinal))
+            {
+                Interlocked.Increment(ref createCalls);
+                originalCartId = root.GetProperty("cart_id").GetString();
+                originalAmount = root.GetProperty("cart_amount").GetDecimal();
+                throw new HttpRequestException("Simulated ambiguous refund create result.");
+            }
+
+            if (root.TryGetProperty("cart_id", out var cartId))
+            {
+                Interlocked.Increment(ref cartQueries);
+                Assert.Equal(originalCartId, cartId.GetString());
+                return new(DiscoveryStatus)
+                {
+                    Content = new StringContent(DiscoveryPayloadOverride ?? JsonSerializer.Serialize(Candidates.Select(candidate => Payload(candidate, candidate.Status))))
+                };
+            }
+
+            Interlocked.Increment(ref referenceQueries);
+            var reference = root.GetProperty("tran_ref").GetString();
+            var match = Assert.Single(Candidates, candidate => candidate.Reference == reference);
+            return new(HttpStatusCode.OK)
+            {
+                Content = new StringContent(JsonSerializer.Serialize(Payload(match, ReferenceStatus)))
+            };
+        }
+
+        private object Payload(RecoveryCandidate candidate, string status) => new
+        {
+            profile_id = candidate.ProfileId,
+            tran_ref = candidate.Reference,
+            previous_tran_ref = candidate.PreviousReference,
+            tran_type = candidate.TransactionType,
+            cart_id = candidate.CartId ?? originalCartId,
+            cart_currency = candidate.Currency,
+            cart_amount = candidate.Amount ?? originalAmount,
+            payment_result = new { response_status = status, response_code = "100" }
+        };
+    }
 
     private sealed class RefundHandler(RefundResponseMode mode = RefundResponseMode.Success, string createStatus = "A", string queryStatus = "A") : HttpMessageHandler
     {
