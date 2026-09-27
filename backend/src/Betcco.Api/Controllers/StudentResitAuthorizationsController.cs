@@ -11,6 +11,20 @@ namespace Betcco.Api.Controllers;
 [Route("api/v1/student/resit-authorizations")]
 public sealed class StudentResitAuthorizationsController(IResitService resits) : ControllerBase
 {
+    [HttpGet]
+    public async Task<IActionResult> List(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        if (page < 1 || pageSize is < 1 or > 50)
+            return BadRequest(new { code = "RESIT_PAGE_INVALID" });
+        var studentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(studentUserId)) return Unauthorized();
+        return Ok(await resits.ListStudentAuthorizationsAsync(
+            studentUserId, page, pageSize, cancellationToken));
+    }
+
     [HttpPost("{authorizationId:guid}/activate")]
     [EnableRateLimiting("write")]
     public async Task<IActionResult> Activate(

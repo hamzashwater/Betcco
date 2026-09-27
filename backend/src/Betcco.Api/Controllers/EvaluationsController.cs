@@ -440,6 +440,12 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             : null;
         var canViewCalculatedResult = !isOwner
             || request.Status is EvaluationStatus.NeedsRevision or EvaluationStatus.Completed;
+        var hasAuthenticityDeclaration = isOwner
+            ? await db.AuthenticityDeclarations.AsNoTracking().AnyAsync(item =>
+                item.EvaluationRequestId == requestId
+                && item.AttemptNumber == request.SubmissionAttemptNumber,
+                cancellationToken)
+            : (bool?)null;
         return Ok(new
         {
             request.Id,
@@ -458,6 +464,7 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             request.RetakeOfEvaluationRequestId,
             isResit = resitOriginalId.HasValue,
             resitOfEvaluationRequestId = resitOriginalId,
+            hasAuthenticityDeclaration,
             academic = AssessmentScopeSnapshotReader.Summary(request.AssessmentScopeSnapshotJson),
             criteria = JsonSerializer.Deserialize<string[]>(request.CriteriaSnapshotJson) ?? [],
             selectedCriteria = JsonSerializer.Deserialize<string[]>(request.EvaluatorCriteriaPlanJson) ?? [],
