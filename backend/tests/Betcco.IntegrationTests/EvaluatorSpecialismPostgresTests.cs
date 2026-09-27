@@ -20,7 +20,7 @@ public sealed class EvaluatorSpecialismPostgresTests
 {
     [Fact]
     [Trait("Category", "PostgreSQLAssessment")]
-    public async Task Activated_resit_routes_only_to_an_independent_evaluator_with_matching_unit_grant()
+    public async Task Activated_resit_routes_to_an_independent_evaluator_and_receives_one_final_review()
     {
         await using var database = await PostgresTestDatabase.CreateAsync("resit_evaluator_routing");
         await using var provider = Services(database.ConnectionString);
@@ -160,6 +160,60 @@ public sealed class EvaluatorSpecialismPostgresTests
         Assert.Equal(await db.EvaluatorUnitSpecialisms.Where(x => x.EvaluatorUserId == independent.Id)
             .Select(x => x.Id).SingleAsync(), assignment.EvaluatorUnitSpecialismId);
         Assert.Equal(EvaluationStatus.Assigned, resit.Status);
+
+        var activatedAt = authorization.ActivatedAtUtc;
+        Assert.True(await routing.SetCriteriaPlanAsync(independent.Id.ToString(), resitId, ["A.P1"]));
+        Assert.True(await routing.SubmitReviewAsync(independent.Id.ToString(), resitId,
+            new SubmitEvaluationReviewCommand(
+                [new CriterionSubmission("A.P1", "Achieved", "Fresh evidence", "Criterion met")],
+                "Final advisory feedback", false, null)));
+
+        await using var verify = database.CreateContext();
+        var persistedResit = await verify.EvaluationRequests.AsNoTracking().SingleAsync(x => x.Id == resitId);
+        Assert.Equal(EvaluationStatus.Completed, persistedResit.Status);
+        Assert.Equal(1, persistedResit.SubmissionAttemptNumber);
+        Assert.Null(persistedResit.RevisionDueAtUtc);
+        Assert.Equal(EvaluationGrade.Pass, persistedResit.CalculatedGrade);
+        Assert.Null(persistedResit.CalculatedScore);
+        Assert.False(string.IsNullOrWhiteSpace(persistedResit.SectionResultsJson));
+        var decision = Assert.Single(await verify.EvaluationReviewDecisions.AsNoTracking()
+            .Include(x => x.CriterionDecisions).Where(x => x.EvaluationRequestId == resitId).ToListAsync());
+        Assert.Equal(1, decision.AttemptNumber);
+        Assert.Equal(EvaluationReviewStage.InitialReview, decision.ReviewStage);
+        Assert.Equal(independent.Id.ToString(), decision.ReviewerUserId);
+        Assert.False(decision.RequestsRevision);
+        Assert.Null(decision.RevisionDueAtUtc);
+        Assert.Equal(persistedResit.CalculatedGrade, decision.CalculatedGrade);
+        Assert.Equal(persistedResit.SectionResultsJson, decision.SectionResultsJson);
+        Assert.Equal("A.P1", Assert.Single(decision.CriterionDecisions).CriterionCode);
+        Assert.Single(await verify.CriterionResults.Where(x => x.EvaluationRequestId == resitId).ToListAsync());
+        Assert.False(Assert.Single(await verify.EvaluationFeedbackItems.Where(x => x.EvaluationRequestId == resitId).ToListAsync()).RequestsResubmission);
+        Assert.False(await verify.ResubmissionAuthorizations.AnyAsync(x => x.EvaluationRequestId == resitId));
+        Assert.False(await verify.EvaluationRevisionDeadlineAdjustments.AnyAsync(x => x.EvaluationRequestId == resitId));
+        Assert.False(await verify.AuthenticityDeclarations.AnyAsync(x => x.EvaluationRequestId == resitId && x.AttemptNumber == 2));
+        Assert.False(await verify.EvaluationFeedbackItems.AnyAsync(x => x.EvaluationRequestId == resitId && x.RequestsResubmission));
+        Assert.False(await verify.AuditLogs.AnyAsync(x => x.EntityId == resitId.ToString() && x.Action == "EvaluationRevisionRequested"));
+        Assert.Contains(await verify.AssessmentAuditEvents.Where(x => x.EvaluationRequestId == resitId).ToListAsync(),
+            x => x.EventType == "InitialReviewCompleted");
+        Assert.Contains(await verify.AuditLogs.Where(x => x.EntityId == resitId.ToString()).ToListAsync(),
+            x => x.Action == "EvaluationReviewCompleted");
+        var persistedOriginal = await verify.EvaluationRequests.AsNoTracking().SingleAsync(x => x.Id == original.Id);
+        Assert.Equal(EvaluationStatus.Completed, persistedOriginal.Status);
+        Assert.Equal(EvaluationGrade.NotYetAchieved, persistedOriginal.CalculatedGrade);
+        Assert.Equal(2, persistedOriginal.SubmissionAttemptNumber);
+        Assert.False(await verify.CriterionResults.AnyAsync(x => x.EvaluationRequestId == original.Id));
+        Assert.False(await verify.EvaluationReviewDecisions.AnyAsync(x => x.EvaluationRequestId == original.Id));
+        var persistedAuthorization = await verify.ResitAuthorizations.AsNoTracking().SingleAsync(x => x.Id == authorization.Id);
+        Assert.Equal(original.Id, persistedAuthorization.OriginalEvaluationRequestId);
+        Assert.Equal(resitId, persistedAuthorization.ResitEvaluationRequestId);
+        Assert.Equal(authorizer.Id, persistedAuthorization.AuthorizedByUserId);
+        Assert.NotNull(activatedAt);
+        Assert.NotNull(persistedAuthorization.ActivatedAtUtc);
+        Assert.InRange(
+            (persistedAuthorization.ActivatedAtUtc.Value - activatedAt.Value).Duration(),
+            TimeSpan.Zero,
+            TimeSpan.FromTicks(9));
+        Assert.Equal(authorization.Reason, persistedAuthorization.Reason);
     }
 
     [Fact]

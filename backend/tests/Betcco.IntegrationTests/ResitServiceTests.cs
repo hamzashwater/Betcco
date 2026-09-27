@@ -27,6 +27,216 @@ public sealed class ResitServiceTests
     private static readonly Guid OtherStudentId = Guid.Parse("44444444-4444-4444-4444-444444444444");
 
     [Fact]
+    public async Task Linked_resit_receives_one_final_attempt_one_review_without_changing_original()
+    {
+        await using var db = InMemory();
+        var (original, authorization, resit, service) = await AssignedResitAsync(db);
+        var originalGrade = original.CalculatedGrade;
+        var originalStatus = original.Status;
+        var originalAttempt = original.SubmissionAttemptNumber;
+        var activatedAt = authorization.ActivatedAtUtc;
+        original.SectionResultsJson = "{\"original\":true}";
+        original.PaymentId = Guid.NewGuid();
+        var originalPaymentId = original.PaymentId;
+        var originalDecision = new EvaluationReviewDecision
+        {
+            EvaluationRequestId = original.Id,
+            AttemptNumber = 2,
+            ReviewStage = EvaluationReviewStage.RevisionCheck,
+            ReviewerUserId = ReviewerId.ToString(),
+            SectionResultsJson = original.SectionResultsJson,
+            Feedback = "Original feedback",
+            CriterionCount = 1,
+            CalculatedGrade = EvaluationGrade.NotYetAchieved
+        };
+        originalDecision.CriterionDecisions.Add(new EvaluationReviewCriterionDecision
+        {
+            CriterionCode = "A.P1",
+            Achievement = CriterionAchievement.PartiallyAchieved
+        });
+        db.EvaluationReviewDecisions.Add(originalDecision);
+        db.CriterionResults.Add(new CriterionResult
+        {
+            EvaluationRequestId = original.Id,
+            CriterionCode = "A.P1",
+            Achievement = CriterionAchievement.PartiallyAchieved
+        });
+        db.EvaluationFeedbackItems.Add(new EvaluationFeedback
+        {
+            EvaluationRequestId = original.Id,
+            AuthorUserId = ReviewerId.ToString(),
+            Body = "Original feedback"
+        });
+        var originalFile = new SubmissionFile
+        {
+            EvaluationRequestId = original.Id,
+            OriginalFileName = "original.pdf",
+            StorageKey = "private/original",
+            ContentType = "application/pdf",
+            LengthBytes = 10,
+            ScanStatus = UploadScanStatus.Clean
+        };
+        db.SubmissionFiles.Add(originalFile);
+        var originalDeclaration = new AuthenticityDeclaration
+        {
+            EvaluationRequestId = original.Id,
+            StudentUserId = original.StudentUserId,
+            AttemptNumber = 2,
+            PolicyVersion = "historical",
+            StatementSnapshot = "Historical declaration"
+        };
+        db.AuthenticityDeclarations.Add(originalDeclaration);
+        await db.SaveChangesAsync();
+        var originalEventIds = await db.AssessmentAuditEvents.Where(x => x.EvaluationRequestId == original.Id)
+            .Select(x => x.Id).ToListAsync();
+
+        Assert.True(await service.SubmitReviewAsync(OtherStaffId.ToString(), resit.Id, FinalReview()));
+
+        Assert.Equal(EvaluationStatus.Completed, resit.Status);
+        Assert.Equal(1, resit.SubmissionAttemptNumber);
+        Assert.Null(resit.RevisionDueAtUtc);
+        Assert.Equal(EvaluationGrade.Pass, resit.CalculatedGrade);
+        Assert.Null(resit.CalculatedScore);
+        Assert.False(string.IsNullOrWhiteSpace(resit.SectionResultsJson));
+        var result = Assert.Single(await db.CriterionResults.Where(x => x.EvaluationRequestId == resit.Id).ToListAsync());
+        Assert.Equal("A.P1", result.CriterionCode);
+        var decision = Assert.Single(await db.EvaluationReviewDecisions.AsNoTracking()
+            .Include(x => x.CriterionDecisions).Where(x => x.EvaluationRequestId == resit.Id).ToListAsync());
+        Assert.Equal(1, decision.AttemptNumber);
+        Assert.Equal(EvaluationReviewStage.InitialReview, decision.ReviewStage);
+        Assert.Equal(OtherStaffId.ToString(), decision.ReviewerUserId);
+        Assert.False(decision.RequestsRevision);
+        Assert.Null(decision.RevisionDueAtUtc);
+        Assert.Equal(resit.CalculatedGrade, decision.CalculatedGrade);
+        Assert.Equal(resit.SectionResultsJson, decision.SectionResultsJson);
+        Assert.Equal(FinalReview().Feedback, decision.Feedback);
+        Assert.Equal(1, decision.CriterionCount);
+        Assert.Equal("A.P1", Assert.Single(decision.CriterionDecisions).CriterionCode);
+        Assert.False(Assert.Single(await db.EvaluationFeedbackItems.Where(x => x.EvaluationRequestId == resit.Id).ToListAsync()).RequestsResubmission);
+        Assert.Contains(await db.AssessmentAuditEvents.Where(x => x.EvaluationRequestId == resit.Id).ToListAsync(),
+            x => x.EventType == "InitialReviewCompleted");
+        Assert.Contains(await db.AuditLogs.Where(x => x.EntityId == resit.Id.ToString()).ToListAsync(),
+            x => x.Action == "EvaluationReviewCompleted");
+        Assert.Contains(await db.Notifications.ToListAsync(), x => x.UserId == resit.StudentUserId && x.Title == "BETCCO review complete");
+        Assert.False(await db.ResubmissionAuthorizations.AnyAsync(x => x.EvaluationRequestId == resit.Id));
+        Assert.False(await db.EvaluationRevisionDeadlineAdjustments.AnyAsync(x => x.EvaluationRequestId == resit.Id));
+        Assert.False(await db.AuthenticityDeclarations.AnyAsync(x => x.EvaluationRequestId == resit.Id && x.AttemptNumber == 2));
+        Assert.Equal(originalStatus, original.Status);
+        Assert.Equal(originalGrade, original.CalculatedGrade);
+        Assert.Equal(originalAttempt, original.SubmissionAttemptNumber);
+        Assert.Equal("{\"original\":true}", original.SectionResultsJson);
+        Assert.Equal(originalPaymentId, original.PaymentId);
+        Assert.Equal(resit.Id, authorization.ResitEvaluationRequestId);
+        Assert.Equal(activatedAt, authorization.ActivatedAtUtc);
+        Assert.Single(await db.CriterionResults.Where(x => x.EvaluationRequestId == original.Id).ToListAsync());
+        Assert.Equal(originalDecision.Id, Assert.Single(await db.EvaluationReviewDecisions.Where(x => x.EvaluationRequestId == original.Id).ToListAsync()).Id);
+        Assert.Single(await db.EvaluationFeedbackItems.Where(x => x.EvaluationRequestId == original.Id).ToListAsync());
+        Assert.Equal(originalFile.Id, Assert.Single(await db.SubmissionFiles.Where(x => x.EvaluationRequestId == original.Id).ToListAsync()).Id);
+        Assert.Equal(originalDeclaration.Id, Assert.Single(await db.AuthenticityDeclarations.Where(x => x.EvaluationRequestId == original.Id).ToListAsync()).Id);
+        Assert.Equal(originalEventIds, await db.AssessmentAuditEvents.Where(x => x.EvaluationRequestId == original.Id)
+            .Select(x => x.Id).ToListAsync());
+    }
+
+    [Fact]
+    public async Task Linked_resit_rejects_revision_request_before_any_review_writes()
+    {
+        await using var db = InMemory();
+        var (_, _, resit, service) = await AssignedResitAsync(db);
+        var eventCount = await db.AssessmentAuditEvents.CountAsync(x => x.EvaluationRequestId == resit.Id);
+        var auditCount = await db.AuditLogs.CountAsync(x => x.EntityId == resit.Id.ToString());
+        var notificationCount = await db.Notifications.CountAsync();
+
+        Assert.False(await service.SubmitReviewAsync(OtherStaffId.ToString(), resit.Id,
+            FinalReview() with { RequestRevision = true, RevisionDueAtUtc = DateTimeOffset.UtcNow.AddDays(2) }));
+
+        Assert.Equal(EvaluationStatus.Assigned, resit.Status);
+        Assert.Equal(1, resit.SubmissionAttemptNumber);
+        Assert.Null(resit.RevisionDueAtUtc);
+        Assert.Null(resit.CalculatedGrade);
+        Assert.False(await db.EvaluationReviewDecisions.AnyAsync(x => x.EvaluationRequestId == resit.Id));
+        Assert.False(await db.CriterionResults.AnyAsync(x => x.EvaluationRequestId == resit.Id));
+        Assert.False(await db.EvaluationFeedbackItems.AnyAsync(x => x.EvaluationRequestId == resit.Id));
+        Assert.Equal(eventCount, await db.AssessmentAuditEvents.CountAsync(x => x.EvaluationRequestId == resit.Id));
+        Assert.Equal(auditCount, await db.AuditLogs.CountAsync(x => x.EntityId == resit.Id.ToString()));
+        Assert.Equal(notificationCount, await db.Notifications.CountAsync());
+    }
+
+    [Fact]
+    public async Task Linked_resit_rejects_attempt_two_review_without_mutation()
+    {
+        await using var db = InMemory();
+        var (_, _, resit, service) = await AssignedResitAsync(db);
+        resit.SubmissionAttemptNumber = 2;
+        await db.SaveChangesAsync();
+
+        Assert.False(await service.SubmitReviewAsync(OtherStaffId.ToString(), resit.Id, FinalReview()));
+
+        Assert.Equal(EvaluationStatus.Assigned, resit.Status);
+        Assert.Equal(2, resit.SubmissionAttemptNumber);
+        Assert.Null(resit.CalculatedGrade);
+        Assert.False(await db.EvaluationReviewDecisions.AnyAsync(x => x.EvaluationRequestId == resit.Id));
+        Assert.False(await db.CriterionResults.AnyAsync(x => x.EvaluationRequestId == resit.Id));
+        Assert.False(await db.EvaluationFeedbackItems.AnyAsync(x => x.EvaluationRequestId == resit.Id));
+    }
+
+    [Fact]
+    public async Task Linked_resit_cannot_resubmit_even_with_every_normal_prerequisite()
+    {
+        await using var db = InMemory();
+        var (_, _, resit, service) = await AssignedResitAsync(db);
+        resit.Status = EvaluationStatus.NeedsRevision;
+        resit.RevisionDueAtUtc = DateTimeOffset.UtcNow.AddDays(2);
+        var feedback = new EvaluationFeedback
+        {
+            EvaluationRequestId = resit.Id,
+            AuthorUserId = OtherStaffId.ToString(),
+            Body = "Legacy revision feedback",
+            RequestsResubmission = true
+        };
+        db.EvaluationFeedbackItems.Add(feedback);
+        await db.SaveChangesAsync();
+        db.SubmissionFiles.Add(new SubmissionFile
+        {
+            EvaluationRequestId = resit.Id,
+            OriginalFileName = "revision.pdf",
+            StorageKey = "private/resit-revision",
+            ContentType = "application/pdf",
+            LengthBytes = 10,
+            ScanStatus = UploadScanStatus.Clean,
+            CreatedAtUtc = feedback.CreatedAtUtc.AddSeconds(1)
+        });
+        db.AuthenticityDeclarations.Add(new AuthenticityDeclaration
+        {
+            EvaluationRequestId = resit.Id,
+            StudentUserId = resit.StudentUserId,
+            AttemptNumber = 2,
+            PolicyVersion = "legacy",
+            StatementSnapshot = "Legacy declaration"
+        });
+        var authorization = new ResubmissionAuthorization
+        {
+            EvaluationRequestId = resit.Id,
+            AuthorizedByUserId = ReviewerId.ToString(),
+            AttemptNumber = 2,
+            RuleSetVersion = BtecAssessmentRuleSet.Default.Version,
+            Reason = "Legacy authorization",
+            DueAtUtc = DateTimeOffset.UtcNow.AddDays(2)
+        };
+        db.ResubmissionAuthorizations.Add(authorization);
+        await db.SaveChangesAsync();
+        var eventCount = await db.AssessmentAuditEvents.CountAsync(x => x.EvaluationRequestId == resit.Id);
+        var auditCount = await db.AuditLogs.CountAsync(x => x.EntityId == resit.Id.ToString());
+
+        Assert.False(await service.ResubmitAsync(resit.StudentUserId, resit.Id));
+
+        Assert.Equal(EvaluationStatus.NeedsRevision, resit.Status);
+        Assert.Equal(1, resit.SubmissionAttemptNumber);
+        Assert.Null(authorization.SubmittedAtUtc);
+        Assert.Equal(eventCount, await db.AssessmentAuditEvents.CountAsync(x => x.EvaluationRequestId == resit.Id));
+        Assert.Equal(auditCount, await db.AuditLogs.CountAsync(x => x.EntityId == resit.Id.ToString()));
+    }
+
+    [Fact]
     public async Task Activated_resit_uses_only_fresh_private_evidence_and_attempt_one_authenticity()
     {
         await using var db = InMemory();
@@ -1208,6 +1418,31 @@ public sealed class ResitServiceTests
         if (persist) await db.SaveChangesAsync();
         return (original, authorization);
     }
+
+    private static async Task<(EvaluationRequest Original, ResitAuthorization Authorization,
+        EvaluationRequest Resit, EvaluationService Service)> AssignedResitAsync(BetccoDbContext db)
+    {
+        var (original, authorization) = await SeedActivationAsync(db);
+        var activation = await new ResitService(db).ActivateAsync(StudentId.ToString(), authorization.Id);
+        Assert.Equal(ResitActivationStatus.Activated, activation.Status);
+        var resit = await db.EvaluationRequests.SingleAsync(x => x.Id == activation.ResitEvaluationRequestId);
+        // L12 owns the production payment transition; this fixture enters the assigned review stage.
+        resit.Status = EvaluationStatus.Assigned;
+        db.EvaluatorAssignments.Add(new EvaluatorAssignment
+        {
+            EvaluationRequestId = resit.Id,
+            EvaluatorUserId = OtherStaffId.ToString(),
+            AssignedByUserId = ReviewerId.ToString()
+        });
+        await db.SaveChangesAsync();
+        var service = new EvaluationService(db, new ResitFileStorage(), new ResitFileScanner(FileScanOutcome.Clean));
+        Assert.True(await service.SetCriteriaPlanAsync(OtherStaffId.ToString(), resit.Id, ["A.P1"]));
+        return (original, authorization, resit, service);
+    }
+
+    private static SubmitEvaluationReviewCommand FinalReview() => new(
+        [new CriterionSubmission("A.P1", "Achieved", "Fresh evidence", "Pass criterion met")],
+        "Final advisory review completed.", false, null);
 
     private static async Task<Guid> SeedPostgresActivationAsync(PostgresTestDatabase database)
     {
