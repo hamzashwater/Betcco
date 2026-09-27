@@ -1,6 +1,7 @@
 "use client";
 
 import { api } from "@/lib/api";
+import { useStudentEvaluations } from "@/features/student/student-evaluation-page";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
 import { useMemo, useState } from "react";
@@ -28,11 +29,7 @@ export function EvaluationAppeals() {
   const client = useQueryClient();
   const [evaluationRequestId, setEvaluationRequestId] = useState("");
   const [reason, setReason] = useState("");
-  const evaluations = useQuery({
-    queryKey: ["evaluations"],
-    queryFn: () => api<Evaluation[]>("/evaluations/mine"),
-    retry: false,
-  });
+  const evaluations = useStudentEvaluations<Evaluation>(false);
   const appeals = useQuery({
     queryKey: ["evaluation-appeals", "mine"],
     queryFn: () => api<Appeal[]>("/evaluation-appeals/mine"),
@@ -40,7 +37,9 @@ export function EvaluationAppeals() {
   });
   const completed = useMemo(
     () =>
-      (evaluations.data ?? []).filter((item) => item.status === "Completed"),
+      (evaluations.data?.pages.flatMap((page) => page.items) ?? []).filter(
+        (item) => item.status === "Completed",
+      ),
     [evaluations.data],
   );
   const create = useMutation({
@@ -115,7 +114,32 @@ export function EvaluationAppeals() {
             ))}
           </select>
         </label>
-        {evaluations.isSuccess && completed.length === 0 ? (
+        {evaluations.isFetchNextPageError ? (
+          <p role="alert" className="text-sm text-red-500">
+            {ar
+              ? "تعذر تحميل المزيد من التقييمات."
+              : "Unable to load more evaluations."}
+          </p>
+        ) : null}
+        {evaluations.hasNextPage || evaluations.isFetchNextPageError ? (
+          <button
+            type="button"
+            className="focus-ring justify-self-start rounded-xl border border-border px-4 py-2 font-semibold disabled:opacity-50"
+            disabled={evaluations.isFetchingNextPage}
+            onClick={() => void evaluations.fetchNextPage()}
+          >
+            {evaluations.isFetchingNextPage
+              ? ar
+                ? "جارٍ التحميل…"
+                : "Loading…"
+              : ar
+                ? "عرض المزيد من التقييمات"
+                : "Load more evaluations"}
+          </button>
+        ) : null}
+        {evaluations.isSuccess &&
+        !evaluations.hasNextPage &&
+        completed.length === 0 ? (
           <p className="rounded-xl border border-border bg-page/40 p-3 text-sm text-muted">
             {ar
               ? "لا توجد تقييمات منشورة متاحة للاستئناف حاليًا."

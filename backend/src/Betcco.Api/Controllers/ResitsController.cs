@@ -12,17 +12,37 @@ namespace Betcco.Api.Controllers;
 public sealed class ResitsController(IResitService resits) : ControllerBase
 {
     [HttpGet("eligible")]
-    public async Task<IActionResult> Eligible(CancellationToken cancellationToken)
+    public async Task<IActionResult> Eligible(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
     {
         if (!TryActor(out var actorUserId)) return Unauthorized();
-        return Ok(await resits.ListEligibleAsync(actorUserId, cancellationToken));
+        try
+        {
+            return Ok(await resits.ListEligibleAsync(actorUserId, page, pageSize, cancellationToken));
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return InvalidPage();
+        }
     }
 
     [HttpGet("authorizations")]
-    public async Task<IActionResult> Authorizations(CancellationToken cancellationToken)
+    public async Task<IActionResult> Authorizations(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
     {
         if (!TryActor(out var actorUserId)) return Unauthorized();
-        return Ok(await resits.ListAuthorizationsAsync(actorUserId, cancellationToken));
+        try
+        {
+            return Ok(await resits.ListAuthorizationsAsync(actorUserId, page, pageSize, cancellationToken));
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return InvalidPage();
+        }
     }
 
     [HttpPost("{originalEvaluationRequestId:guid}/authorize")]
@@ -57,6 +77,13 @@ public sealed class ResitsController(IResitService resits) : ControllerBase
 
     private bool TryActor(out Guid actorUserId) =>
         Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out actorUserId);
+
+
+    private BadRequestObjectResult InvalidPage() => BadRequest(new
+    {
+        code = "RESIT_PAGE_INVALID",
+        message = "Use page >= 1 and pageSize between 1 and 50."
+    });
 
     private IActionResult Map(ResitAuthorizationWriteResult result) => result.Status switch
     {

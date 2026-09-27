@@ -320,51 +320,61 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
 
     [Authorize(Policy = "Student")]
     [HttpGet("mine")]
-    public async Task<IActionResult> Mine(CancellationToken cancellationToken)
+    public async Task<IActionResult> Mine([FromQuery] int page = 1, [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
     {
-        var requests = await db.EvaluationRequests
-            .AsNoTracking()
+        if (page < 1 || pageSize is < 1 or > 50)
+            return BadRequest(new { code = "EVALUATION_PAGE_INVALID", message = "Use page >= 1 and pageSize between 1 and 50." });
+
+        var owned = db.EvaluationRequests.AsNoTracking()
+            .Where(x => x.StudentUserId == UserId);
+        var totalCount = await owned.CountAsync(cancellationToken);
+        var offset = (long)(page - 1) * pageSize;
+        if (offset >= totalCount)
+            return Ok(new StudentEvaluationPage([], page, pageSize, totalCount, false));
+
+        var requests = await owned
             .Include(x => x.CriterionResults)
             .Include(x => x.EvidenceItems)
             .Include(x => x.FeedbackItems)
             .Include(x => x.RevisionDeadlineAdjustments)
-            .Where(x => x.StudentUserId == UserId)
+            .AsSplitQuery()
             .OrderByDescending(x => x.CreatedAtUtc)
+            .ThenByDescending(x => x.Id)
+            .Skip((int)offset)
+            .Take(pageSize)
             .ToListAsync(cancellationToken);
 
-        return Ok(requests.Select(request => new
+        var items = requests.Select(request =>
         {
-            request.Id,
-            status = request.Status.ToString(),
-            request.Price,
-            request.Currency,
-            request.StudentComment,
-            request.SubmissionAttemptNumber,
-            revisionDueAtUtc = request.RevisionDueAtUtc,
-            effectiveRevisionDueAtUtc = request.RevisionDeadlineAdjustments
-                .Where(item => item.RevokedAtUtc == null)
-                .OrderByDescending(item => item.GrantedAtUtc)
-                .Select(item => (DateTimeOffset?)item.ExtendedDueAtUtc)
-                .FirstOrDefault() ?? request.RevisionDueAtUtc,
-            isRetake = request.RetakeOfEvaluationRequestId != null,
-            request.RetakeOfEvaluationRequestId,
-            academic = AssessmentScopeSnapshotReader.Summary(request.AssessmentScopeSnapshotJson),
-            criteria = JsonSerializer.Deserialize<string[]>(request.CriteriaSnapshotJson) ?? [],
-            selectedCriteria = JsonSerializer.Deserialize<string[]>(request.EvaluatorCriteriaPlanJson) ?? [],
-            evidence = request.EvidenceItems.OrderBy(x => x.CriterionCode).Select(x => new { x.CriterionCode, x.Narrative }),
-            feedback = request.FeedbackItems.OrderBy(x => x.CreatedAtUtc).Select(x => new { x.Body, x.RequestsResubmission, x.CreatedAtUtc }),
-            // BETCCO is advisory: the learner can see the current estimated result
-            // with first-review feedback, then the final estimate after the revision check.
-            calculatedGrade = request.Status is EvaluationStatus.NeedsRevision or EvaluationStatus.Completed
-                ? request.CalculatedGrade?.ToString()
-                : null,
-            sectionResults = request.Status is EvaluationStatus.NeedsRevision or EvaluationStatus.Completed
-                ? ReadSectionResults(request.SectionResultsJson)
-                : [],
-            results = request.Status is EvaluationStatus.NeedsRevision or EvaluationStatus.Completed
-                ? request.CriterionResults.OrderBy(x => x.CriterionCode).Select(x => new { x.CriterionCode, achievement = x.Achievement.ToString(), x.Evidence, x.Comment })
-                : []
-        }));
+            var showResult = request.Status is EvaluationStatus.NeedsRevision or EvaluationStatus.Completed;
+            return new StudentEvaluationItem(
+                request.Id, request.Status.ToString(), request.Price, request.Currency, request.StudentComment,
+                request.SubmissionAttemptNumber, request.RevisionDueAtUtc,
+                request.RevisionDeadlineAdjustments
+                    .Where(item => item.RevokedAtUtc == null)
+                    .OrderByDescending(item => item.GrantedAtUtc)
+                    .Select(item => (DateTimeOffset?)item.ExtendedDueAtUtc)
+                    .FirstOrDefault() ?? request.RevisionDueAtUtc,
+                request.RetakeOfEvaluationRequestId != null, request.RetakeOfEvaluationRequestId,
+                AssessmentScopeSnapshotReader.Summary(request.AssessmentScopeSnapshotJson),
+                JsonSerializer.Deserialize<string[]>(request.CriteriaSnapshotJson) ?? [],
+                JsonSerializer.Deserialize<string[]>(request.EvaluatorCriteriaPlanJson) ?? [],
+                request.EvidenceItems.OrderBy(x => x.CriterionCode)
+                    .Select(x => new StudentEvaluationEvidence(x.CriterionCode, x.Narrative)).ToArray(),
+                request.FeedbackItems.OrderBy(x => x.CreatedAtUtc)
+                    .Select(x => new StudentEvaluationFeedback(x.Body, x.RequestsResubmission, x.CreatedAtUtc)).ToArray(),
+                showResult ? request.CalculatedGrade?.ToString() : null,
+                showResult ? ReadSectionResults(request.SectionResultsJson) : [],
+                showResult
+                    ? request.CriterionResults.OrderBy(x => x.CriterionCode)
+                        .Select(x => new StudentEvaluationCriterionResult(x.CriterionCode,
+                            x.Achievement.ToString(), x.Evidence, x.Comment)).ToArray()
+                    : []);
+        }).ToArray();
+
+        return Ok(new StudentEvaluationPage(items, page, pageSize, totalCount,
+            offset + items.Length < totalCount));
     }
 
     [HttpGet("{requestId:guid}")]
@@ -458,4 +468,17 @@ public sealed record AssignEvaluatorRequest(string TeacherUserId);
 public sealed record EvaluationCheckoutRequest(string? PaymentMethod, bool ExpectIncludedCredit = false);
 public sealed record AddEvaluationEvidenceRequest(string CriterionCode, string Narrative);
 public sealed record InternalVerificationRequest(bool Approve, string? Comment, DateTimeOffset? ResubmissionDueAtUtc);
-internal sealed record EvaluationSectionView(string Section, string Grade);
+public sealed record EvaluationSectionView(string Section, string Grade);
+public sealed record StudentEvaluationEvidence(string CriterionCode, string Narrative);
+public sealed record StudentEvaluationFeedback(string Body, bool RequestsResubmission, DateTimeOffset CreatedAtUtc);
+public sealed record StudentEvaluationCriterionResult(string CriterionCode, string Achievement, string? Evidence, string? Comment);
+public sealed record StudentEvaluationItem(
+    Guid Id, string Status, decimal Price, string Currency, string? StudentComment,
+    int SubmissionAttemptNumber, DateTimeOffset? RevisionDueAtUtc, DateTimeOffset? EffectiveRevisionDueAtUtc,
+    bool IsRetake, Guid? RetakeOfEvaluationRequestId, AssessmentAcademicSummary? Academic,
+    IReadOnlyList<string> Criteria, IReadOnlyList<string> SelectedCriteria,
+    IReadOnlyList<StudentEvaluationEvidence> Evidence, IReadOnlyList<StudentEvaluationFeedback> Feedback,
+    string? CalculatedGrade, IReadOnlyCollection<EvaluationSectionView> SectionResults,
+    IReadOnlyList<StudentEvaluationCriterionResult> Results);
+public sealed record StudentEvaluationPage(
+    IReadOnlyList<StudentEvaluationItem> Items, int Page, int PageSize, int TotalCount, bool HasNextPage);
