@@ -23,7 +23,11 @@ internal sealed partial class PostgresTestDatabase : IAsyncDisposable
 
     public string ConnectionString { get; }
 
-    public static async Task<PostgresTestDatabase> CreateAsync(string scope, CancellationToken cancellationToken = default, string? targetMigration = null)
+    public static async Task<PostgresTestDatabase> CreateAsync(
+        string scope,
+        CancellationToken cancellationToken = default,
+        string? targetMigration = null,
+        bool migrateToLatest = true)
     {
         var adminConnectionString = Environment.GetEnvironmentVariable("BETCCO_TEST_POSTGRES_ADMIN");
         if (string.IsNullOrWhiteSpace(adminConnectionString))
@@ -56,8 +60,11 @@ internal sealed partial class PostgresTestDatabase : IAsyncDisposable
         var database = new PostgresTestDatabase(adminBuilder.ConnectionString, databaseName, testBuilder.ConnectionString);
         try
         {
-            await using var setup = database.CreateContext();
-            await setup.GetService<IMigrator>().MigrateAsync(targetMigration, cancellationToken);
+            if (migrateToLatest)
+            {
+                await using var setup = database.CreateContext();
+                await setup.GetService<IMigrator>().MigrateAsync(targetMigration, cancellationToken);
+            }
             return database;
         }
         catch

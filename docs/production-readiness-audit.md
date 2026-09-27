@@ -19,12 +19,12 @@
 | Classification | Count | Summary |
 | --- | ---: | --- |
 | P0 — Launch Blocker | 0 | P0-01 was closed by merged PR #106 with an explicit one-off production Admin bootstrap command. |
-| P1 — Required Production Hardening | 4 | A merged migration drops legacy quiz records; restore evidence, operational alerts/runbooks, and same-artifact promotion are not established. P1-05 is closed in the current implementation branch, pending PR merge. |
+| P1 — Required Production Hardening | 4 | The legacy Quiz removal now has a repository preflight and fail-closed migration gate; owner retention approval and backup/restore evidence remain external. Monitoring/runbooks and same-artifact promotion are also not established. P1-05 is closed. |
 | P2 — Post-launch Improvement | 3 | Production image inputs are mutable tags; .NET transitive restore is not locked; in-process rate limits are not shared across API replicas. |
 | EXTERNAL | 5 | Live hosting/provider/legal/operational decisions and credentials cannot be verified from this repository. |
 | SAFE | 15 | Important controls are implemented and/or demonstrated by current code and baseline CI. |
 
-**Readiness conclusion:** the repository has a substantial deployment and security foundation, and merged PR #106 provides an explicit one-off production Admin bootstrap path. Remaining repository hardening is concentrated in the P1 items: restore evidence, operational monitoring/runbooks, same-artifact promotion, and—pending this PR merge—the custom S3 HTTPS guard. Paid checkout and payouts are intentionally disabled in the deployment Compose file. Whether disabled commerce is launch-blocking depends on the approved launch scope; it is not classified as a code defect.
+**Readiness conclusion:** the repository has a substantial deployment and security foundation, and merged PR #106 provides an explicit one-off production Admin bootstrap path. Remaining hardening includes owner retention approval and backup/restore evidence for legacy Quiz data, operational monitoring/runbooks, and same-artifact promotion. The custom S3 HTTPS guard is merged. Paid checkout and payouts are intentionally disabled in the deployment Compose file. Whether disabled commerce is launch-blocking depends on the approved launch scope; it is not classified as a code defect.
 
 ## Configuration / Secret Audit
 
@@ -103,21 +103,27 @@
 
 ### P1-01 — Legacy Quiz migration irreversibly removes quiz tables and dependent rules
 
+**Status:** REPOSITORY GATE CLOSED / EXTERNAL DATA-RETENTION & BACKUP EVIDENCE REMAINS.
+
 **Severity:** P1 — Required Production Hardening
 **Area:** Database migration safety
 **Evidence:**
 
 - `backend/src/Betcco.Infrastructure/Persistence/Migrations/20260924073104_RemoveLegacyQuizSystem.cs`, `Up()`: updates legacy Quiz lessons to archived/unpublished; deletes related `ContentPrerequisites` and `ContentAccessRules`; drops `QuestionBankQuestions`, `QuizAttemptQuestionGrades`, `QuizAttempts`, `QuizQuestions`, and `Quizzes`.
 - The migration's comments explicitly preserve Lesson identities and lesson-linked learner history; the dropped quiz question/attempt tables are not preserved by those statements.
-- `docs/DEPLOYMENT.md`, Database migration: migrations run through the explicit one-off `--migrate` container and the API replicas do not migrate at startup. This is a useful control, but the runbook does not call out the legacy quiz data deletion as a preflight item.
+- `docs/DEPLOYMENT.md`, Database migration and Legacy Quiz removal preflight: migrations run through the explicit one-off `--migrate` container, API replicas do not migrate at startup, and the legacy data count, blocked/clear/indeterminate states, override, and recovery evidence requirements are documented.
+- `backend/src/Betcco.Infrastructure/Persistence/LegacyQuizMigrationGate.cs` and `backend/src/Betcco.Api/Program.cs`: `--migration-preflight` reports aggregate counts only; `--migrate` blocks when counted data exists unless the operator supplies the explicit per-run `--allow-legacy-quiz-data-removal` acknowledgement. Missing historical tables and indeterminate state remain blocked. A PostgreSQL advisory lock is held across the preflight-to-migration path.
+- `backend/tests/Betcco.IntegrationTests/LegacyQuizMigrationGateTests.cs`: PostgreSQL integration coverage exercises applied, fresh, empty historical, blocked data, approved migration, missing table, private-output, and concurrent migration cases.
 
 **Production scenario:** if an existing database contains legacy quiz authoring or attempt history when the one-off migration reaches this version, those tables and the listed access/prerequisite rows are deleted. This cannot be reversed by `Down()` because recreated tables are empty. The audit cannot determine whether any actual production database contains those records.
 
 **Impact:** data integrity and historical learner evidence.
 
-**Recommended remediation:** before applying this migration to any database that may contain legacy Quiz data, take and verify a restorable backup, inventory the affected rows, obtain an explicit product/data-retention decision, and export or retain the records if required. Keep the migration command gated on that preflight until the owner confirms that deletion is acceptable. No migration was executed during this audit.
+**Repository control implemented:** the migration preflight inventories affected row counts, and the normal migration operation stops before `Database.MigrateAsync()` when data exists unless an explicit per-run owner acknowledgement is supplied. The read-only preflight and migration share a PostgreSQL advisory lock. The existing destructive migration and ModelSnapshot are unchanged; no schema change or migration was added.
 
-**Suggested tests:** seed an old-schema database with quiz questions, attempts, grades, lessons, access rules, and prerequisites; apply the migration and assert the intended archive/delete behavior explicitly; verify the backup/export preserves the data required by the owner; test restore to an isolated database before production use.
+**Remaining external decision/evidence:** before using the override where data exists, the owner must decide retention/export, operators must take and verify access to a backup/snapshot, and a restore to an isolated database is preferred. Repository code cannot prove that a provider backup or owner approval exists. P1-02 remains open; no backup/restore work is claimed by this gate.
+
+**Suggested tests:** seed an old-schema database with quiz questions, attempts, grades, lessons, access rules, and prerequisites; verify default migration blocks without changing rows or history; verify explicit approval runs the unchanged migration and archives lessons; verify backup/export preservation and restore in an isolated database as separate operator evidence.
 
 **Dependencies:** owner decision on legacy quiz history and an external backup/restore service.
 **Ownership:** shared (ASUS migration owner + data owner).
