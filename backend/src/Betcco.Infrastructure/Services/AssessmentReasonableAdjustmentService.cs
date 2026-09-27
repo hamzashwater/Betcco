@@ -41,7 +41,8 @@ public sealed class AssessmentReasonableAdjustmentService(BetccoDbContext db)
         if (request.Status != EvaluationStatus.NeedsRevision
             || request.SubmissionAttemptNumber != 1
             || request.RetakeOfEvaluationRequestId is not null
-            || request.RevisionDueAtUtc is null)
+            || request.RevisionDueAtUtc is null
+            || await IsResitAsync(evaluationRequestId, cancellationToken))
             return EvaluationReasonableAdjustmentWriteResult.NoActiveRevisionWindow;
 
         var baseDueAtUtc = request.RevisionDueAtUtc.Value.ToUniversalTime();
@@ -100,7 +101,8 @@ public sealed class AssessmentReasonableAdjustmentService(BetccoDbContext db)
         if (request.Status != EvaluationStatus.NeedsRevision
             || request.SubmissionAttemptNumber != 1
             || request.RetakeOfEvaluationRequestId is not null
-            || request.RevisionDueAtUtc is null)
+            || request.RevisionDueAtUtc is null
+            || await IsResitAsync(evaluationRequestId, cancellationToken))
             return EvaluationReasonableAdjustmentWriteResult.NoActiveRevisionWindow;
         if (adjustment.RevokedAtUtc is not null)
             return EvaluationReasonableAdjustmentWriteResult.Conflict;
@@ -146,7 +148,8 @@ public sealed class AssessmentReasonableAdjustmentService(BetccoDbContext db)
         var revisionWindowActive = request.Status == EvaluationStatus.NeedsRevision
             && request.SubmissionAttemptNumber == 1
             && request.RetakeOfEvaluationRequestId is null
-            && request.RevisionDueAtUtc is not null;
+            && request.RevisionDueAtUtc is not null
+            && !await IsResitAsync(evaluationRequestId, cancellationToken);
         var active = revisionWindowActive
             ? history.FirstOrDefault(item => item.RevokedAtUtc == null)
             : null;
@@ -165,6 +168,10 @@ public sealed class AssessmentReasonableAdjustmentService(BetccoDbContext db)
             ? Task.FromResult(false)
             : db.Users.AsNoTracking().AnyAsync(user => user.Id == actorUserId && !user.IsFrozen,
                 cancellationToken);
+
+    private Task<bool> IsResitAsync(Guid evaluationRequestId, CancellationToken cancellationToken) =>
+        db.ResitAuthorizations.AsNoTracking()
+            .AnyAsync(item => item.ResitEvaluationRequestId == evaluationRequestId, cancellationToken);
 
     private static EvaluationRevisionDeadlineAdjustmentView View(
         EvaluationRevisionDeadlineAdjustment item) => new(
