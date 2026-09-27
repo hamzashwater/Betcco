@@ -141,17 +141,38 @@ public sealed class EvaluatorSpecialismService(BetccoDbContext db, UserManager<A
             return (AssignmentResult.RequestNotAssignable, []);
         var unitId = await ResolveUnitIdAsync(db, request, cancellationToken);
         if (unitId is null) return (AssignmentResult.AcademicMappingRequired, []);
-        var candidates = await (from grant in db.EvaluatorUnitSpecialisms.AsNoTracking()
-                                join user in db.Users.AsNoTracking() on grant.EvaluatorUserId equals user.Id
-                                join membership in db.UserRoles.AsNoTracking() on user.Id equals membership.UserId
-                                join role in db.Roles.AsNoTracking() on membership.RoleId equals role.Id
-                                where grant.UnitDefinitionId == unitId && grant.RevokedAtUtc == null && !user.IsFrozen
-                                    && (role.Name == PlatformRoles.Teacher || role.Name == PlatformRoles.Assessor)
-                                select new { user.Id, user.DisplayName })
+        var excludedIds = (await ResitExcludedEvaluatorIdsAsync(db, evaluationRequestId, cancellationToken)).ToArray();
+        var query = (from grant in db.EvaluatorUnitSpecialisms.AsNoTracking()
+                     join user in db.Users.AsNoTracking() on grant.EvaluatorUserId equals user.Id
+                     join membership in db.UserRoles.AsNoTracking() on user.Id equals membership.UserId
+                     join role in db.Roles.AsNoTracking() on membership.RoleId equals role.Id
+                     where grant.UnitDefinitionId == unitId && grant.RevokedAtUtc == null && !user.IsFrozen
+                         && (role.Name == PlatformRoles.Teacher || role.Name == PlatformRoles.Assessor)
+                     select new { user.Id, user.DisplayName });
+        if (excludedIds.Length > 0) query = query.Where(x => !excludedIds.Contains(x.Id));
+        var candidates = await query
             .Distinct().OrderBy(x => x.DisplayName).ThenBy(x => x.Id)
             .Take(500).Select(x => new EligibleEvaluatorView(x.Id, x.DisplayName))
             .ToListAsync(cancellationToken);
         return (AssignmentResult.Success, candidates);
+    }
+
+    internal static async Task<HashSet<Guid>> ResitExcludedEvaluatorIdsAsync(BetccoDbContext db,
+        Guid evaluationRequestId, CancellationToken cancellationToken)
+    {
+        var authorization = await db.ResitAuthorizations.AsNoTracking()
+            .Where(x => x.ResitEvaluationRequestId == evaluationRequestId)
+            .Select(x => new { x.OriginalEvaluationRequestId, x.AuthorizedByUserId })
+            .SingleOrDefaultAsync(cancellationToken);
+        if (authorization is null) return [];
+
+        var excluded = new HashSet<Guid> { authorization.AuthorizedByUserId };
+        var originalEvaluators = await db.EvaluatorAssignments.AsNoTracking()
+            .Where(x => x.EvaluationRequestId == authorization.OriginalEvaluationRequestId)
+            .Select(x => x.EvaluatorUserId).ToListAsync(cancellationToken);
+        foreach (var userId in originalEvaluators)
+            if (Guid.TryParse(userId, out var id)) excluded.Add(id);
+        return excluded;
     }
 
     internal static async Task<Guid?> ResolveUnitIdAsync(BetccoDbContext db, EvaluationRequest request,
