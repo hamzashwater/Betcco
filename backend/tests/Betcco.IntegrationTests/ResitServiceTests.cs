@@ -27,6 +27,38 @@ public sealed class ResitServiceTests
     private static readonly Guid OtherStudentId = Guid.Parse("44444444-4444-4444-4444-444444444444");
 
     [Fact]
+    [Trait("Category", "PostgreSQLAssessment")]
+    public async Task PostgreSQL_staff_coordination_reads_persisted_resit_link_without_rationale()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("resit_staff_coordination");
+        var authorizationId = await SeedPostgresActivationAsync(database);
+        Guid originalId;
+        Guid resitId;
+        await using (var seed = database.CreateContext())
+        {
+            var authorization = await seed.ResitAuthorizations.SingleAsync(x => x.Id == authorizationId);
+            originalId = authorization.OriginalEvaluationRequestId;
+            var activated = await new ResitService(seed).ActivateAsync(StudentId.ToString(), authorizationId);
+            resitId = Assert.IsType<Guid>(activated.ResitEvaluationRequestId);
+            var resit = await seed.EvaluationRequests.SingleAsync(x => x.Id == resitId);
+            resit.Status = EvaluationStatus.Assigned;
+            await seed.SaveChangesAsync();
+        }
+
+        await using var verify = database.CreateContext();
+        var queue = await new AssessmentCoordinationService(verify, null!).QueueAsync(null, 1, 10);
+        var item = Assert.Single(queue.Items);
+        Assert.Equal(resitId, item.Id);
+        Assert.True(item.IsResit);
+        Assert.False(item.IsRetake);
+        Assert.Equal(originalId, item.ResitOfEvaluationRequestId);
+        var serialized = JsonSerializer.Serialize(item, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        Assert.DoesNotContain("Authorized historical second-attempt outcome.", serialized);
+        Assert.DoesNotContain("authorizedByUserId", serialized, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("reason", serialized, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     [Trait("Category", "PostgreSQLFinance")]
     public async Task PostgreSQL_student_history_links_persisted_resit_without_merging_results_or_staff_rationale()
     {

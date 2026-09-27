@@ -24,6 +24,7 @@ import { RetakeManagement } from "@/features/admin/retake-management";
 import { EvaluatorSpecialismManagement } from "@/features/admin/evaluator-specialism-management";
 import { EligibleEvaluatorAssignment } from "@/features/admin/eligible-evaluator-assignment";
 import { AssessmentCoordinationQueue } from "@/features/admin/assessment-coordination-queue";
+import { ResitCoordinationPanel } from "@/features/admin/resit-coordination-panel";
 import { SupportCenter } from "@/features/support/support-center";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -1733,6 +1734,8 @@ type PendingEvaluation = {
   studentComment?: string;
   filesCount: number;
   criteria: string[];
+  isResit: boolean;
+  resitOfEvaluationRequestId: string | null;
 };
 type UnderReviewEvaluation = {
   id: string;
@@ -1858,6 +1861,7 @@ function AdminEvaluations() {
         }
       />
       <AssessmentCoordinationQueue />
+      <ResitCoordinationPanel />
       {lastAssigned && (
         <p className="mt-4 text-sm text-green-700" role="status">
           {locale === "ar" ? "تم إسناد التقييم." : "Evaluation assigned."}

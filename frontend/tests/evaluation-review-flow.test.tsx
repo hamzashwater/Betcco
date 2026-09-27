@@ -41,6 +41,90 @@ afterEach(() => {
 });
 
 describe("BETCCO assignment review flow", () => {
+  it("labels a Resit in the assigned list", async () => {
+    apiMock.mockImplementation((path: string) =>
+      Promise.resolve(
+        path === "/evaluations/assigned"
+          ? [
+              {
+                id: "evaluation-1",
+                status: "Assigned",
+                isRetake: false,
+                isResit: true,
+                resitOfEvaluationRequestId:
+                  "ABCD1234-1111-2222-3333-444444444444",
+                filesCount: 0,
+                criteria: [],
+                selectedCriteria: [],
+                submissionAttemptNumber: 1,
+              },
+            ]
+          : [],
+      ),
+    );
+    renderWithProviders(<TeacherArea segment={["evaluations"]} />);
+    expect(await screen.findByText("Resit final review")).toBeVisible();
+    expect(screen.getByText("Original request: ABCD1234")).toBeVisible();
+    expect(screen.queryByText("Assigned evaluation")).not.toBeInTheDocument();
+    expect(screen.queryByText("Retake")).not.toBeInTheDocument();
+  });
+
+  it("submits a Resit final review without revision controls", async () => {
+    apiMock.mockImplementation((path: string, options?: RequestInit) => {
+      if (path === "/evaluations/evaluation-1" && !options?.method)
+        return Promise.resolve({
+          id: "evaluation-1",
+          status: "Assigned",
+          isRetake: false,
+          isResit: true,
+          resitOfEvaluationRequestId: "ABCD1234-1111-2222-3333-444444444444",
+          studentComment: "Review",
+          criteria: ["A.P1"],
+          selectedCriteria: ["A.P1"],
+          submissionAttemptNumber: 1,
+          calculatedGrade: null,
+          sectionResults: [],
+          files: [],
+          results: [],
+          evidence: [],
+          feedback: [],
+        });
+      return Promise.resolve(undefined);
+    });
+    renderWithProviders(
+      <TeacherArea segment={["evaluations", "evaluation-1"]} />,
+    );
+    expect(
+      await screen.findByText("Final Resit advisory review"),
+    ).toBeVisible();
+    expect(screen.getByText("Original request: ABCD1234")).toBeVisible();
+    expect(
+      screen.queryByRole("checkbox", { name: /revision check/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText("Revision check deadline"),
+    ).not.toBeInTheDocument();
+    const user = userEvent.setup();
+    await user.selectOptions(screen.getByLabelText("Outcome"), "Achieved");
+    await user.type(
+      screen.getByLabelText("Teacher feedback"),
+      "Final advisory feedback",
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Send review and feedback" }),
+    );
+    await waitFor(() =>
+      expect(apiMock).toHaveBeenCalledWith(
+        "/evaluations/evaluation-1/review",
+        expect.objectContaining({
+          method: "POST",
+          body: expect.stringContaining(
+            '"requestRevision":false,"revisionDueAtUtc":null',
+          ),
+        }),
+      ),
+    );
+  });
   it("shows the learner an advisory estimate and one revision check", async () => {
     apiMock.mockImplementation((path: string) => {
       if (path !== "/evaluations/mine?page=1&pageSize=20")

@@ -102,7 +102,17 @@ public sealed class AssessmentCoordinationTests
         var completed = Request(EvaluationStatus.Completed, scope);
         var retake = Request(EvaluationStatus.PendingAssignment, scope);
         retake.RetakeOfEvaluationRequestId = completed.Id;
-        db.EvaluationRequests.AddRange(pending, assigned, legacy, completed, retake);
+        var resit = Request(EvaluationStatus.PendingAssignment, scope);
+        db.EvaluationRequests.AddRange(pending, assigned, legacy, completed, retake, resit);
+        db.ResitAuthorizations.Add(new ResitAuthorization
+        {
+            OriginalEvaluationRequestId = completed.Id,
+            ResitEvaluationRequestId = resit.Id,
+            AuthorizedByUserId = Guid.NewGuid(),
+            AuthorizedAtUtc = DateTimeOffset.UtcNow,
+            ActivatedAtUtc = DateTimeOffset.UtcNow,
+            Reason = "Private staff rationale"
+        });
         db.EvaluatorUnitSpecialisms.Add(new EvaluatorUnitSpecialism
         { EvaluatorUserId = evaluatorId, UnitDefinitionId = unit.Id, GrantedByUserId = evaluatorId });
         db.EvaluatorAssignments.Add(new EvaluatorAssignment
@@ -124,7 +134,7 @@ public sealed class AssessmentCoordinationTests
         var httpPage = Assert.IsType<AssessmentCoordinationPage>(
             Assert.IsType<OkObjectResult>((await controller.Queue(pageSize: 10)).Result).Value);
         Assert.Equal(all.Items.Select(item => item.Id), httpPage.Items.Select(item => item.Id));
-        Assert.Equal(4, all.TotalCount);
+        Assert.Equal(5, all.TotalCount);
         Assert.DoesNotContain(all.Items, item => item.Id == completed.Id);
         Assert.Contains(all.Items, item => item.Id == pending.Id && item.HasEligibleEvaluator == true
             && item.UnitCode == "U1" && item.QualificationCode == "Q");
@@ -132,13 +142,21 @@ public sealed class AssessmentCoordinationTests
         Assert.Contains(all.Items, item => item.Id == legacy.Id
             && item.BlockerCode == "AcademicMappingRequired" && item.UnitCode is null);
         Assert.Contains(all.Items, item => item.Id == retake.Id && item.IsRetake
+            && !item.IsResit && item.ResitOfEvaluationRequestId is null
             && item.HasEligibleEvaluator == true);
+        Assert.Contains(all.Items, item => item.Id == resit.Id && !item.IsRetake
+            && item.IsResit && item.ResitOfEvaluationRequestId == completed.Id);
+        Assert.Contains(all.Items, item => item.Id == pending.Id && !item.IsRetake
+            && !item.IsResit && item.ResitOfEvaluationRequestId is null);
         Assert.DoesNotContain(typeof(AssessmentCoordinationItem).GetProperties(), property =>
             property.Name.Contains("Student", StringComparison.OrdinalIgnoreCase)
-            || property.Name.Contains("Comment", StringComparison.OrdinalIgnoreCase));
+            || property.Name.Contains("Comment", StringComparison.OrdinalIgnoreCase)
+            || property.Name.Contains("Reason", StringComparison.OrdinalIgnoreCase)
+            || property.Name.Contains("AuthorizedBy", StringComparison.OrdinalIgnoreCase)
+            || property.Name.Contains("Revocation", StringComparison.OrdinalIgnoreCase));
 
         var page = await service.QueueAsync(EvaluationStatus.PendingAssignment, 2, 1);
-        Assert.Equal(3, page.TotalCount);
+        Assert.Equal(4, page.TotalCount);
         Assert.Single(page.Items);
         Assert.Equal("PendingAssignment", page.Items[0].Status);
 
