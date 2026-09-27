@@ -194,6 +194,9 @@ public sealed class EvaluationService(
                 : await db.EvaluatorUnitSpecialisms.SingleOrDefaultAsync(x => x.EvaluatorUserId == evaluatorId
                     && x.UnitDefinitionId == unitId && x.RevokedAtUtc == null, cancellationToken);
             if (grant is null) return AssignmentResult.UnitSpecialismRequired;
+            var excludedIds = await EvaluatorSpecialismService.ResitExcludedEvaluatorIdsAsync(
+                db, requestId, cancellationToken);
+            if (excludedIds.Contains(evaluatorId)) return AssignmentResult.ResitIndependenceRequired;
             if (!EvaluationWorkflow.CanTransition(request.Status, EvaluationStatus.Assigned))
                 return AssignmentResult.RequestNotAssignable;
             db.EvaluatorAssignments.Add(new EvaluatorAssignment
@@ -281,6 +284,8 @@ public sealed class EvaluationService(
             || request.RetakeOfEvaluationRequestId is not null
             || request.SubmissionAttemptNumber is < 1 or > 2
             || (command.RequestRevision && request.SubmissionAttemptNumber != 1)) return false;
+        if (await IsResitAsync(requestId, cancellationToken)
+            && (request.SubmissionAttemptNumber != 1 || command.RequestRevision)) return false;
 
         var validCodes = JsonSerializer.Deserialize<string[]>(request.CriteriaSnapshotJson) ?? [];
         var selectedCodes = JsonSerializer.Deserialize<string[]>(request.EvaluatorCriteriaPlanJson) ?? [];
@@ -471,6 +476,7 @@ public sealed class EvaluationService(
             || request.RetakeOfEvaluationRequestId is not null
             || request.SubmissionAttemptNumber != 1
             || !EvaluationWorkflow.CanTransition(request.Status, EvaluationStatus.Assigned)) return false;
+        if (await IsResitAsync(requestId, cancellationToken)) return false;
 
         const int nextAttempt = 2;
         ResubmissionAuthorization? authorization = null;
@@ -592,6 +598,10 @@ public sealed class EvaluationService(
         await db.SaveChangesAsync(cancellationToken);
         return true;
     }
+
+    private Task<bool> IsResitAsync(Guid requestId, CancellationToken cancellationToken) =>
+        db.ResitAuthorizations.AsNoTracking()
+            .AnyAsync(item => item.ResitEvaluationRequestId == requestId, cancellationToken);
 
     private static EvaluationView ToView(EvaluationRequest request, IReadOnlyCollection<string> criteria) => new(request.Id, request.Status.ToString(), request.Price, request.Currency, request.StudentComment, criteria);
     private static AuditLog Audit(string actor, string action, string entityType, string entityId) => new() { ActorUserId = actor, Action = action, EntityType = entityType, EntityId = entityId, Outcome = "Success" };
