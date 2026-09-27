@@ -17,10 +17,10 @@ public sealed class StudentResitAuthorizationsController(IResitService resits) :
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
-        if (page < 1 || pageSize is < 1 or > 50)
-            return BadRequest(new { code = "RESIT_PAGE_INVALID" });
         var studentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrWhiteSpace(studentUserId)) return Unauthorized();
+        if (page < 1 || pageSize is < 1 or > 50)
+            return BadRequest(new { code = "RESIT_PAGE_INVALID" });
         return Ok(await resits.ListStudentAuthorizationsAsync(
             studentUserId, page, pageSize, cancellationToken));
     }
