@@ -27,6 +27,53 @@ public sealed class ResitServiceTests
     private static readonly Guid OtherStudentId = Guid.Parse("44444444-4444-4444-4444-444444444444");
 
     [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task PostgreSQL_student_history_links_persisted_resit_without_merging_results_or_staff_rationale()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("resit_student_history");
+        var authorizationId = await SeedPostgresActivationAsync(database);
+        Guid originalId;
+        Guid resitId;
+        await using (var seed = database.CreateContext())
+        {
+            var authorization = await seed.ResitAuthorizations.SingleAsync(x => x.Id == authorizationId);
+            originalId = authorization.OriginalEvaluationRequestId;
+            var activated = await new ResitService(seed).ActivateAsync(StudentId.ToString(), authorizationId);
+            resitId = Assert.IsType<Guid>(activated.ResitEvaluationRequestId);
+            var resit = await seed.EvaluationRequests.SingleAsync(x => x.Id == resitId);
+            resit.Status = EvaluationStatus.Completed;
+            resit.CalculatedGrade = EvaluationGrade.Pass;
+            resit.SectionResultsJson = "[{\"Section\":\"Resit\",\"Grade\":\"Pass\"}]";
+            await seed.SaveChangesAsync();
+        }
+
+        await using var verify = database.CreateContext();
+        var controller = new EvaluationsController(null!, null!, null!, verify, null!, null!)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+        controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim(ClaimTypes.NameIdentifier, StudentId.ToString()), new Claim(ClaimTypes.Role, "Student")], "test"));
+        var page = Assert.IsType<StudentEvaluationPage>(
+            Assert.IsType<OkObjectResult>(await controller.Mine()).Value);
+        Assert.Equal(2, page.TotalCount);
+        var original = page.Items.Single(x => x.Id == originalId);
+        var resitItem = page.Items.Single(x => x.Id == resitId);
+        Assert.False(original.IsResit);
+        Assert.Null(original.ResitOfEvaluationRequestId);
+        Assert.True(resitItem.IsResit);
+        Assert.Equal(originalId, resitItem.ResitOfEvaluationRequestId);
+        Assert.Equal("NotYetAchieved", original.CalculatedGrade);
+        Assert.Equal("Pass", resitItem.CalculatedGrade);
+        Assert.Single(resitItem.SectionResults);
+        Assert.Empty(original.SectionResults);
+        var json = JsonSerializer.Serialize(page, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        Assert.DoesNotContain("Authorized historical second-attempt outcome", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("authorizedByUserId", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("revocationReason", json, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task Linked_resit_receives_one_final_attempt_one_review_without_changing_original()
     {
         await using var db = InMemory();
