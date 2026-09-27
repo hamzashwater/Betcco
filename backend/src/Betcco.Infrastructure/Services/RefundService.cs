@@ -46,6 +46,10 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
                     return await RejectAndCommitAsync(financeAdminUserId, payment.Id, "PAYTABS_PROVIDER_VERIFICATION_REQUIRED", "PayTabs refunds require verified provider evidence before internal accounting is finalized.", transaction, cancellationToken);
                 if (!string.Equals(payment.Currency, request.Currency.Trim(), StringComparison.OrdinalIgnoreCase))
                     return await RejectAndCommitAsync(financeAdminUserId, payment.Id, "REFUND_CURRENCY_INVALID", "Refund currency must match the payment currency.", transaction, cancellationToken);
+                if (!MoneyPolicy.IsSupportedCurrency(payment.Currency))
+                    return await RejectAndCommitAsync(financeAdminUserId, payment.Id, "REFUND_CURRENCY_UNSUPPORTED", "Refund currency precision is not configured.", transaction, cancellationToken);
+                if (!MoneyPolicy.IsRepresentable(payment.Currency, request.Amount))
+                    return await RejectAndCommitAsync(financeAdminUserId, payment.Id, "REFUND_AMOUNT_SCALE_INVALID", "Refund amount must conform to the supported currency precision.", transaction, cancellationToken);
 
                 var alreadyRefunded = await db.Refunds.AsNoTracking()
                     .Where(item => item.PaymentId == payment.Id && item.Status == RefundStatus.InternallyRecorded)
