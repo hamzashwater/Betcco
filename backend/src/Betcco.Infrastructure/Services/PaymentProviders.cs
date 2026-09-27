@@ -158,6 +158,22 @@ public sealed class PayTabsPaymentProvider(HttpClient client, IOptions<PayTabsOp
         return ToRefundTransaction(payload.RootElement, response.IsSuccessStatusCode);
     }
 
+    public async Task<IReadOnlyCollection<PaymentProviderRefundTransaction>> QueryRefundTransactionsAsync(Guid refundId, CancellationToken cancellationToken = default)
+    {
+        EnsureTestMode();
+        using var message = CreateRequest("payment/query", new { profile_id = options.ProfileId, cart_id = RefundCartId(refundId) });
+        using var response = await client.SendAsync(message, cancellationToken);
+        using var payload = await ReadPayloadAsync(response, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+            throw new HttpRequestException("PayTabs refund recovery query was unavailable.");
+        if (payload.RootElement.ValueKind != JsonValueKind.Array)
+            throw new InvalidOperationException("PayTabs refund cart query returned an invalid response shape.");
+        return payload.RootElement.EnumerateArray().Select(item =>
+            item.ValueKind == JsonValueKind.Object
+                ? ToRefundTransaction(item, true)
+                : throw new InvalidOperationException("PayTabs refund cart query contained an invalid transaction shape.")).ToArray();
+    }
+
     public static string CartId(Guid paymentId) => $"BETCCO-{paymentId:N}";
     public static string RefundCartId(Guid refundId) => $"BETCCO-REFUND-{refundId:N}";
 
@@ -229,7 +245,8 @@ public sealed class PayTabsPaymentProvider(HttpClient client, IOptions<PayTabsOp
             code,
             successful,
             definiteFailure,
-            options.ProfileId.HasValue && string.Equals(profile, options.ProfileId.Value.ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal));
+            options.ProfileId.HasValue && string.Equals(profile, options.ProfileId.Value.ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal),
+            OptionalString(root, "previous_tran_ref"));
     }
 
     private PaymentCheckoutRecovery ToCheckoutRecovery(JsonElement root)

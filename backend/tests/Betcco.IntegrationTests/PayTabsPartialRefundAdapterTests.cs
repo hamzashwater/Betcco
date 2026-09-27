@@ -15,6 +15,85 @@ public sealed class PayTabsPartialRefundAdapterTests
 {
     private const string ProviderRefundReference = "REFUND-25-123";
 
+    [Fact]
+    public async Task Refund_cart_query_uses_server_owned_cart_id_and_parses_candidates()
+    {
+        var refundId = Guid.NewGuid();
+        var cartId = PayTabsPaymentProvider.RefundCartId(refundId);
+        var handler = new ScriptedHandler((_, _, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(JsonSerializer.Serialize(new[]
+            {
+                Candidate(cartId, "REFUND-ONE", "P"), Candidate(cartId, "REFUND-TWO", "A")
+            }))
+        }));
+
+        var candidates = await Provider(handler).QueryRefundTransactionsAsync(refundId);
+
+        Assert.Equal("payment/query", Assert.Single(handler.Paths));
+        using var request = JsonDocument.Parse(Assert.Single(handler.Bodies));
+        Assert.Equal(123456, request.RootElement.GetProperty("profile_id").GetInt32());
+        Assert.Equal(cartId, request.RootElement.GetProperty("cart_id").GetString());
+        Assert.False(request.RootElement.TryGetProperty("tran_ref", out _));
+        Assert.Equal(2, candidates.Count);
+        var first = candidates.First();
+        Assert.Equal("PayTabs", first.Provider);
+        Assert.Equal("123456", first.ProfileId);
+        Assert.Equal("REFUND-ONE", first.ProviderRefundReference);
+        Assert.Equal("refund", first.TransactionType);
+        Assert.Equal(cartId, first.CartId);
+        Assert.Equal("JOD", first.Currency);
+        Assert.Equal(25.123m, first.Amount);
+        Assert.Equal("P", first.Status);
+        Assert.Equal("100", first.Code);
+        Assert.Equal("SALE-116-000", first.PreviousProviderTransactionReference);
+        Assert.True(first.ProfileMatchesConfigured);
+        Assert.False(first.IsSuccessful);
+        Assert.False(first.IsDefiniteFailure);
+        Assert.Equal("REFUND-TWO", candidates.Last().ProviderRefundReference);
+        Assert.True(candidates.Last().IsSuccessful);
+    }
+
+    [Fact]
+    public async Task Empty_refund_cart_query_returns_no_candidates()
+    {
+        var handler = new ScriptedHandler((_, _, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent("[]")
+        }));
+
+        Assert.Empty(await Provider(handler).QueryRefundTransactionsAsync(Guid.NewGuid()));
+    }
+
+    [Theory]
+    [InlineData("{}", HttpStatusCode.OK)]
+    [InlineData("[null]", HttpStatusCode.OK)]
+    [InlineData("[]", HttpStatusCode.ServiceUnavailable)]
+    public async Task Invalid_or_unavailable_refund_cart_query_is_not_treated_as_not_found(string payload, HttpStatusCode status)
+    {
+        var handler = new ScriptedHandler((_, _, _) => Task.FromResult(new HttpResponseMessage(status)
+        {
+            Content = new StringContent(payload)
+        }));
+
+        if (status == HttpStatusCode.OK)
+            await Assert.ThrowsAsync<InvalidOperationException>(() => Provider(handler).QueryRefundTransactionsAsync(Guid.NewGuid()));
+        else
+            await Assert.ThrowsAsync<HttpRequestException>(() => Provider(handler).QueryRefundTransactionsAsync(Guid.NewGuid()));
+    }
+
+    private static object Candidate(string cartId, string reference, string status) => new
+    {
+        profile_id = 123456,
+        tran_ref = reference,
+        previous_tran_ref = "SALE-116-000",
+        tran_type = "refund",
+        cart_id = cartId,
+        cart_currency = "JOD",
+        cart_amount = 25.123m,
+        payment_result = new { response_status = status, response_code = "100" }
+    };
+
     // PayTabs status contract: https://support.paytabs.com/en/support/solutions/articles/60000711358
     [Theory]
     [InlineData("A", true, false)]

@@ -178,15 +178,40 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
 
     public async Task<RefundProviderWorkflowResult> VerifyPayTabsRefundAsync(string financeAdminUserId, Guid refundId, CancellationToken cancellationToken = default)
     {
+        for (var attempt = 0; attempt < 3; attempt++)
+        {
+            try
+            {
+                return await VerifyPayTabsRefundOnceAsync(financeAdminUserId, refundId, cancellationToken);
+            }
+            catch (DbUpdateConcurrencyException) when (attempt < 2)
+            {
+                db.ChangeTracker.Clear();
+            }
+            catch (Exception exception) when (attempt < 2 && IsPostgresConcurrencyConflict(exception))
+            {
+                db.ChangeTracker.Clear();
+            }
+        }
+
+        throw new InvalidOperationException("PayTabs refund verification did not complete after a concurrency retry.");
+    }
+
+    private async Task<RefundProviderWorkflowResult> VerifyPayTabsRefundOnceAsync(string financeAdminUserId, Guid refundId, CancellationToken cancellationToken)
+    {
         var snapshot = await db.Refunds.AsNoTracking().SingleOrDefaultAsync(item => item.Id == refundId, cancellationToken);
         if (snapshot is null) return await RejectProviderAsync(financeAdminUserId, refundId, "REFUND_NOT_FOUND", "The refund was not found.", cancellationToken);
         if (snapshot.Status == RefundStatus.InternallyRecorded) return new(ToView(snapshot), true);
         if (snapshot.Status == RefundStatus.ProviderVerified)
             return await RecoverProviderVerifiedRefundAsync(financeAdminUserId, refundId, cancellationToken);
-        if (snapshot.Status is not (RefundStatus.ProviderProcessing or RefundStatus.ProviderResultUnknown) || string.IsNullOrWhiteSpace(snapshot.ProviderRefundReference))
-            return new(ToView(snapshot), FailureCode: "PAYTABS_REFUND_REQUIRES_REVIEW", FailureMessage: "A provider refund reference and eligible provider state are required.");
+        if (snapshot.Status is not (RefundStatus.ProviderProcessing or RefundStatus.ProviderResultUnknown))
+            return new(ToView(snapshot), FailureCode: "PAYTABS_REFUND_REQUIRES_REVIEW", FailureMessage: "An eligible provider state is required.");
         if (paymentProvider is null || !string.Equals(paymentProvider.ProviderName, "PayTabs", StringComparison.OrdinalIgnoreCase))
             return new(ToView(snapshot), FailureCode: "PAYTABS_REFUND_PROVIDER_UNAVAILABLE", FailureMessage: "The PayTabs Test refund provider is unavailable.");
+        if (string.IsNullOrWhiteSpace(snapshot.ProviderRefundReference))
+            return snapshot.Status == RefundStatus.ProviderResultUnknown
+                ? await RecoverMissingRefundReferenceAsync(financeAdminUserId, snapshot, cancellationToken)
+                : new(ToView(snapshot), FailureCode: "PAYTABS_REFUND_REQUIRES_REVIEW", FailureMessage: "The provider refund reference is not yet available.");
 
         PaymentProviderRefundTransaction query;
         try
@@ -202,9 +227,9 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
             return await RecordProviderResultUnknownAsync(financeAdminUserId, snapshot.Id, "PAYTABS_REFUND_QUERY_RESULT_UNKNOWN", cancellationToken);
         }
 
-        if (query.IsDefiniteFailure)
-            return await RecordProviderFailureAsync(financeAdminUserId, snapshot.Id, query.ProviderRefundReference, query.Code, "PAYTABS_REFUND_DECLINED", cancellationToken);
         var paymentSnapshot = await db.Payments.AsNoTracking().SingleAsync(item => item.Id == snapshot.PaymentId, cancellationToken);
+        if (query.IsDefiniteFailure && IsExpectedProviderIdentity(query, snapshot, paymentSnapshot, snapshot.ProviderRefundReference))
+            return await RecordProviderFailureAsync(financeAdminUserId, snapshot.Id, query.ProviderRefundReference, query.Code, "PAYTABS_REFUND_DECLINED", cancellationToken);
         if (!IsExpectedProviderTransaction(query, snapshot, paymentSnapshot, snapshot.ProviderRefundReference))
             return await RecordProviderResultUnknownAsync(financeAdminUserId, snapshot.Id, "PAYTABS_REFUND_QUERY_UNVERIFIED", cancellationToken, query.ProviderRefundReference, query.Code);
 
@@ -235,6 +260,68 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
         await db.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return new(ToView(refund));
+    }
+
+    private async Task<RefundProviderWorkflowResult> RecoverMissingRefundReferenceAsync(string actor, Refund snapshot, CancellationToken cancellationToken)
+    {
+        Audit(actor, "PayTabsRefundRecoveryAttempted", snapshot.Id, new { snapshot.PaymentId, snapshot.CorrelationReference });
+        await db.SaveChangesAsync(cancellationToken);
+
+        IReadOnlyCollection<PaymentProviderRefundTransaction> candidates;
+        try
+        {
+            candidates = await paymentProvider!.QueryRefundTransactionsAsync(snapshot.Id, cancellationToken);
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            return await RecordProviderResultUnknownAsync(actor, snapshot.Id, "PAYTABS_REFUND_RECOVERY_RESULT_UNKNOWN", cancellationToken);
+        }
+        catch (Exception exception) when (exception is HttpRequestException or InvalidOperationException or JsonException)
+        {
+            return await RecordProviderResultUnknownAsync(actor, snapshot.Id, "PAYTABS_REFUND_RECOVERY_RESULT_UNKNOWN", cancellationToken);
+        }
+
+        if (candidates.Count == 0)
+            return await RecordProviderResultUnknownAsync(actor, snapshot.Id, "PAYTABS_REFUND_RECOVERY_NOT_FOUND", cancellationToken);
+
+        var payment = await db.Payments.AsNoTracking().SingleAsync(item => item.Id == snapshot.PaymentId, cancellationToken);
+        var matching = candidates.Where(item => IsExpectedProviderIdentity(item, snapshot, payment, item.ProviderRefundReference)
+            && !string.IsNullOrWhiteSpace(item.PreviousProviderTransactionReference)
+            && string.Equals(item.PreviousProviderTransactionReference, payment.ProviderPaymentId, StringComparison.Ordinal)).ToArray();
+        if (matching.Length == 0)
+            return await RecordProviderResultUnknownAsync(actor, snapshot.Id, "PAYTABS_REFUND_RECOVERY_UNVERIFIED", cancellationToken);
+        if (matching.Length != 1)
+            return await RecordProviderResultUnknownAsync(actor, snapshot.Id, "PAYTABS_REFUND_RECOVERY_AMBIGUOUS", cancellationToken);
+
+        var recovered = matching[0];
+        await using (var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken))
+        {
+            var refund = await db.Refunds.SingleAsync(item => item.Id == snapshot.Id, cancellationToken);
+            if (refund.Status == RefundStatus.InternallyRecorded)
+                return new(ToView(refund), true);
+            if (refund.Status != RefundStatus.ProviderResultUnknown)
+                return new(ToView(refund), FailureCode: "PAYTABS_REFUND_REQUIRES_REVIEW", FailureMessage: "The refund state changed and requires review.");
+            if (refund.ProviderRefundReference is null)
+            {
+                if (await db.Refunds.AsNoTracking().AnyAsync(item => item.Id != refund.Id
+                    && item.ProviderName == "PayTabs"
+                    && item.ProviderRefundReference == recovered.ProviderRefundReference, cancellationToken))
+                {
+                    Audit(actor, "PayTabsRefundReferenceConflict", refund.Id, new { refund.PaymentId, refund.CorrelationReference });
+                    await db.SaveChangesAsync(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
+                    return new(ToView(refund), FailureCode: "PAYTABS_REFUND_REFERENCE_CONFLICT", FailureMessage: "The provider refund reference is already bound to another refund.");
+                }
+
+                refund.ProviderRefundReference = recovered.ProviderRefundReference;
+                refund.ProviderStatusCode = recovered.Code;
+                Audit(actor, "PayTabsRefundReferenceRecovered", refund.Id, new { refund.PaymentId, refund.ProviderRefundReference, refund.CorrelationReference });
+                await db.SaveChangesAsync(cancellationToken);
+            }
+            await transaction.CommitAsync(cancellationToken);
+        }
+
+        return await VerifyPayTabsRefundAsync(actor, snapshot.Id, cancellationToken);
     }
 
     private async Task<RefundProviderWorkflowResult> RecoverProviderVerifiedRefundAsync(string financeAdminUserId, Guid refundId, CancellationToken cancellationToken)
@@ -559,7 +646,9 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
     }
 
     private static bool IsExpectedProviderTransaction(PaymentProviderRefundTransaction transaction, Refund refund, Payment payment, string? expectedProviderReference) =>
-        transaction.IsSuccessful &&
+        transaction.IsSuccessful && IsExpectedProviderIdentity(transaction, refund, payment, expectedProviderReference);
+
+    private static bool IsExpectedProviderIdentity(PaymentProviderRefundTransaction transaction, Refund refund, Payment payment, string? expectedProviderReference) =>
         transaction.ProfileMatchesConfigured &&
         string.Equals(transaction.Provider, "PayTabs", StringComparison.OrdinalIgnoreCase) &&
         !string.IsNullOrWhiteSpace(transaction.ProviderRefundReference) &&
@@ -567,7 +656,9 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
         string.Equals(transaction.TransactionType, "refund", StringComparison.OrdinalIgnoreCase) &&
         string.Equals(transaction.CartId, PayTabsPaymentProvider.RefundCartId(refund.Id), StringComparison.Ordinal) &&
         string.Equals(transaction.Currency, payment.Currency, StringComparison.OrdinalIgnoreCase) &&
-        transaction.Amount == refund.Amount;
+        transaction.Amount == refund.Amount &&
+        (transaction.PreviousProviderTransactionReference is null
+            || string.Equals(transaction.PreviousProviderTransactionReference, payment.ProviderPaymentId, StringComparison.Ordinal));
 
     private static bool IsPostgresConcurrencyConflict(Exception exception)
     {

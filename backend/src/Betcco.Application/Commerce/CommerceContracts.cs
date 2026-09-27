@@ -29,7 +29,7 @@ public sealed record RefundRecordingResult(RefundView? Refund, bool IsIdempotent
 public sealed record InitiatePayTabsRefund(Guid PaymentId, string ReasonCode, string? Note, string IdempotencyKey);
 public sealed record RefundProviderWorkflowResult(RefundView? Refund, bool IsIdempotentReplay = false, string? FailureCode = null, string? FailureMessage = null);
 public sealed record PaymentProviderRefundRequest(Guid RefundId, string RefundReference, string Currency, decimal Amount, string Description, string OriginalProviderPaymentReference);
-public sealed record PaymentProviderRefundTransaction(string Provider, string? ProfileId, string? ProviderRefundReference, string? TransactionType, string? CartId, string? Currency, decimal? Amount, string? Status, string? Code, bool IsSuccessful, bool IsDefiniteFailure, bool ProfileMatchesConfigured);
+public sealed record PaymentProviderRefundTransaction(string Provider, string? ProfileId, string? ProviderRefundReference, string? TransactionType, string? CartId, string? Currency, decimal? Amount, string? Status, string? Code, bool IsSuccessful, bool IsDefiniteFailure, bool ProfileMatchesConfigured, string? PreviousProviderTransactionReference = null);
 public sealed record InvoiceLineView(int Sequence, string ItemType, Guid? ItemReferenceId, decimal Amount, string SnapshotJson);
 public sealed record InvoiceView(Guid Id, Guid PaymentId, string Number, string CustomerUserId, DateTimeOffset IssuedAtUtc, string Status, decimal Subtotal, decimal Discount, decimal Tax, decimal Total, string Currency, string CorrelationReference, IReadOnlyCollection<InvoiceLineView> Lines);
 public sealed record CreditNoteView(Guid Id, Guid InvoiceId, Guid RefundId, string Number, DateTimeOffset IssuedAtUtc, string Status, decimal Amount, string Currency, string CorrelationReference);
@@ -49,6 +49,8 @@ public interface IPaymentProvider
     Task<PaymentTransactionVerification> VerifyTransactionAsync(string providerPaymentId, CancellationToken cancellationToken = default);
     Task<PaymentProviderRefundTransaction> CreateRefundAsync(PaymentProviderRefundRequest request, CancellationToken cancellationToken = default);
     Task<PaymentProviderRefundTransaction> VerifyRefundAsync(string providerRefundReference, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<PaymentProviderRefundTransaction>> QueryRefundTransactionsAsync(Guid refundId, CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyCollection<PaymentProviderRefundTransaction>>([]);
 }
 
 public interface IPayoutProvider
