@@ -65,8 +65,8 @@ public sealed class DataProtectionRecoveryTests
                 Assert.Equal(keys.Count, await recoveredContext.DataProtectionKeys.CountAsync());
             }
 
-            // A newly built container models a restarted application after restoring the same database
-            // and recovering the original PFX from its external custody location.
+            // A newly built provider models application recovery against the separately recovered
+            // PostgreSQL key ring plus the original PFX from its external custody location.
             await using (var recovered = CreateProvider(recoveredDatabase.ConnectionString, certificateAPath, certificateAPassword))
             {
                 var unprotected = recovered.GetRequiredService<IDataProtectionProvider>()
@@ -95,7 +95,6 @@ public sealed class DataProtectionRecoveryTests
         }
         finally
         {
-            Environment.SetEnvironmentVariable("BETCCO_TEST_DP_CERT_PASSWORD", null);
             if (Directory.Exists(tempDirectory)) Directory.Delete(tempDirectory, recursive: true);
         }
     }
@@ -126,12 +125,8 @@ public sealed class DataProtectionRecoveryTests
     private static X509Certificate2 LoadAndVerifyCertificate(string path, string password) =>
         X509CertificateLoader.LoadPkcs12FromFile(path, password);
 
-    private static string CreateEphemeralPassword()
-    {
-        var password = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
-        Environment.SetEnvironmentVariable("BETCCO_TEST_DP_CERT_PASSWORD", password);
-        return Environment.GetEnvironmentVariable("BETCCO_TEST_DP_CERT_PASSWORD")!;
-    }
+    private static string CreateEphemeralPassword() =>
+        Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
 
     private sealed class RecoveryTestEnvironment : IHostEnvironment
     {
