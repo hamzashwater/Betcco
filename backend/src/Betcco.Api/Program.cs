@@ -30,7 +30,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
-var (operation, applicationArguments) = OperationalCommandParser.Parse(args);
+var (operation, applicationArguments, allowLegacyQuizDataRemoval) = OperationalCommandParser.Parse(args);
 var builder = WebApplication.CreateBuilder(applicationArguments);
 if (operation == OperationalCommand.BootstrapAdmin)
 {
@@ -45,6 +45,19 @@ if (operation == OperationalCommand.BootstrapAdmin)
     var outcome = await bootstrapScope.ServiceProvider.GetRequiredService<ProductionAdminBootstrapper>().BootstrapAsync(
         builder.Configuration["BootstrapAdmin:Email"], builder.Configuration["BootstrapAdmin:Password"]);
     Console.WriteLine(outcome == AdminBootstrapResult.Created ? "ADMIN_BOOTSTRAP_CREATED" : "ADMIN_BOOTSTRAP_ALREADY_COMPLETED");
+    return;
+}
+if (operation == OperationalCommand.MigrationPreflight)
+{
+    builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning);
+    builder.Services.AddDbContext<BetccoDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")
+        ?? builder.Configuration["ConnectionStrings__Postgres"]));
+    builder.Services.AddScoped<LegacyQuizMigrationGate>();
+    await using var preflightApp = builder.Build();
+    await using var preflightScope = preflightApp.Services.CreateAsyncScope();
+    var preflight = await preflightScope.ServiceProvider.GetRequiredService<LegacyQuizMigrationGate>().PreflightAsync();
+    Console.WriteLine(preflight.FormatSummary());
+    if (!preflight.Succeeded) Environment.ExitCode = 1;
     return;
 }
 StartupConfigurationValidator.ThrowIfInvalid(builder.Configuration, builder.Environment);
@@ -442,14 +455,27 @@ builder.Services.AddScoped<IQualificationRegistryService, QualificationRegistryS
 builder.Services.AddScoped<IAcademicCatalogueService, AcademicCatalogueService>();
 builder.Services.AddScoped<IDeliveryPlanningService, DeliveryPlanningService>();
 builder.Services.AddScoped<DatabaseInitializer>();
+builder.Services.AddScoped<LegacyQuizMigrationGate>();
 
 var app = builder.Build();
 if (operation == OperationalCommand.Migrate)
 {
     await using var scope = app.Services.CreateAsyncScope();
     var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Betcco.Migrations");
-    logger.LogInformation("Applying BETCCO database migrations.");
-    await scope.ServiceProvider.GetRequiredService<BetccoDbContext>().Database.MigrateAsync();
+    logger.LogInformation("Checking migration preflight and applying BETCCO database migrations when allowed.");
+    var migration = await scope.ServiceProvider.GetRequiredService<LegacyQuizMigrationGate>().MigrateAsync(
+        allowLegacyQuizDataRemoval,
+        preflight =>
+        {
+            Console.WriteLine(preflight.FormatSummary());
+            if (allowLegacyQuizDataRemoval && preflight.State == LegacyQuizPreflightState.RequiresReview)
+                Console.WriteLine("LEGACY_QUIZ_DATA_REMOVAL_APPROVED_BY_OPERATOR");
+        });
+    if (!migration.MigrationCompleted)
+    {
+        Environment.ExitCode = 1;
+        return;
+    }
     logger.LogInformation("BETCCO database migrations completed.");
     return;
 }
