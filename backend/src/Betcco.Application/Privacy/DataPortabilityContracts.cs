@@ -19,3 +19,9 @@ public interface IDataPortabilityExportService
     Task<DataPortabilityExportResult> ReleaseAsync(Guid requestId, string actorUserId, CancellationToken cancellationToken = default);
     Task<DataPortabilityDownloadResult> OpenForOwnerDownloadAsync(Guid requestId, string ownerUserId, CancellationToken cancellationToken = default);
 }
+
+public interface IDataPortabilityArtifactCleanup
+{
+    Task<int> EnqueueExpiredArtifactDeletionsAsync(CancellationToken cancellationToken = default);
+    Task<int> AuditCompletedArtifactDeletionsAsync(CancellationToken cancellationToken = default);
+}
