@@ -24,10 +24,36 @@ public sealed class EraseConcealmentExecutionService(
         string actorUserId,
         CancellationToken cancellationToken = default)
     {
+        // The request row is the shared database lock for every execution job
+        // belonging to this request, including jobs for different policies.
+        await using var transaction = db.Database.IsRelational()
+            ? await db.Database.BeginTransactionAsync(cancellationToken)
+            : null;
+        var result = await ExecuteUnderRequestLockAsync(privacyExecutionJobId, actorUserId, transaction is not null, cancellationToken);
+        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+        return result;
+    }
+
+    private async Task<EraseConcealmentExecutionResult> ExecuteUnderRequestLockAsync(
+        Guid privacyExecutionJobId,
+        string actorUserId,
+        bool lockRequest,
+        CancellationToken cancellationToken)
+    {
+        var requestId = await db.PrivacyExecutionJobs.AsNoTracking()
+            .Where(item => item.Id == privacyExecutionJobId)
+            .Select(item => (Guid?)item.DataSubjectRequestId)
+            .SingleOrDefaultAsync(cancellationToken);
+        if (requestId is null) return new(null, FailureCode: "PRIVACY_EXECUTION_JOB_NOT_FOUND", FailureMessage: "The privacy execution job was not found.");
+
+        var request = lockRequest
+            ? await db.DataSubjectRequests.FromSqlInterpolated($"SELECT * FROM \"DataSubjectRequests\" WHERE \"Id\" = {requestId.Value} FOR UPDATE")
+                .SingleOrDefaultAsync(cancellationToken)
+            : await db.DataSubjectRequests.SingleOrDefaultAsync(item => item.Id == requestId.Value, cancellationToken);
+        // Read the job only after acquiring the lock. A waiting caller must see
+        // the winner's committed completion and return its existing evidence.
         var job = await db.PrivacyExecutionJobs.SingleOrDefaultAsync(item => item.Id == privacyExecutionJobId, cancellationToken);
         if (job is null) return new(null, FailureCode: "PRIVACY_EXECUTION_JOB_NOT_FOUND", FailureMessage: "The privacy execution job was not found.");
-
-        var request = await db.DataSubjectRequests.SingleOrDefaultAsync(item => item.Id == job.DataSubjectRequestId, cancellationToken);
         if (request is null || request.RequestType != DataSubjectRequestType.ErasureOrConcealment)
             return new(job, FailureCode: "PRIVACY_REQUEST_TYPE_INVALID", FailureMessage: "This execution job is not for an erase or concealment request.");
         if (request.IdentityVerifiedAtUtc is null)

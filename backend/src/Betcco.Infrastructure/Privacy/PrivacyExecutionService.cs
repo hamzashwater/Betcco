@@ -18,7 +18,23 @@ public sealed class PrivacyExecutionService(BetccoDbContext db) : IPrivacyExecut
         EvaluatePrivacyExecutionCommand command,
         CancellationToken cancellationToken = default)
     {
-        var request = await db.DataSubjectRequests.SingleOrDefaultAsync(item => item.Id == command.DataSubjectRequestId, cancellationToken);
+        await using var transaction = db.Database.IsRelational()
+            ? await db.Database.BeginTransactionAsync(cancellationToken)
+            : null;
+        var result = await EvaluateUnderRequestLockAsync(command, transaction is not null, cancellationToken);
+        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+        return result;
+    }
+
+    private async Task<PrivacyExecutionEvaluationResult> EvaluateUnderRequestLockAsync(
+        EvaluatePrivacyExecutionCommand command,
+        bool lockRequest,
+        CancellationToken cancellationToken)
+    {
+        var request = lockRequest
+            ? await db.DataSubjectRequests.FromSqlInterpolated($"SELECT * FROM \"DataSubjectRequests\" WHERE \"Id\" = {command.DataSubjectRequestId} FOR UPDATE")
+                .SingleOrDefaultAsync(cancellationToken)
+            : await db.DataSubjectRequests.SingleOrDefaultAsync(item => item.Id == command.DataSubjectRequestId, cancellationToken);
         if (request is null)
             return new(null, "PRIVACY_REQUEST_NOT_FOUND", "The privacy request was not found.");
         if (request.RequestType != DataSubjectRequestType.ErasureOrConcealment)
@@ -35,6 +51,9 @@ public sealed class PrivacyExecutionService(BetccoDbContext db) : IPrivacyExecut
         var job = await db.PrivacyExecutionJobs.SingleOrDefaultAsync(item =>
             item.DataSubjectRequestId == request.Id && item.RetentionPolicyId == policy.Id,
             cancellationToken);
+        // Completion and its fulfillment evidence are terminal for this job.
+        // A later evaluation must not silently make it executable again.
+        if (job?.Status == PrivacyExecutionJobStatus.Completed) return new(job);
         var created = job is null;
         if (job is null)
         {
