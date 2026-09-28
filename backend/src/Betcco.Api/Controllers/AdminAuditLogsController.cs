@@ -55,9 +55,13 @@ public sealed class AdminAuditLogsController(BetccoDbContext db) : ControllerBas
         if (toUtc.HasValue)
             logs = logs.Where(log => log.CreatedAtUtc <= toUtc.Value);
         var totalCount = await logs.CountAsync(cancellationToken);
+        var offset = ((long)page - 1) * pageSize;
+        if (offset >= totalCount)
+            return Ok(new { items = Array.Empty<object>(), page, pageSize, totalCount });
+
         var pageItems = await logs.OrderByDescending(log => log.CreatedAtUtc)
             .ThenByDescending(log => log.Id)
-            .Skip((page - 1) * pageSize)
+            .Skip((int)offset)
             .Take(pageSize)
             .Select(log => new
             {
