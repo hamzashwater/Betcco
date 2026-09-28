@@ -17,29 +17,50 @@ public sealed class DataPortabilityArtifactCleanupService(
 
     public async Task<int> EnqueueExpiredArtifactDeletionsAsync(CancellationToken cancellationToken = default)
     {
+        await using var transaction = db.Database.IsRelational()
+            ? await db.Database.BeginTransactionAsync(cancellationToken)
+            : null;
         var now = DateTimeOffset.UtcNow;
-        var expiredExports = await db.DataPortabilityExports
+        var candidateIds = await db.DataPortabilityExports.AsNoTracking()
             .Where(export => export.StorageKey != null && export.ExpiresAtUtc <= now &&
                 !db.StorageLifecycleOperations.Any(operation =>
                     operation.Action == StorageLifecycleAction.Delete && operation.StorageKey == export.StorageKey))
             .OrderBy(export => export.ExpiresAtUtc)
             .ThenBy(export => export.Id)
             .Take(BatchSize)
+            .Select(export => export.Id)
             .ToListAsync(cancellationToken);
 
-        foreach (var export in expiredExports)
-            storageLifecycle.EnqueueDeletion(export.StorageKey!);
+        var enqueuedKeys = new HashSet<string>(StringComparer.Ordinal);
+        var enqueued = 0;
+        foreach (var id in candidateIds)
+        {
+            var export = await LoadExportAsync(id, transaction is not null, cancellationToken);
+            if (export?.StorageKey is not { } storageKey || export.ExpiresAtUtc > now ||
+                !enqueuedKeys.Add(storageKey) ||
+                await db.StorageLifecycleOperations.AsNoTracking().AnyAsync(operation =>
+                    operation.Action == StorageLifecycleAction.Delete && operation.StorageKey == storageKey, cancellationToken))
+                continue;
 
-        if (expiredExports.Count > 0)
+            storageLifecycle.EnqueueDeletion(storageKey);
+            enqueued++;
+        }
+
+        if (enqueued > 0)
             await db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null)
+            await transaction.CommitAsync(cancellationToken);
 
-        return expiredExports.Count;
+        return enqueued;
     }
 
     public async Task<int> AuditCompletedArtifactDeletionsAsync(CancellationToken cancellationToken = default)
     {
+        await using var transaction = db.Database.IsRelational()
+            ? await db.Database.BeginTransactionAsync(cancellationToken)
+            : null;
         var now = DateTimeOffset.UtcNow;
-        var deletedExports = await db.DataPortabilityExports
+        var candidateIds = await db.DataPortabilityExports.AsNoTracking()
             .Where(export => export.StorageKey != null && export.ExpiresAtUtc <= now &&
                 db.StorageLifecycleOperations.Any(operation =>
                     operation.Action == StorageLifecycleAction.Delete &&
@@ -51,11 +72,23 @@ public sealed class DataPortabilityArtifactCleanupService(
             .OrderBy(export => export.ExpiresAtUtc)
             .ThenBy(export => export.Id)
             .Take(BatchSize)
-            .Select(export => new { export.Id, export.ExpiresAtUtc })
+            .Select(export => export.Id)
             .ToListAsync(cancellationToken);
 
-        foreach (var export in deletedExports)
+        var audited = 0;
+        foreach (var id in candidateIds)
         {
+            var export = await LoadExportAsync(id, transaction is not null, cancellationToken);
+            if (export?.StorageKey is not { } storageKey || export.ExpiresAtUtc > now ||
+                !await db.StorageLifecycleOperations.AsNoTracking().AnyAsync(operation =>
+                    operation.Action == StorageLifecycleAction.Delete &&
+                    operation.Status == StorageLifecycleStatus.Completed &&
+                    operation.StorageKey == storageKey, cancellationToken) ||
+                await db.AuditLogs.AsNoTracking().AnyAsync(audit => audit.Action == DeletedAuditAction &&
+                    audit.EntityType == nameof(DataPortabilityExport) &&
+                    audit.EntityId == id.ToString(), cancellationToken))
+                continue;
+
             db.AuditLogs.Add(new AuditLog
             {
                 Action = DeletedAuditAction,
@@ -69,11 +102,20 @@ public sealed class DataPortabilityArtifactCleanupService(
                     deletionResult = "Completed"
                 })
             });
+            audited++;
         }
 
-        if (deletedExports.Count > 0)
+        if (audited > 0)
             await db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null)
+            await transaction.CommitAsync(cancellationToken);
 
-        return deletedExports.Count;
+        return audited;
     }
+
+    private Task<DataPortabilityExport?> LoadExportAsync(Guid id, bool lockRow, CancellationToken cancellationToken) =>
+        lockRow
+            ? db.DataPortabilityExports.FromSqlInterpolated($"SELECT * FROM \"DataPortabilityExports\" WHERE \"Id\" = {id} FOR UPDATE")
+                .AsNoTracking().SingleOrDefaultAsync(cancellationToken)
+            : db.DataPortabilityExports.AsNoTracking().SingleOrDefaultAsync(export => export.Id == id, cancellationToken);
 }
