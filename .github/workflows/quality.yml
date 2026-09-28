@@ -116,6 +116,10 @@ jobs:
             --env GITHUB_RUN_ATTEMPT \
             "$BETCCO_POSTGRES_CLIENT_IMAGE" \
             bash scripts/run-postgres-recovery-drill.sh
+      - name: Verify S3 private-object recovery
+        run: dotnet test backend/tests/Betcco.IntegrationTests --no-build --no-restore --filter FullyQualifiedName~S3PrivateObjectRecoveryTests
+      - name: Verify Data Protection key-ring recovery
+        run: dotnet test backend/tests/Betcco.IntegrationTests --no-build --no-restore --filter FullyQualifiedName~DataProtectionRecoveryTests
       - name: Run .NET tests including required PostgreSQL finance and S3 storage tests
         run: dotnet test backend/Betcco.sln --no-build --no-restore
       - name: Prepare standalone frontend for Playwright

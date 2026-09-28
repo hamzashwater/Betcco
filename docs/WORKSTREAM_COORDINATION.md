@@ -47,7 +47,7 @@ Snapshot captured: **2026-09-28**
 
 At capture time:
 
-- `main`: `03bb131cfb16b68dc6d0a983289511dd823223da` (PR #114 documentation reconciliation merge).
+- `main`: `00f9f2044097739cd7df15cb6e78720bbe5f9902` (PR #116 LENOVO N6A merge).
 - PR #103 — ASUS Production Readiness & Hardening Gap Audit — is merged; its production-hardening findings remain separate from Resit completion.
 - PR #104 — LENOVO Resit End-to-End Hardening — L13 is merged at historical main commit `3109adfcf1f370338e0f348ceadf72e84a14f749`. Its Full UAT and required checks passed on final PR head `e404539ac7f2488d7cc85a50ceb02d4f8c02f529` before merge.
 - PR #107 — LENOVO N1 ASSESS Reasonable Adjustments Resit guard — merged at `816ae1632ac93392440656051e6fba8a7bfa9704`; Resit revision-deadline adjustment grant/revoke/summary protection is verified in source and focused tests.
@@ -57,6 +57,7 @@ At capture time:
 - N5 — read-only Privacy / Compliance reconciliation: same-subject Rectification × Erasure/Concealment precedence on overlapping fields remains an undecided product/privacy semantic question; no cross-request orchestration is approved or claimed.
 - PR #113 — LENOVO N5A expired Data Portability artifact cleanup — merged at `6f6988c124d66d955de61dd30c0d42f8ad577ebf` from PR head `080ce744c2acb63270b81b8812d641fd76227e11`. Required PR Quality, Full UAT, Dependency Review, both CodeQL languages, and standalone CodeQL passed. The Quality run started S3-compatible storage and passed .NET tests including S3 contracts. Post-merge main Quality run `36409469670` and Security analysis run `36409469557` passed; main-push Dependency Review was skipped.
 - PR #114 — LENOVO N5B documentation reconciliation — merged at `03bb131cfb16b68dc6d0a983289511dd823223da`; it reconciled N1–N5A merged status through PR #113 and changed documentation only. PR #114 Quality, Security analysis, and Full UAT all passed before merge.
+- PR #116 — LENOVO N6A Student-only target guard and atomic deletion — merged at `00f9f2044097739cd7df15cb6e78720bbe5f9902`; Student-only role invariants now guard Student-specific privileged operations and relational Student deletion is serialized/atomic. ResetDevice remains a separate follow-up observation; no schema/migration/DbContext/frontend change was included.
 - PR #98 — Student Resit UI — L11 is merged.
 - PR #99 — PayTabs partial-refund contract tests are merged; partial provider refund execution remains disabled.
 - PR #100 — PayTabs refund pending-state hardening is merged.
@@ -89,7 +90,7 @@ These SHAs are historical coordination markers only. Re-verify them before using
 
 ## Current Workstream
 
-**No active ASUS implementation PR at this snapshot.** PR #78 — Admin Payout Lifecycle UI Contract — Slice 1 is merged into `main` at `3d5affe6ac3ca98bda78273f41d9bf455a51c03f`.
+**Active ASUS implementation PR: #117 — ASUS-10E1B S3 & Data Protection Recovery Drill.** PR #78 — Admin Payout Lifecycle UI Contract — Slice 1 is merged into `main` at `3d5affe6ac3ca98bda78273f41d9bf455a51c03f`.
 
 PR #72 — **Evaluate My Assignment — Slice 1** — is merged into `main` at `78d3d178e1923a34071215248a95cc990bd54531`.
 
@@ -105,9 +106,9 @@ PR #53 — **Comprehensive Practice Assignment — Final Unit Practice** — rem
 
 ## ASUS Reserved Scope
 
-No active ASUS implementation branch is reserved at this snapshot. PR #78 — Admin Payout Lifecycle UI Contract — Slice 1 and PR #75 — Student Entitlement Visibility — Slice 1 are merged and closed; Evaluate My Assignment, Student Progress Intelligence, Teacher Intervention Dashboard, Student Entitlement Visibility, and the bounded payout UI contract are closed at the implementation/CI level. The AI engine/API/RAG/persistence work remains deliberately deferred and is not an active workstream.
+ASUS-10E1B is reserved by active Draft PR #117 until merge/closure. PR #78 — Admin Payout Lifecycle UI Contract — Slice 1 and PR #75 — Student Entitlement Visibility — Slice 1 are merged and closed; Evaluate My Assignment, Student Progress Intelligence, Teacher Intervention Dashboard, Student Entitlement Visibility, and the bounded payout UI contract are closed at the implementation/CI level. The AI engine/API/RAG/persistence work remains deliberately deferred and is not an active workstream.
 
-ASUS retains planning ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign. Resit L12's paid Commerce integration is merged in PR #102; ASUS is not still implementing that slice. The original ASUS-10A audit has advanced through merged production-hardening slices: PR #106 (10B Production Admin Bootstrap), PR #108 (10C Production S3 HTTPS Guard), PR #109 (10D1 Legacy Quiz Migration Preflight & Recovery Gate), and PR #111 (10E1A PostgreSQL Backup & Restore Recovery Drill). The next repository-controlled ASUS slice is **ASUS-10E1B — S3 private-object recovery + Data Protection certificate recovery**. After that, 10E2 covers monitoring/alerts/incident runbooks, 10F covers immutable release promotion, and 10G remains conditional on live commerce launch scope. Refund → Course Access remains a product-policy decision and must not be implemented implicitly. Before starting any roadmap item, ASUS must run a fresh preflight against latest `main`, all OPEN/Draft PRs, changed files, CI, and review threads.
+ASUS retains planning ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign. Resit L12's paid Commerce integration is merged in PR #102; ASUS is not still implementing that slice. The original ASUS-10A audit has advanced through merged production-hardening slices: PR #106 (10B Production Admin Bootstrap), PR #108 (10C Production S3 HTTPS Guard), PR #109 (10D1 Legacy Quiz Migration Preflight & Recovery Gate), and PR #111 (10E1A PostgreSQL Backup & Restore Recovery Drill). ASUS-10E1B — S3 private-object recovery + Data Protection certificate recovery — is the active Draft PR #117 and is not complete until exact-head CI/review passes and the PR merges. After that, 10E2 covers monitoring/alerts/incident runbooks, 10F covers immutable release promotion, and 10G remains conditional on live commerce launch scope. Refund → Course Access remains a product-policy decision and must not be implemented implicitly. Before starting any roadmap item, ASUS must run a fresh preflight against latest `main`, all OPEN/Draft PRs, changed files, CI, and review threads.
 
 ## ASUS Current Completion Sequence
 
@@ -178,7 +179,7 @@ Includes:
 
 ## Current LENOVO Workstream
 
-**No active LENOVO implementation PR at this snapshot.** Resit L1–L13 and N1–N3 are complete and merged; N4 and N5 are read-only audits; N5A is complete and merged in PR #113 at `6f6988c124d66d955de61dd30c0d42f8ad577ebf`. The current merged Resit scope remains separate from historical Retake and normal Resubmission. No next Resit lane or automatic Privacy implementation branch is reserved.
+**No active LENOVO implementation PR at this snapshot.** Resit L1–L13, N1–N3, N5A, and N6A are complete and merged; N4 and N5 are read-only audits. N6A merged in PR #116 at `00f9f2044097739cd7df15cb6e78720bbe5f9902`. The current merged Resit scope remains separate from historical Retake and normal Resubmission. No next Resit lane or automatic Privacy implementation branch is reserved.
 
 The N4 TaskType audit records current scoped-Evaluation derivation from `RubricTemplate.TaskTypeId` while leaving canonical ownership unresolved; it does not approve AssessmentDefinition/AssessmentScope ownership or a schema change. N5 leaves same-subject Rectification × Erasure/Concealment precedence as a product/privacy decision. N2's same-request PostgreSQL locking is implemented; no cross-request orchestration or subject-wide lock requirement is reserved.
 

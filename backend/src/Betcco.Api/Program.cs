@@ -1,7 +1,6 @@
 using System.Net;
 using System.Threading.RateLimiting;
 using System.Security.Claims;
-using System.Security.Cryptography.X509Certificates;
 using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
@@ -23,7 +22,6 @@ using Betcco.Infrastructure.Services;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -70,27 +68,7 @@ builder.Services.AddExceptionHandler<BetccoExceptionHandler>();
 builder.Services.AddMemoryCache();
 builder.Services.AddDbContext<BetccoDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddHttpContextAccessor();
-var dataProtection = builder.Services.AddDataProtection().SetApplicationName("BETCCO");
-var dataProtectionProvider = builder.Configuration["DataProtection:Provider"]
-    ?? (builder.Environment.IsProduction() ? null : "FileSystem");
-if (string.Equals(dataProtectionProvider, "Postgres", StringComparison.OrdinalIgnoreCase))
-{
-    dataProtection.PersistKeysToDbContext<BetccoDbContext>();
-}
-else
-{
-    var dataProtectionPath = builder.Configuration["DataProtection:KeysPath"] ?? "../keys";
-    dataProtection.PersistKeysToFileSystem(new DirectoryInfo(dataProtectionPath));
-}
-
-var dataProtectionCertificatePath = builder.Configuration["DataProtection:CertificatePath"];
-if (!string.IsNullOrWhiteSpace(dataProtectionCertificatePath))
-{
-    var certificate = X509CertificateLoader.LoadPkcs12FromFile(
-        dataProtectionCertificatePath,
-        builder.Configuration["DataProtection:CertificatePassword"]);
-    dataProtection.ProtectKeysWithCertificate(certificate);
-}
+DataProtectionConfiguration.Configure(builder.Services, builder.Configuration, builder.Environment);
 builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(PlatformIdentityOptions.Configure)
     .AddEntityFrameworkStores<BetccoDbContext>()
     .AddUserStore<ProtectedRecoveryCodeUserStore>()
