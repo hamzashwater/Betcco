@@ -4,11 +4,12 @@
 
 - Last updated: 2026-09-28
 - Verified implementation baseline SHA: `6f6988c124d66d955de61dd30c0d42f8ad577ebf`
-- Status verified against origin/main: `00f9f2044097739cd7df15cb6e78720bbe5f9902` (PR #116 LENOVO N6A merge).
-- OPEN/Draft PRs at verification: none (live GitHub check on 2026-09-28 before documentation-branch publication).
+- Status verified against origin/main: `25c162a9b002f84e604eed310a73680294055a0e` (PR #117 ASUS-10E1B merge).
+- OPEN/Draft PRs at pre-edit verification: none (live GitHub check on 2026-09-28 before this documentation branch was published).
 - ASUS-10A production-readiness audit is recorded in `docs/production-readiness-audit.md`; its production blockers remain separate from Resit completion.
 - Parallel workstream coordination is persisted in `docs/WORKSTREAM_COORDINATION.md` and must be rechecked against live GitHub before implementation.
 - PR #114 — LENOVO N5B documentation reconciliation — merged at `03bb131cfb16b68dc6d0a983289511dd823223da`; it reconciled N1–N5A status through PR #113 without changing product code, tests, schema, migrations, workflows, or configuration.
+- PR #117 — ASUS-10E1B S3 & Data Protection Recovery Drill — DONE / MERGED at `25c162a9b002f84e604eed310a73680294055a0e`; repository-controlled PostgreSQL, private S3 logical-object, and Data Protection key-ring/certificate recovery evidence is complete. External production DR evidence remains open.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
@@ -276,7 +277,7 @@ At the 2026-09-28 verification snapshot, `main` is `6f6988c124d66d955de61dd30c0d
 
 ## Next Actions
 
-- ASUS: Production hardening has advanced beyond the original ASUS-10A sequence. ASUS-10B Production Admin Bootstrap is merged in PR #106; ASUS-10C Production S3 HTTPS Guard in PR #108; ASUS-10D1 Legacy Quiz Migration Preflight & Recovery Gate in PR #109; and ASUS-10E1A PostgreSQL Backup & Restore Recovery Drill in PR #111. ASUS-10E1B — S3 private-object recovery + Data Protection certificate recovery — is implemented on PR #117 and remains merge-gated by exact-head CI/review. After it merges, the next repository-controlled slice is monitoring/incident readiness (10E2), followed by immutable release promotion (10F) and conditional live-provider readiness (10G) if commerce is in launch scope. ASUS retains planning ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign. AI engine/API/RAG/persistence remains explicitly deferred.
+- ASUS: Production hardening has advanced beyond the original ASUS-10A sequence. ASUS-10B Production Admin Bootstrap is merged in PR #106; ASUS-10C Production S3 HTTPS Guard in PR #108; ASUS-10D1 Legacy Quiz Migration Preflight & Recovery Gate in PR #109; ASUS-10E1A PostgreSQL Backup & Restore Recovery Drill in PR #111; and ASUS-10E1B S3 private-object + Data Protection key-ring/certificate recovery in PR #117, DONE / MERGED at `25c162a9b002f84e604eed310a73680294055a0e`. Repository-controlled P1-02 recovery evidence is complete for PostgreSQL, private S3 logical-object recovery, and Data Protection key-ring/certificate recovery; production provider configuration, provider-side backups/versioning/replication, PFX custody, staging/production restores, RPO/RTO, schedule, retention, owner, and cross-region recovery remain open. ASUS-10E2 — Monitoring, Alerts & Incident Runbooks — is the next repository-controlled slice and remains PLANNED / NOT STARTED, followed by immutable release promotion (10F) and conditional live-provider readiness (10G) if commerce is in launch scope. ASUS retains planning ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign. AI engine/API/RAG/persistence remains explicitly deferred.
 - LENOVO: Resit L1–L13 and N1–N3 are DONE / MERGED; N4 and N5 are read-only audits; N5A is DONE / MERGED in PR #113 at current baseline `6f6988c124d66d955de61dd30c0d42f8ad577ebf`. No active LENOVO implementation PR or follow-up Privacy branch is reserved. Same-subject Rectification × Erasure/Concealment precedence remains an undecided product/privacy decision. Any future ASSESS or Privacy work requires separate evidence, explicit scope, and a fresh preflight; preserve ASUS ownership boundaries.
 - Task 6: DONE — Media / Video Foundation + Secure Delivery. PR #18 merged with required CI green.
 - Slice 1: DONE — ASSESS academic identity foundation. PR #28 merged with required CI green.

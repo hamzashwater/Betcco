@@ -90,7 +90,7 @@ These SHAs are historical coordination markers only. Re-verify them before using
 
 ## Current Workstream
 
-**Active ASUS implementation PR: #117 — ASUS-10E1B S3 & Data Protection Recovery Drill.** PR #78 — Admin Payout Lifecycle UI Contract — Slice 1 is merged into `main` at `3d5affe6ac3ca98bda78273f41d9bf455a51c03f`.
+**No active ASUS implementation PR at the pre-edit verification snapshot.** PR #117 — ASUS-10E1B S3 & Data Protection Recovery Drill — is DONE / MERGED at `25c162a9b002f84e604eed310a73680294055a0e`. PR #78 — Admin Payout Lifecycle UI Contract — Slice 1 is merged into `main` at `3d5affe6ac3ca98bda78273f41d9bf455a51c03f`.
 
 PR #72 — **Evaluate My Assignment — Slice 1** — is merged into `main` at `78d3d178e1923a34071215248a95cc990bd54531`.
 
@@ -106,9 +106,9 @@ PR #53 — **Comprehensive Practice Assignment — Final Unit Practice** — rem
 
 ## ASUS Reserved Scope
 
-ASUS-10E1B is reserved by active Draft PR #117 until merge/closure. PR #78 — Admin Payout Lifecycle UI Contract — Slice 1 and PR #75 — Student Entitlement Visibility — Slice 1 are merged and closed; Evaluate My Assignment, Student Progress Intelligence, Teacher Intervention Dashboard, Student Entitlement Visibility, and the bounded payout UI contract are closed at the implementation/CI level. The AI engine/API/RAG/persistence work remains deliberately deferred and is not an active workstream.
+No active ASUS implementation branch is reserved at the pre-edit verification snapshot; PR #117 has merged. PR #78 — Admin Payout Lifecycle UI Contract — Slice 1 and PR #75 — Student Entitlement Visibility — Slice 1 are merged and closed; Evaluate My Assignment, Student Progress Intelligence, Teacher Intervention Dashboard, Student Entitlement Visibility, and the bounded payout UI contract are closed at the implementation/CI level. The AI engine/API/RAG/persistence work remains deliberately deferred and is not an active workstream.
 
-ASUS retains planning ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign. Resit L12's paid Commerce integration is merged in PR #102; ASUS is not still implementing that slice. The original ASUS-10A audit has advanced through merged production-hardening slices: PR #106 (10B Production Admin Bootstrap), PR #108 (10C Production S3 HTTPS Guard), PR #109 (10D1 Legacy Quiz Migration Preflight & Recovery Gate), and PR #111 (10E1A PostgreSQL Backup & Restore Recovery Drill). ASUS-10E1B — S3 private-object recovery + Data Protection certificate recovery — is the active Draft PR #117 and is not complete until exact-head CI/review passes and the PR merges. After that, 10E2 covers monitoring/alerts/incident runbooks, 10F covers immutable release promotion, and 10G remains conditional on live commerce launch scope. Refund → Course Access remains a product-policy decision and must not be implemented implicitly. Before starting any roadmap item, ASUS must run a fresh preflight against latest `main`, all OPEN/Draft PRs, changed files, CI, and review threads.
+ASUS retains planning ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign. Resit L12's paid Commerce integration is merged in PR #102; ASUS is not still implementing that slice. The original ASUS-10A audit has advanced through merged production-hardening slices: PR #106 (10B Production Admin Bootstrap), PR #108 (10C Production S3 HTTPS Guard), PR #109 (10D1 Legacy Quiz Migration Preflight & Recovery Gate), PR #111 (10E1A PostgreSQL Backup & Restore Recovery Drill), and PR #117 (10E1B S3 private-object + Data Protection key-ring/certificate recovery), DONE / MERGED at `25c162a9b002f84e604eed310a73680294055a0e`. ASUS-10E2 — Monitoring, Alerts & Incident Runbooks — is the next repository-controlled slice and remains PLANNED / NOT STARTED; 10F covers immutable release promotion, and 10G remains conditional on live commerce launch scope. Refund → Course Access remains a product-policy decision and must not be implemented implicitly. Before starting any roadmap item, ASUS must run a fresh preflight against latest `main`, all OPEN/Draft PRs, changed files, CI, and review threads.
 
 ## ASUS Current Completion Sequence
 
@@ -124,7 +124,8 @@ Production-hardening completion is current through:
 - PR #106 — ASUS-10B Production Admin Bootstrap — merged; repository P0-01 bootstrap implementation is closed.
 - PR #108 — ASUS-10C Production S3 HTTPS Guard — merged; repository P1-05 transport/configuration guard is closed.
 - PR #109 — ASUS-10D1 Legacy Quiz Migration Preflight & Recovery Gate — merged; repository migration-safety gate is implemented, while external retention/backup evidence remains separate.
-- PR #111 — ASUS-10E1A PostgreSQL Backup & Restore Recovery Drill — merged; repository PostgreSQL recovery is verified in CI, while external provider recovery, S3 object recovery, Data Protection certificate recovery, RPO/RTO/retention, and production restore evidence remain open.
+- PR #111 — ASUS-10E1A PostgreSQL Backup & Restore Recovery Drill — merged; repository PostgreSQL recovery is verified in CI. PR #117 — ASUS-10E1B S3 private-object and Data Protection key-ring/certificate recovery — is DONE / MERGED at `25c162a9b002f84e604eed310a73680294055a0e`; repository-controlled recovery evidence is complete, while external provider recovery, production PFX custody, RPO/RTO/retention, and staging/production restore evidence remain open.
+- ASUS-10E2 — Monitoring, Alerts & Incident Runbooks — is PLANNED / NOT STARTED.
 
 ## ASUS Planned Roadmap
 
