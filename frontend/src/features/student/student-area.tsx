@@ -56,8 +56,8 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useLocale } from "next-intl";
-import { useRouter } from "next/navigation";
-import { type ReactNode, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, type ReactNode, useEffect, useRef, useState } from "react";
 
 type AssessmentScopeOption = {
   assessmentScopeId: string;
@@ -113,6 +113,30 @@ type AssessmentAcademicSummary = {
   assessmentArabicTitle: string;
   assessmentEnglishTitle: string;
   learningAimCodes: string[];
+};
+
+type EvaluationServerFile = {
+  id: string;
+  originalFileName: string;
+  contentType: string;
+  lengthBytes: number;
+  scanStatus: string;
+};
+
+type EvaluationDetail = {
+  id: string;
+  status: string;
+  price: number;
+  currency: string;
+  studentComment: string | null;
+  assessmentScopeId: string | null;
+  isRetake: boolean;
+  isResit: boolean;
+  hasAuthenticityDeclaration: boolean | null;
+  academic: AssessmentAcademicSummary | null;
+  criteria: string[];
+  files: EvaluationServerFile[];
+  evidence: { criterionCode: string; narrative: string }[];
 };
 
 function AcademicIdentity({
@@ -176,7 +200,20 @@ export function StudentArea({
         requestedLessonId={requestedLessonId}
       />
     );
-  if (current === "evaluations/new") content = <EvaluationWizard />;
+  if (current === "evaluations/new")
+    content = (
+      <Suspense
+        fallback={
+          <section className="shell py-10">
+            <div className="card p-6" aria-busy>
+              …
+            </div>
+          </section>
+        }
+      >
+        <EvaluationWizard />
+      </Suspense>
+    );
   if (current === "evaluations") content = <MyEvaluations />;
   if (current.startsWith("evaluations/") && segment[1] && segment[1] !== "new")
     content = <StudentResitDetail evaluationId={segment[1]} />;
@@ -3541,6 +3578,9 @@ export function CourseAssignmentPanel({
 function EvaluationWizard() {
   const locale = useLocale();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const resumeRequested = searchParams.has("resume");
+  const resumeId = searchParams.get("resume");
   const [selected, setSelected] = useState({
     qualification: "",
     grade: "",
@@ -3562,30 +3602,80 @@ function EvaluationWizard() {
   const [uploadedFileKeys, setUploadedFileKeys] = useState<string[]>([]);
   const [paymentMethod, setPaymentMethod] = useState("Card");
   const [authenticityConfirmed, setAuthenticityConfirmed] = useState(false);
+  const [fileUploadFailed, setFileUploadFailed] = useState(false);
   const [paymentSession, setPaymentSession] =
     useState<EvaluationCheckoutResponse | null>(null);
+  const hydratedResumeId = useRef<string | null>(null);
+  const resumeDetail = useQuery({
+    queryKey: ["evaluation-detail", resumeId],
+    queryFn: () =>
+      api<EvaluationDetail>(`/evaluations/${encodeURIComponent(resumeId!)}`),
+    enabled: Boolean(resumeId),
+  });
+  const authenticityAlreadyDeclared =
+    resumeRequested && resumeDetail.data?.hasAuthenticityDeclaration === true;
+  useEffect(() => {
+    const detail = resumeDetail.data;
+    if (
+      !detail ||
+      detail.id !== resumeId ||
+      detail.status !== "Draft" ||
+      detail.isRetake !== false ||
+      detail.isResit !== false ||
+      !detail.assessmentScopeId ||
+      hydratedResumeId.current === detail.id
+    )
+      return;
+
+    hydratedResumeId.current = detail.id;
+    setEvaluationId(detail.id);
+    setEvaluationCriteria(detail.criteria);
+    setEvaluationPrice({ price: detail.price, currency: detail.currency });
+    setSelected((current) => ({
+      ...current,
+      assessmentScopeId: detail.assessmentScopeId ?? "",
+      comment: detail.studentComment ?? "",
+    }));
+    setEvidenceDrafts(
+      Object.fromEntries(
+        detail.evidence.map(({ criterionCode, narrative }) => [
+          criterionCode,
+          narrative,
+        ]),
+      ),
+    );
+    setAuthenticityConfirmed(detail.hasAuthenticityDeclaration === true);
+  }, [resumeDetail.data, resumeId]);
   const maxFileBytes = 100 * 1024 * 1024;
   const fileKey = (item: File) =>
     `${item.name}:${item.size}:${item.lastModified}`;
   const uploadFiles = async (requestId: string, pendingFiles: File[]) => {
     if (pendingFiles.length === 0) return;
 
-    for (const item of pendingFiles) {
-      const form = new FormData();
-      form.set("file", item);
-      await api(`/evaluations/${requestId}/files`, {
-        method: "POST",
-        body: form,
-      });
+    try {
+      for (const item of pendingFiles) {
+        const form = new FormData();
+        form.set("file", item);
+        await api(`/evaluations/${requestId}/files`, {
+          method: "POST",
+          body: form,
+        });
+        const key = fileKey(item);
+        setUploadedFileKeys((current) =>
+          current.includes(key) ? current : [...current, key],
+        );
+      }
+      setFileUploadFailed(false);
+    } catch (error) {
+      setFileUploadFailed(true);
+      throw error;
     }
-
-    const newKeys = pendingFiles.map(fileKey);
-    setUploadedFileKeys((current) => [...new Set([...current, ...newKeys])]);
   };
   const options = useQuery({
     queryKey: ["assessment-scopes"],
     queryFn: () =>
       api<AssessmentScopeOption[]>("/evaluations/assessment-scopes"),
+    enabled: !resumeRequested,
   });
   const includedCredit = useQuery({
     queryKey: ["included-evaluation-credit", selected.assessmentScopeId],
@@ -3620,7 +3710,10 @@ function EvaluationWizard() {
   });
   const checkout = useMutation({
     mutationFn: async () => {
-      if (!evaluationId || files.length === 0)
+      const hasCleanServerFile =
+        resumeDetail.data?.files.some((item) => item.scanStatus === "Clean") ??
+        false;
+      if (!evaluationId || (!hasCleanServerFile && files.length === 0))
         throw new Error(
           locale === "ar"
             ? "اختر ملف مهمة واحدًا على الأقل قبل إرسال طلب المراجعة."
@@ -3646,9 +3739,10 @@ function EvaluationWizard() {
             }),
           ),
       );
-      await api(`/evaluations/${evaluationId}/authenticity-declaration`, {
-        method: "POST",
-      });
+      if (!authenticityAlreadyDeclared)
+        await api(`/evaluations/${evaluationId}/authenticity-declaration`, {
+          method: "POST",
+        });
       return api<EvaluationCheckoutResponse>(
         `/evaluations/${evaluationId}/checkout`,
         {
@@ -3695,7 +3789,71 @@ function EvaluationWizard() {
     },
     onSuccess: () => router.push(`/${locale}/student/evaluations`),
   });
-  if (options.isPending)
+  if (resumeRequested && !resumeId)
+    return (
+      <EvaluationResumeMessage
+        locale={locale}
+        textEn="This evaluation draft link is incomplete. Return to My Evaluations and choose a draft to continue."
+        textAr="رابط استئناف التقييم غير مكتمل. عُد إلى طلباتي واختر مسودة للمتابعة."
+      />
+    );
+  if (resumeRequested && resumeDetail.isPending)
+    return (
+      <section className="shell py-10">
+        <div className="card p-6" aria-busy>
+          {locale === "ar" ? "جارٍ تحميل المسودة…" : "Loading your draft…"}
+        </div>
+      </section>
+    );
+  if (resumeRequested && (resumeDetail.isError || !resumeDetail.data))
+    return (
+      <section className="shell py-10">
+        <div className="card grid justify-items-start gap-3 p-6">
+          <p role="alert">
+            {locale === "ar"
+              ? "تعذر تحميل مسودة التقييم. تحقق من اتصالك ثم أعد المحاولة."
+              : "Unable to load this evaluation draft. Check your connection and try again."}
+          </p>
+          <button
+            type="button"
+            onClick={() => void resumeDetail.refetch()}
+            className="focus-ring rounded-lg border border-primary px-3 py-2 font-semibold text-primary"
+          >
+            {locale === "ar" ? "إعادة المحاولة" : "Retry"}
+          </button>
+          <Link
+            className="focus-ring font-bold text-primary underline"
+            href={`/${locale}/student/evaluations`}
+          >
+            {locale === "ar" ? "العودة إلى طلباتي" : "Back to My Evaluations"}
+          </Link>
+        </div>
+      </section>
+    );
+  if (
+    resumeRequested &&
+    resumeDetail.data &&
+    (resumeDetail.data.status !== "Draft" ||
+      resumeDetail.data.isRetake !== false ||
+      resumeDetail.data.isResit !== false ||
+      !resumeDetail.data.assessmentScopeId)
+  )
+    return (
+      <EvaluationResumeMessage
+        locale={locale}
+        textEn="This request is not an active standard evaluation draft. Return to My Evaluations to choose an available action."
+        textAr="هذا الطلب ليس مسودة تقييم عادية قابلة للمتابعة. عُد إلى طلباتي لاختيار الإجراء المتاح."
+      />
+    );
+  if (resumeRequested && resumeDetail.data && !evaluationId)
+    return (
+      <section className="shell py-10">
+        <div className="card p-6" aria-busy>
+          {locale === "ar" ? "جارٍ استعادة المسودة…" : "Restoring your draft…"}
+        </div>
+      </section>
+    );
+  if (!resumeRequested && options.isPending)
     return (
       <section className="shell py-10">
         <div className="card p-6" aria-busy>
@@ -3703,7 +3861,7 @@ function EvaluationWizard() {
         </div>
       </section>
     );
-  if (options.isError || !options.data)
+  if (!resumeRequested && (options.isError || !options.data))
     return (
       <section className="shell py-10">
         <p className="card p-6">
@@ -3713,7 +3871,7 @@ function EvaluationWizard() {
         </p>
       </section>
     );
-  const scopes = options.data;
+  const scopes = options.data ?? [];
   const qualificationKey = (item: AssessmentScopeOption) =>
     `${item.qualificationCode}:${item.qualificationVersionCode}`;
   const unique = (
@@ -3770,7 +3928,12 @@ function EvaluationWizard() {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          if (!create.isPending && selected.assessmentScopeId) create.mutate();
+          if (
+            !resumeRequested &&
+            !create.isPending &&
+            selected.assessmentScopeId
+          )
+            create.mutate();
         }}
         className="card mx-auto grid min-w-0 max-w-2xl grid-cols-[minmax(0,1fr)] gap-4 p-6"
       >
@@ -3813,107 +3976,168 @@ function EvaluationWizard() {
             </p>
           </div>
         </div>
-        {scopes.length === 0 ? (
-          <p role="status" className="text-muted">
-            {locale === "ar"
-              ? "لا توجد تقييمات منشورة متاحة الآن. يُرجى المحاولة لاحقًا."
-              : "No published assessments are available right now. Please check back later."}
-          </p>
+        {resumeRequested && resumeDetail.data ? (
+          <section className="grid gap-3 rounded-xl border border-border bg-surface-solid/60 p-4">
+            <h2 className="font-black">
+              {locale === "ar" ? "مسودة التقييم" : "Evaluation draft"}
+            </h2>
+            <AcademicIdentity
+              academic={resumeDetail.data.academic}
+              locale={locale}
+            />
+            <p className="text-sm">
+              {locale === "ar" ? "المعايير المحفوظة" : "Saved criteria"}:{" "}
+              {evaluationCriteria.join(", ") || "—"}
+            </p>
+            <p className="text-sm font-semibold">
+              {locale === "ar" ? "السعر المحفوظ" : "Saved price"}:{" "}
+              {evaluationPrice
+                ? `${evaluationPrice.price.toFixed(3)} ${evaluationPrice.currency}`
+                : "—"}
+            </p>
+            <div className="grid gap-2 text-sm">
+              <strong>
+                {locale === "ar" ? "الملفات المرفوعة" : "Uploaded files"}
+              </strong>
+              {resumeDetail.data.files.length ? (
+                <ul className="grid gap-2">
+                  {resumeDetail.data.files.map((file) => (
+                    <li
+                      key={file.id}
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border/70 px-3 py-2"
+                    >
+                      <a
+                        className="focus-ring font-semibold text-primary underline"
+                        href={`/api/v1/evaluations/${encodeURIComponent(resumeDetail.data.id)}/files/${encodeURIComponent(file.id)}`}
+                      >
+                        {file.originalFileName}
+                      </a>
+                      <span className="text-xs text-muted">
+                        {locale === "ar" ? "حالة الفحص" : "Scan status"}:{" "}
+                        {file.scanStatus}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-muted">
+                  {locale === "ar"
+                    ? "لا توجد ملفات مرفوعة في هذه المسودة بعد. أضف ملفًا للمتابعة."
+                    : "No files have been uploaded to this draft yet. Add a file to continue."}
+                </p>
+              )}
+            </div>
+          </section>
         ) : null}
-        <Select
-          label={
-            locale === "ar" ? "المؤهل والإصدار" : "Qualification and version"
-          }
-          value={selected.qualification}
-          setValue={(value) =>
-            setSelected({
-              ...selected,
-              qualification: value,
-              grade: "",
-              specialization: "",
-              unit: "",
-              assessmentScopeId: "",
-            })
-          }
-          items={qualifications}
-          disabled={Boolean(evaluationId)}
-        />
-        <Select
-          label={locale === "ar" ? "الصف" : "Grade"}
-          value={selected.grade}
-          setValue={(value) =>
-            setSelected({
-              ...selected,
-              grade: value,
-              specialization: "",
-              unit: "",
-              assessmentScopeId: "",
-            })
-          }
-          items={grades}
-          disabled={!selected.qualification || Boolean(evaluationId)}
-        />
-        <Select
-          label={locale === "ar" ? "التخصص" : "Specialization"}
-          value={selected.specialization}
-          setValue={(value) =>
-            setSelected({
-              ...selected,
-              specialization: value,
-              unit: "",
-              assessmentScopeId: "",
-            })
-          }
-          items={specializations}
-          disabled={!selected.grade || Boolean(evaluationId)}
-        />
-        <Select
-          label={locale === "ar" ? "الوحدة" : "Unit"}
-          value={selected.unit}
-          setValue={(value) =>
-            setSelected({ ...selected, unit: value, assessmentScopeId: "" })
-          }
-          items={units}
-          disabled={!selected.specialization || Boolean(evaluationId)}
-        />
-        <Select
-          label={
-            locale === "ar" ? "التقييم أو المهمة" : "Assessment or assignment"
-          }
-          value={selected.assessmentScopeId}
-          setValue={(value) =>
-            setSelected({ ...selected, assessmentScopeId: value })
-          }
-          items={forUnit.map((item) => ({
-            id: item.assessmentScopeId,
-            label: `${item.assessmentCode} · ${locale === "ar" ? item.assessmentArabicTitle : item.assessmentEnglishTitle} (v${item.assessmentVersion}${forUnit.length > 1 ? ` · ${locale === "ar" ? "النطاق" : "scope"} ${item.scopeVersion}` : ""})`,
-          }))}
-          disabled={!selected.unit || Boolean(evaluationId)}
-        />
-        {currentScope ? (
-          <div
-            className="rounded-xl border border-border bg-surface-solid/60 p-4 text-sm"
-            role="status"
-          >
-            <p className="font-bold">
-              {locale === "ar" ? "نطاق التقييم" : "Assessment coverage"}
-            </p>
-            <p className="mt-2">
-              {locale === "ar" ? "أهداف التعلم" : "Learning aims"}:{" "}
-              {currentScope.learningAimCodes.join(", ")}
-            </p>
-            <p className="mt-1">
-              {locale === "ar" ? "المعايير" : "Criteria"}:{" "}
-              {currentScope.criteria
-                .map((item) => `${item.code} (${item.band})`)
-                .join(", ")}
-            </p>
-            <p className="mt-2 text-muted">
-              {locale === "ar"
-                ? "تقييم ومراجعة BETCCO؛ ليس درجة رسمية من Pearson."
-                : "BETCCO evaluation and review; not an official Pearson grade."}
-            </p>
-          </div>
+        {!resumeRequested ? (
+          <>
+            {scopes.length === 0 ? (
+              <p role="status" className="text-muted">
+                {locale === "ar"
+                  ? "لا توجد تقييمات منشورة متاحة الآن. يُرجى المحاولة لاحقًا."
+                  : "No published assessments are available right now. Please check back later."}
+              </p>
+            ) : null}
+            <Select
+              label={
+                locale === "ar"
+                  ? "المؤهل والإصدار"
+                  : "Qualification and version"
+              }
+              value={selected.qualification}
+              setValue={(value) =>
+                setSelected({
+                  ...selected,
+                  qualification: value,
+                  grade: "",
+                  specialization: "",
+                  unit: "",
+                  assessmentScopeId: "",
+                })
+              }
+              items={qualifications}
+              disabled={Boolean(evaluationId)}
+            />
+            <Select
+              label={locale === "ar" ? "الصف" : "Grade"}
+              value={selected.grade}
+              setValue={(value) =>
+                setSelected({
+                  ...selected,
+                  grade: value,
+                  specialization: "",
+                  unit: "",
+                  assessmentScopeId: "",
+                })
+              }
+              items={grades}
+              disabled={!selected.qualification || Boolean(evaluationId)}
+            />
+            <Select
+              label={locale === "ar" ? "التخصص" : "Specialization"}
+              value={selected.specialization}
+              setValue={(value) =>
+                setSelected({
+                  ...selected,
+                  specialization: value,
+                  unit: "",
+                  assessmentScopeId: "",
+                })
+              }
+              items={specializations}
+              disabled={!selected.grade || Boolean(evaluationId)}
+            />
+            <Select
+              label={locale === "ar" ? "الوحدة" : "Unit"}
+              value={selected.unit}
+              setValue={(value) =>
+                setSelected({ ...selected, unit: value, assessmentScopeId: "" })
+              }
+              items={units}
+              disabled={!selected.specialization || Boolean(evaluationId)}
+            />
+            <Select
+              label={
+                locale === "ar"
+                  ? "التقييم أو المهمة"
+                  : "Assessment or assignment"
+              }
+              value={selected.assessmentScopeId}
+              setValue={(value) =>
+                setSelected({ ...selected, assessmentScopeId: value })
+              }
+              items={forUnit.map((item) => ({
+                id: item.assessmentScopeId,
+                label: `${item.assessmentCode} · ${locale === "ar" ? item.assessmentArabicTitle : item.assessmentEnglishTitle} (v${item.assessmentVersion}${forUnit.length > 1 ? ` · ${locale === "ar" ? "النطاق" : "scope"} ${item.scopeVersion}` : ""})`,
+              }))}
+              disabled={!selected.unit || Boolean(evaluationId)}
+            />
+            {currentScope ? (
+              <div
+                className="rounded-xl border border-border bg-surface-solid/60 p-4 text-sm"
+                role="status"
+              >
+                <p className="font-bold">
+                  {locale === "ar" ? "نطاق التقييم" : "Assessment coverage"}
+                </p>
+                <p className="mt-2">
+                  {locale === "ar" ? "أهداف التعلم" : "Learning aims"}:{" "}
+                  {currentScope.learningAimCodes.join(", ")}
+                </p>
+                <p className="mt-1">
+                  {locale === "ar" ? "المعايير" : "Criteria"}:{" "}
+                  {currentScope.criteria
+                    .map((item) => `${item.code} (${item.band})`)
+                    .join(", ")}
+                </p>
+                <p className="mt-2 text-muted">
+                  {locale === "ar"
+                    ? "تقييم ومراجعة BETCCO؛ ليس درجة رسمية من Pearson."
+                    : "BETCCO evaluation and review; not an official Pearson grade."}
+                </p>
+              </div>
+            ) : null}
+          </>
         ) : null}
         {selected.assessmentScopeId ? (
           <div
@@ -3989,6 +4213,7 @@ function EvaluationWizard() {
             : "What do you need from the evaluator?"}
           <textarea
             value={selected.comment}
+            readOnly={resumeRequested}
             onChange={(event) =>
               setSelected({
                 ...selected,
@@ -4081,6 +4306,7 @@ function EvaluationWizard() {
             <input
               type="checkbox"
               checked={authenticityConfirmed}
+              disabled={authenticityAlreadyDeclared}
               onChange={(event) =>
                 setAuthenticityConfirmed(event.target.checked)
               }
@@ -4103,6 +4329,7 @@ function EvaluationWizard() {
         {!evaluationId ? (
           <button
             disabled={
+              resumeRequested ||
               create.isPending ||
               !selected.assessmentScopeId ||
               scopes.length === 0
@@ -4188,18 +4415,24 @@ function EvaluationWizard() {
             )}
           </section>
         ) : null}
-        {(create.isError ||
-          checkout.isError ||
-          confirmDevelopmentPayment.isError) && (
+        {fileUploadFailed ? (
           <p role="alert" className="text-sm text-red-600">
-            {(create.error ??
-              checkout.error ??
-              confirmDevelopmentPayment.error) instanceof Error
-              ? (
-                  create.error ??
-                  checkout.error ??
-                  confirmDevelopmentPayment.error
-                )?.message
+            {locale === "ar"
+              ? "تعذر رفع أحد الملفات. بقيت المسودة محفوظة؛ أعد المحاولة لمتابعة الرفع."
+              : "A file could not be uploaded. Your draft is saved; retry to continue the upload."}
+          </p>
+        ) : null}
+        {checkout.isError ? (
+          <p role="alert" className="text-sm text-red-600">
+            {locale === "ar"
+              ? "تعذر إكمال طلب التقييم. لم يُنشأ طلب بديل؛ تحقق من البيانات وأعد المحاولة."
+              : "Unable to complete this evaluation request. No replacement request was created; check the details and retry."}
+          </p>
+        ) : null}
+        {(create.isError || confirmDevelopmentPayment.isError) && (
+          <p role="alert" className="text-sm text-red-600">
+            {(create.error ?? confirmDevelopmentPayment.error) instanceof Error
+              ? (create.error ?? confirmDevelopmentPayment.error)?.message
               : "Request failed."}
           </p>
         )}
@@ -4239,6 +4472,30 @@ function Select({
         ))}
       </select>
     </label>
+  );
+}
+
+function EvaluationResumeMessage({
+  locale,
+  textEn,
+  textAr,
+}: {
+  locale: string;
+  textEn: string;
+  textAr: string;
+}) {
+  return (
+    <section className="shell py-10">
+      <div className="card grid justify-items-start gap-3 p-6">
+        <p role="alert">{locale === "ar" ? textAr : textEn}</p>
+        <Link
+          className="focus-ring font-bold text-primary underline"
+          href={`/${locale}/student/evaluations`}
+        >
+          {locale === "ar" ? "العودة إلى طلباتي" : "Back to My Evaluations"}
+        </Link>
+      </div>
+    </section>
   );
 }
 
@@ -4471,6 +4728,16 @@ function MyEvaluations() {
                 {locale === "ar"
                   ? "متابعة تجهيز إعادة التقييم"
                   : "Continue Resit preparation"}
+              </Link>
+            ) : null}
+            {item.status === "Draft" && !item.isRetake && !item.isResit ? (
+              <Link
+                className="focus-ring w-fit font-bold text-primary underline"
+                href={`/${locale}/student/evaluations/new?resume=${encodeURIComponent(item.id)}`}
+              >
+                {locale === "ar"
+                  ? "متابعة تجهيز التقييم"
+                  : "Continue evaluation"}
               </Link>
             ) : null}
           </article>

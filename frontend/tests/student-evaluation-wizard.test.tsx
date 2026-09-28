@@ -8,7 +8,19 @@ import { invalidateCsrfToken } from "@/lib/api";
 import arMessages from "../messages/ar.json";
 import enMessages from "../messages/en.json";
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+const searchParamsMock = vi.hoisted(() => ({
+  includeResume: false,
+  resumeId: "",
+}));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+  useSearchParams: () =>
+    new URLSearchParams(
+      searchParamsMock.includeResume
+        ? `resume=${encodeURIComponent(searchParamsMock.resumeId)}`
+        : "",
+    ),
+}));
 
 const scope = {
   assessmentScopeId: "00000000-0000-0000-0000-000000000001",
@@ -34,7 +46,51 @@ const scope = {
   criteria: [{ code: "A.P1", band: "Pass" }],
 };
 
-function renderWizard(locale: "en" | "ar" = "en") {
+function draftDetail(overrides: Record<string, unknown> = {}) {
+  return {
+    id: "draft-1",
+    status: "Draft",
+    price: 12.5,
+    currency: "JOD",
+    studentComment: "Please focus on criterion A.P1.",
+    assessmentScopeId: scope.assessmentScopeId,
+    isRetake: false,
+    isResit: false,
+    hasAuthenticityDeclaration: true,
+    academic: {
+      qualificationCode: "Q",
+      qualificationArabicName: "مؤهل",
+      qualificationEnglishName: "Qualification",
+      qualificationVersionCode: "V1",
+      unitCode: "U1",
+      unitArabicTitle: "وحدة",
+      unitEnglishTitle: "Unit",
+      assessmentCode: "ASSIGNMENT",
+      assessmentVersion: 1,
+      assessmentArabicTitle: "مهمة",
+      assessmentEnglishTitle: "Assignment",
+      learningAimCodes: ["A"],
+    },
+    criteria: ["A.P1"],
+    files: [
+      {
+        id: "file-1",
+        originalFileName: "existing-assignment.pdf",
+        contentType: "application/pdf",
+        lengthBytes: 12,
+        scanStatus: "Clean",
+      },
+    ],
+    evidence: [
+      { criterionCode: "A.P1", narrative: "Original evidence narrative" },
+    ],
+    ...overrides,
+  };
+}
+
+function renderWizard(locale: "en" | "ar" = "en", resumeId?: string) {
+  searchParamsMock.includeResume = resumeId !== undefined;
+  searchParamsMock.resumeId = resumeId ?? "";
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false, gcTime: 0 } },
   });
@@ -55,6 +111,7 @@ function mockFetch(
   fail = false,
   creditAvailable = false,
   creditFailuresBeforeSuccess = 0,
+  resumeDetail?: Record<string, unknown>,
 ) {
   let creditChecks = 0;
   const fetchMock = vi.fn(
@@ -64,6 +121,10 @@ function mockFetch(
         return fail
           ? Response.json({ message: "Unavailable" }, { status: 503 })
           : Response.json(scopes);
+      if (path.endsWith("/evaluations/draft-1"))
+        return resumeDetail
+          ? Response.json(resumeDetail)
+          : Response.json({ message: "Not found" }, { status: 404 });
       if (path.includes("/included-credit")) {
         if (creditChecks++ < creditFailuresBeforeSuccess)
           return Response.json({ message: "Unavailable" }, { status: 503 });
@@ -78,11 +139,42 @@ function mockFetch(
           price: 5,
           currency: "JOD",
         });
+      if (path.endsWith("/evaluations/draft-1/files"))
+        return new Response(null, { status: 204 });
+      if (path.endsWith("/evaluations/draft-1/evidence"))
+        return new Response(null, { status: 204 });
+      if (path.endsWith("/evaluations/draft-1/authenticity-declaration"))
+        return new Response(null, { status: 204 });
       if (path.includes("/evaluations/request-1/files"))
         return new Response(null, { status: 204 });
       if (path.endsWith("/authenticity-declaration"))
         return new Response(null, { status: 204 });
       if (path.endsWith("/evaluations/request-1/checkout"))
+        return Response.json(
+          creditAvailable
+            ? {
+                includedCreditApplied: true,
+                evaluationStatus: "PendingAssignment",
+                paymentId: null,
+              }
+            : {
+                includedCreditApplied: false,
+                evaluationStatus: "PendingPayment",
+                paymentId: "payment-1",
+                status: "Processing",
+                provider: "FakeDevelopment",
+                checkoutReference: "fake-checkout-1",
+                redirectUrl: null,
+                providerSessionStatus: "Ready",
+                subtotal: 5,
+                discount: 0,
+                tax: 0,
+                total: 5,
+                currency: "JOD",
+                paymentMethod: "Card",
+              },
+        );
+      if (path.endsWith("/evaluations/draft-1/checkout"))
         return Response.json(
           creditAvailable
             ? {
@@ -138,6 +230,8 @@ describe("Student scoped evaluation wizard", () => {
     cleanup();
     invalidateCsrfToken();
     vi.unstubAllGlobals();
+    searchParamsMock.includeResume = false;
+    searchParamsMock.resumeId = "";
   });
 
   it("shows loading, empty and error states", async () => {
@@ -362,5 +456,254 @@ describe("Student scoped evaluation wizard", () => {
         String(input).includes("/included-credit"),
       ),
     ).toHaveLength(2);
+  });
+
+  it("resumes an owned standard draft from stored state and checks out without a new local file", async () => {
+    const fetchMock = mockFetch([scope], false, false, 0, draftDetail());
+    const user = userEvent.setup();
+    renderWizard("en", "draft-1");
+
+    expect(await screen.findByText(/Q · Qualification \(V1\)/)).toBeVisible();
+    expect(screen.getByText(/Saved criteria: A\.P1/)).toBeVisible();
+    expect(screen.getByText("Saved price: 12.500 JOD")).toBeVisible();
+    expect(
+      screen.getByDisplayValue("Please focus on criterion A.P1."),
+    ).toHaveAttribute("readonly");
+    expect(
+      screen.getByDisplayValue("Original evidence narrative"),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("link", { name: "existing-assignment.pdf" }),
+    ).toHaveAttribute("href", "/api/v1/evaluations/draft-1/files/file-1");
+    expect(
+      await screen.findByText(/No included evaluation credit is available/),
+    ).toBeVisible();
+    const originality = screen.getByRole("checkbox", {
+      name: /Originality declaration/,
+    });
+    expect(originality).toBeChecked();
+    expect(originality).toBeDisabled();
+
+    await user.click(
+      screen.getByRole("button", { name: "Continue to payment" }),
+    );
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/v1/evaluations/draft-1/checkout",
+        expect.objectContaining({
+          body: JSON.stringify({
+            paymentMethod: "Card",
+            expectIncludedCredit: false,
+          }),
+        }),
+      ),
+    );
+    expect(
+      fetchMock.mock.calls.some(([input]) =>
+        String(input).endsWith(
+          `/evaluations/assessment-scopes/${scope.assessmentScopeId}/included-credit`,
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      fetchMock.mock.calls.some(([input]) =>
+        String(input).endsWith("/evaluations/assessment-scopes"),
+      ),
+    ).toBe(false);
+    expect(
+      fetchMock.mock.calls.some(
+        ([input, init]) =>
+          String(input).endsWith("/evaluations/scoped") &&
+          init?.method === "POST",
+      ),
+    ).toBe(false);
+    expect(
+      fetchMock.mock.calls.some(([input]) =>
+        String(input).includes("/evaluations/draft-1/files"),
+      ),
+    ).toBe(false);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/v1/evaluations/draft-1/evidence",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          criterionCode: "A.P1",
+          narrative: "Original evidence narrative",
+        }),
+      }),
+    );
+    expect(
+      fetchMock.mock.calls.some(([input]) =>
+        String(input).endsWith("/draft-1/authenticity-declaration"),
+      ),
+    ).toBe(false);
+  });
+
+  it("uploads only newly selected files and updates restored evidence on the same draft", async () => {
+    const fetchMock = mockFetch([scope], false, false, 0, draftDetail());
+    const user = userEvent.setup();
+    renderWizard("en", "draft-1");
+
+    const evidence = await screen.findByDisplayValue(
+      "Original evidence narrative",
+    );
+    await user.clear(evidence);
+    await user.type(evidence, "Updated evidence narrative");
+    const addedFile = new File(["new work"], "additional-work.pdf", {
+      type: "application/pdf",
+    });
+    await user.upload(
+      screen.getByLabelText("Choose Assignment files"),
+      addedFile,
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Continue to payment" }),
+    );
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/v1/evaluations/draft-1/checkout",
+        expect.any(Object),
+      ),
+    );
+    const fileUploads = fetchMock.mock.calls.filter(
+      ([input, init]) =>
+        String(input).endsWith("/evaluations/draft-1/files") &&
+        init?.method === "POST",
+    );
+    expect(fileUploads).toHaveLength(1);
+    expect((fileUploads[0][1]?.body as FormData).get("file")).toBe(addedFile);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/v1/evaluations/draft-1/evidence",
+      expect.objectContaining({
+        body: JSON.stringify({
+          criterionCode: "A.P1",
+          narrative: "Updated evidence narrative",
+        }),
+      }),
+    );
+    expect(
+      fetchMock.mock.calls.some(
+        ([input, init]) =>
+          String(input).endsWith("/evaluations/scoped") &&
+          init?.method === "POST",
+      ),
+    ).toBe(false);
+  });
+
+  it("still requires authenticity confirmation when the saved draft has no declaration", async () => {
+    const fetchMock = mockFetch(
+      [scope],
+      false,
+      false,
+      0,
+      draftDetail({ hasAuthenticityDeclaration: false }),
+    );
+    const user = userEvent.setup();
+    renderWizard("en", "draft-1");
+
+    const originality = await screen.findByRole("checkbox", {
+      name: /Originality declaration/,
+    });
+    expect(originality).not.toBeChecked();
+    const checkout = screen.getByRole("button", {
+      name: "Continue to payment",
+    });
+    expect(checkout).toBeDisabled();
+    await user.click(originality);
+    expect(checkout).toBeEnabled();
+    await user.click(checkout);
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/v1/evaluations/draft-1/authenticity-declaration",
+        expect.objectContaining({ method: "POST" }),
+      ),
+    );
+  });
+
+  it("keeps checkout unavailable when a resumed draft credit check fails until retry succeeds", async () => {
+    const fetchMock = mockFetch([scope], false, false, 1, draftDetail());
+    const user = userEvent.setup();
+    renderWizard("en", "draft-1");
+
+    expect(
+      await screen.findByText(/We could not verify your evaluation credit/),
+    ).toBeVisible();
+    expect(screen.queryByLabelText("Payment method")).not.toBeInTheDocument();
+    const checkout = screen.getByRole("button", {
+      name: "Continue to payment",
+    });
+    expect(checkout).toBeDisabled();
+    expect(
+      fetchMock.mock.calls.some(([input]) =>
+        String(input).endsWith("/evaluations/draft-1/checkout"),
+      ),
+    ).toBe(false);
+
+    await user.click(
+      screen.getByRole("button", { name: "Retry credit check" }),
+    );
+    expect(
+      await screen.findByText(/No included evaluation credit is available/),
+    ).toBeVisible();
+    expect(checkout).toBeEnabled();
+  });
+
+  it.each([
+    ["Completed", false, false],
+    ["NeedsRevision", false, false],
+    ["Draft", true, false],
+    ["Draft", false, true],
+  ])(
+    "rejects non-resumable %s requests without creating a replacement",
+    async (status, isRetake, isResit) => {
+      const fetchMock = mockFetch(
+        [scope],
+        false,
+        false,
+        0,
+        draftDetail({ status, isRetake, isResit }),
+      );
+      renderWizard("en", "draft-1");
+
+      expect(
+        await screen.findByText(/not an active standard evaluation draft/),
+      ).toBeVisible();
+      expect(
+        screen.getByRole("link", { name: "Back to My Evaluations" }),
+      ).toHaveAttribute("href", "/en/student/evaluations");
+      expect(
+        fetchMock.mock.calls.some(
+          ([input, init]) =>
+            String(input).endsWith("/evaluations/scoped") &&
+            init?.method === "POST",
+        ),
+      ).toBe(false);
+      expect(
+        fetchMock.mock.calls.some(([input]) =>
+          String(input).includes("/included-credit"),
+        ),
+      ).toBe(false);
+    },
+  );
+
+  it("keeps a failed resume in an error state instead of starting a new request", async () => {
+    const fetchMock = mockFetch([scope]);
+    renderWizard("en", "draft-1");
+
+    expect(
+      await screen.findByText(/Unable to load this evaluation draft/),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("link", { name: "Back to My Evaluations" }),
+    ).toHaveAttribute("href", "/en/student/evaluations");
+    expect(
+      fetchMock.mock.calls.some(
+        ([input, init]) =>
+          String(input).endsWith("/evaluations/scoped") &&
+          init?.method === "POST",
+      ),
+    ).toBe(false);
   });
 });
