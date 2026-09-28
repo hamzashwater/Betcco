@@ -1203,13 +1203,23 @@ public sealed class AuthRegistrationTests
             Assert.True((await fixture.Users.AddToRoleAsync(target, additionalRole)).Succeeded);
         }
 
-        var result = await fixture.CreateAdminUsersController(Guid.NewGuid().ToString()).ApproveStudent(target.Id, CancellationToken.None);
+        var actorId = Guid.NewGuid().ToString();
+        var controller = fixture.CreateAdminUsersController(actorId);
+        var result = await controller.ApproveStudent(target.Id, CancellationToken.None);
 
         if (additionalRole is null)
         {
             Assert.IsType<NoContentResult>(result);
             Assert.True((await fixture.Users.FindByIdAsync(target.Id.ToString()))!.EmailConfirmed);
-            Assert.Single(fixture.Db.AuditLogs.Where(audit => audit.Action == "StudentApproved"));
+            var audit = Assert.Single(fixture.Db.AuditLogs.Where(item => item.Action == "StudentApproved"));
+            Assert.Equal(actorId, audit.ActorUserId);
+            Assert.Equal(nameof(ApplicationUser), audit.EntityType);
+            Assert.Equal(target.Id.ToString(), audit.EntityId);
+            Assert.Equal("Success", audit.Outcome);
+            Assert.False(JsonDocument.Parse(audit.OldValuesJson!).RootElement.GetProperty("emailConfirmed").GetBoolean());
+            Assert.True(JsonDocument.Parse(audit.NewValuesJson!).RootElement.GetProperty("emailConfirmed").GetBoolean());
+            Assert.IsType<NoContentResult>(await controller.ApproveStudent(target.Id, CancellationToken.None));
+            Assert.Single(fixture.Db.AuditLogs.Where(item => item.Action == "StudentApproved"));
         }
         else
         {
