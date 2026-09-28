@@ -408,6 +408,11 @@ public sealed class AdminUsersController(UserManager<ApplicationUser> userManage
     public async Task<IActionResult> ResetDevice(Guid userId, ResetDeviceRequest request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Reason)) return BadRequest(new { message = "A reset reason is required." });
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null) return NotFound();
+        var roles = await userManager.GetRolesAsync(user);
+        if (roles.Count != 1 || roles[0] != PlatformRoles.Student) return NotFound();
+
         var binding = await db.StudentDeviceBindings.SingleOrDefaultAsync(x => x.StudentUserId == userId.ToString() && x.IsActive, cancellationToken);
         if (binding is null) return NotFound();
         binding.IsActive = false; binding.ResetReason = request.Reason.Trim();
