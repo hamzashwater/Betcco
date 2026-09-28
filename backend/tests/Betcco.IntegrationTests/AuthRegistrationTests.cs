@@ -956,6 +956,154 @@ public sealed class AuthRegistrationTests
         Assert.Contains(fixture.Db.AuditLogs, log => log.Action == "SupportAdminActivated");
     }
 
+    [Fact]
+    public async Task Student_only_reset_device_deactivates_binding_and_writes_one_audit()
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var target = new ApplicationUser { UserName = "reset-device@betcco.test", Email = "reset-device@betcco.test", DisplayName = "Student" };
+        Assert.True((await fixture.Users.CreateAsync(target, "T!estPassword123")).Succeeded);
+        Assert.True((await fixture.Users.AddToRoleAsync(target, PlatformRoles.Student)).Succeeded);
+        var binding = new StudentDeviceBinding { StudentUserId = target.Id.ToString(), DeviceHash = "student-device" };
+        fixture.Db.StudentDeviceBindings.Add(binding);
+        await fixture.Db.SaveChangesAsync();
+
+        var result = await fixture.CreateAdminUsersController(Guid.NewGuid().ToString()).ResetDevice(
+            target.Id, new ResetDeviceRequest("  reported lost  "), CancellationToken.None);
+
+        Assert.IsType<NoContentResult>(result);
+        Assert.False(binding.IsActive);
+        Assert.Equal("reported lost", binding.ResetReason);
+        var audit = Assert.Single(fixture.Db.AuditLogs.Where(item => item.Action == "StudentDeviceReset"));
+        Assert.Equal(binding.Id.ToString(), audit.EntityId);
+        Assert.Equal("{\"isActive\":true}", audit.OldValuesJson);
+        Assert.Equal("{\"isActive\":false}", audit.NewValuesJson);
+    }
+
+    [Theory]
+    [InlineData(PlatformRoles.Admin)]
+    [InlineData(PlatformRoles.SystemAdmin)]
+    [InlineData(PlatformRoles.SupportAdmin)]
+    [InlineData(PlatformRoles.FinanceAdmin)]
+    [InlineData(PlatformRoles.Teacher)]
+    public async Task Student_reset_device_rejects_multi_role_targets_without_side_effects(string additionalRole)
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var roleManager = fixture.Services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        Assert.True((await roleManager.CreateAsync(new IdentityRole<Guid>(additionalRole))).Succeeded);
+        var target = new ApplicationUser { UserName = "multi-reset@betcco.test", Email = "multi-reset@betcco.test", DisplayName = "Multi" };
+        Assert.True((await fixture.Users.CreateAsync(target, "T!estPassword123")).Succeeded);
+        Assert.True((await fixture.Users.AddToRolesAsync(target, [PlatformRoles.Student, additionalRole])).Succeeded);
+        var binding = new StudentDeviceBinding { StudentUserId = target.Id.ToString(), DeviceHash = "multi-device", ResetReason = "unchanged" };
+        fixture.Db.StudentDeviceBindings.Add(binding);
+        await fixture.Db.SaveChangesAsync();
+
+        var result = await fixture.CreateAdminUsersController(Guid.NewGuid().ToString()).ResetDevice(
+            target.Id, new ResetDeviceRequest("reset requested"), CancellationToken.None);
+
+        Assert.IsType<NotFoundResult>(result);
+        Assert.True(binding.IsActive);
+        Assert.Equal("unchanged", binding.ResetReason);
+        Assert.DoesNotContain(fixture.Db.AuditLogs, item => item.Action == "StudentDeviceReset");
+    }
+
+    [Theory]
+    [InlineData(PlatformRoles.Teacher)]
+    [InlineData(PlatformRoles.SupportAdmin)]
+    [InlineData(null)]
+    public async Task Student_reset_device_rejects_non_student_and_no_role_targets_without_side_effects(string? role)
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var target = new ApplicationUser { UserName = "nonstudent-reset@betcco.test", Email = "nonstudent-reset@betcco.test", DisplayName = "Target" };
+        Assert.True((await fixture.Users.CreateAsync(target, "T!estPassword123")).Succeeded);
+        if (role is not null)
+        {
+            var roleManager = fixture.Services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+            Assert.True((await roleManager.CreateAsync(new IdentityRole<Guid>(role))).Succeeded);
+            Assert.True((await fixture.Users.AddToRoleAsync(target, role)).Succeeded);
+        }
+        var binding = new StudentDeviceBinding { StudentUserId = target.Id.ToString(), DeviceHash = "nonstudent-device", ResetReason = "unchanged" };
+        fixture.Db.StudentDeviceBindings.Add(binding);
+        await fixture.Db.SaveChangesAsync();
+
+        var result = await fixture.CreateAdminUsersController(Guid.NewGuid().ToString()).ResetDevice(
+            target.Id, new ResetDeviceRequest("reset requested"), CancellationToken.None);
+
+        Assert.IsType<NotFoundResult>(result);
+        Assert.True(binding.IsActive);
+        Assert.Equal("unchanged", binding.ResetReason);
+        Assert.DoesNotContain(fixture.Db.AuditLogs, item => item.Action == "StudentDeviceReset");
+    }
+
+    [Fact]
+    public async Task Student_reset_device_rejects_orphaned_binding_without_side_effects()
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var missingUserId = Guid.NewGuid();
+        var binding = new StudentDeviceBinding { StudentUserId = missingUserId.ToString(), DeviceHash = "orphan-device", ResetReason = "unchanged" };
+        fixture.Db.StudentDeviceBindings.Add(binding);
+        await fixture.Db.SaveChangesAsync();
+
+        var result = await fixture.CreateAdminUsersController(Guid.NewGuid().ToString()).ResetDevice(
+            missingUserId, new ResetDeviceRequest("reset requested"), CancellationToken.None);
+
+        Assert.IsType<NotFoundResult>(result);
+        Assert.True(binding.IsActive);
+        Assert.Equal("unchanged", binding.ResetReason);
+        Assert.DoesNotContain(fixture.Db.AuditLogs, item => item.Action == "StudentDeviceReset");
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Student_reset_device_returns_not_found_without_an_active_binding(bool seedInactiveBinding)
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var target = new ApplicationUser { UserName = "no-binding@betcco.test", Email = "no-binding@betcco.test", DisplayName = "Student" };
+        Assert.True((await fixture.Users.CreateAsync(target, "T!estPassword123")).Succeeded);
+        Assert.True((await fixture.Users.AddToRoleAsync(target, PlatformRoles.Student)).Succeeded);
+        StudentDeviceBinding? binding = null;
+        if (seedInactiveBinding)
+        {
+            binding = new StudentDeviceBinding { StudentUserId = target.Id.ToString(), DeviceHash = "inactive-device", IsActive = false, ResetReason = "previous" };
+            fixture.Db.StudentDeviceBindings.Add(binding);
+            await fixture.Db.SaveChangesAsync();
+        }
+
+        var result = await fixture.CreateAdminUsersController(Guid.NewGuid().ToString()).ResetDevice(
+            target.Id, new ResetDeviceRequest("reset requested"), CancellationToken.None);
+
+        Assert.IsType<NotFoundResult>(result);
+        Assert.Empty(fixture.Db.AuditLogs.Where(item => item.Action == "StudentDeviceReset"));
+        if (binding is not null)
+        {
+            Assert.False(binding.IsActive);
+            Assert.Equal("previous", binding.ResetReason);
+        }
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task Student_reset_device_rejects_invalid_reason_without_side_effects(string? reason)
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var target = new ApplicationUser { UserName = "invalid-reason@betcco.test", Email = "invalid-reason@betcco.test", DisplayName = "Student" };
+        Assert.True((await fixture.Users.CreateAsync(target, "T!estPassword123")).Succeeded);
+        Assert.True((await fixture.Users.AddToRoleAsync(target, PlatformRoles.Student)).Succeeded);
+        var binding = new StudentDeviceBinding { StudentUserId = target.Id.ToString(), DeviceHash = "invalid-reason-device", ResetReason = "unchanged" };
+        fixture.Db.StudentDeviceBindings.Add(binding);
+        await fixture.Db.SaveChangesAsync();
+
+        var result = await fixture.CreateAdminUsersController(Guid.NewGuid().ToString()).ResetDevice(
+            target.Id, new ResetDeviceRequest(reason!), CancellationToken.None);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.True(binding.IsActive);
+        Assert.Equal("unchanged", binding.ResetReason);
+        Assert.DoesNotContain(fixture.Db.AuditLogs, item => item.Action == "StudentDeviceReset");
+    }
+
     [Theory]
     [InlineData(PlatformRoles.Admin)]
     [InlineData(PlatformRoles.SystemAdmin)]
