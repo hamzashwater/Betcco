@@ -130,7 +130,7 @@ public sealed class RegistrationEmailOutboxDispatcher(
             message.NextAttemptAtUtc = DateTimeOffset.UtcNow.Add(RetryDelay(message.AttemptCount));
             await db.SaveChangesAsync(CancellationToken.None);
             logger.LogWarning(
-                OperationalEventIds.EmailDeliveryFailed,
+                new EventId(7101, "Operational.EmailOutbox.DeliveryFailed"),
                 "Registration confirmation email delivery failed; the message remains eligible for the existing retry schedule.");
             return false;
         }
@@ -147,7 +147,7 @@ public sealed class RegistrationEmailOutboxDispatcher(
         if (!await aged.AnyAsync(cancellationToken)) return;
 
         logger.LogWarning(
-            OperationalEventIds.EmailBacklogAged,
+            new EventId(7103, "Operational.EmailOutbox.BacklogAged"),
             "Registration email outbox contains one or more Pending, Failed, or Processing messages at least 30 minutes old.");
     }
 
@@ -220,7 +220,7 @@ public sealed class RegistrationEmailOutboxPublisher(
             }
             catch (Exception)
             {
-                logger.LogError(OperationalEventIds.EmailWorkerFailed, "Unable to process registration confirmation email outbox messages.");
+                logger.LogError(new EventId(7102, "Operational.EmailOutbox.WorkerFailed"), "Unable to process registration confirmation email outbox messages.");
             }
 
             await Task.Delay(TimeSpan.FromSeconds(15), stoppingToken);
