@@ -393,6 +393,7 @@ public sealed class AdminUsersController(UserManager<ApplicationUser> userManage
         if (roles.Count != 1 || roles[0] != PlatformRoles.Student) return NotFound();
         if (user.EmailConfirmed) return NoContent();
 
+        await using var transaction = db.Database.IsRelational() ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
         var wasApproved = user.EmailConfirmed;
         user.EmailConfirmed = true;
         var result = await userManager.UpdateAsync(user);
@@ -400,6 +401,7 @@ public sealed class AdminUsersController(UserManager<ApplicationUser> userManage
 
         db.AuditLogs.Add(new AuditLog { ActorUserId = UserId, Action = "StudentApproved", EntityType = nameof(ApplicationUser), EntityId = userId.ToString(), Outcome = "Success", OldValuesJson = AuditValues(("emailConfirmed", wasApproved)), NewValuesJson = AuditValues(("emailConfirmed", true)) });
         await db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
         return NoContent();
     }
 
