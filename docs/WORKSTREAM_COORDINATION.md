@@ -47,7 +47,7 @@ Snapshot captured: **2026-09-28**
 
 At capture time:
 
-- `main`: `6f6988c124d66d955de61dd30c0d42f8ad577ebf` (PR #113 merge).
+- `main`: `03bb131cfb16b68dc6d0a983289511dd823223da` (PR #114 documentation reconciliation merge).
 - PR #103 — ASUS Production Readiness & Hardening Gap Audit — is merged; its production-hardening findings remain separate from Resit completion.
 - PR #104 — LENOVO Resit End-to-End Hardening — L13 is merged at historical main commit `3109adfcf1f370338e0f348ceadf72e84a14f749`. Its Full UAT and required checks passed on final PR head `e404539ac7f2488d7cc85a50ceb02d4f8c02f529` before merge.
 - PR #107 — LENOVO N1 ASSESS Reasonable Adjustments Resit guard — merged at `816ae1632ac93392440656051e6fba8a7bfa9704`; Resit revision-deadline adjustment grant/revoke/summary protection is verified in source and focused tests.
@@ -56,6 +56,7 @@ At capture time:
 - N4 — read-only TaskType ownership audit: scoped Evaluation derives `TaskTypeId` from the selected `RubricTemplate`; ownership remains architecturally ambiguous, with no approved schema migration or established correctness blocker. No implementation is claimed.
 - N5 — read-only Privacy / Compliance reconciliation: same-subject Rectification × Erasure/Concealment precedence on overlapping fields remains an undecided product/privacy semantic question; no cross-request orchestration is approved or claimed.
 - PR #113 — LENOVO N5A expired Data Portability artifact cleanup — merged at `6f6988c124d66d955de61dd30c0d42f8ad577ebf` from PR head `080ce744c2acb63270b81b8812d641fd76227e11`. Required PR Quality, Full UAT, Dependency Review, both CodeQL languages, and standalone CodeQL passed. The Quality run started S3-compatible storage and passed .NET tests including S3 contracts. Post-merge main Quality run `36409469670` and Security analysis run `36409469557` passed; main-push Dependency Review was skipped.
+- PR #114 — LENOVO N5B documentation reconciliation — merged at `03bb131cfb16b68dc6d0a983289511dd823223da`; it reconciled N1–N5A merged status through PR #113 and changed documentation only. PR #114 Quality, Security analysis, and Full UAT all passed before merge.
 - PR #98 — Student Resit UI — L11 is merged.
 - PR #99 — PayTabs partial-refund contract tests are merged; partial provider refund execution remains disabled.
 - PR #100 — PayTabs refund pending-state hardening is merged.
@@ -106,7 +107,7 @@ PR #53 — **Comprehensive Practice Assignment — Final Unit Practice** — rem
 
 No active ASUS implementation branch is reserved at this snapshot. PR #78 — Admin Payout Lifecycle UI Contract — Slice 1 and PR #75 — Student Entitlement Visibility — Slice 1 are merged and closed; Evaluate My Assignment, Student Progress Intelligence, Teacher Intervention Dashboard, Student Entitlement Visibility, and the bounded payout UI contract are closed at the implementation/CI level. The AI engine/API/RAG/persistence work remains deliberately deferred and is not an active workstream.
 
-ASUS retains planning ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign. Resit L12's paid Commerce integration is merged in PR #102; ASUS is not still implementing that slice. ASUS-10A records the read-only production-readiness audit at `fcf1fd324f450c890cd7b45bf60b0f8a8eabce64`; its recommended first implementation slice after independent review is ASUS-10B — Production Admin Bootstrap (P0-01). The following migration/recovery, operations, and release tasks are sequenced in `docs/production-readiness-audit.md`. Refund → Course Access remains a product-policy decision and must not be implemented implicitly. Before starting any roadmap item, ASUS must run a fresh preflight against latest `main`, all OPEN/Draft PRs, changed files, CI, and review threads.
+ASUS retains planning ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign. Resit L12's paid Commerce integration is merged in PR #102; ASUS is not still implementing that slice. The original ASUS-10A audit has advanced through merged production-hardening slices: PR #106 (10B Production Admin Bootstrap), PR #108 (10C Production S3 HTTPS Guard), PR #109 (10D1 Legacy Quiz Migration Preflight & Recovery Gate), and PR #111 (10E1A PostgreSQL Backup & Restore Recovery Drill). The next repository-controlled ASUS slice is **ASUS-10E1B — S3 private-object recovery + Data Protection certificate recovery**. After that, 10E2 covers monitoring/alerts/incident runbooks, 10F covers immutable release promotion, and 10G remains conditional on live commerce launch scope. Refund → Course Access remains a product-policy decision and must not be implemented implicitly. Before starting any roadmap item, ASUS must run a fresh preflight against latest `main`, all OPEN/Draft PRs, changed files, CI, and review threads.
 
 ## ASUS Current Completion Sequence
 
@@ -117,6 +118,12 @@ PR #70 completion is closed at the implementation/CI level: required PR Quality 
 PR #72 completion is closed at the implementation/CI level: required PR Quality #204, Full UAT Matrix #91, and Security analysis #206 were green before merge; post-merge `main` Quality #205 and Security analysis #207 are green. Evaluate My Assignment is no longer an active or reserved implementation scope.
 
 PR #75 completion is closed at the implementation/CI level: required PR Quality #209, Full UAT Matrix #94, and Security analysis #211 were green before merge; post-merge `main` Quality #211 and Security analysis #213 are green. Student Entitlement Visibility is no longer an active implementation scope.
+
+Production-hardening completion is current through:
+- PR #106 — ASUS-10B Production Admin Bootstrap — merged; repository P0-01 bootstrap implementation is closed.
+- PR #108 — ASUS-10C Production S3 HTTPS Guard — merged; repository P1-05 transport/configuration guard is closed.
+- PR #109 — ASUS-10D1 Legacy Quiz Migration Preflight & Recovery Gate — merged; repository migration-safety gate is implemented, while external retention/backup evidence remains separate.
+- PR #111 — ASUS-10E1A PostgreSQL Backup & Restore Recovery Drill — merged; repository PostgreSQL recovery is verified in CI, while external provider recovery, S3 object recovery, Data Protection certificate recovery, RPO/RTO/retention, and production restore evidence remain open.
 
 ## ASUS Planned Roadmap
 
