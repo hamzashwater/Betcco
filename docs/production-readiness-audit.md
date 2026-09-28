@@ -14,17 +14,31 @@
 - Explicit exclusions: no runtime, schema, migration, workflow, dependency, or environment-template changes; no production deployment or external-provider execution; no AI/RAG assessment beyond confirming the intentional deferral; no LENOVO Resit/ASSESS workflow redesign.
 - Latest baseline merges include PRs #98–#102. No open implementation PR overlapped the audit. PR #102 and the refund work on #99–#101 were audited only as merged commerce/payment infrastructure.
 
+### Reconciliation update — 2026-09-28
+
+This section reconciles the historical audit with repository state verified after subsequent merges. The original 2026-09-27 audit baseline above is intentionally preserved for provenance.
+
+- Current verified `main`: `03bb131cfb16b68dc6d0a983289511dd823223da` (PR #114 documentation reconciliation merge).
+- OPEN/Draft PRs at reconciliation: none.
+- PR #106 — ASUS-10B Production Admin Bootstrap — merged; P0-01 repository implementation is closed.
+- PR #108 — ASUS-10C Production S3 HTTPS Guard — merged; P1-05 repository implementation is closed.
+- PR #109 — ASUS-10D1 Legacy Quiz Migration Preflight & Recovery Gate — merged; the repository fail-closed migration-safety gate is implemented, while owner retention/backup evidence remains external.
+- PR #111 — ASUS-10E1A PostgreSQL Backup & Restore Recovery Drill — merged; PostgreSQL custom-format backup, checksum verification, isolated restore, application/financial fingerprint checks, and CI restore evidence are implemented.
+- PR #114 — LENOVO N5B documentation reconciliation — merged after N1–N5A status reconciliation; no runtime/schema/workflow changes.
+- The next ASUS repository-controlled production-hardening slice is **ASUS-10E1B — S3 private-object recovery + Data Protection certificate recovery**.
+- External production-provider configuration, actual production/staging restore evidence, RPO/RTO/retention decisions, S3 provider recovery evidence, Data Protection certificate custody/recovery evidence, monitoring ownership, and live payment/payout readiness remain unverified unless separately evidenced.
+
 ## Executive Summary
 
 | Classification | Count | Summary |
 | --- | ---: | --- |
 | P0 — Launch Blocker | 0 | P0-01 was closed by merged PR #106 with an explicit one-off production Admin bootstrap command. |
-| P1 — Required Production Hardening | 4 | The legacy Quiz removal now has a repository preflight and fail-closed migration gate; owner retention approval and backup/restore evidence remain external. Monitoring/runbooks and same-artifact promotion are also not established. P1-05 is closed. |
+| P1 — Required Production Hardening | 4 | The legacy Quiz removal has a repository fail-closed migration gate and PostgreSQL recovery is now verified in CI. External retention/provider recovery evidence, S3/Data Protection recovery, monitoring/runbooks, and same-artifact promotion remain. P1-05 is closed. |
 | P2 — Post-launch Improvement | 3 | Production image inputs are mutable tags; .NET transitive restore is not locked; in-process rate limits are not shared across API replicas. |
 | EXTERNAL | 5 | Live hosting/provider/legal/operational decisions and credentials cannot be verified from this repository. |
 | SAFE | 15 | Important controls are implemented and/or demonstrated by current code and baseline CI. |
 
-**Readiness conclusion:** the repository has a substantial deployment and security foundation, and merged PR #106 provides an explicit one-off production Admin bootstrap path. Remaining hardening includes owner retention approval and backup/restore evidence for legacy Quiz data, operational monitoring/runbooks, and same-artifact promotion. The custom S3 HTTPS guard is merged. Paid checkout and payouts are intentionally disabled in the deployment Compose file. Whether disabled commerce is launch-blocking depends on the approved launch scope; it is not classified as a code defect.
+**Readiness conclusion:** the repository has a substantial deployment and security foundation. Production Admin bootstrap, the custom S3 HTTPS guard, the legacy Quiz migration gate, and a repository-tested PostgreSQL backup/isolated-restore drill are merged. Remaining hardening includes S3 private-object and Data Protection certificate recovery, external provider/retention/RPO/RTO evidence, monitoring/incident readiness, and same-artifact promotion. Paid checkout and payouts are intentionally disabled in the deployment Compose file. Whether disabled commerce is launch-blocking depends on the approved launch scope; it is not classified as a code defect.
 
 ## Configuration / Secret Audit
 
@@ -181,13 +195,13 @@
 
 ### P1-05 — Custom production S3 endpoint accepts plain HTTP
 
-**Status:** CLOSED in the current implementation branch; merged implementation evidence is pending PR merge.
+**Status:** CLOSED by merged PR #108 (`[ASUS] Production S3 HTTPS Guard`).
 
 **Severity:** P1 — Required Production Hardening
 **Area:** S3 configuration / transport security
 **Evidence:**
 
-- `backend/src/Betcco.Api/Program.cs`, S3 client registration: when `Storage:S3:Endpoint` is non-empty, its text is assigned to `AmazonS3Config.ServiceURL` without checking that it is an absolute HTTPS URI.
+- `backend/src/Betcco.Api/Program.cs`, S3 client registration still passes a configured custom endpoint to the AWS SDK; transport enforcement is intentionally performed by startup validation before secure-environment startup.
 - `backend/src/Betcco.Api/Configuration/StartupConfigurationValidator.cs`, `ValidateSecureS3Endpoint`: Staging/Production now require any configured custom endpoint to be an absolute HTTPS URL with a host and no embedded userinfo; an empty endpoint remains valid.
 - `deploy.env.example` shows an HTTPS example endpoint, but example guidance does not enforce the runtime boundary.
 
@@ -442,28 +456,32 @@ Production Compose does not publish PostgreSQL, S3, SMTP, ClamAV, or API host po
 
 ## Backup / Restore / Observability State
 
-The deployment runbook covers secure environment files, controlled migrations, staging smoke, health verification, image rollback, and secret rotation. It explicitly leaves backup/restore, RPO/RTO, retention, cross-region recovery, and monitoring to the owner. There is no repository evidence that an actual staging or production environment has completed a backup restore, emitted an alert, or reconciled a real provider transaction. See P1-02, P1-03, P1-04 and EX-01/EX-05.
+The repository now contains a tested PostgreSQL 16 custom-format backup and isolated-restore drill from PR #111, including SHA-256 verification, EF migration-history verification, representative application/financial-state fingerprints, distinct source/target enforcement, and cleanup of disposable restore targets. This is repository/CI recovery evidence only; it is not proof that a production provider backup exists or that a staging/production restore has been performed.
+
+S3 private-object recovery and Data Protection certificate recovery remain open repository/operations work. RPO, RTO, backup frequency, retention, recovery owner, provider snapshot/replication settings, and cross-region recovery remain owner/external decisions. Monitoring and alert ownership also remain open; no repository evidence yet shows that a real staging or production environment has emitted and closed a critical operational alert. See P1-02, P1-03, P1-04 and EX-01/EX-05.
 
 ## CI / Release State
 
-- `quality.yml` and `security.yml` use immutable action references. The baseline commit check-runs show Application quality and both CodeQL jobs successful; Dependency Review is skipped for the merge commit because it runs only for pull requests.
-- `full-uat.yml` runs on pull requests to `main` or manual dispatch, not every push. It exercises browser flows with disposable PostgreSQL/Mailpit and development API configuration; it is not a real staging or provider smoke.
-- No workflow in the inspected repository publishes and promotes production images. The deployment guide describes building from the same source commit per environment, but does not record one verified image digest promoted unchanged.
-- No active PR existed to inspect for reserved scope, review threads, or in-progress implementation overlap.
-- The authenticated live repository configuration and open alert state remain unknown (EX-05).
+- `quality.yml` and `security.yml` use immutable action references. Current `main` branch protection requires Application Quality, Dependency Review, CodeQL (csharp), and CodeQL (javascript-typescript).
+- PR #111 added `Verify PostgreSQL backup and isolated restore` to Application Quality; the recovery drill passed on its final merged head. PR #114's documentation-only reconciliation also passed Quality, Security analysis, and Full UAT before merge.
+- `full-uat.yml` runs on pull requests to `main` or manual dispatch. It exercises browser flows with disposable infrastructure and does not constitute real production-provider or staging-environment evidence.
+- No workflow currently publishes one immutable API/web image pair and promotes the exact same digests unchanged from staging to production. P1-04 therefore remains open.
+- No OPEN/Draft PR existed at the 2026-09-28 reconciliation point. Repository-admin/provider alert evidence outside the GitHub checks described above remains external where applicable.
 
 ## Recommended ASUS Implementation Sequence
 
-| Order | Proposed workstream | Priority | Goal / affected modules | Why separate | Schema impact | External dependency | Overlap risk | Model / thinking | Complexity |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | **ASUS-10B — Production Admin Bootstrap** | P0 | Add an explicit one-time production Admin bootstrap/provisioning path; `Program.cs`, `DatabaseInitializer` or dedicated operation, deployment docs, auth/MFA tests. | Blocks initial production administration and is a small isolated security boundary. | None expected. | Secret-store/operator flow. | Authentication and AdminUsers; coordinate before edits, though no open PR currently exists. | GPT-6 high | MEDIUM |
-| 2 | **ASUS-10C — Production Storage and Configuration Guards** | P1 | Enforce HTTPS for custom S3 endpoints and test production config boundaries; `StartupConfigurationValidator`, startup config tests, deploy documentation. | Small, isolated fail-closed config change that protects private objects and credentials before external staging setup. | None. | S3 endpoint must support TLS. | Shared API configuration; coordinate with other backend work. | GPT-6 high | SMALL |
-| 3 | **ASUS-10D — Legacy Data Migration and Recovery Gate** | P1 | Document/implement preflight and backup/export for `20260924073104_RemoveLegacyQuizSystem`; add restore drill and migration evidence. | Data-retention decision and recovery process must precede running this destructive migration on databases with old quiz data. | No new schema required for the operational gate; any preservation migration requires explicit owner decision. | PostgreSQL/S3 backup service and data owner. | Migrations/ModelSnapshot and shared release files; coordinate before edits. | GPT-6 high | MEDIUM |
-| 4 | **ASUS-10E — Production Backup, Restore, Monitoring, and Incident Runbooks** | P1 | Choose RPO/RTO; implement database/object recovery evidence, dependency/worker/payment alerts, and procedures. | Operationally owned and provider-specific; can progress independently of application bootstrap. | None expected. | Hosting, storage, monitoring vendors/on-call owner. | Deployment docs/infra scripts; check active reservation before work. | GPT-6 high | LARGE |
-| 5 | **ASUS-10F — Immutable Release Promotion** | P1 | Publish image digests/provenance and promote the same API/web artifacts from staging to production; link approval, migration, smoke, rollback. | Release artifact chain is separate from runtime hardening and depends on registry/hosting decisions. | None. | CI registry/deployment platform. | Workflows and deployment files; coordinate with any CI workstream. | GPT-6 high | MEDIUM |
-| 6 | **ASUS-10G — Live Commerce Provider Readiness** | EXTERNAL / conditional | Only if paid sales or teacher payouts are in launch scope: separately validate live PayTabs and payout adapter, contracts, reconciliation, and settlement. | Provider credentials/contracts and real sandbox/live behavior cannot be established by simulated CI. | No schema assumption; assess against current commerce contract. | PayTabs, bank/e-wallet, legal/accounting. | High overlap with Commerce/refund files; preserve ASUS-08C2 NO-GO and disabled partial execution. | GPT-6 high | LARGE |
+| Order | Workstream | Current status | Remaining goal | Model / thinking |
+| --- | --- | --- | --- | --- |
+| 1 | **ASUS-10B — Production Admin Bootstrap** | **DONE / MERGED — PR #106** | Repository P0-01 implementation closed; external operator secret handling remains deployment-owned. | Completed |
+| 2 | **ASUS-10C — Production S3 HTTPS Guard** | **DONE / MERGED — PR #108** | Repository P1-05 implementation closed; external provider TLS availability remains provider-owned. | Completed |
+| 3 | **ASUS-10D1 — Legacy Quiz Migration Preflight & Recovery Gate** | **DONE / MERGED — PR #109** | Repository migration-safety gate closed; data-owner retention/backup approval remains external. | Completed |
+| 4 | **ASUS-10E1A — PostgreSQL Backup & Restore Recovery Drill** | **DONE / MERGED — PR #111** | Repository PostgreSQL restore path verified; no production-provider restore is claimed. | Completed |
+| 5 | **ASUS-10E1B — S3 Object Recovery + Data Protection Certificate Recovery** | **NEXT** | Establish repository-controlled recovery procedures/evidence for private objects and the PFX/key-encryption dependency without inventing provider guarantees. | GPT-6 Luna / HIGH |
+| 6 | **ASUS-10E2 — Monitoring, Alerts & Incident Runbooks** | PLANNED | Close repository-controlled portion of P1-03; external monitoring/on-call ownership remains provider/operator work. | GPT-6 Luna / HIGH |
+| 7 | **ASUS-10F — Immutable Release Promotion** | PLANNED | Close P1-04 by publishing and promoting identical immutable API/web digests with rollback evidence. | GPT-6 Luna / HIGH initially |
+| 8 | **ASUS-10G — Live Commerce Provider Readiness** | CONDITIONAL / EXTERNAL-HEAVY | Only if paid sales/payouts are in launch scope; preserve ASUS-08C2 NO-GO until provider evidence exists. | GPT-6 Sol / HIGH when finance/provider changes are required |
 
-The first implementation slice should be ASUS-10B after independent review of this audit. Do not begin it in this audit branch. Before each implementation branch, refresh `origin/main`, open/Draft PRs, CI, and review threads.
+Before each implementation branch, refresh `origin/main`, all OPEN/Draft PRs, changed files, CI, and review threads. Do not infer completion from this sequence alone; merged code and current GitHub evidence remain authoritative.
 
 ## Deferred / Intentionally Disabled
 
@@ -476,7 +494,7 @@ The first implementation slice should be ASUS-10B after independent review of th
 
 - Audit source is the clean repository checkout at `fcf1fd324f450c890cd7b45bf60b0f8a8eabce64`; no production database, secrets, deployment host, DNS, provider account, bank, SMTP, ClamAV, or S3 account was accessed.
 - No secret values were printed. Tracked source and example templates were searched; the fresh clone cannot establish the contents or controls of an operator's external environment file/secret manager.
-- Open PRs were checked live via GitHub REST and there were none. Branch protection, Code Scanning alerts, and Secret Scanning alerts endpoints required authentication and returned `401`; historical status-document evidence is dated and not treated as current proof.
-- CI check-runs on the exact baseline merge commit reported Application quality and both CodeQL jobs successful, Dependency Review skipped. The baseline check-run list did not include Full UAT on that merge SHA. No application tests were run as part of this docs-only audit.
+- At the original audit baseline, some authenticated GitHub settings endpoints were unavailable and returned `401`. During the 2026-09-28 reconciliation, authenticated repository evidence confirmed `main` is protected and requires Application Quality, Dependency Review, CodeQL (csharp), and CodeQL (javascript-typescript). External provider/security controls outside the repository remain unverified unless separately evidenced.
+- The original audit itself did not run application tests. Subsequent implementation PRs #106, #108, #109, and #111 were independently gated by repository CI before merge; PR #111's final Application Quality included the PostgreSQL recovery drill. PR #114 documentation reconciliation passed Quality, Security analysis, and Full UAT. None of this is a substitute for real production-provider validation.
 - Migration review searched the active migration chain for raw SQL/schema operations and inspected the legacy Quiz removal migration in detail. No migrations were executed.
 - No generated application code, project tests, provider simulations, or UI behavior were changed or rerun.

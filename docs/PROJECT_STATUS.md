@@ -2,14 +2,28 @@
 
 ## Metadata
 
-- Last updated: 2026-09-27
-- Verified implementation baseline SHA: `3109adfcf1f370338e0f348ceadf72e84a14f749`
-- Status verified against origin/main: `3109adfcf1f370338e0f348ceadf72e84a14f749` (PR #104 merge).
-- OPEN/Draft PRs at verification: none.
+- Last updated: 2026-09-28
+- Verified implementation baseline SHA: `6f6988c124d66d955de61dd30c0d42f8ad577ebf`
+- Status verified against origin/main: `03bb131cfb16b68dc6d0a983289511dd823223da` (PR #114 documentation reconciliation merge).
+- OPEN/Draft PRs at verification: none (live GitHub check on 2026-09-28 before documentation-branch publication).
 - ASUS-10A production-readiness audit is recorded in `docs/production-readiness-audit.md`; its production blockers remain separate from Resit completion.
 - Parallel workstream coordination is persisted in `docs/WORKSTREAM_COORDINATION.md` and must be rechecked against live GitHub before implementation.
+- PR #114 — LENOVO N5B documentation reconciliation — merged at `03bb131cfb16b68dc6d0a983289511dd823223da`; it reconciled N1–N5A status through PR #113 without changing product code, tests, schema, migrations, workflows, or configuration.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
+
+## Recent LENOVO ASSESS and Privacy Hardening
+
+The following state is verified against `main` at `6f6988c124d66d955de61dd30c0d42f8ad577ebf`:
+
+- PR #107 — N1, ASSESS Reasonable Adjustments Resit guard, merged at `816ae1632ac93392440656051e6fba8a7bfa9704`. `AssessmentReasonableAdjustmentService` identifies a Resit through `ResitAuthorization.ResitEvaluationRequestId` and excludes it from revision-deadline grant, revoke, and summary behavior. Normal Evaluation and historical Retake behavior are covered by the focused tests.
+- PR #110 — N2, Privacy Execution Concurrency and Idempotency, merged at `0a8bf9beca6b006d7802492c6fdf6b8dd77c4853`. PostgreSQL locks the `DataSubjectRequest` row to serialize evaluation and execution for that request; completed execution remains terminal, with replay, rollback/retry, and unrelated-request coverage.
+- PR #112 — N3, Admin Audit Log Query and Pagination Hardening, merged at `3a70a3615de4f59f26b3dc5499dda5da1f1138c9`. Pagination uses a widened offset, returns an empty page beyond the result count, and orders by timestamp then ID; PostgreSQL tests cover filtering, stable paging, and extreme page values. No schema or frontend change was included.
+- N4 — the read-only TaskType ownership audit found that scoped Evaluation creation derives `EvaluationRequest.TaskTypeId` from its selected `RubricTemplate`. `TaskType` ownership remains architecturally ambiguous; no schema change was approved and the audit established no active correctness blocker. No ownership migration or implementation is claimed.
+- N5 — the read-only privacy reconciliation leaves precedence between same-subject Rectification and Erasure/Concealment on overlapping fields as a product/privacy decision. N2 provides same-request concurrency handling; no cross-request orchestration or subject-wide locking semantics have been approved or implemented by this audit.
+- PR #113 — N5A, expired Data Portability artifact cleanup, merged at `6f6988c124d66d955de61dd30c0d42f8ad577ebf` from final PR head `080ce744c2acb63270b81b8812d641fd76227e11`. Expiry continues to deny downloads immediately; the existing storage lifecycle worker schedules bounded, retryable private-object deletion and minimally audits completion while preserving the historical export row and StorageKey. PostgreSQL row locks serialize concurrent deletion-intent and audit creation. No schema, migration, or frontend change was included.
+
+PR #113 required checks passed before merge: Application Quality, Full-stack browser UAT, Dependency Review, CodeQL C#, CodeQL JavaScript/TypeScript, and standalone CodeQL. Its Application Quality job started S3-compatible test storage and passed the .NET tests including the S3 storage contract. Post-merge `main` Quality run `36409469670` and Security analysis run `36409469557` completed successfully on this baseline; Dependency Review was skipped on the main-push workflow and is not a failure. Production provider configuration and legal/privacy approvals remain external evidence, not implied by these repository checks.
 
 ## Recently Merged Account, Security, Learning, and Coordination Work
 
@@ -209,7 +223,7 @@ Resit L1–L13, including activation, fresh evidence/authenticity, evaluator ind
 
 ### Privacy and compliance workflow core
 
-Done: Main contains bounded privacy-rights requests, append-only marketing-consent evidence, and the restricted security-incident workflow with operational deadlines and human legal-review gates.
+Done: Main contains bounded privacy-rights requests, append-only marketing-consent evidence, the restricted security-incident workflow with operational deadlines and human legal-review gates, same-request PostgreSQL privacy-execution idempotency, and expired portability-artifact cleanup through the existing private-storage lifecycle.
 
 Remaining: Retention policy decisions, external notification execution, and final legal/UAT validation remain outside the verified technical core.
 
@@ -258,12 +272,12 @@ Live progress is tracked in OPEN Draft PRs, and repository evidence wins over co
 
 Maximum active implementation workstreams: **2**
 
-At the 2026-09-27 verification snapshot, `main` is `3109adfcf1f370338e0f348ceadf72e84a14f749`. PR #104 — Resit End-to-End Hardening — L13 is merged, following PR #102 L12 and the earlier Resit foundation, lifecycle, history, pagination, staff, and Student UI work. PR #103's production-readiness audit is also merged. The live GitHub query returned no OPEN/Draft PRs; no ASUS or LENOVO implementation workstream was active.
+At the 2026-09-28 verification snapshot, `main` is `6f6988c124d66d955de61dd30c0d42f8ad577ebf`. PR #113 — N5A expired portability-artifact cleanup — is merged with required PR checks and post-merge Quality and Security analysis green. PRs #107 (N1), #110 (N2), and #112 (N3) are also merged. N4 and N5 were read-only audits; neither is an implementation claim. The live GitHub query returned no OPEN/Draft PRs; no ASUS or LENOVO implementation PR was active.
 
 ## Next Actions
 
-- ASUS: ASUS-10A's production-readiness audit is merged as PR #103 and remains a separate production-hardening reference. Its recommended first implementation slice is ASUS-10B — Production Admin Bootstrap (P0-01), subject to independent review. ASUS retains planning ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign. PR #102's Resit Commerce integration is merged; this does not make L12 an active ASUS workstream. AI engine/API/RAG/persistence remains explicitly deferred.
-- LENOVO: Resit L1–L13 is DONE / MERGED, including PR #104 at `3109adfcf1f370338e0f348ceadf72e84a14f749`. No Resit implementation scope or next Resit branch is automatically reserved. Any separately evidenced ASSESS follow-up requires a fresh preflight and explicit scope; preserve the Commerce / Entitlements and other ASUS ownership boundaries.
+- ASUS: Production hardening has advanced beyond the original ASUS-10A sequence. ASUS-10B Production Admin Bootstrap is merged in PR #106; ASUS-10C Production S3 HTTPS Guard in PR #108; ASUS-10D1 Legacy Quiz Migration Preflight & Recovery Gate in PR #109; and ASUS-10E1A PostgreSQL Backup & Restore Recovery Drill in PR #111. The next repository-controlled recovery slice is **ASUS-10E1B — S3 private-object recovery + Data Protection certificate recovery**, followed by monitoring/incident readiness (10E2), immutable release promotion (10F), and conditional live-provider readiness (10G) if commerce is in launch scope. ASUS retains planning ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign. AI engine/API/RAG/persistence remains explicitly deferred.
+- LENOVO: Resit L1–L13 and N1–N3 are DONE / MERGED; N4 and N5 are read-only audits; N5A is DONE / MERGED in PR #113 at current baseline `6f6988c124d66d955de61dd30c0d42f8ad577ebf`. No active LENOVO implementation PR or follow-up Privacy branch is reserved. Same-subject Rectification × Erasure/Concealment precedence remains an undecided product/privacy decision. Any future ASSESS or Privacy work requires separate evidence, explicit scope, and a fresh preflight; preserve ASUS ownership boundaries.
 - Task 6: DONE — Media / Video Foundation + Secure Delivery. PR #18 merged with required CI green.
 - Slice 1: DONE — ASSESS academic identity foundation. PR #28 merged with required CI green.
 - Slice 2: DONE — Versioned Learning Aims / Criteria + AssessmentDefinition publication/source mapping + Qualification/Rubric compatibility enforcement. PR #30 merged with required CI green.
@@ -301,9 +315,9 @@ Do not reopen these areas merely because a later account lacks conversation memo
 | Authentication/Security | TECHNICAL CORE COMPLETE; REPO/DEVICE HARDENING FOLLOW-UPS REMAIN |
 | Privacy/Compliance | TECHNICAL CORE COMPLETE |
 | Payments/Finance | PARTIAL |
-| Storage | FOUNDATION COMPLETE |
+| Storage | FOUNDATION COMPLETE; PRODUCTION RECOVERY EVIDENCE IN PROGRESS |
 | Media/Video | FOUNDATION COMPLETE |
-| Operations/Deployment | FOUNDATION COMPLETE |
+| Operations/Deployment | PRODUCTION HARDENING IN PROGRESS — POSTGRES RESTORE DRILL MERGED; S3/DATA-PROTECTION RECOVERY, OBSERVABILITY, AND IMMUTABLE PROMOTION REMAIN |
 | Teacher UX | PARTIAL — FORMATIVE INTERVENTION SIGNALS MERGED |
 | Student UX | PARTIAL — STUDENT PROGRESS INTELLIGENCE MERGED |
 | i18n/SEO/Performance/Accessibility | NOT STARTED |
