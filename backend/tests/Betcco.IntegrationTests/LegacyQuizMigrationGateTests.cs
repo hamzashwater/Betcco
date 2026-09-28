@@ -9,6 +9,8 @@ namespace Betcco.IntegrationTests;
 
 public sealed class LegacyQuizMigrationGateTests
 {
+    private const string BeforeQuizMigration = "20260823193124_AddPublicEngagement";
+    private const string AddQuizzesMigration = "20260823193450_AddQuizzes";
     private const string PreviousMigration = "20260923183826_AddAcademicProgrammeAuthority";
     private const string PrivateQuestion = "SHOULD_NOT_OUTPUT_QUESTION_12A";
     private const string PrivateAnswer = "PRIVATE_STUDENT_ANSWER_7E";
@@ -46,6 +48,60 @@ public sealed class LegacyQuizMigrationGateTests
         Assert.True(migration.MigrationCompleted);
         Assert.Equal("LEGACY_QUIZ_MIGRATION_CLEAR", migration.Preflight.Code);
         Assert.Contains(LegacyQuizMigrationGate.RemovalMigrationId, await db.Database.GetAppliedMigrationsAsync());
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Historical_database_before_quiz_tables_is_clear_and_migrates_without_override()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync(
+            "legacyquizgate-before-quiz",
+            targetMigration: BeforeQuizMigration);
+        await using var db = database.CreateContext();
+        var gate = new LegacyQuizMigrationGate(db);
+
+        var preflight = await gate.PreflightAsync();
+        Assert.Equal(LegacyQuizPreflightState.Clear, preflight.State);
+        Assert.Equal(new LegacyQuizInventory(0, 0, 0, 0, 0, 0, 0), preflight.Inventory);
+
+        var migration = await gate.MigrateAsync(allowLegacyQuizDataRemoval: false);
+
+        Assert.True(migration.MigrationCompleted);
+        Assert.Contains(LegacyQuizMigrationGate.RemovalMigrationId, await db.Database.GetAppliedMigrationsAsync());
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Historical_database_at_add_quizzes_counts_only_existing_legacy_tables_and_blocks_data()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync(
+            "legacyquizgate-add-quizzes",
+            targetMigration: AddQuizzesMigration);
+        await using (var seed = database.CreateContext())
+        {
+            var quizId = Guid.NewGuid();
+            var questionId = Guid.NewGuid();
+            var attemptId = Guid.NewGuid();
+            await seed.Database.ExecuteSqlInterpolatedAsync($"""
+                INSERT INTO "Quizzes" ("Id", "CourseId", "ArabicTitle", "EnglishTitle", "PassMark", "IsPublished", "CreatedAtUtc", "UpdatedAtUtc", "IsDeleted")
+                VALUES ({quizId}, {Guid.NewGuid()}, 'اختبار', 'Quiz', 50, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, FALSE);
+                INSERT INTO "QuizQuestions" ("Id", "QuizId", "Type", "ArabicText", "EnglishText", "OptionsJson", "CorrectAnswersJson", "SortOrder", "CreatedAtUtc", "UpdatedAtUtc", "IsDeleted")
+                VALUES ({questionId}, {quizId}, 0, 'سؤال', 'Question', '[]', '[]', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, FALSE);
+                INSERT INTO "QuizAttempts" ("Id", "StudentUserId", "QuizId", "ScorePercent", "Passed", "AnswersJson", "CreatedAtUtc", "UpdatedAtUtc", "IsDeleted")
+                VALUES ({attemptId}, 'student-old-schema', {quizId}, 75, TRUE, '[]', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, FALSE);
+                """);
+        }
+
+        await using var db = database.CreateContext();
+        var gate = new LegacyQuizMigrationGate(db);
+        var preflight = await gate.PreflightAsync();
+        var migration = await gate.MigrateAsync(allowLegacyQuizDataRemoval: false);
+
+        Assert.Equal(LegacyQuizPreflightState.RequiresReview, preflight.State);
+        Assert.Equal(new LegacyQuizInventory(1, 1, 1, 0, 0, 0, 0), preflight.Inventory);
+        Assert.False(migration.MigrationCompleted);
+        Assert.Contains(LegacyQuizMigrationGate.RemovalMigrationId, await db.Database.GetPendingMigrationsAsync());
+        Assert.Equal(1L, await ScalarCountAsync(db, "SELECT count(*) FROM \"Quizzes\""));
     }
 
     [Fact]

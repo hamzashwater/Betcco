@@ -68,17 +68,24 @@ public sealed class LegacyQuizMigrationGate(BetccoDbContext db)
 {
     public const string RemovalMigrationId = "20260924073104_RemoveLegacyQuizSystem";
 
-    private static readonly string[] RequiredTables =
-    [
-        "Quizzes",
-        "QuizQuestions",
-        "QuizAttempts",
-        "QuizAttemptQuestionGrades",
-        "QuestionBankQuestions",
-        "Lessons",
-        "ContentPrerequisites",
-        "ContentAccessRules"
-    ];
+    private const string InitialMigrationId = "20260823192342_InitialCreate";
+    private const string AddQuizzesMigrationId = "20260823193450_AddQuizzes";
+    private const string AddManualQuizReviewMigrationId = "20260826063353_AddManualQuizReviewAndImages";
+    private const string AddContentAccessRulesMigrationId = "20260826161509_AddContentAccessRules";
+    private const string AddQuestionBankMigrationId = "20260826171845_AddAnnouncementsAndQuestionBank";
+
+    private static readonly IReadOnlyDictionary<string, string> TableIntroductions =
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["Lessons"] = InitialMigrationId,
+            ["Quizzes"] = AddQuizzesMigrationId,
+            ["QuizQuestions"] = AddQuizzesMigrationId,
+            ["QuizAttempts"] = AddQuizzesMigrationId,
+            ["QuizAttemptQuestionGrades"] = AddManualQuizReviewMigrationId,
+            ["ContentAccessRules"] = AddContentAccessRulesMigrationId,
+            ["ContentPrerequisites"] = AddContentAccessRulesMigrationId,
+            ["QuestionBankQuestions"] = AddQuestionBankMigrationId
+        };
 
     private const int AdvisoryLockNamespace = 1111835715; // BETC
     private const int AdvisoryLockId = 1296658258; // MIGR
@@ -159,7 +166,7 @@ public sealed class LegacyQuizMigrationGate(BetccoDbContext db)
             return unknownState;
         }
 
-        var (presentTables, missingTables) = await ReadTablePresenceAsync(transaction.GetDbTransaction(), cancellationToken);
+        var presentTables = await ReadTablePresenceAsync(transaction.GetDbTransaction(), cancellationToken);
         if (presentTables.Count == 0 && applied.Count == 0 && !await HasUserTablesAsync(transaction.GetDbTransaction(), cancellationToken))
         {
             await transaction.CommitAsync(cancellationToken);
@@ -169,13 +176,25 @@ public sealed class LegacyQuizMigrationGate(BetccoDbContext db)
                 EmptyInventory);
         }
 
-        if (missingTables.Count > 0)
+        var expectedTables = TableIntroductions
+            .Where(pair => applied.Contains(pair.Value))
+            .Select(pair => pair.Key)
+            .ToHashSet(StringComparer.Ordinal);
+        var missingExpectedTables = expectedTables.Where(table => !presentTables.Contains(table)).Order().ToArray();
+        if (missingExpectedTables.Length > 0)
         {
             await transaction.CommitAsync(cancellationToken);
-            return Indeterminate("MISSING_SCHEMA_OBJECTS", missingTables);
+            return Indeterminate("MISSING_SCHEMA_OBJECTS", missingExpectedTables);
         }
 
-        var inventory = await ReadInventoryAsync(transaction.GetDbTransaction(), cancellationToken);
+        var unexpectedTables = presentTables.Where(table => !expectedTables.Contains(table)).Order().ToArray();
+        if (unexpectedTables.Length > 0)
+        {
+            await transaction.CommitAsync(cancellationToken);
+            return Indeterminate("UNEXPECTED_SCHEMA_OBJECTS", unexpectedTables);
+        }
+
+        var inventory = await ReadInventoryAsync(transaction.GetDbTransaction(), presentTables, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return inventory.IsEmpty
             ? new LegacyQuizPreflightResult(LegacyQuizPreflightState.Clear, "LEGACY_QUIZ_MIGRATION_CLEAR", inventory)
@@ -205,7 +224,7 @@ public sealed class LegacyQuizMigrationGate(BetccoDbContext db)
         }
     }
 
-    private static async Task<(HashSet<string> Present, List<string> Missing)> ReadTablePresenceAsync(
+    private static async Task<HashSet<string>> ReadTablePresenceAsync(
         DbTransaction transaction,
         CancellationToken cancellationToken)
     {
@@ -214,7 +233,7 @@ public sealed class LegacyQuizMigrationGate(BetccoDbContext db)
         command.CommandText = "SELECT relation_name, to_regclass('public.' || quote_ident(relation_name)) IS NOT NULL FROM unnest(@relation_names) AS relation_name";
         var parameter = command.CreateParameter();
         parameter.ParameterName = "relation_names";
-        parameter.Value = RequiredTables;
+        parameter.Value = TableIntroductions.Keys.ToArray();
         command.Parameters.Add(parameter);
 
         var present = new HashSet<string>(StringComparer.Ordinal);
@@ -223,7 +242,7 @@ public sealed class LegacyQuizMigrationGate(BetccoDbContext db)
         {
             if (reader.GetBoolean(1)) present.Add(reader.GetString(0));
         }
-        return (present, RequiredTables.Where(table => !present.Contains(table)).ToList());
+        return present;
     }
 
     private static async Task<bool> HasUserTablesAsync(DbTransaction transaction, CancellationToken cancellationToken)
@@ -242,31 +261,76 @@ public sealed class LegacyQuizMigrationGate(BetccoDbContext db)
         return (bool)(await command.ExecuteScalarAsync(cancellationToken) ?? false);
     }
 
-    private static async Task<LegacyQuizInventory> ReadInventoryAsync(DbTransaction transaction, CancellationToken cancellationToken)
+    private static async Task<LegacyQuizInventory> ReadInventoryAsync(
+        DbTransaction transaction,
+        IReadOnlySet<string> presentTables,
+        CancellationToken cancellationToken)
+    {
+        var quizzes = await CountRowsIfPresentAsync(transaction, presentTables, "Quizzes", cancellationToken);
+        var quizQuestions = await CountRowsIfPresentAsync(transaction, presentTables, "QuizQuestions", cancellationToken);
+        var quizAttempts = await CountRowsIfPresentAsync(transaction, presentTables, "QuizAttempts", cancellationToken);
+        var quizAttemptQuestionGrades = await CountRowsIfPresentAsync(transaction, presentTables, "QuizAttemptQuestionGrades", cancellationToken);
+        var questionBankQuestions = await CountRowsIfPresentAsync(transaction, presentTables, "QuestionBankQuestions", cancellationToken);
+        var contentPrerequisitesToDelete = presentTables.Contains("ContentPrerequisites")
+            ? await CountContentPrerequisitesToDeleteAsync(transaction, cancellationToken)
+            : 0;
+        var contentAccessRulesToDelete = presentTables.Contains("ContentAccessRules")
+            ? await CountContentAccessRulesToDeleteAsync(transaction, cancellationToken)
+            : 0;
+
+        return new LegacyQuizInventory(
+            quizzes,
+            quizQuestions,
+            quizAttempts,
+            quizAttemptQuestionGrades,
+            questionBankQuestions,
+            contentPrerequisitesToDelete,
+            contentAccessRulesToDelete);
+    }
+
+    private static async Task<long> CountRowsIfPresentAsync(
+        DbTransaction transaction,
+        IReadOnlySet<string> presentTables,
+        string tableName,
+        CancellationToken cancellationToken)
+    {
+        if (!presentTables.Contains(tableName)) return 0;
+        if (!TableIntroductions.ContainsKey(tableName)) throw new InvalidOperationException("UNRECOGNIZED_LEGACY_QUIZ_TABLE");
+
+        await using var command = transaction.Connection!.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = $"SELECT count(*) FROM \"{tableName}\"";
+        return Convert.ToInt64(await command.ExecuteScalarAsync(cancellationToken), CultureInfo.InvariantCulture);
+    }
+
+    private static async Task<long> CountContentPrerequisitesToDeleteAsync(
+        DbTransaction transaction,
+        CancellationToken cancellationToken)
     {
         await using var command = transaction.Connection!.CreateCommand();
         command.Transaction = transaction;
         command.CommandText = """
-            SELECT
-                (SELECT count(*) FROM "Quizzes"),
-                (SELECT count(*) FROM "QuizQuestions"),
-                (SELECT count(*) FROM "QuizAttempts"),
-                (SELECT count(*) FROM "QuizAttemptQuestionGrades"),
-                (SELECT count(*) FROM "QuestionBankQuestions"),
-                (SELECT count(*) FROM "ContentPrerequisites"
-                 WHERE "TargetType" = 3 OR "RequiredContentType" = 3
-                    OR ("TargetType" = 2 AND "TargetId" IN (SELECT "Id" FROM "Lessons" WHERE "Type" = 2))
-                    OR ("RequiredContentType" = 2 AND "RequiredContentId" IN (SELECT "Id" FROM "Lessons" WHERE "Type" = 2))),
-                (SELECT count(*) FROM "ContentAccessRules"
-                 WHERE "TargetType" = 3 OR "PreviousContentType" = 3
-                    OR ("TargetType" = 2 AND "TargetId" IN (SELECT "Id" FROM "Lessons" WHERE "Type" = 2))
-                    OR ("PreviousContentType" = 2 AND "PreviousContentId" IN (SELECT "Id" FROM "Lessons" WHERE "Type" = 2)))
+            SELECT count(*) FROM "ContentPrerequisites"
+            WHERE "TargetType" = 3 OR "RequiredContentType" = 3
+               OR ("TargetType" = 2 AND "TargetId" IN (SELECT "Id" FROM "Lessons" WHERE "Type" = 2))
+               OR ("RequiredContentType" = 2 AND "RequiredContentId" IN (SELECT "Id" FROM "Lessons" WHERE "Type" = 2))
             """;
-        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
-        await reader.ReadAsync(cancellationToken);
-        return new LegacyQuizInventory(
-            reader.GetInt64(0), reader.GetInt64(1), reader.GetInt64(2), reader.GetInt64(3),
-            reader.GetInt64(4), reader.GetInt64(5), reader.GetInt64(6));
+        return Convert.ToInt64(await command.ExecuteScalarAsync(cancellationToken), CultureInfo.InvariantCulture);
+    }
+
+    private static async Task<long> CountContentAccessRulesToDeleteAsync(
+        DbTransaction transaction,
+        CancellationToken cancellationToken)
+    {
+        await using var command = transaction.Connection!.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = """
+            SELECT count(*) FROM "ContentAccessRules"
+            WHERE "TargetType" = 3 OR "PreviousContentType" = 3
+               OR ("TargetType" = 2 AND "TargetId" IN (SELECT "Id" FROM "Lessons" WHERE "Type" = 2))
+               OR ("PreviousContentType" = 2 AND "PreviousContentId" IN (SELECT "Id" FROM "Lessons" WHERE "Type" = 2))
+            """;
+        return Convert.ToInt64(await command.ExecuteScalarAsync(cancellationToken), CultureInfo.InvariantCulture);
     }
 
     private static LegacyQuizPreflightResult DatabaseFailure(Exception? exception = null) =>
