@@ -97,6 +97,25 @@ jobs:
           dotnet build backend/Betcco.sln --no-restore
       - name: Apply migrations to an empty PostgreSQL database
         run: dotnet tool run dotnet-ef database update --project backend/src/Betcco.Infrastructure --startup-project backend/src/Betcco.Api
+      - name: Verify PostgreSQL backup and isolated restore
+        env:
+          BETCCO_POSTGRES_CLIENT_IMAGE: pgvector/pgvector:pg16@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b
+          PGPASSWORD: ci-only-password
+        run: |
+          docker run --rm --network host \
+            --volume "$GITHUB_WORKSPACE:/workspace:ro" \
+            --volume "$RUNNER_TEMP:/recovery" \
+            --workdir /workspace \
+            --env PGHOST=127.0.0.1 \
+            --env PGPORT=5432 \
+            --env PGUSER=betcco_ci \
+            --env PGPASSWORD \
+            --env PGDATABASE=betcco_ci \
+            --env RECOVERY_BACKUP_DIR=/recovery \
+            --env GITHUB_RUN_ID \
+            --env GITHUB_RUN_ATTEMPT \
+            "$BETCCO_POSTGRES_CLIENT_IMAGE" \
+            bash scripts/run-postgres-recovery-drill.sh
       - name: Run .NET tests including required PostgreSQL finance and S3 storage tests
         run: dotnet test backend/Betcco.sln --no-build --no-restore
       - name: Prepare standalone frontend for Playwright
