@@ -18,14 +18,15 @@
 
 This section reconciles the historical audit with repository state verified after subsequent merges. The original 2026-09-27 audit baseline above is intentionally preserved for provenance.
 
-- Current verified `main`: `03bb131cfb16b68dc6d0a983289511dd823223da` (PR #114 documentation reconciliation merge).
-- OPEN/Draft PRs at reconciliation: none.
+- Current verified `main`: `25c162a9b002f84e604eed310a73680294055a0e` (PR #117 ASUS-10E1B merge).
+- OPEN/Draft PRs at pre-edit reconciliation: none; checked against live GitHub before publishing this documentation branch.
 - PR #106 — ASUS-10B Production Admin Bootstrap — merged; P0-01 repository implementation is closed.
 - PR #108 — ASUS-10C Production S3 HTTPS Guard — merged; P1-05 repository implementation is closed.
 - PR #109 — ASUS-10D1 Legacy Quiz Migration Preflight & Recovery Gate — merged; the repository fail-closed migration-safety gate is implemented, while owner retention/backup evidence remains external.
 - PR #111 — ASUS-10E1A PostgreSQL Backup & Restore Recovery Drill — merged; PostgreSQL custom-format backup, checksum verification, isolated restore, application/financial fingerprint checks, and CI restore evidence are implemented.
 - PR #114 — LENOVO N5B documentation reconciliation — merged after N1–N5A status reconciliation; no runtime/schema/workflow changes.
-- The next ASUS repository-controlled production-hardening slice is **ASUS-10E1B — S3 private-object recovery + Data Protection certificate recovery**.
+- PR #117 — ASUS-10E1B S3 & Data Protection Recovery Drill — DONE / MERGED at `25c162a9b002f84e604eed310a73680294055a0e`. Its final reviewed head `43ffaaf8687e9520b4441752526b3ac4ff2019a4` passed Quality, Full UAT Matrix, and Security analysis; no unresolved review threads remained.
+- The next ASUS repository-controlled production-hardening slice is **ASUS-10E2 — Monitoring, Alerts & Incident Runbooks (PLANNED / NOT STARTED)**.
 - External production-provider configuration, actual production/staging restore evidence, RPO/RTO/retention decisions, S3 provider recovery evidence, Data Protection certificate custody/recovery evidence, monitoring ownership, and live payment/payout readiness remain unverified unless separately evidenced.
 
 ## Executive Summary
@@ -56,7 +57,7 @@ This section reconciles the historical audit with repository state verified afte
 | `BETCCO_DATA_PROTECTION_CERTIFICATE_PATH` → `DataProtection__CertificatePath` | API PFX file path; non-secret | Required absolute host path, mounted read-only in container | Compose fails if absent; Program loads PFX at startup, so absent/unreadable/invalid PFX stops startup. Documented. |
 | `BETCCO_DATA_PROTECTION_CERTIFICATE_PASSWORD` | API key encryption; secret | Required; no default | Compose and validator reject empty. PFX password is not emitted by startup validation. Documented. |
 | `Storage__Provider`, `BETCCO_S3_BUCKET`, `BETCCO_S3_REGION` | API object store; non-secret | Compose fixes `S3Compatible`; bucket/region required; endpoint optional (SDK regional endpoint); path-style optional/default false; auto-create fixed false; SDK retries default 3 and timeout default 100 seconds | Validator rejects Local/empty bucket/region; startup probes existing bucket and stops if unavailable. No local-storage fallback and no production auto-create. Documented. |
-| `BETCCO_S3_ENDPOINT` → `Storage__S3__Endpoint` | API object-store endpoint; non-secret | Optional; `.env.example` uses local HTTP for development and `deploy.env.example` uses an HTTPS placeholder | In Staging/Production, any configured custom endpoint must be an absolute HTTPS URL with a valid host and no embedded userinfo; an empty endpoint remains allowed for the AWS SDK regional endpoint. Development/Testing may still use local HTTP MinIO. P1-05 is closed in this branch pending merge. |
+| `BETCCO_S3_ENDPOINT` → `Storage__S3__Endpoint` | API object-store endpoint; non-secret | Optional; `.env.example` uses local HTTP for development and `deploy.env.example` uses an HTTPS placeholder | In Staging/Production, any configured custom endpoint must be an absolute HTTPS URL with a valid host and no embedded userinfo; an empty endpoint remains allowed for the AWS SDK regional endpoint. Development/Testing may still use local HTTP MinIO. P1-05 was closed by merged PR #108. |
 | `Storage:CleanupIntervalSeconds`, `Storage:StagingGraceMinutes` | API storage lifecycle; non-secret | `appsettings.json` defaults to 300 seconds and 15 minutes | Used by lifecycle worker for staged-object cleanup; not a production endpoint or credential. Documented as app defaults. |
 | `BETCCO_S3_ACCESS_KEY` / `BETCCO_S3_SECRET_KEY` → `Storage__S3__AccessKey/SecretKey` | API object-store credentials; secret pair | Both or neither; either an explicit pair or provider credential chain | Validator rejects half-pairs; SDK uses configured credential chain if both omitted. Secret pair placeholders only in deployment example. Documented. |
 | `BETCCO_CLAMAV_HOST` / `BETCCO_CLAMAV_PORT` | API-to-scanner endpoint; host non-secret | Host required; port optional, defaults to `3310`; scanner provider fixed `ClamAv` | Validator rejects missing host/invalid port or non-ClamAv provider. Runtime scan transport/protocol failure returns Unavailable and blocks upload. Documented. |
@@ -110,7 +111,7 @@ This section reconciles the historical audit with repository state verified afte
 | ID | Area | Title | Confidence |
 | --- | --- | --- | --- |
 | P1-01 | Migration safety | Legacy Quiz migration irreversibly removes quiz tables and dependent rules | HIGH |
-| P1-02 | Backup / restore | Repository PostgreSQL restore path verified; production provider evidence remains pending | HIGH (external production evidence pending) |
+| P1-02 | Backup / restore | Repository PostgreSQL, private S3 logical-object, and Data Protection key-ring/certificate recovery evidence verified; production provider evidence remains pending | HIGH (external production evidence pending) |
 | P1-03 | Observability / incident response | Health endpoints exist, but monitoring, alerting, and key incident procedures are not evidenced | HIGH (repository evidence) |
 | P1-04 | Release promotion | The release process does not prove that one immutable artifact is promoted from staging to production | HIGH (repository evidence) |
 | P1-05 | Storage / transport security | Custom production S3 endpoint accepts plain HTTP | HIGH |
@@ -142,9 +143,9 @@ This section reconciles the historical audit with repository state verified afte
 **Dependencies:** owner decision on legacy quiz history and an external backup/restore service.
 **Ownership:** shared (ASUS migration owner + data owner).
 
-### P1-02 — Repository PostgreSQL restore path verified; production evidence pending
+### P1-02 — Repository recovery evidence verified; production evidence pending
 
-**Status:** REPOSITORY POSTGRES RESTORE PATH VERIFIED / EXTERNAL PRODUCTION RECOVERY REMAINS OPEN.
+**Status:** REPOSITORY POSTGRESQL + PRIVATE S3 LOGICAL-OBJECT + DATA PROTECTION KEY-RING/CERTIFICATE RECOVERY VERIFIED / EXTERNAL PRODUCTION RECOVERY REMAINS OPEN.
 
 **Severity:** P1 — Required Production Hardening
 **Area:** PostgreSQL / object backup
@@ -160,9 +161,9 @@ This section reconciles the historical audit with repository state verified afte
 
 **Impact:** availability, financial integrity, privacy, and learner records.
 
-**Repository side:** `P1-02 — REPOSITORY RESTORE PATH VERIFIED` for PostgreSQL synthetic data in CI.
+**Repository side — VERIFIED:** PostgreSQL synthetic-data backup and isolated restore (PR #111); private S3 logical-object recovery; and encrypted Data Protection key-ring recovery using the configured certificate/private key (PR #117, merged at `25c162a9b002f84e604eed310a73680294055a0e`). The PR #117 final reviewed head passed Quality, Full UAT Matrix, and Security analysis.
 
-**External production side — PENDING:** verify the production backup provider and schedule, retention, encryption at rest and separate access controls; conduct and retain a production/staging restore drill; obtain owner-approved RPO/RTO; and implement recovery for S3/private objects and the Data Protection certificate. The repository does not claim these controls exist.
+**External production side — PENDING:** verify real production backup-provider configuration and schedule, production S3 versioning/replication/provider backups, production PFX/private-key custody and backup, and access controls; conduct and retain staging/production restore exercises; obtain owner-approved RPO/RTO, backup frequency, retention, recovery owner, and cross-region recovery. Repository evidence does not establish any of these operational controls.
 
 **Approved decisions:** RPO NOT YET SET; RTO NOT YET SET; backup retention NOT YET SET; backup frequency NOT YET SET; recovery owner NOT YET SET.
 
@@ -456,14 +457,14 @@ Production Compose does not publish PostgreSQL, S3, SMTP, ClamAV, or API host po
 
 ## Backup / Restore / Observability State
 
-The repository contains a tested PostgreSQL 16 custom-format backup and isolated-restore drill from PR #111, including SHA-256 verification, EF migration-history verification, representative application/financial-state fingerprints, distinct source/target enforcement, and cleanup of disposable restore targets. ASUS-10E1B adds focused S3 logical recovery and encrypted PostgreSQL Data Protection key-ring tests using synthetic data, an ephemeral test-only PFX, the `BETCCO` application name, and a separate recovered PostgreSQL database containing the persisted encrypted key-ring rows. Repository status is merge-gated by exact-head CI and review; no production-provider evidence is inferred from CI. These are repository-controlled checks only, not proof of a production provider backup or staging/production restore.
+The repository contains a tested PostgreSQL 16 custom-format backup and isolated-restore drill from PR #111, including SHA-256 verification, EF migration-history verification, representative application/financial-state fingerprints, distinct source/target enforcement, and cleanup of disposable restore targets. ASUS-10E1B adds focused S3 logical recovery and encrypted PostgreSQL Data Protection key-ring tests using synthetic data, an ephemeral test-only PFX, the `BETCCO` application name, and a separate recovered PostgreSQL database containing the persisted encrypted key-ring rows. PR #117 is DONE / MERGED at `25c162a9b002f84e604eed310a73680294055a0e`; its final reviewed head `43ffaaf8687e9520b4441752526b3ac4ff2019a4` passed Quality, Full UAT Matrix, and Security analysis, with no unresolved review threads. These are repository-controlled checks only, not proof of a production provider backup or staging/production restore.
 
-Repository-controlled P1-02 evidence is: PostgreSQL recovery VERIFIED (PR #111); S3 logical object recovery and Data Protection certificate/key-ring recovery are implemented in ASUS-10E1B and become repository-verified only after the exact reviewed PR head passes required CI and merges. P1-02 remains externally open for actual production provider backups/versioning/replication, production PFX custody/backup, staging/production restore drills, RPO, RTO, backup frequency, retention, recovery owner, and cross-region recovery. Monitoring and alert ownership also remain open; no repository evidence yet shows that a real staging or production environment has emitted and closed a critical operational alert. See P1-02, P1-03, P1-04 and EX-01/EX-05.
+Repository-controlled P1-02 recovery evidence is VERIFIED for PostgreSQL (PR #111), private S3 logical-object recovery, and Data Protection encrypted key-ring/certificate recovery (PR #117). Data Protection recovery does not establish certificate rotation: only the configured certificate is registered, historical keys depend on retaining the original private key, and multi-certificate rotation is not implemented. P1-02 remains externally open for real production backup-provider configuration, production S3 versioning/replication/provider backups, production PFX/private-key custody and backup, staging/production restore exercises, approved RPO and RTO, backup frequency, retention, recovery owner, and cross-region recovery. Monitoring and alert ownership also remain open; no repository evidence shows that a real staging or production environment has emitted and closed a critical operational alert. See P1-02, P1-03, P1-04 and EX-01/EX-05.
 
 ## CI / Release State
 
 - `quality.yml` and `security.yml` use immutable action references. Current `main` branch protection requires Application Quality, Dependency Review, CodeQL (csharp), and CodeQL (javascript-typescript).
-- PR #111 added `Verify PostgreSQL backup and isolated restore` to Application Quality; the recovery drill passed on its final merged head. PR #114's documentation-only reconciliation also passed Quality, Security analysis, and Full UAT before merge.
+- PR #111 added `Verify PostgreSQL backup and isolated restore` to Application Quality; the recovery drill passed on its final merged head. PR #114's documentation-only reconciliation passed Quality, Security analysis, and Full UAT before merge. PR #117's final reviewed head passed Quality, Full UAT Matrix, and Security analysis before merge.
 - `full-uat.yml` runs on pull requests to `main` or manual dispatch. It exercises browser flows with disposable infrastructure and does not constitute real production-provider or staging-environment evidence.
 - No workflow currently publishes one immutable API/web image pair and promotes the exact same digests unchanged from staging to production. P1-04 therefore remains open.
 - No OPEN/Draft PR existed at the 2026-09-28 reconciliation point. Repository-admin/provider alert evidence outside the GitHub checks described above remains external where applicable.
@@ -476,8 +477,8 @@ Repository-controlled P1-02 evidence is: PostgreSQL recovery VERIFIED (PR #111);
 | 2 | **ASUS-10C — Production S3 HTTPS Guard** | **DONE / MERGED — PR #108** | Repository P1-05 implementation closed; external provider TLS availability remains provider-owned. | Completed |
 | 3 | **ASUS-10D1 — Legacy Quiz Migration Preflight & Recovery Gate** | **DONE / MERGED — PR #109** | Repository migration-safety gate closed; data-owner retention/backup approval remains external. | Completed |
 | 4 | **ASUS-10E1A — PostgreSQL Backup & Restore Recovery Drill** | **DONE / MERGED — PR #111** | Repository PostgreSQL restore path verified; no production-provider restore is claimed. | Completed |
-| 5 | **ASUS-10E1B — S3 Object Recovery + Data Protection Certificate Recovery** | **ACTIVE DRAFT PR #117 — MERGE-GATED** | Isolated private S3 object recovery plus encrypted key-ring recovery into a separate PostgreSQL database are implemented; external provider and certificate custody remain open. | GPT-6 runtime / HIGH |
-| 6 | **ASUS-10E2 — Monitoring, Alerts & Incident Runbooks** | PLANNED | Close repository-controlled portion of P1-03; external monitoring/on-call ownership remains provider/operator work. | GPT-6 Luna / HIGH |
+| 5 | **ASUS-10E1B — S3 Object Recovery + Data Protection Certificate Recovery** | **DONE / MERGED — PR #117** | Repository-controlled private S3 logical-object and encrypted Data Protection key-ring/certificate recovery evidence is verified; external provider and production certificate custody remain open. Merge: `25c162a9b002f84e604eed310a73680294055a0e`. | Completed |
+| 6 | **ASUS-10E2 — Monitoring, Alerts & Incident Runbooks** | **PLANNED / NOT STARTED** | Close repository-controlled portion of P1-03; external monitoring/on-call ownership remains provider/operator work. | GPT-6 Luna / HIGH / Fast Off |
 | 7 | **ASUS-10F — Immutable Release Promotion** | PLANNED | Close P1-04 by publishing and promoting identical immutable API/web digests with rollback evidence. | GPT-6 Luna / HIGH initially |
 | 8 | **ASUS-10G — Live Commerce Provider Readiness** | CONDITIONAL / EXTERNAL-HEAVY | Only if paid sales/payouts are in launch scope; preserve ASUS-08C2 NO-GO until provider evidence exists. | GPT-6 Sol / HIGH when finance/provider changes are required |
 
