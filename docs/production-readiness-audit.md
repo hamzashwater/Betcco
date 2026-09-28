@@ -26,7 +26,8 @@ This section reconciles the historical audit with repository state verified afte
 - PR #111 — ASUS-10E1A PostgreSQL Backup & Restore Recovery Drill — merged; PostgreSQL custom-format backup, checksum verification, isolated restore, application/financial fingerprint checks, and CI restore evidence are implemented.
 - PR #114 — LENOVO N5B documentation reconciliation — merged after N1–N5A status reconciliation; no runtime/schema/workflow changes.
 - PR #117 — ASUS-10E1B S3 & Data Protection Recovery Drill — DONE / MERGED at `25c162a9b002f84e604eed310a73680294055a0e`. Its final reviewed head `43ffaaf8687e9520b4441752526b3ac4ff2019a4` passed Quality, Full UAT Matrix, and Security analysis; no unresolved review threads remained.
-- The next ASUS repository-controlled production-hardening slice is **ASUS-10E2 — Monitoring, Alerts & Incident Runbooks (PLANNED / NOT STARTED)**.
+- PR #123 — **ASUS-10E2A Operational Signals & Incident Runbooks — DONE / MERGED** at `7201ae473eae507877d314fe8c06a71de418b7bf`. Repository-controlled operational signals, stable event IDs, provider-neutral monitoring recommendations, and incident runbooks are verified. External alert collection/delivery and on-call evidence remain open.
+- The next ASUS repository-controlled production-hardening slice is **ASUS-10F — Immutable Release Promotion (PLANNED / NOT STARTED)**.
 - External production-provider configuration, actual production/staging restore evidence, RPO/RTO/retention decisions, S3 provider recovery evidence, Data Protection certificate custody/recovery evidence, monitoring ownership, and live payment/payout readiness remain unverified unless separately evidenced.
 
 ## Executive Summary
@@ -174,25 +175,33 @@ This section reconciles the historical audit with repository state verified afte
 
 ### P1-03 — Monitoring, alerting, and key incident procedures are not evidenced
 
+**Status:** REPOSITORY-CONTROLLED FOUNDATION VERIFIED by PR #123; EXTERNAL MONITORING / ALERT DELIVERY EVIDENCE REMAINS OPEN.
+
 **Severity:** P1 — Required Production Hardening
 **Area:** Observability / operations
-**Evidence:**
 
-- `backend/src/Betcco.Api/Program.cs` exposes `/health/live` (process response) and `/health/ready` (PostgreSQL and S3 checks). ClamAV is correctly treated as an upload-path dependency rather than a liveness dependency.
-- `docs/DEPLOYMENT.md` says SMTP is monitored separately, but no monitoring integration, alert definition, metric exporter, trace exporter, or operational alert receiver is configured in the repository.
-- `docs/DEPLOYMENT.md` explicitly defers monitoring/alerting and does not provide operational procedures for database restore, storage loss, ClamAV outage, SMTP backlog, payment/refund `ProviderResultUnknown`, payout reconciliation, incident response, or administrator recovery.
-- Audit records include request correlation context in the persistence model, but repository code alone does not show an operator consuming alerts or traces.
+**Repository evidence after PR #123:**
 
-**Production scenario:** readiness turns unhealthy, email outbox begins retrying, uploads fail closed because ClamAV is unreachable, or a payment/refund remains in an unknown state; no evidenced alert or assigned response procedure ensures timely detection and resolution.
+- `/health/live` remains a process-liveness probe.
+- `/health/ready` remains a PostgreSQL and S3 readiness probe; SMTP, ClamAV, payment providers, and payout providers are intentionally not promoted to general readiness dependencies.
+- Stable provider-neutral operational EventIds cover readiness unavailability, registration-email delivery/worker/aged-backlog conditions, scanner unavailability, storage-operation/reconciliation/worker failures, and payment/refund provider-result-unknown conditions.
+- `docs/operations/monitoring-alerts.md` defines the repository signal contract, recommended thresholds/severity, safe correlation fields, immediate operator actions, and the external evidence required before an alert can be considered operational.
+- `docs/operations/incident-response.md` documents provider-neutral response procedures for database/readiness failure, private-storage failure, ClamAV outage, SMTP/outbox backlog, payment/refund unknown states, storage lifecycle failure, security/privacy incidents, administrator recovery, and disaster-recovery escalation.
+- Logging changes deliberately avoid raw provider payloads, credentials, confirmation tokens, recipient data, upload contents, and other unnecessary private data. Finance/auth state-transition semantics were not changed.
+- Authentication/rate-limit alert classification remains deferred because the current rejection boundary cannot safely identify an authentication category without broader auth integration.
 
-**Impact:** availability, finance, privacy, and operations. No particular vendor is required.
+**Remaining production gap:** the repository does not prove deployment of a log/metric collector, alert receiver, paging/on-call channel, named operations owner, owner-approved thresholds/severity/SLA, or successful staging/production alert delivery and acknowledgement.
 
-**Recommended remediation:** connect live health and application/worker signals to an owned monitor and alert channel; establish thresholds and runbooks for database/S3/readiness, SMTP outbox age/failure, scanner failure, repeated authentication abuse, payment/refund unknown states, payout settlement, restore, incidents, and admin recovery. Exercise alerts in staging.
+**Production scenario:** the application now emits stable signals and has response procedures, but those controls do not prove that a human receives or acknowledges a critical alert in a real environment.
 
-**Suggested tests:** staging synthetic failure for each critical dependency; verify alerts reach the on-call owner, include a trace/correlation reference without sensitive payloads, and close through the documented runbook.
+**Impact:** availability, finance, privacy, and operations.
+
+**Required external remediation:** connect the repository-defined health/application signals to an owned monitoring and alert channel; approve operational thresholds and response ownership; exercise representative failures in staging; verify delivery, acknowledgement, correlation, runbook execution, recovery, and closure without forwarding secrets or unnecessary personal data.
+
+**Suggested external tests:** controlled staging failures for critical dependency/signal classes; verify the event or health transition reaches the configured receiver, is acknowledged by the responsible owner, contains only approved correlation metadata, follows the documented runbook, and is closed after recovery.
 
 **Dependencies:** hosting/monitoring provider and operations owner.
-**Ownership:** shared.
+**Ownership:** shared/external for remaining evidence.
 
 ### P1-05 — Custom production S3 endpoint accepts plain HTTP
 
@@ -459,7 +468,7 @@ Production Compose does not publish PostgreSQL, S3, SMTP, ClamAV, or API host po
 
 The repository contains a tested PostgreSQL 16 custom-format backup and isolated-restore drill from PR #111, including SHA-256 verification, EF migration-history verification, representative application/financial-state fingerprints, distinct source/target enforcement, and cleanup of disposable restore targets. ASUS-10E1B adds focused S3 logical recovery and encrypted PostgreSQL Data Protection key-ring tests using synthetic data, an ephemeral test-only PFX, the `BETCCO` application name, and a separate recovered PostgreSQL database containing the persisted encrypted key-ring rows. PR #117 is DONE / MERGED at `25c162a9b002f84e604eed310a73680294055a0e`; its final reviewed head `43ffaaf8687e9520b4441752526b3ac4ff2019a4` passed Quality, Full UAT Matrix, and Security analysis, with no unresolved review threads. These are repository-controlled checks only, not proof of a production provider backup or staging/production restore.
 
-Repository-controlled P1-02 recovery evidence is VERIFIED for PostgreSQL (PR #111), private S3 logical-object recovery, and Data Protection encrypted key-ring/certificate recovery (PR #117). Data Protection recovery does not establish certificate rotation: only the configured certificate is registered, historical keys depend on retaining the original private key, and multi-certificate rotation is not implemented. P1-02 remains externally open for real production backup-provider configuration, production S3 versioning/replication/provider backups, production PFX/private-key custody and backup, staging/production restore exercises, approved RPO and RTO, backup frequency, retention, recovery owner, and cross-region recovery. Monitoring and alert ownership also remain open; no repository evidence shows that a real staging or production environment has emitted and closed a critical operational alert. See P1-02, P1-03, P1-04 and EX-01/EX-05.
+Repository-controlled P1-02 recovery evidence is VERIFIED for PostgreSQL (PR #111), private S3 logical-object recovery, and Data Protection encrypted key-ring/certificate recovery (PR #117). Data Protection recovery does not establish certificate rotation: only the configured certificate is registered, historical keys depend on retaining the original private key, and multi-certificate rotation is not implemented. P1-02 remains externally open for real production backup-provider configuration, production S3 versioning/replication/provider backups, production PFX/private-key custody and backup, staging/production restore exercises, approved RPO and RTO, backup frequency, retention, recovery owner, and cross-region recovery. PR #123 verifies the repository-controlled observability/runbook foundation, including stable operational EventIds and provider-neutral monitoring/incident-response contracts. Monitoring and alert ownership still remain externally open; no repository evidence shows that a real staging or production environment has delivered, acknowledged, and closed a critical operational alert. See P1-02, P1-03, P1-04 and EX-01/EX-05.
 
 ## CI / Release State
 
@@ -478,7 +487,7 @@ Repository-controlled P1-02 recovery evidence is VERIFIED for PostgreSQL (PR #11
 | 3 | **ASUS-10D1 — Legacy Quiz Migration Preflight & Recovery Gate** | **DONE / MERGED — PR #109** | Repository migration-safety gate closed; data-owner retention/backup approval remains external. | Completed |
 | 4 | **ASUS-10E1A — PostgreSQL Backup & Restore Recovery Drill** | **DONE / MERGED — PR #111** | Repository PostgreSQL restore path verified; no production-provider restore is claimed. | Completed |
 | 5 | **ASUS-10E1B — S3 Object Recovery + Data Protection Certificate Recovery** | **DONE / MERGED — PR #117** | Repository-controlled private S3 logical-object and encrypted Data Protection key-ring/certificate recovery evidence is verified; external provider and production certificate custody remain open. Merge: `25c162a9b002f84e604eed310a73680294055a0e`. | Completed |
-| 6 | **ASUS-10E2 — Monitoring, Alerts & Incident Runbooks** | **PLANNED / NOT STARTED** | Close repository-controlled portion of P1-03; external monitoring/on-call ownership remains provider/operator work. | GPT-6 Luna / HIGH / Fast Off |
+| 6 | **ASUS-10E2A — Operational Signals & Incident Runbooks** | **DONE / MERGED — PR #123** | Repository-controlled P1-03 observability/runbook foundation verified; external alert delivery/on-call evidence remains provider/operator work. Merge: `7201ae473eae507877d314fe8c06a71de418b7bf`. | Completed |
 | 7 | **ASUS-10F — Immutable Release Promotion** | PLANNED | Close P1-04 by publishing and promoting identical immutable API/web digests with rollback evidence. | GPT-6 Luna / HIGH initially |
 | 8 | **ASUS-10G — Live Commerce Provider Readiness** | CONDITIONAL / EXTERNAL-HEAVY | Only if paid sales/payouts are in launch scope; preserve ASUS-08C2 NO-GO until provider evidence exists. | GPT-6 Sol / HIGH when finance/provider changes are required |
 
