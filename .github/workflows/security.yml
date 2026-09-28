@@ -13,25 +13,73 @@ permissions:
   security-events: write
 
 jobs:
+  classify:
+    name: Classify changed paths
+    runs-on: ubuntu-latest
+    outputs:
+      docs_only: ${{ steps.classify.outputs.docs_only }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: .trusted-classifier
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Classify exact pull-request paths
+        id: classify
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            if [ -f .trusted-classifier/.github/scripts/classify_docs_only.py ]; then
+              python3 .trusted-classifier/.github/scripts/classify_docs_only.py
+            else
+              echo "docs_only=false" >> "$GITHUB_OUTPUT"
+              echo "Trusted classifier is absent from the PR base; full CI required."
+            fi
+          else
+            python3 .github/scripts/classify_docs_only.py
+          fi
+
   codeql:
     name: CodeQL
+    needs: classify
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         language: [csharp, javascript-typescript]
     steps:
+      - name: Skip CodeQL for verified documentation-only pull request
+        if: ${{ needs.classify.result == 'success' && github.event_name == 'pull_request' && needs.classify.outputs.docs_only == 'true' }}
+        run: 'echo "CodeQL not required: verified documentation-only change."'
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        if: ${{ needs.classify.result != 'success' || github.event_name != 'pull_request' || needs.classify.outputs.docs_only != 'true' }}
       - uses: github/codeql-action/init@3ea06614dafe36dec890db3446326e0d40ce53d4 # v3.38.1
+        if: ${{ needs.classify.result != 'success' || github.event_name != 'pull_request' || needs.classify.outputs.docs_only != 'true' }}
         with:
           languages: ${{ matrix.language }}
           build-mode: none
       - uses: github/codeql-action/analyze@3ea06614dafe36dec890db3446326e0d40ce53d4 # v3.38.1
+        if: ${{ needs.classify.result != 'success' || github.event_name != 'pull_request' || needs.classify.outputs.docs_only != 'true' }}
 
   dependency-review:
-    if: github.event_name == 'pull_request'
+    needs: classify
+    if: ${{ always() && github.event_name == 'pull_request' }}
     name: Dependency review
     runs-on: ubuntu-latest
     steps:
+      - name: Skip dependency review for verified documentation-only pull request
+        if: ${{ needs.classify.result == 'success' && needs.classify.outputs.docs_only == 'true' }}
+        run: 'echo "Dependency review not required: verified documentation-only change."'
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        if: ${{ needs.classify.result != 'success' || needs.classify.outputs.docs_only != 'true' }}
       - uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4.9.0
+        if: ${{ needs.classify.result != 'success' || needs.classify.outputs.docs_only != 'true' }}
