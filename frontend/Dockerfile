@@ -1,4 +1,4 @@
-FROM node:24-bookworm-slim AS dependencies
+FROM node:24-bookworm-slim@sha256:0e0ff40c39bc087845bfb27465a0df4ea419520094bc35842ff83dd8cbe6f9b6 AS dependencies
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN corepack enable
@@ -11,7 +11,7 @@ ENV BETCCO_API_URL=$BETCCO_API_URL
 COPY frontend/ ./
 RUN pnpm build
 
-FROM node:24-bookworm-slim AS runtime
+FROM node:24-bookworm-slim@sha256:0e0ff40c39bc087845bfb27465a0df4ea419520094bc35842ff83dd8cbe6f9b6 AS runtime
 WORKDIR /app
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
