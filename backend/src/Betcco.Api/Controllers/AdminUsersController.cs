@@ -302,8 +302,13 @@ public sealed class AdminUsersController(UserManager<ApplicationUser> userManage
     [HttpDelete("{userId:guid}")]
     public async Task<IActionResult> DeleteStudent(Guid userId, CancellationToken cancellationToken)
     {
+        await using var transaction = db.Database.IsRelational()
+            ? await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken)
+            : null;
         var user = await userManager.FindByIdAsync(userId.ToString());
-        if (user is null || user.Id.ToString() == UserId || !await userManager.IsInRoleAsync(user, PlatformRoles.Student)) return NotFound();
+        if (user is null || user.Id.ToString() == UserId) return NotFound();
+        var roles = await userManager.GetRolesAsync(user);
+        if (roles.Count != 1 || roles[0] != PlatformRoles.Student) return NotFound();
 
         // Student device identifiers are account-scoped and must be removed together
         // with the account. Financial and learning records remain for audit purposes.
@@ -314,6 +319,7 @@ public sealed class AdminUsersController(UserManager<ApplicationUser> userManage
 
         db.AuditLogs.Add(new AuditLog { ActorUserId = UserId, Action = "StudentDeleted", EntityType = nameof(ApplicationUser), EntityId = userId.ToString(), Outcome = "Success", OldValuesJson = AuditValues(("accountState", "Active")), NewValuesJson = AuditValues(("accountState", "Deleted")) });
         await db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
         return NoContent();
     }
 
@@ -322,7 +328,9 @@ public sealed class AdminUsersController(UserManager<ApplicationUser> userManage
     public async Task<IActionResult> ApproveStudent(Guid userId, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByIdAsync(userId.ToString());
-        if (user is null || !await userManager.IsInRoleAsync(user, PlatformRoles.Student)) return NotFound();
+        if (user is null) return NotFound();
+        var roles = await userManager.GetRolesAsync(user);
+        if (roles.Count != 1 || roles[0] != PlatformRoles.Student) return NotFound();
         if (user.EmailConfirmed) return NoContent();
 
         var wasApproved = user.EmailConfirmed;

@@ -786,6 +786,100 @@ public sealed class AuthRegistrationTests
         Assert.Contains(fixture.Db.AuditLogs, log => log.Action == "SupportAdminActivated");
     }
 
+    [Theory]
+    [InlineData(PlatformRoles.Admin)]
+    [InlineData(PlatformRoles.SystemAdmin)]
+    [InlineData(PlatformRoles.SupportAdmin)]
+    [InlineData(PlatformRoles.FinanceAdmin)]
+    [InlineData(PlatformRoles.Teacher)]
+    public async Task Student_delete_rejects_every_multi_role_target_without_side_effects(string additionalRole)
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var roleManager = fixture.Services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        Assert.True((await roleManager.CreateAsync(new IdentityRole<Guid>(additionalRole))).Succeeded);
+        var target = new ApplicationUser { UserName = "multi@betcco.test", Email = "multi@betcco.test", DisplayName = "Multi" };
+        Assert.True((await fixture.Users.CreateAsync(target)).Succeeded);
+        Assert.True((await fixture.Users.AddToRolesAsync(target, [PlatformRoles.Student, additionalRole])).Succeeded);
+        fixture.Db.StudentDeviceBindings.Add(new StudentDeviceBinding { StudentUserId = target.Id.ToString(), DeviceHash = "multi-device" });
+        await fixture.Db.SaveChangesAsync();
+
+        var result = await fixture.CreateAdminUsersController(Guid.NewGuid().ToString()).DeleteStudent(target.Id, CancellationToken.None);
+
+        Assert.IsType<NotFoundResult>(result);
+        Assert.NotNull(await fixture.Users.FindByIdAsync(target.Id.ToString()));
+        var retainedRoles = await fixture.Users.GetRolesAsync(target);
+        Assert.Equal(2, retainedRoles.Count);
+        Assert.Contains(PlatformRoles.Student, retainedRoles);
+        Assert.Contains(additionalRole, retainedRoles);
+        Assert.Single(fixture.Db.StudentDeviceBindings);
+        Assert.DoesNotContain(fixture.Db.AuditLogs, audit => audit.Action == "StudentDeleted");
+    }
+
+    [Fact]
+    public async Task Student_only_delete_removes_account_binding_and_writes_one_audit()
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var target = new ApplicationUser { UserName = "delete@betcco.test", Email = "delete@betcco.test", DisplayName = "Student" };
+        Assert.True((await fixture.Users.CreateAsync(target)).Succeeded);
+        Assert.True((await fixture.Users.AddToRoleAsync(target, PlatformRoles.Student)).Succeeded);
+        fixture.Db.StudentDeviceBindings.Add(new StudentDeviceBinding { StudentUserId = target.Id.ToString(), DeviceHash = "student-device" });
+        await fixture.Db.SaveChangesAsync();
+
+        Assert.IsType<NoContentResult>(await fixture.CreateAdminUsersController(Guid.NewGuid().ToString()).DeleteStudent(target.Id, CancellationToken.None));
+        Assert.Null(await fixture.Users.FindByIdAsync(target.Id.ToString()));
+        Assert.Empty(fixture.Db.StudentDeviceBindings);
+        Assert.Single(fixture.Db.AuditLogs.Where(audit => audit.Action == "StudentDeleted" && audit.EntityId == target.Id.ToString()));
+    }
+
+    [Fact]
+    public async Task Student_delete_rejects_self_without_side_effects()
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var target = new ApplicationUser { UserName = "self@betcco.test", Email = "self@betcco.test", DisplayName = "Student" };
+        Assert.True((await fixture.Users.CreateAsync(target)).Succeeded);
+        Assert.True((await fixture.Users.AddToRoleAsync(target, PlatformRoles.Student)).Succeeded);
+
+        Assert.IsType<NotFoundResult>(await fixture.CreateAdminUsersController(target.Id.ToString()).DeleteStudent(target.Id, CancellationToken.None));
+        Assert.NotNull(await fixture.Users.FindByIdAsync(target.Id.ToString()));
+        Assert.DoesNotContain(fixture.Db.AuditLogs, audit => audit.Action == "StudentDeleted");
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData(PlatformRoles.Admin)]
+    [InlineData(PlatformRoles.SystemAdmin)]
+    [InlineData(PlatformRoles.SupportAdmin)]
+    [InlineData(PlatformRoles.FinanceAdmin)]
+    [InlineData(PlatformRoles.Teacher)]
+    public async Task Student_approval_requires_student_only_target(string? additionalRole)
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var target = new ApplicationUser { UserName = "approve@betcco.test", Email = "approve@betcco.test", DisplayName = "Student" };
+        Assert.True((await fixture.Users.CreateAsync(target)).Succeeded);
+        Assert.True((await fixture.Users.AddToRoleAsync(target, PlatformRoles.Student)).Succeeded);
+        if (additionalRole is not null)
+        {
+            var roleManager = fixture.Services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+            Assert.True((await roleManager.CreateAsync(new IdentityRole<Guid>(additionalRole))).Succeeded);
+            Assert.True((await fixture.Users.AddToRoleAsync(target, additionalRole)).Succeeded);
+        }
+
+        var result = await fixture.CreateAdminUsersController(Guid.NewGuid().ToString()).ApproveStudent(target.Id, CancellationToken.None);
+
+        if (additionalRole is null)
+        {
+            Assert.IsType<NoContentResult>(result);
+            Assert.True((await fixture.Users.FindByIdAsync(target.Id.ToString()))!.EmailConfirmed);
+            Assert.Single(fixture.Db.AuditLogs.Where(audit => audit.Action == "StudentApproved"));
+        }
+        else
+        {
+            Assert.IsType<NotFoundResult>(result);
+            Assert.False((await fixture.Users.FindByIdAsync(target.Id.ToString()))!.EmailConfirmed);
+            Assert.DoesNotContain(fixture.Db.AuditLogs, audit => audit.Action == "StudentApproved");
+        }
+    }
+
     private static void SetAuthenticatedRequestContext(RegistrationFixture fixture, Guid userId, string role, Guid sessionId)
     {
         var context = new DefaultHttpContext
