@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://betcco.example/schemas/release-manifest.schema.json",
+  "title": "BETCCO immutable release manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "sourceCommit",
+    "apiImage",
+    "webImage",
+    "migrationImage",
+    "createdAtUtc",
+    "previousRelease",
+    "staging",
+    "production"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "sourceCommit": { "type": "string", "pattern": "^[0-9a-fA-F]{40}$" },
+    "apiImage": { "$ref": "#/$defs/ociImage" },
+    "webImage": { "$ref": "#/$defs/ociImage" },
+    "migrationImage": { "$ref": "#/$defs/ociImage" },
+    "createdAtUtc": { "type": "string", "format": "date-time" },
+    "previousRelease": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["sourceCommit", "apiImage", "webImage"],
+          "properties": {
+            "sourceCommit": { "type": "string", "pattern": "^[0-9a-fA-F]{40}$" },
+            "apiImage": { "$ref": "#/$defs/ociImage" },
+            "webImage": { "$ref": "#/$defs/ociImage" }
+          }
+        }
+      ]
+    },
+    "staging": { "$ref": "#/$defs/stagingRecord" },
+    "production": { "$ref": "#/$defs/productionRecord" }
+  },
+  "$defs": {
+    "ociImage": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:[.-][a-z0-9]+)*(?::[0-9]+)?/)?[a-z0-9]+(?:[._-][a-z0-9]+)*(?:/[a-z0-9]+(?:[._-][a-z0-9]+)*)*@sha256:[0-9a-fA-F]{64}$"
+    },
+    "evidenceRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["result", "verifiedAtUtc", "evidenceReference"],
+      "properties": {
+        "result": { "type": "string" },
+        "verifiedAtUtc": { "type": ["string", "null"], "format": "date-time" },
+        "evidenceReference": { "type": ["string", "null"] }
+      }
+    },
+    "stagingRecord": {
+      "allOf": [
+        { "$ref": "#/$defs/evidenceRecord" },
+        {
+          "properties": {
+            "result": { "enum": ["not-run", "passed", "failed"] }
+          }
+        },
+        {
+          "if": { "properties": { "result": { "enum": ["passed", "failed"] } } },
+          "then": {
+            "properties": {
+              "verifiedAtUtc": { "type": "string", "format": "date-time" },
+              "evidenceReference": { "type": "string", "minLength": 1 }
+            }
+          },
+          "else": {
+            "properties": {
+              "verifiedAtUtc": { "type": "null" },
+              "evidenceReference": { "type": "null" }
+            }
+          }
+        }
+      ]
+    },
+    "productionRecord": {
+      "allOf": [
+        { "$ref": "#/$defs/evidenceRecord" },
+        {
+          "properties": {
+            "result": { "enum": ["not-promoted", "approved", "deployed", "failed"] }
+          }
+        },
+        {
+          "if": { "properties": { "result": { "enum": ["approved", "deployed", "failed"] } } },
+          "then": {
+            "properties": {
+              "verifiedAtUtc": { "type": "string", "format": "date-time" },
+              "evidenceReference": { "type": "string", "minLength": 1 }
+            }
+          },
+          "else": {
+            "properties": {
+              "verifiedAtUtc": { "type": "null" },
+              "evidenceReference": { "type": "null" }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

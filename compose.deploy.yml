@@ -1,9 +1,5 @@
 name: betcco-deployment
 
-x-api-build: &api-build
-  context: .
-  dockerfile: backend/src/Betcco.Api/Dockerfile
-
 x-api-environment: &api-environment
   ASPNETCORE_ENVIRONMENT: ${BETCCO_ENVIRONMENT:?Set BETCCO_ENVIRONMENT to Staging or Production}
   Deployment__RequireSecureEnvironment: "true"
@@ -60,8 +56,7 @@ x-container-security: &container-security
 services:
   migrate:
     <<: *container-security
-    image: betcco-api:${BETCCO_IMAGE_TAG:?Set BETCCO_IMAGE_TAG to an immutable release identifier}
-    build: *api-build
+    image: ${BETCCO_API_IMAGE:?Set BETCCO_API_IMAGE to an immutable sha256 digest reference}
     command: ["--migrate"]
     environment: *api-environment
     volumes: *api-volumes
@@ -75,8 +70,7 @@ services:
 
   api:
     <<: *container-security
-    image: betcco-api:${BETCCO_IMAGE_TAG:?Set BETCCO_IMAGE_TAG to an immutable release identifier}
-    build: *api-build
+    image: ${BETCCO_API_IMAGE:?Set BETCCO_API_IMAGE to an immutable sha256 digest reference}
     environment: *api-environment
     volumes: *api-volumes
     tmpfs:
@@ -90,12 +84,7 @@ services:
 
   web:
     <<: *container-security
-    image: betcco-web:${BETCCO_IMAGE_TAG:?Set BETCCO_IMAGE_TAG to an immutable release identifier}
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile
-      args:
-        BETCCO_API_URL: http://api:8080
+    image: ${BETCCO_WEB_IMAGE:?Set BETCCO_WEB_IMAGE to an immutable sha256 digest reference}
     environment:
       APP_PUBLIC_URL: ${BETCCO_PUBLIC_APP_URL:?Set BETCCO_PUBLIC_APP_URL}
     tmpfs:
