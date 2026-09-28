@@ -28,6 +28,30 @@ Use one copy of this record for each staging or production-provider recovery exe
 - Source remained unchanged:
 - Disposable target cleanup completed:
 
+## S3 private-object recovery evidence
+
+- Environment (CI / staging / production recovery exercise):
+- Bucket/provider (do not include credentials):
+- Source/recovery-copy/restore identifiers:
+- Finalized object count:
+- Manifest SHA-256 (integrity only; not authenticity):
+- Exact keys, bytes, and content fingerprints verified:
+- Content-Type and required metadata verified:
+- Anonymous bucket/object access denied:
+- Source unchanged / existing-target overwrite refused:
+- Failed-restore cleanup verified:
+- Result: PASS / FAIL
+
+## Data Protection recovery evidence
+
+- Certificate SHA-256 fingerprint / thumbprint:
+- Validity dates:
+- Private key present: YES / NO
+- Recovered PostgreSQL key ring tested with application name `BETCCO`:
+- Synthetic payload protect/unprotect: PASS / FAIL
+- Certificate/password stored in approved external custody (no secret values): YES / NO / NOT VERIFIED
+- Result: PASS / FAIL
+
 ## Result and sign-off
 
 - Result: PASS / FAIL
