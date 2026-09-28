@@ -316,8 +316,8 @@ builder.Services.AddSingleton<IFileSecurityScanner>(serviceProvider =>
     if (environment.IsDevelopment() || environment.IsEnvironment("Testing")) return new DevelopmentFileSecurityScanner();
     var configuration = serviceProvider.GetRequiredService<IConfiguration>();
     return string.Equals(configuration["Storage:ScannerProvider"], "ClamAv", StringComparison.OrdinalIgnoreCase)
-        ? new ClamAvFileSecurityScanner(configuration)
-        : new UnconfiguredFileSecurityScanner();
+        ? new ClamAvFileSecurityScanner(configuration, serviceProvider.GetRequiredService<ILogger<ClamAvFileSecurityScanner>>())
+        : new UnconfiguredFileSecurityScanner(serviceProvider.GetRequiredService<ILogger<UnconfiguredFileSecurityScanner>>());
 });
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<RegistrationEmailOutboxDispatcher>();
@@ -488,18 +488,27 @@ if (app.Environment.IsDevelopment())
 }
 app.MapControllers();
 app.MapGet("/health/live", () => Results.Ok(new { status = "live" })).AllowAnonymous();
-app.MapGet("/health/ready", async (BetccoDbContext db, IFileStorage storage, CancellationToken cancellationToken) =>
+app.MapGet("/health/ready", async (BetccoDbContext db, IFileStorage storage, ILoggerFactory loggerFactory, CancellationToken cancellationToken) =>
 {
+    var logger = loggerFactory.CreateLogger("Operational.Readiness");
+    var dependency = "PostgreSQL";
     try
     {
         if (!await db.Database.CanConnectAsync(cancellationToken))
+        {
+            logger.LogWarning(OperationalEventIds.ReadinessUnavailable, "API readiness failed because PostgreSQL is unavailable.");
             return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
+        }
         if (storage is S3CompatiblePrivateFileStorage s3Storage)
+        {
+            dependency = "PrivateStorage";
             await s3Storage.CheckAvailabilityAsync(cancellationToken);
+        }
         return Results.Ok(new { status = "ready" });
     }
-    catch when (!cancellationToken.IsCancellationRequested)
+    catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
     {
+        logger.LogWarning(OperationalEventIds.ReadinessUnavailable, "API readiness failed because dependency {Dependency} is unavailable; failure category {FailureCategory}.", dependency, exception.GetType().Name);
         return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
     }
 }).AllowAnonymous();

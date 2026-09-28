@@ -22,6 +22,7 @@ public sealed class RegistrationEmailOutboxDispatcher(
     ILogger<RegistrationEmailOutboxDispatcher> logger)
 {
     private static readonly TimeSpan ProcessingLease = TimeSpan.FromMinutes(5);
+    public static readonly TimeSpan AgedBacklogThreshold = TimeSpan.FromMinutes(30);
     private const int MaximumRecordedAttempts = 1_000_000;
     private readonly IDataProtector confirmationTokenProtector = dataProtectionProvider.CreateProtector(
         "BETCCO.RegistrationEmailOutbox.ConfirmationToken.v1");
@@ -129,11 +130,33 @@ public sealed class RegistrationEmailOutboxDispatcher(
             message.NextAttemptAtUtc = DateTimeOffset.UtcNow.Add(RetryDelay(message.AttemptCount));
             await db.SaveChangesAsync(CancellationToken.None);
             logger.LogWarning(
+                OperationalEventIds.EmailDeliveryFailed,
                 "Registration confirmation email delivery failed for outbox message {OutboxMessageId} with {FailureCode}.",
                 message.Id,
                 message.LastFailureCode);
             return false;
         }
+    }
+
+    public async Task ReportAgedBacklogAsync(DateTimeOffset now, CancellationToken cancellationToken = default)
+    {
+        var cutoff = now - AgedBacklogThreshold;
+        var aged = db.RegistrationEmailOutboxMessages.AsNoTracking()
+            .Where(message => message.CreatedAtUtc <= cutoff
+                && (message.Status == RegistrationEmailDeliveryStatus.Pending
+                    || message.Status == RegistrationEmailDeliveryStatus.Failed
+                    || message.Status == RegistrationEmailDeliveryStatus.Processing));
+        var count = await aged.CountAsync(cancellationToken);
+        if (count == 0) return;
+
+        var oldestCreatedAtUtc = await aged.MinAsync(message => message.CreatedAtUtc, cancellationToken);
+        var oldestAgeMinutes = Math.Clamp((long)(now - oldestCreatedAtUtc).TotalMinutes, 0, 1_000_000);
+        logger.LogWarning(
+            OperationalEventIds.EmailBacklogAged,
+            "Registration email outbox backlog is aged; {AgedMessageCount} messages are at least {ThresholdMinutes} minutes old. OldestAgeMinutes={OldestAgeMinutes}.",
+            count,
+            (int)AgedBacklogThreshold.TotalMinutes,
+            oldestAgeMinutes);
     }
 
     private static void MarkSent(RegistrationEmailOutboxMessage message)
@@ -181,15 +204,23 @@ public sealed class RegistrationEmailOutboxPublisher(
     IServiceScopeFactory scopeFactory,
     ILogger<RegistrationEmailOutboxPublisher> logger) : BackgroundService
 {
+    private static readonly TimeSpan BacklogReportInterval = TimeSpan.FromMinutes(5);
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        var nextBacklogReportUtc = DateTimeOffset.MinValue;
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
                 await using var scope = scopeFactory.CreateAsyncScope();
-                await scope.ServiceProvider.GetRequiredService<RegistrationEmailOutboxDispatcher>()
-                    .DispatchPendingAsync(cancellationToken: stoppingToken);
+                var dispatcher = scope.ServiceProvider.GetRequiredService<RegistrationEmailOutboxDispatcher>();
+                await dispatcher.DispatchPendingAsync(cancellationToken: stoppingToken);
+                if (DateTimeOffset.UtcNow >= nextBacklogReportUtc)
+                {
+                    await dispatcher.ReportAgedBacklogAsync(DateTimeOffset.UtcNow, stoppingToken);
+                    nextBacklogReportUtc = DateTimeOffset.UtcNow.Add(BacklogReportInterval);
+                }
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
@@ -197,7 +228,7 @@ public sealed class RegistrationEmailOutboxPublisher(
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Unable to process registration confirmation email outbox messages.");
+                logger.LogError(OperationalEventIds.EmailWorkerFailed, "Unable to process registration confirmation email outbox messages; failure category {FailureCategory}.", exception.GetType().Name);
             }
 
             await Task.Delay(TimeSpan.FromSeconds(15), stoppingToken);

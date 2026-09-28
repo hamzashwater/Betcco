@@ -9,6 +9,7 @@ using Betcco.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql;
+using Microsoft.Extensions.Logging;
 
 namespace Betcco.Infrastructure.Services;
 
@@ -16,7 +17,7 @@ namespace Betcco.Infrastructure.Services;
 /// Records internal refund evidence and accounting. PayTabs accounting is
 /// finalized only after a separate server-side provider query verifies it.
 /// </summary>
-public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentProvider = null) : IRefundService
+public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentProvider = null, ILogger<RefundService>? logger = null) : IRefundService
 {
     public async Task<RefundRecordingResult> RecordInternalRefundAsync(string financeAdminUserId, RecordInternalRefund request, CancellationToken cancellationToken = default)
     {
@@ -654,8 +655,22 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
         if (!await db.ProviderReconciliationCases.AnyAsync(item => item.BusinessIdentity == identity, cancellationToken))
             db.ProviderReconciliationCases.Add(new ProviderReconciliationCase { Provider = "PayTabs", CaseType = ProviderReconciliationCaseType.ProviderRefundResultUnknown, RefundId = refund.Id, BusinessIdentity = identity, LocalStatus = refund.Status.ToString(), ProviderTransactionReference = refund.ProviderRefundReference, ProviderStatusCode = refund.ProviderStatusCode, LocalAmount = refund.Amount, Currency = refund.Currency, CorrelationReference = refund.CorrelationReference, CreatedByUserId = actor });
         await db.SaveChangesAsync(cancellationToken);
+        logger?.LogError(
+            OperationalEventIds.RefundResultUnknown,
+            "Refund provider result is unknown and requires reconciliation. RefundId={RefundId}, PaymentId={PaymentId}, Provider={Provider}, CorrelationReference={CorrelationReference}, FailureCategory={FailureCategory}.",
+            refund.Id,
+            refund.PaymentId,
+            "PayTabs",
+            refund.CorrelationReference,
+            SafeOperationalFailureCategory(failureCode));
         return new(ToView(refund), FailureCode: failureCode, FailureMessage: "The PayTabs refund result is unknown and requires review or deterministic query verification.");
     }
+
+    private static string SafeOperationalFailureCategory(string failureCode) =>
+        failureCode.Length is > 0 and <= 80
+        && failureCode.All(character => character is >= 'A' and <= 'Z' or >= '0' and <= '9' or '_')
+            ? failureCode
+            : "ProviderResultUnknown";
 
     private static bool IsExpectedProviderTransaction(PaymentProviderRefundTransaction transaction, Refund refund, Payment payment, string? expectedProviderReference) =>
         transaction.IsSuccessful && IsExpectedProviderIdentity(transaction, refund, payment, expectedProviderReference);
