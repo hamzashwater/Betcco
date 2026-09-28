@@ -682,6 +682,41 @@ public sealed class AuthRegistrationTests
     }
 
     [Fact]
+    public async Task Accepted_teacher_invitation_cannot_be_revoked_after_password_reset()
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var teacher = new ApplicationUser
+        {
+            UserName = "accepted-teacher@betcco.test",
+            Email = "accepted-teacher@betcco.test",
+            DisplayName = "Accepted teacher",
+            EmailConfirmed = true,
+            MustChangePassword = true
+        };
+        Assert.True((await fixture.Users.CreateAsync(teacher, "T!estPassword123")).Succeeded);
+        var invitation = new TeacherInvitation
+        {
+            Email = teacher.Email,
+            DisplayName = teacher.DisplayName,
+            TeacherUserId = teacher.Id.ToString(),
+            InvitedByUserId = Guid.NewGuid().ToString(),
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(1)
+        };
+        fixture.Db.TeacherInvitations.Add(invitation);
+        await fixture.Db.SaveChangesAsync();
+        var token = await fixture.Users.GeneratePasswordResetTokenAsync(teacher);
+
+        Assert.IsType<OkObjectResult>(await fixture.Controller.ResetPassword(
+            new ResetPasswordRequest(teacher.Id, token, "N!ewPassword123")));
+        Assert.IsType<ConflictObjectResult>(await fixture.CreateAdminUsersController(Guid.NewGuid().ToString())
+            .RevokeTeacherInvitation(invitation.Id, new RevokeTeacherInvitationRequest("Too late"), CancellationToken.None));
+
+        Assert.Equal(TeacherInvitationStatus.Accepted, invitation.Status);
+        Assert.False((await fixture.Users.FindByIdAsync(teacher.Id.ToString()))!.IsFrozen);
+        Assert.DoesNotContain(fixture.Db.AuditLogs, item => item.Action == "TeacherInvitationRevoked");
+    }
+
+    [Fact]
     public async Task Support_admin_can_freeze_students_and_teachers_but_not_privileged_accounts()
     {
         await using var fixture = await RegistrationFixture.CreateAsync();

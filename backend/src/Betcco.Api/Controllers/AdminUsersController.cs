@@ -273,6 +273,9 @@ public sealed class AdminUsersController(UserManager<ApplicationUser> userManage
     {
         if (string.IsNullOrWhiteSpace(request.Reason) || request.Reason.Trim().Length > 500)
             return BadRequest(new { message = "A revocation reason of up to 500 characters is required." });
+        await using var transaction = db.Database.IsRelational()
+            ? await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken)
+            : null;
         var invitation = await db.TeacherInvitations.SingleOrDefaultAsync(item => item.Id == invitationId, cancellationToken);
         if (invitation is null) return NotFound();
         if (invitation.Status == TeacherInvitationStatus.Issued && invitation.ExpiresAtUtc <= DateTimeOffset.UtcNow)
@@ -287,25 +290,36 @@ public sealed class AdminUsersController(UserManager<ApplicationUser> userManage
                 MetadataJson = "{\"source\":\"RevocationAttempt\"}"
             });
             await db.SaveChangesAsync(cancellationToken);
+            if (transaction is not null) await transaction.CommitAsync(cancellationToken);
             return Conflict(new { message = "This invitation has expired." });
         }
         if (invitation.Status != TeacherInvitationStatus.Issued) return Conflict(new { message = "Only an issued invitation can be revoked." });
 
+        var now = DateTimeOffset.UtcNow;
         invitation.Status = TeacherInvitationStatus.Revoked;
-        invitation.RevokedAtUtc = DateTimeOffset.UtcNow;
+        invitation.RevokedAtUtc = now;
         invitation.RevokedByUserId = UserId;
         invitation.RevocationReason = request.Reason.Trim();
         var teacher = await userManager.FindByIdAsync(invitation.TeacherUserId);
         if (teacher is not null)
         {
             teacher.IsFrozen = true;
-            teacher.SessionsInvalidBeforeUtc = DateTimeOffset.UtcNow;
+            teacher.SessionsInvalidBeforeUtc = now;
             var result = await userManager.UpdateAsync(teacher);
             if (!result.Succeeded) return BadRequest(new ValidationProblemDetails(result.Errors.ToDictionary(x => x.Code, x => new[] { x.Description })));
-            await userManager.UpdateSecurityStampAsync(teacher);
+            result = await userManager.UpdateSecurityStampAsync(teacher);
+            if (!result.Succeeded) return Problem("Unable to invalidate account sessions.");
+            var sessions = await db.UserSessions.Where(session => session.UserId == invitation.TeacherUserId && session.RevokedAtUtc == null && !session.IsDeleted).ToListAsync(cancellationToken);
+            foreach (var session in sessions)
+            {
+                session.RevokedAtUtc = now;
+                session.RevokedByUserId = UserId;
+                session.RevocationReason = "Teacher invitation revoked";
+            }
         }
         db.AuditLogs.Add(new AuditLog { ActorUserId = UserId, Action = "TeacherInvitationRevoked", EntityType = nameof(TeacherInvitation), EntityId = invitation.Id.ToString(), Outcome = "Success", MetadataJson = "{\"reason\":\"recorded\"}" });
         await db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
         return NoContent();
     }
 
