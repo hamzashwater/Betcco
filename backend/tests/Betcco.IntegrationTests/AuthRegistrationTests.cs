@@ -323,7 +323,7 @@ public sealed class AuthRegistrationTests
 
         var signal = Assert.Single(fixture.OperationalLogger.Entries);
         Assert.Equal(OperationalEventIds.EmailBacklogAged, signal.EventId);
-        Assert.Contains("1 messages", signal.Message);
+        Assert.Contains("at least 30 minutes old", signal.Message);
         Assert.DoesNotContain("aged-private@betcco.test", signal.Message);
         Assert.DoesNotContain("token", signal.Message, StringComparison.OrdinalIgnoreCase);
     }
