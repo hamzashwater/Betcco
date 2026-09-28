@@ -1,4 +1,5 @@
 using Betcco.Application.Common;
+using Betcco.Application.Privacy;
 using Betcco.Domain.Common;
 using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Persistence;
@@ -165,6 +166,10 @@ public sealed class StorageLifecycleWorker(
                 var coordinator = scope.ServiceProvider.GetRequiredService<IStorageLifecycleCoordinator>();
                 await coordinator.ProcessPendingAsync(stoppingToken);
                 await coordinator.CleanOrphanedStagingAsync(DateTimeOffset.UtcNow.Subtract(stagingGrace), stoppingToken);
+                var portabilityCleanup = scope.ServiceProvider.GetRequiredService<IDataPortabilityArtifactCleanup>();
+                await portabilityCleanup.EnqueueExpiredArtifactDeletionsAsync(stoppingToken);
+                await coordinator.ProcessPendingAsync(stoppingToken);
+                await portabilityCleanup.AuditCompletedArtifactDeletionsAsync(stoppingToken);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {

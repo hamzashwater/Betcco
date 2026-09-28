@@ -292,6 +292,7 @@ builder.Services.AddScoped<DataSubjectFulfillmentService>();
 builder.Services.AddScoped<IDataSubjectFulfillmentService>(serviceProvider => serviceProvider.GetRequiredService<DataSubjectFulfillmentService>());
 builder.Services.AddScoped<IDataProcessingRestrictionChecker>(serviceProvider => serviceProvider.GetRequiredService<DataSubjectFulfillmentService>());
 builder.Services.AddScoped<IDataPortabilityExportService, DataPortabilityExportService>();
+builder.Services.AddScoped<IDataPortabilityArtifactCleanup, DataPortabilityArtifactCleanupService>();
 var storageProvider = builder.Configuration["Storage:Provider"] ?? "Local";
 if (string.Equals(storageProvider, "S3Compatible", StringComparison.OrdinalIgnoreCase))
 {

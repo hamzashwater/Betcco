@@ -9,11 +9,13 @@ using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Identity;
 using Betcco.Infrastructure.Persistence;
 using Betcco.Infrastructure.Privacy;
+using Betcco.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Betcco.IntegrationTests;
 
@@ -115,6 +117,120 @@ public sealed class PrivacyPortabilityControllerTests
     }
 
     [Fact]
+    public async Task Expired_artifact_is_deleted_and_export_history_is_preserved_and_audited()
+    {
+        await using var db = CreateDb();
+        var owner = User("Owner", "owner@betcco.test");
+        db.Users.Add(owner);
+        var request = Request(owner);
+        db.DataSubjectRequests.Add(request);
+        var storage = new MemoryPrivateFileStorage();
+        var key = await storage.SavePrivateAsync(new MemoryStream("expired bytes"u8.ToArray()), "application/json");
+        var export = PortabilityExport(request, owner, key, DateTimeOffset.UtcNow.AddMinutes(-1), DataPortabilityExportStatus.Generated);
+        db.DataPortabilityExports.Add(export);
+        await db.SaveChangesAsync();
+
+        var coordinator = LifecycleCoordinator(db, storage);
+        var cleanup = new DataPortabilityArtifactCleanupService(db, coordinator);
+
+        Assert.Equal(1, await cleanup.EnqueueExpiredArtifactDeletionsAsync());
+        Assert.Equal(1, await coordinator.ProcessPendingAsync());
+        Assert.Equal(1, await cleanup.AuditCompletedArtifactDeletionsAsync());
+
+        Assert.Single(await db.DataPortabilityExports.ToListAsync());
+        Assert.Equal(key, (await db.DataPortabilityExports.SingleAsync()).StorageKey);
+        Assert.False(storage.Contains(key));
+        var audit = Assert.Single(await db.AuditLogs.Where(item => item.Action == "DataPortabilityExportExpiredArtifactDeleted").ToListAsync());
+        Assert.Equal(export.Id.ToString(), audit.EntityId);
+        Assert.DoesNotContain(key, audit.MetadataJson ?? string.Empty, StringComparison.Ordinal);
+        Assert.DoesNotContain(owner.Id.ToString(), audit.MetadataJson ?? string.Empty, StringComparison.Ordinal);
+        Assert.IsType<NotFoundResult>(await ControllerFor(db, storage, owner.Id.ToString()).Download(request.Id, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Cleanup_keeps_non_expired_artifact_and_unrelated_private_object()
+    {
+        await using var db = CreateDb();
+        var owner = User("Owner", "owner@betcco.test");
+        db.Users.Add(owner);
+        var request = Request(owner);
+        db.DataSubjectRequests.Add(request);
+        var storage = new MemoryPrivateFileStorage();
+        var activeKey = await storage.SavePrivateAsync(new MemoryStream("active bytes"u8.ToArray()), "application/json");
+        var unrelatedKey = await storage.SavePrivateAsync(new MemoryStream("unrelated bytes"u8.ToArray()), "application/octet-stream");
+        db.DataPortabilityExports.Add(PortabilityExport(request, owner, activeKey, DateTimeOffset.UtcNow.AddHours(1), DataPortabilityExportStatus.Released));
+        await db.SaveChangesAsync();
+
+        var coordinator = LifecycleCoordinator(db, storage);
+        var cleanup = new DataPortabilityArtifactCleanupService(db, coordinator);
+
+        Assert.Equal(0, await cleanup.EnqueueExpiredArtifactDeletionsAsync());
+        Assert.Equal(0, await coordinator.ProcessPendingAsync());
+        Assert.True(storage.Contains(activeKey));
+        Assert.True(storage.Contains(unrelatedKey));
+        Assert.Empty(await db.StorageLifecycleOperations.ToListAsync());
+    }
+
+    [Fact]
+    public async Task Repeated_expiry_cleanup_does_not_enqueue_duplicate_deletions_or_audits()
+    {
+        await using var db = CreateDb();
+        var owner = User("Owner", "owner@betcco.test");
+        db.Users.Add(owner);
+        var request = Request(owner);
+        db.DataSubjectRequests.Add(request);
+        var storage = new MemoryPrivateFileStorage();
+        var key = await storage.SavePrivateAsync(new MemoryStream("expired bytes"u8.ToArray()), "application/json");
+        db.DataPortabilityExports.Add(PortabilityExport(request, owner, key, DateTimeOffset.UtcNow.AddMinutes(-1), DataPortabilityExportStatus.Released));
+        await db.SaveChangesAsync();
+
+        var coordinator = LifecycleCoordinator(db, storage);
+        var cleanup = new DataPortabilityArtifactCleanupService(db, coordinator);
+
+        Assert.Equal(1, await cleanup.EnqueueExpiredArtifactDeletionsAsync());
+        Assert.Equal(0, await cleanup.EnqueueExpiredArtifactDeletionsAsync());
+        Assert.Single(await db.StorageLifecycleOperations.ToListAsync());
+        Assert.Equal(1, await coordinator.ProcessPendingAsync());
+        Assert.Equal(1, await cleanup.AuditCompletedArtifactDeletionsAsync());
+        Assert.Equal(0, await cleanup.AuditCompletedArtifactDeletionsAsync());
+        Assert.Single(await db.AuditLogs.Where(item => item.Action == "DataPortabilityExportExpiredArtifactDeleted").ToListAsync());
+    }
+
+    [Fact]
+    public async Task Failed_expiry_deletion_remains_retryable_and_expired_download_stays_blocked()
+    {
+        await using var db = CreateDb();
+        var owner = User("Owner", "owner@betcco.test");
+        db.Users.Add(owner);
+        var request = Request(owner);
+        db.DataSubjectRequests.Add(request);
+        var storage = new MemoryPrivateFileStorage { FailDeleteOnce = true };
+        var key = await storage.SavePrivateAsync(new MemoryStream("expired bytes"u8.ToArray()), "application/json");
+        db.DataPortabilityExports.Add(PortabilityExport(request, owner, key, DateTimeOffset.UtcNow.AddMinutes(-1), DataPortabilityExportStatus.Released));
+        await db.SaveChangesAsync();
+
+        var coordinator = LifecycleCoordinator(db, storage);
+        var cleanup = new DataPortabilityArtifactCleanupService(db, coordinator);
+
+        Assert.Equal(1, await cleanup.EnqueueExpiredArtifactDeletionsAsync());
+        Assert.Equal(0, await coordinator.ProcessPendingAsync());
+        var pending = await db.StorageLifecycleOperations.SingleAsync();
+        Assert.Equal(StorageLifecycleStatus.Pending, pending.Status);
+        Assert.Equal(1, pending.Attempts);
+        Assert.True(storage.Contains(key));
+        Assert.Equal(key, (await db.DataPortabilityExports.SingleAsync()).StorageKey);
+        Assert.Equal(0, await cleanup.AuditCompletedArtifactDeletionsAsync());
+        Assert.IsType<NotFoundResult>(await ControllerFor(db, storage, owner.Id.ToString()).Download(request.Id, CancellationToken.None));
+
+        pending.NextAttemptAtUtc = DateTimeOffset.UtcNow.AddSeconds(-1);
+        await db.SaveChangesAsync();
+        Assert.Equal(1, await coordinator.ProcessPendingAsync());
+        Assert.False(storage.Contains(key));
+        Assert.Equal(1, await cleanup.AuditCompletedArtifactDeletionsAsync());
+        Assert.Equal(2, storage.DeleteAttempts);
+    }
+
+    [Fact]
     public async Task Storage_generation_failure_is_recorded_without_a_fulfillment_artifact()
     {
         await using var db = CreateDb();
@@ -207,6 +323,32 @@ public sealed class PrivacyPortabilityControllerTests
         IdentityVerifiedByUserId = PrivacyAdminId
     };
 
+    private static DataPortabilityExport PortabilityExport(
+        DataSubjectRequest request,
+        ApplicationUser owner,
+        string storageKey,
+        DateTimeOffset expiresAtUtc,
+        DataPortabilityExportStatus status)
+    {
+        var generatedAtUtc = expiresAtUtc.AddDays(-1);
+        return new DataPortabilityExport
+        {
+            DataSubjectRequestId = request.Id,
+            SubjectUserId = owner.Id.ToString(),
+            Status = status,
+            RequestedAtUtc = generatedAtUtc,
+            RequestedByUserId = PrivacyAdminId,
+            GeneratedAtUtc = generatedAtUtc,
+            GeneratedByUserId = PrivacyAdminId,
+            ExportFormat = "application/json",
+            ExportVersion = "betcco-portability-v1",
+            StorageKey = storageKey,
+            ExpiresAtUtc = expiresAtUtc,
+            ReleasedAtUtc = status == DataPortabilityExportStatus.Released ? generatedAtUtc : null,
+            ReleasedByUserId = status == DataPortabilityExportStatus.Released ? PrivacyAdminId : null
+        };
+    }
+
     private static PrivacyPortabilityController ControllerFor(BetccoDbContext db, IFileStorage storage, string userId) => new(
         new DataPortabilityExportService(db, storage, new PrivacySubjectDataService(db), Configuration()))
     {
@@ -235,10 +377,15 @@ public sealed class PrivacyPortabilityControllerTests
         .UseInMemoryDatabase(Guid.NewGuid().ToString())
         .Options);
 
+    private static StorageLifecycleCoordinator LifecycleCoordinator(BetccoDbContext db, IFileStorage storage) =>
+        new(db, storage, NullLogger<StorageLifecycleCoordinator>.Instance);
+
     private sealed class MemoryPrivateFileStorage : IFileStorage
     {
         private readonly Dictionary<string, byte[]> contents = new(StringComparer.Ordinal);
         public int Count => contents.Count;
+        public int DeleteAttempts { get; private set; }
+        public bool FailDeleteOnce { get; set; }
 
         public async Task<string> SavePrivateAsync(Stream content, string contentType, CancellationToken cancellationToken = default)
         {
@@ -251,6 +398,20 @@ public sealed class PrivacyPortabilityControllerTests
 
         public Task<Stream?> OpenPrivateReadAsync(string storageKey, CancellationToken cancellationToken = default) =>
             Task.FromResult<Stream?>(contents.TryGetValue(storageKey, out var content) ? new MemoryStream(content, writable: false) : null);
+
+        public Task DeletePrivateAsync(string storageKey, CancellationToken cancellationToken = default)
+        {
+            DeleteAttempts++;
+            if (FailDeleteOnce)
+            {
+                FailDeleteOnce = false;
+                throw new IOException("Temporary private-storage deletion failure.");
+            }
+            contents.Remove(storageKey);
+            return Task.CompletedTask;
+        }
+
+        public bool Contains(string storageKey) => contents.ContainsKey(storageKey);
 
         public string SingleContent() => Encoding.UTF8.GetString(Assert.Single(contents).Value);
     }

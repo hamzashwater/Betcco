@@ -53,6 +53,28 @@ public sealed class StorageLifecycleTests
     }
 
     [Fact]
+    public async Task Private_object_deletion_failure_is_persisted_and_retried_idempotently()
+    {
+        await using var db = Database();
+        var storage = new FlakyLifecycleStorage(failDeleteOnce: true);
+        var coordinator = new StorageLifecycleCoordinator(db, storage, NullLogger<StorageLifecycleCoordinator>.Instance);
+        var operation = coordinator.EnqueueDeletion("objects/2026/09/ffffffffffffffffffffffffffffffff");
+        await db.SaveChangesAsync();
+
+        Assert.False(await coordinator.TryProcessNowAsync(operation.Id));
+        Assert.Equal(StorageLifecycleStatus.Pending, operation.Status);
+        Assert.Equal(1, operation.Attempts);
+
+        operation.NextAttemptAtUtc = DateTimeOffset.UtcNow.AddSeconds(-1);
+        await db.SaveChangesAsync();
+        Assert.True(await coordinator.TryProcessNowAsync(operation.Id));
+        Assert.True(await coordinator.TryProcessNowAsync(operation.Id));
+
+        Assert.Equal(StorageLifecycleStatus.Completed, operation.Status);
+        Assert.Equal(2, storage.DeleteAttempts);
+    }
+
+    [Fact]
     public async Task Abandoned_video_cleanup_waits_for_the_pending_finalization()
     {
         await using var db = Database();
@@ -122,7 +144,7 @@ public sealed class StorageLifecycleTests
         .UseInMemoryDatabase(Guid.NewGuid().ToString())
         .Options);
 
-    private sealed class FlakyLifecycleStorage(bool failFinalizeOnce = false, StagedPrivateFile? stagedFile = null) : IFileStorage
+    private sealed class FlakyLifecycleStorage(bool failFinalizeOnce = false, StagedPrivateFile? stagedFile = null, bool failDeleteOnce = false) : IFileStorage
     {
         public int FinalizeAttempts { get; private set; }
         public int DeleteAttempts { get; private set; }
@@ -137,6 +159,7 @@ public sealed class StorageLifecycleTests
         public Task DeletePrivateAsync(string storageKey, CancellationToken cancellationToken = default)
         {
             DeleteAttempts++;
+            if (failDeleteOnce && DeleteAttempts == 1) throw new IOException("Temporary private-storage deletion failure.");
             return Task.CompletedTask;
         }
         public async IAsyncEnumerable<StagedPrivateFile> ListStagedAsync(DateTimeOffset createdBeforeUtc, [EnumeratorCancellation] CancellationToken cancellationToken = default)
