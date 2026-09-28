@@ -3,6 +3,7 @@ using System.Security.Cryptography.X509Certificates;
 using Betcco.Api.Configuration;
 using Betcco.Infrastructure.Persistence;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +17,8 @@ public sealed class DataProtectionRecoveryTests
     [Trait("Category", "PostgreSQLStorage")]
     public async Task Restored_postgres_key_ring_requires_the_original_certificate_and_BETCCO_application_name()
     {
-        await using var database = await PostgresTestDatabase.CreateAsync("data_protection_recovery");
+        await using var sourceDatabase = await PostgresTestDatabase.CreateAsync("data_protection_source");
+        await using var recoveredDatabase = await PostgresTestDatabase.CreateAsync("data_protection_recovered");
         var tempDirectory = Path.Combine(Path.GetTempPath(), "betcco-data-protection-recovery", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempDirectory);
         var certificateAPath = Path.Combine(tempDirectory, "recovery-a.pfx");
@@ -34,7 +36,7 @@ public sealed class DataProtectionRecoveryTests
 
             var payload = "BETCCO synthetic data-protection recovery payload";
             string protectedPayload;
-            await using (var first = CreateProvider(database.ConnectionString, certificateAPath, certificateAPassword))
+            await using (var first = CreateProvider(sourceDatabase.ConnectionString, certificateAPath, certificateAPassword))
             {
                 protectedPayload = first.GetRequiredService<IDataProtectionProvider>()
                     .CreateProtector("ASUS-10E1B-recovery-contract")
@@ -42,15 +44,30 @@ public sealed class DataProtectionRecoveryTests
 
                 await using var scope = first.CreateAsyncScope();
                 var keys = await scope.ServiceProvider.GetRequiredService<BetccoDbContext>()
-                    .DataProtectionKeys.AsNoTracking().ToListAsync();
+                    .DataProtectionKeys.AsNoTracking()
+                    .Select(key => new { key.FriendlyName, key.Xml })
+                    .ToListAsync();
                 Assert.NotEmpty(keys);
                 Assert.All(keys, key => Assert.Contains("encryptedSecret", key.Xml, StringComparison.Ordinal));
                 Assert.DoesNotContain(payload, string.Join('\n', keys.Select(key => key.Xml)), StringComparison.Ordinal);
+
+                // PR #111 separately proves PostgreSQL backup/restore for the whole migrated database.
+                // This focused recovery contract copies the persisted encrypted key-ring rows into a
+                // separate migrated PostgreSQL database so certificate recovery is not accidentally
+                // proven by reopening the original source database.
+                await using var recoveredContext = recoveredDatabase.CreateContext();
+                recoveredContext.DataProtectionKeys.AddRange(keys.Select(key => new DataProtectionKey
+                {
+                    FriendlyName = key.FriendlyName,
+                    Xml = key.Xml
+                }));
+                await recoveredContext.SaveChangesAsync();
+                Assert.Equal(keys.Count, await recoveredContext.DataProtectionKeys.CountAsync());
             }
 
             // A newly built container models a restarted application after restoring the same database
             // and recovering the original PFX from its external custody location.
-            await using (var recovered = CreateProvider(database.ConnectionString, certificateAPath, certificateAPassword))
+            await using (var recovered = CreateProvider(recoveredDatabase.ConnectionString, certificateAPath, certificateAPassword))
             {
                 var unprotected = recovered.GetRequiredService<IDataProtectionProvider>()
                     .CreateProtector("ASUS-10E1B-recovery-contract")
@@ -58,7 +75,7 @@ public sealed class DataProtectionRecoveryTests
                 Assert.Equal(payload, unprotected);
             }
 
-            await using (var wrongCertificate = CreateProvider(database.ConnectionString, certificateBPath, certificateBPassword))
+            await using (var wrongCertificate = CreateProvider(recoveredDatabase.ConnectionString, certificateBPath, certificateBPassword))
             {
                 Assert.ThrowsAny<CryptographicException>(() => wrongCertificate.GetRequiredService<IDataProtectionProvider>()
                     .CreateProtector("ASUS-10E1B-recovery-contract")
