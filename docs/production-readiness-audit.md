@@ -96,7 +96,7 @@
 | ID | Area | Title | Confidence |
 | --- | --- | --- | --- |
 | P1-01 | Migration safety | Legacy Quiz migration irreversibly removes quiz tables and dependent rules | HIGH |
-| P1-02 | Backup / restore | No repository or operator evidence of a tested restore path | HIGH (repository evidence); external state unknown |
+| P1-02 | Backup / restore | Repository PostgreSQL restore path verified; production provider evidence remains pending | HIGH (external production evidence pending) |
 | P1-03 | Observability / incident response | Health endpoints exist, but monitoring, alerting, and key incident procedures are not evidenced | HIGH (repository evidence) |
 | P1-04 | Release promotion | The release process does not prove that one immutable artifact is promoted from staging to production | HIGH (repository evidence) |
 | P1-05 | Storage / transport security | Custom production S3 endpoint accepts plain HTTP | HIGH |
@@ -128,23 +128,31 @@
 **Dependencies:** owner decision on legacy quiz history and an external backup/restore service.
 **Ownership:** shared (ASUS migration owner + data owner).
 
-### P1-02 — No repository or operator evidence of a tested restore path
+### P1-02 — Repository PostgreSQL restore path verified; production evidence pending
+
+**Status:** REPOSITORY POSTGRES RESTORE PATH VERIFIED / EXTERNAL PRODUCTION RECOVERY REMAINS OPEN.
 
 **Severity:** P1 — Required Production Hardening
 **Area:** PostgreSQL / object backup
 **Evidence:**
 
-- `docs/DEPLOYMENT.md`, Persistent state and Intentionally deferred: PostgreSQL backup is owned by the selected external database service; backup schedules, RPO/RTO, restore drills, retention, and cross-region recovery remain owner decisions. The same document says the deployment is not production-ready until backup and restore have been tested.
-- `compose.deploy.yml` contains no database or object-store backup job, retention policy, versioning policy, or restore mechanism. This is consistent with the runbook's external-service boundary and is not evidence that the selected host has no backups.
-- No restore-test script or completed restore evidence was found in the repository.
+- `scripts/backup-postgres.sh` creates a PostgreSQL 16 custom-format archive, SHA-256 sidecar, and safe metadata; it rejects non-16 `pg_dump` clients.
+- `scripts/test-postgres-restore.sh` verifies the checksum before restore, uses a distinct disposable `betcco_restore_...` target, checks application and financial fingerprints plus EF migration history, compares source and restored fingerprints, and cleans up only its newly created target.
+- `.github/workflows/quality.yml` runs the drill against the existing pinned PostgreSQL/pgvector 16 image after migrations are applied. Its synthetic fixture covers identity, catalogue, enrollment, evaluation price, and a balanced JOD ledger transaction.
+- `docs/DEPLOYMENT.md` documents the repository and operator procedures, security boundary, and unapproved recovery decisions. `docs/operations/restore-drill-record.md` is a blank evidence template; it is not evidence of a production restore.
+- `compose.deploy.yml` still contains no production backup job or provider snapshot configuration. This repository does not establish whether the selected host has backups.
 
 **Production scenario:** database corruption, accidental deletion, account compromise, or provider/region loss occurs. If the selected PostgreSQL and S3 services have no tested independent backups, student submissions and finance records may be unrecoverable or recovery may exceed the required window. Current external configuration is unknown.
 
 **Impact:** availability, financial integrity, privacy, and learner records.
 
-**Recommended remediation:** choose and record RPO/RTO; configure encrypted, access-separated PostgreSQL backups and private object versioning/backup with retention and off-site separation; include the Data Protection certificate/key recovery dependency; conduct and retain a restore drill that restores both database and required objects into an isolated environment.
+**Repository side:** `P1-02 — REPOSITORY RESTORE PATH VERIFIED` for PostgreSQL synthetic data in CI.
 
-**Suggested tests:** scheduled restore exercise; verify row counts and financial ledger invariants; restore representative private objects and decrypt Data Protection-protected values using the documented certificate recovery path; record measured RPO/RTO and operator sign-off.
+**External production side — PENDING:** verify the production backup provider and schedule, retention, encryption at rest and separate access controls; conduct and retain a production/staging restore drill; obtain owner-approved RPO/RTO; and implement recovery for S3/private objects and the Data Protection certificate. The repository does not claim these controls exist.
+
+**Approved decisions:** RPO NOT YET SET; RTO NOT YET SET; backup retention NOT YET SET; backup frequency NOT YET SET; recovery owner NOT YET SET.
+
+**Suggested external tests:** scheduled production-provider restore exercise; verify agreed row/state and financial ledger invariants; restore representative private objects and decrypt Data Protection-protected values using the documented certificate recovery path; record measured recovery point/duration and operator sign-off.
 
 **Dependencies:** hosting/database/S3 vendors and operations owner.
 **Ownership:** external/shared.

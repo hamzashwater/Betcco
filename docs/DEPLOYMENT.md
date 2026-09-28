@@ -206,7 +206,62 @@ Do not automatically downgrade the database. If a migration is not backward-comp
 - No durable state is kept inside the API or web containers.
 - Replacing an application container must not replace the database, bucket, or Data Protection certificate.
 
-Production RPO/RTO, backup schedules, restore drills, retention, and cross-region recovery remain owner decisions. A deployment is not production-ready until backup and restore have been tested.
+Production RPO/RTO, backup schedule, retention, encryption/access separation, and provider restore evidence remain owner decisions. The repository-tested synthetic PostgreSQL recovery drill does not make production ready. A deployment is not production-ready until the production provider path and restore have been tested.
+
+## PostgreSQL backup and restore drill
+
+### Repository-tested procedure
+
+BETCCO includes Bash-based PostgreSQL-native custom-format backup and restore tools, using GNU core utilities. Both scripts require PostgreSQL 16 client tools, matching the repository's PostgreSQL 16 / pgvector baseline. They fail closed when `pg_dump` or `pg_restore` reports a different major version.
+
+Set `PGHOST`, `PGPORT`, `PGUSER`, and `PGDATABASE` explicitly for a disposable or approved non-production source database. Supply credentials through `PGPASSFILE` or a short-lived `PGPASSWORD` process environment populated by the approved secret manager; do not put a password in shell history or a command argument. For example, after those variables have been securely exported:
+
+```bash
+scripts/backup-postgres.sh /secure/backup-location/betcco-2026-09-28.dump
+```
+
+The command writes a PostgreSQL custom archive, a `.sha256` sidecar, and a `.metadata.json` sidecar containing only the UTC creation time, PostgreSQL client version, file name, byte size, and SHA-256. Output files are created with owner-only permissions. The default repository-local location `artifacts/recovery/` is ignored by Git; never commit or upload production dumps to CI artifacts.
+
+The automated restore helper is intended for the synthetic recovery fixture used by CI. It requires a source database distinct from a new target named `betcco_restore_<safe-suffix>`, refuses an existing target, validates the checksum before creating the target, restores with `pg_restore`, checks synthetic identity/catalogue/enrollment/evaluation rows, verifies the latest EF migration, and checks that the synthetic JOD ledger debit and credit totals both equal 25.00. It drops only the target it created, including on failure. Run it only against a disposable PostgreSQL 16 instance:
+
+```bash
+scripts/test-postgres-restore.sh betcco_recovery_source betcco_restore_operator /secure/backup-location/betcco-recovery.dump
+```
+
+The source database used here must already contain the synthetic recovery fixture in `scripts/postgres-recovery-seed.sql`; CI applies that fixture after migrations. The helper rejects obvious production/staging source names. A separate environment for a production/staging recovery exercise must be provisioned and authorized by its operator; restore the provider backup only into a distinct isolated target and record the exercise below. Do not use the production database as either the restore target or CI source.
+
+The repository verification checks a repository-defined latest migration identifier and proves the restored history matches the source fingerprint. CI first applies the complete migration assembly to an empty database, so a passing drill verifies that migrated source state was carried into the restore without applying migrations during restore.
+
+### Operator restore test
+
+For a provider backup outside the synthetic CI fixture, provision a disposable PostgreSQL 16 instance and an isolated target database with a generated `betcco_restore_...` name. Use the approved credentials through `PGPASSFILE` or a short-lived process environment. Verify the archive checksum before restoring:
+
+```bash
+cd /secure/backup-location
+sha256sum --check betcco-2026-09-28.dump.sha256
+createdb betcco_restore_operator
+pg_restore --exit-on-error --no-owner --no-privileges \
+  --dbname=betcco_restore_operator \
+  betcco-2026-09-28.dump
+```
+
+Then check `__EFMigrationsHistory`, database connectivity, agreed application row/state invariants, and the applicable financial balancing invariant. Capture the results in `docs/operations/restore-drill-record.md`. The restore target must remain separate from the source and production; remove only the disposable target after the evidence is recorded.
+
+### Production provider boundary
+
+The repository proves only that its PostgreSQL custom-format procedure can restore the synthetic, migrated BETCCO database in CI. It does not configure or verify production-host backup scheduling, provider snapshots, encryption, access separation, retention, restore completion, or recovery time. Production backups contain sensitive learner, identity, and financial data: production backup storage must be encrypted at rest and access-restricted separately from the database credentials. Provider, location, retention, and operator ownership must be selected and evidenced externally.
+
+These procedures do not back up or restore private S3 objects or the Data Protection certificate. Those recovery paths remain open work.
+
+### Recovery decisions
+
+| Decision | Approved value |
+| --- | --- |
+| Approved RPO | NOT YET SET |
+| Approved RTO | NOT YET SET |
+| Backup retention | NOT YET SET |
+| Backup frequency | NOT YET SET |
+| Recovery owner | NOT YET SET |
 
 ## Secret rotation
 
@@ -216,7 +271,7 @@ Never place secret values in image build arguments, Compose files, application s
 
 ## Intentionally deferred
 
-- External backup implementation and restore drills.
+- Production provider backup configuration, scheduling, retention, and restore drills.
 - Monitoring and alerting vendor integration.
 - Live PayTabs and payout providers.
 - Live SMTP, S3, and ClamAV provider validation.
