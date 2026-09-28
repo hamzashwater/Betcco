@@ -4,10 +4,11 @@
 
 - Last updated: 2026-09-28
 - Verified implementation baseline SHA: `6f6988c124d66d955de61dd30c0d42f8ad577ebf`
-- Status verified against origin/main: `6f6988c124d66d955de61dd30c0d42f8ad577ebf` (PR #113 merge).
+- Status verified against origin/main: `03bb131cfb16b68dc6d0a983289511dd823223da` (PR #114 documentation reconciliation merge).
 - OPEN/Draft PRs at verification: none (live GitHub check on 2026-09-28 before documentation-branch publication).
 - ASUS-10A production-readiness audit is recorded in `docs/production-readiness-audit.md`; its production blockers remain separate from Resit completion.
 - Parallel workstream coordination is persisted in `docs/WORKSTREAM_COORDINATION.md` and must be rechecked against live GitHub before implementation.
+- PR #114 — LENOVO N5B documentation reconciliation — merged at `03bb131cfb16b68dc6d0a983289511dd823223da`; it reconciled N1–N5A status through PR #113 without changing product code, tests, schema, migrations, workflows, or configuration.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 
@@ -275,7 +276,7 @@ At the 2026-09-28 verification snapshot, `main` is `6f6988c124d66d955de61dd30c0d
 
 ## Next Actions
 
-- ASUS: ASUS-10A's production-readiness audit is merged as PR #103 and remains a separate production-hardening reference. Its recommended first implementation slice is ASUS-10B — Production Admin Bootstrap (P0-01), subject to independent review. ASUS retains planning ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign. PR #102's Resit Commerce integration is merged; this does not make L12 an active ASUS workstream. AI engine/API/RAG/persistence remains explicitly deferred.
+- ASUS: Production hardening has advanced beyond the original ASUS-10A sequence. ASUS-10B Production Admin Bootstrap is merged in PR #106; ASUS-10C Production S3 HTTPS Guard in PR #108; ASUS-10D1 Legacy Quiz Migration Preflight & Recovery Gate in PR #109; and ASUS-10E1A PostgreSQL Backup & Restore Recovery Drill in PR #111. The next repository-controlled recovery slice is **ASUS-10E1B — S3 private-object recovery + Data Protection certificate recovery**, followed by monitoring/incident readiness (10E2), immutable release promotion (10F), and conditional live-provider readiness (10G) if commerce is in launch scope. ASUS retains planning ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign. AI engine/API/RAG/persistence remains explicitly deferred.
 - LENOVO: Resit L1–L13 and N1–N3 are DONE / MERGED; N4 and N5 are read-only audits; N5A is DONE / MERGED in PR #113 at current baseline `6f6988c124d66d955de61dd30c0d42f8ad577ebf`. No active LENOVO implementation PR or follow-up Privacy branch is reserved. Same-subject Rectification × Erasure/Concealment precedence remains an undecided product/privacy decision. Any future ASSESS or Privacy work requires separate evidence, explicit scope, and a fresh preflight; preserve ASUS ownership boundaries.
 - Task 6: DONE — Media / Video Foundation + Secure Delivery. PR #18 merged with required CI green.
 - Slice 1: DONE — ASSESS academic identity foundation. PR #28 merged with required CI green.
@@ -314,9 +315,9 @@ Do not reopen these areas merely because a later account lacks conversation memo
 | Authentication/Security | TECHNICAL CORE COMPLETE; REPO/DEVICE HARDENING FOLLOW-UPS REMAIN |
 | Privacy/Compliance | TECHNICAL CORE COMPLETE |
 | Payments/Finance | PARTIAL |
-| Storage | FOUNDATION COMPLETE |
+| Storage | FOUNDATION COMPLETE; PRODUCTION RECOVERY EVIDENCE IN PROGRESS |
 | Media/Video | FOUNDATION COMPLETE |
-| Operations/Deployment | FOUNDATION COMPLETE |
+| Operations/Deployment | PRODUCTION HARDENING IN PROGRESS — POSTGRES RESTORE DRILL MERGED; S3/DATA-PROTECTION RECOVERY, OBSERVABILITY, AND IMMUTABLE PROMOTION REMAIN |
 | Teacher UX | PARTIAL — FORMATIVE INTERVENTION SIGNALS MERGED |
 | Student UX | PARTIAL — STUDENT PROGRESS INTELLIGENCE MERGED |
 | i18n/SEO/Performance/Accessibility | NOT STARTED |
