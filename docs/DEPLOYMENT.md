@@ -44,7 +44,8 @@ Copy `deploy.env.example` to a secure location outside the repository. Restrict 
 | Variable                                      | Classification      | Purpose                                                                            |
 | --------------------------------------------- | ------------------- | ---------------------------------------------------------------------------------- |
 | `BETCCO_ENVIRONMENT`                          | REQUIRED NON-SECRET | Exactly `Staging` or `Production`. Both use fail-closed deployment validation.     |
-| `BETCCO_IMAGE_TAG`                            | REQUIRED NON-SECRET | Immutable image/release identifier such as the Git SHA.                            |
+| `BETCCO_API_IMAGE`                            | REQUIRED NON-SECRET | Full immutable API OCI reference ending in `@sha256:<64 hex>`.                      |
+| `BETCCO_WEB_IMAGE`                            | REQUIRED NON-SECRET | Full immutable web OCI reference ending in `@sha256:<64 hex>`.                     |
 | `BETCCO_PUBLIC_APP_URL`                       | REQUIRED NON-SECRET | Public HTTPS origin, without a path, query, or fragment.                           |
 | `BETCCO_ALLOWED_HOSTS`                        | REQUIRED NON-SECRET | Semicolon-separated public host names; wildcards are rejected.                     |
 | `BETCCO_POSTGRES_CONNECTION_STRING`           | REQUIRED SECRET     | Dedicated database connection string.                                              |
@@ -71,6 +72,16 @@ Copy `deploy.env.example` to a secure location outside the repository. Restrict 
 Development continues to use `.env` and `docker-compose.yml`. CI/Test uses disposable credentials in GitHub Actions. Staging and Production use `compose.deploy.yml` and a secret environment file outside Git.
 
 When `BETCCO_S3_ENDPOINT` is set in Staging or Production, it must be an absolute HTTPS URL with a valid host and no embedded credentials; endpoint paths are allowed. Leave it empty when using the AWS SDK's regional endpoint. Local HTTP MinIO endpoints are for Development/Testing only. Production object-storage credentials and objects must never travel over plaintext HTTP.
+
+## Immutable release artifact contract
+
+`compose.deploy.yml` consumes prebuilt API and web images. It has no application `build:` entries: a staging or production deployment cannot rebuild either application image. `migrate` uses the exact `BETCCO_API_IMAGE` reference used by `api`.
+
+The release sequence is **build once → publish externally → record immutable digests → deploy those exact digests to staging → verify staging → promote the same digests to production**. This repository does not select a registry or publish images. Registry credentials and the publication/promotion process remain external secrets and operator or platform responsibilities. Ordinary PR Quality may build local test images; those builds do not publish artifacts and do not establish registry digests.
+
+Each release record follows [the release manifest schema](release-manifest.schema.json). It links a full 40-character source commit SHA to API, web, and migration image references, identifies the previous known-good API/web references for rollback, and has fields for staging verification and production approval/result evidence. Leave results as `not-run` or `not-promoted` with null evidence until the corresponding external action has actually happened. A manifest or green CI run alone is not evidence of registry publication, staging deployment, production approval, or promotion.
+
+The repository-controlled immutable release contract is validated by CI. **Repository contract verified; external registry publication and staging-to-production promotion evidence remain open.** Do not mark P1-04 fully closed based on this contract alone.
 
 ### Assessment PDF reporting
 
@@ -159,7 +170,11 @@ For a database that already has an Admin, skip this operation. `--migrate` and n
 
 ## Deploy
 
-After the migration and, for a new installation, first Admin bootstrap succeed:
+Build the API and web images from one reviewed source commit and publish them through the separately approved registry workflow. Record the registry's full digest references in the release manifest. The same API and web digests must be used for staging and production; do not rebuild between environments. For staging, set `BETCCO_API_IMAGE` and `BETCCO_WEB_IMAGE` to those full references in the protected deployment environment, then validate the staging release and attach a safe evidence reference to its manifest record.
+
+Before running Compose, run `.github/scripts/validate_release_images.py` from a repository checkout using the `apiImage`, `webImage`, and `sourceCommit` values from that release manifest; pass `apiImage` for both `--api-image` and `--migration-image`. This fails closed on a mutable image reference, a migration/API mismatch, or a malformed source SHA. When both staging and production manifests exist, also pass them with `--staging-manifest` and `--production-manifest` to verify that same-release API/web digests match.
+
+After the staging release is verified and any required production approval is recorded, use the exact same API and web digest references in the production deployment environment. Keep runtime configuration such as URLs and secrets environment-specific. After migration and, for a new installation, first Admin bootstrap succeed, start the application services:
 
 ```bash
 docker compose --env-file /secure/path/betcco.env \
@@ -191,14 +206,14 @@ Then run a staging smoke test for sign-in, one authorised private-file read, one
 
 ## Rollback
 
-1. Keep the previous immutable API and web image tags available.
+1. Select the previous known-good release record and use its exact `previousRelease.apiImage` and `previousRelease.webImage` digest-pinned references.
 2. Stop traffic or enable the deployment platform's maintenance mode.
 3. Confirm that the database changes are backward-compatible with the previous application version.
-4. Change only `BETCCO_IMAGE_TAG` to the previous reviewed release.
+4. Set `BETCCO_API_IMAGE` and `BETCCO_WEB_IMAGE` to those exact previous references. The migration service continues to use the same API image as the API service.
 5. Run `docker compose ... up -d --no-build api web`.
 6. Verify liveness, readiness, and the public smoke route before restoring traffic.
 
-Do not automatically downgrade the database. If a migration is not backward-compatible, stop and use an owner-approved recovery plan.
+Image rollback does not automatically roll back database schema. Do not run an automatic schema downgrade. If a migration is not backward-compatible, stop and use an owner-approved recovery plan.
 
 ## Persistent state
 
