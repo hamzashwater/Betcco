@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -24,6 +25,140 @@ namespace Betcco.IntegrationTests;
 
 public sealed class AuthRegistrationTests
 {
+    [Fact]
+    public async Task Teacher_invite_persists_provisioning_before_delivery_and_token_activates_account()
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var roleManager = fixture.Services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        Assert.True((await roleManager.CreateAsync(new IdentityRole<Guid>(PlatformRoles.Teacher))).Succeeded);
+
+        var result = await fixture.CreateAdminUsersController(Guid.NewGuid().ToString()).InviteTeacher(
+            new InviteTeacherRequest("Invited teacher", "invite@betcco.test"), CancellationToken.None);
+
+        Assert.IsType<AcceptedResult>(result);
+        var teacher = (await fixture.Users.FindByEmailAsync("invite@betcco.test"))!;
+        Assert.Equal([PlatformRoles.Teacher], await fixture.Users.GetRolesAsync(teacher));
+        Assert.True(teacher.MustChangePassword);
+        Assert.True(teacher.EmailConfirmed);
+        var invitation = await fixture.Db.TeacherInvitations.SingleAsync();
+        Assert.Equal(TeacherInvitationStatus.Issued, invitation.Status);
+        Assert.Equal(teacher.Id.ToString(), invitation.TeacherUserId);
+        Assert.InRange(invitation.ExpiresAtUtc, DateTimeOffset.UtcNow.AddDays(6), DateTimeOffset.UtcNow.AddDays(8));
+        var audit = await fixture.Db.AuditLogs.SingleAsync(item => item.Action == "TeacherInvited");
+        Assert.Equal(invitation.Id.ToString(), audit.EntityId);
+        Assert.Single(fixture.Email.AttemptedHtmlBodies);
+        var url = new Uri(fixture.Email.HtmlBody!.Split("href=\"")[1].Split('"')[0]);
+        var query = QueryHelpers.ParseQuery(url.Query);
+        var token = query["token"].ToString();
+        Assert.NotEmpty(token);
+        Assert.DoesNotContain(token, JsonSerializer.Serialize(invitation));
+        Assert.DoesNotContain(token, JsonSerializer.Serialize(audit));
+
+        Assert.IsType<AcceptedResult>(await fixture.CreateAdminUsersController(Guid.NewGuid().ToString())
+            .ResendTeacherInvitation(invitation.Id, CancellationToken.None));
+        Assert.Equal(2, fixture.Email.AttemptedHtmlBodies.Count);
+        Assert.Single(fixture.Db.TeacherInvitations);
+        var resendAudit = await fixture.Db.AuditLogs.SingleAsync(item => item.Action == "TeacherInvitationResent");
+        Assert.Equal(invitation.Id.ToString(), resendAudit.EntityId);
+        Assert.Null(resendAudit.MetadataJson);
+        var resendUrl = new Uri(fixture.Email.HtmlBody!.Split("href=\"")[1].Split('"')[0]);
+        var resendToken = QueryHelpers.ParseQuery(resendUrl.Query)["token"].ToString();
+        Assert.NotEmpty(resendToken);
+        Assert.DoesNotContain(resendToken, JsonSerializer.Serialize(invitation));
+        Assert.DoesNotContain(resendToken, JsonSerializer.Serialize(resendAudit));
+
+        Assert.IsType<OkObjectResult>(await fixture.Controller.ResetPassword(
+            new ResetPasswordRequest(teacher.Id, resendToken, "N!ewPassword123")));
+        Assert.Equal(TeacherInvitationStatus.Accepted, (await fixture.Db.TeacherInvitations.SingleAsync()).Status);
+        Assert.False((await fixture.Users.FindByIdAsync(teacher.Id.ToString()))!.MustChangePassword);
+    }
+
+    [Theory]
+    [InlineData("Revoked")]
+    [InlineData("Expired")]
+    [InlineData("Elapsed")]
+    [InlineData("Accepted")]
+    [InlineData("Frozen")]
+    [InlineData("MissingUser")]
+    [InlineData("MissingRole")]
+    [InlineData("Activated")]
+    [InlineData("EmailMismatch")]
+    public async Task Teacher_invitation_resend_rejects_ineligible_state(string state)
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var roleManager = fixture.Services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        Assert.True((await roleManager.CreateAsync(new IdentityRole<Guid>(PlatformRoles.Teacher))).Succeeded);
+        var admin = fixture.CreateAdminUsersController(Guid.NewGuid().ToString());
+        Assert.IsType<AcceptedResult>(await admin.InviteTeacher(
+            new InviteTeacherRequest("Invited teacher", "resend-reject@betcco.test"), CancellationToken.None));
+        var invitation = await fixture.Db.TeacherInvitations.SingleAsync();
+        var teacher = (await fixture.Users.FindByIdAsync(invitation.TeacherUserId))!;
+        switch (state)
+        {
+            case "Revoked": invitation.Status = TeacherInvitationStatus.Revoked; break;
+            case "Expired": invitation.Status = TeacherInvitationStatus.Expired; break;
+            case "Elapsed": invitation.ExpiresAtUtc = DateTimeOffset.UtcNow.AddMinutes(-1); break;
+            case "Accepted": invitation.Status = TeacherInvitationStatus.Accepted; break;
+            case "Frozen": teacher.IsFrozen = true; break;
+            case "MissingUser": Assert.True((await fixture.Users.DeleteAsync(teacher)).Succeeded); break;
+            case "MissingRole": Assert.True((await fixture.Users.RemoveFromRoleAsync(teacher, PlatformRoles.Teacher)).Succeeded); break;
+            case "Activated": teacher.MustChangePassword = false; break;
+            case "EmailMismatch": teacher.Email = "changed@betcco.test"; break;
+        }
+        await fixture.Db.SaveChangesAsync();
+
+        var response = await admin.ResendTeacherInvitation(invitation.Id, CancellationToken.None);
+
+        if (state is "Revoked" or "Expired" or "Elapsed" or "Accepted") Assert.IsType<ConflictObjectResult>(response);
+        else Assert.IsType<NotFoundResult>(response);
+        Assert.Single(fixture.Email.AttemptedHtmlBodies);
+        Assert.DoesNotContain(fixture.Db.AuditLogs, item => item.Action == "TeacherInvitationResent");
+        if (state == "Elapsed")
+        {
+            Assert.Equal(TeacherInvitationStatus.Expired, invitation.Status);
+            Assert.Contains(fixture.Db.AuditLogs, item => item.Action == "TeacherInvitationExpired" && item.EntityId == invitation.Id.ToString());
+        }
+    }
+
+    [Fact]
+    public async Task Teacher_invitation_resend_requires_auth_rate_limit_and_existing_invitation()
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        Assert.IsType<NotFoundResult>(await fixture.CreateAdminUsersController(Guid.NewGuid().ToString())
+            .ResendTeacherInvitation(Guid.NewGuid(), CancellationToken.None));
+        var method = typeof(AdminUsersController).GetMethod(nameof(AdminUsersController.ResendTeacherInvitation))!;
+        Assert.Equal("auth", Assert.Single(method.GetCustomAttributes(typeof(EnableRateLimitingAttribute), false)
+            .Cast<EnableRateLimitingAttribute>()).PolicyName);
+    }
+
+    [Fact]
+    public async Task Failed_teacher_invite_email_keeps_durable_state_for_resend()
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        var roleManager = fixture.Services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        Assert.True((await roleManager.CreateAsync(new IdentityRole<Guid>(PlatformRoles.Teacher))).Succeeded);
+        fixture.Email.Failure = new InvalidOperationException("Simulated email failure");
+        var admin = fixture.CreateAdminUsersController(Guid.NewGuid().ToString());
+        var request = new InviteTeacherRequest("Invited teacher", "failed-email@betcco.test");
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => admin.InviteTeacher(request, CancellationToken.None));
+
+        var teacher = (await fixture.Users.FindByEmailAsync(request.Email))!;
+        Assert.True(teacher.MustChangePassword);
+        Assert.Equal([PlatformRoles.Teacher], await fixture.Users.GetRolesAsync(teacher));
+        var invitation = await fixture.Db.TeacherInvitations.SingleAsync();
+        Assert.Equal(TeacherInvitationStatus.Issued, invitation.Status);
+        Assert.Single(fixture.Db.AuditLogs.Where(item => item.Action == "TeacherInvited"));
+        fixture.Email.Failure = null;
+
+        Assert.IsType<ConflictObjectResult>(await admin.InviteTeacher(request, CancellationToken.None));
+        Assert.IsType<AcceptedResult>(await admin.ResendTeacherInvitation(invitation.Id, CancellationToken.None));
+        Assert.Single(fixture.Db.Users);
+        Assert.Single(fixture.Db.TeacherInvitations);
+        Assert.Single(fixture.Db.AuditLogs.Where(item => item.Action == "TeacherInvitationResent"));
+        Assert.Equal(2, fixture.Email.AttemptedHtmlBodies.Count);
+    }
+
     [Fact]
     public async Task Registration_commits_required_state_then_dispatches_confirmation_email()
     {

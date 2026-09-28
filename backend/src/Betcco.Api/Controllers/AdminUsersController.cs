@@ -71,12 +71,16 @@ public sealed class AdminUsersController(UserManager<ApplicationUser> userManage
         var displayName = request.DisplayName.Trim();
         if (string.IsNullOrWhiteSpace(email) || email.Length > 320 || string.IsNullOrWhiteSpace(displayName) || displayName.Length > 200)
             return BadRequest(new { message = "Enter a valid teacher name and email address." });
+        await using var transaction = db.Database.IsRelational()
+            ? await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken)
+            : null;
         if (await userManager.FindByEmailAsync(email) is not null) return Conflict(new { message = "This email already has an account." });
         var password = $"T!{Guid.NewGuid():N}a9";
         var teacher = new ApplicationUser { UserName = email, Email = email, DisplayName = displayName, EmailConfirmed = true, MustChangePassword = true };
         var result = await userManager.CreateAsync(teacher, password);
         if (!result.Succeeded) return BadRequest(new ValidationProblemDetails(result.Errors.ToDictionary(x => x.Code, x => new[] { x.Description })));
-        await userManager.AddToRoleAsync(teacher, PlatformRoles.Teacher);
+        result = await userManager.AddToRoleAsync(teacher, PlatformRoles.Teacher);
+        if (!result.Succeeded) return BadRequest(new ValidationProblemDetails(result.Errors.ToDictionary(x => x.Code, x => new[] { x.Description })));
         var invitation = new TeacherInvitation
         {
             Email = email,
@@ -86,13 +90,55 @@ public sealed class AdminUsersController(UserManager<ApplicationUser> userManage
             ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(7)
         };
         db.TeacherInvitations.Add(invitation);
+        db.AuditLogs.Add(new AuditLog { ActorUserId = UserId, Action = "TeacherInvited", EntityType = nameof(TeacherInvitation), EntityId = invitation.Id.ToString(), Outcome = "Success", NewValuesJson = AuditValues(("role", PlatformRoles.Teacher), ("emailConfirmed", true), ("expiresAtUtc", invitation.ExpiresAtUtc)) });
+        await db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+        await SendTeacherInvitationAsync(teacher, invitation.Email, cancellationToken);
+        return Accepted(new { id = teacher.Id, invitationId = invitation.Id, status = invitation.Status.ToString(), invitation.ExpiresAtUtc, message = "Teacher invitation sent." });
+    }
+
+    [Authorize(Policy = "SystemAdmin")]
+    [HttpPost("teachers/invitations/{invitationId:guid}/resend")]
+    [EnableRateLimiting("auth")]
+    public async Task<IActionResult> ResendTeacherInvitation(Guid invitationId, CancellationToken cancellationToken)
+    {
+        var invitation = await db.TeacherInvitations.SingleOrDefaultAsync(item => item.Id == invitationId, cancellationToken);
+        if (invitation is null) return NotFound();
+        if (invitation.Status == TeacherInvitationStatus.Issued && invitation.ExpiresAtUtc <= DateTimeOffset.UtcNow)
+        {
+            invitation.Status = TeacherInvitationStatus.Expired;
+            db.AuditLogs.Add(new AuditLog
+            {
+                Action = "TeacherInvitationExpired",
+                EntityType = nameof(TeacherInvitation),
+                EntityId = invitation.Id.ToString(),
+                Outcome = "Success",
+                MetadataJson = "{\"source\":\"ResendAttempt\"}"
+            });
+            await db.SaveChangesAsync(cancellationToken);
+            return Conflict(new { message = "Only an active invitation can be resent." });
+        }
+        if (invitation.Status != TeacherInvitationStatus.Issued)
+            return Conflict(new { message = "Only an active invitation can be resent." });
+
+        var teacher = await userManager.FindByIdAsync(invitation.TeacherUserId);
+        if (teacher is null || teacher.IsFrozen || !teacher.MustChangePassword
+            || !string.Equals(teacher.Email, invitation.Email, StringComparison.OrdinalIgnoreCase)) return NotFound();
+        var roles = await userManager.GetRolesAsync(teacher);
+        if (roles.Count != 1 || roles[0] != PlatformRoles.Teacher) return NotFound();
+
+        await SendTeacherInvitationAsync(teacher, invitation.Email, cancellationToken);
+        db.AuditLogs.Add(new AuditLog { ActorUserId = UserId, Action = "TeacherInvitationResent", EntityType = nameof(TeacherInvitation), EntityId = invitation.Id.ToString(), Outcome = "Success" });
+        await db.SaveChangesAsync(cancellationToken);
+        return Accepted();
+    }
+
+    private async Task SendTeacherInvitationAsync(ApplicationUser teacher, string invitationEmail, CancellationToken cancellationToken)
+    {
         var token = await userManager.GeneratePasswordResetTokenAsync(teacher);
         var publicAppUrl = configuration["APP_PUBLIC_URL"]?.TrimEnd('/') ?? configuration["NEXT_PUBLIC_APP_URL"]?.TrimEnd('/') ?? $"{Request.Scheme}://{Request.Host}";
         var resetUrl = $"{publicAppUrl}/ar/reset-password?userId={teacher.Id}&token={Uri.EscapeDataString(token)}";
-        await emailSender.SendAsync(teacher.Email, "Your BETCCO teacher invitation", $"<p>Set your BETCCO teacher password: <a href=\"{resetUrl}\">Set password</a></p>", cancellationToken);
-        db.AuditLogs.Add(new AuditLog { ActorUserId = UserId, Action = "TeacherInvited", EntityType = nameof(TeacherInvitation), EntityId = invitation.Id.ToString(), Outcome = "Success", NewValuesJson = AuditValues(("role", PlatformRoles.Teacher), ("emailConfirmed", true), ("expiresAtUtc", invitation.ExpiresAtUtc)) });
-        await db.SaveChangesAsync(cancellationToken);
-        return Accepted(new { id = teacher.Id, invitationId = invitation.Id, status = invitation.Status.ToString(), invitation.ExpiresAtUtc, message = "Teacher invitation sent." });
+        await emailSender.SendAsync(invitationEmail, "Your BETCCO teacher invitation", $"<p>Set your BETCCO teacher password: <a href=\"{resetUrl}\">Set password</a></p>", cancellationToken);
     }
 
     [Authorize(Policy = "SystemAdmin")]
