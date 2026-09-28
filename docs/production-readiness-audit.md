@@ -19,12 +19,12 @@
 | Classification | Count | Summary |
 | --- | ---: | --- |
 | P0 — Launch Blocker | 0 | P0-01 was closed by merged PR #106 with an explicit one-off production Admin bootstrap command. |
-| P1 — Required Production Hardening | 4 | A merged migration drops legacy quiz records; restore evidence, operational alerts/runbooks, and same-artifact promotion are not established. P1-05 is closed in the current implementation branch, pending PR merge. |
+| P1 — Required Production Hardening | 4 | The legacy Quiz removal now has a repository preflight and fail-closed migration gate; owner retention approval and backup/restore evidence remain external. Monitoring/runbooks and same-artifact promotion are also not established. P1-05 is closed. |
 | P2 — Post-launch Improvement | 3 | Production image inputs are mutable tags; .NET transitive restore is not locked; in-process rate limits are not shared across API replicas. |
 | EXTERNAL | 5 | Live hosting/provider/legal/operational decisions and credentials cannot be verified from this repository. |
 | SAFE | 15 | Important controls are implemented and/or demonstrated by current code and baseline CI. |
 
-**Readiness conclusion:** the repository has a substantial deployment and security foundation, and merged PR #106 provides an explicit one-off production Admin bootstrap path. Remaining repository hardening is concentrated in the P1 items: restore evidence, operational monitoring/runbooks, same-artifact promotion, and—pending this PR merge—the custom S3 HTTPS guard. Paid checkout and payouts are intentionally disabled in the deployment Compose file. Whether disabled commerce is launch-blocking depends on the approved launch scope; it is not classified as a code defect.
+**Readiness conclusion:** the repository has a substantial deployment and security foundation, and merged PR #106 provides an explicit one-off production Admin bootstrap path. Remaining hardening includes owner retention approval and backup/restore evidence for legacy Quiz data, operational monitoring/runbooks, and same-artifact promotion. The custom S3 HTTPS guard is merged. Paid checkout and payouts are intentionally disabled in the deployment Compose file. Whether disabled commerce is launch-blocking depends on the approved launch scope; it is not classified as a code defect.
 
 ## Configuration / Secret Audit
 
@@ -96,12 +96,14 @@
 | ID | Area | Title | Confidence |
 | --- | --- | --- | --- |
 | P1-01 | Migration safety | Legacy Quiz migration irreversibly removes quiz tables and dependent rules | HIGH |
-| P1-02 | Backup / restore | No repository or operator evidence of a tested restore path | HIGH (repository evidence); external state unknown |
+| P1-02 | Backup / restore | Repository PostgreSQL restore path verified; production provider evidence remains pending | HIGH (external production evidence pending) |
 | P1-03 | Observability / incident response | Health endpoints exist, but monitoring, alerting, and key incident procedures are not evidenced | HIGH (repository evidence) |
 | P1-04 | Release promotion | The release process does not prove that one immutable artifact is promoted from staging to production | HIGH (repository evidence) |
 | P1-05 | Storage / transport security | Custom production S3 endpoint accepts plain HTTP | HIGH |
 
 ### P1-01 — Legacy Quiz migration irreversibly removes quiz tables and dependent rules
+
+**Status:** REPOSITORY GATE CLOSED / EXTERNAL DATA-RETENTION & BACKUP EVIDENCE REMAINS.
 
 **Severity:** P1 — Required Production Hardening
 **Area:** Database migration safety
@@ -109,36 +111,48 @@
 
 - `backend/src/Betcco.Infrastructure/Persistence/Migrations/20260924073104_RemoveLegacyQuizSystem.cs`, `Up()`: updates legacy Quiz lessons to archived/unpublished; deletes related `ContentPrerequisites` and `ContentAccessRules`; drops `QuestionBankQuestions`, `QuizAttemptQuestionGrades`, `QuizAttempts`, `QuizQuestions`, and `Quizzes`.
 - The migration's comments explicitly preserve Lesson identities and lesson-linked learner history; the dropped quiz question/attempt tables are not preserved by those statements.
-- `docs/DEPLOYMENT.md`, Database migration: migrations run through the explicit one-off `--migrate` container and the API replicas do not migrate at startup. This is a useful control, but the runbook does not call out the legacy quiz data deletion as a preflight item.
+- `docs/DEPLOYMENT.md`, Database migration and Legacy Quiz removal preflight: migrations run through the explicit one-off `--migrate` container, API replicas do not migrate at startup, and the legacy data count, blocked/clear/indeterminate states, override, and recovery evidence requirements are documented.
+- `backend/src/Betcco.Infrastructure/Persistence/LegacyQuizMigrationGate.cs` and `backend/src/Betcco.Api/Program.cs`: `--migration-preflight` reports aggregate counts only; `--migrate` blocks when counted data exists unless the operator supplies the explicit per-run `--allow-legacy-quiz-data-removal` acknowledgement. Missing historical tables and indeterminate state remain blocked. A PostgreSQL advisory lock is held across the preflight-to-migration path.
+- `backend/tests/Betcco.IntegrationTests/LegacyQuizMigrationGateTests.cs`: PostgreSQL integration coverage exercises applied, fresh, empty historical, blocked data, approved migration, missing table, private-output, and concurrent migration cases.
 
 **Production scenario:** if an existing database contains legacy quiz authoring or attempt history when the one-off migration reaches this version, those tables and the listed access/prerequisite rows are deleted. This cannot be reversed by `Down()` because recreated tables are empty. The audit cannot determine whether any actual production database contains those records.
 
 **Impact:** data integrity and historical learner evidence.
 
-**Recommended remediation:** before applying this migration to any database that may contain legacy Quiz data, take and verify a restorable backup, inventory the affected rows, obtain an explicit product/data-retention decision, and export or retain the records if required. Keep the migration command gated on that preflight until the owner confirms that deletion is acceptable. No migration was executed during this audit.
+**Repository control implemented:** the migration preflight inventories affected row counts, and the normal migration operation stops before `Database.MigrateAsync()` when data exists unless an explicit per-run owner acknowledgement is supplied. The read-only preflight and migration share a PostgreSQL advisory lock. The existing destructive migration and ModelSnapshot are unchanged; no schema change or migration was added.
 
-**Suggested tests:** seed an old-schema database with quiz questions, attempts, grades, lessons, access rules, and prerequisites; apply the migration and assert the intended archive/delete behavior explicitly; verify the backup/export preserves the data required by the owner; test restore to an isolated database before production use.
+**Remaining external decision/evidence:** before using the override where data exists, the owner must decide retention/export, operators must take and verify access to a backup/snapshot, and a restore to an isolated database is preferred. Repository code cannot prove that a provider backup or owner approval exists. P1-02 remains open; no backup/restore work is claimed by this gate.
+
+**Suggested tests:** seed an old-schema database with quiz questions, attempts, grades, lessons, access rules, and prerequisites; verify default migration blocks without changing rows or history; verify explicit approval runs the unchanged migration and archives lessons; verify backup/export preservation and restore in an isolated database as separate operator evidence.
 
 **Dependencies:** owner decision on legacy quiz history and an external backup/restore service.
 **Ownership:** shared (ASUS migration owner + data owner).
 
-### P1-02 — No repository or operator evidence of a tested restore path
+### P1-02 — Repository PostgreSQL restore path verified; production evidence pending
+
+**Status:** REPOSITORY POSTGRES RESTORE PATH VERIFIED / EXTERNAL PRODUCTION RECOVERY REMAINS OPEN.
 
 **Severity:** P1 — Required Production Hardening
 **Area:** PostgreSQL / object backup
 **Evidence:**
 
-- `docs/DEPLOYMENT.md`, Persistent state and Intentionally deferred: PostgreSQL backup is owned by the selected external database service; backup schedules, RPO/RTO, restore drills, retention, and cross-region recovery remain owner decisions. The same document says the deployment is not production-ready until backup and restore have been tested.
-- `compose.deploy.yml` contains no database or object-store backup job, retention policy, versioning policy, or restore mechanism. This is consistent with the runbook's external-service boundary and is not evidence that the selected host has no backups.
-- No restore-test script or completed restore evidence was found in the repository.
+- `scripts/backup-postgres.sh` creates a PostgreSQL 16 custom-format archive, SHA-256 sidecar, and safe metadata; it rejects non-16 `pg_dump` clients.
+- `scripts/test-postgres-restore.sh` verifies the checksum before restore, uses a distinct disposable `betcco_restore_...` target, checks application and financial fingerprints plus EF migration history, compares source and restored fingerprints, and cleans up only its newly created target.
+- `.github/workflows/quality.yml` runs the drill against the existing pinned PostgreSQL/pgvector 16 image after migrations are applied. Its synthetic fixture covers identity, catalogue, enrollment, evaluation price, and a balanced JOD ledger transaction.
+- `docs/DEPLOYMENT.md` documents the repository and operator procedures, security boundary, and unapproved recovery decisions. `docs/operations/restore-drill-record.md` is a blank evidence template; it is not evidence of a production restore.
+- `compose.deploy.yml` still contains no production backup job or provider snapshot configuration. This repository does not establish whether the selected host has backups.
 
 **Production scenario:** database corruption, accidental deletion, account compromise, or provider/region loss occurs. If the selected PostgreSQL and S3 services have no tested independent backups, student submissions and finance records may be unrecoverable or recovery may exceed the required window. Current external configuration is unknown.
 
 **Impact:** availability, financial integrity, privacy, and learner records.
 
-**Recommended remediation:** choose and record RPO/RTO; configure encrypted, access-separated PostgreSQL backups and private object versioning/backup with retention and off-site separation; include the Data Protection certificate/key recovery dependency; conduct and retain a restore drill that restores both database and required objects into an isolated environment.
+**Repository side:** `P1-02 — REPOSITORY RESTORE PATH VERIFIED` for PostgreSQL synthetic data in CI.
 
-**Suggested tests:** scheduled restore exercise; verify row counts and financial ledger invariants; restore representative private objects and decrypt Data Protection-protected values using the documented certificate recovery path; record measured RPO/RTO and operator sign-off.
+**External production side — PENDING:** verify the production backup provider and schedule, retention, encryption at rest and separate access controls; conduct and retain a production/staging restore drill; obtain owner-approved RPO/RTO; and implement recovery for S3/private objects and the Data Protection certificate. The repository does not claim these controls exist.
+
+**Approved decisions:** RPO NOT YET SET; RTO NOT YET SET; backup retention NOT YET SET; backup frequency NOT YET SET; recovery owner NOT YET SET.
+
+**Suggested external tests:** scheduled production-provider restore exercise; verify agreed row/state and financial ledger invariants; restore representative private objects and decrypt Data Protection-protected values using the documented certificate recovery path; record measured recovery point/duration and operator sign-off.
 
 **Dependencies:** hosting/database/S3 vendors and operations owner.
 **Ownership:** external/shared.

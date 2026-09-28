@@ -23,8 +23,18 @@ public sealed class ProductionAdminBootstrapTests
         Assert.Equal(OperationalCommand.Serve, OperationalCommandParser.Parse([]).Command);
         Assert.Equal(OperationalCommand.Migrate, OperationalCommandParser.Parse(["--migrate"]).Command);
         Assert.Equal(OperationalCommand.BootstrapAdmin, OperationalCommandParser.Parse(["--bootstrap-admin"]).Command);
+        var preflight = OperationalCommandParser.Parse(["--migration-preflight"]);
+        Assert.Equal(OperationalCommand.MigrationPreflight, preflight.Command);
+        Assert.Empty(preflight.ApplicationArguments);
+        var approvedMigration = OperationalCommandParser.Parse(["--migrate", "--allow-legacy-quiz-data-removal"]);
+        Assert.Equal(OperationalCommand.Migrate, approvedMigration.Command);
+        Assert.True(approvedMigration.AllowLegacyQuizDataRemoval);
+        Assert.False(OperationalCommandParser.Parse(["--migrate"]).AllowLegacyQuizDataRemoval);
         Assert.Throws<InvalidOperationException>(() => OperationalCommandParser.Parse(["--migrate", "--bootstrap-admin"]));
         Assert.Throws<InvalidOperationException>(() => OperationalCommandParser.Parse(["--bootstrap-admin", "--bootstrap-admin"]));
+        Assert.Throws<InvalidOperationException>(() => OperationalCommandParser.Parse(["--bootstrap-admin", "--migration-preflight"]));
+        Assert.Throws<InvalidOperationException>(() => OperationalCommandParser.Parse(["--migration-preflight", "--allow-legacy-quiz-data-removal"]));
+        Assert.Throws<InvalidOperationException>(() => OperationalCommandParser.Parse(["--allow-legacy-quiz-data-removal"]));
     }
 
     [Fact]

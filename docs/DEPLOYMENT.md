@@ -110,6 +110,36 @@ docker compose --env-file /secure/path/betcco.env \
 
 The migration container uses the same immutable API image, applies the committed EF Core migrations, and exits. A migration exception produces a non-zero exit code. Do not start or update application containers when this command fails.
 
+## Legacy Quiz removal preflight
+
+Migration `20260924073104_RemoveLegacyQuizSystem` archives and unpublishes legacy Quiz lessons, deletes Quiz-linked prerequisite and access rules, and drops `Quizzes`, `QuizQuestions`, `QuizAttempts`, `QuizAttemptQuestionGrades`, and `QuestionBankQuestions`. `Down()` recreates empty tables; it does not restore records.
+
+Before a deployment migration on a database that may predate this migration, run the read-only preflight against the same database:
+
+```bash
+docker compose --env-file /secure/path/betcco.env \
+  -f compose.deploy.yml --profile operations run --rm migrate --migration-preflight
+```
+
+The preflight prints aggregate row counts only: counts in the five dropped tables, plus prerequisite and access-rule rows that the migration deletes. It does not print question text, answers, student/teacher identifiers, feedback, or connection details.
+
+- `LEGACY_QUIZ_MIGRATION_ALREADY_APPLIED`: the removal migration is recorded as applied. The preflight does not query the removed tables.
+- `LEGACY_QUIZ_MIGRATION_CLEAR`: the migration is pending and no counted legacy rows exist, or this is an empty fresh database. Normal `--migrate` may proceed without an override.
+- `LEGACY_QUIZ_DATA_REQUIRES_REVIEW`: counted data would be deleted. A normal `--migrate` exits non-zero before changing the schema, records, or migration history.
+- `LEGACY_QUIZ_PREFLIGHT_INDETERMINATE`: the database is unreachable, the migration state is inconsistent, or required historical tables are missing. The operation fails closed; an override cannot bypass this result.
+
+The normal migration command performs this same inventory under a PostgreSQL advisory lock held from preflight through EF migration execution. When legacy rows exist, deletion requires an explicit, per-run owner acknowledgement:
+
+```bash
+docker compose --env-file /secure/path/betcco.env \
+  -f compose.deploy.yml --profile operations run --rm migrate \
+  --migrate --allow-legacy-quiz-data-removal
+```
+
+Use that override only after the data owner has decided that removal is acceptable and operators have: (1) taken a database backup or snapshot, (2) verified access to it, (3) documented the retention/export decision for legacy Quiz records, and (4) preferably completed a restore drill in an isolated PostgreSQL database. The flag records an explicit destructive-operation acknowledgement; it does not verify or prove that any backup, export, retention decision, or restore drill exists. The advisory lock serializes this application's preflight/migration commands; do not run a separate migration tool concurrently.
+
+Prefer the hosting platform's database snapshot or a standard full-database `pg_dump` custom-format archive for recovery. Run the dump through the approved secret-manager/client configuration, keep it outside the repository with restricted access, and verify that it can be restored into an isolated database before relying on it. A targeted `pg_dump --table` archive can be useful for operator-selected preservation, but PostgreSQL documents that table selection does not include other database objects on which those tables may depend; do not treat a targeted archive as independently restorable until the dependency set and restore have been verified ([PostgreSQL 16 `pg_dump` documentation](https://www.postgresql.org/docs/16/app-pgdump.html)). This repository does not provide or verify any provider backup. `Down()` is not a recovery method because it recreates schema without the dropped records.
+
 ## First administrator bootstrap
 
 On a new migrated database with no Admin, supply `BootstrapAdmin__Email` and `BootstrapAdmin__Password` as temporary operator environment variables from the secret manager. Both are required by `--bootstrap-admin` and have no defaults. Do not use the Development-only `SEED_ADMIN_*` variables. Do not put the bootstrap password in the Compose file, the persistent deployment environment file, shell history, or a command argument. Ensure the temporary password meets the Identity policy: at least 12 characters with an uppercase and non-alphanumeric character. The operator must arrange for access to the configured SMTP service for the required password-reset step.
@@ -176,7 +206,62 @@ Do not automatically downgrade the database. If a migration is not backward-comp
 - No durable state is kept inside the API or web containers.
 - Replacing an application container must not replace the database, bucket, or Data Protection certificate.
 
-Production RPO/RTO, backup schedules, restore drills, retention, and cross-region recovery remain owner decisions. A deployment is not production-ready until backup and restore have been tested.
+Production RPO/RTO, backup schedule, retention, encryption/access separation, and provider restore evidence remain owner decisions. The repository-tested synthetic PostgreSQL recovery drill does not make production ready. A deployment is not production-ready until the production provider path and restore have been tested.
+
+## PostgreSQL backup and restore drill
+
+### Repository-tested procedure
+
+BETCCO includes Bash-based PostgreSQL-native custom-format backup and restore tools, using GNU core utilities. Both scripts require PostgreSQL 16 client tools, matching the repository's PostgreSQL 16 / pgvector baseline. They fail closed when `pg_dump` or `pg_restore` reports a different major version.
+
+Set `PGHOST`, `PGPORT`, `PGUSER`, and `PGDATABASE` explicitly for a disposable or approved non-production source database. Supply credentials through `PGPASSFILE` or a short-lived `PGPASSWORD` process environment populated by the approved secret manager; do not put a password in shell history or a command argument. For example, after those variables have been securely exported:
+
+```bash
+scripts/backup-postgres.sh /secure/backup-location/betcco-2026-09-28.dump
+```
+
+The command writes a PostgreSQL custom archive, a `.sha256` sidecar, and a `.metadata.json` sidecar containing only the UTC creation time, PostgreSQL client version, file name, byte size, and SHA-256. Output files are created with owner-only permissions. The default repository-local location `artifacts/recovery/` is ignored by Git; never commit or upload production dumps to CI artifacts.
+
+The automated restore helper is intended for the synthetic recovery fixture used by CI. It requires a source database distinct from a new target named `betcco_restore_<safe-suffix>`, refuses an existing target, validates the checksum before creating the target, restores with `pg_restore`, checks synthetic identity/catalogue/enrollment/evaluation rows, verifies the latest EF migration, and checks that the synthetic JOD ledger debit and credit totals both equal 25.00. It drops only the target it created, including on failure. Run it only against a disposable PostgreSQL 16 instance:
+
+```bash
+scripts/test-postgres-restore.sh betcco_recovery_source betcco_restore_operator /secure/backup-location/betcco-recovery.dump
+```
+
+The source database used here must already contain the synthetic recovery fixture in `scripts/postgres-recovery-seed.sql`; CI applies that fixture after migrations. The helper rejects obvious production/staging source names. A separate environment for a production/staging recovery exercise must be provisioned and authorized by its operator; restore the provider backup only into a distinct isolated target and record the exercise below. Do not use the production database as either the restore target or CI source.
+
+The repository verification checks a repository-defined latest migration identifier and proves the restored history matches the source fingerprint. CI first applies the complete migration assembly to an empty database, so a passing drill verifies that migrated source state was carried into the restore without applying migrations during restore.
+
+### Operator restore test
+
+For a provider backup outside the synthetic CI fixture, provision a disposable PostgreSQL 16 instance and an isolated target database with a generated `betcco_restore_...` name. Use the approved credentials through `PGPASSFILE` or a short-lived process environment. Verify the archive checksum before restoring:
+
+```bash
+cd /secure/backup-location
+sha256sum --check betcco-2026-09-28.dump.sha256
+createdb betcco_restore_operator
+pg_restore --exit-on-error --no-owner --no-privileges \
+  --dbname=betcco_restore_operator \
+  betcco-2026-09-28.dump
+```
+
+Then check `__EFMigrationsHistory`, database connectivity, agreed application row/state invariants, and the applicable financial balancing invariant. Capture the results in `docs/operations/restore-drill-record.md`. The restore target must remain separate from the source and production; remove only the disposable target after the evidence is recorded.
+
+### Production provider boundary
+
+The repository proves only that its PostgreSQL custom-format procedure can restore the synthetic, migrated BETCCO database in CI. It does not configure or verify production-host backup scheduling, provider snapshots, encryption, access separation, retention, restore completion, or recovery time. Production backups contain sensitive learner, identity, and financial data: production backup storage must be encrypted at rest and access-restricted separately from the database credentials. Provider, location, retention, and operator ownership must be selected and evidenced externally.
+
+These procedures do not back up or restore private S3 objects or the Data Protection certificate. Those recovery paths remain open work.
+
+### Recovery decisions
+
+| Decision | Approved value |
+| --- | --- |
+| Approved RPO | NOT YET SET |
+| Approved RTO | NOT YET SET |
+| Backup retention | NOT YET SET |
+| Backup frequency | NOT YET SET |
+| Recovery owner | NOT YET SET |
 
 ## Secret rotation
 
@@ -186,7 +271,7 @@ Never place secret values in image build arguments, Compose files, application s
 
 ## Intentionally deferred
 
-- External backup implementation and restore drills.
+- Production provider backup configuration, scheduling, retention, and restore drills.
 - Monitoring and alerting vendor integration.
 - Live PayTabs and payout providers.
 - Live SMTP, S3, and ClamAV provider validation.
