@@ -10,8 +10,44 @@ permissions:
   contents: read
 
 jobs:
-  application:
-    name: Application quality
+  classify:
+    name: Classify changed paths
+    runs-on: ubuntu-latest
+    outputs:
+      docs_only: ${{ steps.classify.outputs.docs_only }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: .trusted-classifier
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Classify exact pull-request paths
+        id: classify
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            if [ -f .trusted-classifier/.github/scripts/classify_docs_only.py ]; then
+              python3 .trusted-classifier/.github/scripts/classify_docs_only.py
+            else
+              echo "docs_only=false" >> "$GITHUB_OUTPUT"
+              echo "Trusted classifier is absent from the PR base; full CI required."
+            fi
+          else
+            python3 .github/scripts/classify_docs_only.py
+          fi
+
+  full-quality:
+    name: Full application quality
+    needs: classify
+    if: ${{ always() && needs.classify.outputs.docs_only != 'true' }}
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -158,3 +194,60 @@ jobs:
             sleep 2
           done
           curl --fail --silent http://127.0.0.1:8080/health/live >/dev/null
+
+  application-gate:
+    name: Application quality
+    needs: [classify, full-quality]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out sources for documentation validation
+        if: ${{ github.event_name == 'pull_request' && needs.classify.result == 'success' && needs.classify.outputs.docs_only == 'true' }}
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        if: ${{ github.event_name == 'pull_request' && needs.classify.result == 'success' && needs.classify.outputs.docs_only == 'true' }}
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: .trusted-classifier
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Recheck documentation-only allowlist
+        id: docs-paths
+        if: ${{ github.event_name == 'pull_request' && needs.classify.result == 'success' && needs.classify.outputs.docs_only == 'true' }}
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: python3 .trusted-classifier/.github/scripts/classify_docs_only.py
+      - name: Check documentation diff whitespace
+        id: docs-diff
+        if: ${{ github.event_name == 'pull_request' && needs.classify.result == 'success' && needs.classify.outputs.docs_only == 'true' && steps.docs-paths.outputs.docs_only == 'true' }}
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: git diff --check "$PR_BASE_SHA" "$PR_HEAD_SHA" --
+      - name: Require successful classification and the correct validation path
+        if: ${{ always() }}
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          CLASSIFY_RESULT: ${{ needs.classify.result }}
+          DOCS_ONLY: ${{ needs.classify.outputs.docs_only }}
+          FULL_QUALITY_RESULT: ${{ needs.full-quality.result }}
+          DOCS_PATHS_RESULT: ${{ steps.docs-paths.outcome }}
+          DOCS_DIFF_RESULT: ${{ steps.docs-diff.outcome }}
+        run: |
+          if [ "$CLASSIFY_RESULT" != "success" ]; then
+            echo "Path classification did not succeed; required gate fails closed."
+            exit 1
+          fi
+          if [ "$EVENT_NAME" = "pull_request" ] && [ "$DOCS_ONLY" = "true" ]; then
+            if [ "$DOCS_PATHS_RESULT" != "success" ] || [ "$DOCS_DIFF_RESULT" != "success" ]; then
+              echo "Documentation validation did not complete successfully."
+              exit 1
+            fi
+          elif [ "$FULL_QUALITY_RESULT" != "success" ]; then
+            echo "Full Application Quality did not succeed."
+            exit 1
+          fi
