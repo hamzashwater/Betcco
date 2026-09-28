@@ -46,10 +46,10 @@ rm -f -- "$tampered_backup" "$tampered_backup.sha256"
 rmdir -- "$tampered_dir"
 tampered_dir=""
 
-PGDATABASE=postgres bash "$(dirname -- "$0")/backup-postgres.sh" "$empty_backup"
 failed_target="${target}_failure"
-if bash "$(dirname -- "$0")/test-postgres-restore.sh" "$PGDATABASE" "$failed_target" "$empty_backup" >/dev/null 2>&1; then
-  echo "Restore guard accepted an archive without the migrated BETCCO recovery state." >&2
+if BETCCO_RECOVERY_TEST_FAIL_AFTER_TARGET_CREATE=1 \
+  bash "$(dirname -- "$0")/test-postgres-restore.sh" "$PGDATABASE" "$failed_target" "$backup" >/dev/null 2>&1; then
+  echo "Restore negative-path hook unexpectedly succeeded." >&2
   exit 1
 fi
 failed_target_exists=$(PGDATABASE=postgres psql --no-psqlrc --tuples-only --no-align --set=ON_ERROR_STOP=1 \
@@ -58,6 +58,19 @@ if [[ "$failed_target_exists" != "0" ]]; then
   echo "Failed restore did not clean up its disposable target database." >&2
   exit 1
 fi
+
+PGDATABASE=postgres bash "$(dirname -- "$0")/backup-postgres.sh" "$empty_backup"
+invalid_source_target="${target}_invalid_source"
+if bash "$(dirname -- "$0")/test-postgres-restore.sh" "$PGDATABASE" "$invalid_source_target" "$empty_backup" >/dev/null 2>&1; then
+  echo "Restore guard accepted an archive without the migrated BETCCO recovery state." >&2
+  exit 1
+fi
+invalid_source_target_exists=$(PGDATABASE=postgres psql --no-psqlrc --tuples-only --no-align --set=ON_ERROR_STOP=1 \
+  --command "SELECT count(*) FROM pg_database WHERE datname = '$invalid_source_target'")
+if [[ "$invalid_source_target_exists" != "0" ]]; then
+  echo "Invalid-source preflight created a disposable target unexpectedly." >&2
+  exit 1
+fi
 rm -f -- "$empty_backup" "$empty_backup.sha256" "$empty_backup.metadata.json"
 
-echo "Restore guard checks passed: same-name refusal, checksum mismatch rejection, failed-restore cleanup."
+echo "Restore guard checks passed: same-name refusal, checksum mismatch rejection, post-create failure cleanup, invalid-source refusal."

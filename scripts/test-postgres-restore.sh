@@ -89,6 +89,14 @@ trap cleanup EXIT
 
 psql --no-psqlrc --quiet --set=ON_ERROR_STOP=1 --command "CREATE DATABASE \"$target_db\""
 target_created=1
+
+# Internal negative-path hook used only by the automated recovery drill to prove
+# that EXIT cleanup removes a target created before a restore failure.
+if [[ "${BETCCO_RECOVERY_TEST_FAIL_AFTER_TARGET_CREATE:-0}" == "1" ]]; then
+  echo "Simulated restore failure after disposable target creation." >&2
+  exit 97
+fi
+
 pg_restore --exit-on-error --no-owner --no-privileges --dbname="$target_db" "$backup_file"
 
 source_fingerprint_after=$(PGDATABASE="$source_db" psql --no-psqlrc --tuples-only --no-align --set=ON_ERROR_STOP=1 --file "$fingerprint_sql")
