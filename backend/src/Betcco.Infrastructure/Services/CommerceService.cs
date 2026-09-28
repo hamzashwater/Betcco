@@ -9,6 +9,7 @@ using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Data;
 using System.Collections.Concurrent;
@@ -20,7 +21,8 @@ public sealed class CommerceService(
     BetccoDbContext db,
     IPaymentProvider paymentProvider,
     IEmailNotificationService? emailNotifications = null,
-    IConfiguration? configuration = null) : ICommerceService
+    IConfiguration? configuration = null,
+    ILogger<CommerceService>? logger = null) : ICommerceService
 {
     // PostgreSQL row locking is the cross-process guard. This small in-process
     // gate also keeps the EF InMemory development/test provider deterministic.
@@ -1305,6 +1307,13 @@ public sealed class CommerceService(
         db.AuditLogs.Add(Audit(payment.UserId, "CheckoutSessionResultUnknown", nameof(Payment), payment.Id.ToString()));
         await OpenReconciliationCaseAsync(payment, ProviderReconciliationCaseType.ProviderSessionCreationResultUnknown, payment.ProviderPaymentId, failureCode, null, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
+        logger?.LogError(
+            OperationalEventIds.PaymentResultUnknown,
+            "Payment provider result is unknown and requires reconciliation. PaymentId={PaymentId}, Provider={Provider}, CorrelationReference={CorrelationReference}, FailureCategory={FailureCategory}.",
+            payment.Id,
+            payment.Provider ?? paymentProvider.ProviderName,
+            payment.Id.ToString("N"),
+            failureCode);
     }
 
     private async Task RequireSessionReconciliationAsync(Payment payment, ProviderReconciliationCaseType type, string? providerReference, string failureCode, CancellationToken cancellationToken)

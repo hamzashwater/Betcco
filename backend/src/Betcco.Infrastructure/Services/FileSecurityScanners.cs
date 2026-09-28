@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Text;
 using Betcco.Application.Common;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Betcco.Infrastructure.Services;
 
@@ -14,14 +15,17 @@ public sealed class DevelopmentFileSecurityScanner : IFileSecurityScanner
 }
 
 /// <summary>Safe production fallback: uploads must not bypass a configured scanner.</summary>
-public sealed class UnconfiguredFileSecurityScanner : IFileSecurityScanner
+public sealed class UnconfiguredFileSecurityScanner(ILogger<UnconfiguredFileSecurityScanner>? logger = null) : IFileSecurityScanner
 {
-    public Task<FileScanResult> ScanAsync(Stream content, CancellationToken cancellationToken = default) =>
-        Task.FromResult(new FileScanResult(FileScanOutcome.Unavailable, "File security scanning is not configured."));
+    public Task<FileScanResult> ScanAsync(Stream content, CancellationToken cancellationToken = default)
+    {
+        logger?.LogError(OperationalEventIds.ScannerUnavailable, "File upload scanning is unavailable because no production scanner is configured.");
+        return Task.FromResult(new FileScanResult(FileScanOutcome.Unavailable, "File security scanning is not configured."));
+    }
 }
 
 /// <summary>ClamAV INSTREAM scanner. It sends content directly to a private ClamAV daemon and never writes an unscanned copy.</summary>
-public sealed class ClamAvFileSecurityScanner(IConfiguration configuration) : IFileSecurityScanner
+public sealed class ClamAvFileSecurityScanner(IConfiguration configuration, ILogger<ClamAvFileSecurityScanner>? logger = null) : IFileSecurityScanner
 {
     private readonly string _host = configuration["ClamAv:Host"] ?? "localhost";
     private readonly int _port = configuration.GetValue("ClamAv:Port", 3310);
@@ -55,10 +59,12 @@ public sealed class ClamAvFileSecurityScanner(IConfiguration configuration) : IF
                 return new FileScanResult(FileScanOutcome.Rejected, response);
             if (response.Contains("OK", StringComparison.OrdinalIgnoreCase))
                 return new FileScanResult(FileScanOutcome.Clean, response);
-            return new FileScanResult(FileScanOutcome.Unavailable, response);
+            logger?.LogWarning(OperationalEventIds.ScannerUnavailable, "ClamAV returned an unrecognized scanner protocol response.");
+            return new FileScanResult(FileScanOutcome.Unavailable, "The malware scanner returned an invalid response.");
         }
         catch (Exception exception) when (exception is SocketException or IOException)
         {
+            logger?.LogWarning(OperationalEventIds.ScannerUnavailable, "ClamAV scanner transport failed with {FailureCategory}.", exception.GetType().Name);
             return new FileScanResult(FileScanOutcome.Unavailable, "The malware scanner could not be reached.");
         }
         finally

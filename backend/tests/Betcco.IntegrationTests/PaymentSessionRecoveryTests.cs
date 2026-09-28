@@ -117,7 +117,8 @@ public sealed class PaymentSessionRecoveryTests
             Create = _ => throw new PaymentSessionResultUnknownException("simulated timeout"),
             Query = _ => []
         };
-        var commerce = CreateCommerce(db, provider);
+        var operationalLogger = new OperationalSignalTestLogger<CommerceService>();
+        var commerce = CreateCommerce(db, provider, operationalLogger);
 
         var first = Assert.IsType<CheckoutResult>(await commerce.CreateCourseCheckoutAsync("student", cart.OwnerKey, coupon.Code, "Card", "unknown-key"));
         var retry = Assert.IsType<CheckoutResult>(await commerce.CreateCourseCheckoutAsync("student", cart.OwnerKey, coupon.Code, "Card", "unknown-key"));
@@ -134,6 +135,9 @@ public sealed class PaymentSessionRecoveryTests
         Assert.Single(await db.ProviderReconciliationCases.Where(item => item.CaseType == ProviderReconciliationCaseType.ProviderSessionCreationResultUnknown).ToListAsync());
         Assert.Equal(1, provider.CreateCalls);
         Assert.Equal(1, provider.QueryCalls);
+        var signal = Assert.Single(operationalLogger.Entries);
+        Assert.Equal(OperationalEventIds.PaymentResultUnknown, signal.EventId);
+        Assert.Contains(first.PaymentId.ToString(), signal.Message);
     }
 
     [Fact]
@@ -280,12 +284,12 @@ public sealed class PaymentSessionRecoveryTests
         Assert.Equal(ProviderReconciliationCaseStatus.Resolved, (await db.ProviderReconciliationCases.SingleAsync()).Status);
     }
 
-    private static CommerceService CreateCommerce(BetccoDbContext db, IPaymentProvider provider) =>
+    private static CommerceService CreateCommerce(BetccoDbContext db, IPaymentProvider provider, OperationalSignalTestLogger<CommerceService>? logger = null) =>
         new(db, provider, null, new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["PayTabs:ProfileId"] = "123456",
             ["APP_PUBLIC_URL"] = "https://betcco.test"
-        }).Build());
+        }).Build(), logger);
 
     private static PaymentCheckoutRecovery Recovery(Guid paymentId, string providerPaymentId, string? redirectUrl, bool successful = false, decimal amount = 100m) =>
         new("PayTabs", "123456", providerPaymentId, PayTabsPaymentProvider.CartId(paymentId), "JOD", amount, redirectUrl, successful, false, successful ? "A" : null, successful ? "100" : null);

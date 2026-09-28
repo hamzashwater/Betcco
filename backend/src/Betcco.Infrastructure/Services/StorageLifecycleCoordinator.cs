@@ -83,7 +83,7 @@ public sealed class StorageLifecycleCoordinator(
             operation.NextAttemptAtUtc = DateTimeOffset.UtcNow.AddMinutes(Math.Min(60, Math.Pow(2, Math.Min(operation.Attempts, 5))));
             operation.UpdatedAtUtc = DateTimeOffset.UtcNow;
             await db.SaveChangesAsync(cancellationToken);
-            logger.LogWarning(exception, "Private storage {Operation} deferred for object {ObjectId}; attempt {Attempt}.", operation.Action, SafeIdentifier(operation.StorageKey), operation.Attempts);
+            logger.LogWarning(OperationalEventIds.StorageOperationDeferred, "Private storage {Operation} deferred for object {ObjectId}; attempt {Attempt}; failure category {FailureCategory}.", operation.Action, SafeIdentifier(operation.StorageKey), operation.Attempts, exception.GetType().Name);
             return false;
         }
     }
@@ -100,7 +100,7 @@ public sealed class StorageLifecycleCoordinator(
         }
         catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
         {
-            logger.LogWarning(exception, "Immediate staged-object cleanup failed for object {ObjectId}; reconciliation will retry.", SafeIdentifier(file.StorageKey));
+            logger.LogWarning(OperationalEventIds.StorageOperationDeferred, "Immediate staged-object cleanup failed for object {ObjectId}; reconciliation will retry; failure category {FailureCategory}.", SafeIdentifier(file.StorageKey), exception.GetType().Name);
         }
     }
 
@@ -140,7 +140,7 @@ public sealed class StorageLifecycleCoordinator(
             }
             catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
             {
-                logger.LogWarning(exception, "Staged-object reconciliation failed for object {ObjectId}.", SafeIdentifier(staged.StorageKey));
+                logger.LogWarning(OperationalEventIds.StorageReconciliationFailed, "Staged-object reconciliation failed for object {ObjectId}; failure category {FailureCategory}.", SafeIdentifier(staged.StorageKey), exception.GetType().Name);
             }
         }
         return cleaned;
@@ -177,7 +177,7 @@ public sealed class StorageLifecycleWorker(
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Private storage lifecycle reconciliation cycle failed.");
+                logger.LogError(OperationalEventIds.StorageWorkerFailed, "Private storage lifecycle reconciliation cycle failed; failure category {FailureCategory}.", exception.GetType().Name);
             }
 
             await Task.Delay(interval, stoppingToken);

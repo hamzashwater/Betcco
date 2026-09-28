@@ -248,6 +248,7 @@ public sealed class AuthRegistrationTests
         Assert.Equal(nameof(InvalidOperationException), failed.LastFailureCode);
         Assert.NotNull(failed.ProtectedConfirmationToken);
         Assert.Single(fixture.Email.AttemptedHtmlBodies);
+        Assert.Contains(fixture.OperationalLogger.Entries, entry => entry.EventId == OperationalEventIds.EmailDeliveryFailed);
 
         fixture.Email.Failure = null;
         failed.NextAttemptAtUtc = DateTimeOffset.UtcNow.AddSeconds(-1);
@@ -305,6 +306,26 @@ public sealed class AuthRegistrationTests
         Assert.Equal(nameof(InvalidOperationException), failed.LastFailureCode);
         Assert.Null(failed.ProtectedConfirmationToken);
         Assert.Empty(fixture.Email.AttemptedHtmlBodies);
+    }
+
+    [Fact]
+    public async Task Aged_email_backlog_emits_aggregate_operational_signal_without_recipient_data()
+    {
+        await using var fixture = await RegistrationFixture.CreateAsync();
+        Assert.IsType<AcceptedResult>(await fixture.Controller.Register(
+            new RegisterRequest("Aged backlog", "aged-private@betcco.test", "T!estPassword123", "+962790000000", "JO", "PreferNotToSay", new DateOnly(2000, 1, 1), true, "1.0", "1.0", false),
+            CancellationToken.None));
+        var message = await fixture.Db.RegistrationEmailOutboxMessages.SingleAsync();
+        message.CreatedAtUtc = DateTimeOffset.UtcNow - RegistrationEmailOutboxDispatcher.AgedBacklogThreshold - TimeSpan.FromMinutes(10);
+        await fixture.Db.SaveChangesAsync();
+
+        await fixture.EmailDispatcher.ReportAgedBacklogAsync(DateTimeOffset.UtcNow);
+
+        var signal = Assert.Single(fixture.OperationalLogger.Entries);
+        Assert.Equal(OperationalEventIds.EmailBacklogAged, signal.EventId);
+        Assert.Contains("at least 30 minutes old", signal.Message);
+        Assert.DoesNotContain("aged-private@betcco.test", signal.Message);
+        Assert.DoesNotContain("token", signal.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -1228,6 +1249,7 @@ public sealed class AuthRegistrationTests
         public UserManager<ApplicationUser> Users { get; }
         public BetccoDbContext Db { get; }
         public RegistrationEmailOutboxDispatcher EmailDispatcher { get; }
+        public OperationalSignalTestLogger<RegistrationEmailOutboxDispatcher> OperationalLogger { get; }
         public ServiceProvider Services => services;
         private IConfiguration Configuration { get; }
 
@@ -1244,7 +1266,7 @@ public sealed class AuthRegistrationTests
             }
         };
 
-        private RegistrationFixture(ServiceProvider services, AuthController controller, CapturingEmailSender email, UserManager<ApplicationUser> users, BetccoDbContext db, IConfiguration configuration, RegistrationEmailOutboxDispatcher emailDispatcher)
+        private RegistrationFixture(ServiceProvider services, AuthController controller, CapturingEmailSender email, UserManager<ApplicationUser> users, BetccoDbContext db, IConfiguration configuration, RegistrationEmailOutboxDispatcher emailDispatcher, OperationalSignalTestLogger<RegistrationEmailOutboxDispatcher> operationalLogger)
         {
             this.services = services;
             Controller = controller;
@@ -1253,6 +1275,7 @@ public sealed class AuthRegistrationTests
             Db = db;
             Configuration = configuration;
             EmailDispatcher = emailDispatcher;
+            OperationalLogger = operationalLogger;
         }
 
         public static async Task<RegistrationFixture> CreateAsync(bool failEmailConfirmationTokenGeneration = false)
@@ -1328,6 +1351,7 @@ public sealed class AuthRegistrationTests
                     HttpContext = new DefaultHttpContext { RequestServices = provider }
                 }
             };
+            var operationalLogger = new OperationalSignalTestLogger<RegistrationEmailOutboxDispatcher>();
             var emailDispatcher = new RegistrationEmailOutboxDispatcher(
                 db,
                 users,
@@ -1335,8 +1359,8 @@ public sealed class AuthRegistrationTests
                 provider.GetRequiredService<IDataProtectionProvider>(),
                 configuration,
                 new TestWebHostEnvironment(),
-                NullLogger<RegistrationEmailOutboxDispatcher>.Instance);
-            return new RegistrationFixture(provider, controller, email, users, db, configuration, emailDispatcher);
+                operationalLogger);
+            return new RegistrationFixture(provider, controller, email, users, db, configuration, emailDispatcher, operationalLogger);
         }
 
         public async ValueTask DisposeAsync()

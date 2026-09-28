@@ -368,7 +368,8 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
         await using var db = CreateDb();
         var payment = await AddPaidCourseSaleAsync(db);
         var handler = new RefundHandler(RefundResponseMode.Timeout);
-        var service = new RefundService(db, CreateProvider(handler));
+        var operationalLogger = new OperationalSignalTestLogger<RefundService>();
+        var service = new RefundService(db, CreateProvider(handler), operationalLogger);
         var request = new InitiatePayTabsRefund(payment.Id, "CustomerRequest", null, "timeout-key");
 
         var first = await service.InitiatePayTabsRefundAsync("finance", request);
@@ -380,6 +381,10 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
         Assert.Equal(PaymentStatus.Paid, (await db.Payments.SingleAsync()).Status);
         Assert.Single(await db.LedgerTransactions.ToListAsync());
         Assert.Equal(2, await db.WalletTransactions.CountAsync());
+        var signal = Assert.Single(operationalLogger.Entries);
+        Assert.Equal(OperationalEventIds.RefundResultUnknown, signal.EventId);
+        Assert.Contains(payment.Id.ToString(), signal.Message);
+        Assert.DoesNotContain("secret", signal.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

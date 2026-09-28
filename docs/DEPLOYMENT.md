@@ -175,7 +175,9 @@ The API exposes two generic endpoints without internal diagnostics:
 - `/health/live` confirms that the process can answer HTTP.
 - `/health/ready` confirms PostgreSQL connectivity and availability of the configured private S3 bucket.
 
-The API container health check uses readiness. S3 is also checked during API startup. ClamAV failure blocks the affected upload operation rather than taking unrelated learning routes offline. SMTP delivery is durable through the registration outbox and is monitored separately from request readiness.
+The API container health check uses readiness. S3 is also checked during API startup. ClamAV failure blocks the affected upload operation rather than taking unrelated learning routes offline. SMTP delivery is durable through the registration outbox and has application-level operational signals separate from request readiness. This repository does not configure an external monitor, alert receiver, or on-call route; see [the provider-neutral monitoring contract](operations/monitoring-alerts.md) and [incident runbooks](operations/incident-response.md).
+
+After deploying a release to staging, operators should exercise the configured alert route with controlled synthetic failures and record delivery, acknowledgement, recovery and runbook outcome. Do not configure a monitoring vendor through this repository slice. Alert payloads must use bounded event fields and correlation IDs only; never forward credentials, tokens, cookies, connection strings, private uploads, raw provider payloads, or unnecessary personal data. Staging exercises and actual alert delivery are external evidence, not repository verification.
 
 Verify the private API and public web process:
 
