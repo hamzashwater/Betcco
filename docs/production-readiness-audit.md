@@ -27,7 +27,8 @@ This section reconciles the historical audit with repository state verified afte
 - PR #114 — LENOVO N5B documentation reconciliation — merged after N1–N5A status reconciliation; no runtime/schema/workflow changes.
 - PR #117 — ASUS-10E1B S3 & Data Protection Recovery Drill — DONE / MERGED at `25c162a9b002f84e604eed310a73680294055a0e`. Its final reviewed head `43ffaaf8687e9520b4441752526b3ac4ff2019a4` passed Quality, Full UAT Matrix, and Security analysis; no unresolved review threads remained.
 - PR #123 — **ASUS-10E2A Operational Signals & Incident Runbooks — DONE / MERGED** at `7201ae473eae507877d314fe8c06a71de418b7bf`. Repository-controlled operational signals, stable event IDs, provider-neutral monitoring recommendations, and incident runbooks are verified. External alert collection/delivery and on-call evidence remain open.
-- The next ASUS repository-controlled production-hardening slice is **ASUS-10F — Immutable Release Promotion (PLANNED / NOT STARTED)**.
+- PR #125 — **ASUS-10F1 Immutable Release Artifact Contract — DONE / MERGED** at `ee55375461a4da6481d3ba948c487c1053734527`. Repository-controlled deployment now consumes digest-pinned API/Web references, migration reuses the API image, mutable/tag-only references are rejected by validation, and release/rollback manifest contracts exist.
+- **ASUS-10F2 — Registry Publication & Same-Digest Promotion — BLOCKED / EXTERNAL-DEPENDENT** pending an approved registry and deployment platform. P1-04 remains open until real immutable artifacts are published, retained, deployed to staging, and promoted unchanged to production with evidence.
 - External production-provider configuration, actual production/staging restore evidence, RPO/RTO/retention decisions, S3 provider recovery evidence, Data Protection certificate custody/recovery evidence, monitoring ownership, and live payment/payout readiness remain unverified unless separately evidenced.
 
 ## Executive Summary
@@ -228,25 +229,33 @@ This section reconciles the historical audit with repository state verified afte
 
 ### P1-04 — Release process does not prove same-artifact staging-to-production promotion
 
+**Status:** REPOSITORY-CONTROLLED IMMUTABLE RELEASE CONTRACT VERIFIED by PR #125; EXTERNAL REGISTRY PUBLICATION / PROMOTION EVIDENCE REMAINS OPEN.
+
 **Severity:** P1 — Required Production Hardening
 **Area:** Release / rollback
-**Evidence:**
 
-- `docs/DEPLOYMENT.md`, Build: operators build images from a Git commit and are told to build staging and production with the same reviewed commit.
-- `compose.deploy.yml` has `build:` definitions for the API and web services and tags the resulting local images with `BETCCO_IMAGE_TAG`; the Compose file does not fetch a published artifact by digest or prove the tag equals the source SHA.
-- `.github/workflows/quality.yml` builds images for CI verification but does not publish a release artifact. No staging deployment/promotion workflow was found.
-- The rollback runbook depends on previously retained image tags, but no repository-backed registry/retention/provenance path is defined.
+**Repository evidence after PR #125:**
 
-**Production scenario:** operators rebuild the same source commit separately in staging and production, or reuse a mutable image tag. Mutable base-image tags and build environment differences can produce different artifacts, so staging verification may not be evidence about the production image; rollback may also be unavailable if the prior image was not retained.
+- `compose.deploy.yml` no longer contains application `build:` entries for `migrate`, `api`, or `web`; secure deployment consumes prebuilt image references instead of rebuilding application images in staging/production.
+- `BETCCO_API_IMAGE` and `BETCCO_WEB_IMAGE` are the secure-deployment image contract and are documented as full OCI digest references.
+- `migrate` and `api` use the exact same API image reference.
+- `.github/scripts/validate_release_images.py` rejects empty, tag-only, `:latest`, malformed-digest, malformed-source-SHA, API/migration mismatch, and same-release staging/production digest mismatch inputs.
+- `docs/release-manifest.schema.json` links one full source commit SHA to API, Web, and migration image references, prior known-good release references, and staging/production evidence fields without claiming deployment evidence before it exists.
+- `docs/DEPLOYMENT.md` now defines build-once → publish externally → record immutable digests → deploy exact digests to staging → verify → promote the same digests to production. Rollback uses exact previous digest references and does not imply automatic schema downgrade.
+- PR #125 final-head Quality, Full UAT Matrix, Security analysis, both CodeQL languages, Dependency Review, Compose validation, production image build, migration-image execution, and production API health checks passed before merge. Post-merge main Quality and Security analysis also passed.
 
-**Impact:** release integrity, reproducibility, and rollback availability.
+**Remaining production gap:** the repository intentionally does not select a registry or deployment platform and does not prove that an API/Web image pair has actually been published by digest, retained, pulled in staging, verified there, then promoted unchanged to production. Registry retention, provenance, production approval, and rollback pullability therefore remain external evidence.
 
-**Recommended remediation:** publish one image pair per reviewed source SHA, record immutable digests and build provenance, promote those digests unchanged from staging to production, keep the prior digests available, and have the release record link commit, migration, smoke result, approval, and rollback target.
+**Production scenario:** the repository prevents the old source-rebuild deployment contract, but without a real registry/promotion path there is still no operational proof that staging and production ran the same published bytes or that the previous release remains pullable for rollback.
 
-**Suggested tests:** assert deploy manifests use the same API/web digests in staging and production; reject mutable/non-SHA release references; prove prior digest remains pullable and rollback smoke succeeds after a failed staging/production deployment.
+**Impact:** release integrity, reproducibility, provenance, and rollback availability.
 
-**Dependencies:** image registry and deployment platform.
-**Ownership:** shared.
+**Required external remediation:** approve an image registry and deployment platform; publish one API/Web image pair from the reviewed source SHA; capture registry digests/provenance; retain current and previous known-good digests; deploy the exact pair to staging and record smoke evidence; promote those exact references unchanged to production after approval; verify rollback can still pull the prior references.
+
+**Suggested external tests:** publish synthetic/non-production release artifacts to the approved registry; verify recorded digests are pullable; deploy exactly those references in staging; compare release records before production promotion; demonstrate that production uses the identical API/Web digests and that the prior digests remain pullable for rollback.
+
+**Dependencies:** approved image registry, deployment platform, release operator/approver, retention policy.
+**Ownership:** shared/external for remaining evidence.
 
 ## P2 Improvements
 
@@ -475,7 +484,7 @@ Repository-controlled P1-02 recovery evidence is VERIFIED for PostgreSQL (PR #11
 - `quality.yml` and `security.yml` use immutable action references. Current `main` branch protection requires Application Quality, Dependency Review, CodeQL (csharp), and CodeQL (javascript-typescript).
 - PR #111 added `Verify PostgreSQL backup and isolated restore` to Application Quality; the recovery drill passed on its final merged head. PR #114's documentation-only reconciliation passed Quality, Security analysis, and Full UAT before merge. PR #117's final reviewed head passed Quality, Full UAT Matrix, and Security analysis before merge.
 - `full-uat.yml` runs on pull requests to `main` or manual dispatch. It exercises browser flows with disposable infrastructure and does not constitute real production-provider or staging-environment evidence.
-- No workflow currently publishes one immutable API/web image pair and promotes the exact same digests unchanged from staging to production. P1-04 therefore remains open.
+- PR #125 verifies the repository-controlled immutable release contract and removes application image rebuilding from secure deployment. No workflow currently publishes a real API/Web image pair to an approved registry or proves same-digest staging-to-production promotion. P1-04 therefore remains externally open.
 - No OPEN/Draft PR existed at the 2026-09-28 reconciliation point. Repository-admin/provider alert evidence outside the GitHub checks described above remains external where applicable.
 
 ## Recommended ASUS Implementation Sequence
@@ -488,7 +497,7 @@ Repository-controlled P1-02 recovery evidence is VERIFIED for PostgreSQL (PR #11
 | 4 | **ASUS-10E1A — PostgreSQL Backup & Restore Recovery Drill** | **DONE / MERGED — PR #111** | Repository PostgreSQL restore path verified; no production-provider restore is claimed. | Completed |
 | 5 | **ASUS-10E1B — S3 Object Recovery + Data Protection Certificate Recovery** | **DONE / MERGED — PR #117** | Repository-controlled private S3 logical-object and encrypted Data Protection key-ring/certificate recovery evidence is verified; external provider and production certificate custody remain open. Merge: `25c162a9b002f84e604eed310a73680294055a0e`. | Completed |
 | 6 | **ASUS-10E2A — Operational Signals & Incident Runbooks** | **DONE / MERGED — PR #123** | Repository-controlled P1-03 observability/runbook foundation verified; external alert delivery/on-call evidence remains provider/operator work. Merge: `7201ae473eae507877d314fe8c06a71de418b7bf`. | Completed |
-| 7 | **ASUS-10F — Immutable Release Promotion** | PLANNED | Close P1-04 by publishing and promoting identical immutable API/web digests with rollback evidence. | GPT-6 Luna / HIGH initially |
+| 7 | **ASUS-10F1 — Immutable Release Artifact Contract** | **DONE / MERGED — PR #125** | Repository-controlled immutable deployment/release/rollback contract verified. Merge: `ee55375461a4da6481d3ba948c487c1053734527`. **10F2 remains BLOCKED / EXTERNAL-DEPENDENT** pending approved registry/deployment platform and real promotion evidence. | Completed |
 | 8 | **ASUS-10G — Live Commerce Provider Readiness** | CONDITIONAL / EXTERNAL-HEAVY | Only if paid sales/payouts are in launch scope; preserve ASUS-08C2 NO-GO until provider evidence exists. | GPT-6 Sol / HIGH when finance/provider changes are required |
 
 Before each implementation branch, refresh `origin/main`, all OPEN/Draft PRs, changed files, CI, and review threads. Do not infer completion from this sequence alone; merged code and current GitHub evidence remain authoritative.
