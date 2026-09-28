@@ -251,7 +251,41 @@ Then check `__EFMigrationsHistory`, database connectivity, agreed application ro
 
 The repository proves only that its PostgreSQL custom-format procedure can restore the synthetic, migrated BETCCO database in CI. It does not configure or verify production-host backup scheduling, provider snapshots, encryption, access separation, retention, restore completion, or recovery time. Production backups contain sensitive learner, identity, and financial data: production backup storage must be encrypted at rest and access-restricted separately from the database credentials. Provider, location, retention, and operator ownership must be selected and evidenced externally.
 
-These procedures do not back up or restore private S3 objects or the Data Protection certificate. Those recovery paths remain open work.
+These procedures do not prove that a production provider backs up or restores private S3 objects or the Data Protection certificate. Repository-controlled logical recovery checks for both paths are described below; external provider and certificate-custody evidence remains operator-owned.
+
+## Private S3 object recovery
+
+### Repository-tested logical recovery
+
+The Application Quality workflow runs `S3PrivateObjectRecoveryTests` against the pinned MinIO/`mc` image built from `infra/minio/Dockerfile`, using isolated, randomly named source, recovery-copy, restore, and negative-path buckets. Synthetic objects cover different byte sizes, content types, nested server-owned `objects/YYYY/MM/<guid>` keys, and user metadata. The test records a JSON manifest containing only object keys, byte sizes, SHA-256 digests, content types, and the applicable BETCCO metadata, then verifies the manifest and restored bytes through the S3-compatible API. A manifest SHA-256 detects accidental change; it does not authenticate the manifest or prove who created it.
+
+The recovery target must be a newly provisioned private bucket that is different from both source and recovery-copy buckets. Refuse an existing target containing any objects. Copy only finalized `objects/` keys and use a recovery manifest to compare the expected exact key set, count, content length, content type, required metadata, and SHA-256 after restoration. Keep the source untouched and verify anonymous bucket and object requests remain denied. The repository test also checks equal source/target rejection, non-empty target rejection, missing source, corrupted/incomplete manifests, and cleanup of only drill-created buckets.
+
+`staging/` keys are transient upload state. The durable business recovery set consists of finalized `objects/` keys referenced by persisted application records. Do not promote stale staging keys into finalized objects. If a separate operational requirement calls for staging recovery, copy that prefix separately and retain its staging status.
+
+The repository proves a logical private-object copy/restore procedure, S3-compatible API behavior, and synthetic fingerprint/private-access verification only. It does not prove that a real production provider has bucket versioning, snapshots, cross-region replication, object lock, retention, backup-account separation, provider-side encryption, or an already completed provider restore. Do not enable versioning or assert provider settings based on this CI check. Use the provider's documented backup/export facility and restore to an isolated private target; retain the source bucket unchanged until application-level verification is complete.
+
+## Data Protection key-ring and certificate recovery
+
+PostgreSQL stores the Data Protection key-ring XML, and BETCCO encrypts the persisted keys with the configured X.509 certificate. The PFX/private key and its password are separate critical recovery assets. Restoring PostgreSQL without the corresponding certificate/private key may leave existing protected payloads, such as authentication tokens, unreadable. Keep the PFX and password in approved external secret/backup systems with restricted access and an operational/geographic failure boundary separate from the application host as appropriate. Never commit a PFX, private key, or password to Git.
+
+After recovering a certificate, supply its password to the verification script through the approved secret mechanism as `BETCCO_DATA_PROTECTION_CERT_PASSWORD`; do not place the password in a command argument or shell history. Run:
+
+```powershell
+./scripts/verify-data-protection-certificate.ps1 -CertificatePath /secure/recovery/data-protection.pfx
+```
+
+The script reports the certificate SHA-256 fingerprint, thumbprint, subject, validity dates, and private-key availability without exporting or displaying private-key bytes or the password. Compare the safe identifiers and validity against the separately recorded certificate inventory before deploying it. Restrict access to the terminal and clear the temporary password environment value after verification.
+
+The CI recovery test creates short-lived test-only PFX files and random passwords under runner temporary storage, then removes them. It exercises the production registration helper with PostgreSQL key persistence, certificate protection, and application name `BETCCO`; a newly constructed service provider using the same database and certificate must unprotect the synthetic payload, while a different certificate fails. A missing certificate path/password fails the production startup validator. This proves the repository recovery dependency only; it is not evidence that a production PFX backup exists or can be accessed.
+
+### Certificate rotation is separate
+
+Recovery reuses the original certificate that encrypted the key-ring entries. The current application registers `ProtectKeysWithCertificate` for the configured certificate and does not register older certificates through `UnprotectKeysWithAnyCertificate`. Replacing it with a new certificate alone therefore does not establish that historical key-ring entries remain decryptable. Preserve the old private key for as long as its key-ring entries may be needed. A safe rotation procedure requires explicit review and a separate cryptographic change; no multi-certificate rotation support is claimed here.
+
+## Combined recovery evidence
+
+BETCCO recovery depends on the PostgreSQL backup/restore procedure above, finalized private S3 object recovery, and the Data Protection certificate/private key needed for the restored key ring. External secrets/configuration and real provider restore evidence are additional operator responsibilities. Repository CI evidence does not establish production disaster recovery, backup frequency, retention, recovery ownership, RPO, or RTO. Record a real exercise in `docs/operations/restore-drill-record.md` without storing credentials, PFX bytes, object content, or private records.
 
 ### Recovery decisions
 
