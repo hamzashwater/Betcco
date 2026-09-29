@@ -190,6 +190,11 @@ describe("account profiles", () => {
       expect(screen.getByDisplayValue("sam@example.com")).toHaveAttribute(
         "readonly",
       );
+      expect(
+        screen.getByRole("heading", {
+          name: role === "teacher" ? "Teacher account" : "Admin account",
+        }),
+      ).toBeVisible();
     },
   );
 
@@ -203,7 +208,133 @@ describe("account profiles", () => {
       "href",
       "/ar/teacher/security",
     );
+    expect(screen.getByRole("heading", { name: "حساب المعلم" })).toBeVisible();
   });
+
+  it.each([
+    { locale: "ar", role: "support", account: "حساب مساعد الإدارة" },
+    { locale: "en", role: "support", account: "Support administrator account" },
+    { locale: "ar", role: "admin", account: "حساب الأدمن" },
+    { locale: "en", role: "admin", account: "Admin account" },
+  ] as const)(
+    "localizes the $role account summary in $locale",
+    async ({ locale, role, account }) => {
+      apiMock.mockResolvedValue(profile);
+      renderAccount(<AccountProfile role={role} />, locale);
+      expect(
+        await screen.findByRole("heading", { name: account }),
+      ).toBeVisible();
+    },
+  );
+
+  it.each(["ar", "en"] as const)(
+    "localizes the profile and secure email-change surfaces in %s",
+    async (locale) => {
+      const copy =
+        locale === "ar"
+          ? {
+              title: "الملف الشخصي",
+              profileTab: "الملف الشخصي",
+              security: "أمان الحساب",
+              basicDetails: "البيانات الأساسية",
+              name: "الاسم",
+              email: "البريد الإلكتروني",
+              saving: "جارٍ الحفظ…",
+              saved: "تم حفظ بيانات الحساب.",
+              emailTitle: "تغيير البريد الإلكتروني",
+              newEmail: "البريد الجديد",
+              currentPassword: "كلمة المرور الحالية",
+              send: "إرسال رابط التحقق",
+              emailSuccess:
+                "أرسلنا رابط التحقق إلى البريد الجديد. صلاحيته ساعة واحدة.",
+            }
+          : {
+              title: "Your profile",
+              profileTab: "Profile",
+              security: "Security",
+              basicDetails: "Basic details",
+              name: "Name",
+              email: "Email",
+              saving: "Saving…",
+              saved: "Account details saved.",
+              emailTitle: "Change email",
+              newEmail: "New email",
+              currentPassword: "Current password",
+              send: "Send confirmation link",
+              emailSuccess:
+                "A confirmation link was sent to the new address. It expires in one hour.",
+            };
+      let finishSave: ((value: typeof profile) => void) | undefined;
+      apiMock.mockImplementation((path: string, options?: RequestInit) => {
+        if (path === "/auth/profile" && options?.method === "PUT")
+          return new Promise((resolve) => {
+            finishSave = resolve;
+          });
+        if (path === "/auth/profile") return Promise.resolve(profile);
+        if (path === "/auth/email-change/request") return Promise.resolve();
+        return Promise.reject(new Error(`Unexpected ${path}`));
+      });
+      renderAccount(<AccountProfile role="student" />, locale);
+
+      expect(
+        await screen.findByRole("heading", { name: copy.title }),
+      ).toBeVisible();
+      expect(
+        screen.getByRole("heading", { name: copy.basicDetails }),
+      ).toBeVisible();
+      expect(
+        await screen.findByRole("textbox", { name: copy.name }),
+      ).toHaveValue("Sam Learner");
+      expect(screen.getByRole("textbox", { name: copy.email })).toHaveAttribute(
+        "readonly",
+      );
+      expect(
+        screen.getByRole("link", { name: copy.profileTab }),
+      ).toHaveAttribute("aria-current", "page");
+      expect(screen.getByRole("link", { name: copy.security })).toHaveAttribute(
+        "href",
+        `/${locale}/student/security`,
+      );
+      expect(
+        screen.getByRole("heading", { name: copy.emailTitle }),
+      ).toBeVisible();
+      expect(screen.getByLabelText(copy.newEmail)).toBeRequired();
+      expect(screen.getByLabelText(copy.currentPassword)).toBeRequired();
+      expect(screen.getByRole("button", { name: copy.send })).toBeVisible();
+
+      await userEvent.setup().click(
+        screen.getByRole("button", {
+          name: locale === "ar" ? "حفظ البيانات" : "Save details",
+        }),
+      );
+      expect(
+        await screen.findByRole("button", { name: copy.saving }),
+      ).toBeDisabled();
+      finishSave?.(profile);
+      expect(await screen.findByRole("status")).toHaveTextContent(copy.saved);
+
+      const user = userEvent.setup();
+      await user.type(screen.getByLabelText(copy.newEmail), "new@example.com");
+      await user.type(
+        screen.getByLabelText(copy.currentPassword),
+        "T!estPassword123",
+      );
+      await user.click(screen.getByRole("button", { name: copy.send }));
+      await waitFor(() =>
+        expect(apiMock).toHaveBeenCalledWith(
+          "/auth/email-change/request",
+          expect.objectContaining({
+            method: "POST",
+            body: JSON.stringify({
+              newEmail: "new@example.com",
+              currentPassword: "T!estPassword123",
+            }),
+          }),
+        ),
+      );
+      expect(await screen.findByText(copy.emailSuccess)).toBeVisible();
+    },
+  );
 
   it("requires a password and new mailbox confirmation for a student email request", async () => {
     apiMock.mockImplementation((path: string) =>
@@ -505,6 +636,64 @@ describe("security with existing endpoints", () => {
       return Promise.reject(new Error(`Unexpected ${path}`));
     });
   }
+
+  it.each(["ar", "en"] as const)(
+    "localizes account security, MFA, and session content in %s",
+    async (locale) => {
+      mockSecurity(false, true);
+      vi.spyOn(window, "confirm").mockReturnValue(true);
+      const copy =
+        locale === "ar"
+          ? {
+              security: "أمان الحساب والجلسات",
+              profileTab: "الملف الشخصي",
+              securityTab: "أمان الحساب",
+              changePassword: "تغيير كلمة المرور",
+              twoFactor: "المصادقة الثنائية",
+              sessions: "الجلسات النشطة",
+              signOutOthers: "إنهاء الأجهزة الأخرى",
+              notice: "تم إنهاء 1 من الجلسات الأخرى.",
+            }
+          : {
+              security: "Account security and sessions",
+              profileTab: "Profile",
+              securityTab: "Security",
+              changePassword: "Change password",
+              twoFactor: "Two-factor authentication",
+              sessions: "Active sessions",
+              signOutOthers: "Sign out other devices",
+              notice: "1 other sessions signed out.",
+            };
+      renderAccount(<AccountSecurity role="teacher" />, locale);
+
+      expect(
+        await screen.findByRole("heading", { name: copy.security }),
+      ).toBeVisible();
+      expect(
+        screen.getByRole("link", { name: copy.profileTab }),
+      ).toHaveAttribute("href", `/${locale}/teacher/profile`);
+      expect(
+        screen.getByRole("link", { name: copy.securityTab }),
+      ).toHaveAttribute("aria-current", "page");
+      expect(
+        screen.getByRole("heading", { name: copy.changePassword }),
+      ).toBeVisible();
+      expect(
+        screen.getByRole("heading", { name: copy.twoFactor }),
+      ).toBeVisible();
+      expect(
+        screen.getByRole("heading", { name: copy.sessions }),
+      ).toBeVisible();
+      await userEvent
+        .setup()
+        .click(screen.getByRole("button", { name: copy.signOutOthers }));
+      expect(await screen.findByRole("status")).toHaveTextContent(copy.notice);
+      expect(apiMock).toHaveBeenCalledWith(
+        "/auth/sessions/logout-others",
+        expect.objectContaining({ method: "POST" }),
+      );
+    },
+  );
 
   it("shows disabled 2FA, setup secret, and invalid-code feedback", async () => {
     mockSecurity(false);

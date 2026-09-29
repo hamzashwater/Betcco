@@ -3,7 +3,7 @@
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AtSign, Phone, UserRound } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { AccountLayout, type AccountRole } from "./account-layout";
 import { StudentEmailChange } from "./student-email-change";
@@ -25,7 +25,7 @@ export function AccountProfile({
   role: AccountRole;
   aside?: React.ReactNode;
 }) {
-  const locale = useLocale();
+  const t = useTranslations("auth.accountProfile");
   const client = useQueryClient();
   const [notice, setNotice] = useState<string | null>(null);
   const profile = useQuery({
@@ -49,9 +49,7 @@ export function AccountProfile({
     onSuccess: (result) => {
       client.setQueryData(["account-profile"], result);
       void client.invalidateQueries({ queryKey: ["current-user"] });
-      setNotice(
-        locale === "ar" ? "تم حفظ بيانات الحساب." : "Account details saved.",
-      );
+      setNotice(t("saved"));
     },
   });
 
@@ -76,39 +74,31 @@ export function AccountProfile({
               <UserRound size={22} aria-hidden="true" />
             </span>
             <div className="min-w-0">
-              <h2 className="text-xl font-black">
-                {locale === "ar" ? "البيانات الأساسية" : "Basic details"}
-              </h2>
+              <h2 className="text-xl font-black">{t("basicDetails")}</h2>
               <p className="mt-1 text-sm leading-6 text-muted">
-                {locale === "ar"
-                  ? "يمكنك تحديث اسمك ورقم هاتفك وتفضيل الرسائل التسويقية."
-                  : "Update your name, phone number, and marketing preference."}
+                {t("description")}
               </p>
             </div>
           </div>
           {profile.isPending ? (
             <p className="mt-6 text-sm text-muted" aria-busy="true">
-              {locale === "ar" ? "جارٍ تحميل البيانات…" : "Loading details…"}
+              {t("loading")}
             </p>
           ) : profile.isError || !profile.data ? (
             <div className="mt-6" role="alert">
-              <p className="text-sm text-red-600">
-                {locale === "ar"
-                  ? "تعذر تحميل بيانات الحساب."
-                  : "Your account details could not be loaded."}
-              </p>
+              <p className="text-sm text-red-600">{t("loadError")}</p>
               <button
                 type="button"
                 onClick={() => void profile.refetch()}
                 className="focus-ring mt-3 text-sm font-bold text-primary"
               >
-                {locale === "ar" ? "إعادة المحاولة" : "Try again"}
+                {t("retry")}
               </button>
             </div>
           ) : (
             <div key={profile.data.email} className="mt-6 grid gap-4">
               <label className="grid gap-1.5 text-sm font-bold">
-                <span>{locale === "ar" ? "الاسم" : "Name"}</span>
+                <span>{t("name")}</span>
                 <span className="relative">
                   <UserRound
                     size={18}
@@ -126,7 +116,7 @@ export function AccountProfile({
                 </span>
               </label>
               <label className="grid gap-1.5 text-sm font-bold">
-                <span>{locale === "ar" ? "البريد الإلكتروني" : "Email"}</span>
+                <span>{t("email")}</span>
                 <span className="relative">
                   <AtSign
                     size={18}
@@ -136,7 +126,7 @@ export function AccountProfile({
                   <input
                     readOnly
                     value={profile.data.email ?? ""}
-                    aria-label={locale === "ar" ? "البريد الإلكتروني" : "Email"}
+                    aria-label={t("email")}
                     aria-describedby="managed-email-help"
                     className="w-full min-w-0 rounded-xl border border-border bg-muted/35 py-2.5 ps-10 pe-3 text-muted"
                   />
@@ -146,20 +136,12 @@ export function AccountProfile({
                   className="text-xs font-normal leading-5 text-muted"
                 >
                   {role === "student"
-                    ? locale === "ar"
-                      ? "استخدم إجراء تغيير البريد الآمن أدناه."
-                      : "Use the secure change email action below."
-                    : locale === "ar"
-                      ? "تُدير الإدارة بريد هذا الحساب."
-                      : "Administration manages this account's email."}
+                    ? t("studentEmailHelp")
+                    : t("managedEmailHelp")}
                 </span>
               </label>
               <label className="grid gap-1.5 text-sm font-bold">
-                <span>
-                  {locale === "ar"
-                    ? "رقم الهاتف (اختياري)"
-                    : "Phone (optional)"}
-                </span>
+                <span>{t("phoneOptional")}</span>
                 <span className="relative">
                   <Phone
                     size={18}
@@ -182,24 +164,14 @@ export function AccountProfile({
                   defaultChecked={profile.data.marketingConsent}
                   className="mt-1 size-4 shrink-0 accent-[var(--primary)]"
                 />
-                <span>
-                  {locale === "ar"
-                    ? "أوافق اختياريًا على تلقي العروض والرسائل التسويقية. يمكنني سحب الموافقة في أي وقت."
-                    : "I optionally agree to receive offers and marketing messages. I can withdraw consent at any time."}
-                </span>
+                <span>{t("marketingConsent")}</span>
               </label>
               <button
                 type="submit"
                 disabled={save.isPending}
                 className="focus-ring rounded-xl bg-primary px-4 py-3 text-sm font-black text-slate-950 disabled:cursor-wait disabled:opacity-60"
               >
-                {save.isPending
-                  ? locale === "ar"
-                    ? "جارٍ الحفظ…"
-                    : "Saving…"
-                  : locale === "ar"
-                    ? "حفظ البيانات"
-                    : "Save details"}
+                {save.isPending ? t("saving") : t("saveDetails")}
               </button>
               {notice && (
                 <p
@@ -213,9 +185,7 @@ export function AccountProfile({
                 <p role="alert" className="text-sm text-red-600">
                   {save.error instanceof Error
                     ? save.error.message
-                    : locale === "ar"
-                      ? "تعذر حفظ البيانات."
-                      : "Your details could not be saved."}
+                    : t("saveError")}
                 </p>
               )}
             </div>
@@ -228,21 +198,13 @@ export function AccountProfile({
             </div>
             <h2 className="mt-4 text-xl font-black">
               {role === "teacher"
-                ? locale === "ar"
-                  ? "حساب المعلم"
-                  : "Teacher account"
+                ? t("teacherAccount")
                 : role === "support"
-                  ? locale === "ar"
-                    ? "حساب مساعد الإدارة"
-                    : "Support administrator account"
-                  : locale === "ar"
-                    ? "حساب الأدمن"
-                    : "Admin account"}
+                  ? t("supportAccount")
+                  : t("adminAccount")}
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted">
-              {locale === "ar"
-                ? "تظهر هنا بيانات حسابك الفعلية. لحماية حسابك، راجع المصادقة الثنائية والأجهزة المسجّلة الدخول من تبويب الأمان."
-                : "Your account details come from your live profile. Review two-factor authentication and signed-in devices on the Security tab."}
+              {t("accountSecurityDescription")}
             </p>
           </aside>
         )}

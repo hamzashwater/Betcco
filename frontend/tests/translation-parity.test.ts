@@ -7,7 +7,19 @@ const parityNamespaces = [
   "footer",
   "cookieConsent",
   "auth",
+  "auth.accountLayout",
+  "auth.accountProfile",
+  "auth.accountSecurity",
+  "auth.studentEmailChange",
 ] as const;
+
+function namespaceValue(value: unknown, namespace: string): unknown {
+  return namespace.split(".").reduce<unknown>((current, key) => {
+    if (!current || typeof current !== "object" || !(key in current))
+      return undefined;
+    return (current as Record<string, unknown>)[key];
+  }, value);
+}
 
 function shape(value: unknown, prefix = ""): string[] {
   if (Array.isArray(value)) {
@@ -21,10 +33,12 @@ function shape(value: unknown, prefix = ""): string[] {
   return [prefix];
 }
 
-describe("shared shell and authentication translation parity", () => {
+describe("shared shell, authentication, and account translation parity", () => {
   it.each(parityNamespaces)("has matching AR/EN keys in %s", (namespace) => {
-    const arabicShape = shape(arabicMessages[namespace]).sort();
-    const englishShape = shape(englishMessages[namespace]).sort();
+    const arabicShape = shape(namespaceValue(arabicMessages, namespace)).sort();
+    const englishShape = shape(
+      namespaceValue(englishMessages, namespace),
+    ).sort();
     expect(englishShape).toEqual(arabicShape);
     expect(arabicShape.every(Boolean)).toBe(true);
   });
