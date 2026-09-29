@@ -160,6 +160,7 @@ public sealed class ResitServiceTests
         var (_, authorization) = await SeedActivationAsync(db);
         var activated = await new ResitService(db).ActivateAsync(StudentId.ToString(), authorization.Id);
         var resitId = Assert.IsType<Guid>(activated.ResitEvaluationRequestId);
+        var request = await db.EvaluationRequests.SingleAsync(item => item.Id == resitId);
         var controller = new EvaluationsController(null!, null!, null!, db, null!, null!)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
@@ -184,9 +185,17 @@ public sealed class ResitServiceTests
         await db.SaveChangesAsync();
         var json = DetailJson();
         Assert.Contains("\"hasAuthenticityDeclaration\":true", json);
+        using (var detail = JsonDocument.Parse(json))
+            Assert.Equal(
+                request.AssessmentScopeId,
+                detail.RootElement.GetProperty("assessmentScopeId").GetGuid());
         Assert.DoesNotContain("PRIVATE STATEMENT", json);
         Assert.DoesNotContain("PRIVATE AGENT", json);
         Assert.DoesNotContain("203.0.113.10", json);
+
+        controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim(ClaimTypes.NameIdentifier, OtherStudentId.ToString()), new Claim(ClaimTypes.Role, "Student")], "test"));
+        Assert.IsType<NotFoundResult>(await controller.Get(resitId, CancellationToken.None));
     }
 
     [Fact]
