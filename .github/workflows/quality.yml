@@ -79,6 +79,10 @@ jobs:
       MINIO_PRIVATE_BUCKET: betcco-ci-private
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Validate production Docker base image digests
+        run: python3 .github/scripts/validate_docker_base_images.py
+      - name: Test production Docker base image validator
+        run: python3 .github/scripts/test_validate_docker_base_images.py
       - name: Validate immutable release artifact contract
         run: python3 .github/scripts/test_validate_release_images.py
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0

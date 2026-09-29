@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:35d40304542c8689331f8cab17c65926cdf48fe711e289321d71924b230a7d29 AS build
 WORKDIR /src
 
 COPY backend/Betcco.sln backend/
@@ -13,7 +13,7 @@ RUN dotnet publish backend/src/Betcco.Api/Betcco.Api.csproj --configuration Rele
 
 # .NET 10 default tags use the supported Ubuntu Noble image. Debian tags are
 # not published for .NET 10, so keep the platform tag explicit but portable.
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0@sha256:2d584d8147faddb0d678c5748d47953e5b8e18621ed4fb7049a91381d9d7746f AS runtime
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
