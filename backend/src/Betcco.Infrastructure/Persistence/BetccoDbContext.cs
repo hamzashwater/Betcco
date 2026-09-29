@@ -35,6 +35,7 @@ public sealed class BetccoDbContext(
     public DbSet<LiveSession> LiveSessions => Set<LiveSession>();
     public DbSet<LiveSessionAttendance> LiveSessionAttendances => Set<LiveSessionAttendance>();
     public DbSet<Enrollment> Enrollments => Set<Enrollment>();
+    public DbSet<CourseAccessGrant> CourseAccessGrants => Set<CourseAccessGrant>();
     public DbSet<ContentAccessRule> ContentAccessRules => Set<ContentAccessRule>();
     public DbSet<ContentPrerequisite> ContentPrerequisites => Set<ContentPrerequisite>();
     public DbSet<LessonProgress> LessonProgresses => Set<LessonProgress>();
@@ -177,6 +178,7 @@ public sealed class BetccoDbContext(
         EnsureFinancialLedgerIsAppendOnly();
         EnsurePayoutsAreControlled();
         EnsureRefundsAreControlled();
+        EnsureCourseAccessGrantProvenanceIsImmutable();
         EnsureReconciliationCasesAreControlled();
         EnsureDisputesAreControlled();
         EnsureCommercialDocumentsAreAppendOnly();
@@ -203,6 +205,34 @@ public sealed class BetccoDbContext(
             audit.OldValuesJson = Trim(audit.OldValuesJson, 16_000);
             audit.NewValuesJson = Trim(audit.NewValuesJson, 16_000);
             audit.MetadataJson = Trim(audit.MetadataJson, 16_000);
+        }
+    }
+
+    private void EnsureCourseAccessGrantProvenanceIsImmutable()
+    {
+        string[] immutable =
+        [
+            nameof(CourseAccessGrant.StudentUserId), nameof(CourseAccessGrant.CourseId),
+            nameof(CourseAccessGrant.SourceType), nameof(CourseAccessGrant.SourceId),
+            nameof(CourseAccessGrant.PaymentId), nameof(CourseAccessGrant.GrantedAtUtc),
+            nameof(CourseAccessGrant.ValidFromUtc), nameof(CourseAccessGrant.ValidUntilUtc),
+            nameof(CourseAccessGrant.IsDeleted)
+        ];
+        foreach (var entry in ChangeTracker.Entries<CourseAccessGrant>())
+        {
+            if (entry.State == EntityState.Deleted
+                || entry.State == EntityState.Modified && (immutable.Any(name =>
+                    !Equals(entry.Property(name).OriginalValue, entry.Property(name).CurrentValue))
+                    || entry.OriginalValues.GetValue<DateTimeOffset?>(nameof(CourseAccessGrant.RevokedAtUtc)) is not null))
+                throw new InvalidOperationException("Course access grant provenance and prior revocations are immutable.");
+            if (entry.State is not (EntityState.Added or EntityState.Modified)) continue;
+            var grant = entry.Entity;
+            if (grant.IsDeleted
+                || (grant.SourceType is CourseAccessGrantSource.Legacy or CourseAccessGrantSource.Manual) != (grant.PaymentId is null)
+                || grant.ValidUntilUtc is { } until && until <= grant.ValidFromUtc
+                || grant.RevokedAtUtc is null && (grant.RevocationReason is not null || grant.RevokedByRefundId is not null)
+                || grant.RevokedAtUtc is not null && string.IsNullOrWhiteSpace(grant.RevocationReason))
+                throw new InvalidOperationException("Course access grant source or revocation state is invalid.");
         }
     }
 
@@ -909,6 +939,19 @@ public sealed class BetccoDbContext(
             .HasForeignKey(x => x.AssessmentCriterionDefinitionId).OnDelete(DeleteBehavior.Restrict);
         builder.Entity<Enrollment>().HasIndex(x => new { x.StudentUserId, x.CourseId }).IsUnique();
         builder.Entity<Enrollment>().HasIndex(x => new { x.StudentUserId, x.AccessEndsAtUtc });
+        builder.Entity<CourseAccessGrant>().HasOne(x => x.Course).WithMany().HasForeignKey(x => x.CourseId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<CourseAccessGrant>().HasOne<Payment>().WithMany().HasForeignKey(x => x.PaymentId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<CourseAccessGrant>().HasOne<Refund>().WithMany().HasForeignKey(x => x.RevokedByRefundId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<CourseAccessGrant>().HasIndex(x => new { x.SourceType, x.SourceId, x.CourseId }).IsUnique();
+        builder.Entity<CourseAccessGrant>().HasIndex(x => new { x.StudentUserId, x.CourseId, x.RevokedAtUtc, x.ValidUntilUtc });
+        builder.Entity<CourseAccessGrant>().HasIndex(x => new { x.PaymentId, x.RevokedAtUtc });
+        builder.Entity<CourseAccessGrant>().Property(x => x.RevocationReason).HasMaxLength(64);
+        builder.Entity<CourseAccessGrant>().ToTable(table =>
+        {
+            table.HasCheckConstraint("CK_CourseAccessGrants_SourcePayment", "(\"SourceType\" IN (3, 4) AND \"PaymentId\" IS NULL) OR (\"SourceType\" IN (0, 1, 2) AND \"PaymentId\" IS NOT NULL)");
+            table.HasCheckConstraint("CK_CourseAccessGrants_Validity", "\"SourceType\" = 3 OR \"ValidUntilUtc\" IS NULL OR \"ValidUntilUtc\" > \"ValidFromUtc\"");
+            table.HasCheckConstraint("CK_CourseAccessGrants_Revocation", "(\"RevokedAtUtc\" IS NULL AND \"RevocationReason\" IS NULL AND \"RevokedByRefundId\" IS NULL) OR (\"RevokedAtUtc\" IS NOT NULL AND \"RevocationReason\" IS NOT NULL)");
+        });
         builder.Entity<ContentAccessRule>().HasIndex(x => new { x.CourseId, x.TargetType, x.TargetId }).IsUnique();
         builder.Entity<ContentAccessRule>().HasIndex(x => new { x.CourseId, x.ReleaseMode });
         builder.Entity<ContentPrerequisite>().HasIndex(x => new { x.CourseId, x.TargetType, x.TargetId });
@@ -1576,6 +1619,7 @@ public sealed class BetccoDbContext(
         EnsureFinancialLedgerIsAppendOnly();
         EnsurePayoutsAreControlled();
         EnsureRefundsAreControlled();
+        EnsureCourseAccessGrantProvenanceIsImmutable();
         EnsureReconciliationCasesAreControlled();
         EnsureDisputesAreControlled();
         EnsureCommercialDocumentsAreAppendOnly();

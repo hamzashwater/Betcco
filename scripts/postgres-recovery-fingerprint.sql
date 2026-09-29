@@ -8,7 +8,7 @@ BEGIN
   IF to_regclass('public."__EFMigrationsHistory"') IS NULL THEN
     RAISE EXCEPTION 'EF migration history table is missing';
   END IF;
-  IF (SELECT max("MigrationId") FROM "__EFMigrationsHistory") <> '20260926194938_AddEvaluationReviewDecisionHistory' THEN
+  IF (SELECT max("MigrationId") FROM "__EFMigrationsHistory") <> '20260929131246_AddCourseAccessGrantProvenance' THEN
     RAISE EXCEPTION 'The expected latest BETCCO migration is not present';
   END IF;
   IF NOT EXISTS (SELECT 1 FROM "AspNetUsers" WHERE "Id" = 'a1000000-0000-4000-8000-000000000001' AND "DisplayName" = 'Recovery Drill Synthetic Student') THEN

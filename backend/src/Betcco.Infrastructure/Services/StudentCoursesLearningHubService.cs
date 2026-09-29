@@ -17,9 +17,8 @@ public sealed class StudentCoursesLearningHubService(
         var now = DateTimeOffset.UtcNow;
         var search = query.Search?.Trim();
         var arabic = query.Locale.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
-        var enrollments = db.Enrollments.AsNoTracking()
+        var enrollments = db.ActiveEnrollments(now).AsNoTracking()
             .Where(enrollment => enrollment.StudentUserId == studentUserId
-                && (enrollment.AccessEndsAtUtc == null || enrollment.AccessEndsAtUtc > now)
                 && enrollment.Course!.Status == CourseStatus.Published);
 
         if (!string.IsNullOrWhiteSpace(search))

@@ -48,7 +48,7 @@ public sealed class StudentLearningToolsController(
             lessonTitle = Localize(locale, x.Lesson.ArabicTitle, x.Lesson.EnglishTitle),
             x.CreatedAtUtc
         }).ToListAsync(cancellationToken);
-        var courseIds = await db.Enrollments.AsNoTracking().Where(x => x.StudentUserId == studentId && (x.AccessEndsAtUtc == null || x.AccessEndsAtUtc > DateTimeOffset.UtcNow)).Select(x => x.CourseId).ToArrayAsync(cancellationToken);
+        var courseIds = await db.ActiveEnrollments(DateTimeOffset.UtcNow).AsNoTracking().Where(x => x.StudentUserId == studentId).Select(x => x.CourseId).ToArrayAsync(cancellationToken);
         var now = DateTimeOffset.UtcNow;
         var assignmentRows = await (
             from assignment in db.CourseAssignments.AsNoTracking()
@@ -337,16 +337,26 @@ public sealed class StudentLearningToolsController(
     {
         var studentId = UserId!;
         var now = DateTimeOffset.UtcNow;
-        var enrollments = await db.Enrollments.AsNoTracking()
+        var enrollments = await db.ActiveEnrollments(now).AsNoTracking()
             .Include(item => item.Course)
-            .Where(item => item.StudentUserId == studentId
-                && (item.AccessEndsAtUtc == null || item.AccessEndsAtUtc > now))
+            .Where(item => item.StudentUserId == studentId)
             .OrderBy(item => item.Course!.EnglishTitle)
             .ThenBy(item => item.EnrolledAtUtc)
             .ToListAsync(cancellationToken);
 
         var enrollmentIds = enrollments.Select(item => item.Id).ToArray();
-        var paymentIds = enrollments.Where(item => item.PaymentId.HasValue).Select(item => item.PaymentId!.Value).Distinct().ToArray();
+        var courseIds = enrollments.Select(item => item.CourseId).ToArray();
+        var grants = await db.CourseAccessGrants.AsNoTracking()
+            .Where(item => item.StudentUserId == studentId && courseIds.Contains(item.CourseId)
+                && item.RevokedAtUtc == null && item.ValidFromUtc <= now
+                && (item.ValidUntilUtc == null || item.ValidUntilUtc > now))
+            .ToListAsync(cancellationToken);
+        var currentGrantByCourse = grants.GroupBy(item => item.CourseId)
+            .ToDictionary(group => group.Key, group => group
+                .OrderBy(item => item.ValidUntilUtc is null ? 0 : 1)
+                .ThenByDescending(item => item.ValidUntilUtc)
+                .First());
+        var paymentIds = grants.Where(item => item.PaymentId.HasValue).Select(item => item.PaymentId!.Value).Distinct().ToArray();
         var paymentPurposes = paymentIds.Length == 0
             ? new Dictionary<Guid, string>()
             : await db.Payments.AsNoTracking()
@@ -365,7 +375,8 @@ public sealed class StudentLearningToolsController(
 
         var items = enrollments.Select(enrollment =>
         {
-            var sourcePurpose = enrollment.PaymentId is { } paymentId && paymentPurposes.TryGetValue(paymentId, out var purpose)
+            currentGrantByCourse.TryGetValue(enrollment.CourseId, out var currentGrant);
+            var sourcePurpose = currentGrant?.PaymentId is { } paymentId && paymentPurposes.TryGetValue(paymentId, out var purpose)
                 ? purpose
                 : "DirectEnrollment";
             var enrollmentCredits = creditsByEnrollment.GetValueOrDefault(enrollment.Id) ?? [];
@@ -374,10 +385,10 @@ public sealed class StudentLearningToolsController(
                 enrollmentId = enrollment.Id,
                 enrollment.CourseId,
                 courseTitle = Localize(locale, enrollment.Course!.ArabicTitle, enrollment.Course.EnglishTitle),
-                accessType = enrollment.AccessEndsAtUtc is null ? "Permanent" : "Timed",
+                accessType = (currentGrant is null ? enrollment.AccessEndsAtUtc : currentGrant.ValidUntilUtc) is null ? "Permanent" : "Timed",
                 enrollment.EnrolledAtUtc,
-                enrollment.AccessEndsAtUtc,
-                sourcePaymentId = enrollment.PaymentId,
+                AccessEndsAtUtc = currentGrant is null ? enrollment.AccessEndsAtUtc : currentGrant.ValidUntilUtc,
+                sourcePaymentId = currentGrant?.PaymentId,
                 sourcePurpose,
                 includedEvaluationCredits = enrollmentCredits.Select(credit => new
                 {
@@ -458,7 +469,7 @@ public sealed class StudentLearningToolsController(
     public async Task<IActionResult> IssueCertificate(Guid courseId, CancellationToken cancellationToken)
     {
         var studentId = UserId!;
-        if (!await db.Enrollments.AnyAsync(x => x.StudentUserId == studentId && x.CourseId == courseId && (x.AccessEndsAtUtc == null || x.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken)) return NotFound();
+        if (!await db.ActiveEnrollments(DateTimeOffset.UtcNow).AnyAsync(x => x.StudentUserId == studentId && x.CourseId == courseId, cancellationToken)) return NotFound();
         var lessonIds = await db.Lessons.AsNoTracking().Include(x => x.CourseModule).Where(x => x.CourseModule!.CourseId == courseId && x.IsPublished && x.Type != LessonType.LegacyArchived && x.CourseModule.IsPublished).Select(x => x.Id).ToArrayAsync(cancellationToken);
         if (lessonIds.Length == 0 || await db.LessonProgresses.CountAsync(x => x.StudentUserId == studentId && x.IsCompleted && lessonIds.Contains(x.LessonId), cancellationToken) != lessonIds.Length) return Conflict(new { message = "Complete every published lesson before issuing a certificate." });
         var certificate = await db.CourseCertificates.SingleOrDefaultAsync(x => x.StudentUserId == studentId && x.CourseId == courseId, cancellationToken);
@@ -515,7 +526,7 @@ public sealed class StudentLearningToolsController(
     public async Task<IActionResult> CourseAnnouncements(Guid courseId, [FromQuery] string locale = "ar", CancellationToken cancellationToken = default)
     {
         var studentId = UserId!;
-        if (!await db.Enrollments.AsNoTracking().AnyAsync(item => item.CourseId == courseId && item.StudentUserId == studentId && (item.AccessEndsAtUtc == null || item.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken)) return NotFound();
+        if (!await db.ActiveEnrollments(DateTimeOffset.UtcNow).AsNoTracking().AnyAsync(item => item.CourseId == courseId && item.StudentUserId == studentId, cancellationToken)) return NotFound();
         var announcements = await db.CourseAnnouncements.AsNoTracking().Include(item => item.CourseModule).ThenInclude(module => module!.UnitDefinition).Include(item => item.Recipients)
             .Where(item => item.CourseId == courseId && item.IsPublished
                 && (item.Audience != AnnouncementAudience.SelectedStudents || item.Recipients.Any(recipient => recipient.StudentUserId == studentId)))
@@ -561,7 +572,7 @@ public sealed class StudentLearningToolsController(
         return File(png, "image/png");
     }
 
-    private async Task<bool> OwnsLessonAsync(Guid lessonId, CancellationToken cancellationToken) => await db.Lessons.Include(x => x.CourseModule).AnyAsync(x => x.Id == lessonId && x.IsPublished && x.Type != LessonType.LegacyArchived && x.CourseModule!.IsPublished && db.Enrollments.Any(enrollment => enrollment.StudentUserId == UserId && enrollment.CourseId == x.CourseModule.CourseId && (enrollment.AccessEndsAtUtc == null || enrollment.AccessEndsAtUtc > DateTimeOffset.UtcNow)), cancellationToken);
+    private async Task<bool> OwnsLessonAsync(Guid lessonId, CancellationToken cancellationToken) => await db.Lessons.Include(x => x.CourseModule).AnyAsync(x => x.Id == lessonId && x.IsPublished && x.Type != LessonType.LegacyArchived && x.CourseModule!.IsPublished && db.ActiveEnrollments(DateTimeOffset.UtcNow).Any(enrollment => enrollment.StudentUserId == UserId && enrollment.CourseId == x.CourseModule.CourseId), cancellationToken);
     private string? UserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
     private AuditLog Audit(string action, string entityType, Guid entityId) => new() { ActorUserId = UserId, Action = action, EntityType = entityType, EntityId = entityId.ToString(), Outcome = "Success" };
     private static string Localize(string locale, string arabic, string english) =>
@@ -642,7 +653,7 @@ public sealed class CourseCommunityController(BetccoDbContext db, UserManager<Ap
 
     private async Task<bool> CanAccessCourseAsync(Guid courseId, CancellationToken cancellationToken) => User.IsInRole("Admin") || User.IsInRole("Teacher") && await db.Courses.AnyAsync(x => x.Id == courseId && x.TeacherUserId == UserId, cancellationToken) || await IsEnrolledAsync(courseId, cancellationToken);
     private async Task<bool> CanManageCourseAsync(Guid courseId, CancellationToken cancellationToken) => User.IsInRole("Admin") || User.IsInRole("Teacher") && await db.Courses.AnyAsync(x => x.Id == courseId && x.TeacherUserId == UserId, cancellationToken);
-    private async Task<bool> IsEnrolledAsync(Guid courseId, CancellationToken cancellationToken) => await db.Enrollments.AnyAsync(x => x.CourseId == courseId && x.StudentUserId == UserId && (x.AccessEndsAtUtc == null || x.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken);
+    private async Task<bool> IsEnrolledAsync(Guid courseId, CancellationToken cancellationToken) => await db.ActiveEnrollments(DateTimeOffset.UtcNow).AnyAsync(x => x.CourseId == courseId && x.StudentUserId == UserId, cancellationToken);
     private string? UserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
     private AuditLog Audit(string action, string entityType, Guid entityId) => new() { ActorUserId = UserId, Action = action, EntityType = entityType, EntityId = entityId.ToString(), Outcome = "Success" };
     private static string Localize(string locale, string arabic, string english) =>

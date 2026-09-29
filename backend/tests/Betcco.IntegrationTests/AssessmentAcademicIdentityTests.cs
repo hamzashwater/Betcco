@@ -12,9 +12,18 @@ public sealed class AssessmentAcademicIdentityTests
     [Trait("Category", "PostgreSQLFinance")]
     public async Task Empty_database_migrates_to_academic_identity_schema()
     {
-        await using var database = await PostgresTestDatabase.CreateAsync("academic_empty");
+        var migrations = new Betcco.Infrastructure.Persistence.BetccoDbContext(
+            new DbContextOptionsBuilder<Betcco.Infrastructure.Persistence.BetccoDbContext>()
+                .UseNpgsql("Host=localhost;Database=design_only")
+                .Options).Database.GetMigrations().ToArray();
+        var sliceOne = Array.FindIndex(migrations, x => x.EndsWith("_AddAssessmentAcademicIdentity", StringComparison.Ordinal));
+        Assert.True(sliceOne > 0);
+
+        await using var database = await PostgresTestDatabase.CreateAsync("academic_empty", targetMigration: migrations[sliceOne - 1]);
         await using var db = database.CreateContext();
 
+        Assert.DoesNotContain(db.Database.GetAppliedMigrations(), x => x.EndsWith("_AddAssessmentAcademicIdentity", StringComparison.Ordinal));
+        await db.GetService<IMigrator>().MigrateAsync();
         Assert.False(db.Database.HasPendingModelChanges());
         Assert.Contains(db.Database.GetAppliedMigrations(), x => x.EndsWith("_AddAssessmentAcademicIdentity", StringComparison.Ordinal));
         Assert.Empty(await db.UnitDefinitions.ToListAsync());
@@ -22,14 +31,6 @@ public sealed class AssessmentAcademicIdentityTests
         Assert.Empty(await db.AssessmentScopes.ToListAsync());
         Assert.Empty(await db.LearningAimDefinitions.ToListAsync());
         Assert.Empty(await db.AssessmentCriterionDefinitions.ToListAsync());
-
-        var migrations = db.Database.GetMigrations().ToArray();
-        var sliceOne = Array.FindIndex(migrations, x => x.EndsWith("_AddAssessmentAcademicIdentity", StringComparison.Ordinal));
-        Assert.True(sliceOne > 0);
-        await db.GetService<IMigrator>().MigrateAsync(migrations[sliceOne - 1]);
-        Assert.DoesNotContain(db.Database.GetAppliedMigrations(), x => x.EndsWith("_AddAssessmentAcademicIdentity", StringComparison.Ordinal));
-        await db.GetService<IMigrator>().MigrateAsync();
-        Assert.False(db.Database.HasPendingModelChanges());
     }
 
     [Fact]

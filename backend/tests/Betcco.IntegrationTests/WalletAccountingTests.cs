@@ -114,6 +114,11 @@ public sealed class WalletAccountingTests
         Assert.Equal(120m, checkout.Total);
         Assert.True(await commerce.ConfirmFakeWebhookAsync(checkout.PaymentId, "package-payment-succeeded"));
         Assert.Equal(2, await db.Enrollments.CountAsync());
+        var grants = await db.CourseAccessGrants.Where(item => item.PaymentId == checkout.PaymentId).ToListAsync();
+        Assert.Equal(2, grants.Count);
+        Assert.All(grants, grant => Assert.Equal(CourseAccessGrantSource.CoursePurchase, grant.SourceType));
+        Assert.Contains(grants, grant => grant.CourseId == first.Id);
+        Assert.Contains(grants, grant => grant.CourseId == second.Id);
         Assert.Equal(120m, await db.CourseSaleAllocations.SumAsync(allocation => allocation.NetAmount));
         Assert.Equal(36m, await db.CourseSaleAllocations.SumAsync(allocation => allocation.PlatformCommission));
         Assert.Equal(84m, await db.CourseSaleAllocations.SumAsync(allocation => allocation.TeacherEarning));

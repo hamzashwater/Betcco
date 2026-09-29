@@ -471,7 +471,7 @@ public sealed class CourseAssignmentService(
         var deadline = await deadlineResolverService.ResolveAsync(assignment.Id, studentUserId, assignment.DueAtUtc, cancellationToken);
         if (assignment.AvailableFromUtc > DateTimeOffset.UtcNow
             || deadline.EffectiveDueAtUtc < DateTimeOffset.UtcNow
-            || !await db.Enrollments.AnyAsync(enrollment => enrollment.CourseId == assignment.CourseId && enrollment.StudentUserId == studentUserId && (enrollment.AccessEndsAtUtc == null || enrollment.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken)) return null;
+            || !await db.ActiveEnrollments(DateTimeOffset.UtcNow).AnyAsync(enrollment => enrollment.CourseId == assignment.CourseId && enrollment.StudentUserId == studentUserId, cancellationToken)) return null;
         if (!(await contentAccess.CanAccessAsync(studentUserId, assignment.CourseId, LearningContentType.Assignment, assignmentId, cancellationToken)).IsAvailable) return null;
         var submission = await db.CourseAssignmentSubmissions.Include(item => item.Versions).SingleOrDefaultAsync(item => item.CourseAssignmentId == assignmentId && item.StudentUserId == studentUserId, cancellationToken);
         var configuredRuleSetJson = string.IsNullOrWhiteSpace(assignment.AssessmentRuleSetJson)
@@ -608,7 +608,7 @@ public sealed class CourseAssignmentService(
         var assignment = submission.CourseAssignment!;
         var deadline = await deadlineResolverService.ResolveAsync(assignment.Id, studentUserId, assignment.DueAtUtc, cancellationToken);
         if (deadline.EffectiveDueAtUtc < DateTimeOffset.UtcNow
-            || !await db.Enrollments.AnyAsync(enrollment => enrollment.CourseId == assignment.CourseId && enrollment.StudentUserId == studentUserId && (enrollment.AccessEndsAtUtc == null || enrollment.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken)
+            || !await db.ActiveEnrollments(DateTimeOffset.UtcNow).AnyAsync(enrollment => enrollment.CourseId == assignment.CourseId && enrollment.StudentUserId == studentUserId, cancellationToken)
             || !(await contentAccess.CanAccessAsync(studentUserId, assignment.CourseId, LearningContentType.Assignment, assignment.Id, cancellationToken)).IsAvailable) return false;
         var version = submission.Versions.Single(item => item.VersionNumber == submission.CurrentVersionNumber);
         if (!version.Files.Any(file => file.ScanStatus == UploadScanStatus.Clean)) return false;

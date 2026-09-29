@@ -398,7 +398,17 @@ public sealed class StudentLearningToolsControllerTests
         var availableUnit = Unit("U1", "Available unit");
         var consumedUnit = Unit("U2", "Consumed unit");
         var revokedUnit = Unit("U3", "Revoked unit");
-        db.AddRange(payment, permanentCourse, timedCourse, expiredCourse, foreignCourse, permanentEnrollment, timedEnrollment, expiredEnrollment, foreignEnrollment, availableUnit, consumedUnit, revokedUnit);
+        var permanentGrant = new CourseAccessGrant
+        {
+            StudentUserId = "student-1",
+            Course = permanentCourse,
+            PaymentId = payment.Id,
+            SourceType = CourseAccessGrantSource.CoursePurchase,
+            SourceId = payment.Id,
+            GrantedAtUtc = DateTimeOffset.UtcNow,
+            ValidFromUtc = DateTimeOffset.UtcNow
+        };
+        db.AddRange(payment, permanentCourse, timedCourse, expiredCourse, foreignCourse, permanentEnrollment, timedEnrollment, expiredEnrollment, foreignEnrollment, permanentGrant, availableUnit, consumedUnit, revokedUnit);
         await db.SaveChangesAsync();
         db.IncludedEvaluationEntitlements.AddRange(
             new IncludedEvaluationEntitlement

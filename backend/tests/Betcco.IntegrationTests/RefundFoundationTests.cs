@@ -41,6 +41,19 @@ public sealed class RefundFoundationTests
     {
         await using var db = CreateDb();
         var paid = await AddPaidCoursePaymentAsync(db);
+        var enrollmentBeforeRefund = await db.Enrollments.SingleAsync();
+        enrollmentBeforeRefund.CompletedAtUtc = DateTimeOffset.UtcNow;
+        var lesson = new Lesson
+        {
+            CourseModuleId = (await db.CourseModules.SingleAsync()).Id,
+            ArabicTitle = "درس",
+            EnglishTitle = "Lesson",
+            Type = LessonType.Text,
+            IsPublished = true
+        };
+        db.Lessons.Add(lesson);
+        db.LessonProgresses.Add(new LessonProgress { StudentUserId = "student", LessonId = lesson.Id, IsCompleted = true });
+        await db.SaveChangesAsync();
         var originalLedger = await db.LedgerTransactions.Include(item => item.Entries).SingleAsync();
         var originalEntries = originalLedger.Entries.Select(entry => (entry.Id, entry.Side, entry.Amount, entry.CourseSaleAllocationId)).ToArray();
         var originalWallet = (await db.WalletTransactions.OrderBy(item => item.Id).ToListAsync()).Select(item => (item.Id, item.Amount, item.Type)).ToArray();
@@ -80,6 +93,95 @@ public sealed class RefundFoundationTests
         Assert.Contains(db.AuditLogs, item => item.Action == "RefundInternallyRecorded");
         Assert.Contains(db.AuditLogs, item => item.Action == "RefundEntitlementDispositionApplied");
         Assert.Contains(db.AuditLogs, item => item.Action == "IncludedEvaluationCreditRevokedByRefund");
+        var grant = Assert.Single(await db.CourseAccessGrants.ToListAsync());
+        Assert.Equal(CourseAccessGrantSource.CoursePurchase, grant.SourceType);
+        Assert.Equal(paid.Payment.Id, grant.PaymentId);
+        Assert.Equal(refund.Id, grant.RevokedByRefundId);
+        Assert.Equal("FullPaymentRefund", grant.RevocationReason);
+        Assert.False(await db.ActiveEnrollments(DateTimeOffset.UtcNow).AnyAsync(item => item.StudentUserId == "student" && item.CourseId == grant.CourseId));
+        Assert.False((await new ContentAccessService(db).CanAccessCourseAsync("student", grant.CourseId)).IsAvailable);
+        Assert.NotNull((await db.Enrollments.SingleAsync()).CompletedAtUtc);
+        Assert.True((await db.LessonProgresses.SingleAsync()).IsCompleted);
+        var commerce = new CommerceService(db, new FakePaymentProvider());
+        var ownerKey = $"repurchase-{Guid.NewGuid():N}";
+        await commerce.AddCourseAsync(ownerKey, "student", grant.CourseId, "en");
+        Assert.NotNull(await commerce.CreateCourseCheckoutAsync("student", ownerKey, null, "Card",
+            $"repurchase-checkout-{Guid.NewGuid():N}"));
+    }
+
+    [Fact]
+    public async Task Independent_paid_grant_keeps_access_when_first_payment_is_fully_refunded()
+    {
+        await using var db = CreateDb();
+        var first = await AddPaidCoursePaymentAsync(db);
+        var original = Assert.Single(await db.CourseAccessGrants.ToListAsync());
+        var secondPayment = new Payment
+        {
+            UserId = "student",
+            Purpose = "CourseCart",
+            ReferenceId = Guid.NewGuid(),
+            Status = PaymentStatus.Paid,
+            Subtotal = 100m,
+            Total = 100m,
+            Currency = "JOD"
+        };
+        db.Payments.Add(secondPayment);
+        db.CourseAccessGrants.Add(new CourseAccessGrant
+        {
+            StudentUserId = "student",
+            CourseId = original.CourseId,
+            PaymentId = secondPayment.Id,
+            SourceType = CourseAccessGrantSource.CoursePurchase,
+            SourceId = secondPayment.Id,
+            GrantedAtUtc = DateTimeOffset.UtcNow,
+            ValidFromUtc = DateTimeOffset.UtcNow
+        });
+        await db.SaveChangesAsync();
+
+        var result = await new RefundService(db).RecordInternalRefundAsync("finance", Request(first.Payment.Id, 100m, "JOD", "first-only"));
+        Assert.Equal(nameof(RefundStatus.InternallyRecorded), result.Refund?.Status);
+        var grants = await db.CourseAccessGrants.ToListAsync();
+        Assert.NotNull(Assert.Single(grants, item => item.PaymentId == first.Payment.Id).RevokedAtUtc);
+        Assert.Null(Assert.Single(grants, item => item.PaymentId == secondPayment.Id).RevokedAtUtc);
+        Assert.True(await db.ActiveEnrollments(DateTimeOffset.UtcNow).AnyAsync(item => item.StudentUserId == "student" && item.CourseId == original.CourseId));
+        Assert.Single(await db.Enrollments.ToListAsync());
+    }
+
+    [Fact]
+    public async Task Legacy_grant_remains_accessible_and_is_marked_for_reconciliation()
+    {
+        await using var db = CreateDb();
+        var paid = await AddPaidCoursePaymentAsync(db);
+        var enrollment = Assert.Single(await db.Enrollments.ToListAsync());
+        db.CourseAccessGrants.Add(new CourseAccessGrant
+        {
+            StudentUserId = "student",
+            CourseId = enrollment.CourseId,
+            SourceType = CourseAccessGrantSource.Legacy,
+            SourceId = enrollment.Id,
+            GrantedAtUtc = enrollment.EnrolledAtUtc,
+            ValidFromUtc = enrollment.EnrolledAtUtc
+        });
+        await db.SaveChangesAsync();
+
+        var result = await new RefundService(db).RecordInternalRefundAsync("finance", Request(paid.Payment.Id, 100m, "JOD", "legacy-safe"));
+        Assert.Equal(nameof(RefundStatus.InternallyRecorded), result.Refund?.Status);
+        Assert.True(await db.ActiveEnrollments(DateTimeOffset.UtcNow).AnyAsync(item => item.Id == enrollment.Id));
+        Assert.Contains(db.AuditLogs, item => item.Action == "LegacyCourseAccessReconciliationRequired");
+    }
+
+    [Fact]
+    public async Task Grant_source_cannot_be_rewritten_or_deleted()
+    {
+        await using var db = CreateDb();
+        var paid = await AddPaidCoursePaymentAsync(db);
+        var grant = await db.CourseAccessGrants.SingleAsync();
+        grant.PaymentId = Guid.NewGuid();
+        await Assert.ThrowsAsync<InvalidOperationException>(() => db.SaveChangesAsync());
+        db.ChangeTracker.Clear();
+        db.CourseAccessGrants.Remove(await db.CourseAccessGrants.SingleAsync());
+        await Assert.ThrowsAsync<InvalidOperationException>(() => db.SaveChangesAsync());
+        Assert.Equal(paid.Payment.Id, (await db.CourseAccessGrants.AsNoTracking().SingleAsync()).PaymentId);
     }
 
     [Fact]
@@ -116,6 +218,8 @@ public sealed class RefundFoundationTests
         Assert.Null(credit.RevokedAtUtc);
         Assert.Null(credit.RevokedByRefundId);
         Assert.DoesNotContain(db.AuditLogs, item => item.Action == "IncludedEvaluationCreditRevokedByRefund");
+        Assert.NotNull((await db.CourseAccessGrants.SingleAsync()).RevokedAtUtc);
+        Assert.False(await db.ActiveEnrollments(DateTimeOffset.UtcNow).AnyAsync());
     }
 
     [Fact]
@@ -135,6 +239,8 @@ public sealed class RefundFoundationTests
         Assert.Equal(4, await db.WalletTransactions.CountAsync());
         Assert.Single(await db.Enrollments.Where(item => item.PaymentId == paid.Payment.Id).ToListAsync());
         Assert.Null((await db.IncludedEvaluationEntitlements.SingleAsync()).RevokedAtUtc);
+        Assert.Null((await db.CourseAccessGrants.SingleAsync()).RevokedAtUtc);
+        Assert.True(await db.ActiveEnrollments(DateTimeOffset.UtcNow).AnyAsync());
         Assert.Contains(db.AuditLogs, item => item.Action == "RefundInternallyRecorded");
     }
 
