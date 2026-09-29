@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 type CookieChoices = {
@@ -25,12 +25,12 @@ function readChoices() {
 
 export function CookieConsent() {
   const locale = useLocale();
+  const t = useTranslations("cookieConsent");
   const [open, setOpen] = useState(false);
   const [customize, setCustomize] = useState(false);
   const [preferences, setPreferences] = useState(false);
   const [analytics, setAnalytics] = useState(false);
   const [marketing, setMarketing] = useState(false);
-  const isArabic = locale === "ar";
 
   useEffect(() => {
     const saved = readChoices();
@@ -72,20 +72,16 @@ export function CookieConsent() {
       className="fixed inset-x-3 bottom-3 z-[90] mx-auto max-w-2xl rounded-2xl border border-border bg-[color-mix(in_srgb,var(--surface-solid)_96%,black)] p-5 shadow-2xl backdrop-blur-xl"
       role="dialog"
       aria-modal="true"
-      aria-label={isArabic ? "خيارات ملفات تعريف الارتباط" : "Cookie choices"}
+      aria-label={t("title")}
     >
-      <h2 className="text-lg font-black">
-        {isArabic ? "خيارات ملفات تعريف الارتباط" : "Cookie choices"}
-      </h2>
+      <h2 className="text-lg font-black">{t("title")}</h2>
       <p className="mt-2 text-sm leading-6 text-muted">
-        {isArabic
-          ? "نستخدم التقنيات الضرورية لتسجيل الدخول والحماية. لا تُفعّل التحليلات أو التسويق قبل اختيارك، ولا توجد حاليًا أدوات تتبع غير ضرورية مفعلة افتراضيًا."
-          : "We use essential technologies for sign-in and security. Analytics and marketing are not enabled before your choice, and no non-essential tracking is currently enabled by default."}{" "}
+        {t("description")}{" "}
         <Link
           className="font-bold text-primary underline"
           href={`/${locale}/cookies`}
         >
-          {isArabic ? "اقرأ سياسة ملفات الارتباط" : "Read the cookie policy"}
+          {t("readPolicy")}
         </Link>
       </p>
       {customize && (
@@ -93,42 +89,26 @@ export function CookieConsent() {
           <Choice
             checked
             disabled
-            label={isArabic ? "ضرورية" : "Essential"}
-            description={
-              isArabic
-                ? "تسجيل الدخول والحماية والوظائف الأساسية."
-                : "Sign-in, security, and essential functions."
-            }
+            label={t("essential")}
+            description={t("essentialDescription")}
             onChange={() => undefined}
           />
           <Choice
             checked={preferences}
-            label={isArabic ? "التفضيلات" : "Preferences"}
-            description={
-              isArabic
-                ? "حفظ اللغة وإعدادات العرض على هذا الجهاز."
-                : "Save language and display choices on this device."
-            }
+            label={t("preferences")}
+            description={t("preferencesDescription")}
             onChange={setPreferences}
           />
           <Choice
             checked={analytics}
-            label={isArabic ? "التحليلات" : "Analytics"}
-            description={
-              isArabic
-                ? "غير مستخدمة حاليًا؛ يحفظ اختيارك للمستقبل فقط."
-                : "Not currently used; your choice is retained for future use only."
-            }
+            label={t("analytics")}
+            description={t("analyticsDescription")}
             onChange={setAnalytics}
           />
           <Choice
             checked={marketing}
-            label={isArabic ? "التسويق" : "Marketing"}
-            description={
-              isArabic
-                ? "غير مستخدمة حاليًا؛ لا يتم تفعيلها دون موافقة جديدة عند إضافة خدمة."
-                : "Not currently used; it will not activate without fresh consent if a service is added."
-            }
+            label={t("marketing")}
+            description={t("marketingDescription")}
             onChange={setMarketing}
           />
         </div>
@@ -141,7 +121,7 @@ export function CookieConsent() {
           }
           className="focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950"
         >
-          {isArabic ? "قبول الكل" : "Accept all"}
+          {t("accept")}
         </button>
         <button
           type="button"
@@ -150,7 +130,7 @@ export function CookieConsent() {
           }
           className="focus-ring rounded-xl border border-border px-4 py-2.5 text-sm font-bold text-foreground"
         >
-          {isArabic ? "رفض غير الضرورية" : "Reject non-essential"}
+          {t("reject")}
         </button>
         {customize ? (
           <button
@@ -158,7 +138,7 @@ export function CookieConsent() {
             onClick={() => save({ preferences, analytics, marketing })}
             className="focus-ring rounded-xl border border-primary/50 px-4 py-2.5 text-sm font-bold text-primary"
           >
-            {isArabic ? "حفظ الخيارات" : "Save choices"}
+            {t("save")}
           </button>
         ) : (
           <button
@@ -166,7 +146,7 @@ export function CookieConsent() {
             onClick={() => setCustomize(true)}
             className="focus-ring rounded-xl px-4 py-2.5 text-sm font-bold text-primary"
           >
-            {isArabic ? "تخصيص" : "Customise"}
+            {t("customize")}
           </button>
         )}
       </div>
