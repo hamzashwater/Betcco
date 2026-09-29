@@ -196,7 +196,7 @@ public sealed class LearningController(
         if (userId is null) return false;
         if (User.IsInRole("Admin")) return true;
         if (User.IsInRole("Teacher")) return await db.Courses.AnyAsync(x => x.Id == courseId && x.TeacherUserId == userId, cancellationToken);
-        return await db.Enrollments.AnyAsync(x => x.CourseId == courseId && x.StudentUserId == userId && (x.AccessEndsAtUtc == null || x.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken);
+        return await db.ActiveEnrollments(DateTimeOffset.UtcNow).AnyAsync(x => x.CourseId == courseId && x.StudentUserId == userId, cancellationToken);
     }
     private Task<ContentAccessDecision> StudentAccessAsync(Guid courseId, LearningContentType contentType, Guid contentId, CancellationToken cancellationToken) => User.IsInRole("Student")
         ? contentAccess.CanAccessAsync(UserId!, courseId, contentType, contentId, cancellationToken)

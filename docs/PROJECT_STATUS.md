@@ -3,9 +3,9 @@
 ## Metadata
 
 - Last updated: 2026-09-29
-- Verified implementation baseline SHA: `fc833e3c5a0bfb721bbb5a213f61e88cb3b1c797`
-- Status verified against origin/main: `fc833e3c5a0bfb721bbb5a213f61e88cb3b1c797` (PR #130 ASUS-P2-02 merge).
-- OPEN/Draft PRs at pre-edit verification: none.
+- Verified merged baseline SHA: `43bd0a5685faab6170f0a41302af4dfd486f19e9`
+- Status verified against origin/main: `43bd0a5685faab6170f0a41302af4dfd486f19e9` (PR #133 student dashboard state clarity merge). RF1 preflight began at PR #132's merge SHA.
+- OPEN/Draft PRs at RF1 pre-edit verification: none; this is a dated preflight observation, not a live PR inventory.
 - ASUS-10A production-readiness audit is recorded in `docs/production-readiness-audit.md`; its production blockers remain separate from Resit completion.
 - Parallel workstream coordination is persisted in `docs/WORKSTREAM_COORDINATION.md` and must be rechecked against live GitHub before implementation.
 - PR #114 — LENOVO N5B documentation reconciliation — merged at `03bb131cfb16b68dc6d0a983289511dd823223da`; it reconciled N1–N5A status through PR #113 without changing product code, tests, schema, migrations, workflows, or configuration.
@@ -14,6 +14,9 @@
 - PR #125 — ASUS-10F1 Immutable Release Artifact Contract — DONE / MERGED at `ee55375461a4da6481d3ba948c487c1053734527`; secure deployment now consumes digest-pinned API/Web image references, migration reuses the API image reference, mutable/tag-only release references are rejected by repository validation, and rollback/release-manifest contracts are documented. No registry was selected or contacted; external registry publication and staging-to-production promotion evidence remain open.
 - PR #128 — ASUS-P2-01 Production Docker Base Image Digest Pinning — DONE / MERGED / POST-MERGE GREEN at `854df67301307a03190bac62ebc8a7b1ae1504d6`; production API/Web external Docker bases retain readable version tags but are pinned to reviewed SHA-256 digests, and CI validates that production external `FROM` references remain digest-pinned.
 - PR #130 — ASUS-P2-02 NuGet Locked Restore — DONE / MERGED / POST-MERGE GREEN at `fc833e3c5a0bfb721bbb5a213f61e88cb3b1c797`; backend projects commit NuGet lock files, CI and the production API Docker build restore in locked mode, and direct PackageReference versions were preserved.
+- PR #132 — LENOVO N8-B Student Dashboard Pending Actions — MERGED at `3db982037a2e0562fccb52da9e24deb3e04f81a5`; post-merge Application quality, Full application quality, and both CodeQL language checks succeeded. Dependency review was skipped on the main push.
+- PR #133 — Student Dashboard State Clarity — MERGED at `43bd0a5685faab6170f0a41302af4dfd486f19e9`; its frontend-only file diff had no RF1 scope overlap. RF1 did not verify its post-merge checks.
+- ASUS-RF1 course-access grant provenance and full-refund enforcement is implemented on `feature/course-access-grant-provenance-refund-enforcement` for Draft PR review; it is **not merged** in this status snapshot. Local focused tests and migration validation are recorded in that PR, not as production or live-provider evidence.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
 

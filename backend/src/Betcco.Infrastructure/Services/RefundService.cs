@@ -4,6 +4,7 @@ using Betcco.Application.Commerce;
 using Betcco.Domain.Common;
 using Betcco.Domain.Commerce;
 using Betcco.Domain.Evaluations;
+using Betcco.Domain.Learning;
 using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -470,6 +471,8 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
         AddWalletReversals(payment, refund, allocations, plan);
         var revokedCredits = nextPaymentStatus == PaymentStatus.Refunded
             ? await RevokeUnusedIncludedEvaluationCreditsAsync(payment, refund, cancellationToken) : 0;
+        if (nextPaymentStatus == PaymentStatus.Refunded)
+            await RevokePaymentCourseAccessGrantsAsync(payment, refund, allocations, financeAdminUserId, cancellationToken);
         if (revokedCredits > 0)
             refund.EntitlementDisposition = RefundEntitlementDisposition.UnusedIncludedEvaluationCreditsRevoked;
         Audit(financeAdminUserId, "RefundInternallyRecorded", refund.Id, new { refund.PaymentId, refund.Amount, refund.Currency, plan.TaxComponent, plan.RevenueComponent, providerRefundVerified = !string.IsNullOrWhiteSpace(refund.ProviderRefundReference) });
@@ -480,6 +483,65 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
             revokedIncludedEvaluationCredits = revokedCredits
         });
         return null;
+    }
+
+    private async Task RevokePaymentCourseAccessGrantsAsync(Payment payment, Refund refund,
+        IReadOnlyCollection<CourseSaleAllocation> allocations, string actor, CancellationToken cancellationToken)
+    {
+        var courseIds = allocations.Select(item => item.CourseId).Distinct().ToArray();
+        var attributable = await db.CourseAccessGrants
+            .Where(item => item.PaymentId == payment.Id && item.StudentUserId == payment.UserId
+                && courseIds.Contains(item.CourseId) && item.RevokedAtUtc == null)
+            .ToListAsync(cancellationToken);
+        var grants = await db.CourseAccessGrants
+            .Where(item => item.StudentUserId == payment.UserId && courseIds.Contains(item.CourseId))
+            .ToListAsync(cancellationToken);
+        var now = refund.InternallyRecordedAtUtc!.Value;
+        foreach (var grant in attributable)
+        {
+            grant.RevokedAtUtc = now;
+            grant.RevocationReason = "FullPaymentRefund";
+            grant.RevokedByRefundId = refund.Id;
+            var independentGrantPreservedAccess = grants.Any(other => other.Id != grant.Id
+                && other.CourseId == grant.CourseId && other.PaymentId != payment.Id
+                && other.RevokedAtUtc == null && other.ValidFromUtc <= now
+                && (other.ValidUntilUtc == null || other.ValidUntilUtc > now));
+            var oldState = grant.ValidFromUtc > now ? "NotYetValid"
+                : grant.ValidUntilUtc is { } until && until <= now ? "Expired" : "Active";
+            Audit(actor, "CourseAccessGrantRevokedByRefund", refund.Id, new
+            {
+                paymentId = payment.Id,
+                refundId = refund.Id,
+                grantId = grant.Id,
+                grant.StudentUserId,
+                grant.CourseId,
+                sourceType = grant.SourceType.ToString(),
+                grant.SourceId,
+                oldState,
+                newState = "RefundRevoked",
+                effectiveAtUtc = now,
+                grant.RevocationReason,
+                refund.ReasonCode,
+                paymentStatus = payment.Status.ToString(),
+                refundStatus = refund.Status.ToString(),
+                policyVersion = "refund-course-access-v1",
+                independentGrantPreservedAccess
+            });
+        }
+
+        // A historical Enrollment.PaymentId cannot prove that it is the sole
+        // source. Preserve its Legacy grant and leave an explicit review trail.
+        foreach (var legacy in grants.Where(item => item.SourceType == CourseAccessGrantSource.Legacy
+                     && courseIds.Contains(item.CourseId)))
+            Audit(actor, "LegacyCourseAccessReconciliationRequired", refund.Id, new
+            {
+                paymentId = payment.Id,
+                refundId = refund.Id,
+                grantId = legacy.Id,
+                legacy.StudentUserId,
+                legacy.CourseId,
+                sourceType = legacy.SourceType.ToString()
+            });
     }
 
     private sealed record PriorAccounting(decimal Revenue, Dictionary<Guid, decimal> Net,

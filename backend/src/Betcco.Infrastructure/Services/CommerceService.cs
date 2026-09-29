@@ -42,7 +42,7 @@ public sealed class CommerceService(
     public async Task<CartView> AddCourseAsync(string ownerKey, string? userId, Guid courseId, string locale, CancellationToken cancellationToken = default)
     {
         var course = await db.Courses.SingleOrDefaultAsync(x => x.Id == courseId && x.Status == CourseStatus.Published, cancellationToken) ?? throw new InvalidOperationException("Course is unavailable.");
-        if (userId is not null && await db.Enrollments.AnyAsync(x => x.StudentUserId == userId && x.CourseId == courseId && (x.AccessEndsAtUtc == null || x.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken)) throw new InvalidOperationException("You are already enrolled in this course.");
+        if (userId is not null && await db.ActiveEnrollments(DateTimeOffset.UtcNow).AnyAsync(x => x.StudentUserId == userId && x.CourseId == courseId, cancellationToken)) throw new InvalidOperationException("You are already enrolled in this course.");
         var cart = await db.Carts.Include(x => x.Items).SingleOrDefaultAsync(x => x.OwnerKey == ownerKey, cancellationToken);
         if (cart is null)
         {
@@ -62,7 +62,7 @@ public sealed class CommerceService(
         var package = await db.CoursePackages.Include(x => x.Courses).SingleOrDefaultAsync(x => x.Id == packageId && x.IsPublished && (x.AvailableFromUtc == null || x.AvailableFromUtc <= now) && (x.AvailableUntilUtc == null || x.AvailableUntilUtc > now), cancellationToken) ?? throw new InvalidOperationException("Package is unavailable.");
         var packageCourseIds = package.Courses.Select(x => x.CourseId).Distinct().ToArray();
         if (packageCourseIds.Length == 0 || await db.Courses.CountAsync(x => packageCourseIds.Contains(x.Id) && x.Status == CourseStatus.Published, cancellationToken) != packageCourseIds.Length) throw new InvalidOperationException("Package courses are unavailable.");
-        if (userId is not null && await db.Enrollments.AnyAsync(x => x.StudentUserId == userId && packageCourseIds.Contains(x.CourseId) && (x.AccessEndsAtUtc == null || x.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken)) throw new InvalidOperationException("This package includes a course you already own.");
+        if (userId is not null && await db.ActiveEnrollments(DateTimeOffset.UtcNow).AnyAsync(x => x.StudentUserId == userId && packageCourseIds.Contains(x.CourseId), cancellationToken)) throw new InvalidOperationException("This package includes a course you already own.");
         var cart = await db.Carts.Include(x => x.Items).SingleOrDefaultAsync(x => x.OwnerKey == ownerKey, cancellationToken);
         if (cart is null)
         {
@@ -136,7 +136,7 @@ public sealed class CommerceService(
             var packageCourses = await db.Courses.Where(x => packageCourseIds.Contains(x.Id) && x.Status == CourseStatus.Published).ToListAsync(cancellationToken);
             if (packageCourses.Count != packageCourseIds.Length) throw new InvalidOperationException("One or more package courses are unavailable.");
             var allCourseIds = directCourseIds.Concat(packageCourseIds).Distinct().ToArray();
-            if (await db.Enrollments.AnyAsync(x => x.StudentUserId == userId && allCourseIds.Contains(x.CourseId) && (x.AccessEndsAtUtc == null || x.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken)) throw new InvalidOperationException("The cart contains an existing entitlement.");
+            if (await db.ActiveEnrollments(DateTimeOffset.UtcNow).AnyAsync(x => x.StudentUserId == userId && allCourseIds.Contains(x.CourseId), cancellationToken)) throw new InvalidOperationException("The cart contains an existing entitlement.");
             var purchaseLines = directCourses.Select(course => new PurchasedCourseLine(course.Id, course.IsFree ? 0 : course.Price)).ToList();
             foreach (var package in packageList)
             {
@@ -477,11 +477,13 @@ public sealed class CommerceService(
             if (courseIds.Length == 0 || courses.Count != courseIds.Length) return false;
             var now = DateTimeOffset.UtcNow;
             var endsAt = AddInterval(now, purchase.Interval);
-            if (!await db.UserMemberships.AnyAsync(item => item.PaymentId == payment.Id, cancellationToken))
+            var membership = await db.UserMemberships.SingleOrDefaultAsync(item => item.PaymentId == payment.Id, cancellationToken);
+            if (membership is null)
             {
-                db.UserMemberships.Add(new UserMembership { StudentUserId = payment.UserId, MembershipPlanId = payment.ReferenceId, PaymentId = payment.Id, StartsAtUtc = now, EndsAtUtc = endsAt, Status = SubscriptionStatus.Active });
+                membership = new UserMembership { StudentUserId = payment.UserId, MembershipPlanId = payment.ReferenceId, PaymentId = payment.Id, StartsAtUtc = now, EndsAtUtc = endsAt, Status = SubscriptionStatus.Active };
+                db.UserMemberships.Add(membership);
             }
-            await GrantTimedCourseAccessAsync(payment.UserId, courseIds, payment.Id, endsAt, cancellationToken);
+            await GrantTimedCourseAccessAsync(payment.UserId, courseIds, payment.Id, endsAt, CourseAccessGrantSource.Membership, membership.Id, cancellationToken);
             await RecordCourseRevenueSplitAsync(payment, courses, purchase.Lines, cancellationToken);
             enrolledCourseIds = courseIds;
         }
@@ -494,11 +496,13 @@ public sealed class CommerceService(
             if (course is null) return false;
             var now = DateTimeOffset.UtcNow;
             var endsAt = AddInterval(now, purchase.Interval);
-            if (!await db.UserCourseSubscriptions.AnyAsync(item => item.PaymentId == payment.Id, cancellationToken))
+            var subscription = await db.UserCourseSubscriptions.SingleOrDefaultAsync(item => item.PaymentId == payment.Id, cancellationToken);
+            if (subscription is null)
             {
-                db.UserCourseSubscriptions.Add(new UserCourseSubscription { StudentUserId = payment.UserId, CourseSubscriptionPlanId = payment.ReferenceId, PaymentId = payment.Id, StartsAtUtc = now, EndsAtUtc = endsAt, Status = SubscriptionStatus.Active });
+                subscription = new UserCourseSubscription { StudentUserId = payment.UserId, CourseSubscriptionPlanId = payment.ReferenceId, PaymentId = payment.Id, StartsAtUtc = now, EndsAtUtc = endsAt, Status = SubscriptionStatus.Active };
+                db.UserCourseSubscriptions.Add(subscription);
             }
-            await GrantTimedCourseAccessAsync(payment.UserId, courseIds, payment.Id, endsAt, cancellationToken);
+            await GrantTimedCourseAccessAsync(payment.UserId, courseIds, payment.Id, endsAt, CourseAccessGrantSource.CourseSubscription, subscription.Id, cancellationToken);
             await RecordCourseRevenueSplitAsync(payment, [course], purchase.Lines, cancellationToken);
             enrolledCourseIds = courseIds;
         }
@@ -1599,11 +1603,12 @@ public sealed class CommerceService(
         return Math.Round(taxableAmount * rate / 100m, 3, MidpointRounding.AwayFromZero);
     }
 
-    private async Task GrantTimedCourseAccessAsync(string userId, IReadOnlyCollection<Guid> courseIds, Guid paymentId, DateTimeOffset endsAtUtc, CancellationToken cancellationToken)
+    private async Task GrantTimedCourseAccessAsync(string userId, IReadOnlyCollection<Guid> courseIds, Guid paymentId, DateTimeOffset endsAtUtc, CourseAccessGrantSource sourceType, Guid sourceId, CancellationToken cancellationToken)
     {
         var existing = await db.Enrollments.Where(item => item.StudentUserId == userId && courseIds.Contains(item.CourseId)).ToListAsync(cancellationToken);
         foreach (var courseId in courseIds)
         {
+            await AddCourseAccessGrantAsync(userId, courseId, paymentId, sourceType, sourceId, endsAtUtc, cancellationToken);
             var enrollment = existing.SingleOrDefault(item => item.CourseId == courseId);
             if (enrollment is null)
             {
@@ -1622,6 +1627,7 @@ public sealed class CommerceService(
         var existing = await db.Enrollments.Where(item => item.StudentUserId == userId && courseIds.Contains(item.CourseId)).ToListAsync(cancellationToken);
         foreach (var courseId in courseIds)
         {
+            await AddCourseAccessGrantAsync(userId, courseId, paymentId, CourseAccessGrantSource.CoursePurchase, paymentId, null, cancellationToken);
             var enrollment = existing.SingleOrDefault(item => item.CourseId == courseId);
             if (enrollment is null) db.Enrollments.Add(new Enrollment { StudentUserId = userId, CourseId = courseId, PaymentId = paymentId });
             else
@@ -1630,6 +1636,32 @@ public sealed class CommerceService(
                 enrollment.PaymentId = paymentId;
             }
         }
+    }
+
+    private async Task AddCourseAccessGrantAsync(string userId, Guid courseId, Guid paymentId,
+        CourseAccessGrantSource sourceType, Guid sourceId, DateTimeOffset? validUntilUtc, CancellationToken cancellationToken)
+    {
+        if (db.ChangeTracker.Entries<CourseAccessGrant>().Any(entry => entry.Entity.SourceType == sourceType
+                && entry.Entity.SourceId == sourceId && entry.Entity.CourseId == courseId)
+            || await db.CourseAccessGrants.AnyAsync(grant => grant.SourceType == sourceType
+                && grant.SourceId == sourceId && grant.CourseId == courseId, cancellationToken)) return;
+
+        var now = DateTimeOffset.UtcNow;
+        var grant = new CourseAccessGrant
+        {
+            StudentUserId = userId,
+            CourseId = courseId,
+            PaymentId = paymentId,
+            SourceType = sourceType,
+            SourceId = sourceId,
+            GrantedAtUtc = now,
+            ValidFromUtc = now,
+            ValidUntilUtc = validUntilUtc
+        };
+        db.CourseAccessGrants.Add(grant);
+        var audit = Audit(userId, "CourseAccessGrantCreated", nameof(CourseAccessGrant), grant.Id.ToString());
+        audit.MetadataJson = JsonSerializer.Serialize(new { paymentId, courseId, sourceType = sourceType.ToString(), sourceId, validFromUtc = now, validUntilUtc });
+        db.AuditLogs.Add(audit);
     }
 
     private async Task GrantIncludedEvaluationEntitlementsAsync(

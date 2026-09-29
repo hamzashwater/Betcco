@@ -1,6 +1,7 @@
 using Betcco.Application.Commerce;
 using Betcco.Domain.Common;
 using Betcco.Domain.Commerce;
+using Betcco.Domain.Evaluations;
 using Betcco.Domain.Learning;
 using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Persistence;
@@ -126,6 +127,7 @@ public sealed class PostgresFinanceConcurrencyTests
         Assert.Equal(1, await verify.WebhookEvents.CountAsync(item => item.ProviderEventId == "pg-provider-event"));
         Assert.Equal(1, await verify.PaymentStatusTransitions.CountAsync(item => item.PaymentId == paymentId && item.NewStatus == PaymentStatus.Paid));
         Assert.Equal(1, await verify.Enrollments.CountAsync(item => item.PaymentId == paymentId));
+        Assert.Equal(1, await verify.CourseAccessGrants.CountAsync(item => item.PaymentId == paymentId));
         Assert.Equal(1, await verify.CourseSaleAllocations.CountAsync(item => item.PaymentId == paymentId));
         Assert.Equal(1, await verify.LedgerTransactions.CountAsync(item => item.PaymentId == paymentId));
         Assert.Equal(1, await verify.CouponRedemptions.CountAsync(item => item.PaymentId == paymentId));
@@ -241,6 +243,113 @@ public sealed class PostgresFinanceConcurrencyTests
         Assert.Equal(1, await verify.LedgerTransactions.CountAsync(item => item.RefundId != null));
         Assert.Equal(1, await verify.PaymentStatusTransitions.CountAsync(item => item.PaymentId == paid.PaymentId && item.NewStatus == PaymentStatus.Refunded));
         Assert.Equal(2, await verify.WalletTransactions.CountAsync(item => item.RefundId != null));
+        var grant = await verify.CourseAccessGrants.SingleAsync(item => item.PaymentId == paid.PaymentId);
+        Assert.NotNull(grant.RevokedAtUtc);
+        Assert.Equal(replay.Refund?.Id, grant.RevokedByRefundId);
+        Assert.False(await verify.ActiveEnrollments(DateTimeOffset.UtcNow).AnyAsync(item => item.StudentUserId == "refund-student" && item.CourseId == grant.CourseId));
+        Assert.True(await verify.Enrollments.AnyAsync(item => item.StudentUserId == "refund-student" && item.CourseId == grant.CourseId));
+        Assert.Equal(1, await verify.AuditLogs.CountAsync(item => item.Action == "CourseAccessGrantRevokedByRefund"));
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Refund_and_new_independent_grant_leave_the_new_grant_usable()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("refund_new_grant");
+        var paid = await CreatePaidCoursePaymentAsync(database, "two-source-student");
+        await using var setup = database.CreateContext();
+        var firstGrant = await setup.CourseAccessGrants.AsNoTracking().SingleAsync(item => item.PaymentId == paid.PaymentId);
+        await using var refundDb = database.CreateContext();
+        await using var purchaseDb = database.CreateContext();
+        var secondPayment = new Payment
+        {
+            UserId = "two-source-student",
+            Purpose = "CourseCart",
+            ReferenceId = Guid.NewGuid(),
+            Status = PaymentStatus.Paid,
+            Subtotal = 100m,
+            Total = 100m,
+            Currency = "JOD"
+        };
+        purchaseDb.Payments.Add(secondPayment);
+        purchaseDb.CourseAccessGrants.Add(new CourseAccessGrant
+        {
+            StudentUserId = secondPayment.UserId,
+            CourseId = firstGrant.CourseId,
+            PaymentId = secondPayment.Id,
+            SourceType = CourseAccessGrantSource.CoursePurchase,
+            SourceId = secondPayment.Id,
+            GrantedAtUtc = DateTimeOffset.UtcNow,
+            ValidFromUtc = DateTimeOffset.UtcNow
+        });
+
+        var refundTask = CaptureAsync(() => new RefundService(refundDb).RecordInternalRefundAsync("finance",
+            new(paid.PaymentId, paid.Total, "JOD", "CustomerRequest", null, "refund-with-new-grant")));
+        var grantTask = CaptureAsync(async () => { await purchaseDb.SaveChangesAsync(); return true; });
+        await Task.WhenAll(refundTask, grantTask);
+        Assert.Null((await refundTask).Error);
+        Assert.Null((await grantTask).Error);
+
+        await using var verify = database.CreateContext();
+        Assert.NotNull((await verify.CourseAccessGrants.SingleAsync(item => item.PaymentId == paid.PaymentId)).RevokedAtUtc);
+        Assert.Null((await verify.CourseAccessGrants.SingleAsync(item => item.PaymentId == secondPayment.Id)).RevokedAtUtc);
+        Assert.True(await verify.ActiveEnrollments(DateTimeOffset.UtcNow).AnyAsync(item => item.StudentUserId == "two-source-student" && item.CourseId == firstGrant.CourseId));
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Refund_and_credit_consumption_cannot_commit_consumed_and_revoked_together()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("refund_credit_race");
+        var paid = await CreatePaidCoursePaymentAsync(database, "credit-race-student");
+        Guid creditId;
+        Guid evaluationId;
+        await using (var seed = database.CreateContext())
+        {
+            var enrollment = await seed.Enrollments.SingleAsync(item => item.StudentUserId == "credit-race-student");
+            var qualification = new Qualification { Code = "CREDIT-RACE", ArabicName = "مؤهل", EnglishName = "Qualification" };
+            var version = new QualificationVersion { Qualification = qualification, VersionCode = "V1", SourceReference = "integration test" };
+            var unit = new UnitDefinition { QualificationVersion = version, Code = "U1", ArabicTitle = "وحدة", EnglishTitle = "Unit", IsActive = true };
+            var evaluation = new EvaluationRequest
+            {
+                StudentUserId = "credit-race-student",
+                GradeId = Guid.NewGuid(),
+                SpecializationId = Guid.NewGuid(),
+                TaskTypeId = Guid.NewGuid(),
+                RubricTemplateId = Guid.NewGuid(),
+                Status = EvaluationStatus.PendingAssignment,
+                Price = 0m
+            };
+            var credit = new IncludedEvaluationEntitlement
+            {
+                StudentUserId = "credit-race-student",
+                EnrollmentId = enrollment.Id,
+                UnitDefinition = unit,
+                GrantedByPaymentId = paid.PaymentId
+            };
+            seed.AddRange(qualification, version, unit, evaluation, credit);
+            await seed.SaveChangesAsync();
+            creditId = credit.Id;
+            evaluationId = evaluation.Id;
+        }
+
+        await using var consumeDb = database.CreateContext();
+        var consuming = await consumeDb.IncludedEvaluationEntitlements.SingleAsync(item => item.Id == creditId);
+        consuming.ConsumedByEvaluationRequestId = evaluationId;
+        consuming.ConsumedAtUtc = DateTimeOffset.UtcNow;
+        await using var refundDb = database.CreateContext();
+        var refundTask = CaptureAsync(() => new RefundService(refundDb).RecordInternalRefundAsync("finance",
+            new(paid.PaymentId, paid.Total, "JOD", "CustomerRequest", null, "credit-race-refund")));
+        var consumptionTask = CaptureSaveAsync(consumeDb);
+        await Task.WhenAll(refundTask, consumptionTask);
+        Assert.Null((await refundTask).Error);
+
+        await using var verify = database.CreateContext();
+        var creditState = await verify.IncludedEvaluationEntitlements.AsNoTracking().SingleAsync(item => item.Id == creditId);
+        Assert.False(creditState.ConsumedAtUtc is not null && creditState.RevokedAtUtc is not null);
+        Assert.Equal(creditState.ConsumedAtUtc is not null, creditState.ConsumedByEvaluationRequestId is not null);
+        Assert.Equal(creditState.RevokedAtUtc is not null, creditState.RevokedByRefundId is not null);
+        Assert.Equal(PaymentStatus.Refunded, await verify.Payments.Where(item => item.Id == paid.PaymentId).Select(item => item.Status).SingleAsync());
     }
 
     [Fact]
