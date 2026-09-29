@@ -45,6 +45,7 @@ export function SiteNavigation() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const t = useTranslations();
+  const nav = useTranslations("navigation");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -161,23 +162,13 @@ export function SiteNavigation() {
   const accountLabel =
     visibleAccountRole === "admin"
       ? isCoordinatorOnly
-        ? locale === "ar"
-          ? "متابعة التقييمات"
-          : "Assessment coordination"
-        : locale === "ar"
-          ? "حساب الأدمن"
-          : "Admin account"
+        ? nav("account.assessmentCoordination")
+        : nav("account.admin")
       : visibleAccountRole === "support"
-        ? locale === "ar"
-          ? "حساب مساعد الإدارة"
-          : "Support administrator account"
+        ? nav("account.support")
         : visibleAccountRole === "teacher"
-          ? locale === "ar"
-            ? "حساب المعلم"
-            : "Teacher account"
-          : locale === "ar"
-            ? "حساب الطالب"
-            : "Student account";
+          ? nav("account.teacher")
+          : nav("account.student");
   const publicNavLinks: {
     href: string;
     label: string;
@@ -186,19 +177,19 @@ export function SiteNavigation() {
   }[] = [
     {
       href: `/${locale}`,
-      label: locale === "ar" ? "الرئيسية" : "Home",
+      label: nav("home"),
       exact: true,
     },
     { href: `/${locale}/courses`, label: t("courses") },
     {
       href: `/${locale}/packages`,
-      label: locale === "ar" ? "الباقات" : "Packages",
+      label: nav("packages"),
       compact: true,
     },
     { href: `/${locale}/tracks`, label: t("tracks") },
     {
       href: `/${locale}/memberships`,
-      label: locale === "ar" ? "العضويات" : "Memberships",
+      label: nav("memberships"),
     },
     { href: `/${locale}/live`, label: t("live") },
     { href: `/${locale}/blog`, label: t("blog") },
@@ -208,51 +199,48 @@ export function SiteNavigation() {
       ? [
           {
             href: `/${locale}/admin`,
-            label: locale === "ar" ? "الملخص" : "Overview",
+            label: nav("admin.overview"),
             exact: true,
           },
           {
             href: `/${locale}/admin/students`,
-            label: locale === "ar" ? "الطلاب" : "Students",
+            label: nav("admin.students"),
           },
           {
             href: `/${locale}/admin/teachers`,
-            label: locale === "ar" ? "المعلمون" : "Teachers",
+            label: nav("admin.teachers"),
           },
           {
             href: `/${locale}/admin/account-identities`,
-            label: locale === "ar" ? "هويات الحسابات" : "Account identities",
+            label: nav("admin.accountIdentities"),
           },
           {
             href: `/${locale}/admin/course-approvals`,
-            label: locale === "ar" ? "موافقات الدورات" : "Course approvals",
+            label: nav("admin.courseApprovals"),
           },
           {
             href: `/${locale}/admin/evaluations`,
-            label: locale === "ar" ? "التقييمات" : "Evaluations",
+            label: nav("admin.evaluations"),
           },
           ...(canManageEvaluatorSpecialisms
             ? [
                 {
                   href: `/${locale}/admin/evaluator-specialisms`,
-                  label:
-                    locale === "ar"
-                      ? "اختصاصات المقيمين"
-                      : "Evaluator specialisms",
+                  label: nav("admin.evaluatorSpecialisms"),
                 },
               ]
             : []),
           {
             href: `/${locale}/admin/internal-verification`,
-            label: locale === "ar" ? "عينات التحقق" : "IV sampling",
+            label: nav("admin.internalVerification"),
           },
           {
             href: `/${locale}/admin/evaluation-appeals`,
-            label: locale === "ar" ? "الاستئنافات" : "Appeals",
+            label: nav("admin.appeals"),
           },
           {
             href: `/${locale}/admin/qualification-registry`,
-            label: locale === "ar" ? "المؤهلات" : "Qualifications",
+            label: nav("admin.qualifications"),
           },
           {
             href: `/${locale}/admin/academic-catalogue`,
@@ -264,76 +252,73 @@ export function SiteNavigation() {
           },
           {
             href: `/${locale}/admin/wallet`,
-            label: locale === "ar" ? "المحفظة" : "Wallet",
+            label: nav("admin.wallet"),
           },
           {
             href: `/${locale}/admin/content`,
-            label: locale === "ar" ? "المحتوى" : "Content",
+            label: nav("admin.content"),
           },
           {
             href: `/${locale}/admin/commerce`,
-            label:
-              locale === "ar"
-                ? "العضويات والخصومات"
-                : "Memberships & discounts",
+            label: nav("admin.commerce"),
           },
           {
             href: `/${locale}/admin/audit-logs`,
-            label: locale === "ar" ? "سجل التدقيق" : "Audit logs",
+            label: nav("admin.auditLogs"),
           },
           {
             href: `/${locale}/admin/privacy`,
-            label: locale === "ar" ? "الخصوصية" : "Privacy",
+            label: nav("admin.privacy"),
           },
           {
             href: `/${locale}/admin/security-incidents`,
-            label: locale === "ar" ? "الحوادث الأمنية" : "Security incidents",
+            label: nav("admin.securityIncidents"),
           },
           {
             href: `/${locale}/admin/ratings`,
-            label: locale === "ar" ? "تقييمات المنصة" : "Platform reviews",
+            label: nav("admin.platformReviews"),
           },
           {
             href: `/${locale}/admin/support`,
-            label: locale === "ar" ? "الدعم" : "Support",
+            label: nav("admin.support"),
           },
           {
             href: `/${locale}/admin/integrations`,
-            label: locale === "ar" ? "التكاملات" : "Integrations",
+            label: nav("admin.integrations"),
           },
           {
             href: `/${locale}/admin/profile`,
-            label: locale === "ar" ? "الملف الشخصي" : "Profile",
+            label: nav("admin.profile"),
           },
           {
             href: `/${locale}/admin/security`,
-            label: locale === "ar" ? "أمان الحساب" : "Account security",
+            label: nav("admin.accountSecurity"),
           },
         ]
       : workspace === "support"
         ? [
             {
               href: `/${locale}/support/accounts`,
-              label: locale === "ar" ? "الحسابات" : "Accounts",
+              label: nav("support.accounts"),
             },
             {
               href: `/${locale}/support/profile`,
-              label: locale === "ar" ? "الملف الشخصي" : "Profile",
+              label: nav("support.profile"),
             },
             {
               href: `/${locale}/support/security`,
-              label: locale === "ar" ? "أمان الحساب" : "Account security",
+              label: nav("support.accountSecurity"),
             },
           ]
         : [
             {
               href: `/${locale}/teacher`,
-              label: locale === "ar" ? "الملخص" : "Overview",
+              label: nav("teacher.overview"),
               exact: true,
             },
             {
               href: `/${locale}/teacher/courses`,
-              label: locale === "ar" ? "دوراتي" : "My courses",
+              label: nav("teacher.courses"),
             },
             {
               href: `/${locale}/teacher/students`,
@@ -341,19 +326,19 @@ export function SiteNavigation() {
             },
             {
               href: `/${locale}/teacher/evaluations`,
-              label: locale === "ar" ? "التقييمات" : "Evaluations",
+              label: nav("teacher.evaluations"),
             },
             {
               href: `/${locale}/teacher/wallet`,
-              label: locale === "ar" ? "محفظتي" : "My wallet",
+              label: nav("teacher.wallet"),
             },
             {
               href: `/${locale}/teacher/profile`,
-              label: locale === "ar" ? "الملف الشخصي" : "Profile",
+              label: nav("teacher.profile"),
             },
             {
               href: `/${locale}/teacher/security`,
-              label: locale === "ar" ? "أمان الحساب" : "Account security",
+              label: nav("teacher.accountSecurity"),
             },
           ];
   const navLinks = isWorkspace
@@ -369,19 +354,11 @@ export function SiteNavigation() {
   const workspaceLabel =
     workspace === "admin"
       ? isCoordinatorOnly
-        ? locale === "ar"
-          ? "متابعة التقييمات"
-          : "Assessment coordination"
-        : locale === "ar"
-          ? "مساحة إدارة المنصة"
-          : "Platform management"
+        ? nav("workspace.assessmentCoordination")
+        : nav("workspace.admin")
       : workspace === "support"
-        ? locale === "ar"
-          ? "مساحة مساعدة الإدارة"
-          : "Support workspace"
-        : locale === "ar"
-          ? "مساحة عمل المعلم"
-          : "Teacher workspace";
+        ? nav("workspace.support")
+        : nav("workspace.teacher");
 
   useEffect(() => {
     if (!isAccountArea || user.isPending || user.data) return;
@@ -452,9 +429,10 @@ export function SiteNavigation() {
               className="focus-ring inline-flex shrink-0 items-center"
               aria-label={
                 isWorkspace
-                  ? locale === "ar"
-                    ? `${brand.BrandName} — العودة إلى ${workspaceLabel}`
-                    : `${brand.BrandName} — back to ${workspaceLabel}`
+                  ? nav("accessibility.brandBack", {
+                      brand: brand.BrandName,
+                      workspace: workspaceLabel,
+                    })
                   : brand.BrandName
               }
             >
@@ -484,9 +462,7 @@ export function SiteNavigation() {
 
           {!isWorkspace && (
             <nav
-              aria-label={
-                locale === "ar" ? "التنقل الأساسي" : "Primary navigation"
-              }
+              aria-label={nav("accessibility.primary")}
               className="hidden items-center gap-1 lg:flex"
             >
               {publicNavLinks.map((link) => (
@@ -508,7 +484,7 @@ export function SiteNavigation() {
                 onClick={() => setMegaOpen((value) => !value)}
                 className={`focus-ring inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-semibold ${megaOpen ? "text-primary" : "text-muted hover:text-foreground"}`}
               >
-                {locale === "ar" ? "المواد والتخصصات" : "Subjects"}
+                {nav("subjects")}
                 <ChevronDown
                   size={15}
                   className={
@@ -527,12 +503,10 @@ export function SiteNavigation() {
               type="button"
               onClick={() => setPaletteOpen(true)}
               className="focus-ring hidden items-center gap-2 rounded-lg px-2.5 py-2 text-sm text-muted hover:bg-white/5 hover:text-foreground sm:inline-flex"
-              aria-label={locale === "ar" ? "البحث" : "Search"}
+              aria-label={nav("search")}
             >
               <Search size={18} />
-              <span className="hidden xl:inline">
-                {locale === "ar" ? "بحث" : "Search"}
-              </span>
+              <span className="hidden xl:inline">{nav("search")}</span>
               <kbd className="hidden rounded border border-border px-1.5 py-0.5 text-[10px] text-muted xl:inline">
                 Ctrl K
               </kbd>
@@ -542,9 +516,7 @@ export function SiteNavigation() {
               href={localeSwitchPathname}
               onNavigate={preserveLocaleSwitchContext}
               className="focus-ring hidden rounded-lg px-2.5 py-2 text-xs font-black text-muted hover:bg-white/5 hover:text-foreground sm:inline-flex"
-              aria-label={
-                locale === "ar" ? "التبديل إلى الإنجليزية" : "Switch to Arabic"
-              }
+              aria-label={nav("accessibility.switchLanguage")}
             >
               {alternate.toUpperCase()}
             </Link>
@@ -553,11 +525,9 @@ export function SiteNavigation() {
               <Link
                 href={`/${locale}/cart`}
                 className="focus-ring relative inline-flex rounded-lg p-2 text-primary hover:bg-white/5"
-                aria-label={
-                  locale === "ar"
-                    ? `السلة، ${cartItemCount} عناصر`
-                    : `Cart, ${cartItemCount} items`
-                }
+                aria-label={nav("accessibility.cartItems", {
+                  count: cartItemCount,
+                })}
               >
                 <ShoppingCart size={20} aria-hidden="true" />
                 {cartItemCount > 0 && (
@@ -590,18 +560,12 @@ export function SiteNavigation() {
                   disabled={logout.isPending}
                   aria-busy={logout.isPending}
                   className="focus-ring hidden items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold text-muted hover:bg-red-500/10 hover:text-red-400 disabled:cursor-wait disabled:opacity-60 md:inline-flex"
-                  aria-label={locale === "ar" ? "تسجيل الخروج" : "Log out"}
-                  title={locale === "ar" ? "تسجيل الخروج" : "Log out"}
+                  aria-label={nav("accessibility.logout")}
+                  title={nav("accessibility.logout")}
                 >
                   <LogOut size={17} aria-hidden="true" />
                   <span className="hidden 2xl:inline">
-                    {logout.isPending
-                      ? locale === "ar"
-                        ? "جارٍ الخروج…"
-                        : "Signing out…"
-                      : locale === "ar"
-                        ? "خروج"
-                        : "Log out"}
+                    {logout.isPending ? nav("signingOut") : nav("logoutShort")}
                   </span>
                 </button>
               </>
@@ -617,7 +581,7 @@ export function SiteNavigation() {
               type="button"
               onClick={() => setDrawerOpen(true)}
               className="focus-ring rounded-lg p-2 text-foreground lg:hidden"
-              aria-label={locale === "ar" ? "فتح القائمة" : "Open menu"}
+              aria-label={nav("accessibility.openMenu")}
               aria-expanded={drawerOpen}
             >
               <Menu size={22} />
@@ -627,9 +591,7 @@ export function SiteNavigation() {
         {isWorkspace && (
           <nav
             className="hidden border-t border-border bg-[color-mix(in_srgb,var(--surface)_72%,transparent)] lg:block"
-            aria-label={
-              locale === "ar" ? "تنقل مساحة العمل" : "Workspace navigation"
-            }
+            aria-label={nav("accessibility.workspace")}
           >
             <div className="shell flex min-h-12 items-center gap-1 overflow-x-auto py-1">
               {workspaceNavLinks.map((link) => (
@@ -653,28 +615,26 @@ export function SiteNavigation() {
             <div className="shell grid gap-8 py-6 md:grid-cols-[0.8fr_1fr_1fr]">
               <div>
                 <p className="text-sm font-black text-primary">
-                  {locale === "ar" ? "استكشف مسارك" : "Explore your path"}
+                  {nav("explorePath")}
                 </p>
                 <p className="mt-2 text-sm leading-6 text-muted">
-                  {locale === "ar"
-                    ? "اختر صفك وتخصصك، ثم استكشف الدورات المنشورة المناسبة."
-                    : "Choose your grade and specialization, then explore the published courses that fit."}
+                  {nav("exploreDescription")}
                 </p>
                 <Link
                   href={`/${locale}/tracks`}
                   onClick={() => setMegaOpen(false)}
                   className="focus-ring mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary"
                 >
-                  {locale === "ar" ? "كل المسارات" : "All tracks"}
+                  {nav("allTracks")}
                   <BookOpen size={16} />
                 </Link>
               </div>
               <TaxonomyColumn
-                title={locale === "ar" ? "الصفوف" : "Grades"}
+                title={nav("accessibility.grades")}
                 items={taxonomy.data?.grades.map((item) => item.name) ?? []}
               />
               <TaxonomyColumn
-                title={locale === "ar" ? "التخصصات" : "Specializations"}
+                title={nav("accessibility.specializations")}
                 items={
                   taxonomy.data?.specializations.map((item) => item.name) ?? []
                 }
@@ -694,7 +654,7 @@ export function SiteNavigation() {
             ref={drawer}
             role="dialog"
             aria-modal="true"
-            aria-label={locale === "ar" ? "قائمة التنقل" : "Navigation menu"}
+            aria-label={nav("accessibility.navigationMenu")}
             className="glass-panel absolute inset-y-0 end-0 flex w-[min(88vw,23rem)] flex-col overflow-y-auto border-y-0 border-e-0 p-5 shadow-2xl"
           >
             <div className="flex items-center justify-between">
@@ -713,7 +673,7 @@ export function SiteNavigation() {
                 type="button"
                 onClick={closeDrawer}
                 className="focus-ring rounded-lg p-2 text-muted hover:text-foreground"
-                aria-label={locale === "ar" ? "إغلاق القائمة" : "Close menu"}
+                aria-label={nav("accessibility.closeMenu")}
               >
                 <X size={21} />
               </button>
@@ -728,12 +688,12 @@ export function SiteNavigation() {
                 className="focus-ring mt-6 flex items-center gap-3 rounded-xl border border-border bg-white/5 px-3 py-3 text-start text-sm text-muted"
               >
                 <Search size={18} />
-                {locale === "ar" ? "ابحث في الدورات" : "Search courses"}
+                {nav("accessibility.searchCourses")}
               </button>
             )}
             <nav
               className={`${isWorkspace ? "mt-6" : "mt-5"} grid gap-1`}
-              aria-label={locale === "ar" ? "روابط القائمة" : "Menu links"}
+              aria-label={nav("accessibility.menuLinks")}
             >
               {navLinks.map((link) => (
                 <Link
@@ -751,16 +711,14 @@ export function SiteNavigation() {
                   onClick={closeDrawer}
                   className="focus-ring rounded-xl px-3 py-3 text-sm font-bold text-foreground hover:bg-white/5"
                 >
-                  {locale === "ar" ? "المواد والتخصصات" : "Subjects"}
+                  {nav("subjects")}
                 </Link>
               )}
             </nav>
             {!isWorkspace && (
               <div className="mt-7 border-t border-border pt-5">
                 <p className="text-xs font-bold uppercase tracking-wider text-muted">
-                  {locale === "ar"
-                    ? "التخصصات المتاحة"
-                    : "Available specializations"}
+                  {nav("accessibility.availableSpecializations")}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {(taxonomy.data?.specializations ?? []).map((item) => (
@@ -782,7 +740,7 @@ export function SiteNavigation() {
                     href={accountDestination}
                     className="focus-ring rounded-xl bg-primary px-4 py-3 text-center font-bold text-slate-950"
                   >
-                    {locale === "ar" ? "لوحتي" : "My dashboard"}
+                    {nav("dashboard")}
                   </Link>
                   <button
                     type="button"
@@ -793,12 +751,8 @@ export function SiteNavigation() {
                   >
                     <LogOut size={17} aria-hidden="true" />
                     {logout.isPending
-                      ? locale === "ar"
-                        ? "جارٍ تسجيل الخروج…"
-                        : "Signing out…"
-                      : locale === "ar"
-                        ? "تسجيل الخروج"
-                        : "Log out"}
+                      ? nav("signingOut")
+                      : nav("accessibility.logout")}
                   </button>
                 </>
               ) : authResolved && !isAccountArea ? (

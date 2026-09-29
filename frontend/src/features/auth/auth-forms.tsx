@@ -23,21 +23,21 @@ import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 const registrationCountries = [
-  { code: "JO", dialCode: "+962", ar: "الأردن", en: "Jordan" },
-  { code: "PS", dialCode: "+970", ar: "فلسطين", en: "Palestine" },
-  { code: "SA", dialCode: "+966", ar: "السعودية", en: "Saudi Arabia" },
-  { code: "AE", dialCode: "+971", ar: "الإمارات", en: "United Arab Emirates" },
-  { code: "QA", dialCode: "+974", ar: "قطر", en: "Qatar" },
-  { code: "KW", dialCode: "+965", ar: "الكويت", en: "Kuwait" },
-  { code: "BH", dialCode: "+973", ar: "البحرين", en: "Bahrain" },
-  { code: "OM", dialCode: "+968", ar: "عُمان", en: "Oman" },
-  { code: "EG", dialCode: "+20", ar: "مصر", en: "Egypt" },
-  { code: "IQ", dialCode: "+964", ar: "العراق", en: "Iraq" },
-  { code: "LB", dialCode: "+961", ar: "لبنان", en: "Lebanon" },
-  { code: "SY", dialCode: "+963", ar: "سوريا", en: "Syria" },
-  { code: "TR", dialCode: "+90", ar: "تركيا", en: "Turkey" },
-  { code: "GB", dialCode: "+44", ar: "المملكة المتحدة", en: "United Kingdom" },
-  { code: "US", dialCode: "+1", ar: "الولايات المتحدة", en: "United States" },
+  { code: "JO", dialCode: "+962" },
+  { code: "PS", dialCode: "+970" },
+  { code: "SA", dialCode: "+966" },
+  { code: "AE", dialCode: "+971" },
+  { code: "QA", dialCode: "+974" },
+  { code: "KW", dialCode: "+965" },
+  { code: "BH", dialCode: "+973" },
+  { code: "OM", dialCode: "+968" },
+  { code: "EG", dialCode: "+20" },
+  { code: "IQ", dialCode: "+964" },
+  { code: "LB", dialCode: "+961" },
+  { code: "SY", dialCode: "+963" },
+  { code: "TR", dialCode: "+90" },
+  { code: "GB", dialCode: "+44" },
+  { code: "US", dialCode: "+1" },
 ] as const;
 
 function isAtLeast18(dateOfBirth: string) {
@@ -76,58 +76,75 @@ function normalizePhoneForRegistration(phone: string, countryCode: string) {
   return `${dialCode}${normalized.replace(/^0/, "")}`;
 }
 
-const registerSchema = z
-  .object({
-    firstName: z.string().trim().min(2),
-    lastName: z.string().trim().min(2),
-    email: z.string().trim().email(),
-    countryCode: z.string().length(2),
-    phone: z.string().trim().min(7).max(40),
-    gender: z.enum(["Male", "Female", "PreferNotToSay"]),
-    dateOfBirth: z
-      .string()
-      .min(1, "Date of birth is required.")
-      .refine(isAtLeast18, "You must be at least 18 years old."),
-    password: z
-      .string()
-      .min(12)
-      .regex(/[A-Z]/, "Include an uppercase letter.")
-      .regex(/[^A-Za-z0-9]/, "Include a symbol."),
-    confirmPassword: z.string(),
-    termsAccepted: z
-      .boolean()
-      .refine((value) => value, "You must accept the terms."),
-    marketingConsent: z.boolean(),
-  })
-  .refine((value) => value.password === value.confirmPassword, {
-    path: ["confirmPassword"],
-    message: "Passwords must match.",
+type RegisterValidationMessages = ReturnType<
+  typeof useTranslations<"auth.registerForm.validation">
+>;
+const createRegisterSchema = (t: RegisterValidationMessages) =>
+  z
+    .object({
+      firstName: z.string().trim().min(2, t("firstNameMin")),
+      lastName: z.string().trim().min(2, t("lastNameMin")),
+      email: z.string().trim().email(t("emailInvalid")),
+      countryCode: z.string().length(2, t("countryInvalid")),
+      phone: z.string().trim().min(7, t("phoneMin")).max(40, t("phoneMax")),
+      gender: z.enum(["Male", "Female", "PreferNotToSay"], {
+        error: t("genderInvalid"),
+      }),
+      dateOfBirth: z
+        .string()
+        .min(1, t("dateRequired"))
+        .refine(isAtLeast18, t("adultRequired")),
+      password: z
+        .string()
+        .min(12, t("passwordMin"))
+        .regex(/[A-Z]/, t("passwordUppercase"))
+        .regex(/[^A-Za-z0-9]/, t("passwordSymbol")),
+      confirmPassword: z.string(),
+      termsAccepted: z.boolean().refine((value) => value, t("termsRequired")),
+      marketingConsent: z.boolean(),
+    })
+    .refine((value) => value.password === value.confirmPassword, {
+      path: ["confirmPassword"],
+      message: t("passwordsMatch"),
+    });
+type RegisterValues = z.infer<ReturnType<typeof createRegisterSchema>>;
+type LoginValidationMessages = ReturnType<
+  typeof useTranslations<"auth.loginForm.validation">
+>;
+const createLoginSchema = (t: LoginValidationMessages) =>
+  z.object({
+    email: z.string().trim().email(t("emailInvalid")),
+    password: z.string().min(1, t("passwordRequired")),
+    rememberMe: z.boolean(),
+    twoFactorCode: z.string().trim().optional(),
+    twoFactorRecoveryCode: z.string().trim().optional(),
   });
-type RegisterValues = z.infer<typeof registerSchema>;
-const loginSchema = z.object({
-  email: z.string().trim().email(),
-  password: z.string().min(1),
-  rememberMe: z.boolean(),
-  twoFactorCode: z.string().trim().optional(),
-  twoFactorRecoveryCode: z.string().trim().optional(),
-});
-type LoginValues = z.infer<typeof loginSchema>;
-const forgotPasswordSchema = z.object({ email: z.string().trim().email() });
-const resetPasswordSchema = z
-  .object({
-    password: z
-      .string()
-      .min(12)
-      .regex(/[A-Z]/, "Include an uppercase letter.")
-      .regex(/[^A-Za-z0-9]/, "Include a symbol."),
-    confirmPassword: z.string(),
-  })
-  .refine((value) => value.password === value.confirmPassword, {
-    path: ["confirmPassword"],
-    message: "Passwords must match.",
-  });
-type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
-type ResetPasswordValues = z.infer<typeof resetPasswordSchema>;
+type LoginValues = z.infer<ReturnType<typeof createLoginSchema>>;
+type ResetValidationMessages = ReturnType<
+  typeof useTranslations<"auth.resetPassword.validation">
+>;
+const createForgotPasswordSchema = (t: ResetValidationMessages) =>
+  z.object({ email: z.string().trim().email(t("emailInvalid")) });
+const createResetPasswordSchema = (t: ResetValidationMessages) =>
+  z
+    .object({
+      password: z
+        .string()
+        .min(12, t("passwordMin"))
+        .regex(/[A-Z]/, t("passwordUppercase"))
+        .regex(/[^A-Za-z0-9]/, t("passwordSymbol")),
+      confirmPassword: z.string(),
+    })
+    .refine((value) => value.password === value.confirmPassword, {
+      path: ["confirmPassword"],
+      message: t("passwordsMatch"),
+    });
+type ForgotPasswordValues = z.infer<
+  ReturnType<typeof createForgotPasswordSchema>
+>;
+type ResetPasswordValues = z.infer<
+  ReturnType<typeof createResetPasswordSchema>
+>;
 type LegalDocumentSummary = {
   slug: string;
   version: string;
@@ -135,62 +152,34 @@ type LegalDocumentSummary = {
   effectiveAtUtc: string;
 };
 
-function authErrorMessage(error: unknown, locale: string) {
+type AuthErrorMessages = ReturnType<typeof useTranslations<"auth.errors">>;
+function authErrorMessage(error: unknown, t: AuthErrorMessages) {
   if (
     error instanceof ApiError &&
     error.code === "EMAIL_CONFIRMATION_INVALID"
   ) {
-    return locale === "ar"
-      ? "رابط تأكيد البريد غير صالح أو انتهت صلاحيته. أنشئ حسابًا جديدًا أو تواصل مع الدعم."
-      : "The email-confirmation link is invalid or has expired. Create a new account or contact support.";
+    return t("emailConfirmationInvalid");
   }
   if (error instanceof ApiError && error.code === "DEVICE_LIMIT") {
-    return locale === "ar"
-      ? "هذا الحساب مرتبط بجهاز موثوق آخر. اطلب من الأدمن إعادة ضبط الجهاز ثم حاول مجددًا."
-      : "This account is linked to another trusted device. Ask an administrator to reset the device, then try again.";
+    return t("deviceLimit");
   }
   if (error instanceof ApiError && error.code === "TWO_FACTOR_REQUIRED") {
-    return locale === "ar"
-      ? "أدخل رمز المصادقة المكوّن من 6 أرقام من تطبيق المصادقة."
-      : "Enter the 6-digit code from your authenticator app.";
+    return t("twoFactorRequired");
   }
   if (error instanceof ApiError && error.code === "TWO_FACTOR_INVALID") {
-    return locale === "ar"
-      ? "رمز تطبيق المصادقة غير صحيح أو انتهت صلاحيته."
-      : "The authenticator code is invalid or expired.";
+    return t("twoFactorInvalid");
   }
   if (
     error instanceof ApiError &&
     error.code === "TWO_FACTOR_RECOVERY_CODE_INVALID"
   ) {
-    return locale === "ar"
-      ? "رمز الاسترداد غير صحيح أو مستخدم."
-      : "The recovery code is invalid or already used.";
+    return t("twoFactorRecoveryCodeInvalid");
   }
   if (error instanceof ApiError && error.code === "PASSWORD_CHANGE_REQUIRED") {
-    return locale === "ar"
-      ? "يجب إعادة تعيين كلمة المرور قبل تسجيل الدخول."
-      : "You must reset your password before signing in.";
+    return t("passwordChangeRequired");
   }
-  return error instanceof Error ? error.message : "Request failed.";
+  return error instanceof Error ? error.message : t("requestFailed");
 }
-
-const motivationMessages = {
-  ar: [
-    "كل درس تكمله يقربك خطوة من هدفك.",
-    "التقدّم الصغير اليوم يصنع إنجازًا كبيرًا غدًا.",
-    "تعلّم، طبّق، ثم دع إنجازك يتكلم عنك.",
-    "أنت لا تحفظ فقط — أنت تبني مهارة حقيقية.",
-    "المعيار الذي تحققه اليوم هو ثقة إضافية في نفسك.",
-  ],
-  en: [
-    "Every completed lesson moves you closer to your goal.",
-    "Small progress today becomes a big achievement tomorrow.",
-    "Learn, apply, then let your work speak for you.",
-    "You are not only memorising — you are building a real skill.",
-    "Every criterion you achieve is another vote of confidence in yourself.",
-  ],
-};
 
 export function AuthPageLayout({
   children,
@@ -200,11 +189,11 @@ export function AuthPageLayout({
   showGalaxy?: boolean;
 }) {
   const locale = useLocale();
+  const t = useTranslations("auth.page");
   const logoTilt = useRef<HTMLDivElement>(null);
   const [messageIndex, setMessageIndex] = useState(0);
   const [reduceMotion, setReduceMotion] = useState(true);
-  const messages =
-    locale === "ar" ? motivationMessages.ar : motivationMessages.en;
+  const messages = t.raw("motivation") as string[];
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -274,12 +263,10 @@ export function AuthPageLayout({
               </div>
             </div>
             <p className="mt-5 text-sm font-black tracking-[0.16em] text-primary">
-              {locale === "ar" ? "رحلتك تبدأ الآن" : "YOUR JOURNEY STARTS NOW"}
+              {t("journeyLabel")}
             </p>
             <h2 className="mt-3 max-w-sm text-2xl font-black leading-snug text-foreground sm:text-3xl">
-              {locale === "ar"
-                ? "كل خطوة تعلّم تقرّبك من إنجاز أكبر."
-                : "Every learning step leads to a greater achievement."}
+              {t("journeyTitle")}
             </h2>
             <div
               key={messageIndex}
@@ -287,7 +274,7 @@ export function AuthPageLayout({
               aria-live="off"
             >
               <p className="text-xs font-black tracking-[0.14em] text-primary">
-                {locale === "ar" ? "رسالة لك" : "A NOTE FOR YOU"}
+                {t("noteLabel")}
               </p>
               <p className="mt-2 text-base font-bold leading-7 text-foreground">
                 {messages[messageIndex]}
@@ -316,8 +303,11 @@ export function AuthPageLayout({
 
 export function RegisterForm() {
   const locale = useLocale();
+  const t = useTranslations("auth.registerForm");
+  const validation = useTranslations("auth.registerForm.validation");
+  const errors = useTranslations("auth.errors");
   const form = useForm<RegisterValues>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(createRegisterSchema(validation)),
     defaultValues: {
       firstName: "",
       lastName: "",
@@ -386,81 +376,66 @@ export function RegisterForm() {
           </span>
           <div>
             <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">
-              {locale === "ar" ? "انضم إلى BETCCO" : "JOIN BETCCO"}
+              {t("join")}
             </p>
-            <h1 className="mt-1 text-3xl font-black">
-              {locale === "ar" ? "أنشئ حسابًا جديدًا" : "Create your account"}
-            </h1>
+            <h1 className="mt-1 text-3xl font-black">{t("title")}</h1>
             <p className="mt-2 text-sm leading-6 text-muted">
-              {locale === "ar"
-                ? "ابدأ كطالب، وتابع الدروس والمهام والتقييمات من مكان واحد."
-                : "Start as a learner and manage lessons, coursework, and assessment in one place."}
+              {t("description")}
             </p>
           </div>
         </div>
       </header>
-      <section aria-label={locale === "ar" ? "نوع الحساب" : "Account type"}>
-        <p className="text-sm font-bold text-muted">
-          {locale === "ar" ? "نوع المستخدم" : "User type"}
-        </p>
+      <section aria-label={t("accountType")}>
+        <p className="text-sm font-bold text-muted">{t("userType")}</p>
         <div className="mt-2 flex items-center gap-3 rounded-xl border border-primary/45 bg-primary/10 p-3 text-primary">
           <span className="grid size-9 place-items-center rounded-lg bg-primary text-slate-950">
             <UserRound size={18} aria-hidden="true" />
           </span>
-          <span className="font-black">
-            {locale === "ar" ? "حساب طالب" : "Student account"}
-          </span>
+          <span className="font-black">{t("studentAccount")}</span>
           <span className="ms-auto text-xs font-semibold text-muted">
-            {locale === "ar"
-              ? "حسابات المعلمين تُنشأ بدعوة من الأدمن"
-              : "Teacher accounts are created by admin invitation"}
+            {t("teacherInvitation")}
           </span>
         </div>
       </section>
       <fieldset className="grid gap-4">
-        <legend className="text-sm font-bold text-muted">
-          {locale === "ar" ? "معلوماتك الأساسية" : "Your details"}
-        </legend>
+        <legend className="text-sm font-bold text-muted">{t("details")}</legend>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
-            label={locale === "ar" ? "الاسم الأول" : "First name"}
+            label={t("firstName")}
             error={form.formState.errors.firstName?.message}
           >
             <input autoComplete="given-name" {...form.register("firstName")} />
           </Field>
           <Field
-            label={locale === "ar" ? "اسم العائلة" : "Last name"}
+            label={t("lastName")}
             error={form.formState.errors.lastName?.message}
           >
             <input autoComplete="family-name" {...form.register("lastName")} />
           </Field>
         </div>
       </fieldset>
-      <Field
-        label={locale === "ar" ? "البريد الإلكتروني" : "Email"}
-        error={form.formState.errors.email?.message}
-      >
+      <Field label={t("email")} error={form.formState.errors.email?.message}>
         <input type="email" autoComplete="email" {...form.register("email")} />
       </Field>
       <fieldset className="grid gap-4 border-t border-border pt-5">
         <legend className="text-sm font-bold text-muted">
-          {locale === "ar" ? "بيانات التواصل والتعريف" : "Contact and profile"}
+          {t("contactProfile")}
         </legend>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
-            label={locale === "ar" ? "الدولة" : "Country"}
+            label={t("country")}
             error={form.formState.errors.countryCode?.message}
           >
             <select autoComplete="country" {...form.register("countryCode")}>
               {registrationCountries.map((country) => (
                 <option key={country.code} value={country.code}>
-                  {locale === "ar" ? country.ar : country.en}
+                  {t(`countryNames.${country.code}`)}
                 </option>
               ))}
             </select>
           </Field>
           <Field
-            label={locale === "ar" ? "رقم الهاتف / واتساب" : "Phone / WhatsApp"}
+            label={t("phone")}
             error={form.formState.errors.phone?.message}
           >
             <span className="relative block">
@@ -468,7 +443,7 @@ export function RegisterForm() {
                 type="tel"
                 autoComplete="tel"
                 className="!ps-16"
-                placeholder={locale === "ar" ? "7X XXX XXXX" : "7X XXX XXXX"}
+                placeholder={t("phonePlaceholder")}
                 {...form.register("phone")}
               />
               <span
@@ -482,21 +457,17 @@ export function RegisterForm() {
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
-            label={locale === "ar" ? "نوع الجنس" : "Gender"}
+            label={t("gender")}
             error={form.formState.errors.gender?.message}
           >
             <select autoComplete="sex" {...form.register("gender")}>
-              <option value="Male">{locale === "ar" ? "ذكر" : "Male"}</option>
-              <option value="Female">
-                {locale === "ar" ? "أنثى" : "Female"}
-              </option>
-              <option value="PreferNotToSay">
-                {locale === "ar" ? "أفضل عدم الإفصاح" : "Prefer not to say"}
-              </option>
+              <option value="Male">{t("male")}</option>
+              <option value="Female">{t("female")}</option>
+              <option value="PreferNotToSay">{t("preferNotToSay")}</option>
             </select>
           </Field>
           <Field
-            label={locale === "ar" ? "تاريخ الميلاد" : "Date of birth"}
+            label={t("dateOfBirth")}
             error={form.formState.errors.dateOfBirth?.message}
           >
             <input
@@ -507,38 +478,33 @@ export function RegisterForm() {
             />
           </Field>
         </div>
-        <p className="text-xs leading-5 text-muted">
-          {locale === "ar"
-            ? "التسجيل الذاتي متاح لمن بلغ 18 سنة أو أكثر."
-            : "Self-registration is available to learners aged 18 and over."}
-        </p>
+        <p className="text-xs leading-5 text-muted">{t("adultEligibility")}</p>
       </fieldset>
       <fieldset className="grid gap-4 border-t border-border pt-5">
         <legend className="flex items-center gap-2 text-sm font-bold text-muted">
           <ShieldCheck size={16} className="text-primary" aria-hidden="true" />
-          {locale === "ar" ? "تأمين الحساب" : "Secure your account"}
+          {t("secureAccount")}
         </legend>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
-            label={locale === "ar" ? "كلمة المرور" : "Password"}
+            label={t("password")}
             error={form.formState.errors.password?.message}
           >
             <span className="relative block">
               <input
                 type={showPassword ? "text" : "password"}
                 className="!pe-11"
-                aria-label={locale === "ar" ? "كلمة المرور" : "Password"}
+                aria-label={t("password")}
                 {...form.register("password")}
               />
               <PasswordVisibilityButton
-                locale={locale}
                 visible={showPassword}
                 onClick={() => setShowPassword((value) => !value)}
               />
             </span>
           </Field>
           <Field
-            label={locale === "ar" ? "تأكيد كلمة المرور" : "Confirm password"}
+            label={t("confirmPassword")}
             error={form.formState.errors.confirmPassword?.message}
           >
             <span className="relative block">
@@ -548,7 +514,6 @@ export function RegisterForm() {
                 {...form.register("confirmPassword")}
               />
               <PasswordVisibilityButton
-                locale={locale}
                 visible={showConfirmation}
                 onClick={() => setShowConfirmation((value) => !value)}
               />
@@ -556,39 +521,31 @@ export function RegisterForm() {
           </Field>
         </div>
         <p className="text-xs leading-5 text-muted">
-          {locale === "ar"
-            ? "استخدم 12 حرفًا على الأقل، وتتضمن كلمة المرور حرفًا كبيرًا ورمزًا."
-            : "Use at least 12 characters, including an uppercase letter and a symbol."}
+          {t("passwordRequirements")}
         </p>
       </fieldset>
       <label className="flex gap-2 text-sm">
         <input type="checkbox" {...form.register("termsAccepted")} />
         <span>
-          {locale === "ar"
-            ? "أقر بأنني قرأت ووافقت على "
-            : "I confirm that I have read and accepted the "}
+          {t("termsPrefix")}
           <Link
             className="font-bold text-primary underline"
             href={`/${locale}/terms`}
             target="_blank"
             rel="noreferrer"
           >
-            {locale === "ar"
-              ? `الشروط والأحكام (الإصدار ${terms?.version ?? "…"})`
-              : `Terms and conditions (version ${terms?.version ?? "…"})`}
+            {t("termsVersion", { version: terms?.version ?? "…" })}
           </Link>
-          {locale === "ar" ? " و" : " and the "}
+          {t("privacyJoin")}
           <Link
             className="font-bold text-primary underline"
             href={`/${locale}/privacy`}
             target="_blank"
             rel="noreferrer"
           >
-            {locale === "ar"
-              ? `سياسة الخصوصية (الإصدار ${privacy?.version ?? "…"})`
-              : `Privacy policy (version ${privacy?.version ?? "…"})`}
+            {t("privacyVersion", { version: privacy?.version ?? "…" })}
           </Link>
-          {locale === "ar" ? "." : "."}
+          {t("legalEnd")}
         </span>
       </label>
       {form.formState.errors.termsAccepted && (
@@ -598,48 +555,36 @@ export function RegisterForm() {
       )}
       <label className="flex gap-2 text-sm text-muted">
         <input type="checkbox" {...form.register("marketingConsent")} />
-        <span>
-          {locale === "ar"
-            ? "أوافق اختياريًا على استلام العروض والرسائل التسويقية، ويمكنني سحب هذه الموافقة في أي وقت."
-            : "I optionally agree to receive offers and marketing messages, and can withdraw this consent at any time."}
-        </span>
+        <span>{t("marketingConsent")}</span>
       </label>
       <button
         disabled={request.isPending || legal.isPending || !terms || !privacy}
         className="focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-white disabled:opacity-60"
       >
-        {request.isPending
-          ? "…"
-          : locale === "ar"
-            ? "إنشاء الحساب"
-            : "Create account"}
+        {request.isPending ? "…" : t("createAccount")}
       </button>
       <p className="text-center text-sm text-muted">
-        {locale === "ar" ? "لديك حساب بالفعل؟ " : "Already have an account? "}
+        {t("alreadyHaveAccount")}
         <Link
           className="font-bold text-primary hover:underline"
           href={`/${locale}/login`}
         >
-          {locale === "ar" ? "سجّل الدخول" : "Sign in"}
+          {t("signIn")}
         </Link>
       </p>
       {request.isSuccess && (
         <p role="status" className="text-sm text-emerald-700">
-          {locale === "ar"
-            ? "تم إنشاء الحساب. افحص بريدك لتأكيده قبل تسجيل الدخول."
-            : "Account created. Check your email before signing in."}
+          {t("created")}
         </p>
       )}
       {request.isError && (
         <p role="alert" className="text-sm text-red-600">
-          {authErrorMessage(request.error, locale)}
+          {authErrorMessage(request.error, errors)}
         </p>
       )}
       {legal.isError && (
         <p role="alert" className="text-sm text-red-600">
-          {locale === "ar"
-            ? "تعذر تحميل الإصدارات القانونية الحالية. حاول مرة أخرى لاحقًا."
-            : "The current legal document versions could not be loaded. Please try again later."}
+          {t("legalLoadFailed")}
         </p>
       )}
     </form>
@@ -648,6 +593,9 @@ export function RegisterForm() {
 
 export function LoginForm() {
   const locale = useLocale();
+  const t = useTranslations("auth.loginForm");
+  const validation = useTranslations("auth.loginForm.validation");
+  const errors = useTranslations("auth.errors");
   const router = useRouter();
   const queryClient = useQueryClient();
   const [showPassword, setShowPassword] = useState(false);
@@ -656,7 +604,7 @@ export function LoginForm() {
     "authenticator" | "recovery"
   >("authenticator");
   const form = useForm<LoginValues>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(createLoginSchema(validation)),
     defaultValues: {
       email: "",
       password: "",
@@ -749,17 +697,12 @@ export function LoginForm() {
       onSubmit={form.handleSubmit(() => request.mutate())}
       className="card mx-auto grid max-w-md gap-4 p-6"
     >
-      <h1 className="text-3xl font-black">
-        {locale === "ar" ? "تسجيل الدخول" : "Sign in"}
-      </h1>
-      <Field
-        label={locale === "ar" ? "البريد الإلكتروني" : "Email"}
-        error={form.formState.errors.email?.message}
-      >
+      <h1 className="text-3xl font-black">{t("title")}</h1>
+      <Field label={t("email")} error={form.formState.errors.email?.message}>
         <input type="email" {...form.register("email")} />
       </Field>
       <Field
-        label={locale === "ar" ? "كلمة المرور" : "Password"}
+        label={t("password")}
         error={form.formState.errors.password?.message}
       >
         <span className="relative block">
@@ -769,7 +712,6 @@ export function LoginForm() {
             {...form.register("password")}
           />
           <PasswordVisibilityButton
-            locale={locale}
             visible={showPassword}
             onClick={() => setShowPassword((value) => !value)}
           />
@@ -780,9 +722,7 @@ export function LoginForm() {
           <div
             className="flex flex-wrap gap-2"
             role="group"
-            aria-label={
-              locale === "ar" ? "طريقة التحقق" : "Verification method"
-            }
+            aria-label={t("verificationMethod")}
           >
             <button
               type="button"
@@ -793,7 +733,7 @@ export function LoginForm() {
               }}
               className="focus-ring rounded-lg border border-border px-3 py-2 text-sm font-bold aria-pressed:bg-primary/20"
             >
-              {locale === "ar" ? "رمز تطبيق المصادقة" : "Authenticator code"}
+              {t("authenticatorCode")}
             </button>
             <button
               type="button"
@@ -804,16 +744,12 @@ export function LoginForm() {
               }}
               className="focus-ring rounded-lg border border-border px-3 py-2 text-sm font-bold aria-pressed:bg-primary/20"
             >
-              {locale === "ar" ? "استخدام رمز استرداد" : "Use a recovery code"}
+              {t("useRecoveryCode")}
             </button>
           </div>
           {twoFactorMethod === "authenticator" ? (
             <Field
-              label={
-                locale === "ar"
-                  ? "رمز تطبيق المصادقة (6 أرقام)"
-                  : "Authenticator code (6 digits)"
-              }
+              label={t("authenticatorCodeDigits")}
               error={form.formState.errors.twoFactorCode?.message}
             >
               <input
@@ -830,7 +766,7 @@ export function LoginForm() {
             </Field>
           ) : (
             <Field
-              label={locale === "ar" ? "رمز الاسترداد" : "Recovery code"}
+              label={t("recoveryCode")}
               error={form.formState.errors.twoFactorRecoveryCode?.message}
             >
               <input
@@ -841,59 +777,45 @@ export function LoginForm() {
             </Field>
           )}
           {twoFactorMethod === "recovery" && (
-            <p className="text-sm text-muted">
-              {locale === "ar"
-                ? "يمكن استخدام كل رمز استرداد مرة واحدة فقط."
-                : "Each recovery code can be used only once."}
-            </p>
+            <p className="text-sm text-muted">{t("recoveryCodeUseOnce")}</p>
           )}
         </div>
       )}
       <label className="flex gap-2 text-sm">
         <input type="checkbox" {...form.register("rememberMe")} />
-        {locale === "ar"
-          ? "تذكرني على هذا الجهاز"
-          : "Remember me on this device"}
+        {t("rememberMe")}
       </label>
       <button
         disabled={request.isPending}
         className="focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-white disabled:opacity-60"
       >
-        {request.isPending ? "…" : locale === "ar" ? "دخول" : "Sign in"}
+        {request.isPending ? "…" : t("submit")}
       </button>
       {request.isError && (
         <p role="alert" className="text-sm text-red-600">
-          {authErrorMessage(request.error, locale)}
+          {authErrorMessage(request.error, errors)}
         </p>
       )}
       <Link
         className="text-sm font-semibold text-primary"
         href={`/${locale}/register`}
       >
-        {locale === "ar" ? "إنشاء حساب طالب" : "Create a student account"}
+        {t("createStudentAccount")}
       </Link>
       <Link
         className="text-sm font-semibold text-primary"
         href={`/${locale}/reset-password`}
       >
-        {locale === "ar" ? "نسيت كلمة المرور؟" : "Forgot your password?"}
+        {t("forgotPassword")}
       </Link>
       <div className="rounded-xl border border-border bg-white/5 p-4 text-sm leading-6 text-muted">
-        <p>
-          {locale === "ar"
-            ? "لا تريد تسجيل الدخول الآن؟ يمكنك المتابعة كضيف لاستكشاف الصفحات والدورات العامة."
-            : "Not ready to sign in? Continue as a guest to explore public pages and courses."}
-        </p>
-        <p className="mt-1">
-          {locale === "ar"
-            ? "الشراء، السلة، التعلّم، والملفات الخاصة تتطلب حساب طالب مسجّل الدخول."
-            : "Purchasing, the cart, learning, and private files require a signed-in student account."}
-        </p>
+        <p>{t("guestIntro")}</p>
+        <p className="mt-1">{t("guestAccountRequirement")}</p>
         <Link
           className="focus-ring mt-3 inline-flex font-bold text-primary"
           href={`/${locale}`}
         >
-          {locale === "ar" ? "الدخول كضيف" : "Continue as guest"}
+          {t("continueAsGuest")}
         </Link>
       </div>
     </form>
@@ -903,6 +825,7 @@ export function LoginForm() {
 export function EmailConfirmationForm() {
   const locale = useLocale();
   const t = useTranslations("auth.emailConfirmation");
+  const errors = useTranslations("auth.errors");
   const searchParams = useSearchParams();
   const userId = searchParams.get("userId");
   const token = searchParams.get("token");
@@ -964,7 +887,7 @@ export function EmailConfirmationForm() {
               role="alert"
               className="rounded-xl bg-red-500/10 p-3 text-sm text-red-700"
             >
-              {authErrorMessage(confirmation.error, locale)}
+              {authErrorMessage(confirmation.error, errors)}
             </p>
           )}
         </>
@@ -975,6 +898,8 @@ export function EmailConfirmationForm() {
 
 export function ResetPasswordForm() {
   const locale = useLocale();
+  const t = useTranslations("auth.resetPassword");
+  const validation = useTranslations("auth.resetPassword.validation");
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get("userId");
@@ -983,11 +908,11 @@ export function ResetPasswordForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const forgot = useForm<ForgotPasswordValues>({
-    resolver: zodResolver(forgotPasswordSchema),
+    resolver: zodResolver(createForgotPasswordSchema(validation)),
     defaultValues: { email: "" },
   });
   const reset = useForm<ResetPasswordValues>({
-    resolver: zodResolver(resetPasswordSchema),
+    resolver: zodResolver(createResetPasswordSchema(validation)),
     defaultValues: { password: "", confirmPassword: "" },
   });
   const requestReset = useMutation({
@@ -1009,25 +934,13 @@ export function ResetPasswordForm() {
     <section className="shell grid min-w-0 gap-6 py-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] lg:items-center lg:py-12">
       <div className="rounded-[1.75rem] bg-gradient-to-br from-[#11354c] via-[#11283c] to-[#0c1a2a] px-6 py-10 text-white sm:px-10 lg:min-h-[32rem] lg:py-16">
         <p className="text-xs font-black tracking-[0.16em] text-[#79dfd0]">
-          BETCCO ACCOUNT
+          {t("accountLabel")}
         </p>
         <h1 className="mt-5 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
-          {isReset
-            ? locale === "ar"
-              ? "أنشئ كلمة مرور جديدة لحسابك"
-              : "Create a new password for your account"
-            : locale === "ar"
-              ? "استعد الوصول إلى حسابك"
-              : "Recover access to your account"}
+          {isReset ? t("createTitle") : t("recoverTitle")}
         </h1>
         <p className="mt-4 max-w-xl text-sm leading-7 text-slate-200">
-          {isReset
-            ? locale === "ar"
-              ? "استخدم الرابط الذي وصلك عبر البريد لإنشاء كلمة مرور جديدة."
-              : "Use the link sent to your email to set a new password."
-            : locale === "ar"
-              ? "أدخل بريد حسابك وسنرسل تعليمات الاستعادة إذا كان الحساب مؤهلًا."
-              : "Enter your account email. If the account is eligible, we will send recovery instructions."}
+          {isReset ? t("createDescription") : t("recoverDescription")}
         </p>
         <div className="mt-9 grid gap-3 text-sm sm:grid-cols-2">
           <p className="rounded-xl border border-white/10 p-4">
@@ -1036,7 +949,7 @@ export function ResetPasswordForm() {
               className="mb-3 text-[#79dfd0]"
               aria-hidden="true"
             />
-            {locale === "ar" ? "رابط استعادة آمن" : "Secure reset link"}
+            {t("secureLink")}
           </p>
           <p className="rounded-xl border border-white/10 p-4">
             <KeyRound
@@ -1044,7 +957,7 @@ export function ResetPasswordForm() {
               className="mb-3 text-[#79dfd0]"
               aria-hidden="true"
             />
-            {locale === "ar" ? "كلمة مرور جديدة" : "A new password"}
+            {t("newPasswordFeature")}
           </p>
         </div>
       </div>
@@ -1057,13 +970,7 @@ export function ResetPasswordForm() {
           )}
         </span>
         <h2 className="mt-5 text-2xl font-black">
-          {isReset
-            ? locale === "ar"
-              ? "تعيين كلمة مرور جديدة"
-              : "Set a new password"
-            : locale === "ar"
-              ? "نسيت كلمة المرور؟"
-              : "Forgot your password?"}
+          {isReset ? t("setTitle") : t("forgotTitle")}
         </h2>
         {isReset ? (
           <form
@@ -1073,7 +980,7 @@ export function ResetPasswordForm() {
             className="mt-5 grid gap-4"
           >
             <Field
-              label={locale === "ar" ? "كلمة المرور الجديدة" : "New password"}
+              label={t("newPassword")}
               error={reset.formState.errors.password?.message}
             >
               <span className="relative block">
@@ -1084,19 +991,16 @@ export function ResetPasswordForm() {
                   {...reset.register("password")}
                 />
                 <PasswordVisibilityButton
-                  locale={locale}
                   visible={showPassword}
                   onClick={() => setShowPassword((value) => !value)}
                 />
               </span>
             </Field>
             <p className="text-xs leading-5 text-muted">
-              {locale === "ar"
-                ? "استخدم 12 حرفًا على الأقل، مع حرف إنجليزي كبير ورمز خاص."
-                : "Use at least 12 characters, including an uppercase letter and a symbol."}
+              {t("passwordRequirements")}
             </p>
             <Field
-              label={locale === "ar" ? "تأكيد كلمة المرور" : "Confirm password"}
+              label={t("confirmPassword")}
               error={reset.formState.errors.confirmPassword?.message}
             >
               <span className="relative block">
@@ -1107,7 +1011,6 @@ export function ResetPasswordForm() {
                   {...reset.register("confirmPassword")}
                 />
                 <PasswordVisibilityButton
-                  locale={locale}
                   visible={showConfirmation}
                   onClick={() => setShowConfirmation((value) => !value)}
                 />
@@ -1117,21 +1020,13 @@ export function ResetPasswordForm() {
               className="focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-slate-950 disabled:opacity-60"
               disabled={updatePassword.isPending}
             >
-              {updatePassword.isPending
-                ? locale === "ar"
-                  ? "جارٍ الحفظ…"
-                  : "Saving…"
-                : locale === "ar"
-                  ? "حفظ كلمة المرور"
-                  : "Save password"}
+              {updatePassword.isPending ? t("saving") : t("savePassword")}
             </button>
             {updatePassword.isError && (
               <p role="alert" className="text-sm text-red-600">
                 {updatePassword.error instanceof Error
                   ? updatePassword.error.message
-                  : locale === "ar"
-                    ? "تعذر تعيين كلمة المرور."
-                    : "Password could not be reset."}
+                  : t("resetFailed")}
               </p>
             )}
           </form>
@@ -1143,13 +1038,13 @@ export function ResetPasswordForm() {
             className="mt-5 grid gap-4"
           >
             <Field
-              label={locale === "ar" ? "البريد الإلكتروني" : "Email"}
+              label={t("email")}
               error={forgot.formState.errors.email?.message}
             >
               <input
                 type="email"
                 autoComplete="email"
-                placeholder="name@example.com"
+                placeholder={t("emailPlaceholder")}
                 {...forgot.register("email")}
               />
             </Field>
@@ -1157,31 +1052,21 @@ export function ResetPasswordForm() {
               className="focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-slate-950 disabled:opacity-60"
               disabled={requestReset.isPending}
             >
-              {requestReset.isPending
-                ? locale === "ar"
-                  ? "جارٍ الإرسال…"
-                  : "Sending…"
-                : locale === "ar"
-                  ? "إرسال رابط الاستعادة"
-                  : "Send reset link"}
+              {requestReset.isPending ? t("sending") : t("sendResetLink")}
             </button>
             {requestReset.isSuccess && (
               <p
                 role="status"
                 className="rounded-xl bg-emerald-500/10 p-3 text-sm text-emerald-700 dark:text-emerald-300"
               >
-                {locale === "ar"
-                  ? "إذا كان الحساب مؤهلًا فسيصلك رابط الاستعادة."
-                  : "If an eligible account exists, a reset link has been sent."}
+                {t("resetSent")}
               </p>
             )}
             {requestReset.isError && (
               <p role="alert" className="text-sm text-red-600">
                 {requestReset.error instanceof Error
                   ? requestReset.error.message
-                  : locale === "ar"
-                    ? "تعذر إرسال الطلب."
-                    : "The request could not be sent."}
+                  : t("sendFailed")}
               </p>
             )}
           </form>
@@ -1195,7 +1080,7 @@ export function ResetPasswordForm() {
             aria-hidden="true"
             className={locale === "ar" ? "rotate-180" : ""}
           />
-          {locale === "ar" ? "العودة إلى تسجيل الدخول" : "Back to sign in"}
+          {t("backToSignIn")}
         </Link>
       </div>
     </section>
@@ -1225,28 +1110,19 @@ function Field({
 }
 
 function PasswordVisibilityButton({
-  locale,
   visible,
   onClick,
 }: {
-  locale: string;
   visible: boolean;
   onClick: () => void;
 }) {
+  const t = useTranslations("auth.passwordVisibility");
   return (
     <button
       type="button"
       className="focus-ring absolute inset-y-0 end-0 grid w-10 place-items-center text-muted hover:text-primary"
       onClick={onClick}
-      aria-label={
-        locale === "ar"
-          ? visible
-            ? "إخفاء كلمة المرور"
-            : "إظهار كلمة المرور"
-          : visible
-            ? "Hide password"
-            : "Show password"
-      }
+      aria-label={visible ? t("hide") : t("show")}
       aria-pressed={visible}
     >
       {visible ? <Eye size={19} /> : <EyeOff size={19} />}

@@ -2,7 +2,7 @@
 
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -32,6 +32,7 @@ export function MfaEnrollmentBoundary({
   navigation: React.ReactNode;
 }) {
   const locale = useLocale();
+  const t = useTranslations("auth.mfaEnrollment");
   const pathname = usePathname();
   const router = useRouter();
   const securityPath = `/${locale}/staff/security`;
@@ -53,16 +54,12 @@ export function MfaEnrollmentBoundary({
   if (shouldRedirect) {
     return (
       <main id="main-content" className="shell flex-1 py-10" aria-busy="true">
-        <p>
-          {locale === "ar"
-            ? "جارٍ فتح إعداد المصادقة الثنائية…"
-            : "Opening multi-factor setup…"}
-        </p>
+        <p>{t("opening")}</p>
         <Link
           className="focus-ring mt-3 inline-block text-primary underline"
           href={securityPath}
         >
-          {locale === "ar" ? "افتح أمان الحساب" : "Open account security"}
+          {t("openSecurity")}
         </Link>
       </main>
     );

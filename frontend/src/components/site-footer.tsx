@@ -14,6 +14,7 @@ import { useLocale, useTranslations } from "next-intl";
 export function SiteFooter() {
   const locale = useLocale();
   const t = useTranslations();
+  const footer = useTranslations("footer");
   const settings = useQuery({
     queryKey: publicBrandSettingsQueryKey(locale),
     queryFn: () => api<BrandSettings>(`/settings/public?locale=${locale}`),
@@ -44,14 +45,10 @@ export function SiteFooter() {
         </div>
         <div className="text-sm text-muted">
           <p className="font-semibold text-foreground">{brand.BrandName}</p>
-          <p className="mt-2">
-            {locale === "ar"
-              ? "منصة تعليمية مستقلة متخصصة في طلاب BTEC."
-              : "An independent educational platform focused on BTEC students."}
-          </p>
+          <p className="mt-2">{footer("description")}</p>
         </div>
         <div className="grid content-start gap-x-4 gap-y-3 text-sm sm:grid-cols-2">
-          {legalLinks(locale).map((link) => (
+          {legalLinks(footer).map((link) => (
             <Link
               key={link.href}
               className="focus-ring hover:text-primary"
@@ -67,7 +64,7 @@ export function SiteFooter() {
             }
             className="focus-ring text-start hover:text-primary"
           >
-            {locale === "ar" ? "إعدادات ملفات الارتباط" : "Cookie settings"}
+            {footer("cookieSettings")}
           </button>
         </div>
       </div>
@@ -81,35 +78,34 @@ export function SiteFooter() {
   );
 }
 
-function legalLinks(locale: string) {
-  const ar = locale === "ar";
+function legalLinks(footer: ReturnType<typeof useTranslations<"footer">>) {
   return [
-    { href: "terms", label: ar ? "الشروط والأحكام" : "Terms and conditions" },
-    { href: "privacy", label: ar ? "سياسة الخصوصية" : "Privacy policy" },
-    { href: "refunds", label: ar ? "الدفع والاسترداد" : "Payment and refunds" },
-    { href: "copyright", label: ar ? "حقوق النشر" : "Copyright" },
+    { href: "terms", label: footer("links.terms") },
+    { href: "privacy", label: footer("links.privacy") },
+    { href: "refunds", label: footer("links.refunds") },
+    { href: "copyright", label: footer("links.copyright") },
     {
       href: "student-agreement",
-      label: ar ? "اتفاقية الطالب" : "Student agreement",
+      label: footer("links.studentAgreement"),
     },
     {
       href: "teacher-agreement",
-      label: ar ? "اتفاقية المعلم" : "Teacher agreement",
+      label: footer("links.teacherAgreement"),
     },
-    { href: "minors", label: ar ? "حماية القاصرين" : "Minors protection" },
-    { href: "cookies", label: ar ? "ملفات تعريف الارتباط" : "Cookies" },
-    { href: "complaints", label: ar ? "الشكاوى" : "Complaints" },
-    { href: "privacy-center", label: ar ? "مركز الخصوصية" : "Privacy centre" },
+    { href: "minors", label: footer("links.minors") },
+    { href: "cookies", label: footer("links.cookies") },
+    { href: "complaints", label: footer("links.complaints") },
+    { href: "privacy-center", label: footer("links.privacyCenter") },
     {
       href: "security",
-      label: ar ? "الإبلاغ عن ثغرة أمنية" : "Report a vulnerability",
+      label: footer("links.security"),
     },
-    { href: "contact", label: ar ? "اتصل بنا" : "Contact us" },
-    { href: "platform-rating", label: ar ? "تقييم BETCCO" : "Rate BETCCO" },
-    { href: "guide", label: ar ? "دليل الاستخدام" : "User guide" },
+    { href: "contact", label: footer("links.contact") },
+    { href: "platform-rating", label: footer("links.platformRating") },
+    { href: "guide", label: footer("links.guide") },
     {
       href: "faq",
-      label: ar ? "الأسئلة الشائعة" : "Frequently asked questions",
+      label: footer("links.faq"),
     },
   ];
 }
