@@ -296,6 +296,7 @@ function StudentDashboard() {
   const allLessons = courseSummary?.totalLessons ?? 0;
   const progress = courseSummary?.progressPercent ?? 0;
   const achievements = overview.data?.achievements ?? [];
+  const pendingActions = overview.data?.pendingActions;
   return (
     <section className="shell py-10">
       <DashboardHeader
@@ -386,6 +387,122 @@ function StudentDashboard() {
           tone="secondary"
         />
       </div>
+      <section
+        className="card mt-5 p-5"
+        aria-labelledby="student-pending-actions-heading"
+      >
+        <h2 id="student-pending-actions-heading" className="text-xl font-black">
+          {locale === "ar" ? "المطلوب منك الآن" : "What needs your attention"}
+        </h2>
+        <p className="mt-1 text-sm text-muted">
+          {locale === "ar"
+            ? "إجراءات التقييم وإعادة التقييم المتاحة لك حاليًا."
+            : "Evaluation and Resit actions currently available to you."}
+        </p>
+        {overview.isPending ? (
+          <p className="mt-4 text-sm text-muted" aria-busy>
+            {locale === "ar" ? "جارٍ تحميل الإجراءات…" : "Loading actions…"}
+          </p>
+        ) : overview.isError || !pendingActions ? (
+          <p className="mt-4 text-sm text-muted" role="alert">
+            {locale === "ar"
+              ? "تعذر تحميل الإجراءات المطلوبة الآن."
+              : "Unable to load pending actions right now."}
+          </p>
+        ) : pendingActions.length === 0 ? (
+          <p className="mt-4 text-sm text-muted">
+            {locale === "ar"
+              ? "لا يوجد إجراء مطلوب منك الآن."
+              : "You have no pending actions right now."}
+          </p>
+        ) : (
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {pendingActions.map((action) => {
+              const title = {
+                EvaluationRevision:
+                  locale === "ar"
+                    ? "لديك نسخة معدلة مطلوبة"
+                    : "Your assignment needs a revision",
+                ResitAuthorized:
+                  locale === "ar"
+                    ? "فرصة إعادة تقييم متاحة"
+                    : "A Resit opportunity is available",
+                ResitDraft:
+                  locale === "ar" ? "جهّز إعادة التقييم" : "Prepare your Resit",
+                EvaluationDraft:
+                  locale === "ar"
+                    ? "تقييم بانتظار التجهيز"
+                    : "Evaluation draft to prepare",
+              }[action.kind];
+              const label = {
+                EvaluationRevision:
+                  locale === "ar"
+                    ? "فتح التقييم والملاحظات"
+                    : "Open evaluation and feedback",
+                ResitAuthorized:
+                  locale === "ar"
+                    ? "عرض فرصة إعادة التقييم"
+                    : "View Resit opportunity",
+                ResitDraft:
+                  locale === "ar"
+                    ? "متابعة تجهيز إعادة التقييم"
+                    : "Continue Resit preparation",
+                EvaluationDraft:
+                  locale === "ar"
+                    ? "متابعة تجهيز التقييم"
+                    : "Continue evaluation",
+              }[action.kind];
+              const href =
+                action.kind === "EvaluationDraft"
+                  ? `/${locale}/student/evaluations/new?resume=${action.evaluationRequestId}`
+                  : action.kind === "ResitDraft"
+                    ? `/${locale}/student/evaluations/${action.evaluationRequestId}`
+                    : `/${locale}/student/evaluations`;
+              return (
+                <article
+                  key={`${action.kind}:${action.evaluationRequestId}`}
+                  className="rounded-xl border border-border bg-surface-solid/45 p-4"
+                >
+                  <h3 className="font-black">{title}</h3>
+                  {action.academic ? (
+                    <p className="mt-2 text-sm text-muted">
+                      {action.academic.unitCode} ·{" "}
+                      {academicText(
+                        locale,
+                        action.academic.unitArabicTitle,
+                        action.academic.unitEnglishTitle,
+                      )}
+                      {" · "}
+                      {academicText(
+                        locale,
+                        action.academic.assessmentArabicTitle,
+                        action.academic.assessmentEnglishTitle,
+                      )}
+                    </p>
+                  ) : null}
+                  {action.kind === "EvaluationRevision" &&
+                  action.effectiveDueAtUtc ? (
+                    <p className="mt-2 text-sm font-semibold text-amber-500">
+                      {locale === "ar"
+                        ? "آخر موعد للمراجعة الثانية: "
+                        : "Revision check deadline: "}
+                      {new Date(action.effectiveDueAtUtc).toLocaleString(
+                        locale === "ar" ? "ar-JO" : "en-GB",
+                      )}
+                    </p>
+                  ) : null}
+                  <Link
+                    className="focus-ring mt-3 inline-block font-bold text-primary underline"
+                    href={href}
+                  >
+                    {label}
+                  </Link>
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </section>
       <MotivationCard variant="dashboard" className="mt-5" />
       <section className="card mt-5 p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -1264,6 +1381,7 @@ function StudentPurchases() {
 }
 
 type LearningOverview = {
+  pendingActions: StudentPendingAction[];
   notes: {
     id: string;
     lessonId: string;
@@ -1312,6 +1430,20 @@ type LearningOverview = {
     isCompleted: boolean;
   }[];
 };
+
+type StudentPendingAction = {
+  evaluationRequestId: string;
+  originalEvaluationRequestId: string | null;
+  authorizationId: string | null;
+  occurredAtUtc: string;
+  academic: AssessmentAcademicSummary | null;
+} & (
+  | { kind: "EvaluationRevision"; effectiveDueAtUtc: string | null }
+  | {
+      kind: "ResitAuthorized" | "ResitDraft" | "EvaluationDraft";
+      effectiveDueAtUtc: null;
+    }
+);
 
 function LearningOrganizer({
   initialTab,

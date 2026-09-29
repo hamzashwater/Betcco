@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using Betcco.Application.Assignments;
 using Betcco.Application.Common;
+using Betcco.Application.Evaluations;
 using Betcco.Domain.Common;
+using Betcco.Domain.Evaluations;
 using Betcco.Domain.Learning;
 using Betcco.Domain.Platform;
 using Betcco.Infrastructure.Identity;
@@ -171,6 +173,7 @@ public sealed class StudentLearningToolsController(
                 certificates.Count,
                 1)
         };
+        var pendingActions = await GetPendingActionsAsync(studentId, cancellationToken);
         return Ok(new
         {
             notes,
@@ -179,9 +182,106 @@ public sealed class StudentLearningToolsController(
             certificates,
             upcomingAssignments,
             unreadNotifications,
-            achievements
+            achievements,
+            pendingActions
         });
     }
+
+    private async Task<IReadOnlyList<PendingStudentAction>> GetPendingActionsAsync(string studentId, CancellationToken cancellationToken)
+    {
+        const int limit = 8;
+        var now = DateTimeOffset.UtcNow;
+        var revisions = await db.EvaluationRequests.AsNoTracking()
+            .Where(request => request.StudentUserId == studentId
+                && request.Status == EvaluationStatus.NeedsRevision
+                && request.RetakeOfEvaluationRequestId == null
+                && request.SubmissionAttemptNumber == 1
+                && !db.ResitAuthorizations.Any(authorization => authorization.ResitEvaluationRequestId == request.Id))
+            .Select(request => new
+            {
+                request.Id,
+                request.UpdatedAtUtc,
+                request.AssessmentScopeSnapshotJson,
+                EffectiveDueAtUtc = db.EvaluationRevisionDeadlineAdjustments.AsNoTracking()
+                    .Where(adjustment => adjustment.EvaluationRequestId == request.Id && adjustment.RevokedAtUtc == null)
+                    .OrderByDescending(adjustment => adjustment.GrantedAtUtc)
+                    .ThenByDescending(adjustment => adjustment.Id)
+                    .Select(adjustment => (DateTimeOffset?)adjustment.ExtendedDueAtUtc)
+                    .FirstOrDefault() ?? request.RevisionDueAtUtc
+            })
+            .Where(request => request.EffectiveDueAtUtc == null || request.EffectiveDueAtUtc > now)
+            .OrderBy(request => request.EffectiveDueAtUtc == null)
+            .ThenBy(request => request.EffectiveDueAtUtc)
+            .ThenBy(request => request.Id)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+
+        var authorizedResits = await db.ResitAuthorizations.AsNoTracking()
+            .Where(authorization => authorization.OriginalEvaluationRequest != null
+                && authorization.OriginalEvaluationRequest.StudentUserId == studentId
+                && authorization.RevokedAtUtc == null
+                && authorization.ResitEvaluationRequestId == null)
+            .OrderBy(authorization => authorization.AuthorizedAtUtc)
+            .ThenBy(authorization => authorization.Id)
+            .Take(limit)
+            .Select(authorization => new
+            {
+                authorization.Id,
+                authorization.OriginalEvaluationRequestId,
+                authorization.AuthorizedAtUtc,
+                Snapshot = authorization.OriginalEvaluationRequest!.AssessmentScopeSnapshotJson
+            })
+            .ToListAsync(cancellationToken);
+
+        var resitDrafts = await db.ResitAuthorizations.AsNoTracking()
+            .Where(authorization => authorization.OriginalEvaluationRequest != null
+                && authorization.OriginalEvaluationRequest.StudentUserId == studentId
+                && authorization.RevokedAtUtc == null
+                && authorization.ResitEvaluationRequestId != null
+                && authorization.ResitEvaluationRequest != null
+                && authorization.ResitEvaluationRequest.StudentUserId == studentId
+                && authorization.ResitEvaluationRequest.Status == EvaluationStatus.Draft)
+            .OrderBy(authorization => authorization.ActivatedAtUtc ?? authorization.AuthorizedAtUtc)
+            .ThenBy(authorization => authorization.Id)
+            .Take(limit)
+            .Select(authorization => new
+            {
+                authorization.Id,
+                authorization.OriginalEvaluationRequestId,
+                EvaluationRequestId = authorization.ResitEvaluationRequestId!.Value,
+                OccurredAtUtc = authorization.ActivatedAtUtc ?? authorization.AuthorizedAtUtc,
+                Snapshot = authorization.OriginalEvaluationRequest!.AssessmentScopeSnapshotJson
+            })
+            .ToListAsync(cancellationToken);
+
+        var standardDrafts = await db.EvaluationRequests.AsNoTracking()
+            .Where(request => request.StudentUserId == studentId
+                && request.Status == EvaluationStatus.Draft
+                && request.RetakeOfEvaluationRequestId == null
+                && request.AssessmentScopeId != null
+                && !db.ResitAuthorizations.Any(authorization => authorization.ResitEvaluationRequestId == request.Id))
+            .OrderBy(request => request.CreatedAtUtc)
+            .ThenBy(request => request.Id)
+            .Take(limit)
+            .Select(request => new { request.Id, request.CreatedAtUtc, request.AssessmentScopeSnapshotJson })
+            .ToListAsync(cancellationToken);
+
+        return revisions.Select(request => new PendingStudentAction("EvaluationRevision", request.Id, null, null,
+                request.EffectiveDueAtUtc, request.UpdatedAtUtc, AssessmentScopeSnapshotReader.Summary(request.AssessmentScopeSnapshotJson)))
+            .Concat(authorizedResits.Select(authorization => new PendingStudentAction("ResitAuthorized", authorization.OriginalEvaluationRequestId,
+                authorization.OriginalEvaluationRequestId, authorization.Id, null, authorization.AuthorizedAtUtc,
+                AssessmentScopeSnapshotReader.Summary(authorization.Snapshot))))
+            .Concat(resitDrafts.Select(authorization => new PendingStudentAction("ResitDraft", authorization.EvaluationRequestId,
+                authorization.OriginalEvaluationRequestId, authorization.Id, null, authorization.OccurredAtUtc,
+                AssessmentScopeSnapshotReader.Summary(authorization.Snapshot))))
+            .Concat(standardDrafts.Select(request => new PendingStudentAction("EvaluationDraft", request.Id, null, null, null,
+                request.CreatedAtUtc, AssessmentScopeSnapshotReader.Summary(request.AssessmentScopeSnapshotJson))))
+            .Take(limit).ToArray();
+    }
+
+    private sealed record PendingStudentAction(
+        string Kind, Guid EvaluationRequestId, Guid? OriginalEvaluationRequestId, Guid? AuthorizationId,
+        DateTimeOffset? EffectiveDueAtUtc, DateTimeOffset OccurredAtUtc, AssessmentAcademicSummary? Academic);
 
     [HttpPost("notes")]
     public async Task<IActionResult> UpsertNote(NoteRequest request, CancellationToken cancellationToken)
