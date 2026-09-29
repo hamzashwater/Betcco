@@ -175,13 +175,17 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
         }
         catch (InvalidOperationException)
         {
-            return await RecordProviderFailureAsync(financeAdminUserId, refund!.Id, null, null, "PAYTABS_REFUND_PROVIDER_UNAVAILABLE", cancellationToken);
+            return await RecordProviderResultUnknownAsync(financeAdminUserId, refund!.Id, "PAYTABS_REFUND_PROVIDER_UNAVAILABLE", cancellationToken);
         }
 
-        if (response.IsDefiniteFailure)
+        if (response.IsDefiniteFailure && IsExpectedProviderIdentity(response, refund!, payment!, response.ProviderRefundReference))
             return await RecordProviderFailureAsync(financeAdminUserId, refund!.Id, response.ProviderRefundReference, response.Code, "PAYTABS_REFUND_DECLINED", cancellationToken);
         if (!IsExpectedProviderTransaction(response, refund!, payment!, response.ProviderRefundReference))
-            return await RecordProviderResultUnknownAsync(financeAdminUserId, refund!.Id, "PAYTABS_REFUND_RESPONSE_UNVERIFIED", cancellationToken, response.ProviderRefundReference, response.Code);
+        {
+            if (IsExpectedProviderIdentity(response, refund!, payment!, response.ProviderRefundReference))
+                refund!.ProviderRefundReference = response.ProviderRefundReference;
+            return await RecordProviderResultUnknownAsync(financeAdminUserId, refund!.Id, "PAYTABS_REFUND_RESPONSE_UNVERIFIED", cancellationToken, response.ProviderRefundReference, response.Code, response);
+        }
 
         refund!.ProviderRefundReference = response.ProviderRefundReference;
         refund.ProviderStatusCode = response.Code;
@@ -223,9 +227,7 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
         if (paymentProvider is null || !string.Equals(paymentProvider.ProviderName, "PayTabs", StringComparison.OrdinalIgnoreCase))
             return new(ToView(snapshot), FailureCode: "PAYTABS_REFUND_PROVIDER_UNAVAILABLE", FailureMessage: "The PayTabs Test refund provider is unavailable.");
         if (string.IsNullOrWhiteSpace(snapshot.ProviderRefundReference))
-            return snapshot.Status == RefundStatus.ProviderResultUnknown
-                ? await RecoverMissingRefundReferenceAsync(financeAdminUserId, snapshot, cancellationToken)
-                : new(ToView(snapshot), FailureCode: "PAYTABS_REFUND_REQUIRES_REVIEW", FailureMessage: "The provider refund reference is not yet available.");
+            return await RecoverMissingRefundReferenceAsync(financeAdminUserId, snapshot, cancellationToken);
 
         PaymentProviderRefundTransaction query;
         try
@@ -245,7 +247,7 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
         if (query.IsDefiniteFailure && IsExpectedProviderIdentity(query, snapshot, paymentSnapshot, snapshot.ProviderRefundReference))
             return await RecordProviderFailureAsync(financeAdminUserId, snapshot.Id, query.ProviderRefundReference, query.Code, "PAYTABS_REFUND_DECLINED", cancellationToken);
         if (!IsExpectedProviderTransaction(query, snapshot, paymentSnapshot, snapshot.ProviderRefundReference))
-            return await RecordProviderResultUnknownAsync(financeAdminUserId, snapshot.Id, "PAYTABS_REFUND_QUERY_UNVERIFIED", cancellationToken, query.ProviderRefundReference, query.Code);
+            return await RecordProviderResultUnknownAsync(financeAdminUserId, snapshot.Id, "PAYTABS_REFUND_QUERY_UNVERIFIED", cancellationToken, query.ProviderRefundReference, query.Code, query);
 
         await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
         var refund = await db.Refunds.SingleAsync(item => item.Id == refundId, cancellationToken);
@@ -266,8 +268,12 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
         Audit(financeAdminUserId, "PayTabsRefundProviderVerified", refund.Id, new { refund.PaymentId, refund.ProviderRefundReference, refund.ProviderStatusCode });
         await db.SaveChangesAsync(cancellationToken);
 
-        if (await FinalizeInternalAccountingAsync(financeAdminUserId, payment, refund, RefundStatus.ProviderVerified, cancellationToken) is not null)
+        if (await FinalizeInternalAccountingAsync(financeAdminUserId, payment, refund, RefundStatus.ProviderVerified, cancellationToken) is { } accountingFailure)
         {
+            refund.FailureCode = accountingFailure;
+            await EnsureRefundReviewCaseAsync(financeAdminUserId, refund, ProviderReconciliationCaseType.ProviderRefundAccountingIncomplete,
+                accountingFailure, cancellationToken);
+            await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             return new(ToView(refund), FailureCode: "REFUND_ALLOCATION_POLICY_REQUIRED", FailureMessage: "Provider refund is verified, but internal allocation policy requires review.");
         }
@@ -313,7 +319,7 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
             var refund = await db.Refunds.SingleAsync(item => item.Id == snapshot.Id, cancellationToken);
             if (refund.Status == RefundStatus.InternallyRecorded)
                 return new(ToView(refund), true);
-            if (refund.Status != RefundStatus.ProviderResultUnknown)
+            if (refund.Status is not (RefundStatus.ProviderProcessing or RefundStatus.ProviderResultUnknown))
                 return new(ToView(refund), FailureCode: "PAYTABS_REFUND_REQUIRES_REVIEW", FailureMessage: "The refund state changed and requires review.");
             if (refund.ProviderRefundReference is null)
             {
@@ -324,7 +330,8 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
                     Audit(actor, "PayTabsRefundReferenceConflict", refund.Id, new { refund.PaymentId, refund.CorrelationReference });
                     await db.SaveChangesAsync(cancellationToken);
                     await transaction.CommitAsync(cancellationToken);
-                    return new(ToView(refund), FailureCode: "PAYTABS_REFUND_REFERENCE_CONFLICT", FailureMessage: "The provider refund reference is already bound to another refund.");
+                    return await RecordProviderResultUnknownAsync(actor, refund.Id,
+                        "PAYTABS_REFUND_REFERENCE_CONFLICT", cancellationToken);
                 }
 
                 refund.ProviderRefundReference = recovered.ProviderRefundReference;
@@ -353,12 +360,28 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
                 }
 
                 var payment = await db.Payments.SingleOrDefaultAsync(item => item.Id == refund.PaymentId, cancellationToken);
-                if (refund.Status != RefundStatus.ProviderVerified || payment is null
-                    || !await HasTrustedStoredVerificationAsync(refund, payment, cancellationToken))
+                if (refund.Status != RefundStatus.ProviderVerified)
                     return new(ToView(refund), FailureCode: "PAYTABS_REFUND_REQUIRES_REVIEW", FailureMessage: "Stored provider verification evidence requires review.");
+                if (payment is null || !await HasTrustedStoredVerificationAsync(refund, payment, cancellationToken))
+                {
+                    refund.FailureCode = "PAYTABS_REFUND_STORED_EVIDENCE_UNTRUSTED";
+                    await EnsureRefundReviewCaseAsync(financeAdminUserId, refund,
+                        ProviderReconciliationCaseType.ProviderRefundAccountingIncomplete,
+                        "PAYTABS_REFUND_STORED_EVIDENCE_UNTRUSTED", cancellationToken);
+                    await db.SaveChangesAsync(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
+                    return new(ToView(refund), FailureCode: "PAYTABS_REFUND_REQUIRES_REVIEW", FailureMessage: "Stored provider verification evidence requires review.");
+                }
 
-                if (await FinalizeInternalAccountingAsync(financeAdminUserId, payment, refund, RefundStatus.ProviderVerified, cancellationToken) is not null)
+                if (await FinalizeInternalAccountingAsync(financeAdminUserId, payment, refund, RefundStatus.ProviderVerified, cancellationToken) is { } accountingFailure)
+                {
+                    refund.FailureCode = accountingFailure;
+                    await EnsureRefundReviewCaseAsync(financeAdminUserId, refund, ProviderReconciliationCaseType.ProviderRefundAccountingIncomplete,
+                        accountingFailure, cancellationToken);
+                    await db.SaveChangesAsync(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
                     return new(ToView(refund), FailureCode: "REFUND_ALLOCATION_POLICY_REQUIRED", FailureMessage: "Provider refund is verified, but internal allocation policy requires review.");
+                }
 
                 await db.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
@@ -405,6 +428,8 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
             && !await db.PaymentStatusTransitions.AsNoTracking().AnyAsync(item => item.PaymentId == payment.Id && item.NewStatus == PaymentStatus.Refunded, cancellationToken)
             && !await db.LedgerTransactions.AsNoTracking().AnyAsync(item => item.RefundId == refund.Id, cancellationToken)
             && !await db.WalletTransactions.AsNoTracking().AnyAsync(item => item.RefundId == refund.Id, cancellationToken)
+            && !await db.CreditNotes.AsNoTracking().AnyAsync(item => item.RefundId == refund.Id, cancellationToken)
+            && !await db.CourseAccessGrants.AsNoTracking().AnyAsync(item => item.RevokedByRefundId == refund.Id, cancellationToken)
             && !await db.IncludedEvaluationEntitlements.AsNoTracking().AnyAsync(item => item.RevokedByRefundId == refund.Id, cancellationToken);
     }
 
@@ -482,6 +507,7 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
             disposition = refund.EntitlementDisposition.ToString(),
             revokedIncludedEvaluationCredits = revokedCredits
         });
+        await ResolveRefundReviewCasesAsync(financeAdminUserId, refund, "TrustedInternalFinalization", cancellationToken);
         return null;
     }
 
@@ -687,23 +713,31 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
         var prior = refund.Status;
         refund.Status = RefundStatus.ProviderFailed;
         refund.ProviderRefundReference ??= providerReference;
-        refund.ProviderStatusCode = providerStatusCode;
+        if (!string.IsNullOrWhiteSpace(providerReference)
+            && string.Equals(refund.ProviderRefundReference, providerReference, StringComparison.Ordinal))
+            refund.ProviderStatusCode = providerStatusCode;
         refund.ProviderFailureCode = failureCode;
         refund.FailureCode = failureCode;
         AddRefundTransition(refund, prior, RefundStatus.ProviderFailed, RefundTransitionSource.PayTabsProviderFailure, actor, refund.ProviderRefundReference, failureCode);
         Audit(actor, "PayTabsRefundProviderFailed", refund.Id, new { refund.PaymentId, refund.ProviderRefundReference, failureCode, refund.ProviderStatusCode });
+        await ResolveRefundReviewCasesAsync(actor, refund, "ProviderDefiniteFailure", cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
         return new(ToView(refund), FailureCode: failureCode, FailureMessage: "PayTabs declined or could not execute the refund.");
     }
 
-    private async Task<RefundProviderWorkflowResult> RecordProviderResultUnknownAsync(string actor, Guid refundId, string failureCode, CancellationToken cancellationToken, string? providerReference = null, string? providerStatusCode = null)
+    private async Task<RefundProviderWorkflowResult> RecordProviderResultUnknownAsync(string actor, Guid refundId, string failureCode,
+        CancellationToken cancellationToken, string? providerReference = null, string? providerStatusCode = null,
+        PaymentProviderRefundTransaction? observed = null)
     {
         var refund = await db.Refunds.SingleAsync(item => item.Id == refundId, cancellationToken);
         if (refund.Status == RefundStatus.InternallyRecorded) return new(ToView(refund), true);
         if (refund.Status is not (RefundStatus.ProviderProcessing or RefundStatus.ProviderResultUnknown)) return new(ToView(refund), FailureCode: "PAYTABS_REFUND_REQUIRES_REVIEW", FailureMessage: "The provider refund state requires review.");
         var prior = refund.Status;
-        refund.ProviderRefundReference ??= providerReference;
-        refund.ProviderStatusCode = providerStatusCode;
+        // An unverified response may be a conflicting candidate. Keep it in the audit trail,
+        // but do not bind it as trusted refund evidence.
+        if (!string.IsNullOrWhiteSpace(providerReference)
+            && string.Equals(refund.ProviderRefundReference, providerReference, StringComparison.Ordinal))
+            refund.ProviderStatusCode = providerStatusCode;
         refund.ProviderFailureCode = failureCode;
         refund.FailureCode = failureCode;
         refund.ProviderResultUnknownAtUtc = DateTimeOffset.UtcNow;
@@ -712,10 +746,21 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
             refund.Status = RefundStatus.ProviderResultUnknown;
             AddRefundTransition(refund, prior, RefundStatus.ProviderResultUnknown, RefundTransitionSource.PayTabsProviderAmbiguousResult, actor, refund.ProviderRefundReference, failureCode);
         }
-        Audit(actor, "PayTabsRefundProviderResultUnknown", refund.Id, new { refund.PaymentId, refund.ProviderRefundReference, failureCode });
-        var identity = $"PayTabs|refund:{refund.Id:N}|{refund.ProviderRefundReference ?? "none"}|{ProviderReconciliationCaseType.ProviderRefundResultUnknown}";
-        if (!await db.ProviderReconciliationCases.AnyAsync(item => item.BusinessIdentity == identity, cancellationToken))
-            db.ProviderReconciliationCases.Add(new ProviderReconciliationCase { Provider = "PayTabs", CaseType = ProviderReconciliationCaseType.ProviderRefundResultUnknown, RefundId = refund.Id, BusinessIdentity = identity, LocalStatus = refund.Status.ToString(), ProviderTransactionReference = refund.ProviderRefundReference, ProviderStatusCode = refund.ProviderStatusCode, LocalAmount = refund.Amount, Currency = refund.Currency, CorrelationReference = refund.CorrelationReference, CreatedByUserId = actor });
+        Audit(actor, "PayTabsRefundProviderResultUnknown", refund.Id, new
+        {
+            refund.PaymentId,
+            refund.ProviderRefundReference,
+            observedReference = providerReference,
+            observedStatus = observed?.Status,
+            observedAmount = observed?.Amount,
+            observedCurrency = observed?.Currency,
+            observedProvider = observed?.Provider,
+            observedProfileMatchesConfigured = observed?.ProfileMatchesConfigured,
+            observedOriginalTransactionReference = observed?.PreviousProviderTransactionReference,
+            failureCode
+        });
+        await EnsureRefundReviewCaseAsync(actor, refund, ProviderReconciliationCaseType.ProviderRefundResultUnknown,
+            failureCode, cancellationToken, observed);
         await db.SaveChangesAsync(cancellationToken);
         logger?.LogError(
             OperationalEventIds.RefundResultUnknown,
@@ -726,6 +771,76 @@ public sealed class RefundService(BetccoDbContext db, IPaymentProvider? paymentP
             refund.CorrelationReference,
             SafeOperationalFailureCategory(failureCode));
         return new(ToView(refund), FailureCode: failureCode, FailureMessage: "The PayTabs refund result is unknown and requires review or deterministic query verification.");
+    }
+
+    private async Task EnsureRefundReviewCaseAsync(string actor, Refund refund,
+        ProviderReconciliationCaseType caseType, string resultCode, CancellationToken cancellationToken,
+        PaymentProviderRefundTransaction? observed = null)
+    {
+        if (await db.ProviderReconciliationCases.AnyAsync(item => item.RefundId == refund.Id
+                && item.Status != ProviderReconciliationCaseStatus.Resolved, cancellationToken))
+            return;
+        var identity = $"PayTabs|refund:{refund.Id:N}|{caseType}";
+        if (await db.ProviderReconciliationCases.AnyAsync(item => item.BusinessIdentity == identity, cancellationToken))
+            return;
+        var item = new ProviderReconciliationCase
+        {
+            Provider = "PayTabs",
+            CaseType = caseType,
+            PaymentId = refund.PaymentId,
+            RefundId = refund.Id,
+            BusinessIdentity = identity,
+            LocalStatus = refund.Status.ToString(),
+            ProviderTransactionReference = refund.ProviderRefundReference,
+            ProviderStatusCode = refund.ProviderStatusCode,
+            LocalAmount = refund.Amount,
+            ObservedProviderAmount = observed?.Amount,
+            Currency = refund.Currency,
+            CorrelationReference = refund.CorrelationReference,
+            CreatedByUserId = actor
+        };
+        db.ProviderReconciliationCases.Add(item);
+        Audit(actor, "ProviderRefundReconciliationCaseOpened", refund.Id, new
+        {
+            caseId = item.Id,
+            refundId = refund.Id,
+            refund.PaymentId,
+            refund.ProviderName,
+            refund.ProviderRefundReference,
+            refund.Status,
+            caseType,
+            resultCode,
+            refund.CorrelationReference
+        });
+    }
+
+    private async Task ResolveRefundReviewCasesAsync(string actor, Refund refund,
+        string resolutionCode, CancellationToken cancellationToken)
+    {
+        var cases = await db.ProviderReconciliationCases
+            .Where(item => item.RefundId == refund.Id && item.Status != ProviderReconciliationCaseStatus.Resolved)
+            .ToListAsync(cancellationToken);
+        foreach (var item in cases)
+        {
+            var previousStatus = item.Status;
+            item.Status = ProviderReconciliationCaseStatus.Resolved;
+            item.ResolutionCode = resolutionCode;
+            item.ResolvedByUserId = actor;
+            item.ResolvedAtUtc = DateTimeOffset.UtcNow;
+            Audit(actor, "ProviderRefundReconciliationCaseResolved", refund.Id, new
+            {
+                caseId = item.Id,
+                refundId = refund.Id,
+                refund.PaymentId,
+                refund.ProviderName,
+                refund.ProviderRefundReference,
+                previousStatus,
+                caseStatus = item.Status,
+                refundStatus = refund.Status,
+                resolutionCode,
+                refund.CorrelationReference
+            });
+        }
     }
 
     private static string SafeOperationalFailureCategory(string failureCode) =>

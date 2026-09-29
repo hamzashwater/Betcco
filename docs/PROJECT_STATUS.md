@@ -3,7 +3,8 @@
 ## Metadata
 
 - Last updated: 2026-09-29
-- Verified merged baseline SHA: `43bd0a5685faab6170f0a41302af4dfd486f19e9`
+- Verified merged baseline SHA for ASUS-RF2: `357b2575fa35ca0c585f003e31886269f227d28e`
+- ASUS-RF2 preflight: PR #134 is merged into `main` at the baseline above. PR #136 was the sole OPEN PR and changes document locale frontend files without Commerce/Refund overlap. RF2 implementation is on `feature/refund-reconciliation-recovery-hardening`; local PostgreSQL tests do not establish live PayTabs or production behavior.
 - Status verified against origin/main: `43bd0a5685faab6170f0a41302af4dfd486f19e9` (PR #133 student dashboard state clarity merge). RF1 preflight began at PR #132's merge SHA.
 - OPEN/Draft PRs at RF1 pre-edit verification: none; this is a dated preflight observation, not a live PR inventory.
 - ASUS-10A production-readiness audit is recorded in `docs/production-readiness-audit.md`; its production blockers remain separate from Resit completion.
