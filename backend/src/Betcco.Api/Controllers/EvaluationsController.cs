@@ -453,6 +453,7 @@ public sealed class EvaluationsController(IEvaluationService evaluations, IComme
             request.Price,
             request.Currency,
             request.StudentComment,
+            assessmentScopeId = isOwner ? request.AssessmentScopeId : null,
             request.SubmissionAttemptNumber,
             revisionDueAtUtc = request.RevisionDueAtUtc,
             effectiveRevisionDueAtUtc = request.RevisionDeadlineAdjustments

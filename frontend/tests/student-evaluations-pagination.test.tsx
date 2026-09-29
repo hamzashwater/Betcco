@@ -22,13 +22,20 @@ function renderWithProviders(node: React.ReactNode) {
   );
 }
 
-const evaluation = (id: string, status: string, price: number) => ({
+const evaluation = (
+  id: string,
+  status: string,
+  price: number,
+  modes: { isRetake?: boolean; isResit?: boolean } = {},
+) => ({
   id,
   status,
   price,
   currency: "JOD",
-  isRetake: false,
-  retakeOfEvaluationRequestId: null,
+  isRetake: modes.isRetake ?? false,
+  isResit: modes.isResit ?? false,
+  retakeOfEvaluationRequestId: modes.isRetake ? "original-request" : null,
+  resitOfEvaluationRequestId: modes.isResit ? "original-request" : null,
   criteria: [],
   academic: null,
   selectedCriteria: [],
@@ -60,6 +67,40 @@ afterEach(() => {
 });
 
 describe("student evaluation pagination", () => {
+  it("offers the standard-draft resume route while preserving Retake and Resit actions", async () => {
+    apiMock.mockImplementation((path: string) =>
+      path === "/evaluations/mine?page=1&pageSize=20"
+        ? Promise.resolve(
+            page(
+              [
+                evaluation("standard-draft", "Draft", 5),
+                evaluation("retake-draft", "Draft", 7, { isRetake: true }),
+                evaluation("resit-draft", "Draft", 9, { isResit: true }),
+              ],
+              1,
+              false,
+            ),
+          )
+        : Promise.resolve([]),
+    );
+    renderWithProviders(<StudentArea segment={["evaluations"]} />);
+
+    const resume = await screen.findByRole("link", {
+      name: "Continue evaluation",
+    });
+    expect(resume).toHaveAttribute(
+      "href",
+      "/en/student/evaluations/new?resume=standard-draft",
+    );
+    expect(
+      screen.getByRole("link", { name: "Continue Resit preparation" }),
+    ).toHaveAttribute("href", "/en/student/evaluations/resit-draft");
+    expect(screen.getByText("Retake evaluation")).toBeVisible();
+    expect(
+      screen.getAllByRole("link", { name: "Continue evaluation" }),
+    ).toHaveLength(1);
+  });
+
   it("loads older evaluation cards only when requested", async () => {
     apiMock.mockImplementation((path: string) => {
       if (path === "/evaluations/mine?page=1&pageSize=20")
