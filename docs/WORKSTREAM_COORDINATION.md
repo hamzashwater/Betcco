@@ -43,11 +43,14 @@ Do not force-push, reset, clean, or overwrite uncommitted work without explicit 
 
 ## Live Snapshot
 
-Snapshot captured: **2026-09-28**
+Snapshot captured: **2026-09-29**
 
 At capture time:
 
-- `main`: `00f9f2044097739cd7df15cb6e78720bbe5f9902` (PR #116 LENOVO N6A merge).
+- `main`: `854df67301307a03190bac62ebc8a7b1ae1504d6` (PR #128 ASUS production Docker base-image pinning merge).
+- PR #126 — LENOVO N7A Student approval audit atomicity — merged at `b6bdb45ce08707a6d9798e9cb4fd962808e85813`. Student approval and its audit are atomic on relational databases; the exact Student-only target invariant and already-approved idempotency are preserved. No broader concurrency redesign is claimed.
+- PR #129 — LENOVO N8-A Resume Standard Evaluation Draft — merged at `2bc611cf2c509fa0cdd5342b7f8cbe178f882f19`. A standard Evaluation Draft resumes from My Evaluations using the existing EvaluationRequest and restoring saved evaluation state; Retake and Resit remain separate.
+- PR #128 — ASUS Pin Production Docker Base Images — merged at the current `main` SHA above. This records repository base-image pinning only; registry publication, production deployment, and staging promotion are not established by this merge.
 - PR #103 — ASUS Production Readiness & Hardening Gap Audit — is merged; its production-hardening findings remain separate from Resit completion.
 - PR #104 — LENOVO Resit End-to-End Hardening — L13 is merged at historical main commit `3109adfcf1f370338e0f348ceadf72e84a14f749`. Its Full UAT and required checks passed on final PR head `e404539ac7f2488d7cc85a50ceb02d4f8c02f529` before merge.
 - PR #107 — LENOVO N1 ASSESS Reasonable Adjustments Resit guard — merged at `816ae1632ac93392440656051e6fba8a7bfa9704`; Resit revision-deadline adjustment grant/revoke/summary protection is verified in source and focused tests.
@@ -78,8 +81,8 @@ At capture time:
 - PR #78 is merged: ASUS Admin Payout Lifecycle UI Contract — Slice 1.
 - PR #77 is merged: LENOVO Resit Authorization Foundation — Slice 1.
 - GitHub Secret Scanning and Push Protection are enabled; 0 open secret-scanning alerts were present at verification.
-- OPEN/Draft PRs at verification: none (live GitHub query on 2026-09-28).
-- No ASUS or LENOVO implementation PR was active at this snapshot. PR #102's Resit Commerce integration is merged; ASUS's broader Commerce / Entitlements planning ownership remains unchanged.
+- OPEN/Draft PRs at verification: none (live GitHub query on 2026-09-29).
+- No ASUS or LENOVO implementation PR is active at this snapshot. PR #102's Resit Commerce integration is merged; ASUS's broader Commerce / Entitlements planning ownership remains unchanged.
 - LENOVO's Resit implementation lane L1–L13 is complete and closed; no follow-on Resit implementation branch is reserved.
 
 These SHAs are historical coordination markers only. Re-verify them before using them operationally.
@@ -182,7 +185,7 @@ Includes:
 
 ## Current LENOVO Workstream
 
-**Active LENOVO Draft PR at this snapshot:** PR #126 — Student approval audit atomicity — N7A. Its current changed files are `backend/src/Betcco.Api/Controllers/AdminUsersController.cs`, `backend/tests/Betcco.IntegrationTests/AuthRegistrationTests.cs`, and `backend/tests/Betcco.IntegrationTests/StudentApprovalPostgresTests.cs`; this does not overlap ASUS release/deployment work. Resit L1–L13, N1–N3, N5A, and N6A are complete and merged; N4 and N5 are read-only audits. N6A merged in PR #116 at `00f9f2044097739cd7df15cb6e78720bbe5f9902`. The current merged Resit scope remains separate from historical Retake and normal Resubmission. No next Resit lane or automatic Privacy implementation branch is reserved.
+**No active LENOVO implementation PR after N8-A merge.** PR #126 (N7A) and PR #129 (N8-A) are merged. Resit L1–L13, N1–N3, N5A, N6A, N7A, and N8-A are complete and merged; N4 and N5 were read-only audits. Student Lifecycle Closure remains partial: N8-A closes the standard Evaluation Draft resume gap, while dashboard follow-ups remain. The current merged Resit scope remains separate from historical Retake and normal Resubmission. No next Resit lane or automatic Privacy implementation branch is reserved.
 
 The N4 TaskType audit records current scoped-Evaluation derivation from `RubricTemplate.TaskTypeId` while leaving canonical ownership unresolved; it does not approve AssessmentDefinition/AssessmentScope ownership or a schema change. N5 leaves same-subject Rectification × Erasure/Concealment precedence as a product/privacy decision. N2's same-request PostgreSQL locking is implemented; no cross-request orchestration or subject-wide lock requirement is reserved.
 
@@ -204,12 +207,13 @@ These are candidates only, not automatically active/reserved:
 - security / repository hardening follow-ups
 - Privacy / Compliance follow-ups
 - independent Admin / Operations workflows
+- N8-B — Student Dashboard Pending Actions (CANDIDATE / NOT YET ACTIVE)
 
 Before selecting any candidate, run the mandatory preflight and check ASUS active/reserved scope.
 
 ## LENOVO Must Coordinate Before Editing
 
-LENOVO has no active implementation PR at this snapshot. Resit L1–L13 and the N1–N3 implementation slices are merged; N4 and N5 were read-only; N5A is merged. No follow-on Resit lane or Privacy implementation branch is reserved. Any future work must be separately evidenced and scoped after the mandatory preflight. Do not modify Commerce / Entitlements, payment/refund/access logic, or ASUS-reserved roadmap files without explicit coordination.
+LENOVO has no active implementation PR at this snapshot. N7A and N8-A are merged; N8-B — Student Dashboard Pending Actions — is the candidate next Student Lifecycle implementation, CANDIDATE / NOT YET ACTIVE. N8-C dashboard error/loading/empty-state clarity remains unimplemented and is not reserved. Resit L1–L13 and N1–N3 are merged; N4 and N5 were read-only; N5A and N6A are merged. No follow-on Resit lane or Privacy implementation branch is reserved. Any future work must be separately evidenced and scoped after the mandatory preflight. Do not modify Commerce / Entitlements, payment/refund/access logic, or ASUS-reserved roadmap files without explicit coordination.
 
 Comprehensive Practice is merged and is no longer reserved by an open ASUS PR. Any future change to its `CourseAssignment`, Learning Aim progression, migration/ModelSnapshot, or Student/Teacher Practice UI must still be treated as shared high-risk work and preflighted against active branches.
 
@@ -253,6 +257,8 @@ High-risk shared areas include:
 If both workstreams need one of these files for related behavior, pause and sequence the work instead of developing in parallel.
 
 ## Merge Handoff
+
+ASUS is the exclusive authority for merging to `main`. LENOVO may implement, test, commit, push, and prepare a handoff. ASUS performs the final freshness check, syncs if required, completes the required CI/review gate, marks the PR Ready, merges, and verifies post-merge state.
 
 After either device merges a PR:
 

@@ -3,9 +3,12 @@
 ## Metadata
 
 - Last updated: 2026-09-29
-- Verified implementation baseline SHA: `6f6988c124d66d955de61dd30c0d42f8ad577ebf`
-- Status verified against origin/main: `ee55375461a4da6481d3ba948c487c1053734527` (PR #125 ASUS-10F1 merge).
-- OPEN/Draft PRs at pre-edit verification: PR #126 — LENOVO Student approval audit atomicity — N7A (Draft); its changed files are limited to AdminUsersController/account-registration tests and do not overlap this ASUS documentation reconciliation.
+- Verified implementation baseline SHA: `854df67301307a03190bac62ebc8a7b1ae1504d6`
+- Status verified against origin/main: `854df67301307a03190bac62ebc8a7b1ae1504d6` (PR #128 ASUS production Docker base-image pinning merge).
+- OPEN/Draft PRs at pre-edit verification: none (live GitHub query on 2026-09-29).
+- PR #126 — LENOVO N7A Student approval audit atomicity — merged at `b6bdb45ce08707a6d9798e9cb4fd962808e85813`; relational approval and `StudentApproved` audit writes are atomic, the exact Student-only target invariant and already-approved idempotency are preserved, and no schema/migration/frontend change was included.
+- PR #129 — LENOVO N8-A Resume Standard Evaluation Draft — merged at `2bc611cf2c509fa0cdd5342b7f8cbe178f882f19`; the existing standard Evaluation Draft can resume through My Evaluations using the same EvaluationRequest, restoring its stored evaluation state without creating a scoped request. Retake and Resit remain separate; no schema/migration/DbContext/Commerce/Entitlement business-rule change was included.
+- PR #128 — ASUS Pin Production Docker Base Images — merged at the current baseline above. Its repository scope pins production Docker base images; it does not establish registry publication, production deployment, or staging promotion.
 - ASUS-10A production-readiness audit is recorded in `docs/production-readiness-audit.md`; its production blockers remain separate from Resit completion.
 - Parallel workstream coordination is persisted in `docs/WORKSTREAM_COORDINATION.md` and must be rechecked against live GitHub before implementation.
 - PR #114 — LENOVO N5B documentation reconciliation — merged at `03bb131cfb16b68dc6d0a983289511dd823223da`; it reconciled N1–N5A status through PR #113 without changing product code, tests, schema, migrations, workflows, or configuration.
@@ -14,6 +17,15 @@
 - PR #125 — ASUS-10F1 Immutable Release Artifact Contract — DONE / MERGED at `ee55375461a4da6481d3ba948c487c1053734527`; secure deployment now consumes digest-pinned API/Web image references, migration reuses the API image reference, mutable/tag-only release references are rejected by repository validation, and rollback/release-manifest contracts are documented. No registry was selected or contacted; external registry publication and staging-to-production promotion evidence remain open.
 
 The embedded SHA is a verification baseline, not a permanent current repository HEAD. Every future handoff session must verify the live `main` SHA directly with Git.
+
+## Recent LENOVO Student Lifecycle Work
+
+Verified against `main` at `854df67301307a03190bac62ebc8a7b1ae1504d6`:
+
+- PR #126 — N7A Student approval audit atomicity — merged at `b6bdb45ce08707a6d9798e9cb4fd962808e85813`. Student approval and its audit are atomic on relational databases; the exact Student-only target and already-approved idempotency behavior remain intact. No broader concurrency redesign is claimed.
+- PR #129 — N8-A Resume Standard Evaluation Draft — merged at `2bc611cf2c509fa0cdd5342b7f8cbe178f882f19`. Standard Evaluation Draft resume reuses the existing EvaluationRequest and restores its saved evaluation state. This closes the concrete N8 standard-Draft dead end; Retake and Resit remain separate.
+
+Student Lifecycle Closure is PARTIAL / ACTIVE-CANDIDATE: the N8 audit was performed and N8-A is complete, while dashboard pending-action visibility (N8-B) and dashboard loading/error/empty-state clarity (N8-C) remain unimplemented. N8-B is a candidate, not an active workstream; N8-C is not started or reserved.
 
 ## Recent LENOVO ASSESS and Privacy Hardening
 
@@ -275,12 +287,12 @@ Live progress is tracked in OPEN Draft PRs, and repository evidence wins over co
 
 Maximum active implementation workstreams: **2**
 
-At the 2026-09-28 verification snapshot, `main` is `6f6988c124d66d955de61dd30c0d42f8ad577ebf`. PR #113 — N5A expired portability-artifact cleanup — is merged with required PR checks and post-merge Quality and Security analysis green. PRs #107 (N1), #110 (N2), and #112 (N3) are also merged. N4 and N5 were read-only audits; neither is an implementation claim. The live GitHub query returned no OPEN/Draft PRs; no ASUS or LENOVO implementation PR was active.
+At the 2026-09-29 verification snapshot, `main` is `854df67301307a03190bac62ebc8a7b1ae1504d6`. PRs #126 (N7A), #128 (ASUS production Docker base-image pinning), and #129 (N8-A) are merged. The live GitHub query returned no OPEN/Draft PRs; no ASUS or LENOVO implementation PR is active.
 
 ## Next Actions
 
 - ASUS: Production hardening has advanced beyond the original ASUS-10A sequence. ASUS-10B Production Admin Bootstrap is merged in PR #106; ASUS-10C Production S3 HTTPS Guard in PR #108; ASUS-10D1 Legacy Quiz Migration Preflight & Recovery Gate in PR #109; ASUS-10E1A PostgreSQL Backup & Restore Recovery Drill in PR #111; and ASUS-10E1B S3 private-object + Data Protection key-ring/certificate recovery in PR #117, DONE / MERGED at `25c162a9b002f84e604eed310a73680294055a0e`. Repository-controlled P1-02 recovery evidence is complete for PostgreSQL, private S3 logical-object recovery, and Data Protection key-ring/certificate recovery; production provider configuration, provider-side backups/versioning/replication, PFX custody, staging/production restores, RPO/RTO, schedule, retention, owner, and cross-region recovery remain open. ASUS-10E2A — Operational Signals & Incident Runbooks — is DONE / MERGED in PR #123 at `7201ae473eae507877d314fe8c06a71de418b7bf`; the repository-controlled observability/runbook foundation is verified while external monitoring/alert delivery evidence remains open. ASUS-10F1 — Immutable Release Artifact Contract — is DONE / MERGED in PR #125 at `ee55375461a4da6481d3ba948c487c1053734527`. P1-04 remains externally open because registry publication, retained immutable artifacts, staging deployment, production promotion of the same digests, approval evidence, and rollback pullability are not yet demonstrated. ASUS-10F2 is BLOCKED / EXTERNAL-DEPENDENT pending an explicit registry/deployment-platform decision; 10G remains conditional on live commerce launch scope. ASUS retains planning ownership of Commerce / Entitlements, Production Hardening, and Final UI/UX Redesign. AI engine/API/RAG/persistence remains explicitly deferred.
-- LENOVO: Resit L1–L13 and N1–N3 are DONE / MERGED; N4 and N5 are read-only audits; N5A is DONE / MERGED in PR #113 at current baseline `6f6988c124d66d955de61dd30c0d42f8ad577ebf`. Draft PR #126 — Student approval audit atomicity — N7A is currently active and does not overlap ASUS release/deployment work. No follow-up Privacy branch is reserved. Same-subject Rectification × Erasure/Concealment precedence remains an undecided product/privacy decision. Any future ASSESS or Privacy work requires separate evidence, explicit scope, and a fresh preflight; preserve ASUS ownership boundaries.
+- LENOVO: Resit L1–L13, N1–N3, N5A, N6A, N7A (#126), and N8-A (#129) are DONE / MERGED; N4 and N5 are read-only audits. Student Lifecycle Closure remains PARTIAL / ACTIVE-CANDIDATE: N8-B Student Dashboard Pending Actions is CANDIDATE / NOT YET ACTIVE, while N8-C dashboard loading/error/empty-state clarity is NOT STARTED / NOT RESERVED. No follow-up Privacy branch is reserved. Same-subject Rectification × Erasure/Concealment precedence remains an undecided product/privacy decision. Any future ASSESS or Privacy work requires separate evidence, explicit scope, and a fresh preflight; preserve ASUS ownership boundaries.
 - Task 6: DONE — Media / Video Foundation + Secure Delivery. PR #18 merged with required CI green.
 - Slice 1: DONE — ASSESS academic identity foundation. PR #28 merged with required CI green.
 - Slice 2: DONE — Versioned Learning Aims / Criteria + AssessmentDefinition publication/source mapping + Qualification/Rubric compatibility enforcement. PR #30 merged with required CI green.
@@ -367,7 +379,7 @@ Do not reopen these areas merely because a later account lacks conversation memo
 - Production Operations.
 - Task 7 responsive/accessibility/i18n/performance baseline (NOT STARTED).
 - Teacher Authoring Lifecycle.
-- Student Lifecycle Closure.
+- Student Lifecycle Closure — PARTIAL / ACTIVE-CANDIDATE; N8-A standard Evaluation Draft resume is complete, while N8-B dashboard pending actions and N8-C dashboard loading/error/empty-state clarity remain unimplemented. N8-B is CANDIDATE / NOT YET ACTIVE; N8-C is NOT STARTED / NOT RESERVED.
 - Advanced Media.
 
 ## Important Decisions
