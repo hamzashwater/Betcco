@@ -10,7 +10,7 @@ import {
   ShieldCheck,
   Smartphone,
 } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AccountLayout, type AccountRole } from "./account-layout";
@@ -56,17 +56,15 @@ type AccountSession = {
 
 type SessionsResponse = { items: AccountSession[] };
 
-function errorMessage(error: unknown, locale: string) {
+type AccountSecurityTranslations = ReturnType<
+  typeof useTranslations<"auth.accountSecurity">
+>;
+
+function errorMessage(error: unknown, t: AccountSecurityTranslations) {
   if (error instanceof ApiError && error.code === "TWO_FACTOR_INVALID") {
-    return locale === "ar"
-      ? "رمز تطبيق المصادقة غير صحيح أو انتهت صلاحيته."
-      : "The authenticator code is invalid or expired.";
+    return t("errors.twoFactorInvalid");
   }
-  return error instanceof Error
-    ? error.message
-    : locale === "ar"
-      ? "تعذر إتمام الطلب. حاول مرة أخرى."
-      : "The request could not be completed. Please try again.";
+  return error instanceof Error ? error.message : t("errors.requestFailed");
 }
 
 function formatDate(value: string, locale: string) {
@@ -75,6 +73,7 @@ function formatDate(value: string, locale: string) {
 
 export function AccountSecurity({ role }: { role: AccountRole }) {
   const locale = useLocale();
+  const t = useTranslations("auth.accountSecurity");
   const router = useRouter();
   const queryClient = useQueryClient();
   const [setup, setSetup] = useState<TwoFactorSetup | null>(null);
@@ -146,11 +145,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
       setSetup(null);
       setVerificationCode("");
       setCodesAcknowledged(false);
-      setNotice(
-        locale === "ar"
-          ? "تم تفعيل المصادقة الثنائية لهذا الحساب."
-          : "Two-factor authentication is now enabled for this account.",
-      );
+      setNotice(t("messages.twoFactorEnabled"));
       refreshSecurity();
       const user = await queryClient.fetchQuery({
         queryKey: ["current-user"],
@@ -223,11 +218,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
       }),
     onSuccess: () => {
       setDisableCode("");
-      setNotice(
-        locale === "ar"
-          ? "تم إيقاف المصادقة الثنائية."
-          : "Two-factor authentication has been disabled.",
-      );
+      setNotice(t("messages.twoFactorDisabled"));
       refreshSecurity();
     },
   });
@@ -241,11 +232,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
         signedOut();
         return;
       }
-      setNotice(
-        locale === "ar"
-          ? "تم تسجيل خروج الجهاز."
-          : "The device was signed out.",
-      );
+      setNotice(t("messages.deviceSignedOut"));
       refreshSecurity();
     },
   });
@@ -264,11 +251,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
         method: "POST",
       }),
     onSuccess: ({ revokedCount }) => {
-      setNotice(
-        locale === "ar"
-          ? `تم إنهاء ${revokedCount} من الجلسات الأخرى.`
-          : `${revokedCount} other sessions signed out.`,
-      );
+      setNotice(t("messages.otherSessionsSignedOut", { count: revokedCount }));
       refreshSecurity();
     },
   });
@@ -282,11 +265,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      setNotice(
-        locale === "ar"
-          ? "تم تغيير كلمة المرور وإنهاء الجلسات الأخرى."
-          : "Password changed and other sessions signed out.",
-      );
+      setNotice(t("messages.passwordChanged"));
       refreshSecurity();
     },
   });
@@ -308,16 +287,8 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
           className="card mt-6 grid gap-4 border border-primary/40 p-5 sm:p-6"
           role="status"
         >
-          <p className="text-lg font-black">
-            {locale === "ar"
-              ? "المصادقة الثنائية إلزامية لهذا الحساب الإداري قبل متابعة استخدام صلاحيات الإدارة."
-              : "Multi-factor authentication is required for this staff account before administrative access can continue."}
-          </p>
-          <p className="text-sm text-muted">
-            {locale === "ar"
-              ? "أعدّ تطبيق المصادقة أدناه ثم أكّد الرمز. يمكنك تسجيل الخروج في أي وقت."
-              : "Set up an authenticator app below and verify its code. You can sign out at any time."}
-          </p>
+          <p className="text-lg font-black">{t("staffRequiredTitle")}</p>
+          <p className="text-sm text-muted">{t("staffRequiredDescription")}</p>
           <button
             type="button"
             disabled={logout.isPending}
@@ -325,11 +296,11 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
             className="focus-ring inline-flex w-fit items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-bold disabled:opacity-60"
           >
             <LogOut size={16} aria-hidden="true" />
-            {locale === "ar" ? "تسجيل الخروج" : "Sign out"}
+            {t("signOut")}
           </button>
           {logout.isError && (
             <p role="alert" className="text-sm text-red-600">
-              {errorMessage(logout.error, locale)}
+              {errorMessage(logout.error, t)}
             </p>
           )}
         </div>
@@ -352,19 +323,11 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
             if (newPassword === confirmPassword) changePassword.mutate();
           }}
         >
-          <h2 className="text-xl font-black">
-            {locale === "ar" ? "تغيير كلمة المرور" : "Change password"}
-          </h2>
-          <p className="text-sm text-muted">
-            {locale === "ar"
-              ? "سيُطلب منك تسجيل الدخول من جديد على أجهزتك الأخرى."
-              : "Your other devices will need to sign in again."}
-          </p>
+          <h2 className="text-xl font-black">{t("password.title")}</h2>
+          <p className="text-sm text-muted">{t("password.description")}</p>
           <div className="grid gap-4 sm:grid-cols-3">
             <label className="grid min-w-0 gap-1 text-sm font-bold">
-              <span>
-                {locale === "ar" ? "كلمة المرور الحالية" : "Current password"}
-              </span>
+              <span>{t("password.current")}</span>
               <input
                 type="password"
                 autoComplete="current-password"
@@ -375,9 +338,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
               />
             </label>
             <label className="grid min-w-0 gap-1 text-sm font-bold">
-              <span>
-                {locale === "ar" ? "كلمة المرور الجديدة" : "New password"}
-              </span>
+              <span>{t("password.new")}</span>
               <input
                 type="password"
                 autoComplete="new-password"
@@ -389,9 +350,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
               />
             </label>
             <label className="grid min-w-0 gap-1 text-sm font-bold">
-              <span>
-                {locale === "ar" ? "تأكيد كلمة المرور" : "Confirm new password"}
-              </span>
+              <span>{t("password.confirm")}</span>
               <input
                 type="password"
                 autoComplete="new-password"
@@ -404,14 +363,12 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
           </div>
           {confirmPassword && newPassword !== confirmPassword && (
             <p role="alert" className="text-sm text-red-600">
-              {locale === "ar"
-                ? "كلمتا المرور غير متطابقتين."
-                : "Passwords do not match."}
+              {t("password.mismatch")}
             </p>
           )}
           {changePassword.isError && (
             <p role="alert" className="text-sm text-red-600">
-              {errorMessage(changePassword.error, locale)}
+              {errorMessage(changePassword.error, t)}
             </p>
           )}
           <button
@@ -419,7 +376,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
             disabled={busy || newPassword !== confirmPassword}
             className="focus-ring w-fit rounded-xl bg-primary px-4 py-2 text-sm font-black text-slate-950 disabled:opacity-60"
           >
-            {locale === "ar" ? "حفظ كلمة المرور" : "Save password"}
+            {t("password.save")}
           </button>
         </form>
       )}
@@ -432,22 +389,14 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
             </span>
             <div>
               <h2 className="text-xl font-black text-foreground">
-                {locale === "ar"
-                  ? "المصادقة الثنائية"
-                  : "Two-factor authentication"}
+                {t("mfa.title")}
               </h2>
               <p className="mt-1 text-sm leading-6 text-muted">
                 {twoFactor.data?.isEnabled
-                  ? locale === "ar"
-                    ? "مفعّلة. ستحتاج رمزًا من تطبيق المصادقة بعد إدخال كلمة المرور."
-                    : "Enabled. A code from your authenticator app is required after your password."
+                  ? t("mfa.enabledDescription")
                   : mandatory
-                    ? locale === "ar"
-                      ? "أعدّ تطبيق المصادقة وأكّد الرمز للمتابعة."
-                      : "Set up an authenticator app and verify the code to continue."
-                    : locale === "ar"
-                      ? "نوصي بها خصوصًا للمعلمين والأدمن."
-                      : "We especially recommend this for teachers and administrators."}
+                    ? t("mfa.requiredDescription")
+                    : t("mfa.recommendedDescription")}
               </p>
             </div>
           </div>
@@ -456,7 +405,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
             <p className="mt-5 text-sm text-muted">…</p>
           ) : twoFactor.isError ? (
             <p role="alert" className="mt-5 text-sm text-red-600">
-              {errorMessage(twoFactor.error, locale)}
+              {errorMessage(twoFactor.error, t)}
             </p>
           ) : null}
 
@@ -464,21 +413,11 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
             <div
               className="mt-5 grid min-w-0 gap-3 rounded-xl border border-primary/50 p-4"
               role="region"
-              aria-label={
-                locale === "ar"
-                  ? "رموز الاسترداد الجديدة"
-                  : "New recovery codes"
-              }
+              aria-label={t("mfa.recoveryRegion")}
             >
-              <h3 className="font-black">
-                {locale === "ar"
-                  ? "احفظ رموز الاسترداد الآن"
-                  : "Save your recovery codes now"}
-              </h3>
+              <h3 className="font-black">{t("mfa.recoveryTitle")}</h3>
               <p className="text-sm text-muted">
-                {locale === "ar"
-                  ? "تظهر هذه الرموز الآن فقط. احفظها في مكان آمن غير متصل بالإنترنت. يمكن استخدام كل رمز مرة واحدة."
-                  : "These codes are shown only now. Store them securely offline. Each code can be used once."}
+                {t("mfa.recoveryDescription")}
               </p>
               <ul
                 dir="ltr"
@@ -494,9 +433,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                 ))}
               </ul>
               <p className="text-sm font-bold">
-                {locale === "ar"
-                  ? `الرموز المتبقية: ${recoveryCodes.length}`
-                  : `Codes remaining: ${recoveryCodes.length}`}
+                {t("mfa.remainingCodes", { count: recoveryCodes.length })}
               </p>
               <button
                 type="button"
@@ -505,7 +442,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                   void navigator.clipboard.writeText(recoveryCodes.join("\n"))
                 }
               >
-                {locale === "ar" ? "نسخ الكل" : "Copy all"}
+                {t("mfa.copyAll")}
               </button>
               <label className="flex items-start gap-2 text-sm">
                 <input
@@ -515,9 +452,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                     setCodesAcknowledged(event.target.checked)
                   }
                 />
-                {locale === "ar"
-                  ? "حفظت الرموز في مكان آمن"
-                  : "I saved these codes securely"}
+                {t("mfa.savedSecurely")}
               </label>
               <button
                 type="button"
@@ -531,7 +466,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                   }
                 }}
               >
-                {locale === "ar" ? "متابعة" : "Continue"}
+                {t("mfa.continue")}
               </button>
             </div>
           )}
@@ -539,9 +474,9 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
           {twoFactor.data?.isEnabled && !recoveryCodes && (
             <div className="mt-5 grid gap-3">
               <p className="text-sm font-bold">
-                {locale === "ar"
-                  ? `رموز الاسترداد المتبقية: ${twoFactor.data.recoveryCodesLeft}`
-                  : `Recovery codes remaining: ${twoFactor.data.recoveryCodesLeft}`}
+                {t("mfa.codesLeft", {
+                  count: twoFactor.data.recoveryCodesLeft,
+                })}
               </p>
               <div className="flex flex-wrap gap-2">
                 <button
@@ -549,18 +484,14 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                   className="focus-ring rounded-lg border border-border px-3 py-2 text-sm font-bold"
                   onClick={() => setRecoveryAction("regenerate")}
                 >
-                  {locale === "ar"
-                    ? "إنشاء رموز استرداد جديدة"
-                    : "Generate new recovery codes"}
+                  {t("mfa.generateCodes")}
                 </button>
                 <button
                   type="button"
                   className="focus-ring rounded-lg border border-border px-3 py-2 text-sm font-bold"
                   onClick={() => setRecoveryAction("reset")}
                 >
-                  {locale === "ar"
-                    ? "فقدت تطبيق المصادقة؟"
-                    : "Lost your authenticator?"}
+                  {t("mfa.lostAuthenticator")}
                 </button>
               </div>
               {recoveryAction && (
@@ -575,26 +506,16 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                 >
                   <h3 className="font-black">
                     {recoveryAction === "regenerate"
-                      ? locale === "ar"
-                        ? "إنشاء رموز جديدة"
-                        : "Generate new codes"
-                      : locale === "ar"
-                        ? "إعادة إعداد تطبيق المصادقة"
-                        : "Reset authenticator"}
+                      ? t("mfa.generateNewCodes")
+                      : t("mfa.resetAuthenticator")}
                   </h3>
                   <p className="text-sm text-muted">
                     {recoveryAction === "regenerate"
-                      ? locale === "ar"
-                        ? "إنشاء رموز جديدة يبطل جميع الرموز القديمة."
-                        : "Generating new codes invalidates all old codes."
-                      : locale === "ar"
-                        ? "ستحتاج كلمة مرورك ورمز استرداد غير مستخدم. ستعيد إعداد تطبيق المصادقة بعد ذلك."
-                        : "Enter your password and an unused recovery code. You will set up a new authenticator afterward."}
+                      ? t("mfa.generateCodesWarning")
+                      : t("mfa.resetAuthenticatorDescription")}
                   </p>
                   <label className="grid gap-1 text-sm font-bold">
-                    {locale === "ar"
-                      ? "كلمة المرور الحالية"
-                      : "Current password"}
+                    {t("password.current")}
                     <input
                       type="password"
                       autoComplete="current-password"
@@ -608,9 +529,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                   </label>
                   {recoveryAction === "regenerate" ? (
                     <label className="grid gap-1 text-sm font-bold">
-                      {locale === "ar"
-                        ? "رمز تطبيق المصادقة"
-                        : "Authenticator code"}
+                      {t("mfa.authenticatorCode")}
                       <input
                         required
                         inputMode="numeric"
@@ -627,9 +546,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                     </label>
                   ) : (
                     <label className="grid gap-1 text-sm font-bold">
-                      {locale === "ar"
-                        ? "رمز استرداد غير مستخدم"
-                        : "Unused recovery code"}
+                      {t("mfa.unusedRecoveryCode")}
                       <input
                         required
                         autoComplete="off"
@@ -646,7 +563,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                       disabled={busy}
                       className="focus-ring rounded-lg bg-primary px-4 py-2 text-sm font-bold text-slate-950 disabled:opacity-60"
                     >
-                      {locale === "ar" ? "تأكيد" : "Confirm"}
+                      {t("mfa.confirm")}
                     </button>
                     <button
                       type="button"
@@ -658,14 +575,14 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                         setRecoveryAuthenticatorCode("");
                       }}
                     >
-                      {locale === "ar" ? "إلغاء" : "Cancel"}
+                      {t("mfa.cancel")}
                     </button>
                   </div>
                   {(regenerateCodes.isError || resetAuthenticator.isError) && (
                     <p role="alert" className="text-sm text-red-600">
                       {errorMessage(
                         regenerateCodes.error ?? resetAuthenticator.error,
-                        locale,
+                        t,
                       )}
                     </p>
                   )}
@@ -681,20 +598,12 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
               className="mt-5 grid gap-3"
               onSubmit={(event) => {
                 event.preventDefault();
-                if (
-                  window.confirm(
-                    locale === "ar"
-                      ? "هل تريد إيقاف المصادقة الثنائية؟ سيقل مستوى حماية حسابك."
-                      : "Disable two-factor authentication? This reduces account protection.",
-                  )
-                )
+                if (window.confirm(t("mfa.disableWarning")))
                   disableTwoFactor.mutate();
               }}
             >
               <label className="grid gap-1 text-sm font-bold">
-                {locale === "ar"
-                  ? "رمز تطبيق المصادقة للتأكيد"
-                  : "Authenticator code to confirm"}
+                {t("mfa.authenticatorCodeConfirm")}
                 <input
                   required
                   inputMode="numeric"
@@ -712,13 +621,11 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                 disabled={busy}
                 className="focus-ring rounded-xl border border-red-500/45 px-4 py-3 text-sm font-black text-red-600 hover:bg-red-500/10 disabled:opacity-60"
               >
-                {locale === "ar"
-                  ? "إيقاف المصادقة الثنائية"
-                  : "Disable two-factor authentication"}
+                {t("mfa.disable")}
               </button>
               {disableTwoFactor.isError && (
                 <p role="alert" className="text-sm text-red-600">
-                  {errorMessage(disableTwoFactor.error, locale)}
+                  {errorMessage(disableTwoFactor.error, t)}
                 </p>
               )}
             </form>
@@ -731,13 +638,11 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                 className="focus-ring inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-black text-slate-950 disabled:opacity-60"
               >
                 <KeyRound size={17} aria-hidden="true" />
-                {locale === "ar"
-                  ? "إعداد تطبيق المصادقة"
-                  : "Set up an authenticator app"}
+                {t("mfa.setup")}
               </button>
               {startSetup.isError && (
                 <p role="alert" className="mt-3 text-sm text-red-600">
-                  {errorMessage(startSetup.error, locale)}
+                  {errorMessage(startSetup.error, t)}
                 </p>
               )}
             </div>
@@ -750,16 +655,8 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
               }}
             >
               <ol className="grid list-decimal gap-2 ps-5 text-sm leading-6 text-muted">
-                <li>
-                  {locale === "ar"
-                    ? "افتح Google Authenticator أو Microsoft Authenticator أو أي تطبيق TOTP موثوق."
-                    : "Open Google Authenticator, Microsoft Authenticator, or another trusted TOTP app."}
-                </li>
-                <li>
-                  {locale === "ar"
-                    ? "أضف حسابًا يدويًا والصق المفتاح التالي. لا تشاركه مع أي شخص."
-                    : "Add an account manually and enter the key below. Never share it."}
-                </li>
+                <li>{t("mfa.setupStepOne")}</li>
+                <li>{t("mfa.setupStepTwo")}</li>
               </ol>
               <code
                 dir="ltr"
@@ -771,14 +668,10 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                 href={setup.authenticatorUri}
                 className="focus-ring text-sm font-bold text-primary underline underline-offset-4"
               >
-                {locale === "ar"
-                  ? "فتح تطبيق المصادقة بهذا الحساب"
-                  : "Open this account in your authenticator app"}
+                {t("mfa.openAuthenticator")}
               </a>
               <label className="grid gap-1 text-sm font-bold">
-                {locale === "ar"
-                  ? "أدخل الرمز المكوّن من 6 أرقام"
-                  : "Enter the 6-digit code"}
+                {t("mfa.enterCode")}
                 <input
                   required
                   inputMode="numeric"
@@ -796,7 +689,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                 disabled={busy || verificationCode.length !== 6}
                 className="focus-ring rounded-xl bg-primary px-4 py-3 text-sm font-black text-slate-950 disabled:opacity-60"
               >
-                {locale === "ar" ? "تأكيد التفعيل" : "Confirm and enable"}
+                {t("mfa.confirmEnable")}
               </button>
               <button
                 type="button"
@@ -804,11 +697,11 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                 onClick={() => setSetup(null)}
                 className="focus-ring text-sm font-bold text-muted hover:text-foreground"
               >
-                {locale === "ar" ? "إلغاء" : "Cancel"}
+                {t("mfa.cancel")}
               </button>
               {enableTwoFactor.isError && (
                 <p role="alert" className="text-sm text-red-600">
-                  {errorMessage(enableTwoFactor.error, locale)}
+                  {errorMessage(enableTwoFactor.error, t)}
                 </p>
               )}
             </form>
@@ -824,12 +717,10 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                 </span>
                 <div>
                   <h2 className="text-xl font-black text-foreground">
-                    {locale === "ar" ? "الجلسات النشطة" : "Active sessions"}
+                    {t("sessions.title")}
                   </h2>
                   <p className="mt-1 text-sm leading-6 text-muted">
-                    {locale === "ar"
-                      ? "يمكنك إنهاء أي جهاز لا تعرفه فورًا."
-                      : "End any device you do not recognise immediately."}
+                    {t("sessions.description")}
                   </p>
                 </div>
               </div>
@@ -841,37 +732,23 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                     !sessions.data?.items.some((session) => !session.isCurrent)
                   }
                   onClick={() => {
-                    if (
-                      window.confirm(
-                        locale === "ar"
-                          ? "إنهاء جميع الجلسات الأخرى مع إبقاء هذا الجهاز متصلاً؟"
-                          : "Sign out all other devices and keep this device signed in?",
-                      )
-                    )
+                    if (window.confirm(t("sessions.signOutOthersConfirmation")))
                       logoutOthers.mutate();
                   }}
                   className="focus-ring shrink-0 rounded-lg border border-border px-3 py-2 text-xs font-black disabled:opacity-60"
                 >
-                  {locale === "ar"
-                    ? "إنهاء الأجهزة الأخرى"
-                    : "Sign out other devices"}
+                  {t("sessions.signOutOthers")}
                 </button>
                 <button
                   type="button"
                   disabled={busy || !sessions.data?.items.length}
                   onClick={() => {
-                    if (
-                      window.confirm(
-                        locale === "ar"
-                          ? "سيتم تسجيل خروجك من جميع الأجهزة، بما فيها هذا الجهاز. هل تريد المتابعة؟"
-                          : "You will be signed out from every device, including this one. Continue?",
-                      )
-                    )
+                    if (window.confirm(t("sessions.signOutAllConfirmation")))
                       logoutAll.mutate();
                   }}
                   className="focus-ring shrink-0 rounded-lg border border-red-500/45 px-3 py-2 text-xs font-black text-red-600 hover:bg-red-500/10 disabled:opacity-60"
                 >
-                  {locale === "ar" ? "إنهاء الكل" : "Sign out all"}
+                  {t("sessions.signOutAll")}
                 </button>
               </div>
             </div>
@@ -880,7 +757,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                 <p className="text-sm text-muted">…</p>
               ) : sessions.isError ? (
                 <p role="alert" className="text-sm text-red-600">
-                  {errorMessage(sessions.error, locale)}
+                  {errorMessage(sessions.error, t)}
                 </p>
               ) : sessions.data?.items.length ? (
                 sessions.data.items.map((session) => (
@@ -900,7 +777,7 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                             {session.deviceName}
                             {session.isCurrent && (
                               <span className="ms-2 rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs text-emerald-700 dark:text-emerald-300">
-                                {locale === "ar" ? "هذا الجهاز" : "This device"}
+                                {t("sessions.currentDevice")}
                               </span>
                             )}
                           </p>
@@ -909,11 +786,11 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                             {session.ipAddress ? ` · ${session.ipAddress}` : ""}
                           </p>
                           <p className="mt-1 text-xs text-muted">
-                            {locale === "ar" ? "آخر نشاط: " : "Last active: "}
+                            {t("sessions.lastActive")}
                             {formatDate(session.lastActiveAtUtc, locale)}
                           </p>
                           <p className="mt-1 text-xs text-muted">
-                            {locale === "ar" ? "تسجيل الدخول: " : "Signed in: "}
+                            {t("sessions.signedIn")}
                             {formatDate(session.loggedInAtUtc, locale)}
                           </p>
                         </div>
@@ -925,12 +802,8 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                           if (
                             window.confirm(
                               session.isCurrent
-                                ? locale === "ar"
-                                  ? "سيتم تسجيل خروجك من هذا الجهاز. هل تريد المتابعة؟"
-                                  : "You will be signed out on this device. Continue?"
-                                : locale === "ar"
-                                  ? "هل تريد إنهاء هذه الجلسة؟"
-                                  : "End this session?",
+                                ? t("sessions.signOutCurrentConfirmation")
+                                : t("sessions.signOutSessionConfirmation"),
                             )
                           )
                             revokeSession.mutate(session.id);
@@ -938,32 +811,30 @@ export function AccountSecurity({ role }: { role: AccountRole }) {
                         className="focus-ring inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-black text-red-600 hover:bg-red-500/10 disabled:opacity-60"
                       >
                         <LogOut size={15} aria-hidden="true" />
-                        {locale === "ar" ? "إنهاء" : "Sign out"}
+                        {t("sessions.signOut")}
                       </button>
                     </div>
                   </article>
                 ))
               ) : (
                 <p className="rounded-xl border border-dashed border-border px-4 py-6 text-sm text-muted">
-                  {locale === "ar"
-                    ? "ستظهر هنا الأجهزة عند تسجيل الدخول التالي."
-                    : "Devices will appear here after the next sign-in."}
+                  {t("sessions.empty")}
                 </p>
               )}
             </div>
             {revokeSession.isError && (
               <p role="alert" className="mt-3 text-sm text-red-600">
-                {errorMessage(revokeSession.error, locale)}
+                {errorMessage(revokeSession.error, t)}
               </p>
             )}
             {logoutAll.isError && (
               <p role="alert" className="mt-3 text-sm text-red-600">
-                {errorMessage(logoutAll.error, locale)}
+                {errorMessage(logoutAll.error, t)}
               </p>
             )}
             {logoutOthers.isError && (
               <p role="alert" className="mt-3 text-sm text-red-600">
-                {errorMessage(logoutOthers.error, locale)}
+                {errorMessage(logoutOthers.error, t)}
               </p>
             )}
           </section>
