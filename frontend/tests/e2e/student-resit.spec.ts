@@ -170,7 +170,23 @@ for (const scenario of [
             : "Prepare Resit evidence",
       }),
     ).toBeVisible();
-    await expect(page.getByText(/5\.000 JOD/)).toBeVisible();
+    const expectedResitPrice = new Intl.NumberFormat(
+      scenario.locale === "ar" ? "ar-JO" : "en-JO",
+      {
+        style: "currency",
+        currency: "JOD",
+        currencyDisplay: "code",
+        minimumFractionDigits: 3,
+        maximumFractionDigits: 3,
+      },
+    ).format(5);
+    await expect(
+      page.getByText(
+        scenario.locale === "ar"
+          ? "السعر المحدد من الخادم:"
+          : "Server-owned Resit review price:",
+      ),
+    ).toContainText(expectedResitPrice);
     await page
       .getByRole("button", {
         name:

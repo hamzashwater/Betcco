@@ -3,6 +3,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { formatLocalizedCurrency } from "@/i18n/number-format";
 import enMessages from "../messages/en.json";
 import { EvaluationAppeals } from "@/features/student/evaluation-appeals";
 import { StudentArea } from "@/features/student/student-area";
@@ -61,6 +62,12 @@ const page = (
   hasNextPage,
 });
 
+function matchesNormalizedText(expected: string) {
+  const normalizedExpected = expected.replace(/\s+/gu, " ").trim();
+  return (_content: string, element: Element | null) =>
+    element?.textContent?.replace(/\s+/gu, " ").trim() === normalizedExpected;
+}
+
 afterEach(() => {
   cleanup();
   apiMock.mockReset();
@@ -115,12 +122,18 @@ describe("student evaluation pagination", () => {
     });
     renderWithProviders(<StudentArea segment={["evaluations"]} />);
 
-    expect(await screen.findByText("5.000 JOD")).toBeVisible();
-    expect(screen.queryByText("7.000 JOD")).not.toBeInTheDocument();
+    const firstPageAmount = matchesNormalizedText(
+      formatLocalizedCurrency(5, "JOD", "en"),
+    );
+    const secondPageAmount = matchesNormalizedText(
+      formatLocalizedCurrency(7, "JOD", "en"),
+    );
+    expect(await screen.findByText(firstPageAmount)).toBeVisible();
+    expect(screen.queryByText(secondPageAmount)).not.toBeInTheDocument();
     await userEvent
       .setup()
       .click(screen.getByRole("button", { name: "Load more requests" }));
-    expect(await screen.findByText("7.000 JOD")).toBeVisible();
+    expect(await screen.findByText(secondPageAmount)).toBeVisible();
     expect(
       screen.queryByRole("button", { name: "Load more requests" }),
     ).not.toBeInTheDocument();
