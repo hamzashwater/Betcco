@@ -24,9 +24,8 @@ public sealed class CourseAssignmentDeadlineExtensionService(BetccoDbContext db)
             || string.IsNullOrWhiteSpace(reason) || reason.Length > 500
             || command.ExtendedDueAtUtc.ToUniversalTime().Ticks / 10 <= baseDueAtUtc.ToUniversalTime().Ticks / 10)
             return new(DeadlineExtensionWriteStatus.Invalid);
-        var enrolled = await db.Enrollments.AsNoTracking().AnyAsync(item => item.CourseId == assignment.CourseId
-            && item.StudentUserId == command.StudentUserId
-            && (item.AccessEndsAtUtc == null || item.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken);
+        var enrolled = await db.ActiveEnrollments(DateTimeOffset.UtcNow).AsNoTracking().AnyAsync(item => item.CourseId == assignment.CourseId
+            && item.StudentUserId == command.StudentUserId, cancellationToken);
         if (!enrolled) return new(DeadlineExtensionWriteStatus.Invalid);
         if (await db.CourseAssignmentDeadlineExtensions.AsNoTracking().AnyAsync(item => item.CourseAssignmentId == assignmentId
             && item.StudentUserId == command.StudentUserId && item.RevokedAtUtc == null, cancellationToken))
@@ -90,8 +89,7 @@ public sealed class CourseAssignmentDeadlineExtensionService(BetccoDbContext db)
             .Where(item => item.Id == assignmentId && item.Course!.TeacherUserId == teacherUserId)
             .Select(item => (Guid?)item.CourseId).SingleOrDefaultAsync(cancellationToken);
         if (courseId is null) return null;
-        var ids = await db.Enrollments.AsNoTracking().Where(item => item.CourseId == courseId
-            && (item.AccessEndsAtUtc == null || item.AccessEndsAtUtc > DateTimeOffset.UtcNow))
+        var ids = await db.ActiveEnrollments(DateTimeOffset.UtcNow).AsNoTracking().Where(item => item.CourseId == courseId)
             .Select(item => item.StudentUserId).ToListAsync(cancellationToken);
         var userIds = ids.Select(id => Guid.TryParse(id, out var parsed) ? parsed : Guid.Empty).Where(id => id != Guid.Empty).ToArray();
         var users = await db.Users.AsNoTracking().Where(user => userIds.Contains(user.Id))

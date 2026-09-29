@@ -29,7 +29,7 @@ public sealed class UpcomingDeadlineNotificationService(
         var candidates = await (
             from assignment in db.CourseAssignments.AsNoTracking()
             join course in db.Courses.AsNoTracking() on assignment.CourseId equals course.Id
-            join enrollment in db.Enrollments.AsNoTracking() on assignment.CourseId equals enrollment.CourseId
+            join enrollment in db.ActiveEnrollments(now).AsNoTracking() on assignment.CourseId equals enrollment.CourseId
             where course.Status == CourseStatus.Published
                 && assignment.IsPublished
                 && assignment.PublicationStatus == ContentPublicationStatus.Published
@@ -38,7 +38,6 @@ public sealed class UpcomingDeadlineNotificationService(
                     || db.CourseAssignmentDeadlineExtensions.Any(extension => extension.CourseAssignmentId == assignment.Id
                         && extension.StudentUserId == enrollment.StudentUserId && extension.RevokedAtUtc == null
                         && extension.ExtendedDueAtUtc > now && extension.ExtendedDueAtUtc <= cutoff))
-                && (enrollment.AccessEndsAtUtc == null || enrollment.AccessEndsAtUtc > now)
             select new DeadlineCandidate(
                 assignment.Id,
                 assignment.CourseId,

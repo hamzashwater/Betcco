@@ -157,7 +157,7 @@ public sealed class PublicContentController(BetccoDbContext db) : ControllerBase
         var isHost = session.HostUserId == userId;
         var hasAudienceAccess = session.CourseId is null
             ? User.IsInRole(PlatformRoles.Student)
-            : await db.Enrollments.AnyAsync(x => x.CourseId == session.CourseId && x.StudentUserId == userId && (x.AccessEndsAtUtc == null || x.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken);
+            : await db.ActiveEnrollments(DateTimeOffset.UtcNow).AnyAsync(x => x.CourseId == session.CourseId && x.StudentUserId == userId, cancellationToken);
         if (!isAdmin && !isHost && !hasAudienceAccess) return NotFound();
         if (User.IsInRole(PlatformRoles.Student))
         {

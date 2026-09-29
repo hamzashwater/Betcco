@@ -113,6 +113,9 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
             Assert.Equal(refund.Id, credit.RevokedByRefundId);
             Assert.NotNull(credit.RevokedAtUtc);
             Assert.Null(credit.ConsumedByEvaluationRequestId);
+            var grant = await verify.CourseAccessGrants.SingleAsync(item => item.PaymentId == paymentId);
+            Assert.Equal(refund.Id, grant.RevokedByRefundId);
+            Assert.False(await verify.ActiveEnrollments(DateTimeOffset.UtcNow).AnyAsync(item => item.CourseId == grant.CourseId && item.StudentUserId == "student"));
             Assert.Equal(RefundEntitlementDisposition.UnusedIncludedEvaluationCreditsRevoked,
                 await verify.Refunds.Where(item => item.Id == refund.Id).Select(item => item.EntitlementDisposition).SingleAsync());
             Assert.Single(await verify.LedgerTransactions.Where(item => item.RefundId == refund.Id).ToListAsync());
@@ -883,6 +886,16 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
         var payment = new Payment { UserId = "student", Purpose = "CourseCart", ReferenceId = Guid.NewGuid(), Status = PaymentStatus.Paid, Subtotal = 100m, Tax = tax, Total = total, Currency = "JOD", Provider = "PayTabs", ProviderPaymentId = "SALE-TRUSTED-REF" };
         var enrollment = new Enrollment { StudentUserId = "student", Course = course, PaymentId = payment.Id };
         var entitlement = new IncludedEvaluationEntitlement { StudentUserId = "student", Enrollment = enrollment, UnitDefinition = unit, GrantedByPayment = payment };
+        var grant = new CourseAccessGrant
+        {
+            StudentUserId = "student",
+            Course = course,
+            PaymentId = payment.Id,
+            SourceType = CourseAccessGrantSource.CoursePurchase,
+            SourceId = payment.Id,
+            GrantedAtUtc = DateTimeOffset.UtcNow,
+            ValidFromUtc = DateTimeOffset.UtcNow
+        };
         var allocation = new CourseSaleAllocation { PaymentId = payment.Id, CourseId = course.Id, TeacherUserId = "teacher", GrossAmount = 100m, NetAmount = 100m, PlatformCommission = 30m, TeacherEarning = 70m, Currency = "JOD" };
         var clearing = new LedgerAccount { Code = LedgerAccountCode.CourseSaleClearing, Currency = "JOD" };
         var commission = new LedgerAccount { Code = LedgerAccountCode.PlatformCommission, Currency = "JOD" };
@@ -891,7 +904,7 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
         sale.Entries.Add(new LedgerEntry { LedgerAccount = clearing, CourseSaleAllocation = allocation, Side = LedgerEntrySide.Debit, Amount = 100m, Currency = "JOD" });
         sale.Entries.Add(new LedgerEntry { LedgerAccount = commission, CourseSaleAllocation = allocation, Side = LedgerEntrySide.Credit, Amount = 30m, Currency = "JOD" });
         sale.Entries.Add(new LedgerEntry { LedgerAccount = teacher, CourseSaleAllocation = allocation, Side = LedgerEntrySide.Credit, Amount = 70m, Currency = "JOD" });
-        db.AddRange(track, qualification, version, unit, course, payment, enrollment, entitlement, allocation, clearing, commission, teacher, sale,
+        db.AddRange(track, qualification, version, unit, course, payment, enrollment, grant, entitlement, allocation, clearing, commission, teacher, sale,
             new WalletTransaction { UserId = "platform", Type = "PlatformCommission", Amount = 30m, Currency = "JOD", PaymentId = payment.Id, Description = "sale" },
             new WalletTransaction { UserId = "teacher", Type = "TeacherCourseEarning", Amount = 70m, Currency = "JOD", PaymentId = payment.Id, Description = "sale" });
         await db.SaveChangesAsync();

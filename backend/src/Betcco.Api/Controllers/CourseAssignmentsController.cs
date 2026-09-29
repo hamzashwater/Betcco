@@ -445,7 +445,7 @@ public sealed class CourseAssignmentsController(
     [HttpGet("student/courses/{courseId:guid}/assignments")]
     public async Task<IActionResult> StudentList(Guid courseId, CancellationToken cancellationToken)
     {
-        if (!await db.Enrollments.AnyAsync(enrollment => enrollment.CourseId == courseId && enrollment.StudentUserId == UserId && (enrollment.AccessEndsAtUtc == null || enrollment.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken)) return NotFound();
+        if (!await db.ActiveEnrollments(DateTimeOffset.UtcNow).AnyAsync(enrollment => enrollment.CourseId == courseId && enrollment.StudentUserId == UserId, cancellationToken)) return NotFound();
         var rows = await db.CourseAssignments.AsNoTracking()
             .Include(assignment => assignment.Criteria)
             .Include(assignment => assignment.Resources)
@@ -507,9 +507,8 @@ public sealed class CourseAssignmentsController(
             .Include(submission => submission.Versions).ThenInclude(version => version.Files)
             .Where(submission => submission.StudentUserId == UserId
                 && (submission.CourseAssignment!.Purpose == CourseAssignmentPurpose.Coursework
-                    || db.Enrollments.Any(enrollment => enrollment.CourseId == submission.CourseAssignment.CourseId
-                        && enrollment.StudentUserId == UserId
-                        && (enrollment.AccessEndsAtUtc == null || enrollment.AccessEndsAtUtc > DateTimeOffset.UtcNow))))
+                    || db.ActiveEnrollments(DateTimeOffset.UtcNow).Any(enrollment => enrollment.CourseId == submission.CourseAssignment.CourseId
+                        && enrollment.StudentUserId == UserId)))
             .OrderByDescending(submission => submission.UpdatedAtUtc)
             .ToListAsync(cancellationToken);
         return Ok(data.Select(submission => new
@@ -546,9 +545,8 @@ public sealed class CourseAssignmentsController(
             .SingleOrDefaultAsync(item => item.Id == resourceId && item.CourseAssignmentId == assignmentId && item.ScanStatus == UploadScanStatus.Clean, cancellationToken);
         if (resource is null) return NotFound();
         var assignment = resource.CourseAssignment!;
-        var studentEnrollment = await db.Enrollments.AsNoTracking().AnyAsync(item =>
-            item.CourseId == assignment.CourseId && item.StudentUserId == UserId
-            && (item.AccessEndsAtUtc == null || item.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken);
+        var studentEnrollment = await db.ActiveEnrollments(DateTimeOffset.UtcNow).AsNoTracking().AnyAsync(item =>
+            item.CourseId == assignment.CourseId && item.StudentUserId == UserId, cancellationToken);
         var studentMayAccess = studentEnrollment
             && assignment.PublicationStatus == ContentPublicationStatus.Published
             && (await contentAccess.CanAccessAsync(UserId, assignment.CourseId, LearningContentType.Assignment, assignment.Id, cancellationToken)).IsAvailable;
@@ -572,8 +570,8 @@ public sealed class CourseAssignmentsController(
             && submission.Status is not (CourseAssignmentSubmissionStatus.Submitted or CourseAssignmentSubmissionStatus.Finalized)) return NotFound();
         if (submission.StudentUserId == UserId
             && submission.CourseAssignment!.Purpose is CourseAssignmentPurpose.LearningAimPractice or CourseAssignmentPurpose.ComprehensivePractice
-            && !await db.Enrollments.AsNoTracking().AnyAsync(x => x.CourseId == submission.CourseAssignment.CourseId
-                && x.StudentUserId == UserId && (x.AccessEndsAtUtc == null || x.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken)) return NotFound();
+            && !await db.ActiveEnrollments(DateTimeOffset.UtcNow).AsNoTracking().AnyAsync(x => x.CourseId == submission.CourseAssignment.CourseId
+                && x.StudentUserId == UserId, cancellationToken)) return NotFound();
         var content = await storage.OpenPrivateReadAsync(file.StorageKey, cancellationToken);
         return content is null ? NotFound() : File(content, file.ContentType, file.OriginalFileName, enableRangeProcessing: true);
     }

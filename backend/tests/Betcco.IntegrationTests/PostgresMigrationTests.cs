@@ -1,4 +1,5 @@
 using Betcco.Domain.Common;
+using Betcco.Domain.Learning;
 using Betcco.Infrastructure.Identity;
 using Betcco.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
@@ -31,6 +32,7 @@ public sealed class PostgresMigrationTests
         Assert.Contains(migrations, migration => migration.EndsWith("_AddAcademicDeliveryPlanning", StringComparison.Ordinal));
         Assert.Contains(migrations, migration => migration.EndsWith("_AddCanonicalLearnUnitLinks", StringComparison.Ordinal));
         Assert.Contains(migrations, migration => migration.EndsWith("_RemoveLegacyQuizSystem", StringComparison.Ordinal));
+        Assert.Contains(migrations, migration => migration.EndsWith("_AddCourseAccessGrantProvenance", StringComparison.Ordinal));
         Assert.False(db.Database.HasPendingModelChanges());
 
         var script = db.GetService<IMigrator>().GenerateScript(
@@ -51,6 +53,7 @@ public sealed class PostgresMigrationTests
         Assert.Contains("CREATE TABLE \"AcademicTerms\"", script, StringComparison.Ordinal);
         Assert.Contains("CREATE TABLE \"DeliveryPlans\"", script, StringComparison.Ordinal);
         Assert.Contains("CREATE TABLE \"DeliveryPlanEntries\"", script, StringComparison.Ordinal);
+        Assert.Contains("CREATE TABLE \"CourseAccessGrants\"", script, StringComparison.Ordinal);
 
         var connection = db.Database.GetDbConnection();
         await connection.OpenAsync();
@@ -66,6 +69,9 @@ public sealed class PostgresMigrationTests
         await using var preservedTablesCheck = connection.CreateCommand();
         preservedTablesCheck.CommandText = "SELECT count(*) FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('Courses', 'Lessons', 'LessonProgresses', 'Enrollments', 'CourseAssignments', 'CourseAssignmentSubmissions', 'EvaluationRequests', 'UnitDefinitions')";
         Assert.Equal(8L, Convert.ToInt64(await preservedTablesCheck.ExecuteScalarAsync()));
+        await using var grantConstraintCheck = connection.CreateCommand();
+        grantConstraintCheck.CommandText = "SELECT count(*) FROM pg_constraint WHERE conname IN ('CK_CourseAccessGrants_Validity', 'CK_CourseAccessGrants_Revocation', 'CK_CourseAccessGrants_SourcePayment')";
+        Assert.Equal(3L, Convert.ToInt64(await grantConstraintCheck.ExecuteScalarAsync()));
 
         var services = new ServiceCollection();
         services.AddLogging();
@@ -84,5 +90,35 @@ public sealed class PostgresMigrationTests
         Assert.True(await seeded.Lessons.AnyAsync(x => x.Type == LessonType.Text));
         Assert.True(await seeded.Lessons.AnyAsync(x => x.Type == LessonType.Assignment));
         Assert.False(await seeded.Lessons.AnyAsync(x => x.Type == LessonType.LegacyArchived));
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Previous_schema_enrollment_becomes_unattributed_legacy_grant_without_rewriting_enrollment()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("legacy_grant", migrateToLatest: false);
+        await using var db = database.CreateContext();
+        var migrations = db.Database.GetMigrations().ToArray();
+        Assert.EndsWith("_AddCourseAccessGrantProvenance", migrations[^1], StringComparison.Ordinal);
+        await db.GetService<IMigrator>().MigrateAsync(migrations[^2]);
+
+        var track = new LearningTrack { Slug = "legacy-grant-track", ArabicName = "مسار", EnglishName = "Track", IsBtecFocused = true };
+        var course = new Course { Slug = "legacy-grant-course", ArabicTitle = "دورة", EnglishTitle = "Course", ArabicDescription = "وصف", EnglishDescription = "Description", LearningTrack = track, TeacherUserId = "teacher", Status = CourseStatus.Published, Price = 100m };
+        var paymentId = Guid.NewGuid();
+        var enrollment = new Enrollment { StudentUserId = "student", Course = course, PaymentId = paymentId, AccessEndsAtUtc = DateTimeOffset.UtcNow.AddDays(30) };
+        db.AddRange(track, course, enrollment);
+        await db.SaveChangesAsync();
+        db.ChangeTracker.Clear();
+
+        await db.GetService<IMigrator>().MigrateAsync();
+        var persisted = await db.Enrollments.AsNoTracking().SingleAsync(item => item.Id == enrollment.Id);
+        var grant = await db.CourseAccessGrants.AsNoTracking().SingleAsync();
+        Assert.Equal(paymentId, persisted.PaymentId);
+        Assert.Equal(CourseAccessGrantSource.Legacy, grant.SourceType);
+        Assert.Equal(enrollment.Id, grant.SourceId);
+        Assert.Null(grant.PaymentId);
+        Assert.Equal(persisted.AccessEndsAtUtc, grant.ValidUntilUtc);
+        Assert.True(await db.ActiveEnrollments(DateTimeOffset.UtcNow).AnyAsync(item => item.Id == enrollment.Id));
+        Assert.False(db.Database.HasPendingModelChanges());
     }
 }

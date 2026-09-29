@@ -238,6 +238,26 @@ public sealed class Enrollment : Entity
     public DateTimeOffset? CompletedAtUtc { get; set; }
 }
 
+// Source identity is written once at trusted grant creation. Revocation changes
+// availability without changing the historical reason access was granted.
+public enum CourseAccessGrantSource { CoursePurchase, Membership, CourseSubscription, Legacy, Manual }
+
+public sealed class CourseAccessGrant : Entity
+{
+    public required string StudentUserId { get; set; }
+    public Guid CourseId { get; set; }
+    public Course? Course { get; set; }
+    public CourseAccessGrantSource SourceType { get; set; }
+    public Guid SourceId { get; set; }
+    public Guid? PaymentId { get; set; }
+    public DateTimeOffset GrantedAtUtc { get; set; }
+    public DateTimeOffset ValidFromUtc { get; set; }
+    public DateTimeOffset? ValidUntilUtc { get; set; }
+    public DateTimeOffset? RevokedAtUtc { get; set; }
+    public string? RevocationReason { get; set; }
+    public Guid? RevokedByRefundId { get; set; }
+}
+
 /// <summary>
 /// One optional release rule per learner-facing course item. The generic
 /// content identity deliberately avoids duplicate Unit/Lesson/Assignment

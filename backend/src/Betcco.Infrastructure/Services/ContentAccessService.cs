@@ -17,7 +17,7 @@ public sealed class ContentAccessService(BetccoDbContext db) : IContentAccessSer
 {
     public async Task<ContentAccessDecision> CanAccessCourseAsync(string studentUserId, Guid courseId, CancellationToken cancellationToken = default)
     {
-        var enrollment = await db.Enrollments.AsNoTracking().SingleOrDefaultAsync(item => item.StudentUserId == studentUserId && item.CourseId == courseId && (item.AccessEndsAtUtc == null || item.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken);
+        var enrollment = await db.ActiveEnrollments(DateTimeOffset.UtcNow).AsNoTracking().SingleOrDefaultAsync(item => item.StudentUserId == studentUserId && item.CourseId == courseId, cancellationToken);
         if (enrollment is null) return Denied("EnrollmentRequired");
         if (!await TargetBelongsToCourseAsync(courseId, new ContentNode(LearningContentType.Course, courseId), cancellationToken)) return Denied("ContentNotFound");
         return await EvaluateNodeAsync(studentUserId, courseId, enrollment, new ContentNode(LearningContentType.Course, courseId), [], cancellationToken);
@@ -33,7 +33,7 @@ public sealed class ContentAccessService(BetccoDbContext db) : IContentAccessSer
     private async Task<ContentAccessDecision> CanAccessCoreAsync(string studentUserId, Guid courseId,
         LearningContentType contentType, Guid contentId, ComprehensivePracticeProgressSnapshot? comprehensiveProgress, CancellationToken cancellationToken)
     {
-        var enrollment = await db.Enrollments.AsNoTracking().SingleOrDefaultAsync(item => item.StudentUserId == studentUserId && item.CourseId == courseId && (item.AccessEndsAtUtc == null || item.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken);
+        var enrollment = await db.ActiveEnrollments(DateTimeOffset.UtcNow).AsNoTracking().SingleOrDefaultAsync(item => item.StudentUserId == studentUserId && item.CourseId == courseId, cancellationToken);
         if (enrollment is null) return Denied("EnrollmentRequired");
         var node = new ContentNode(contentType, contentId);
         if (!await TargetBelongsToCourseAsync(courseId, node, cancellationToken)) return Denied("ContentNotFound");
@@ -221,7 +221,7 @@ public sealed class ContentAccessService(BetccoDbContext db) : IContentAccessSer
 
     private async Task<bool> IsCourseCompletedAsync(string studentUserId, Guid courseId, CancellationToken cancellationToken)
     {
-        if (!await db.Enrollments.AsNoTracking().AnyAsync(enrollment => enrollment.StudentUserId == studentUserId && enrollment.CourseId == courseId && (enrollment.AccessEndsAtUtc == null || enrollment.AccessEndsAtUtc > DateTimeOffset.UtcNow), cancellationToken)) return false;
+        if (!await db.ActiveEnrollments(DateTimeOffset.UtcNow).AsNoTracking().AnyAsync(enrollment => enrollment.StudentUserId == studentUserId && enrollment.CourseId == courseId, cancellationToken)) return false;
         var lessonIds = await db.Lessons.AsNoTracking()
             .Where(lesson => lesson.CourseModule!.CourseId == courseId && lesson.IsPublished && lesson.Type != LessonType.LegacyArchived && lesson.CourseModule.IsPublished)
             .Select(lesson => lesson.Id)
