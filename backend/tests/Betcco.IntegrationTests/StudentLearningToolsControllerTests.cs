@@ -1,10 +1,12 @@
 using System.Security.Claims;
 using System.Text.Json;
 using Betcco.Api.Controllers;
+using Betcco.Application.Evaluations;
 using Betcco.Domain.Common;
 using Betcco.Domain.Commerce;
 using Betcco.Domain.Evaluations;
 using Betcco.Domain.Learning;
+using Betcco.Infrastructure.Identity;
 using Betcco.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +16,240 @@ namespace Betcco.IntegrationTests;
 
 public sealed class StudentLearningToolsControllerTests
 {
+    [Fact]
+    public async Task Pending_actions_include_only_the_authenticated_student()
+    {
+        await using var db = CreateDb();
+        var own = Request("student-1", EvaluationStatus.Draft);
+        own.AssessmentScopeId = Guid.NewGuid();
+        var ownOriginal = Request("student-1", EvaluationStatus.Completed);
+        var foreign = Request("student-2", EvaluationStatus.NeedsRevision);
+        var foreignOriginal = Request("student-2", EvaluationStatus.Completed);
+        db.EvaluationRequests.AddRange(own, ownOriginal, foreign, foreignOriginal);
+        db.ResitAuthorizations.AddRange(Authorization(ownOriginal), Authorization(foreignOriginal));
+        await db.SaveChangesAsync();
+
+        using var document = await OverviewDocument(db);
+        var actions = document.RootElement.GetProperty("pendingActions");
+        Assert.Equal(2, actions.GetArrayLength());
+        Assert.Equal(new[] { ownOriginal.Id.ToString(), own.Id.ToString() },
+            actions.EnumerateArray().Select(action => action.GetProperty("evaluationRequestId").GetString()));
+    }
+
+    [Fact]
+    public async Task Standard_draft_excludes_historical_retake_and_resit_requests()
+    {
+        await using var db = CreateDb();
+        var standard = Request("student-1", EvaluationStatus.Draft);
+        standard.AssessmentScopeId = Guid.NewGuid();
+        var unscoped = Request("student-1", EvaluationStatus.Draft);
+        var retake = Request("student-1", EvaluationStatus.Draft);
+        retake.RetakeOfEvaluationRequestId = Guid.NewGuid();
+        var original = Request("student-1", EvaluationStatus.Completed);
+        var resit = Request("student-1", EvaluationStatus.Draft);
+        var waiting = new[] { EvaluationStatus.PendingPayment, EvaluationStatus.PendingAssignment,
+            EvaluationStatus.Assigned, EvaluationStatus.UnderReview, EvaluationStatus.Completed }
+            .Select(status => Request("student-1", status)).ToArray();
+        db.EvaluationRequests.AddRange([standard, unscoped, retake, original, resit, .. waiting]);
+        db.ResitAuthorizations.Add(Authorization(original, resit));
+        await db.SaveChangesAsync();
+
+        using var document = await OverviewDocument(db);
+        var drafts = document.RootElement.GetProperty("pendingActions").EnumerateArray()
+            .Where(action => action.GetProperty("kind").GetString() == "EvaluationDraft").ToArray();
+        Assert.Equal(standard.Id.ToString(), Assert.Single(drafts).GetProperty("evaluationRequestId").GetString());
+        Assert.Equal("U1", drafts[0].GetProperty("academic").GetProperty("unitCode").GetString());
+        Assert.Equal(2, document.RootElement.GetProperty("pendingActions").GetArrayLength());
+    }
+
+    [Fact]
+    public async Task Revision_uses_active_effective_deadline_without_private_reason()
+    {
+        await using var db = CreateDb();
+        var revision = Request("student-1", EvaluationStatus.NeedsRevision);
+        var baseDue = DateTimeOffset.UtcNow.AddDays(2);
+        revision.RevisionDueAtUtc = baseDue;
+        db.EvaluationRequests.Add(revision);
+        await db.SaveChangesAsync();
+
+        using (var before = await OverviewDocument(db))
+        {
+            var action = Assert.Single(before.RootElement.GetProperty("pendingActions").EnumerateArray());
+            Assert.Equal("EvaluationRevision", action.GetProperty("kind").GetString());
+            Assert.Equal(baseDue, action.GetProperty("effectiveDueAtUtc").GetDateTimeOffset());
+        }
+
+        var extendedDue = baseDue.AddDays(3);
+        var adjustment = new EvaluationRevisionDeadlineAdjustment
+        {
+            EvaluationRequestId = revision.Id,
+            BaseDueAtUtcSnapshot = baseDue,
+            ExtendedDueAtUtc = extendedDue,
+            GrantedByUserId = Guid.NewGuid(),
+            Reason = "Private accommodation"
+        };
+        db.EvaluationRevisionDeadlineAdjustments.Add(adjustment);
+        await db.SaveChangesAsync();
+
+        using var after = await OverviewDocument(db);
+        var revised = Assert.Single(after.RootElement.GetProperty("pendingActions").EnumerateArray());
+        Assert.Equal(extendedDue, revised.GetProperty("effectiveDueAtUtc").GetDateTimeOffset());
+        Assert.DoesNotContain("Private accommodation", after.RootElement.GetRawText());
+
+        adjustment.RevokedAtUtc = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        using var revoked = await OverviewDocument(db);
+        Assert.Equal(baseDue, Assert.Single(revoked.RootElement.GetProperty("pendingActions").EnumerateArray())
+            .GetProperty("effectiveDueAtUtc").GetDateTimeOffset());
+    }
+
+    [Fact]
+    public async Task Revision_excludes_historical_retake_resit_expired_and_used_attempt()
+    {
+        await using var db = CreateDb();
+        var standard = Request("student-1", EvaluationStatus.NeedsRevision);
+        standard.RevisionDueAtUtc = DateTimeOffset.UtcNow.AddDays(2);
+        var retake = Request("student-1", EvaluationStatus.NeedsRevision);
+        retake.RetakeOfEvaluationRequestId = Guid.NewGuid();
+        var original = Request("student-1", EvaluationStatus.Completed);
+        var resit = Request("student-1", EvaluationStatus.NeedsRevision);
+        var expired = Request("student-1", EvaluationStatus.NeedsRevision);
+        expired.RevisionDueAtUtc = DateTimeOffset.UtcNow.AddDays(-1);
+        var usedAttempt = Request("student-1", EvaluationStatus.NeedsRevision);
+        usedAttempt.SubmissionAttemptNumber = 2;
+        db.EvaluationRequests.AddRange(standard, retake, original, resit, expired, usedAttempt);
+        db.ResitAuthorizations.Add(Authorization(original, resit));
+        await db.SaveChangesAsync();
+
+        using var document = await OverviewDocument(db);
+        var action = Assert.Single(document.RootElement.GetProperty("pendingActions").EnumerateArray());
+        Assert.Equal("EvaluationRevision", action.GetProperty("kind").GetString());
+        Assert.Equal(standard.Id.ToString(), action.GetProperty("evaluationRequestId").GetString());
+    }
+
+    [Fact]
+    public async Task Resit_opportunity_excludes_revoked_and_foreign_authorizations_and_private_fields()
+    {
+        await using var db = CreateDb();
+        var own = Request("student-1", EvaluationStatus.Completed);
+        var revokedOriginal = Request("student-1", EvaluationStatus.Completed);
+        var foreign = Request("student-2", EvaluationStatus.Completed);
+        db.EvaluationRequests.AddRange(own, revokedOriginal, foreign);
+        var active = Authorization(own);
+        var revoked = Authorization(revokedOriginal);
+        revoked.RevokedAtUtc = DateTimeOffset.UtcNow;
+        revoked.RevocationReason = "Private revocation";
+        db.ResitAuthorizations.AddRange(active, revoked, Authorization(foreign));
+        await db.SaveChangesAsync();
+
+        using var document = await OverviewDocument(db);
+        var action = Assert.Single(document.RootElement.GetProperty("pendingActions").EnumerateArray());
+        Assert.Equal("ResitAuthorized", action.GetProperty("kind").GetString());
+        Assert.Equal(active.Id.ToString(), action.GetProperty("authorizationId").GetString());
+        Assert.Equal(own.Id.ToString(), action.GetProperty("originalEvaluationRequestId").GetString());
+        var json = document.RootElement.GetRawText();
+        Assert.DoesNotContain("reason", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("authorizedBy", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("revocationReason", json, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task Activated_resit_draft_excludes_non_actionable_linked_request()
+    {
+        await using var db = CreateDb();
+        var original = Request("student-1", EvaluationStatus.Completed);
+        var draft = Request("student-1", EvaluationStatus.Draft);
+        var completedOriginal = Request("student-1", EvaluationStatus.Completed);
+        var completed = Request("student-1", EvaluationStatus.Completed);
+        db.EvaluationRequests.AddRange(original, draft, completedOriginal, completed);
+        db.ResitAuthorizations.AddRange(Authorization(original, draft), Authorization(completedOriginal, completed));
+        await db.SaveChangesAsync();
+
+        using var document = await OverviewDocument(db);
+        var action = Assert.Single(document.RootElement.GetProperty("pendingActions").EnumerateArray());
+        Assert.Equal("ResitDraft", action.GetProperty("kind").GetString());
+        Assert.Equal(draft.Id.ToString(), action.GetProperty("evaluationRequestId").GetString());
+        Assert.Equal(original.Id.ToString(), action.GetProperty("originalEvaluationRequestId").GetString());
+    }
+
+    [Fact]
+    public async Task Pending_actions_are_bounded_and_deterministically_prioritized()
+    {
+        await using var db = CreateDb();
+        var start = DateTimeOffset.UtcNow;
+        var lateRevision = Request("student-1", EvaluationStatus.NeedsRevision);
+        lateRevision.RevisionDueAtUtc = start.AddDays(3);
+        var earlyRevision = Request("student-1", EvaluationStatus.NeedsRevision);
+        earlyRevision.RevisionDueAtUtc = start.AddDays(1);
+        var authorizedOriginal = Request("student-1", EvaluationStatus.Completed);
+        var original = Request("student-1", EvaluationStatus.Completed);
+        var resitDraft = Request("student-1", EvaluationStatus.Draft);
+        var drafts = Enumerable.Range(0, 10).Select(index =>
+        {
+            var request = Request("student-1", EvaluationStatus.Draft);
+            request.AssessmentScopeId = Guid.NewGuid();
+            request.CreatedAtUtc = start.AddMinutes(index);
+            return request;
+        }).ToArray();
+        db.EvaluationRequests.AddRange([lateRevision, earlyRevision, authorizedOriginal, original, resitDraft, .. drafts]);
+        db.ResitAuthorizations.AddRange(Authorization(authorizedOriginal), Authorization(original, resitDraft));
+        await db.SaveChangesAsync();
+        for (var index = 0; index < drafts.Length; index++)
+            drafts[index].CreatedAtUtc = start.AddMinutes(index);
+        await db.SaveChangesAsync();
+
+        using var first = await OverviewDocument(db);
+        using var second = await OverviewDocument(db);
+        var actions = first.RootElement.GetProperty("pendingActions").EnumerateArray().ToArray();
+        Assert.Equal(8, actions.Length);
+        Assert.Equal(new[] { "EvaluationRevision", "EvaluationRevision", "ResitAuthorized", "ResitDraft", "EvaluationDraft", "EvaluationDraft", "EvaluationDraft", "EvaluationDraft" },
+            actions.Select(action => action.GetProperty("kind").GetString()).ToArray());
+        Assert.Equal(earlyRevision.Id.ToString(), actions[0].GetProperty("evaluationRequestId").GetString());
+        Assert.Equal(lateRevision.Id.ToString(), actions[1].GetProperty("evaluationRequestId").GetString());
+        Assert.Equal(drafts.Take(4).Select(request => request.Id.ToString()),
+            actions.Skip(4).Select(action => action.GetProperty("evaluationRequestId").GetString()));
+        Assert.Equal(first.RootElement.GetProperty("pendingActions").GetRawText(),
+            second.RootElement.GetProperty("pendingActions").GetRawText());
+    }
+
+    [Fact]
+    public async Task Pending_actions_projection_executes_against_postgres()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("student_pending_actions");
+        await using var db = database.CreateContext();
+        var ownRevision = Request("student-1", EvaluationStatus.NeedsRevision);
+        var foreignRevision = Request("student-2", EvaluationStatus.NeedsRevision);
+        var original = Request("student-1", EvaluationStatus.Completed);
+        var resitDraft = Request("student-1", EvaluationStatus.Draft);
+        var staff = new ApplicationUser { DisplayName = "Staff", UserName = "staff-pending-actions@betcco.test", Email = "staff-pending-actions@betcco.test" };
+        ownRevision.RevisionDueAtUtc = DateTimeOffset.UtcNow.AddDays(2);
+        foreignRevision.RevisionDueAtUtc = DateTimeOffset.UtcNow.AddDays(1);
+        db.Users.Add(staff);
+        db.EvaluationRequests.AddRange(ownRevision, foreignRevision, original, resitDraft);
+        var authorization = Authorization(original, resitDraft);
+        authorization.AuthorizedByUserId = staff.Id;
+        db.ResitAuthorizations.Add(authorization);
+        db.EvaluationRevisionDeadlineAdjustments.Add(new EvaluationRevisionDeadlineAdjustment
+        {
+            EvaluationRequestId = ownRevision.Id,
+            BaseDueAtUtcSnapshot = ownRevision.RevisionDueAtUtc.Value,
+            ExtendedDueAtUtc = ownRevision.RevisionDueAtUtc.Value.AddDays(1),
+            GrantedByUserId = staff.Id,
+            Reason = "Private adjustment"
+        });
+        await db.SaveChangesAsync();
+
+        using var document = await OverviewDocument(db);
+        var actions = document.RootElement.GetProperty("pendingActions").EnumerateArray().ToArray();
+        Assert.Equal(new[] { "EvaluationRevision", "ResitDraft" },
+            actions.Select(action => action.GetProperty("kind").GetString()));
+        Assert.Equal(ownRevision.RevisionDueAtUtc.Value.AddDays(1).ToUnixTimeMilliseconds(),
+            actions[0].GetProperty("effectiveDueAtUtc").GetDateTimeOffset().ToUnixTimeMilliseconds());
+        Assert.Equal(ownRevision.Id.ToString(), actions[0].GetProperty("evaluationRequestId").GetString());
+        Assert.Equal(resitDraft.Id.ToString(), actions[1].GetProperty("evaluationRequestId").GetString());
+        Assert.DoesNotContain("Private adjustment", document.RootElement.GetRawText());
+    }
+
     [Fact]
     public async Task Overview_derives_milestones_only_from_saved_learning_activity()
     {
@@ -299,6 +535,50 @@ public sealed class StudentLearningToolsControllerTests
             }
         }
     };
+
+    private static async Task<JsonDocument> OverviewDocument(BetccoDbContext db)
+    {
+        var result = Assert.IsType<OkObjectResult>(await Controller(db, "student-1").Overview("en", CancellationToken.None));
+        return JsonDocument.Parse(JsonSerializer.Serialize(result.Value, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        }));
+    }
+
+    private static EvaluationRequest Request(string studentId, EvaluationStatus status) => new()
+    {
+        StudentUserId = studentId,
+        GradeId = Guid.NewGuid(),
+        SpecializationId = Guid.NewGuid(),
+        TaskTypeId = Guid.NewGuid(),
+        RubricTemplateId = Guid.NewGuid(),
+        Status = status,
+        AssessmentScopeSnapshotJson = SnapshotJson()
+    };
+
+    private static ResitAuthorization Authorization(EvaluationRequest original, EvaluationRequest? resit = null) => new()
+    {
+        OriginalEvaluationRequestId = original.Id,
+        ResitEvaluationRequestId = resit?.Id,
+        AuthorizedByUserId = Guid.NewGuid(),
+        AuthorizedAtUtc = DateTimeOffset.UtcNow,
+        ActivatedAtUtc = resit is null ? null : DateTimeOffset.UtcNow,
+        Reason = "Private authorization rationale"
+    };
+
+    private static string SnapshotJson()
+    {
+        var now = DateTimeOffset.UtcNow;
+        return JsonSerializer.Serialize(new AssessmentScopeSnapshot(
+            AssessmentScopeSnapshot.Version,
+            new QualificationAcademicSnapshot("Q", "مؤهل", "Qualification", "V1", "source", now.AddYears(-1), null),
+            new UnitAcademicSnapshot("U1", "وحدة", "Unit", "source"),
+            new AssessmentDefinitionAcademicSnapshot("A1", 1, "مهمة", "Assignment", "source", now.AddMonths(-1)),
+            new ScopeAcademicSnapshot(1, now.AddMonths(-1), "G", "صف", "Grade", "S", "تخصص", "Specialization"),
+            [new AimAcademicSnapshot("A", "هدف", "Aim", "شرح", "Description", "source", 1)],
+            [new CriterionAcademicSnapshot("A.P1", "Pass", "A", "معيار", "Criterion", "source", 1)],
+            new RubricAcademicSnapshot("روبرك", "Rubric", 1, "v1", ["A.P1"])));
+    }
 
     private static Course Course(string slug, string englishTitle) => new()
     {
