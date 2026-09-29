@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { ApiError, api, invalidateCsrfToken } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -69,10 +70,7 @@ function errorMessage(error: unknown, locale: string) {
 }
 
 function formatDate(value: string, locale: string) {
-  return new Intl.DateTimeFormat(locale === "ar" ? "ar-JO" : "en", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
+  return formatLocalizedDateTime(value, locale);
 }
 
 export function AccountSecurity({ role }: { role: AccountRole }) {

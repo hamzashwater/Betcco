@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
@@ -32,8 +33,7 @@ export function ResitCoordinationPanel() {
     queryFn: () =>
       api<AuthorizationPage>(`/resits/authorizations?page=${page}&pageSize=10`),
   });
-  const date = (value: string) =>
-    new Date(value).toLocaleString(ar ? "ar-JO" : "en-GB");
+  const date = (value: string) => formatLocalizedDateTime(value, locale);
 
   return (
     <section

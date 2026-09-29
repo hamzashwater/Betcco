@@ -40,6 +40,50 @@ test("guest can discover BETCCO public learning content", async ({ page }) => {
   ).toBeVisible();
 });
 
+for (const route of [
+  { locale: "ar", readArticle: "اقرأ المقال", intlLocale: "ar-JO" },
+  { locale: "en", readArticle: "Read article", intlLocale: "en-GB" },
+]) {
+  test(`public article dates follow the ${route.locale} application locale`, async ({
+    page,
+  }) => {
+    await page.route("**/api/v1/public/blog**", async (requestRoute) => {
+      const requestUrl = new URL(requestRoute.request().url());
+      const isArticle = requestUrl.pathname.endsWith("/example-locale-post");
+      const publishedAtUtc = "2026-03-17T14:05:00.000Z";
+      const article = {
+        slug: "example-locale-post",
+        title: "Locale date check",
+        excerpt: "A stable article for locale date coverage.",
+        publishedAtUtc,
+        body: "Article body for locale date coverage.",
+      };
+
+      await requestRoute.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(isArticle ? article : { items: [article] }),
+      });
+    });
+    await page.goto(`/${route.locale}/blog`);
+    await page.getByRole("link", { name: route.readArticle }).first().click();
+
+    const publishedDate = page.locator("time[datetime]").first();
+    await expect(publishedDate).toBeVisible();
+    const dateTime = await publishedDate.getAttribute("datetime");
+    const displayed = await publishedDate.textContent();
+    expect(dateTime).not.toBeNull();
+
+    const expected = await page.evaluate(
+      ({ value, intlLocale }) =>
+        new Intl.DateTimeFormat(intlLocale, { dateStyle: "medium" }).format(
+          new Date(value),
+        ),
+      { value: dateTime!, intlLocale: route.intlLocale },
+    );
+    expect(displayed?.trim()).toBe(expected);
+  });
+}
+
 test("home uses the available space on a wide desktop without overflow", async ({
   page,
 }) => {

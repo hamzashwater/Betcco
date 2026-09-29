@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
@@ -159,11 +160,7 @@ export function SecurityIncidentManagement() {
       }
     },
   });
-  const date = (value: string) =>
-    new Intl.DateTimeFormat(ar ? "ar-JO" : "en", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(new Date(value));
+  const date = (value: string) => formatLocalizedDateTime(value, locale);
   const severityLabel = (value: Severity) =>
     ({
       Low: ar ? "منخفض" : "Low",

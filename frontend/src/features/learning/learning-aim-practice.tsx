@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { FilePicker } from "@/components/forms/file-picker";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -114,12 +115,7 @@ function trainingOutcomeLabel(locale: string, outcome: string) {
 }
 
 function formatAttemptTimestamp(locale: string, value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat(locale === "ar" ? "ar-JO" : "en-GB", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
+  return formatLocalizedDateTime(value, locale) || value;
 }
 
 export function StudentLearningAimPractice({ courseId }: { courseId: string }) {

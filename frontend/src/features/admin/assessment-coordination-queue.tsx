@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { academicText } from "@/lib/academic-localization";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -390,9 +391,7 @@ export function AssessmentCoordinationQueue() {
                   </p>
                   <p className="mt-1 text-xs text-muted">
                     {ar ? "آخر تحديث:" : "Updated:"}{" "}
-                    {new Date(item.updatedAtUtc).toLocaleString(
-                      ar ? "ar-JO" : "en-GB",
-                    )}
+                    {formatLocalizedDateTime(item.updatedAtUtc, locale)}
                   </p>
                   <p
                     className={`mt-3 text-sm font-semibold ${item.expectedCompletionState === "Overdue" ? "text-red-700" : "text-muted"}`}
@@ -414,7 +413,7 @@ export function AssessmentCoordinationQueue() {
                           ? "موعد الإنجاز غير محدد"
                           : "Completion target not set"}
                     {item.expectedCompletionAtUtc
-                      ? ` · ${new Date(item.expectedCompletionAtUtc).toLocaleString(ar ? "ar-JO" : "en-GB")}`
+                      ? ` · ${formatLocalizedDateTime(item.expectedCompletionAtUtc, locale)}`
                       : ""}
                   </p>
                   <button
@@ -505,10 +504,11 @@ export function AssessmentCoordinationQueue() {
                               : "One revision check deadline"}
                           </p>
                           <p className="mt-1 text-sm text-muted">
-                            {new Date(
+                            {formatLocalizedDateTime(
                               item.effectiveRevisionDueAtUtc ??
                                 item.revisionDueAtUtc,
-                            ).toLocaleString(ar ? "ar-JO" : "en-GB")}
+                              locale,
+                            )}
                           </p>
                           {item.activeDeadlineAdjustmentId && (
                             <p
@@ -667,10 +667,9 @@ export function AssessmentCoordinationQueue() {
                                           className="rounded-lg border border-border p-2"
                                         >
                                           <p className="font-bold">
-                                            {new Date(
+                                            {formatLocalizedDateTime(
                                               adjustment.extendedDueAtUtc,
-                                            ).toLocaleString(
-                                              ar ? "ar-JO" : "en-GB",
+                                              locale,
                                             )}
                                           </p>
                                           <p className="mt-1 text-muted">

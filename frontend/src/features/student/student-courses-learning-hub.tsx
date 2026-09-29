@@ -3,6 +3,7 @@
 /* Course covers are delivered by an existing same-origin API endpoint. */
 /* eslint-disable @next/next/no-img-element */
 
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -529,7 +530,7 @@ function CourseCard({
   const action = t(`actions.${course.progressState}`);
   const accessMessage = course.accessAvailableAtUtc
     ? t("access.availableAt", {
-        date: new Date(course.accessAvailableAtUtc).toLocaleString(locale),
+        date: formatLocalizedDateTime(course.accessAvailableAtUtc, locale),
       })
     : t("access.unavailable");
 

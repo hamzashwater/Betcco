@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { BookOpenCheck, ChevronLeft, ChevronRight, Search } from "lucide-react";
@@ -102,9 +103,7 @@ export function AdminGradebook() {
     }));
   };
   const formatDate = (value?: string) =>
-    value
-      ? new Date(value).toLocaleString(locale === "ar" ? "ar-JO" : "en-US")
-      : "—";
+    value ? formatLocalizedDateTime(value, locale) : "—";
   return (
     <section className="shell py-10">
       <header className="card p-6 sm:p-8">

@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { AccountSecurity } from "@/features/auth/account-security";
 import { AccountProfile } from "@/features/auth/account-profile";
@@ -434,13 +435,7 @@ function TeacherWallet() {
               rows={values.transactions.map((transaction) => ({
                 id: transaction.id,
                 title: transaction.description,
-                meta: new Intl.DateTimeFormat(
-                  locale === "ar" ? "ar-JO" : "en",
-                  {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  },
-                ).format(new Date(transaction.createdAtUtc)),
+                meta: formatLocalizedDateTime(transaction.createdAtUtc, locale),
                 amount: `${transaction.amount >= 0 ? "+" : ""}${transaction.amount.toFixed(3)} ${transaction.currency}`,
                 positive: transaction.amount >= 0,
               }))}

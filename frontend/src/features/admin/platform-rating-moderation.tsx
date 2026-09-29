@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Eye, EyeOff, MessageSquareQuote, Star } from "lucide-react";
@@ -159,10 +160,7 @@ export function PlatformRatingModeration() {
                       {ar ? "مراجعة طالب" : "Learner review"}
                     </p>
                     <p className="mt-1 text-xs text-muted">
-                      {new Intl.DateTimeFormat(ar ? "ar-JO" : "en", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      }).format(new Date(rating.updatedAtUtc))}
+                      {formatLocalizedDateTime(rating.updatedAtUtc, locale)}
                     </p>
                   </div>
                 </div>

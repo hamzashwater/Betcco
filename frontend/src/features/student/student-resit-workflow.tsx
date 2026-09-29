@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDate } from "@/i18n/date-time";
 import { FilePicker } from "@/components/forms/file-picker";
 import { academicText } from "@/lib/academic-localization";
 import { api, ApiError } from "@/lib/api";
@@ -200,9 +201,7 @@ export function StudentResitOpportunities() {
             {item.originalEvaluationRequestId.slice(0, 8)}
           </p>
           <p className="text-xs text-muted">
-            {new Date(item.authorizedAtUtc).toLocaleDateString(
-              locale === "ar" ? "ar-JO" : "en-GB",
-            )}
+            {formatLocalizedDate(item.authorizedAtUtc, locale)}
           </p>
           {item.state === "Authorized" ? (
             <>

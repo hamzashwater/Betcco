@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDate, formatLocalizedDateTime } from "@/i18n/date-time";
 import { CatalogGrid } from "@/features/courses/catalog-grid";
 import {
   LiveSessionDirectory,
@@ -402,12 +403,9 @@ function LegalDocumentPage({ slug }: { slug: string }) {
     );
   const value = document.data;
   const content = interpolateLegalText(value.content, brand);
-  const effectiveDate = new Intl.DateTimeFormat(
-    locale === "ar" ? "ar-JO" : "en",
-    {
-      dateStyle: "long",
-    },
-  ).format(new Date(value.effectiveAtUtc));
+  const effectiveDate = formatLocalizedDate(value.effectiveAtUtc, locale, {
+    dateStyle: "long",
+  });
   return (
     <section className="shell py-12">
       <div className="max-w-4xl">
@@ -539,11 +537,7 @@ function PrivacyRequestPanel() {
   ];
   const canCancel = (status: PrivacyRequestStatus) =>
     !["Completed", "Rejected", "Cancelled"].includes(status);
-  const date = (value: string) =>
-    new Intl.DateTimeFormat(ar ? "ar-JO" : "en", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(new Date(value));
+  const date = (value: string) => formatLocalizedDateTime(value, locale);
   const statusLabel = (status: PrivacyRequestStatus) =>
     ({
       Submitted: ar ? "تم الإرسال" : "Submitted",

@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useStudentEvaluations } from "@/features/student/student-evaluation-page";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -63,11 +64,7 @@ export function EvaluationAppeals() {
       client.invalidateQueries({ queryKey: ["evaluation-appeals", "mine"] }),
   });
   const canSubmit = Boolean(evaluationRequestId) && reason.trim().length >= 10;
-  const date = (value: string) =>
-    new Intl.DateTimeFormat(ar ? "ar-JO" : "en", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(new Date(value));
+  const date = (value: string) => formatLocalizedDateTime(value, locale);
 
   return (
     <section className="shell py-8 sm:py-10">

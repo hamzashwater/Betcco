@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { academicText } from "@/lib/academic-localization";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -197,16 +198,12 @@ export function EvaluatorSpecialismManagement() {
                 </p>
                 <p className="mt-2 text-xs text-muted">
                   {ar ? "مُنح في" : "Granted"}{" "}
-                  {new Date(item.grantedAtUtc).toLocaleString(
-                    ar ? "ar-JO" : "en-GB",
-                  )}
+                  {formatLocalizedDateTime(item.grantedAtUtc, locale)}
                 </p>
                 {item.revokedAtUtc && (
                   <p className="text-xs text-muted">
                     {ar ? "أُلغي في" : "Revoked"}{" "}
-                    {new Date(item.revokedAtUtc).toLocaleString(
-                      ar ? "ar-JO" : "en-GB",
-                    )}
+                    {formatLocalizedDateTime(item.revokedAtUtc, locale)}
                   </p>
                 )}
               </div>
