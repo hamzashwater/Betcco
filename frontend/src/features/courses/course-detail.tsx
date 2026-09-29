@@ -1,6 +1,7 @@
 "use client";
 
 import { api } from "@/lib/api";
+import { formatLocalizedCurrency } from "@/i18n/number-format";
 import type { CourseDetail } from "@/types/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -345,7 +346,7 @@ export function CourseDetailView({ slug }: { slug: string }) {
               ? locale === "ar"
                 ? "مجاني"
                 : "Free"
-              : `${course.price.toFixed(3)} ${course.currency}`}
+              : formatLocalizedCurrency(course.price, course.currency, locale)}
           </p>
           <p className="mt-2 text-sm text-muted">
             {locale === "ar"

@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedCurrency } from "@/i18n/number-format";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BadgePercent, CalendarClock, Crown, Pencil, Save } from "lucide-react";
@@ -317,7 +318,7 @@ export function CommerceCatalogManager() {
             }}
             options={(memberships.data ?? []).map((item) => ({
               value: item.id,
-              label: `${locale === "ar" ? item.arabicTitle : item.englishTitle} · ${item.price.toFixed(3)} JOD`,
+              label: `${locale === "ar" ? item.arabicTitle : item.englishTitle} · ${formatLocalizedCurrency(item.price, "JOD", locale)}`,
             }))}
             placeholder={t("newMembership")}
           />
@@ -411,7 +412,7 @@ export function CommerceCatalogManager() {
             }}
             options={(subscriptions.data ?? []).map((item) => ({
               value: item.id,
-              label: `${item.arabicTitle} · ${item.price.toFixed(3)} JOD`,
+              label: `${item.arabicTitle} · ${formatLocalizedCurrency(item.price, "JOD", locale)}`,
             }))}
             placeholder={t("newSubscription")}
           />

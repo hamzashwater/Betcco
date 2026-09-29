@@ -5,6 +5,7 @@
 
 import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
+import { formatLocalizedPercentage } from "@/i18n/number-format";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowUpRight,
@@ -522,10 +523,6 @@ function CourseCard({
   const locale = useLocale();
   const t = useTranslations("studentCoursesLearningHub");
   const [coverFailed, setCoverFailed] = useState(false);
-  const formatter = useMemo(
-    () => new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }),
-    [locale],
-  );
   const progress = Math.max(0, Math.min(100, course.progressPercent));
   const action = t(`actions.${course.progressState}`);
   const accessMessage = course.accessAvailableAtUtc
@@ -585,7 +582,9 @@ function CourseCard({
           <div className="flex items-center justify-between gap-3 text-xs text-muted">
             <span>{t("progressLabel")}</span>
             <span className="font-black text-foreground">
-              {formatter.format(course.progressPercent)}%
+              {formatLocalizedPercentage(course.progressPercent, locale, {
+                maximumFractionDigits: 2,
+              })}
             </span>
           </div>
           <div className="mt-2 h-2 overflow-hidden rounded-full bg-[color-mix(in_srgb,var(--foreground)_12%,transparent)]">

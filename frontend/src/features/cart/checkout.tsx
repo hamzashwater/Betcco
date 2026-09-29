@@ -1,6 +1,7 @@
 "use client";
 
 import { api } from "@/lib/api";
+import { formatLocalizedCurrency } from "@/i18n/number-format";
 import { StudentPurchaseAccess } from "@/features/cart/cart-view";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
@@ -158,28 +159,43 @@ export function Checkout() {
               <div className="flex items-center justify-between gap-4">
                 <dt>{locale === "ar" ? "المبلغ قبل الخصم" : "Subtotal"}</dt>
                 <dd>
-                  {checkout.data.subtotal.toFixed(3)} {checkout.data.currency}
+                  {formatLocalizedCurrency(
+                    checkout.data.subtotal,
+                    checkout.data.currency,
+                    locale,
+                  )}
                 </dd>
               </div>
               {checkout.data.discount > 0 ? (
                 <div className="flex items-center justify-between gap-4">
                   <dt>{locale === "ar" ? "الخصم" : "Discount"}</dt>
                   <dd>
-                    -{checkout.data.discount.toFixed(3)}{" "}
-                    {checkout.data.currency}
+                    {formatLocalizedCurrency(
+                      -checkout.data.discount,
+                      checkout.data.currency,
+                      locale,
+                    )}
                   </dd>
                 </div>
               ) : null}
               <div className="flex items-center justify-between gap-4">
                 <dt>{locale === "ar" ? "الضريبة" : "Tax"}</dt>
                 <dd>
-                  {checkout.data.tax.toFixed(3)} {checkout.data.currency}
+                  {formatLocalizedCurrency(
+                    checkout.data.tax,
+                    checkout.data.currency,
+                    locale,
+                  )}
                 </dd>
               </div>
             </dl>
             <p className="mt-3 border-t border-primary/25 pt-3 text-lg font-black text-foreground">
               {locale === "ar" ? "المجموع: " : "Total: "}
-              {checkout.data.total.toFixed(3)} {checkout.data.currency}
+              {formatLocalizedCurrency(
+                checkout.data.total,
+                checkout.data.currency,
+                locale,
+              )}
             </p>
             <p className="mt-2 text-sm leading-6 text-muted">
               {locale === "ar"

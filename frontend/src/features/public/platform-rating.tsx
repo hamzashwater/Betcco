@@ -1,6 +1,7 @@
 "use client";
 
 import { api } from "@/lib/api";
+import { formatLocalizedNumber } from "@/i18n/number-format";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2,
@@ -162,7 +163,12 @@ export function PlatformRatingPage() {
           <div className="card mt-7 grid gap-5 p-6 sm:grid-cols-[auto_1fr] sm:items-center">
             <div className="grid size-24 place-items-center rounded-3xl bg-primary/12 text-primary">
               <span className="text-3xl font-black">
-                {summary.data?.averageScore?.toFixed(1) ?? "—"}
+                {summary.data?.averageScore == null
+                  ? "—"
+                  : formatLocalizedNumber(summary.data.averageScore, locale, {
+                      minimumFractionDigits: 1,
+                      maximumFractionDigits: 1,
+                    })}
               </span>
               <span className="text-xs font-bold">/ 5</span>
             </div>
@@ -208,7 +214,12 @@ export function PlatformRatingPage() {
                     className="fill-primary text-primary"
                     aria-hidden="true"
                   />
-                  {typeof score === "number" ? score.toFixed(1) : "—"}
+                  {typeof score === "number"
+                    ? formatLocalizedNumber(score, locale, {
+                        minimumFractionDigits: 1,
+                        maximumFractionDigits: 1,
+                      })
+                    : "—"}
                 </p>
               </div>
             ))}
@@ -224,7 +235,11 @@ export function PlatformRatingPage() {
                       className="fill-primary"
                       aria-hidden="true"
                     />
-                    {review.score.toFixed(1)} / 5
+                    {formatLocalizedNumber(review.score, locale, {
+                      minimumFractionDigits: 1,
+                      maximumFractionDigits: 1,
+                    })}{" "}
+                    / 5
                   </p>
                 </div>
                 {review.comment ? (

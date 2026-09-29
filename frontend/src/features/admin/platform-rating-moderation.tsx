@@ -1,6 +1,7 @@
 "use client";
 
 import { formatLocalizedDateTime } from "@/i18n/date-time";
+import { formatLocalizedNumber } from "@/i18n/number-format";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Eye, EyeOff, MessageSquareQuote, Star } from "lucide-react";
@@ -166,7 +167,11 @@ export function PlatformRatingModeration() {
                 </div>
                 <div className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-sm font-black text-primary">
                   <Star size={15} className="fill-primary" aria-hidden="true" />
-                  {average.toFixed(1)} / 5
+                  {formatLocalizedNumber(average, locale, {
+                    minimumFractionDigits: 1,
+                    maximumFractionDigits: 1,
+                  })}{" "}
+                  / 5
                 </div>
               </div>
               <div className="mt-5 grid gap-3 sm:grid-cols-4">

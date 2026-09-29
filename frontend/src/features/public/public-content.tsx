@@ -1,6 +1,7 @@
 "use client";
 
 import { formatLocalizedDate } from "@/i18n/date-time";
+import { formatLocalizedCurrency } from "@/i18n/number-format";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -214,7 +215,7 @@ export function MembershipDirectory() {
               ))}
             </ul>
             <p className="mt-5 text-xl font-black">
-              {plan.price.toFixed(3)} {plan.currency}
+              {formatLocalizedCurrency(plan.price, plan.currency, locale)}
             </p>
             <button
               type="button"
@@ -252,7 +253,7 @@ export function MembershipDirectory() {
             <h3 className="mt-2 text-xl font-black">{plan.title}</h3>
             <p className="mt-2 text-sm text-muted">{plan.courseTitle}</p>
             <p className="mt-5 text-xl font-black">
-              {plan.price.toFixed(3)} {plan.currency}
+              {formatLocalizedCurrency(plan.price, plan.currency, locale)}
             </p>
             <button
               type="button"
@@ -268,7 +269,11 @@ export function MembershipDirectory() {
       {checkout.data?.provider.startsWith("Fake") ? (
         <div className="card mt-7 max-w-xl p-5">
           <p className="font-black">
-            {checkout.data.total.toFixed(3)} {checkout.data.currency}
+            {formatLocalizedCurrency(
+              checkout.data.total,
+              checkout.data.currency,
+              locale,
+            )}
           </p>
           <p className="mt-2 text-sm text-muted">
             {locale === "ar"
@@ -546,18 +551,28 @@ export function PackageDirectory() {
               <div className="grid gap-0.5">
                 {packageItem.discountAmount > 0 ? (
                   <span className="text-xs text-muted line-through">
-                    {packageItem.originalPrice.toFixed(3)}{" "}
-                    {packageItem.currency}
+                    {formatLocalizedCurrency(
+                      packageItem.originalPrice,
+                      packageItem.currency,
+                      locale,
+                    )}
                   </span>
                 ) : null}
                 <strong>
-                  {packageItem.price.toFixed(3)} {packageItem.currency}
+                  {formatLocalizedCurrency(
+                    packageItem.price,
+                    packageItem.currency,
+                    locale,
+                  )}
                 </strong>
                 {packageItem.discountAmount > 0 ? (
                   <span className="text-xs font-bold text-primary">
                     {t("saving", {
-                      amount: packageItem.discountAmount.toFixed(3),
-                      currency: packageItem.currency,
+                      amount: formatLocalizedCurrency(
+                        packageItem.discountAmount,
+                        packageItem.currency,
+                        locale,
+                      ),
                     })}
                   </span>
                 ) : null}

@@ -1,6 +1,7 @@
 "use client";
 
 import { formatLocalizedDate } from "@/i18n/date-time";
+import { formatLocalizedCurrency } from "@/i18n/number-format";
 import { FilePicker } from "@/components/forms/file-picker";
 import { academicText } from "@/lib/academic-localization";
 import { api, ApiError } from "@/lib/api";
@@ -604,8 +605,8 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
                 </p>
                 <p>
                   {locale === "ar"
-                    ? `السعر المحدد من الخادم: ${data.price.toFixed(3)} ${data.currency}. تُحسب أي ضريبة مطبقة عند الدفع.`
-                    : `Server-owned Resit review price: ${data.price.toFixed(3)} ${data.currency}. Any applicable tax is calculated at checkout.`}
+                    ? `السعر المحدد من الخادم: ${formatLocalizedCurrency(data.price, data.currency, locale)}. تُحسب أي ضريبة مطبقة عند الدفع.`
+                    : `Server-owned Resit review price: ${formatLocalizedCurrency(data.price, data.currency, locale)}. Any applicable tax is calculated at checkout.`}
                 </p>
                 <label className="grid gap-1 font-semibold">
                   {locale === "ar" ? "طريقة الدفع" : "Payment method"}

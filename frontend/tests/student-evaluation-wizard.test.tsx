@@ -3,10 +3,17 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { formatLocalizedCurrency } from "@/i18n/number-format";
 import { StudentArea } from "@/features/student/student-area";
 import { invalidateCsrfToken } from "@/lib/api";
 import arMessages from "../messages/ar.json";
 import enMessages from "../messages/en.json";
+
+function matchesNormalizedText(expected: string) {
+  const normalizedExpected = expected.replace(/\s+/gu, " ").trim();
+  return (_content: string, element: Element | null) =>
+    element?.textContent?.replace(/\s+/gu, " ").trim() === normalizedExpected;
+}
 
 const searchParamsMock = vi.hoisted(() => ({
   includeResume: false,
@@ -394,7 +401,9 @@ describe("Student scoped evaluation wizard", () => {
     });
     expect(
       screen.getByText(
-        "Server-owned review price: 5.000 JOD. Any applicable tax is calculated at checkout.",
+        matchesNormalizedText(
+          `Server-owned review price: ${formatLocalizedCurrency(5, "JOD", "en")}. Any applicable tax is calculated at checkout.`,
+        ),
       ),
     ).toBeVisible();
     expect(screen.getByLabelText("Payment method")).toBeVisible();
@@ -417,7 +426,13 @@ describe("Student scoped evaluation wizard", () => {
     expect(
       await screen.findByText("Development test payment only"),
     ).toBeVisible();
-    expect(screen.getByText("Total: 5.000 JOD")).toBeVisible();
+    expect(
+      screen.getByText(
+        matchesNormalizedText(
+          `Total: ${formatLocalizedCurrency(5, "JOD", "en")}`,
+        ),
+      ),
+    ).toBeVisible();
     expect(
       fetchMock.mock.calls.some(([input]) =>
         String(input).includes("/payments/fake/confirm"),
@@ -465,7 +480,13 @@ describe("Student scoped evaluation wizard", () => {
 
     expect(await screen.findByText(/Q · Qualification \(V1\)/)).toBeVisible();
     expect(screen.getByText(/Saved criteria: A\.P1/)).toBeVisible();
-    expect(screen.getByText("Saved price: 12.500 JOD")).toBeVisible();
+    expect(
+      screen.getByText(
+        matchesNormalizedText(
+          `Saved price: ${formatLocalizedCurrency(12.5, "JOD", "en")}`,
+        ),
+      ),
+    ).toBeVisible();
     expect(
       screen.getByDisplayValue("Please focus on criterion A.P1."),
     ).toHaveAttribute("readonly");

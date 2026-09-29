@@ -1,6 +1,7 @@
 "use client";
 
 import { api } from "@/lib/api";
+import { formatLocalizedCurrency } from "@/i18n/number-format";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowUpRight,
@@ -131,15 +132,6 @@ export function TeacherCoursesManagement({
       return titleComparison || left.id.localeCompare(right.id);
     });
   }, [collator, filter, locale, normalizedSearch, result.data, sort]);
-
-  const priceFormatter = useMemo(
-    () =>
-      new Intl.NumberFormat(locale === "ar" ? "ar-JO" : "en-JO", {
-        style: "currency",
-        currency: "JOD",
-      }),
-    [locale],
-  );
 
   if (result.isPending) {
     return (
@@ -410,7 +402,7 @@ export function TeacherCoursesManagement({
                         <span>
                           {course.isFree
                             ? t("free")
-                            : `${t("paid")} · ${priceFormatter.format(course.price)}`}
+                            : `${t("paid")} · ${formatLocalizedCurrency(course.price, "JOD", locale)}`}
                         </span>
                         <span>
                           {course.hasCover ? t("coverReady") : t("noCover")}

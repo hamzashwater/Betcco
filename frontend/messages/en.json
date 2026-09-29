@@ -97,7 +97,7 @@
       "added": "Package added to cart.",
       "login": "Sign in to purchase",
       "studentOnly": "Purchasing is available to student accounts only.",
-      "saving": "Save {amount} {currency}",
+      "saving": "Save {amount}",
       "viewCart": "View cart"
     },
     "live": {
@@ -219,7 +219,7 @@
     "commissionTitle": "Course-sale revenue split",
     "commissionDescription": "This percentage is applied only after trusted server-side payment confirmation. It never changes allocations that have already settled.",
     "platformCommission": "Platform share (%)",
-    "teacherShare": "Teacher share: {percentage}%",
+    "teacherShare": "Teacher share: {percentage}",
     "commissionSave": "Save revenue split",
     "commissionUpdated": "The split for future sales was updated.",
     "commissionConfirm": "Update the platform share for future sales?",
@@ -293,7 +293,7 @@
     "dashboardTitle": "Students requiring attention",
     "dashboardDescription": "A compact preview of server-generated follow-up signals.",
     "viewAll": "View all follow-up students",
-    "previewProgress": "Progress: {progress}%",
+    "previewProgress": "Progress: {progress}",
     "previewCount": "Showing {visible} of {total} follow-up students.",
     "loading": "Loading follow-up signals…",
     "loadError": "Follow-up signals could not be loaded.",
