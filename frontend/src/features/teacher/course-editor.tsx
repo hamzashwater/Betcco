@@ -4,6 +4,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { formatLocalizedDateTime } from "@/i18n/date-time";
+import { formatLocalizedPercentage } from "@/i18n/number-format";
 import { FilePicker } from "@/components/forms/file-picker";
 import { TeacherLearningAimPractice } from "@/features/learning/learning-aim-practice";
 import { TeacherComprehensivePractice } from "@/features/learning/comprehensive-practice";
@@ -4617,7 +4618,10 @@ function TeacherCourseGradebook({ course }: { course: CourseEditorData }) {
                 >
                   <td className="px-3 py-3 font-bold">{student.studentName}</td>
                   <td className="px-3 py-3 text-muted">
-                    {student.lessonProgressPercent}%
+                    {formatLocalizedPercentage(
+                      student.lessonProgressPercent,
+                      locale,
+                    )}
                   </td>
                   <td className="px-3 py-3 text-muted">
                     {student.assignmentsCompleted}/{student.assignmentsTotal}

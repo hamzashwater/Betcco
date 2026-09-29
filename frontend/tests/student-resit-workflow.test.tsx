@@ -18,6 +18,19 @@ import {
 import { StudentArea } from "@/features/student/student-area";
 
 const push = vi.hoisted(() => vi.fn());
+const formattedJodFive = new Intl.NumberFormat("en-JO", {
+  style: "currency",
+  currency: "JOD",
+  currencyDisplay: "code",
+  minimumFractionDigits: 3,
+  maximumFractionDigits: 3,
+}).format(5);
+const resitPriceText =
+  `Server-owned Resit review price: ${formattedJodFive}. Any applicable tax is calculated at checkout.`
+    .replace(/\s+/gu, " ")
+    .trim();
+const matchesResitPrice = (_content: string, element: Element | null) =>
+  element?.textContent?.replace(/\s+/gu, " ").trim() === resitPriceText;
 const apiMock = vi.hoisted(() => vi.fn());
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
 vi.mock("@/lib/api", () => ({
@@ -234,9 +247,7 @@ describe("student Resit workflow", () => {
       .click(screen.getByRole("button", { name: "Confirm originality" }));
     expect(await screen.findByText("Originality confirmed")).toBeVisible();
     expect(screen.getByText("Preparation complete.")).toBeVisible();
-    expect(
-      screen.getByText(/Server-owned Resit review price: 5.000 JOD/),
-    ).toBeVisible();
+    expect(screen.getByText(matchesResitPrice)).toBeVisible();
     expect(
       apiMock.mock.calls.some(([path]) =>
         /\/checkout|included-credit|\/payments\//.test(path),
@@ -287,9 +298,7 @@ describe("student Resit workflow", () => {
       return Promise.resolve(undefined);
     });
     renderPage(<StudentResitDetail evaluationId={id} />);
-    expect(
-      await screen.findByText(/Server-owned Resit review price: 5.000 JOD/),
-    ).toBeVisible();
+    expect(await screen.findByText(matchesResitPrice)).toBeVisible();
     await userEvent
       .setup()
       .click(screen.getByRole("button", { name: "Continue to payment" }));

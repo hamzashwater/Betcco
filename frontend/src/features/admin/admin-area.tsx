@@ -4,6 +4,11 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { formatLocalizedDate, formatLocalizedDateTime } from "@/i18n/date-time";
+import {
+  formatLocalizedCurrency,
+  formatLocalizedNumber,
+  formatLocalizedPercentage,
+} from "@/i18n/number-format";
 import { api } from "@/lib/api";
 import { AccountSecurity } from "@/features/auth/account-security";
 import { AccountProfile } from "@/features/auth/account-profile";
@@ -357,7 +362,7 @@ function AdminDashboard() {
           label={
             locale === "ar" ? "نسبة إكمال التسجيلات" : "Enrollment completion"
           }
-          value={`${result.data.completionRate}%`}
+          value={formatLocalizedPercentage(result.data.completionRate, locale)}
           icon={BadgeCheck}
           tone="secondary"
         />
@@ -389,7 +394,7 @@ function AdminDashboard() {
         />
         <MetricCard
           label={locale === "ar" ? "الإيراد المؤكد" : "Confirmed revenue"}
-          value={`${result.data.revenue.toFixed(3)} JOD`}
+          value={formatLocalizedCurrency(result.data.revenue, "JOD", locale)}
           icon={WalletCards}
           tone="secondary"
         />
@@ -609,19 +614,19 @@ function AdminAnalyticsTrend({
       key: "revenue" as const,
       label: locale === "ar" ? "الإيراد المؤكد" : "Confirmed revenue",
       color: "bg-primary",
-      format: (value: number) => `${value.toFixed(3)} JOD`,
+      format: (value: number) => formatLocalizedCurrency(value, "JOD", locale),
     },
     {
       key: "paidOrders" as const,
       label: locale === "ar" ? "الطلبات المدفوعة" : "Paid orders",
       color: "bg-secondary",
-      format: (value: number) => String(value),
+      format: (value: number) => formatLocalizedNumber(value, locale),
     },
     {
       key: "lessonActivity" as const,
       label: locale === "ar" ? "نشاط التعلّم" : "Learning activity",
       color: "bg-amber-400",
-      format: (value: number) => String(value),
+      format: (value: number) => formatLocalizedNumber(value, locale),
     },
   ];
   return (
@@ -895,7 +900,11 @@ function AdminWallet() {
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             <MetricCard
               label={locale === "ar" ? "رصيد المنصة" : "Platform balance"}
-              value={`${values.platformBalance.toFixed(3)} ${values.currency}`}
+              value={formatLocalizedCurrency(
+                values.platformBalance,
+                values.currency,
+                locale,
+              )}
               detail={
                 locale === "ar"
                   ? "عمولة المنصة وإيراد الدورات غير المسندة"
@@ -910,7 +919,11 @@ function AdminWallet() {
                   ? "عمولة مؤكدة (30٪)"
                   : "Confirmed commission (30%)"
               }
-              value={`${values.confirmedPlatformCommission.toFixed(3)} ${values.currency}`}
+              value={formatLocalizedCurrency(
+                values.confirmedPlatformCommission,
+                values.currency,
+                locale,
+              )}
               detail={
                 locale === "ar" ? "من المبيعات المؤكدة" : "From verified sales"
               }
@@ -956,7 +969,11 @@ function AdminWallet() {
                     </div>
                     <div className="text-end">
                       <p className="font-black text-amber-300">
-                        {payout.amount.toFixed(3)} {payout.currency}
+                        {formatLocalizedCurrency(
+                          payout.amount,
+                          payout.currency,
+                          locale,
+                        )}
                       </p>
                       <p className="mt-1 text-xs font-bold text-primary">
                         {payout.status}
@@ -1060,15 +1077,27 @@ function AdminWallet() {
                   </div>
                   <p className="text-sm">
                     {locale === "ar" ? "الصافي" : "Net"}:{" "}
-                    {sale.netAmount.toFixed(3)} {sale.currency}
+                    {formatLocalizedCurrency(
+                      sale.netAmount,
+                      sale.currency,
+                      locale,
+                    )}
                   </p>
                   <p className="text-sm text-primary">
                     {locale === "ar" ? "المنصة 30٪" : "Platform 30%"}:{" "}
-                    {sale.platformCommission.toFixed(3)} {sale.currency}
+                    {formatLocalizedCurrency(
+                      sale.platformCommission,
+                      sale.currency,
+                      locale,
+                    )}
                   </p>
                   <p className="text-sm text-emerald-300">
                     {locale === "ar" ? "المعلم 70٪" : "Teacher 70%"}:{" "}
-                    {sale.teacherEarning.toFixed(3)} {sale.currency}
+                    {formatLocalizedCurrency(
+                      sale.teacherEarning,
+                      sale.currency,
+                      locale,
+                    )}
                   </p>
                 </div>
               ))}
@@ -2680,7 +2709,7 @@ function CourseApprovalPreview({ courseId }: { courseId: string }) {
               ? locale === "ar"
                 ? "مجانية"
                 : "Free"
-              : `${course.price.toFixed(3)} JOD`}
+              : formatLocalizedCurrency(course.price, "JOD", locale)}
           </strong>
           <p className="mt-2 text-muted">
             {locale === "ar"

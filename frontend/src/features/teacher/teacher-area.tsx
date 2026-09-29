@@ -1,6 +1,10 @@
 "use client";
 
 import { formatLocalizedDateTime } from "@/i18n/date-time";
+import {
+  formatLocalizedCurrency,
+  formatLocalizedPercentage,
+} from "@/i18n/number-format";
 import { api } from "@/lib/api";
 import { AccountSecurity } from "@/features/auth/account-security";
 import { AccountProfile } from "@/features/auth/account-profile";
@@ -150,7 +154,10 @@ function TeacherDashboard() {
           value={
             analytics.isPending
               ? "—"
-              : `${analytics.data?.averageLessonProgress ?? 0}%`
+              : formatLocalizedPercentage(
+                  analytics.data?.averageLessonProgress ?? 0,
+                  locale,
+                )
           }
           detail={locale === "ar" ? "الدروس المنشورة" : "Published lessons"}
           icon={BookOpenCheck}
@@ -317,7 +324,11 @@ function TeacherWallet() {
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
             <MetricCard
               label={locale === "ar" ? "الرصيد المتاح" : "Available balance"}
-              value={`${values.availableBalance.toFixed(3)} ${values.currency}`}
+              value={formatLocalizedCurrency(
+                values.availableBalance,
+                values.currency,
+                locale,
+              )}
               detail={
                 locale === "ar" ? "قابل لطلب السحب" : "Eligible for withdrawal"
               }
@@ -326,13 +337,21 @@ function TeacherWallet() {
             />
             <MetricCard
               label={locale === "ar" ? "إجمالي الأرباح" : "Total earnings"}
-              value={`${values.totalEarned.toFixed(3)} ${values.currency}`}
+              value={formatLocalizedCurrency(
+                values.totalEarned,
+                values.currency,
+                locale,
+              )}
               detail={locale === "ar" ? "حصة المعلم 70٪" : "Teacher share: 70%"}
               icon={GraduationCap}
             />
             <MetricCard
               label={locale === "ar" ? "طلبات السحب" : "Withdrawals"}
-              value={`${Math.abs(values.totalWithdrawn).toFixed(3)} ${values.currency}`}
+              value={formatLocalizedCurrency(
+                Math.abs(values.totalWithdrawn),
+                values.currency,
+                locale,
+              )}
               detail={locale === "ar" ? "محجوزة أو مدفوعة" : "Reserved or paid"}
               icon={ArrowLeft}
               tone="warm"
@@ -436,7 +455,12 @@ function TeacherWallet() {
                 id: transaction.id,
                 title: transaction.description,
                 meta: formatLocalizedDateTime(transaction.createdAtUtc, locale),
-                amount: `${transaction.amount >= 0 ? "+" : ""}${transaction.amount.toFixed(3)} ${transaction.currency}`,
+                amount: formatLocalizedCurrency(
+                  transaction.amount,
+                  transaction.currency,
+                  locale,
+                  { signDisplay: "always" },
+                ),
                 positive: transaction.amount >= 0,
               }))}
             />
@@ -453,7 +477,11 @@ function TeacherWallet() {
                 id: payout.id,
                 title: `${payout.method === "BankTransfer" ? (locale === "ar" ? "تحويل بنكي" : "Bank transfer") : locale === "ar" ? "محفظة إلكترونية" : "E-wallet"} — ${payout.destinationMasked}`,
                 meta: `${payout.status}${payout.reviewNote ? ` — ${payout.reviewNote}` : ""}`,
-                amount: `${payout.amount.toFixed(3)} ${payout.currency}`,
+                amount: formatLocalizedCurrency(
+                  payout.amount,
+                  payout.currency,
+                  locale,
+                ),
                 positive: false,
               }))}
             />

@@ -3,6 +3,11 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { formatLocalizedDate, formatLocalizedDateTime } from "@/i18n/date-time";
+import {
+  formatLocalizedCurrency,
+  formatLocalizedNumber,
+  formatLocalizedPercentage,
+} from "@/i18n/number-format";
 import { api } from "@/lib/api";
 import { academicText } from "@/lib/academic-localization";
 import { MotivationCard } from "@/components/motivation-card";
@@ -384,7 +389,9 @@ function StudentDashboard() {
           value={
             courses.isPending || courseUnavailable
               ? "—"
-              : `${Math.round(progress)}%`
+              : formatLocalizedPercentage(Math.round(progress), locale, {
+                  maximumFractionDigits: 0,
+                })
           }
           detail={
             courses.isError
@@ -1218,11 +1225,10 @@ function StudentPurchases() {
     return labels[status]?.[locale === "ar" ? 0 : 1] ?? status;
   };
   const formatAmount = (amount: number, currency: string) =>
-    new Intl.NumberFormat(locale === "ar" ? "ar-JO" : "en", {
-      style: "currency",
-      currency,
+    formatLocalizedCurrency(amount, currency, locale, {
+      minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(amount);
+    });
   const labelForSource = (purpose: string) => {
     const labels: Record<string, [string, string]> = {
       CourseCart: ["شراء دورة", "Course purchase"],
@@ -3278,7 +3284,7 @@ function StudentCourseGradebookPanel({ courseId }: { courseId: string }) {
         <GradeProgressStat
           label={locale === "ar" ? "الدروس" : "Lessons"}
           value={`${data.lessonsCompleted} / ${data.lessonsTotal}`}
-          detail={`${data.lessonProgressPercent}%`}
+          detail={formatLocalizedPercentage(data.lessonProgressPercent, locale)}
         />
 
         <GradeProgressStat
@@ -3303,7 +3309,9 @@ function StudentCourseGradebookPanel({ courseId }: { courseId: string }) {
             className="rounded-xl border border-border/70 bg-page/40 px-3 py-2 text-sm"
           >
             <strong className={String(tone)}>{band}</strong>{" "}
-            {locale === "ar" ? "مُحقَّق" : "achieved"}: {achieved} / {required}
+            {locale === "ar" ? "مُحقَّق" : "achieved"}:{" "}
+            {formatLocalizedNumber(Number(achieved), locale)} /{" "}
+            {formatLocalizedNumber(Number(required), locale)}
           </p>
         ))}
       </div>
@@ -3316,9 +3324,10 @@ function StudentCourseGradebookPanel({ courseId }: { courseId: string }) {
             >
               <strong>{unit.unitTitle}</strong>
               <span className="text-muted">
-                {unit.lessonsCompleted}/{unit.lessonsTotal} ·{" "}
-                {unit.lessonProgressPercent}% ·{" "}
-                {gradeLabel(unit.predictedGrade.predictedGrade, locale)}
+                {formatLocalizedNumber(unit.lessonsCompleted, locale)}/
+                {formatLocalizedNumber(unit.lessonsTotal, locale)} ·{" "}
+                {formatLocalizedPercentage(unit.lessonProgressPercent, locale)}{" "}
+                · {gradeLabel(unit.predictedGrade.predictedGrade, locale)}
               </span>
               {unit.learningAims.length ? (
                 <div className="basis-full grid gap-2 border-t border-border/60 pt-2 sm:grid-cols-2">
@@ -3332,11 +3341,15 @@ function StudentCourseGradebookPanel({ courseId }: { courseId: string }) {
                           {aim.code} · {aim.title}
                         </strong>
                         <span className="text-muted">
-                          {aim.lessonProgressPercent}%
+                          {formatLocalizedPercentage(
+                            aim.lessonProgressPercent,
+                            locale,
+                          )}
                         </span>
                       </div>
                       <p className="mt-1 text-muted">
-                        {aim.lessonsCompleted}/{aim.lessonsTotal} ·{" "}
+                        {formatLocalizedNumber(aim.lessonsCompleted, locale)}/
+                        {formatLocalizedNumber(aim.lessonsTotal, locale)} ·{" "}
                         {gradeLabel(aim.predictedGrade.predictedGrade, locale)}
                       </p>
                     </div>
@@ -4233,7 +4246,11 @@ function EvaluationWizard() {
             <p className="text-sm font-semibold">
               {locale === "ar" ? "السعر المحفوظ" : "Saved price"}:{" "}
               {evaluationPrice
-                ? `${evaluationPrice.price.toFixed(3)} ${evaluationPrice.currency}`
+                ? formatLocalizedCurrency(
+                    evaluationPrice.price,
+                    evaluationPrice.currency,
+                    locale,
+                  )
                 : "—"}
             </p>
             <div className="grid gap-2 text-sm">
@@ -4515,8 +4532,8 @@ function EvaluationWizard() {
               <p className="mt-1 text-sm text-muted">
                 {evaluationPrice
                   ? locale === "ar"
-                    ? `السعر المحدد من الخادم: ${evaluationPrice.price.toFixed(3)} ${evaluationPrice.currency}. تُحسب أي ضريبة مطبقة عند الدفع.`
-                    : `Server-owned review price: ${evaluationPrice.price.toFixed(3)} ${evaluationPrice.currency}. Any applicable tax is calculated at checkout.`
+                    ? `السعر المحدد من الخادم: ${formatLocalizedCurrency(evaluationPrice.price, evaluationPrice.currency, locale)}. تُحسب أي ضريبة مطبقة عند الدفع.`
+                    : `Server-owned review price: ${formatLocalizedCurrency(evaluationPrice.price, evaluationPrice.currency, locale)}. Any applicable tax is calculated at checkout.`
                   : locale === "ar"
                     ? "سيتم تأكيد السعر من الخادم قبل إنشاء الدفع."
                     : "The price will be confirmed by the server before payment is created."}
@@ -4624,7 +4641,11 @@ function EvaluationWizard() {
                 paymentSession.currency ? (
                   <p className="mt-2 font-black">
                     {locale === "ar" ? "المجموع:" : "Total:"}{" "}
-                    {paymentSession.total.toFixed(3)} {paymentSession.currency}
+                    {formatLocalizedCurrency(
+                      paymentSession.total,
+                      paymentSession.currency,
+                      locale,
+                    )}
                   </p>
                 ) : null}
                 <button
@@ -4823,7 +4844,7 @@ function MyEvaluations() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <span className="font-bold">{item.status}</span>
               <span>
-                {item.price.toFixed(3)} {item.currency}
+                {formatLocalizedCurrency(item.price, item.currency, locale)}
               </span>
             </div>
             {(item.status === "NeedsRevision" || item.status === "Completed") &&

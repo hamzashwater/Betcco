@@ -61,6 +61,24 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 describe("Admin payout lifecycle UI", () => {
+  it("formats wallet payout amounts with the server currency and active locale", async () => {
+    apiMock.mockImplementation((path: string) => {
+      if (path === "/admin/wallet") return Promise.resolve(wallet("Requested"));
+      return Promise.reject(new Error(`Unexpected API path: ${path}`));
+    });
+
+    renderWallet();
+    const expected = new Intl.NumberFormat("en-JO", {
+      style: "currency",
+      currency: "JOD",
+      currencyDisplay: "code",
+      minimumFractionDigits: 3,
+      maximumFractionDigits: 3,
+    }).format(50);
+    const payoutStatus = await screen.findByText("Requested");
+    expect(payoutStatus.previousElementSibling?.textContent).toBe(expected);
+  });
+
   it("uses the execute contract and exposes settlement after provider payment", async () => {
     let status = "Approved";
     apiMock.mockImplementation((path: string, options?: RequestInit) => {

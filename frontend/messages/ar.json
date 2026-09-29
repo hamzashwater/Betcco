@@ -97,7 +97,7 @@
       "added": "أضيفت الباقة إلى السلة.",
       "login": "سجّل الدخول للشراء",
       "studentOnly": "الشراء متاح من حساب الطالب فقط.",
-      "saving": "توفر {amount} {currency}",
+      "saving": "توفر {amount}",
       "viewCart": "عرض السلة"
     },
     "live": {
@@ -219,7 +219,7 @@
     "commissionTitle": "توزيع عائد مبيعات الدورات",
     "commissionDescription": "تُستخدم هذه النسبة بعد تأكيد الدفع الموثوق من الخادم فقط. لا تؤثر على عمليات البيع التي سُوّيت سابقًا.",
     "platformCommission": "نسبة المنصة (%)",
-    "teacherShare": "حصة المعلم: {percentage}%",
+    "teacherShare": "حصة المعلم: {percentage}",
     "commissionSave": "حفظ نسبة التوزيع",
     "commissionUpdated": "تم تحديث نسبة توزيع المبيعات القادمة.",
     "commissionConfirm": "هل تريد تحديث نسبة المنصة للمبيعات القادمة؟",
@@ -293,7 +293,7 @@
     "dashboardTitle": "طلاب يحتاجون إلى متابعة",
     "dashboardDescription": "معاينة مختصرة لمؤشرات المتابعة التي أنشأها الخادم.",
     "viewAll": "عرض جميع طلاب المتابعة",
-    "previewProgress": "التقدم: {progress}%",
+    "previewProgress": "التقدم: {progress}",
     "previewCount": "عرض {visible} من أصل {total} طلاب يحتاجون إلى متابعة.",
     "loading": "جارٍ تحميل مؤشرات المتابعة…",
     "loadError": "تعذر تحميل مؤشرات المتابعة.",

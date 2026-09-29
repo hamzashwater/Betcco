@@ -1,6 +1,7 @@
 "use client";
 
 import { formatLocalizedDateTime } from "@/i18n/date-time";
+import { formatLocalizedCurrency } from "@/i18n/number-format";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -709,7 +710,12 @@ export function ContentStudio() {
                     onChange={() => toggleCourse(course.id)}
                   />
                   {course.arabicTitle} · {course.englishTitle} (
-                  {course.price.toFixed(3)} {course.currency})
+                  {formatLocalizedCurrency(
+                    course.price,
+                    course.currency,
+                    locale,
+                  )}
+                  )
                 </label>
               ))}
             </div>
@@ -945,7 +951,7 @@ export function ContentStudio() {
             values={
               packages.data?.map(
                 (item) =>
-                  `${item.arabicTitle} · ${item.price.toFixed(3)} ${item.currency}`,
+                  `${item.arabicTitle} · ${formatLocalizedCurrency(item.price, item.currency, locale)}`,
               ) ?? []
             }
             empty={t("empty")}

@@ -1,6 +1,10 @@
 "use client";
 
 import { formatLocalizedDateTime } from "@/i18n/date-time";
+import {
+  formatLocalizedNumber,
+  formatLocalizedPercentage,
+} from "@/i18n/number-format";
 import { DashboardHeader } from "@/components/dashboard/dashboard-ui";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
@@ -337,7 +341,10 @@ export function TeacherStudentFollowUp() {
                     <dl className="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
                       <StudentMetric
                         label={t("fields.progress")}
-                        value={`${student.progressPercent}%`}
+                        value={formatLocalizedPercentage(
+                          student.progressPercent,
+                          locale,
+                        )}
                       />
                       <StudentMetric
                         label={t("fields.missedAssignments")}
@@ -510,7 +517,10 @@ export function TeacherFollowUpPreview({
               </div>
               <p className="mt-2 text-xs text-muted">
                 {t("previewProgress", {
-                  progress: student.progressPercent,
+                  progress: formatLocalizedPercentage(
+                    student.progressPercent,
+                    locale,
+                  ),
                 })}
               </p>
               {student.formativeSignals?.[0] ? (
@@ -529,8 +539,8 @@ export function TeacherFollowUpPreview({
       {!pending && totalCount > preview.length ? (
         <p className="mt-3 text-xs font-semibold text-muted">
           {t("previewCount", {
-            visible: preview.length,
-            total: totalCount,
+            visible: formatLocalizedNumber(preview.length, locale),
+            total: formatLocalizedNumber(totalCount, locale),
           })}
         </p>
       ) : null}

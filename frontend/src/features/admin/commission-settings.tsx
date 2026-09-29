@@ -1,9 +1,10 @@
 "use client";
 
+import { formatLocalizedPercentage } from "@/i18n/number-format";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BadgePercent, Save } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 type Commission = {
@@ -14,6 +15,7 @@ type Commission = {
 type SalesTax = { salesTaxPercent: number };
 
 export function CommissionSettings() {
+  const locale = useLocale();
   const t = useTranslations("commerceCatalog");
   const client = useQueryClient();
   const [draft, setDraft] = useState<string>();
@@ -108,7 +110,12 @@ export function CommissionSettings() {
         <p className="pb-2.5 text-sm text-muted">
           {t("teacherShare", {
             percentage:
-              teacherShare === undefined ? "—" : teacherShare.toFixed(3),
+              teacherShare === undefined
+                ? "—"
+                : formatLocalizedPercentage(teacherShare, locale, {
+                    minimumFractionDigits: 3,
+                    maximumFractionDigits: 3,
+                  }),
           })}
         </p>
         <button

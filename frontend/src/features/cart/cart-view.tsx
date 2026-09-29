@@ -1,6 +1,7 @@
 "use client";
 
 import { api } from "@/lib/api";
+import { formatLocalizedCurrency } from "@/i18n/number-format";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, ShoppingBag, Trash2, WalletCards } from "lucide-react";
 import Link from "next/link";
@@ -120,7 +121,13 @@ export function CartView() {
                   <p className="mt-1 text-xs text-muted">{item.itemType}</p>
                 </div>
                 <div className="flex items-center gap-4">
-                  <strong>{item.price.toFixed(3)} JOD</strong>
+                  <strong>
+                    {formatLocalizedCurrency(
+                      item.price,
+                      cart.data.currency,
+                      locale,
+                    )}
+                  </strong>
                   <button
                     className="focus-ring rounded-lg p-2 text-red-400 hover:bg-red-400/10"
                     aria-label={locale === "ar" ? "حذف العنصر" : "Remove item"}
@@ -167,13 +174,21 @@ export function CartView() {
           <div className="mt-5 flex justify-between text-sm">
             <span>{locale === "ar" ? "الإجمالي" : "Subtotal"}</span>
             <span>
-              {cart.data.subtotal.toFixed(3)} {cart.data.currency}
+              {formatLocalizedCurrency(
+                cart.data.subtotal,
+                cart.data.currency,
+                locale,
+              )}
             </span>
           </div>
           <div className="mt-3 flex justify-between border-t pt-3 text-lg font-black">
             <span>{locale === "ar" ? "المجموع" : "Total"}</span>
             <span>
-              {cart.data.total.toFixed(3)} {cart.data.currency}
+              {formatLocalizedCurrency(
+                cart.data.total,
+                cart.data.currency,
+                locale,
+              )}
             </span>
           </div>
           <Link

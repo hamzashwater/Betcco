@@ -1,6 +1,10 @@
 "use client";
 
 import { api } from "@/lib/api";
+import {
+  formatLocalizedCurrency,
+  formatLocalizedNumber,
+} from "@/i18n/number-format";
 import type { CourseSummary } from "@/types/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -101,12 +105,13 @@ export function CourseCard({ course }: { course: CourseSummary }) {
         <div className="mt-4 flex flex-wrap gap-3 text-xs text-muted">
           <span className="inline-flex items-center gap-1">
             <ListVideo size={14} />
-            {course.lessonCount} {locale === "ar" ? "دروس" : "lessons"}
+            {formatLocalizedNumber(course.lessonCount, locale)}{" "}
+            {locale === "ar" ? "دروس" : "lessons"}
           </span>
           <span className="inline-flex items-center gap-1">
             <Clock3 size={14} />
             {course.durationMinutes > 0
-              ? `${course.durationMinutes} ${locale === "ar" ? "دقيقة" : "min"}`
+              ? `${formatLocalizedNumber(course.durationMinutes, locale)} ${locale === "ar" ? "دقيقة" : "min"}`
               : "—"}
           </span>
           {course.teacherName ? (
@@ -136,7 +141,7 @@ export function CourseCard({ course }: { course: CourseSummary }) {
               ? locale === "ar"
                 ? "مجاني"
                 : "Free"
-              : `${course.price.toFixed(3)} ${course.currency}`}
+              : formatLocalizedCurrency(course.price, course.currency, locale)}
           </strong>
           <button
             type="button"
