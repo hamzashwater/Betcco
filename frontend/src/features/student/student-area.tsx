@@ -61,7 +61,7 @@ import {
 } from "@/components/dashboard/dashboard-ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, type ReactNode, useEffect, useRef, useState } from "react";
 
@@ -152,6 +152,7 @@ function AcademicIdentity({
   academic: AssessmentAcademicSummary | null;
   locale: string;
 }) {
+  const t = useTranslations("studentWorkspace");
   if (!academic) return null;
   return (
     <div className="min-w-0 rounded-xl border border-border/70 bg-page/40 p-3 text-sm">
@@ -181,7 +182,7 @@ function AcademicIdentity({
         )}
       </p>
       <p className="text-muted">
-        {locale === "ar" ? "أهداف التعلم" : "Learning aims"}:{" "}
+        {t("academicIdentity.learningAims")}:{" "}
         {academic.learningAimCodes.join(", ")}
       </p>
     </div>
@@ -246,21 +247,22 @@ export function StudentArea({
 }
 
 function StudentWorkspaceNav({ current }: { current: string }) {
+  const t = useTranslations("studentWorkspace");
   const locale = useLocale();
   const links = [
-    ["", locale === "ar" ? "الملخص" : "Overview"],
-    ["courses", locale === "ar" ? "دوراتي" : "My courses"],
-    ["ai-practice", locale === "ar" ? "مساعد التدريب AI" : "AI practice"],
-    ["evaluations", locale === "ar" ? "تقييماتي" : "My evaluations"],
-    ["appeals", locale === "ar" ? "استئنافاتي" : "My appeals"],
-    ["planner", locale === "ar" ? "المخطط" : "Planner"],
-    ["notes", locale === "ar" ? "ملاحظاتي" : "Notes"],
-    ["bookmarks", locale === "ar" ? "إشاراتي" : "Bookmarks"],
-    ["certificates", locale === "ar" ? "شهاداتي" : "Certificates"],
-    ["purchases", locale === "ar" ? "دفعاتي" : "Payments"],
-    ["account", locale === "ar" ? "حسابي" : "My account"],
-    ["security", locale === "ar" ? "أمان الحساب" : "Account security"],
-    ["support", locale === "ar" ? "الدعم" : "Support"],
+    ["", t("navigation.overview")],
+    ["courses", t("navigation.courses")],
+    ["ai-practice", t("navigation.aiPractice")],
+    ["evaluations", t("navigation.evaluations")],
+    ["appeals", t("navigation.appeals")],
+    ["planner", t("navigation.planner")],
+    ["notes", t("navigation.notes")],
+    ["bookmarks", t("navigation.bookmarks")],
+    ["certificates", t("navigation.certificates")],
+    ["purchases", t("navigation.payments")],
+    ["account", t("navigation.account")],
+    ["security", t("navigation.security")],
+    ["support", t("navigation.support")],
   ] as const;
   const isCurrent = (href: string) =>
     href === ""
@@ -268,9 +270,7 @@ function StudentWorkspaceNav({ current }: { current: string }) {
       : current === href || current.startsWith(`${href}/`);
   return (
     <nav
-      aria-label={
-        locale === "ar" ? "تنقل مساحة الطالب" : "Student workspace navigation"
-      }
+      aria-label={t("navigation.ariaLabel")}
       className="sticky top-[4.5rem] z-30 border-b border-border bg-[color:var(--background)]/95 backdrop-blur-xl"
     >
       <div className="shell flex gap-1 overflow-x-auto py-2">
@@ -289,6 +289,7 @@ function StudentWorkspaceNav({ current }: { current: string }) {
 }
 
 function StudentDashboard() {
+  const t = useTranslations("studentWorkspace");
   const locale = useLocale();
   const courses = useQuery(compactStudentCoursesQueryOptions(locale));
   const overview = useQuery({
@@ -306,40 +307,26 @@ function StudentDashboard() {
   const courseUnavailable = courses.isError && !courses.data;
   const overviewUnavailable = overview.isError && !overview.data;
   const courseErrorCopy = courses.data
-    ? locale === "ar"
-      ? "تعذر تحديث بيانات الدورات"
-      : "Course data could not be refreshed"
-    : locale === "ar"
-      ? "تعذر تحميل بيانات الدورات"
-      : "Course data could not be loaded";
+    ? t("dashboard.courseRefreshError")
+    : t("dashboard.courseLoadError");
   const overviewErrorCopy = overview.data
-    ? locale === "ar"
-      ? "تعذر تحديث بيانات لوحة الطالب"
-      : "Dashboard data could not be refreshed"
-    : locale === "ar"
-      ? "تعذر تحميل بيانات لوحة الطالب"
-      : "Dashboard data could not be loaded";
-  const courseLoadingCopy =
-    locale === "ar" ? "جارٍ تحميل بيانات الدورات…" : "Loading course data…";
-  const overviewLoadingCopy =
-    locale === "ar" ? "جارٍ تحميل بيانات اللوحة…" : "Loading dashboard data…";
+    ? t("dashboard.overviewRefreshError")
+    : t("dashboard.overviewLoadError");
+  const courseLoadingCopy = t("dashboard.courseLoading");
+  const overviewLoadingCopy = t("dashboard.overviewLoading");
   return (
     <section className="shell py-10">
       <DashboardHeader
-        eyebrow="BETCCO Student"
-        title={locale === "ar" ? "لوحة الطالب" : "Student dashboard"}
-        description={
-          locale === "ar"
-            ? "تابع تعلّمك، وارجع إلى آخر دورة، وأرسل مهامك للتقييم من مكان واحد."
-            : "Continue learning, return to your course, and submit work for evaluation from one focused space."
-        }
+        eyebrow={t("dashboard.eyebrow")}
+        title={t("dashboard.title")}
+        description={t("dashboard.description")}
         actions={
           <Link
             href={`/${locale}/student/courses`}
             className="focus-ring inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-black text-slate-950"
           >
             <PlayCircle size={18} aria-hidden="true" />
-            {locale === "ar" ? "متابعة التعلّم" : "Continue learning"}
+            {t("dashboard.continueLearning")}
           </Link>
         }
       />
@@ -348,7 +335,7 @@ function StudentDashboard() {
         aria-busy={courses.isPending || overview.isPending}
       >
         <MetricCard
-          label={locale === "ar" ? "الدورات المسجل بها" : "Enrolled courses"}
+          label={t("dashboard.metrics.enrolledCourses")}
           value={
             courses.isPending || courseUnavailable
               ? "—"
@@ -359,14 +346,12 @@ function StudentDashboard() {
               ? courseErrorCopy
               : courses.isPending
                 ? courseLoadingCopy
-                : locale === "ar"
-                  ? "من سجلات التسجيل الفعلية"
-                  : "From your actual enrollments"
+                : t("dashboard.metrics.enrolledCoursesDetail")
           }
           icon={BookOpenCheck}
         />
         <MetricCard
-          label={locale === "ar" ? "الدروس المكتملة" : "Lessons completed"}
+          label={t("dashboard.metrics.completedLessons")}
           value={
             courses.isPending || courseUnavailable
               ? "—"
@@ -377,15 +362,13 @@ function StudentDashboard() {
               ? courseErrorCopy
               : courses.isPending
                 ? courseLoadingCopy
-                : locale === "ar"
-                  ? "حسب تقدمك المحفوظ"
-                  : "Based on saved learning progress"
+                : t("dashboard.metrics.completedLessonsDetail")
           }
           icon={CircleCheckBig}
           tone="secondary"
         />
         <MetricCard
-          label={locale === "ar" ? "التقدم الكلي" : "Overall progress"}
+          label={t("dashboard.metrics.overallProgress")}
           value={
             courses.isPending || courseUnavailable
               ? "—"
@@ -398,15 +381,13 @@ function StudentDashboard() {
               ? courseErrorCopy
               : courses.isPending
                 ? courseLoadingCopy
-                : locale === "ar"
-                  ? "عبر الدورات المسجل بها"
-                  : "Across enrolled courses"
+                : t("dashboard.metrics.overallProgressDetail")
           }
           icon={Timer}
           tone="accent"
         />
         <MetricCard
-          label={locale === "ar" ? "واجبات قريبة" : "Upcoming coursework"}
+          label={t("dashboard.metrics.upcomingCoursework")}
           value={
             overview.isPending || overviewUnavailable
               ? "—"
@@ -417,15 +398,13 @@ function StudentDashboard() {
               ? overviewErrorCopy
               : overview.isPending
                 ? overviewLoadingCopy
-                : locale === "ar"
-                  ? "مواعيد تسليم من دوراتك"
-                  : "Deadlines from your enrolled courses"
+                : t("dashboard.metrics.upcomingCourseworkDetail")
           }
           icon={ClipboardCheck}
           tone="warm"
         />
         <MetricCard
-          label={locale === "ar" ? "إشعارات جديدة" : "Unread notifications"}
+          label={t("dashboard.metrics.unreadNotifications")}
           value={
             overview.isPending || overviewUnavailable
               ? "—"
@@ -436,14 +415,12 @@ function StudentDashboard() {
               ? overviewErrorCopy
               : overview.isPending
                 ? overviewLoadingCopy
-                : locale === "ar"
-                  ? "تابع التحديثات المهمة"
-                  : "Keep up with important updates"
+                : t("dashboard.metrics.unreadNotificationsDetail")
           }
           icon={MessageSquareText}
         />
         <MetricCard
-          label={locale === "ar" ? "شهادات الإكمال" : "Completion certificates"}
+          label={t("dashboard.metrics.completionCertificates")}
           value={
             overview.isPending || overviewUnavailable
               ? "—"
@@ -454,9 +431,7 @@ function StudentDashboard() {
               ? overviewErrorCopy
               : overview.isPending
                 ? overviewLoadingCopy
-                : locale === "ar"
-                  ? "صادرة من دورات مكتملة"
-                  : "Issued for completed courses"
+                : t("dashboard.metrics.completionCertificatesDetail")
           }
           icon={FileBadge}
           tone="secondary"
@@ -474,12 +449,8 @@ function StudentDashboard() {
             disabled={courses.isFetching}
           >
             {courses.isFetching
-              ? locale === "ar"
-                ? "جارٍ إعادة التحميل…"
-                : "Retrying…"
-              : locale === "ar"
-                ? "إعادة تحميل بيانات الدورات"
-                : "Retry course data"}
+              ? t("dashboard.retrying")
+              : t("dashboard.retryCourses")}
           </button>
         </div>
       ) : null}
@@ -495,12 +466,8 @@ function StudentDashboard() {
             disabled={overview.isFetching}
           >
             {overview.isFetching
-              ? locale === "ar"
-                ? "جارٍ إعادة التحميل…"
-                : "Retrying…"
-              : locale === "ar"
-                ? "إعادة تحميل بيانات اللوحة"
-                : "Retry dashboard data"}
+              ? t("dashboard.retrying")
+              : t("dashboard.retryOverview")}
           </button>
         </div>
       ) : null}
@@ -509,65 +476,49 @@ function StudentDashboard() {
         aria-labelledby="student-pending-actions-heading"
       >
         <h2 id="student-pending-actions-heading" className="text-xl font-black">
-          {locale === "ar" ? "المطلوب منك الآن" : "What needs your attention"}
+          {t("dashboard.pendingActions.heading")}
         </h2>
         <p className="mt-1 text-sm text-muted">
-          {locale === "ar"
-            ? "إجراءات التقييم وإعادة التقييم المتاحة لك حاليًا."
-            : "Evaluation and Resit actions currently available to you."}
+          {t("dashboard.pendingActions.description")}
         </p>
         {overview.isPending ? (
           <p className="mt-4 text-sm text-muted" aria-busy>
-            {locale === "ar" ? "جارٍ تحميل الإجراءات…" : "Loading actions…"}
+            {t("dashboard.pendingActions.loading")}
           </p>
         ) : overviewUnavailable || !pendingActions ? (
           <p className="mt-4 text-sm text-muted">
-            {locale === "ar"
-              ? "تعذر تحميل الإجراءات المطلوبة الآن."
-              : "Unable to load pending actions right now."}
+            {t("dashboard.pendingActions.error")}
           </p>
         ) : pendingActions.length === 0 ? (
           <p className="mt-4 text-sm text-muted">
-            {locale === "ar"
-              ? "لا يوجد إجراء مطلوب منك الآن."
-              : "You have no pending actions right now."}
+            {t("dashboard.pendingActions.empty")}
           </p>
         ) : (
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             {pendingActions.map((action) => {
               const title = {
-                EvaluationRevision:
-                  locale === "ar"
-                    ? "لديك نسخة معدلة مطلوبة"
-                    : "Your assignment needs a revision",
-                ResitAuthorized:
-                  locale === "ar"
-                    ? "فرصة إعادة تقييم متاحة"
-                    : "A Resit opportunity is available",
-                ResitDraft:
-                  locale === "ar" ? "جهّز إعادة التقييم" : "Prepare your Resit",
-                EvaluationDraft:
-                  locale === "ar"
-                    ? "تقييم بانتظار التجهيز"
-                    : "Evaluation draft to prepare",
+                EvaluationRevision: t(
+                  "dashboard.pendingActions.evaluationRevisionTitle",
+                ),
+                ResitAuthorized: t(
+                  "dashboard.pendingActions.resitAuthorizedTitle",
+                ),
+                ResitDraft: t("dashboard.pendingActions.resitDraftTitle"),
+                EvaluationDraft: t(
+                  "dashboard.pendingActions.evaluationDraftTitle",
+                ),
               }[action.kind];
               const label = {
-                EvaluationRevision:
-                  locale === "ar"
-                    ? "فتح التقييم والملاحظات"
-                    : "Open evaluation and feedback",
-                ResitAuthorized:
-                  locale === "ar"
-                    ? "عرض فرصة إعادة التقييم"
-                    : "View Resit opportunity",
-                ResitDraft:
-                  locale === "ar"
-                    ? "متابعة تجهيز إعادة التقييم"
-                    : "Continue Resit preparation",
-                EvaluationDraft:
-                  locale === "ar"
-                    ? "متابعة تجهيز التقييم"
-                    : "Continue evaluation",
+                EvaluationRevision: t(
+                  "dashboard.pendingActions.evaluationRevisionLink",
+                ),
+                ResitAuthorized: t(
+                  "dashboard.pendingActions.resitAuthorizedLink",
+                ),
+                ResitDraft: t("dashboard.pendingActions.resitDraftLink"),
+                EvaluationDraft: t(
+                  "dashboard.pendingActions.evaluationDraftLink",
+                ),
               }[action.kind];
               const href =
                 action.kind === "EvaluationDraft"
@@ -600,9 +551,7 @@ function StudentDashboard() {
                   {action.kind === "EvaluationRevision" &&
                   action.effectiveDueAtUtc ? (
                     <p className="mt-2 text-sm font-semibold text-amber-500">
-                      {locale === "ar"
-                        ? "آخر موعد للمراجعة الثانية: "
-                        : "Revision check deadline: "}
+                      {t("dashboard.pendingActions.revisionDeadline")}{" "}
                       {formatLocalizedDateTime(
                         action.effectiveDueAtUtc,
                         locale,
@@ -626,31 +575,25 @@ function StudentDashboard() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">
-              {locale === "ar" ? "إنجازات التعلّم" : "Learning milestones"}
+              {t("dashboard.milestones.heading")}
             </p>
             <h2 className="mt-1 text-xl font-black">
-              {locale === "ar"
-                ? "تُحتسب من نشاطك الفعلي"
-                : "Earned from real learning activity"}
+              {t("dashboard.milestones.description")}
             </h2>
           </div>
           <Trophy className="text-primary" aria-hidden="true" />
         </div>
         {overview.isPending ? (
           <p className="mt-4 text-sm text-muted" aria-busy>
-            {locale === "ar" ? "جارٍ تحميل إنجازاتك…" : "Loading milestones…"}
+            {t("dashboard.milestones.loading")}
           </p>
         ) : overviewUnavailable ? (
           <p className="mt-4 text-sm text-muted">
-            {locale === "ar"
-              ? "تعذر تحميل إنجازات التعلّم."
-              : "Learning milestones could not be loaded."}
+            {t("dashboard.milestones.error")}
           </p>
         ) : achievements.length === 0 ? (
           <p className="mt-4 text-sm text-muted">
-            {locale === "ar"
-              ? "لا توجد إنجازات مسجلة حتى الآن."
-              : "No learning milestones have been recorded yet."}
+            {t("dashboard.milestones.empty")}
           </p>
         ) : (
           <div className="mt-4 grid gap-3 md:grid-cols-3">
@@ -668,12 +611,8 @@ function StudentDashboard() {
                     }
                     aria-label={
                       achievement.isCompleted
-                        ? locale === "ar"
-                          ? "مكتمل"
-                          : "Completed"
-                        : locale === "ar"
-                          ? "غير مكتمل بعد"
-                          : "Not completed yet"
+                        ? t("dashboard.milestones.completedAria")
+                        : t("dashboard.milestones.incompleteAria")
                     }
                   />
                 </div>
@@ -682,7 +621,7 @@ function StudentDashboard() {
                 </p>
                 <p className="mt-3 text-xs font-bold text-foreground">
                   {achievement.currentValue}/{achievement.targetValue}{" "}
-                  {locale === "ar" ? "مكتمل" : "complete"}
+                  {t("dashboard.milestones.completeCount")}
                 </p>
               </article>
             ))}
@@ -693,12 +632,10 @@ function StudentDashboard() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">
-              {locale === "ar" ? "المتابعة" : "Stay on track"}
+              {t("dashboard.deadlines.eyebrow")}
             </p>
             <h2 className="mt-1 text-xl font-black">
-              {locale === "ar"
-                ? "مواعيد التسليم القادمة"
-                : "Upcoming deadlines"}
+              {t("dashboard.deadlines.heading")}
             </h2>
           </div>
           <CalendarDays className="text-primary" aria-hidden="true" />
@@ -709,9 +646,7 @@ function StudentDashboard() {
           </p>
         ) : overviewUnavailable ? (
           <p className="mt-4 text-sm text-muted">
-            {locale === "ar"
-              ? "تعذر تحميل مواعيد التسليم."
-              : "Upcoming deadlines could not be loaded."}
+            {t("dashboard.deadlines.error")}
           </p>
         ) : upcomingAssignments.length ? (
           <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -731,7 +666,7 @@ function StudentDashboard() {
                   <ClipboardCheck className="shrink-0 text-primary" size={18} />
                 </div>
                 <p className="mt-3 text-sm font-bold text-amber-500">
-                  {locale === "ar" ? "التسليم:" : "Due:"}{" "}
+                  {t("dashboard.deadlines.due")}{" "}
                   {formatLocalizedDateTime(assignment.dueAtUtc, locale)}
                 </p>
               </Link>
@@ -739,81 +674,51 @@ function StudentDashboard() {
           </div>
         ) : (
           <p className="mt-4 text-sm text-muted">
-            {locale === "ar"
-              ? "لا توجد مواعيد تسليم قريبة في دوراتك حاليًا."
-              : "There are no upcoming coursework deadlines in your courses."}
+            {t("dashboard.deadlines.empty")}
           </p>
         )}
       </section>
       <div className="mt-5 grid gap-4 md:grid-cols-3">
         <DashboardLink
           href="courses"
-          title={locale === "ar" ? "دوراتي" : "My courses"}
-          text={
-            locale === "ar"
-              ? "أكمل التعلم وتابع التقدم."
-              : "Continue learning and track progress."
-          }
+          title={t("navigation.courses")}
+          text={t("dashboard.quickLinks.coursesDescription")}
           icon={BookOpenCheck}
         />
         <DashboardLink
           href="evaluations/new"
-          title={locale === "ar" ? "قيّم مهمتك" : "Evaluate my assignment"}
-          text={
-            locale === "ar"
-              ? "ارفع مهمتك، واستخدم تقييم الوحدة المشمول إن كان متاحًا، أو اطلب مراجعة مدفوعة مرة واحدة."
-              : "Upload your assignment, use an included Unit evaluation when available, or request a one-time paid review."
-          }
+          title={t("dashboard.quickLinks.evaluateTitle")}
+          text={t("dashboard.quickLinks.evaluateDescription")}
           icon={ClipboardCheck}
         />
         <DashboardLink
           href="support"
-          title={locale === "ar" ? "الدعم" : "Support"}
-          text={
-            locale === "ar"
-              ? "افتح تذكرة وتابع الرد."
-              : "Open a ticket and follow the reply."
-          }
+          title={t("navigation.support")}
+          text={t("dashboard.quickLinks.supportDescription")}
           icon={Headphones}
         />
         <DashboardLink
           href="planner"
-          title={locale === "ar" ? "مخطط التعلّم" : "Learning planner"}
-          text={
-            locale === "ar"
-              ? "نظّم موعدك وشاهد الجلسات المباشرة."
-              : "Plan your work and see live sessions."
-          }
+          title={t("dashboard.quickLinks.plannerTitle")}
+          text={t("dashboard.quickLinks.plannerDescription")}
           icon={CalendarDays}
         />
         <DashboardLink
           href="notes"
-          title={locale === "ar" ? "ملاحظاتي" : "My notes"}
-          text={
-            locale === "ar"
-              ? "عد إلى ما كتبته داخل الدروس."
-              : "Return to notes made inside lessons."
-          }
+          title={t("dashboard.quickLinks.notesTitle")}
+          text={t("dashboard.quickLinks.notesDescription")}
           icon={StickyNote}
         />
         <DashboardLink
           href="certificates"
-          title={locale === "ar" ? "شهاداتي" : "My certificates"}
-          text={
-            locale === "ar"
-              ? "اطبع شهادة الإكمال بعد إنهاء الدورة."
-              : "Print completion certificates after finishing a course."
-          }
+          title={t("dashboard.quickLinks.certificatesTitle")}
+          text={t("dashboard.quickLinks.certificatesDescription")}
           icon={FileBadge}
         />
         <DashboardLink
           href="account"
-          title={locale === "ar" ? "حسابي" : "My account"}
-          text={
-            locale === "ar"
-              ? "راجع بياناتك وعضوياتك ودفعاتك بأمان."
-              : "Review your profile, memberships, and payments securely."
-          }
+          title={t("navigation.account")}
+          text={t("dashboard.quickLinks.accountDescription")}
           icon={UserRound}
         />
       </div>
@@ -836,6 +741,7 @@ function DashboardLink({
   icon: typeof BookOpenCheck;
 }) {
   const locale = useLocale();
+  const t = useTranslations("studentWorkspace");
   return (
     <Link
       href={`/${locale}/student/${href}`}
@@ -843,7 +749,7 @@ function DashboardLink({
     >
       <ActionCard title={title} description={text} icon={icon}>
         <span className="mt-4 inline-flex items-center gap-1 text-sm font-black text-primary">
-          {locale === "ar" ? "فتح" : "Open"}
+          {t("dashboard.quickLinks.open")}
           <ArrowLeft size={16} className="rtl:rotate-180" aria-hidden="true" />
         </span>
       </ActionCard>
