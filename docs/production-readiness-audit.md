@@ -37,7 +37,7 @@ This section reconciles the historical audit with repository state verified afte
 | --- | ---: | --- |
 | P0 — Launch Blocker | 0 | P0-01 was closed by merged PR #106 with an explicit one-off production Admin bootstrap command. |
 | P1 — Required Production Hardening | 4 | The legacy Quiz removal has a repository fail-closed migration gate and PostgreSQL recovery is now verified in CI. External retention/provider recovery evidence, S3/Data Protection recovery, monitoring/runbooks, and same-artifact promotion remain. P1-05 is closed. |
-| P2 — Post-launch Improvement | 3 | Production image inputs are mutable tags; .NET transitive restore is not locked; in-process rate limits are not shared across API replicas. |
+| P2 — Post-launch Improvement | 1 open / 2 closed | P2-01 Docker base-image mutability and P2-02 NuGet restore reproducibility are closed by PRs #128 and #130. P2-03 remains open/conditional because in-process rate limits are not shared across future API replicas. |
 | EXTERNAL | 5 | Live hosting/provider/legal/operational decisions and credentials cannot be verified from this repository. |
 | SAFE | 15 | Important controls are implemented and/or demonstrated by current code and baseline CI. |
 
@@ -261,37 +261,23 @@ This section reconciles the historical audit with repository state verified afte
 
 ### P2-01 — Production Docker base images use mutable tags
 
-**Severity:** P2 — Post-launch Improvement
+**Status:** CLOSED by PR #128 — ASUS-P2-01 Production Docker Base Image Digest Pinning.
+
+**Closure evidence:** production API/Web Dockerfiles preserve readable version tags while pinning external base images to reviewed SHA-256 digests. Repository validation distinguishes external `FROM` references from internal build-stage references and fails if a production external base loses its digest pin. The final reviewed PR head passed Application Quality, Full Application Quality, Full-stack browser UAT, Dependency Review, CodeQL C#, CodeQL JavaScript/TypeScript, and standalone GitHub Advanced Security CodeQL. Post-merge `main` Quality and Security analysis also passed at merge commit `854df67301307a03190bac62ebc8a7b1ae1504d6`.
+
+**Severity:** P2 — Post-launch Improvement (closed)
 **Area:** Container supply chain
-**Evidence:** `backend/src/Betcco.Api/Dockerfile` uses `mcr.microsoft.com/dotnet/sdk:10.0` and `mcr.microsoft.com/dotnet/aspnet:10.0`; `frontend/Dockerfile` uses `node:24-bookworm-slim`. These are version-family tags, not immutable digests. By contrast, CI GitHub Actions and its PostgreSQL/Mailpit test images use digest/SHA pins.
-
-**Production scenario:** rebuilding later from the same source SHA can resolve to changed upstream image contents, reducing reproducibility and making image provenance less precise. There is no evidence of a current compromise.
-
-**Impact:** release reproducibility and supply-chain assurance.
-
-**Recommended remediation:** pin runtime/build bases to reviewed digests and update them through a scheduled, reviewed maintenance process.
-
-**Suggested tests:** CI verifies all production Docker `FROM` references are digest-pinned and builds the resulting images.
-
-**Dependencies:** upstream image maintenance.
-**Ownership:** ASUS.
+**Remaining maintenance:** future base-image digest updates remain reviewed maintenance and must rebuild/retest production images. This closure does not prove external registry publication or staging-to-production promotion; those remain P1-04 / ASUS-10F2 external work.
 
 ### P2-02 — Backend NuGet restore has no committed dependency lockfile
 
-**Severity:** P2 — Post-launch Improvement
+**Status:** CLOSED by PR #130 — ASUS-P2-02 NuGet Locked Restore & Backend Dependency Reproducibility.
+
+**Closure evidence:** `backend/Directory.Build.props` enables NuGet lock files; all seven backend projects commit `packages.lock.json`; CI restores `backend/Betcco.sln` with `--locked-mode`; and the production API Dockerfile copies the relevant project/lock inputs before its cached locked restore. Direct PackageReference versions were not changed. The final reviewed PR head passed Application Quality, Full Application Quality, Full-stack browser UAT, Dependency Review, CodeQL C#, CodeQL JavaScript/TypeScript, and standalone GitHub Advanced Security CodeQL. Post-merge Security analysis and Quality passed at merge commit `fc833e3c5a0bfb721bbb5a213f61e88cb3b1c797`.
+
+**Severity:** P2 — Post-launch Improvement (closed)
 **Area:** Dependency reproducibility
-**Evidence:** `frontend/pnpm-lock.yaml` is committed, but no `packages.lock.json` or NuGet lock-file setting was found. Backend package references are declared in project files; CI runs `dotnet restore` on each build. `security.yml` runs CodeQL and PR Dependency Review, but that is not a pinned NuGet transitive resolution.
-
-**Production scenario:** transitive NuGet dependency resolution may change between restores even when the BETCCO commit is unchanged, making build reproduction and incident provenance less exact. No current vulnerable package was established by this observation.
-
-**Impact:** supply-chain traceability and reproducibility.
-
-**Recommended remediation:** consider committing NuGet lock files and enabling locked restore for release builds; keep package changes in reviewed dependency updates rather than changing dependencies during this audit.
-
-**Suggested tests:** CI performs locked restore for the backend solution and fails if resolved dependency versions differ from committed lock files.
-
-**Dependencies:** none.
-**Ownership:** ASUS.
+**Remaining maintenance:** intentional package changes must update and review the matching lock files; CI validates the committed graph rather than regenerating it silently.
 
 ### P2-03 — Rate-limit budgets are process-local
 
@@ -485,6 +471,8 @@ Repository-controlled P1-02 recovery evidence is VERIFIED for PostgreSQL (PR #11
 - PR #111 added `Verify PostgreSQL backup and isolated restore` to Application Quality; the recovery drill passed on its final merged head. PR #114's documentation-only reconciliation passed Quality, Security analysis, and Full UAT before merge. PR #117's final reviewed head passed Quality, Full UAT Matrix, and Security analysis before merge.
 - `full-uat.yml` runs on pull requests to `main` or manual dispatch. It exercises browser flows with disposable infrastructure and does not constitute real production-provider or staging-environment evidence.
 - PR #125 verifies the repository-controlled immutable release contract and removes application image rebuilding from secure deployment. No workflow currently publishes a real API/Web image pair to an approved registry or proves same-digest staging-to-production promotion. P1-04 therefore remains externally open.
+- PR #128 closes P2-01 by pinning production API/Web external Docker bases to reviewed digests and validating the production Dockerfiles in CI.
+- PR #130 closes P2-02 by committing backend NuGet lock files and enforcing locked restore in CI and the production API Docker build.
 - No OPEN/Draft PR existed at the 2026-09-28 reconciliation point. Repository-admin/provider alert evidence outside the GitHub checks described above remains external where applicable.
 
 ## Recommended ASUS Implementation Sequence
@@ -498,7 +486,9 @@ Repository-controlled P1-02 recovery evidence is VERIFIED for PostgreSQL (PR #11
 | 5 | **ASUS-10E1B — S3 Object Recovery + Data Protection Certificate Recovery** | **DONE / MERGED — PR #117** | Repository-controlled private S3 logical-object and encrypted Data Protection key-ring/certificate recovery evidence is verified; external provider and production certificate custody remain open. Merge: `25c162a9b002f84e604eed310a73680294055a0e`. | Completed |
 | 6 | **ASUS-10E2A — Operational Signals & Incident Runbooks** | **DONE / MERGED — PR #123** | Repository-controlled P1-03 observability/runbook foundation verified; external alert delivery/on-call evidence remains provider/operator work. Merge: `7201ae473eae507877d314fe8c06a71de418b7bf`. | Completed |
 | 7 | **ASUS-10F1 — Immutable Release Artifact Contract** | **DONE / MERGED — PR #125** | Repository-controlled immutable deployment/release/rollback contract verified. Merge: `ee55375461a4da6481d3ba948c487c1053734527`. **10F2 remains BLOCKED / EXTERNAL-DEPENDENT** pending approved registry/deployment platform and real promotion evidence. | Completed |
-| 8 | **ASUS-10G — Live Commerce Provider Readiness** | CONDITIONAL / EXTERNAL-HEAVY | Only if paid sales/payouts are in launch scope; preserve ASUS-08C2 NO-GO until provider evidence exists. | GPT-6 Sol / HIGH when finance/provider changes are required |
+| 8 | **ASUS-P2-01 — Production Docker Base Image Digest Pinning** | **DONE / MERGED — PR #128** | P2-01 closed; production API/Web external bases are digest-pinned with CI validation. Merge: `854df67301307a03190bac62ebc8a7b1ae1504d6`. | Completed |
+| 9 | **ASUS-P2-02 — NuGet Locked Restore** | **DONE / MERGED — PR #130** | P2-02 closed; backend lock files and locked restore are enforced in CI and the production API Docker build. Merge: `fc833e3c5a0bfb721bbb5a213f61e88cb3b1c797`. | Completed |
+| 10 | **ASUS-10G — Live Commerce Provider Readiness** | CONDITIONAL / EXTERNAL-HEAVY | Only if paid sales/payouts are in launch scope; preserve ASUS-08C2 NO-GO until provider evidence exists. | GPT-6 Sol / HIGH when finance/provider changes are required |
 
 Before each implementation branch, refresh `origin/main`, all OPEN/Draft PRs, changed files, CI, and review threads. Do not infer completion from this sequence alone; merged code and current GitHub evidence remain authoritative.
 
