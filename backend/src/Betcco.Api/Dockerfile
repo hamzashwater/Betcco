@@ -2,11 +2,16 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:35d40304542c8689331f8cab17c65926cd
 WORKDIR /src
 
 COPY backend/Betcco.sln backend/
+COPY backend/Directory.Build.props backend/
 COPY backend/src/Betcco.Domain/Betcco.Domain.csproj backend/src/Betcco.Domain/
+COPY backend/src/Betcco.Domain/packages.lock.json backend/src/Betcco.Domain/
 COPY backend/src/Betcco.Application/Betcco.Application.csproj backend/src/Betcco.Application/
+COPY backend/src/Betcco.Application/packages.lock.json backend/src/Betcco.Application/
 COPY backend/src/Betcco.Infrastructure/Betcco.Infrastructure.csproj backend/src/Betcco.Infrastructure/
+COPY backend/src/Betcco.Infrastructure/packages.lock.json backend/src/Betcco.Infrastructure/
 COPY backend/src/Betcco.Api/Betcco.Api.csproj backend/src/Betcco.Api/
-RUN dotnet restore backend/src/Betcco.Api/Betcco.Api.csproj
+COPY backend/src/Betcco.Api/packages.lock.json backend/src/Betcco.Api/
+RUN dotnet restore backend/src/Betcco.Api/Betcco.Api.csproj --locked-mode
 
 COPY backend/src/ backend/src/
 RUN dotnet publish backend/src/Betcco.Api/Betcco.Api.csproj --configuration Release --no-restore --output /app/publish /p:UseAppHost=false
