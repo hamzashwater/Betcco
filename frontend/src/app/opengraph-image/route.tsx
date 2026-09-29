@@ -1,11 +1,9 @@
 import { ImageResponse } from "next/og";
 import { defaultBrand } from "@/lib/brand";
 
-export const alt = defaultBrand.BrandTagline;
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+export const dynamic = "force-static";
 
-export default function OpenGraphImage() {
+export function GET() {
   return new ImageResponse(
     <div
       style={{
@@ -53,6 +51,6 @@ export default function OpenGraphImage() {
         BTEC-first learning, assignments, criteria, and evaluation in one place.
       </div>
     </div>,
-    size,
+    { width: 1200, height: 630 },
   );
 }

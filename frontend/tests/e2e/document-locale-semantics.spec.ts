@@ -39,6 +39,32 @@ for (const route of localizedRoutes) {
     await expect(page.locator("html")).toHaveAttribute("lang", route.locale);
     await expect(page.locator("html")).toHaveAttribute("dir", route.direction);
     await expect(page.locator("a.skip-link")).toBeAttached();
+
+    if (route.path === `/${route.locale}`) {
+      const applicationOrigin = new URL(page.url()).origin;
+      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+        "href",
+        `${applicationOrigin}/${route.locale}`,
+      );
+      await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+        "content",
+        `${applicationOrigin}/opengraph-image`,
+      );
+      if (route.locale === "ar") {
+        const imageResponse = await page.request.get(
+          `${applicationOrigin}/opengraph-image`,
+        );
+        expect(imageResponse.status()).toBe(200);
+        expect(imageResponse.headers()["content-type"]).toContain("image/png");
+      }
+      const twitterImage = page.locator('meta[name="twitter:image"]');
+      if ((await twitterImage.count()) > 0) {
+        const imageUrl = await twitterImage.getAttribute("content");
+        expect(imageUrl).not.toBeNull();
+        expect(new URL(imageUrl!).origin).toBe(applicationOrigin);
+      }
+    }
+
     await page.waitForLoadState("networkidle");
     expect(pageErrors).toEqual([]);
     expect(hydrationErrors).toEqual([]);
