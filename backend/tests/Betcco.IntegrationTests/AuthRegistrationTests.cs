@@ -132,6 +132,20 @@ public sealed class AuthRegistrationTests
     }
 
     [Fact]
+    public void Teacher_invitation_requires_system_admin_and_auth_rate_limit()
+    {
+        var method = typeof(AdminUsersController).GetMethod(nameof(AdminUsersController.InviteTeacher));
+
+        Assert.NotNull(method);
+        Assert.Equal("teachers/invite", Assert.Single(method!.GetCustomAttributes(typeof(HttpPostAttribute), false)
+            .Cast<HttpPostAttribute>()).Template);
+        Assert.Equal("SystemAdmin", Assert.Single(method.GetCustomAttributes(typeof(Microsoft.AspNetCore.Authorization.AuthorizeAttribute), false)
+            .Cast<Microsoft.AspNetCore.Authorization.AuthorizeAttribute>()).Policy);
+        Assert.Equal("auth", Assert.Single(method.GetCustomAttributes(typeof(EnableRateLimitingAttribute), false)
+            .Cast<EnableRateLimitingAttribute>()).PolicyName);
+    }
+
+    [Fact]
     public async Task Failed_teacher_invite_email_keeps_durable_state_for_resend()
     {
         await using var fixture = await RegistrationFixture.CreateAsync();

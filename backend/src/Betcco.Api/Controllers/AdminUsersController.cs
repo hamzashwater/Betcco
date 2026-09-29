@@ -65,6 +65,7 @@ public sealed class AdminUsersController(UserManager<ApplicationUser> userManage
 
     [Authorize(Policy = "SystemAdmin")]
     [HttpPost("teachers/invite")]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> InviteTeacher(InviteTeacherRequest request, CancellationToken cancellationToken)
     {
         var email = request.Email.Trim();
