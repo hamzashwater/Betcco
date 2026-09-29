@@ -15,6 +15,8 @@ import type { Metadata } from "next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { baseMetadata } from "@/lib/site-metadata";
+import "../globals.css";
 
 type Props = Readonly<{
   children: React.ReactNode;
@@ -33,9 +35,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       : `${defaultBrand.BrandName} is an intelligent learning platform for BTEC students.`;
   const base = process.env.NEXT_PUBLIC_APP_URL;
   return {
+    ...baseMetadata,
     title,
     description,
-    metadataBase: base ? new URL(base) : undefined,
+    metadataBase: base ? new URL(base) : baseMetadata.metadataBase,
     openGraph: {
       title,
       description,
@@ -75,39 +78,49 @@ export default async function LocaleLayout({ children, params }: Props) {
         : "An independent educational platform supporting BTEC learners with courses, assignments, and assessment criteria.",
   }).replace(/</g, "\\u003c");
   return (
-    <NextIntlClientProvider messages={messages} locale={locale}>
-      <Providers dehydratedState={dehydrate(queryClient)}>
-        <DeepSpaceBackground />
-        <div
-          dir={locale === "ar" ? "rtl" : "ltr"}
-          lang={locale}
-          className="relative z-10 flex min-h-screen flex-col"
-        >
-          <MfaEnrollmentBoundary navigation={<SiteNavigation />}>
-            <a className="skip-link" href="#main-content">
-              {locale === "ar"
-                ? "الانتقال إلى المحتوى الرئيسي"
-                : "Skip to main content"}
-            </a>
-            <main
-              id="main-content"
-              tabIndex={-1}
-              className="page-backdrop flex-1"
-            >
-              {children}
-            </main>
-          </MfaEnrollmentBoundary>
-          <SiteFooter />
-        </div>
-        <ScrollProgress />
-        <CookieConsent />
-        <AnalyticsTracker />
-        <PwaRegister />
+    <html
+      lang={locale}
+      dir={locale === "ar" ? "rtl" : "ltr"}
+      suppressHydrationWarning
+    >
+      <body className="min-h-screen">
         <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: structuredData }}
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var t=localStorage.getItem('betcco-theme');document.documentElement.dataset.theme=t==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}",
+          }}
         />
-      </Providers>
-    </NextIntlClientProvider>
+        <NextIntlClientProvider messages={messages} locale={locale}>
+          <Providers dehydratedState={dehydrate(queryClient)}>
+            <DeepSpaceBackground />
+            <div className="relative z-10 flex min-h-screen flex-col">
+              <MfaEnrollmentBoundary navigation={<SiteNavigation />}>
+                <a className="skip-link" href="#main-content">
+                  {locale === "ar"
+                    ? "الانتقال إلى المحتوى الرئيسي"
+                    : "Skip to main content"}
+                </a>
+                <main
+                  id="main-content"
+                  tabIndex={-1}
+                  className="page-backdrop flex-1"
+                >
+                  {children}
+                </main>
+              </MfaEnrollmentBoundary>
+              <SiteFooter />
+            </div>
+            <ScrollProgress />
+            <CookieConsent />
+            <AnalyticsTracker />
+            <PwaRegister />
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: structuredData }}
+            />
+          </Providers>
+        </NextIntlClientProvider>
+      </body>
+    </html>
   );
 }
