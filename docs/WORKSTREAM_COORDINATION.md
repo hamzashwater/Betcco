@@ -2,6 +2,10 @@
 
 This file is the coordination handoff for parallel ASUS and LENOVO development.
 
+## ASUS-RF2 handoff — 2026-09-29
+
+`origin/main` at RF2 preflight was `357b2575fa35ca0c585f003e31886269f227d28e`, containing merged RF1 PR #134 and `CourseAccessGrant`. The sole OPEN PR was #136, document locale frontend work with no Refund/Commerce overlap. ASUS-RF2 owns only refund recovery, PayTabs evidence, Finance reconciliation actions, and their focused tests and documentation on `feature/refund-reconciliation-recovery-hardening`. RF2 does not reserve Resit, AI/RAG, final UI, production deployment, or PayTabs partial-refund execution. Recheck live PR state before merge.
+
 ## Source of Truth
 
 Repository: `hamzashwater/Betcco`

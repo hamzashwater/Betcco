@@ -413,6 +413,7 @@ builder.Services.AddHostedService<UpcomingDeadlineNotificationPublisher>();
 builder.Services.AddHostedService<RegistrationEmailOutboxPublisher>();
 builder.Services.AddScoped<ICommerceService, CommerceService>();
 builder.Services.AddScoped<IRefundService, RefundService>();
+builder.Services.AddScoped<IProviderReconciliationService, ProviderReconciliationService>();
 builder.Services.AddScoped<ICommercialDocumentService, CommercialDocumentService>();
 builder.Services.AddScoped<IFiscalInvoiceProvider, JoFotaraFiscalInvoiceProvider>();
 builder.Services.AddScoped<IFiscalSubmissionService, FiscalSubmissionService>();
