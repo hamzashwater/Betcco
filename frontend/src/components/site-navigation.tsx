@@ -26,6 +26,10 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import {
+  getAlternateLocale,
+  getLocaleSwitchPathname,
+} from "@/i18n/locale-switch";
 import { ThemeToggle } from "./theme-toggle";
 
 type CartSummary = { items: { id: string }[] };
@@ -46,7 +50,23 @@ export function SiteNavigation() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const mega = useRef<HTMLDivElement>(null);
   const drawer = useRef<HTMLElement>(null);
-  const alternate = locale === "ar" ? "en" : "ar";
+  const alternate = getAlternateLocale(locale);
+  const localeSwitchPathname = getLocaleSwitchPathname(
+    pathname,
+    locale,
+    alternate,
+  );
+  const preserveLocaleSwitchContext = (event: {
+    preventDefault: () => void;
+  }) => {
+    event.preventDefault();
+    const destination = new URL(localeSwitchPathname, window.location.href);
+    destination.search = window.location.search;
+    destination.hash = window.location.hash;
+    router.push(
+      `${destination.pathname}${destination.search}${destination.hash}`,
+    );
+  };
   const workspace = pathname.startsWith(`/${locale}/admin`)
     ? "admin"
     : pathname.startsWith(`/${locale}/teacher`)
@@ -519,7 +539,8 @@ export function SiteNavigation() {
             </button>
             <ThemeToggle locale={locale} />
             <Link
-              href={`/${alternate}`}
+              href={localeSwitchPathname}
+              onNavigate={preserveLocaleSwitchContext}
               className="focus-ring hidden rounded-lg px-2.5 py-2 text-xs font-black text-muted hover:bg-white/5 hover:text-foreground sm:inline-flex"
               aria-label={
                 locale === "ar" ? "التبديل إلى الإنجليزية" : "Switch to Arabic"
@@ -791,7 +812,8 @@ export function SiteNavigation() {
               ) : null}
               <Link
                 onClick={closeDrawer}
-                href={`/${alternate}`}
+                href={localeSwitchPathname}
+                onNavigate={preserveLocaleSwitchContext}
                 className="focus-ring rounded-xl border border-border px-4 py-3 text-center text-sm font-bold"
               >
                 {alternate.toUpperCase()}
