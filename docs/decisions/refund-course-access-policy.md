@@ -2,7 +2,7 @@
 
 ## Status
 
-**APPROVED — 2026-09-26. RF1 implementation is on `feature/course-access-grant-provenance-refund-enforcement`, merge pending.** The policy below remains unchanged. Earlier repository-baseline observations describe the original policy-only PR #80, not current `main`.
+**APPROVED — 2026-09-26. RF1 was merged through PR #134 into `main` at `357b2575fa35ca0c585f003e31886269f227d28e`.** The policy below remains unchanged. Older branch/merge-pending wording in the dated RF1 implementation snapshot below describes its pre-merge state.
 
 RF1 adds payment, membership, subscription, and unattributed legacy course-access grants. Trusted full CourseCart refund finalization revokes only grants attributable to that Payment in the financial transaction. The next protected server check uses current grants; an independent valid grant preserves access. Existing Enrollment and academic history remain. The additive migration preserves every existing non-deleted Enrollment as an unattributed Legacy grant without trusting its mutable `PaymentId`; ambiguous historical access therefore remains available until separately reconciled. No production or live PayTabs validation is claimed.
 

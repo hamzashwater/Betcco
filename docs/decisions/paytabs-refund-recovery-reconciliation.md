@@ -1,5 +1,13 @@
 # PayTabs full-refund reference recovery — ASUS-09B
 
+## RF2 recovery and Finance reconciliation addendum — 2026-09-29
+
+RF2 uses the existing `RefundService` provider verification, serializable internal accounting, and RF1 grant/credit disposition. A `ProviderProcessing` refund with no saved provider reference now uses the same conservative cart discovery as `ProviderResultUnknown`; it never resends refund creation. A provider result with mismatched identity or profile cannot bind a reference or become a definite failure. A verified refund whose accounting cannot complete opens or retains a review case; successful internal finalization or trusted definite failure resolves active linked cases. Repeated verification uses the same Refund ID and existing financial uniqueness and transaction boundaries.
+
+The Finance reconciliation endpoint delegates to `ProviderReconciliationService`. Requery invokes the existing refund workflow and returns current Refund/Payment state; cases record a requery audit and last-check time. Expected and observed provider amounts/currencies are distinguished through immutable case evidence and structured audit observations, including mismatch categories and reference conflicts. A persisted `ProviderVerified` refund with incomplete accounting exposes the specific review code while retaining its financial state. Manual `ProviderConfirmed` is rejected because typed text is not provider evidence. `ReviewedNoFinancialAction` cannot close a financially unresolved refund; `EscalatedToFinance` requires a note and records external handling without financial mutation. Existing historical resolution codes remain readable. Case snapshot evidence is immutable; current statuses and recovery state are projected from the linked Refund/Payment. No schema migration is required.
+
+Local PostgreSQL tests cover missing-reference recovery, Finance requery, concurrent requery, accounting replay, and unused included-credit revocation exactly once. The suspected unused-credit defect was **NOT REPRODUCED — PROTECTED BY TEST**. Live PayTabs Test/Sandbox, production behavior, provider-side idempotency, and external manual reconciliation remain unverified.
+
 **Decision (2026-09-27):** A timed-out refund creation with no returned PayTabs reference remains `ProviderResultUnknown`. Finance Admin may use the existing refund verification action to discover a reference, then verify it independently. No refund-create retry is permitted: the timed-out request may already have created a provider refund.
 
 ## Discovery and trust boundary

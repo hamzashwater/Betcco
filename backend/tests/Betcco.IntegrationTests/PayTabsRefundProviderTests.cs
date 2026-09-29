@@ -254,6 +254,9 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
         Assert.Empty(await verify.WalletTransactions.Where(item => item.RefundId == refundId).ToListAsync());
         Assert.Null(await verify.IncludedEvaluationEntitlements.Where(item => item.Id == entitlementId).Select(item => item.RevokedAtUtc).SingleAsync());
         Assert.Empty(handler.RequestBodies);
+        var review = Assert.Single(await verify.ProviderReconciliationCases.Where(item => item.RefundId == refundId).ToListAsync());
+        Assert.Equal(ProviderReconciliationCaseType.ProviderRefundAccountingIncomplete, review.CaseType);
+        Assert.NotEqual(ProviderReconciliationCaseStatus.Resolved, review.Status);
     }
 
     [Fact]
@@ -355,7 +358,8 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
     {
         await using var db = CreateDb();
         var payment = await AddPaidCourseSaleAsync(db);
-        var service = new RefundService(db, CreateProvider(new RefundHandler(mode)));
+        var provider = CreateProvider(new RefundHandler(mode));
+        var service = new RefundService(db, provider);
 
         var result = await service.InitiatePayTabsRefundAsync("finance", new(payment.Id, "CustomerRequest", null, $"{mode}"));
 
@@ -363,6 +367,14 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
         Assert.Equal(PaymentStatus.Paid, (await db.Payments.SingleAsync()).Status);
         Assert.Single(await db.LedgerTransactions.ToListAsync());
         Assert.Equal(2, await db.WalletTransactions.CountAsync());
+        if (expectedStatus == nameof(RefundStatus.ProviderResultUnknown))
+        {
+            var review = Assert.Single(await db.ProviderReconciliationCases.Where(item => item.RefundId == result.Refund.Id).ToListAsync());
+            var projection = await new ProviderReconciliationService(db, provider, service).GetAsync(review.Id);
+            Assert.Equal(100m, projection!.LocalAmount);
+            if (mode == RefundResponseMode.AmountMismatch) Assert.Equal(99m, projection.ObservedProviderAmount);
+            if (mode == RefundResponseMode.CurrencyMismatch) Assert.Equal("USD", projection.ObservedProviderCurrency);
+        }
     }
 
     [Fact]
@@ -519,6 +531,195 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
         Assert.Equal(1, handler.CreateCalls);
         Assert.Equal(2, handler.CartQueries);
         Assert.Equal(0, handler.ReferenceQueries);
+        await AssertNoRefundEffectsAsync(db, paymentId, refundId, entitlementId);
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Provider_processing_without_saved_reference_discovers_and_finalizes_same_refund()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("refund_processing_discovery");
+        Guid paymentId;
+        Guid entitlementId;
+        Guid refundId;
+        await using (var seed = database.CreateContext())
+        {
+            (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(seed, 16m, 116m);
+            var refund = new Refund
+            {
+                PaymentId = paymentId,
+                Amount = 116m,
+                Currency = "JOD",
+                Status = RefundStatus.ProviderProcessing,
+                ReasonCode = "CustomerRequest",
+                RequestedByUserId = "finance",
+                IdempotencyKey = "crashed-create",
+                ProviderName = "PayTabs",
+                ProviderInitiatedAtUtc = DateTimeOffset.UtcNow.AddMinutes(-1),
+                CorrelationReference = $"refund:{Guid.NewGuid():N}",
+                CreatedByUserId = "finance"
+            };
+            seed.Refunds.Add(refund);
+            seed.RefundStatusTransitions.Add(new RefundStatusTransition
+            {
+                RefundId = refund.Id,
+                PreviousStatus = RefundStatus.Requested,
+                NewStatus = RefundStatus.ProviderProcessing,
+                Source = RefundTransitionSource.PayTabsProviderInitiation,
+                ActorContext = "finance",
+                CorrelationId = refund.CorrelationReference
+            });
+            await seed.SaveChangesAsync();
+            refundId = refund.Id;
+        }
+
+        var handler = new RecoveryHandler
+        {
+            Candidates = [new()],
+            ExpectedCartId = PayTabsPaymentProvider.RefundCartId(refundId),
+            ExpectedAmount = 116m
+        };
+        await using (var recoveryDb = database.CreateContext())
+        {
+            var recovered = await new RefundService(recoveryDb, CreateProvider(handler))
+                .VerifyPayTabsRefundAsync("finance", refundId);
+            Assert.Equal(nameof(RefundStatus.InternallyRecorded), recovered.Refund!.Status);
+        }
+
+        await using var observed = database.CreateContext();
+        await AssertRecoveredOnceAsync(observed, paymentId, refundId, entitlementId);
+        Assert.Single(await observed.Refunds.Where(item => item.PaymentId == paymentId).ToListAsync());
+        Assert.Equal(0, handler.CreateCalls);
+        Assert.Equal(1, handler.CartQueries);
+        Assert.Equal(1, handler.ReferenceQueries);
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Finance_requery_uses_trusted_refund_recovery_and_refreshes_case()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("refund_finance_requery");
+        Guid paymentId;
+        Guid entitlementId;
+        await using (var seed = database.CreateContext())
+            (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(seed, 16m, 116m);
+        var handler = new RecoveryHandler { Candidates = [new()] };
+        var provider = CreateProvider(handler);
+        Guid refundId;
+        Guid caseId;
+        await using (var createDb = database.CreateContext())
+        {
+            refundId = (await new RefundService(createDb, provider)
+                .InitiatePayTabsRefundAsync("finance", new(paymentId, "CustomerRequest", null, "finance-requery"))).Refund!.Id;
+            caseId = (await createDb.ProviderReconciliationCases.SingleAsync(item => item.RefundId == refundId)).Id;
+        }
+
+        await using (var requeryDb = database.CreateContext())
+        {
+            var service = new ProviderReconciliationService(requeryDb, provider, new RefundService(requeryDb, provider));
+            var result = await service.RequeryAsync("finance", caseId);
+            Assert.Null(result.FailureCode);
+            Assert.Equal(nameof(RefundStatus.InternallyRecorded), result.Case!.LocalRefundStatus);
+            Assert.Equal(nameof(PaymentStatus.Refunded), result.Case.LocalPaymentStatus);
+            Assert.Equal(nameof(ProviderReconciliationCaseStatus.Resolved), result.Case.Status);
+            Assert.NotNull(result.Case.LastCheckedAtUtc);
+        }
+
+        await using var observed = database.CreateContext();
+        await AssertRecoveredOnceAsync(observed, paymentId, refundId, entitlementId);
+        Assert.Equal("TrustedInternalFinalization", (await observed.ProviderReconciliationCases.SingleAsync(item => item.Id == caseId)).ResolutionCode);
+        Assert.Equal(1, handler.CreateCalls);
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Concurrent_finance_requeries_record_one_refund_finalization()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("refund_finance_requery_race");
+        Guid paymentId;
+        Guid entitlementId;
+        await using (var seed = database.CreateContext())
+            (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(seed, 16m, 116m);
+        var handler = new RecoveryHandler { Candidates = [new()] };
+        var provider = CreateProvider(handler);
+        Guid refundId;
+        Guid caseId;
+        await using (var createDb = database.CreateContext())
+        {
+            refundId = (await new RefundService(createDb, provider)
+                .InitiatePayTabsRefundAsync("finance", new(paymentId, "CustomerRequest", null, "finance-requery-race"))).Refund!.Id;
+            caseId = (await createDb.ProviderReconciliationCases.SingleAsync(item => item.RefundId == refundId)).Id;
+        }
+
+        await using var firstDb = database.CreateContext();
+        await using var secondDb = database.CreateContext();
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(45));
+        var first = new ProviderReconciliationService(firstDb, provider, new RefundService(firstDb, provider))
+            .RequeryAsync("finance-one", caseId, timeout.Token);
+        var second = new ProviderReconciliationService(secondDb, provider, new RefundService(secondDb, provider))
+            .RequeryAsync("finance-two", caseId, timeout.Token);
+        var results = await Task.WhenAll(first, second).WaitAsync(timeout.Token);
+
+        Assert.All(results, item => Assert.Equal(nameof(RefundStatus.InternallyRecorded), item.Case!.LocalRefundStatus));
+        await using var observed = database.CreateContext();
+        await AssertRecoveredOnceAsync(observed, paymentId, refundId, entitlementId);
+        Assert.Single(await observed.ProviderReconciliationCases.Where(item => item.RefundId == refundId).ToListAsync());
+        Assert.Equal(1, handler.CreateCalls);
+    }
+
+    [Fact]
+    [Trait("Category", "PostgreSQLFinance")]
+    public async Task Finance_requery_and_direct_recovery_record_one_financial_result()
+    {
+        await using var database = await PostgresTestDatabase.CreateAsync("refund_finance_direct_race");
+        Guid paymentId;
+        Guid entitlementId;
+        await using (var seed = database.CreateContext())
+            (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(seed, 16m, 116m);
+        var handler = new RecoveryHandler { Candidates = [new()] };
+        var provider = CreateProvider(handler);
+        Guid refundId;
+        Guid caseId;
+        await using (var createDb = database.CreateContext())
+        {
+            refundId = (await new RefundService(createDb, provider)
+                .InitiatePayTabsRefundAsync("finance", new(paymentId, "CustomerRequest", null, "finance-direct-race"))).Refund!.Id;
+            caseId = (await createDb.ProviderReconciliationCases.SingleAsync(item => item.RefundId == refundId)).Id;
+        }
+
+        await using var financeDb = database.CreateContext();
+        await using var directDb = database.CreateContext();
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(45));
+        var finance = new ProviderReconciliationService(financeDb, provider, new RefundService(financeDb, provider))
+            .RequeryAsync("finance", caseId, timeout.Token);
+        var direct = new RefundService(directDb, provider).VerifyPayTabsRefundAsync("automatic", refundId, timeout.Token);
+        await Task.WhenAll(finance, direct).WaitAsync(timeout.Token);
+
+        await using var observed = database.CreateContext();
+        await AssertRecoveredOnceAsync(observed, paymentId, refundId, entitlementId);
+        Assert.Single(await observed.ProviderReconciliationCases.Where(item => item.RefundId == refundId).ToListAsync());
+        Assert.Equal(1, handler.CreateCalls);
+    }
+
+    [Fact]
+    public async Task Manual_provider_confirmation_cannot_turn_unknown_refund_into_financial_success()
+    {
+        await using var db = CreateDb();
+        var (paymentId, entitlementId) = await AddPaidCourseSaleWithUnusedCreditAsync(db);
+        var handler = new RecoveryHandler();
+        var provider = CreateProvider(handler);
+        var refundId = (await new RefundService(db, provider)
+            .InitiatePayTabsRefundAsync("finance", new(paymentId, "CustomerRequest", null, "manual-confirm-blocked"))).Refund!.Id;
+        var caseId = (await db.ProviderReconciliationCases.SingleAsync(item => item.RefundId == refundId)).Id;
+        var service = new ProviderReconciliationService(db, provider, new RefundService(db, provider));
+
+        Assert.Equal("RECONCILIATION_PROVIDER_EVIDENCE_REQUIRED",
+            (await service.ResolveAsync("finance", caseId, "ProviderConfirmed", "typed assertion")).FailureCode);
+        Assert.Equal("RECONCILIATION_FINANCIAL_STATE_UNRESOLVED",
+            (await service.ResolveAsync("finance", caseId, "ReviewedNoFinancialAction", "reviewed")).FailureCode);
+        var escalated = await service.ResolveAsync("finance", caseId, "EscalatedToFinance", "External provider investigation");
+        Assert.Null(escalated.FailureCode);
+        Assert.Equal("EscalatedToFinance", escalated.Case!.ResolutionCode);
         await AssertNoRefundEffectsAsync(db, paymentId, refundId, entitlementId);
     }
 
@@ -1027,6 +1228,8 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
         public string ReferenceStatus { get; init; } = "A";
         public HttpStatusCode DiscoveryStatus { get; init; } = HttpStatusCode.OK;
         public string? DiscoveryPayloadOverride { get; init; }
+        public string? ExpectedCartId { get; init; }
+        public decimal ExpectedAmount { get; init; }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
@@ -1043,7 +1246,7 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
             if (root.TryGetProperty("cart_id", out var cartId))
             {
                 Interlocked.Increment(ref cartQueries);
-                Assert.Equal(originalCartId, cartId.GetString());
+                Assert.Equal(originalCartId ?? ExpectedCartId, cartId.GetString());
                 return new(DiscoveryStatus)
                 {
                     Content = new StringContent(DiscoveryPayloadOverride ?? JsonSerializer.Serialize(Candidates.Select(candidate => Payload(candidate, candidate.Status))))
@@ -1065,9 +1268,9 @@ public sealed class PayTabsRefundProviderTests(ITestOutputHelper output)
             tran_ref = candidate.Reference,
             previous_tran_ref = candidate.PreviousReference,
             tran_type = candidate.TransactionType,
-            cart_id = candidate.CartId ?? originalCartId,
+            cart_id = candidate.CartId ?? originalCartId ?? ExpectedCartId,
             cart_currency = candidate.Currency,
-            cart_amount = candidate.Amount ?? originalAmount,
+            cart_amount = candidate.Amount ?? (originalAmount == 0m ? ExpectedAmount : originalAmount),
             payment_result = new { response_status = status, response_code = "100" }
         };
     }

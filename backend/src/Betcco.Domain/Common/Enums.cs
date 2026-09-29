@@ -12,7 +12,7 @@ public enum PaymentStatus { Pending, Processing, Paid, Failed, Cancelled, Refund
 public enum ProviderSessionStatus { NotStarted, Creating, Unknown, Ready, Failed, RequiresReconciliation }
 public enum CartStatus { Open, Closed }
 public enum PaymentTransitionSource { DevelopmentFakeConfirmation, PayTabsVerifiedTransaction, PayTabsVerifiedFailure, CustomerCancellation, InternalRefundRecorded, ProviderSessionCreationRejected }
-public enum ProviderReconciliationCaseType { LateProviderSuccess, ProviderRefundResultUnknown, PaymentAmountMismatch, PaymentCurrencyMismatch, ProviderReferenceMismatch, LocalPaidProviderDisagreement, CouponSnapshotIdentityMismatch, ProviderSessionCreationResultUnknown, DuplicateProviderSessions }
+public enum ProviderReconciliationCaseType { LateProviderSuccess, ProviderRefundResultUnknown, PaymentAmountMismatch, PaymentCurrencyMismatch, ProviderReferenceMismatch, LocalPaidProviderDisagreement, CouponSnapshotIdentityMismatch, ProviderSessionCreationResultUnknown, DuplicateProviderSessions, ProviderRefundAccountingIncomplete }
 public enum ProviderReconciliationCaseStatus { Open, UnderReview, Resolved }
 public enum PaymentDisputeStatus { Open, UnderReview, Resolved }
 public enum PaymentDisputeSource { FinanceAdminManualEvidence, FutureProviderEvidence }
