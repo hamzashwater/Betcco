@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { DashboardHeader } from "@/components/dashboard/dashboard-ui";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
@@ -133,15 +134,6 @@ export function TeacherStudentFollowUp() {
   const totalPages = Math.max(1, Math.ceil(filteredCount / pageSize));
   const from = filteredCount ? (page - 1) * pageSize + 1 : 0;
   const to = Math.min(page * pageSize, filteredCount);
-  const dateFormatter = useMemo(
-    () =>
-      new Intl.DateTimeFormat(locale === "ar" ? "ar-JO" : "en-JO", {
-        dateStyle: "medium",
-        timeStyle: "short",
-      }),
-    [locale],
-  );
-
   const resetFilters = () => {
     setSearch("");
     setAttention("All");
@@ -355,8 +347,9 @@ export function TeacherStudentFollowUp() {
                         label={t("fields.lastActivity")}
                         value={
                           student.lastActiveAtUtc
-                            ? dateFormatter.format(
-                                new Date(student.lastActiveAtUtc),
+                            ? formatLocalizedDateTime(
+                                student.lastActiveAtUtc,
+                                locale,
                               )
                             : t("unavailable")
                         }

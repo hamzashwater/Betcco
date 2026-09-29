@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -1038,6 +1039,7 @@ export function ContentStudio() {
                 <AttendanceRow
                   key={`${item.id}:${item.status}`}
                   item={item}
+                  locale={locale}
                   t={t}
                   saving={markAttendance.isPending}
                   onSave={(status) =>
@@ -1166,13 +1168,15 @@ function AttendanceStatusOptions({
   );
 }
 
-function AttendanceRow({
+export function AttendanceRow({
   item,
+  locale,
   t,
   saving,
   onSave,
 }: {
   item: AttendanceItem;
+  locale: string;
   t: ReturnType<typeof useTranslations>;
   saving: boolean;
   onSave: (status: AttendanceItem["status"]) => void;
@@ -1183,7 +1187,7 @@ function AttendanceRow({
       <div>
         <p className="font-bold">{item.studentName}</p>
         <p className="mt-1 text-xs text-muted">
-          {new Date(item.joinedAtUtc).toLocaleString()}
+          {formatLocalizedDateTime(item.joinedAtUtc, locale)}
         </p>
       </div>
       <div className="flex items-center gap-2">

@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
+import { formatLocalizedDate, formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { academicText } from "@/lib/academic-localization";
 import { MotivationCard } from "@/components/motivation-card";
@@ -595,8 +596,9 @@ function StudentDashboard() {
                       {locale === "ar"
                         ? "آخر موعد للمراجعة الثانية: "
                         : "Revision check deadline: "}
-                      {new Date(action.effectiveDueAtUtc).toLocaleString(
-                        locale === "ar" ? "ar-JO" : "en-GB",
+                      {formatLocalizedDateTime(
+                        action.effectiveDueAtUtc,
+                        locale,
                       )}
                     </p>
                   ) : null}
@@ -723,9 +725,7 @@ function StudentDashboard() {
                 </div>
                 <p className="mt-3 text-sm font-bold text-amber-500">
                   {locale === "ar" ? "التسليم:" : "Due:"}{" "}
-                  {new Date(assignment.dueAtUtc).toLocaleString(
-                    locale === "ar" ? "ar-JO" : "en-US",
-                  )}
+                  {formatLocalizedDateTime(assignment.dueAtUtc, locale)}
                 </p>
               </Link>
             ))}
@@ -1143,9 +1143,7 @@ function StudentAccount() {
                   </div>
                   <p className="mt-3 text-xs text-muted">
                     {locale === "ar" ? "ينتهي:" : "Ends:"}{" "}
-                    {new Intl.DateTimeFormat(locale === "ar" ? "ar-JO" : "en", {
-                      dateStyle: "medium",
-                    }).format(new Date(entry.endsAtUtc))}
+                    {formatLocalizedDate(entry.endsAtUtc, locale)}
                   </p>
                 </article>
               ))}
@@ -1330,9 +1328,7 @@ function StudentPurchases() {
                 {entitlement.accessEndsAtUtc ? (
                   <p className="mt-3 text-xs text-muted">
                     {locale === "ar" ? "ينتهي الوصول:" : "Access ends:"}{" "}
-                    {new Intl.DateTimeFormat(locale === "ar" ? "ar-JO" : "en", {
-                      dateStyle: "medium",
-                    }).format(new Date(entitlement.accessEndsAtUtc))}
+                    {formatLocalizedDate(entitlement.accessEndsAtUtc, locale)}
                   </p>
                 ) : null}
                 <div className="mt-4 border-t border-border pt-4">
@@ -1407,14 +1403,9 @@ function StudentPurchases() {
                       {labelForPurpose(payment.purpose)}
                     </p>
                     <p className="mt-1 text-sm text-muted">
-                      {new Intl.DateTimeFormat(
-                        locale === "ar" ? "ar-JO" : "en",
-                        {
-                          dateStyle: "medium",
-                          timeStyle: "short",
-                        },
-                      ).format(
-                        new Date(payment.paidAtUtc ?? payment.createdAtUtc),
+                      {formatLocalizedDateTime(
+                        payment.paidAtUtc ?? payment.createdAtUtc,
+                        locale,
                       )}
                     </p>
                   </div>
@@ -1736,10 +1727,7 @@ function LearningOrganizer({
                       <p className="mt-1 text-sm text-muted">{entry.details}</p>
                     ) : null}
                     <p className="mt-2 text-xs font-bold text-primary">
-                      {new Intl.DateTimeFormat(
-                        locale === "ar" ? "ar-JO" : "en",
-                        { dateStyle: "medium", timeStyle: "short" },
-                      ).format(new Date(entry.startsAtUtc))}
+                      {formatLocalizedDateTime(entry.startsAtUtc, locale)}
                     </p>
                   </div>
                   {entry.eventType === "LiveSession" ? (
@@ -1925,9 +1913,9 @@ function CertificateDocument({
         </p>
       </section>
     );
-  const issuedOn = new Intl.DateTimeFormat(locale === "ar" ? "ar-JO" : "en", {
+  const issuedOn = formatLocalizedDate(certificate.data.issuedAtUtc, locale, {
     dateStyle: "long",
-  }).format(new Date(certificate.data.issuedAtUtc));
+  });
   return (
     <section className="shell py-10">
       <div className="certificate-print-actions mb-5 flex flex-wrap justify-between gap-3">
@@ -2641,12 +2629,7 @@ function lockedContentMessage(
   availableAtUtc?: string,
 ) {
   if (reason === "AvailableOnDate" || reason === "AvailableAfterEnrollment") {
-    const date = availableAtUtc
-      ? new Intl.DateTimeFormat(locale === "ar" ? "ar-JO" : "en", {
-          dateStyle: "medium",
-          timeStyle: "short",
-        }).format(new Date(availableAtUtc))
-      : "";
+    const date = formatLocalizedDateTime(availableAtUtc, locale);
     return locale === "ar"
       ? `يفتح هذا المحتوى في ${date}.`
       : `This content opens on ${date}.`;
@@ -2708,10 +2691,7 @@ function CourseAnnouncementsPanel({ courseId }: { courseId: string }) {
               </p>
               {item.publishedAtUtc ? (
                 <p className="mt-2 text-xs text-muted">
-                  {new Intl.DateTimeFormat(locale === "ar" ? "ar-JO" : "en", {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  }).format(new Date(item.publishedAtUtc))}
+                  {formatLocalizedDateTime(item.publishedAtUtc, locale)}
                 </p>
               ) : null}
             </article>
@@ -3581,8 +3561,9 @@ export function CourseAssignmentPanel({
                 {assignment.effectiveDueAtUtc ? (
                   <p className="mt-2 text-xs text-muted">
                     {locale === "ar" ? "الموعد النهائي: " : "Due: "}
-                    {new Date(assignment.effectiveDueAtUtc).toLocaleString(
-                      locale === "ar" ? "ar-JO" : "en-US",
+                    {formatLocalizedDateTime(
+                      assignment.effectiveDueAtUtc,
+                      locale,
                     )}
                   </p>
                 ) : null}
@@ -3596,8 +3577,9 @@ export function CourseAssignmentPanel({
                 {assignment.availableFromUtc ? (
                   <p className="mt-2 text-xs text-muted">
                     {locale === "ar" ? "تفتح المهمة: " : "Opens: "}
-                    {new Date(assignment.availableFromUtc).toLocaleString(
-                      locale === "ar" ? "ar-JO" : "en-US",
+                    {formatLocalizedDateTime(
+                      assignment.availableFromUtc,
+                      locale,
                     )}
                   </p>
                 ) : null}
@@ -4968,8 +4950,9 @@ function MyEvaluations() {
                     {locale === "ar"
                       ? "آخر موعد للمراجعة الثانية: "
                       : "Revision check deadline: "}
-                    {new Date(item.effectiveRevisionDueAtUtc).toLocaleString(
-                      locale === "ar" ? "ar-JO" : "en-GB",
+                    {formatLocalizedDateTime(
+                      item.effectiveRevisionDueAtUtc,
+                      locale,
                     )}
                   </p>
                 )}

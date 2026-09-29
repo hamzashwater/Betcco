@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDate } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { BadgeCheck, FileBadge } from "lucide-react";
@@ -64,9 +65,9 @@ export function CertificateVerification({
                   {isArabic ? "تاريخ الإصدار" : "Issued"}
                 </span>
                 <strong>
-                  {new Intl.DateTimeFormat(isArabic ? "ar-JO" : "en", {
+                  {formatLocalizedDate(certificate.data.issuedAtUtc, locale, {
                     dateStyle: "long",
-                  }).format(new Date(certificate.data.issuedAtUtc))}
+                  })}
                 </strong>
               </p>
               <p>

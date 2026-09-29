@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDate } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
@@ -140,10 +141,10 @@ export function QualificationRegistryManagement() {
     versionForm.sourceReference.trim().length >= 10 &&
     Boolean(versionForm.effectiveFromUtc);
   const date = (value: string) =>
-    new Intl.DateTimeFormat(ar ? "ar-JO" : "en", {
+    formatLocalizedDate(value, locale, {
       dateStyle: "medium",
       timeZone: "UTC",
-    }).format(new Date(value));
+    });
   const error =
     createQualification.error ?? createVersion.error ?? assign.error ?? null;
 

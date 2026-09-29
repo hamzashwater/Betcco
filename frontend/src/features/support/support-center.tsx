@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -52,10 +53,7 @@ function statusLabel(status: string, locale: string) {
 }
 
 function formatDate(value: string, locale: string) {
-  return new Intl.DateTimeFormat(locale === "ar" ? "ar-JO" : "en", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
+  return formatLocalizedDateTime(value, locale);
 }
 
 export function SupportCenter({ mode }: { mode: "student" | "admin" }) {

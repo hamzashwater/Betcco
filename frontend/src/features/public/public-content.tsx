@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDate } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -299,13 +300,7 @@ export function MembershipDirectory() {
 
 function FormatDate({ value }: { value: string }) {
   const locale = useLocale();
-  return (
-    <time dateTime={value}>
-      {new Intl.DateTimeFormat(locale === "ar" ? "ar-JO" : "en", {
-        dateStyle: "medium",
-      }).format(new Date(value))}
-    </time>
-  );
+  return <time dateTime={value}>{formatLocalizedDate(value, locale)}</time>;
 }
 
 export function PublicBlog({ slug }: { slug?: string }) {

@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { FilePicker } from "@/components/forms/file-picker";
 import { ApiError, api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -251,7 +252,8 @@ export function StudentComprehensivePractice({
                 {practice.effectiveDueAtUtc ? (
                   <p className="mt-1 text-sm text-muted">
                     {tr(locale, "الموعد النهائي", "Deadline")}:{" "}
-                    {new Date(practice.effectiveDueAtUtc).toLocaleString(
+                    {formatLocalizedDateTime(
+                      practice.effectiveDueAtUtc,
                       locale,
                     )}
                   </p>

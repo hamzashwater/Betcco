@@ -3,6 +3,7 @@
 /* The review cover endpoint is authenticated, so Next's image optimizer cannot request it. */
 /* eslint-disable @next/next/no-img-element */
 
+import { formatLocalizedDate, formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { AccountSecurity } from "@/features/auth/account-security";
 import { AccountProfile } from "@/features/auth/account-profile";
@@ -666,13 +667,10 @@ function AdminAnalyticsTrend({
                     const value = point[definition.key];
                     const height =
                       value === 0 ? 3 : Math.max(7, (value / maximum) * 100);
-                    const day = new Intl.DateTimeFormat(
-                      locale === "ar" ? "ar-JO" : "en",
-                      {
-                        month: "short",
-                        day: "numeric",
-                      },
-                    ).format(new Date(point.dateUtc));
+                    const day = formatLocalizedDate(point.dateUtc, locale, {
+                      month: "short",
+                      day: "numeric",
+                    });
                     return (
                       <div
                         key={point.dateUtc}
@@ -2140,10 +2138,7 @@ function TeacherInvites() {
     (teacher) => !teacher.isFrozen,
   ).length;
   const formatInvitationDate = (value: string) =>
-    new Intl.DateTimeFormat(locale, {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(new Date(value));
+    formatLocalizedDateTime(value, locale);
   const invitationStatus = (status: TeacherInvitation["status"]) => {
     if (locale === "ar") {
       return {

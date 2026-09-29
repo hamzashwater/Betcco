@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
@@ -250,11 +251,7 @@ export function InternalVerificationPlanManagement() {
       });
     },
   });
-  const date = (value: string) =>
-    new Intl.DateTimeFormat(ar ? "ar-JO" : "en", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(new Date(value));
+  const date = (value: string) => formatLocalizedDateTime(value, locale);
 
   return (
     <section className="shell py-8 sm:py-10">

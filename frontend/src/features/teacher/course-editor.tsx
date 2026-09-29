@@ -3,6 +3,7 @@
 /* The cover endpoint is authenticated, so Next's image optimizer cannot request it. */
 /* eslint-disable @next/next/no-img-element */
 
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { FilePicker } from "@/components/forms/file-picker";
 import { TeacherLearningAimPractice } from "@/features/learning/learning-aim-practice";
 import { TeacherComprehensivePractice } from "@/features/learning/comprehensive-practice";
@@ -4727,9 +4728,7 @@ export function CourseworkDeadlineExtensionPanel({
           <p className="text-sm text-muted">
             {locale === "ar" ? "الموعد الأساسي: " : "Base deadline: "}
             {assignment.dueAtUtc
-              ? new Date(assignment.dueAtUtc).toLocaleString(
-                  locale === "ar" ? "ar-JO" : "en-US",
-                )
+              ? formatLocalizedDateTime(assignment.dueAtUtc, locale)
               : locale === "ar"
                 ? "لا يوجد"
                 : "None"}
@@ -4764,11 +4763,7 @@ export function CourseworkDeadlineExtensionPanel({
                     (student) => student.studentUserId === item.studentUserId,
                   )?.displayName ?? item.studentUserId}
                 </p>
-                <p>
-                  {new Date(item.extendedDueAtUtc).toLocaleString(
-                    locale === "ar" ? "ar-JO" : "en-US",
-                  )}
-                </p>
+                <p>{formatLocalizedDateTime(item.extendedDueAtUtc, locale)}</p>
                 <p className="text-muted">
                   {item.revokedAtUtc
                     ? locale === "ar"
@@ -4780,11 +4775,9 @@ export function CourseworkDeadlineExtensionPanel({
                 </p>
                 <p className="text-muted">
                   {locale === "ar" ? "مُنح: " : "Granted: "}
-                  {new Date(item.grantedAtUtc).toLocaleString(
-                    locale === "ar" ? "ar-JO" : "en-US",
-                  )}
+                  {formatLocalizedDateTime(item.grantedAtUtc, locale)}
                   {item.revokedAtUtc
-                    ? `${locale === "ar" ? " · أُلغي: " : " · Revoked: "}${new Date(item.revokedAtUtc).toLocaleString(locale === "ar" ? "ar-JO" : "en-US")}`
+                    ? `${locale === "ar" ? " · أُلغي: " : " · Revoked: "}${formatLocalizedDateTime(item.revokedAtUtc, locale)}`
                     : ""}
                 </p>
                 <p className="text-muted">
@@ -5086,7 +5079,7 @@ function CourseAssignmentCard({
           </p>
           <p className="mt-2 text-xs text-muted">
             {assignment.dueAtUtc
-              ? `${locale === "ar" ? "الموعد" : "Due"}: ${new Date(assignment.dueAtUtc).toLocaleString(locale === "ar" ? "ar-JO" : "en-US")}`
+              ? `${locale === "ar" ? "الموعد" : "Due"}: ${formatLocalizedDateTime(assignment.dueAtUtc, locale)}`
               : locale === "ar"
                 ? "بدون موعد نهائي"
                 : "No due date"}

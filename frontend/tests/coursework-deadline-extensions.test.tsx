@@ -9,6 +9,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 import arMessages from "../messages/ar.json";
 import enMessages from "../messages/en.json";
 import { CourseAssignmentPanel } from "@/features/student/student-area";
@@ -93,9 +94,7 @@ describe("individual coursework deadlines", () => {
         screen.getByText(
           new RegExp(locale === "ar" ? "الموعد النهائي" : "Due:"),
         ),
-      ).toHaveTextContent(
-        new Date(effective).toLocaleString(locale === "ar" ? "ar-JO" : "en-US"),
-      );
+      ).toHaveTextContent(formatLocalizedDateTime(effective, locale));
       expect(
         screen.queryByText("Private staff rationale"),
       ).not.toBeInTheDocument();

@@ -1,5 +1,6 @@
 "use client";
 
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -334,7 +335,7 @@ export function AuditLogViewer() {
                   ) : null}
                 </div>
                 <p className="whitespace-nowrap text-xs text-muted">
-                  {new Date(item.createdAtUtc).toLocaleString(locale)}
+                  {formatLocalizedDateTime(item.createdAtUtc, locale)}
                 </p>
               </article>
             ))}
