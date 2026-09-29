@@ -110,6 +110,8 @@ docker compose --env-file /secure/path/betcco.env -f compose.deploy.yml build
 
 The API and frontend images are multi-stage production images. The frontend uses Next.js standalone output and targets the private API service name. Build staging and production with the same reviewed commit; keep environment secret files separate.
 
+Backend projects enable NuGet lock files through `backend/Directory.Build.props`. CI restores `backend/Betcco.sln` in locked mode, and the production API Dockerfile copies the API project's referenced project files and lock files before running its cached locked restore. To intentionally change a direct package dependency, update its `PackageReference` version in the owning `.csproj`, run `dotnet restore backend/Betcco.sln` to regenerate the backend lock files, review the complete lock-file diff for expected transitive changes, then verify with locked restore, formatting, Release build, and backend tests. Submit the project-file and matching lock-file changes together in the same reviewed PR. `dotnet tool restore` remains a separate operation using the repository's `dotnet-tools.json`; it does not update application package lock files.
+
 Before operating on an existing database, take and verify a restorable PostgreSQL backup according to the deployment owner's recovery plan. Review the immutable API and web image identifiers before continuing.
 
 ## Database migration

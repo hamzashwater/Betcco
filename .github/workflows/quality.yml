@@ -132,7 +132,7 @@ jobs:
       - name: Restore .NET tools and dependencies
         run: |
           dotnet tool restore
-          dotnet restore backend/Betcco.sln
+          dotnet restore backend/Betcco.sln --locked-mode
       - name: Verify .NET formatting and build
         run: |
           dotnet format backend/Betcco.sln --verify-no-changes
