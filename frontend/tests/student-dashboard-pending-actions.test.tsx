@@ -1,5 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import enMessages from "../messages/en.json";
@@ -40,62 +47,88 @@ function action(kind: ActionKind, id: string, due: string | null = null) {
 
 function renderDashboard(
   actions: ReturnType<typeof action>[],
-  overviewError = false,
+  options: {
+    overviewError?: boolean;
+    coursesError?: boolean;
+    overviewEmpty?: boolean;
+    coursesEmpty?: boolean;
+    failFirstOverview?: boolean;
+    failFirstCourses?: boolean;
+  } = {},
 ) {
+  let overviewCalls = 0;
+  let courseCalls = 0;
   apiMock.mockImplementation((path: string) => {
     if (path === "/student-tools/overview?locale=en") {
-      if (overviewError)
+      overviewCalls += 1;
+      if (
+        options.overviewError ||
+        (options.failFirstOverview && overviewCalls === 1)
+      )
         return Promise.reject(new Error("Overview unavailable"));
       return Promise.resolve({
         notes: [],
         bookmarks: [],
         calendar: [],
-        certificates: [
-          {
-            verificationCode: "certificate-1",
-            title: "Course",
-            issuedAtUtc: "2026-09-28T09:00:00Z",
-          },
-        ],
-        upcomingAssignments: [
-          {
-            id: "coursework-1",
-            courseId: "course-1",
-            title: "Coursework",
-            courseTitle: "Course",
-            dueAtUtc: "2026-10-01T09:00:00Z",
-          },
-        ],
-        unreadNotifications: 2,
-        achievements: [
-          {
-            code: "FIRST_LESSON",
-            title: "First lesson complete",
-            description: "Milestone",
-            currentValue: 1,
-            targetValue: 1,
-            isCompleted: true,
-          },
-        ],
+        certificates: options.overviewEmpty
+          ? []
+          : [
+              {
+                verificationCode: "certificate-1",
+                title: "Course",
+                issuedAtUtc: "2026-09-28T09:00:00Z",
+              },
+            ],
+        upcomingAssignments: options.overviewEmpty
+          ? []
+          : [
+              {
+                id: "coursework-1",
+                courseId: "course-1",
+                title: "Coursework",
+                courseTitle: "Course",
+                dueAtUtc: "2026-10-01T09:00:00Z",
+              },
+            ],
+        unreadNotifications: options.overviewEmpty ? 0 : 2,
+        achievements: options.overviewEmpty
+          ? []
+          : [
+              {
+                code: "FIRST_LESSON",
+                title: "First lesson complete",
+                description: "Milestone",
+                currentValue: 1,
+                targetValue: 1,
+                isCompleted: true,
+              },
+            ],
         pendingActions: actions,
       });
     }
-    if (path.startsWith("/learning/my-courses?"))
+    if (path.startsWith("/learning/my-courses?")) {
+      courseCalls += 1;
+      if (
+        options.coursesError ||
+        (options.failFirstCourses && courseCalls === 1)
+      )
+        return Promise.reject(new Error("Courses unavailable"));
       return Promise.resolve({
         items: [],
         page: 1,
         pageSize: 3,
-        totalCount: 1,
+        totalCount: options.coursesEmpty ? 0 : 1,
         summary: {
-          totalCourses: 1,
+          totalCourses: options.coursesEmpty ? 0 : 1,
           notStarted: 0,
-          inProgress: 1,
+          inProgress: options.coursesEmpty ? 0 : 1,
           completed: 0,
-          completedLessons: 2,
-          totalLessons: 4,
-          progressPercent: 50,
+          completedLessons: options.coursesEmpty ? 0 : 2,
+          totalLessons: options.coursesEmpty ? 0 : 4,
+          progressPercent: options.coursesEmpty ? 0 : 50,
         },
       });
+    }
     throw new Error(`Unexpected dashboard request: ${path}`);
   });
   const client = new QueryClient({
@@ -238,13 +271,101 @@ describe("student dashboard pending actions", () => {
   });
 
   it("shows an error without stale actions when overview fails", async () => {
-    renderDashboard([], true);
+    renderDashboard([], { overviewError: true });
     const section = await screen.findByRole("region", {
       name: "What needs your attention",
     });
-    expect(await within(section).findByRole("alert")).toHaveTextContent(
-      "Unable to load pending actions right now.",
+    expect(
+      await within(section).findByText(
+        "Unable to load pending actions right now.",
+      ),
+    ).toBeVisible();
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Dashboard data could not be loaded",
     );
     expect(within(section).queryByRole("link")).not.toBeInTheDocument();
+  });
+
+  it("does not present failed course data as zero and retries the courses query", async () => {
+    renderDashboard([], { failFirstCourses: true });
+    const enrolled = screen.getByText("Enrolled courses").closest("article");
+    const lessons = screen.getByText("Lessons completed").closest("article");
+    const progress = screen.getByText("Overall progress").closest("article");
+    expect(
+      await screen.findByRole("button", { name: "Retry course data" }),
+    ).toBeVisible();
+    expect(within(enrolled!).getByText("—")).toBeVisible();
+    expect(within(lessons!).getByText("—")).toBeVisible();
+    expect(within(progress!).getByText("—")).toBeVisible();
+    expect(
+      screen.getAllByText("Course data could not be loaded").length,
+    ).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: "Retry course data" }));
+    await waitFor(() => expect(apiMock).toHaveBeenCalledTimes(3));
+    expect(within(enrolled!).getByText("1")).toBeVisible();
+  });
+
+  it("shows zero course metrics only after a successful empty response", async () => {
+    renderDashboard([], { coursesEmpty: true });
+    expect(await screen.findByText("0")).toBeVisible();
+    const enrolled = screen.getByText("Enrolled courses").closest("article");
+    const lessons = screen.getByText("Lessons completed").closest("article");
+    const progress = screen.getByText("Overall progress").closest("article");
+    expect(within(enrolled!).getByText("0")).toBeVisible();
+    expect(within(lessons!).getByText("0/0")).toBeVisible();
+    expect(within(progress!).getByText("0%")).toBeVisible();
+  });
+
+  it("shows overview errors instead of zero metrics and retries the same query", async () => {
+    renderDashboard([], { failFirstOverview: true });
+    for (const label of [
+      "Upcoming coursework",
+      "Unread notifications",
+      "Completion certificates",
+    ]) {
+      const metric = screen.getByText(label).closest("article");
+      expect(await within(metric!).findByText("—")).toBeVisible();
+    }
+    fireEvent.click(
+      screen.getByRole("button", { name: "Retry dashboard data" }),
+    );
+    await waitFor(() => expect(apiMock).toHaveBeenCalledTimes(3));
+    expect(
+      screen.getByText("Upcoming coursework").closest("article"),
+    ).toHaveTextContent("1");
+  });
+
+  it("distinguishes overview failure from empty deadlines and achievements", async () => {
+    renderDashboard([], { overviewError: true });
+    expect(
+      await screen.findByText("Upcoming deadlines could not be loaded."),
+    ).toBeVisible();
+    expect(
+      screen.queryByText(
+        "There are no upcoming coursework deadlines in your courses.",
+      ),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText("Learning milestones could not be loaded."),
+    ).toBeVisible();
+    expect(
+      screen.queryByText("No learning milestones have been recorded yet."),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows successful empty states for deadlines and achievements", async () => {
+    renderDashboard([], { overviewEmpty: true });
+    expect(
+      await screen.findByText(
+        "There are no upcoming coursework deadlines in your courses.",
+      ),
+    ).toBeVisible();
+    expect(
+      screen.getByText("No learning milestones have been recorded yet."),
+    ).toBeVisible();
+    expect(
+      screen.queryByText("Learning milestones could not be loaded."),
+    ).not.toBeInTheDocument();
   });
 });

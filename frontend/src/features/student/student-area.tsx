@@ -297,6 +297,26 @@ function StudentDashboard() {
   const progress = courseSummary?.progressPercent ?? 0;
   const achievements = overview.data?.achievements ?? [];
   const pendingActions = overview.data?.pendingActions;
+  const courseUnavailable = courses.isError && !courses.data;
+  const overviewUnavailable = overview.isError && !overview.data;
+  const courseErrorCopy = courses.data
+    ? locale === "ar"
+      ? "تعذر تحديث بيانات الدورات"
+      : "Course data could not be refreshed"
+    : locale === "ar"
+      ? "تعذر تحميل بيانات الدورات"
+      : "Course data could not be loaded";
+  const overviewErrorCopy = overview.data
+    ? locale === "ar"
+      ? "تعذر تحديث بيانات لوحة الطالب"
+      : "Dashboard data could not be refreshed"
+    : locale === "ar"
+      ? "تعذر تحميل بيانات لوحة الطالب"
+      : "Dashboard data could not be loaded";
+  const courseLoadingCopy =
+    locale === "ar" ? "جارٍ تحميل بيانات الدورات…" : "Loading course data…";
+  const overviewLoadingCopy =
+    locale === "ar" ? "جارٍ تحميل بيانات اللوحة…" : "Loading dashboard data…";
   return (
     <section className="shell py-10">
       <DashboardHeader
@@ -317,46 +337,81 @@ function StudentDashboard() {
           </Link>
         }
       />
-      <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div
+        className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        aria-busy={courses.isPending || overview.isPending}
+      >
         <MetricCard
           label={locale === "ar" ? "الدورات المسجل بها" : "Enrolled courses"}
-          value={courses.isPending ? "—" : (courseSummary?.totalCourses ?? 0)}
+          value={
+            courses.isPending || courseUnavailable
+              ? "—"
+              : (courseSummary?.totalCourses ?? 0)
+          }
           detail={
-            locale === "ar"
-              ? "من سجلات التسجيل الفعلية"
-              : "From your actual enrollments"
+            courses.isError
+              ? courseErrorCopy
+              : courses.isPending
+                ? courseLoadingCopy
+                : locale === "ar"
+                  ? "من سجلات التسجيل الفعلية"
+                  : "From your actual enrollments"
           }
           icon={BookOpenCheck}
         />
         <MetricCard
           label={locale === "ar" ? "الدروس المكتملة" : "Lessons completed"}
-          value={courses.isPending ? "—" : `${completedLessons}/${allLessons}`}
+          value={
+            courses.isPending || courseUnavailable
+              ? "—"
+              : `${completedLessons}/${allLessons}`
+          }
           detail={
-            locale === "ar"
-              ? "حسب تقدمك المحفوظ"
-              : "Based on saved learning progress"
+            courses.isError
+              ? courseErrorCopy
+              : courses.isPending
+                ? courseLoadingCopy
+                : locale === "ar"
+                  ? "حسب تقدمك المحفوظ"
+                  : "Based on saved learning progress"
           }
           icon={CircleCheckBig}
           tone="secondary"
         />
         <MetricCard
           label={locale === "ar" ? "التقدم الكلي" : "Overall progress"}
-          value={courses.isPending ? "—" : `${Math.round(progress)}%`}
+          value={
+            courses.isPending || courseUnavailable
+              ? "—"
+              : `${Math.round(progress)}%`
+          }
           detail={
-            locale === "ar"
-              ? "عبر الدورات المسجل بها"
-              : "Across enrolled courses"
+            courses.isError
+              ? courseErrorCopy
+              : courses.isPending
+                ? courseLoadingCopy
+                : locale === "ar"
+                  ? "عبر الدورات المسجل بها"
+                  : "Across enrolled courses"
           }
           icon={Timer}
           tone="accent"
         />
         <MetricCard
           label={locale === "ar" ? "واجبات قريبة" : "Upcoming coursework"}
-          value={overview.isPending ? "—" : upcomingAssignments.length}
+          value={
+            overview.isPending || overviewUnavailable
+              ? "—"
+              : upcomingAssignments.length
+          }
           detail={
-            locale === "ar"
-              ? "مواعيد تسليم من دوراتك"
-              : "Deadlines from your enrolled courses"
+            overview.isError
+              ? overviewErrorCopy
+              : overview.isPending
+                ? overviewLoadingCopy
+                : locale === "ar"
+                  ? "مواعيد تسليم من دوراتك"
+                  : "Deadlines from your enrolled courses"
           }
           icon={ClipboardCheck}
           tone="warm"
@@ -364,29 +419,83 @@ function StudentDashboard() {
         <MetricCard
           label={locale === "ar" ? "إشعارات جديدة" : "Unread notifications"}
           value={
-            overview.isPending ? "—" : (overview.data?.unreadNotifications ?? 0)
+            overview.isPending || overviewUnavailable
+              ? "—"
+              : (overview.data?.unreadNotifications ?? 0)
           }
           detail={
-            locale === "ar"
-              ? "تابع التحديثات المهمة"
-              : "Keep up with important updates"
+            overview.isError
+              ? overviewErrorCopy
+              : overview.isPending
+                ? overviewLoadingCopy
+                : locale === "ar"
+                  ? "تابع التحديثات المهمة"
+                  : "Keep up with important updates"
           }
           icon={MessageSquareText}
         />
         <MetricCard
           label={locale === "ar" ? "شهادات الإكمال" : "Completion certificates"}
           value={
-            overview.isPending ? "—" : (overview.data?.certificates.length ?? 0)
+            overview.isPending || overviewUnavailable
+              ? "—"
+              : (overview.data?.certificates.length ?? 0)
           }
           detail={
-            locale === "ar"
-              ? "صادرة من دورات مكتملة"
-              : "Issued for completed courses"
+            overview.isError
+              ? overviewErrorCopy
+              : overview.isPending
+                ? overviewLoadingCopy
+                : locale === "ar"
+                  ? "صادرة من دورات مكتملة"
+                  : "Issued for completed courses"
           }
           icon={FileBadge}
           tone="secondary"
         />
       </div>
+      {courses.isError ? (
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <p className="text-sm text-muted" role="alert">
+            {courseErrorCopy}
+          </p>
+          <button
+            type="button"
+            className="focus-ring rounded-xl border border-border px-3 py-2 text-sm font-bold text-primary disabled:cursor-not-allowed disabled:opacity-60"
+            onClick={() => void courses.refetch()}
+            disabled={courses.isFetching}
+          >
+            {courses.isFetching
+              ? locale === "ar"
+                ? "جارٍ إعادة التحميل…"
+                : "Retrying…"
+              : locale === "ar"
+                ? "إعادة تحميل بيانات الدورات"
+                : "Retry course data"}
+          </button>
+        </div>
+      ) : null}
+      {overview.isError ? (
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <p className="text-sm text-muted" role="alert">
+            {overviewErrorCopy}
+          </p>
+          <button
+            type="button"
+            className="focus-ring rounded-xl border border-border px-3 py-2 text-sm font-bold text-primary disabled:cursor-not-allowed disabled:opacity-60"
+            onClick={() => void overview.refetch()}
+            disabled={overview.isFetching}
+          >
+            {overview.isFetching
+              ? locale === "ar"
+                ? "جارٍ إعادة التحميل…"
+                : "Retrying…"
+              : locale === "ar"
+                ? "إعادة تحميل بيانات اللوحة"
+                : "Retry dashboard data"}
+          </button>
+        </div>
+      ) : null}
       <section
         className="card mt-5 p-5"
         aria-labelledby="student-pending-actions-heading"
@@ -403,8 +512,8 @@ function StudentDashboard() {
           <p className="mt-4 text-sm text-muted" aria-busy>
             {locale === "ar" ? "جارٍ تحميل الإجراءات…" : "Loading actions…"}
           </p>
-        ) : overview.isError || !pendingActions ? (
-          <p className="mt-4 text-sm text-muted" role="alert">
+        ) : overviewUnavailable || !pendingActions ? (
+          <p className="mt-4 text-sm text-muted">
             {locale === "ar"
               ? "تعذر تحميل الإجراءات المطلوبة الآن."
               : "Unable to load pending actions right now."}
@@ -522,6 +631,18 @@ function StudentDashboard() {
           <p className="mt-4 text-sm text-muted" aria-busy>
             {locale === "ar" ? "جارٍ تحميل إنجازاتك…" : "Loading milestones…"}
           </p>
+        ) : overviewUnavailable ? (
+          <p className="mt-4 text-sm text-muted">
+            {locale === "ar"
+              ? "تعذر تحميل إنجازات التعلّم."
+              : "Learning milestones could not be loaded."}
+          </p>
+        ) : achievements.length === 0 ? (
+          <p className="mt-4 text-sm text-muted">
+            {locale === "ar"
+              ? "لا توجد إنجازات مسجلة حتى الآن."
+              : "No learning milestones have been recorded yet."}
+          </p>
         ) : (
           <div className="mt-4 grid gap-3 md:grid-cols-3">
             {achievements.map((achievement) => (
@@ -576,6 +697,12 @@ function StudentDashboard() {
         {overview.isPending ? (
           <p className="mt-4 text-sm text-muted" aria-busy>
             …
+          </p>
+        ) : overviewUnavailable ? (
+          <p className="mt-4 text-sm text-muted">
+            {locale === "ar"
+              ? "تعذر تحميل مواعيد التسليم."
+              : "Upcoming deadlines could not be loaded."}
           </p>
         ) : upcomingAssignments.length ? (
           <div className="mt-4 grid gap-3 md:grid-cols-2">
