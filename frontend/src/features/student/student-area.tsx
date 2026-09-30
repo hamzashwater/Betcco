@@ -1701,6 +1701,7 @@ function CertificateDocument({
   verificationCode: string;
 }) {
   const locale = useLocale();
+  const t = useTranslations("studentWorkspace.certificateDocument");
   const certificate = useQuery({
     queryKey: ["my-certificate", verificationCode, locale],
     queryFn: () =>
@@ -1720,9 +1721,7 @@ function CertificateDocument({
     return (
       <section className="shell py-10">
         <p className="card p-6" role="alert">
-          {locale === "ar"
-            ? "تعذّر العثور على الشهادة أو لا تملك صلاحية عرضها."
-            : "The certificate could not be found, or you do not have permission to view it."}
+          {t("errors.notFound")}
         </p>
       </section>
     );
@@ -1737,7 +1736,7 @@ function CertificateDocument({
           className="focus-ring inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-black text-muted hover:text-foreground"
         >
           <ArrowLeft size={17} aria-hidden="true" />
-          {locale === "ar" ? "شهاداتي" : "My certificates"}
+          {t("actions.back")}
         </Link>
         <button
           type="button"
@@ -1745,7 +1744,7 @@ function CertificateDocument({
           className="focus-ring inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-black text-slate-950"
         >
           <FileBadge size={17} aria-hidden="true" />
-          {locale === "ar" ? "طباعة الشهادة" : "Print certificate"}
+          {t("actions.print")}
         </button>
       </div>
       <article className="certificate-document relative overflow-hidden rounded-[2rem] border-[10px] border-primary/75 bg-white p-8 text-center text-[#0d1b2a] shadow-2xl sm:p-12">
@@ -1760,15 +1759,13 @@ function CertificateDocument({
             <FileBadge size={32} aria-hidden="true" />
           </div>
           <p className="mt-6 text-sm font-bold uppercase tracking-[0.16em] text-[#1b4f72]">
-            {locale === "ar" ? "شهادة إكمال" : "Certificate of Completion"}
+            {t("content.type")}
           </p>
           <h1 className="mt-3 text-3xl font-black sm:text-5xl">
             {certificate.data.studentName}
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-base leading-8 text-[#31596f] sm:text-lg">
-            {locale === "ar"
-              ? "أتم بنجاح متطلبات التعلّم الأساسية في الدورة التالية على منصة BETCCO:"
-              : "has successfully completed the core learning requirements for the following BETCCO course:"}
+            {t("content.completionStatement")}
           </p>
           <h2 className="mt-5 text-2xl font-black text-[#1b4f72] sm:text-3xl">
             {certificate.data.courseTitle}
@@ -1776,13 +1773,13 @@ function CertificateDocument({
           <div className="mx-auto mt-9 grid max-w-lg gap-4 border-y border-[#1b4f72]/20 py-5 text-sm sm:grid-cols-2">
             <div>
               <p className="font-bold text-[#31596f]">
-                {locale === "ar" ? "تاريخ الإصدار" : "Issue date"}
+                {t("content.issueDate")}
               </p>
               <p className="mt-1 font-black">{issuedOn}</p>
             </div>
             <div>
               <p className="font-bold text-[#31596f]">
-                {locale === "ar" ? "رقم الشهادة" : "Certificate ID"}
+                {t("content.certificateId")}
               </p>
               <p
                 dir="ltr"
@@ -1795,25 +1792,17 @@ function CertificateDocument({
           <div className="mx-auto mt-6 grid w-fit justify-items-center gap-2 rounded-xl border border-[#1b4f72]/20 bg-white p-3 print:border-0">
             <img
               src={`/api/v1/student-tools/certificates/${encodeURIComponent(certificate.data.verificationCode)}/qr`}
-              alt={
-                locale === "ar"
-                  ? "رمز QR للتحقق من الشهادة"
-                  : "Certificate verification QR code"
-              }
+              alt={t("qr.alt")}
               width={120}
               height={120}
               className="size-28"
             />
             <p className="max-w-36 text-center text-[10px] font-bold text-[#31596f]">
-              {locale === "ar"
-                ? "امسح الرمز للتحقق من الشهادة"
-                : "Scan to verify this certificate"}
+              {t("qr.help")}
             </p>
           </div>
           <p className="mt-7 text-xs leading-5 text-[#496679]">
-            {locale === "ar"
-              ? "هذه شهادة إكمال صادرة من BETCCO وليست شهادة Pearson أو اعتمادًا رسميًا من Pearson BTEC."
-              : "This is a BETCCO completion certificate. It is not a Pearson certificate or official Pearson BTEC accreditation."}
+            {t("disclaimer")}
           </p>
         </div>
       </article>
