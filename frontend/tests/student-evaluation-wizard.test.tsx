@@ -150,6 +150,8 @@ function mockFetch(
         return new Response(null, { status: 204 });
       if (path.endsWith("/evaluations/draft-1/evidence"))
         return new Response(null, { status: 204 });
+      if (path.endsWith("/evaluations/request-1/evidence"))
+        return new Response(null, { status: 204 });
       if (path.endsWith("/evaluations/draft-1/authenticity-declaration"))
         return new Response(null, { status: 204 });
       if (path.includes("/evaluations/request-1/files"))
@@ -218,16 +220,31 @@ function mockFetch(
   return fetchMock;
 }
 
-async function selectPrimaryScope(user: ReturnType<typeof userEvent.setup>) {
+async function selectPrimaryScope(
+  user: ReturnType<typeof userEvent.setup>,
+  locale: "en" | "ar" = "en",
+) {
+  const label = (english: string, arabic: string) =>
+    locale === "ar" ? arabic : english;
   await user.selectOptions(
-    await screen.findByLabelText("Qualification and version"),
+    await screen.findByLabelText(
+      label("Qualification and version", "المؤهل والإصدار"),
+    ),
     "Q:V1",
   );
-  await user.selectOptions(screen.getByLabelText("Grade"), "g");
-  await user.selectOptions(screen.getByLabelText("Specialization"), "s");
-  await user.selectOptions(screen.getByLabelText("Unit"), "U1");
+  await user.selectOptions(screen.getByLabelText(label("Grade", "الصف")), "g");
   await user.selectOptions(
-    screen.getByLabelText("Assessment or assignment"),
+    screen.getByLabelText(label("Specialization", "التخصص")),
+    "s",
+  );
+  await user.selectOptions(
+    screen.getByLabelText(label("Unit", "الوحدة")),
+    "U1",
+  );
+  await user.selectOptions(
+    screen.getByLabelText(
+      label("Assessment or assignment", "التقييم أو المهمة"),
+    ),
     scope.assessmentScopeId,
   );
 }
@@ -727,4 +744,278 @@ describe("Student scoped evaluation wizard", () => {
       ),
     ).toBe(false);
   });
+
+  it.each(["en", "ar"] as const)(
+    "renders %s evaluation copy and retries credit verification",
+    async (locale) => {
+      const labels =
+        locale === "ar"
+          ? {
+              heading: "اعرف مستوى مهمتك قبل التسليم الرسمي",
+              creditIntro: "لديك تقييم مشمول؟",
+              noCreditIntro: "بدون رصيد مشمول",
+              coverage: "نطاق التقييم",
+              error:
+                "تعذر التحقق من رصيد التقييم الآن. أعد المحاولة قبل إرسال الطلب.",
+              retry: "إعادة التحقق من الرصيد",
+              available: "لديك تقييم مهمة واحد مشمول مع هذه الوحدة",
+              files: "ملفات المهمة",
+              comment: "ماذا تريد من المقيّم؟",
+              academic: "Q · مؤهل (V1)",
+            }
+          : {
+              heading: "Understand your assignment before official submission",
+              creditIntro: "Have an included evaluation?",
+              noCreditIntro: "No included credit",
+              coverage: "Assessment coverage",
+              error:
+                "We could not verify your evaluation credit. Retry before submitting.",
+              retry: "Retry credit check",
+              available:
+                "You have 1 assignment evaluation included with this Unit",
+              files: "Assignment files",
+              comment: "What do you need from the evaluator?",
+              academic: "Q · Qualification (V1)",
+            };
+      const fetchMock = mockFetch([scope], false, true, 1);
+      const user = userEvent.setup();
+      renderWizard(locale);
+      expect(
+        await screen.findByRole("heading", { name: labels.heading }),
+      ).toBeVisible();
+      expect(screen.getByText(labels.creditIntro)).toBeVisible();
+      expect(screen.getByText(labels.noCreditIntro)).toBeVisible();
+      expect(
+        screen.getByRole("option", { name: labels.academic }),
+      ).toBeVisible();
+      await selectPrimaryScope(user, locale);
+      expect(screen.getByText(labels.coverage)).toBeVisible();
+      expect(await screen.findByText(labels.error)).toBeVisible();
+      await user.click(screen.getByRole("button", { name: labels.retry }));
+      expect(await screen.findByText(labels.available)).toBeVisible();
+      expect(screen.getByLabelText(labels.files)).toBeInTheDocument();
+      expect(screen.getByText(labels.comment)).toBeVisible();
+      expect(
+        fetchMock.mock.calls.filter(([input]) =>
+          String(input).includes("/included-credit"),
+        ),
+      ).toHaveLength(2);
+    },
+  );
+
+  it.each(["en", "ar"] as const)(
+    "keeps %s payment, file, evidence, and authenticity contracts",
+    async (locale) => {
+      const labels =
+        locale === "ar"
+          ? {
+              save: "حفظ ومراجعة الطلب",
+              portfolio: "ملف أدلة المعايير",
+              evidence: "ما الدليل الذي يوضح عملك لهذا المعيار؟",
+              originality: "إقرار أصالة العمل",
+              price: "السعر المحدد من الخادم:",
+              method: "طريقة الدفع",
+              card: "بطاقة بنكية",
+              bankTransfer: "تحويل بنكي",
+              eWallet: "محفظة إلكترونية",
+              checkout: "متابعة إلى الدفع",
+              development: "دفعة اختبارية — بيئة التطوير فقط",
+              confirm: "إتمام الدفع الاختباري",
+            }
+          : {
+              save: "Save and review",
+              portfolio: "Criterion evidence portfolio",
+              evidence:
+                "What evidence demonstrates your work for this criterion?",
+              originality: "Originality declaration",
+              price: "Server-owned review price:",
+              method: "Payment method",
+              card: "Bank card",
+              bankTransfer: "Bank transfer",
+              eWallet: "E-wallet",
+              checkout: "Continue to payment",
+              development: "Development test payment only",
+              confirm: "Complete test payment",
+            };
+      const fetchMock = mockFetch([scope], false, false);
+      const user = userEvent.setup();
+      const { container } = renderWizard(locale);
+      await selectPrimaryScope(user, locale);
+      const file = new File(["assignment"], "work.pdf", {
+        type: "application/pdf",
+      });
+      await user.upload(
+        container.querySelector('input[type="file"]') as HTMLInputElement,
+        file,
+      );
+      await user.click(screen.getByRole("button", { name: labels.save }));
+      expect(await screen.findByText(labels.portfolio)).toBeVisible();
+      await user.type(
+        screen.getByPlaceholderText(labels.evidence),
+        "Evidence A",
+      );
+      expect(
+        screen.getByText(
+          matchesNormalizedText(
+            labels.price +
+              " " +
+              formatLocalizedCurrency(5, "JOD", locale) +
+              (locale === "ar"
+                ? ". تُحسب أي ضريبة مطبقة عند الدفع."
+                : ". Any applicable tax is calculated at checkout."),
+          ),
+        ),
+      ).toBeVisible();
+      const paymentMethod = screen.getByLabelText(labels.method);
+      expect(screen.getByRole("option", { name: labels.card })).toHaveValue(
+        "Card",
+      );
+      expect(
+        screen.getByRole("option", { name: labels.bankTransfer }),
+      ).toHaveValue("BankTransfer");
+      expect(screen.getByRole("option", { name: labels.eWallet })).toHaveValue(
+        "EWallet",
+      );
+      await user.selectOptions(paymentMethod, "EWallet");
+      await user.click(
+        screen.getByRole("checkbox", {
+          name: new RegExp(labels.originality),
+        }),
+      );
+      await user.click(screen.getByRole("button", { name: labels.checkout }));
+      await waitFor(() =>
+        expect(fetchMock).toHaveBeenCalledWith(
+          "/api/v1/evaluations/request-1/checkout",
+          expect.objectContaining({
+            method: "POST",
+            body: JSON.stringify({
+              paymentMethod: "EWallet",
+              expectIncludedCredit: false,
+            }),
+          }),
+        ),
+      );
+      const checkoutRequest = fetchMock.mock.calls.find(([input]) =>
+        String(input).endsWith("/evaluations/request-1/checkout"),
+      );
+      expect(
+        new Headers(checkoutRequest?.[1]?.headers).get("Idempotency-Key"),
+      ).toBeTruthy();
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/v1/evaluations/scoped",
+        expect.objectContaining({
+          body: JSON.stringify({
+            assessmentScopeId: scope.assessmentScopeId,
+            studentComment: "",
+          }),
+        }),
+      );
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/v1/evaluations/request-1/evidence",
+        expect.objectContaining({
+          body: JSON.stringify({
+            criterionCode: "A.P1",
+            narrative: "Evidence A",
+          }),
+        }),
+      );
+      expect(
+        fetchMock.mock.calls.some(([input]) =>
+          String(input).endsWith("/request-1/authenticity-declaration"),
+        ),
+      ).toBe(true);
+      const upload = fetchMock.mock.calls.find(
+        ([input, init]) =>
+          String(input).endsWith("/evaluations/request-1/files") &&
+          init?.method === "POST",
+      );
+      expect((upload?.[1]?.body as FormData).get("file")).toBe(file);
+      expect(await screen.findByText(labels.development)).toBeVisible();
+      expect(
+        fetchMock.mock.calls.some(([input]) =>
+          String(input).endsWith("/payments/fake/confirm"),
+        ),
+      ).toBe(false);
+      await user.click(screen.getByRole("button", { name: labels.confirm }));
+      await waitFor(() =>
+        expect(fetchMock).toHaveBeenCalledWith(
+          "/api/v1/payments/fake/confirm",
+          expect.objectContaining({
+            body: expect.stringMatching(
+              /"paymentId":"payment-1".*"providerEventId":"evaluation_test_/,
+            ),
+          }),
+        ),
+      );
+    },
+  );
+
+  it.each(["en", "ar"] as const)(
+    "localizes %s resume messages while rejecting invalid drafts",
+    async (locale) => {
+      const labels =
+        locale === "ar"
+          ? {
+              incomplete:
+                "رابط استئناف التقييم غير مكتمل. عُد إلى طلباتي واختر مسودة للمتابعة.",
+              invalid:
+                "هذا الطلب ليس مسودة تقييم عادية قابلة للمتابعة. عُد إلى طلباتي لاختيار الإجراء المتاح.",
+              failed:
+                "تعذر تحميل مسودة التقييم. تحقق من اتصالك ثم أعد المحاولة.",
+              back: "العودة إلى طلباتي",
+              draft: "مسودة التقييم",
+              savedCriteria: "المعايير المحفوظة: A.P1",
+              scan: "حالة الفحص: Clean",
+            }
+          : {
+              incomplete:
+                "This evaluation draft link is incomplete. Return to My Evaluations and choose a draft to continue.",
+              invalid:
+                "This request is not an active standard evaluation draft. Return to My Evaluations to choose an available action.",
+              failed:
+                "Unable to load this evaluation draft. Check your connection and try again.",
+              back: "Back to My Evaluations",
+              draft: "Evaluation draft",
+              savedCriteria: "Saved criteria: A.P1",
+              scan: "Scan status: Clean",
+            };
+      mockFetch();
+      renderWizard(locale, "");
+      expect(screen.getByRole("alert")).toHaveTextContent(labels.incomplete);
+      expect(screen.getByRole("link", { name: labels.back })).toHaveAttribute(
+        "href",
+        "/" + locale + "/student/evaluations",
+      );
+      cleanup();
+      const invalidFetch = mockFetch(
+        [scope],
+        false,
+        false,
+        0,
+        draftDetail({ assessmentScopeId: null }),
+      );
+      renderWizard(locale, "draft-1");
+      expect(await screen.findByRole("alert")).toHaveTextContent(
+        labels.invalid,
+      );
+      expect(
+        invalidFetch.mock.calls.some(([input]) =>
+          String(input).endsWith("/evaluations/scoped"),
+        ),
+      ).toBe(false);
+      cleanup();
+      mockFetch();
+      renderWizard(locale, "draft-1");
+      expect(await screen.findByRole("alert")).toHaveTextContent(labels.failed);
+      cleanup();
+      mockFetch([scope], false, false, 0, draftDetail());
+      renderWizard(locale, "draft-1");
+      expect(await screen.findByText(labels.draft)).toBeVisible();
+      expect(screen.getByText(labels.savedCriteria)).toBeVisible();
+      expect(screen.getByText(labels.scan)).toBeVisible();
+      expect(
+        screen.getByRole("link", { name: "existing-assignment.pdf" }),
+      ).toHaveAttribute("href", "/api/v1/evaluations/draft-1/files/file-1");
+    },
+  );
 });
