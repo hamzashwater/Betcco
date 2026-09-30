@@ -4695,31 +4695,19 @@ function RetakePayment({
 }
 
 function EvaluationRevisionSubmission({ requestId }: { requestId: string }) {
+  const t = useTranslations("studentWorkspace.evaluationRevision");
   const locale = useLocale();
   const client = useQueryClient();
   const [files, setFiles] = useState<File[]>([]);
   const [authenticityConfirmed, setAuthenticityConfirmed] = useState(false);
   const resubmit = useMutation({
     mutationFn: async () => {
-      if (!files.length)
-        throw new Error(
-          locale === "ar"
-            ? "اختر ملفًا محدثًا واحدًا على الأقل."
-            : "Choose at least one updated file.",
-        );
+      if (!files.length) throw new Error(t("errors.fileRequired"));
       if (!authenticityConfirmed)
-        throw new Error(
-          locale === "ar"
-            ? "يجب تأكيد إقرار أصالة النسخة المعدلة قبل إرسالها."
-            : "Confirm the revised-work originality declaration before submitting.",
-        );
+        throw new Error(t("errors.authenticityRequired"));
       for (const file of files) {
         if (file.size > 100 * 1024 * 1024)
-          throw new Error(
-            locale === "ar"
-              ? "الحد الأقصى 100MB لكل ملف."
-              : "Each file is limited to 100MB.",
-          );
+          throw new Error(t("errors.fileSize"));
         const body = new FormData();
         body.set("file", file);
         await api(`/evaluations/${requestId}/files`, { method: "POST", body });
@@ -4733,33 +4721,19 @@ function EvaluationRevisionSubmission({ requestId }: { requestId: string }) {
   });
   return (
     <section className="rounded-xl border border-primary/30 bg-primary/5 p-4">
-      <h2 className="font-black">
-        {locale === "ar"
-          ? "إرسال النسخة المعدلة للفحص"
-          : "Submit revised assignment for checking"}
-      </h2>
-      <p className="mt-2 text-sm text-muted">
-        {locale === "ar"
-          ? "عدّل المهمة بناءً على ملاحظات المعلم، ثم أرسل النسخة الجديدة لاستخدام فرصة الفحص الثانية والأخيرة."
-          : "Revise the assignment using the teacher feedback, then send the updated version for your second and final review check."}
-      </p>
+      <h2 className="font-black">{t("title")}</h2>
+      <p className="mt-2 text-sm text-muted">{t("description")}</p>
       <div className="mt-3">
         <FilePicker
-          label={locale === "ar" ? "النسخة المعدلة" : "Updated files"}
+          label={t("files.label")}
           files={files}
           onFilesChange={setFiles}
           locale={locale}
           accept=".pdf,.docx,.xlsx,.txt,.jpg,.jpeg,.png,.webp"
           multiple
           maxFileBytes={100 * 1024 * 1024}
-          chooseLabel={
-            locale === "ar" ? "اختيار ملفات محدثة" : "Choose updated files"
-          }
-          helpText={
-            locale === "ar"
-              ? "يمكنك اختيار أكثر من ملف، بحد أقصى 100MB لكل ملف."
-              : "You can select multiple files, up to 100MB per file."
-          }
+          chooseLabel={t("files.choose")}
+          helpText={t("files.help")}
         />
       </div>
       <label className="mt-3 flex items-start gap-3 rounded-lg border border-border bg-surface-solid/60 p-3 text-sm leading-6">
@@ -4770,15 +4744,9 @@ function EvaluationRevisionSubmission({ requestId }: { requestId: string }) {
           className="mt-1 size-4 accent-primary"
         />
         <span>
-          <strong>
-            {locale === "ar"
-              ? "إقرار أصالة النسخة المعدلة"
-              : "Updated-work originality declaration"}
-          </strong>
+          <strong>{t("authenticity.title")}</strong>
           <span className="mt-1 block text-muted">
-            {locale === "ar"
-              ? "أقر بأن النسخة المعدلة والأدلة المرفقة تخصني وأنني أوضحت أي مصادر أو مساعدة مسموح بها."
-              : "I declare that this revised work and its evidence are my own and that I have acknowledged any permitted sources or assistance."}
+            {t("authenticity.description")}
           </span>
         </span>
       </label>
@@ -4788,13 +4756,13 @@ function EvaluationRevisionSubmission({ requestId }: { requestId: string }) {
         disabled={resubmit.isPending || !files.length || !authenticityConfirmed}
         className="focus-ring mt-3 rounded-xl bg-primary px-4 py-2 text-sm font-black text-slate-950 disabled:opacity-60"
       >
-        {locale === "ar" ? "إرسال النسخة المعدلة" : "Submit revised assignment"}
+        {t("actions.submit")}
       </button>
       {resubmit.isError ? (
         <p role="alert" className="mt-2 text-sm text-red-400">
           {resubmit.error instanceof Error
             ? resubmit.error.message
-            : "Request failed."}
+            : t("errors.requestFailed")}
         </p>
       ) : null}
     </section>
