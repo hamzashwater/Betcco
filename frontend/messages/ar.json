@@ -1115,5 +1115,102 @@
     "previous": "السابق",
     "next": "التالي",
     "page": "الصفحة {page} من {pageCount}"
+  },
+  "studentWorkspace": {
+    "academicIdentity": {
+      "learningAims": "أهداف التعلم"
+    },
+    "navigation": {
+      "overview": "الملخص",
+      "courses": "دوراتي",
+      "aiPractice": "مساعد التدريب AI",
+      "evaluations": "تقييماتي",
+      "appeals": "استئنافاتي",
+      "planner": "المخطط",
+      "notes": "ملاحظاتي",
+      "bookmarks": "إشاراتي",
+      "certificates": "شهاداتي",
+      "payments": "دفعاتي",
+      "account": "حسابي",
+      "security": "أمان الحساب",
+      "support": "الدعم",
+      "ariaLabel": "تنقل مساحة الطالب"
+    },
+    "dashboard": {
+      "courseRefreshError": "تعذر تحديث بيانات الدورات",
+      "courseLoadError": "تعذر تحميل بيانات الدورات",
+      "overviewRefreshError": "تعذر تحديث بيانات لوحة الطالب",
+      "overviewLoadError": "تعذر تحميل بيانات لوحة الطالب",
+      "courseLoading": "جارٍ تحميل بيانات الدورات…",
+      "overviewLoading": "جارٍ تحميل بيانات اللوحة…",
+      "title": "لوحة الطالب",
+      "description": "تابع تعلّمك، وارجع إلى آخر دورة، وأرسل مهامك للتقييم من مكان واحد.",
+      "continueLearning": "متابعة التعلّم",
+      "metrics": {
+        "enrolledCourses": "الدورات المسجل بها",
+        "enrolledCoursesDetail": "من سجلات التسجيل الفعلية",
+        "completedLessons": "الدروس المكتملة",
+        "completedLessonsDetail": "حسب تقدمك المحفوظ",
+        "overallProgress": "التقدم الكلي",
+        "overallProgressDetail": "عبر الدورات المسجل بها",
+        "upcomingCoursework": "واجبات قريبة",
+        "upcomingCourseworkDetail": "مواعيد تسليم من دوراتك",
+        "unreadNotifications": "إشعارات جديدة",
+        "unreadNotificationsDetail": "تابع التحديثات المهمة",
+        "completionCertificates": "شهادات الإكمال",
+        "completionCertificatesDetail": "صادرة من دورات مكتملة"
+      },
+      "retrying": "جارٍ إعادة التحميل…",
+      "retryCourses": "إعادة تحميل بيانات الدورات",
+      "retryOverview": "إعادة تحميل بيانات اللوحة",
+      "pendingActions": {
+        "heading": "المطلوب منك الآن",
+        "description": "إجراءات التقييم وإعادة التقييم المتاحة لك حاليًا.",
+        "loading": "جارٍ تحميل الإجراءات…",
+        "error": "تعذر تحميل الإجراءات المطلوبة الآن.",
+        "empty": "لا يوجد إجراء مطلوب منك الآن.",
+        "evaluationRevisionTitle": "لديك نسخة معدلة مطلوبة",
+        "resitAuthorizedTitle": "فرصة إعادة تقييم متاحة",
+        "resitDraftTitle": "جهّز إعادة التقييم",
+        "evaluationDraftTitle": "تقييم بانتظار التجهيز",
+        "evaluationRevisionLink": "فتح التقييم والملاحظات",
+        "resitAuthorizedLink": "عرض فرصة إعادة التقييم",
+        "resitDraftLink": "متابعة تجهيز إعادة التقييم",
+        "evaluationDraftLink": "متابعة تجهيز التقييم",
+        "revisionDeadline": "آخر موعد للمراجعة الثانية:"
+      },
+      "milestones": {
+        "heading": "إنجازات التعلّم",
+        "description": "تُحتسب من نشاطك الفعلي",
+        "loading": "جارٍ تحميل إنجازاتك…",
+        "error": "تعذر تحميل إنجازات التعلّم.",
+        "empty": "لا توجد إنجازات مسجلة حتى الآن.",
+        "completedAria": "مكتمل",
+        "incompleteAria": "غير مكتمل بعد",
+        "completeCount": "مكتمل"
+      },
+      "deadlines": {
+        "eyebrow": "المتابعة",
+        "heading": "مواعيد التسليم القادمة",
+        "error": "تعذر تحميل مواعيد التسليم.",
+        "due": "التسليم:",
+        "empty": "لا توجد مواعيد تسليم قريبة في دوراتك حاليًا."
+      },
+      "quickLinks": {
+        "coursesDescription": "أكمل التعلم وتابع التقدم.",
+        "evaluateTitle": "قيّم مهمتك",
+        "evaluateDescription": "ارفع مهمتك، واستخدم تقييم الوحدة المشمول إن كان متاحًا، أو اطلب مراجعة مدفوعة مرة واحدة.",
+        "supportDescription": "افتح تذكرة وتابع الرد.",
+        "plannerTitle": "مخطط التعلّم",
+        "plannerDescription": "نظّم موعدك وشاهد الجلسات المباشرة.",
+        "notesTitle": "ملاحظاتي",
+        "notesDescription": "عد إلى ما كتبته داخل الدروس.",
+        "certificatesTitle": "شهاداتي",
+        "certificatesDescription": "اطبع شهادة الإكمال بعد إنهاء الدورة.",
+        "accountDescription": "راجع بياناتك وعضوياتك ودفعاتك بأمان.",
+        "open": "فتح"
+      },
+      "eyebrow": "BETCCO Student"
+    }
   }
 }

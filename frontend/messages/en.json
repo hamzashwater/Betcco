@@ -1115,5 +1115,102 @@
     "previous": "Previous",
     "next": "Next",
     "page": "Page {page} of {pageCount}"
+  },
+  "studentWorkspace": {
+    "academicIdentity": {
+      "learningAims": "Learning aims"
+    },
+    "navigation": {
+      "overview": "Overview",
+      "courses": "My courses",
+      "aiPractice": "AI practice",
+      "evaluations": "My evaluations",
+      "appeals": "My appeals",
+      "planner": "Planner",
+      "notes": "Notes",
+      "bookmarks": "Bookmarks",
+      "certificates": "Certificates",
+      "payments": "Payments",
+      "account": "My account",
+      "security": "Account security",
+      "support": "Support",
+      "ariaLabel": "Student workspace navigation"
+    },
+    "dashboard": {
+      "courseRefreshError": "Course data could not be refreshed",
+      "courseLoadError": "Course data could not be loaded",
+      "overviewRefreshError": "Dashboard data could not be refreshed",
+      "overviewLoadError": "Dashboard data could not be loaded",
+      "courseLoading": "Loading course data…",
+      "overviewLoading": "Loading dashboard data…",
+      "title": "Student dashboard",
+      "description": "Continue learning, return to your course, and submit work for evaluation from one focused space.",
+      "continueLearning": "Continue learning",
+      "metrics": {
+        "enrolledCourses": "Enrolled courses",
+        "enrolledCoursesDetail": "From your actual enrollments",
+        "completedLessons": "Lessons completed",
+        "completedLessonsDetail": "Based on saved learning progress",
+        "overallProgress": "Overall progress",
+        "overallProgressDetail": "Across enrolled courses",
+        "upcomingCoursework": "Upcoming coursework",
+        "upcomingCourseworkDetail": "Deadlines from your enrolled courses",
+        "unreadNotifications": "Unread notifications",
+        "unreadNotificationsDetail": "Keep up with important updates",
+        "completionCertificates": "Completion certificates",
+        "completionCertificatesDetail": "Issued for completed courses"
+      },
+      "retrying": "Retrying…",
+      "retryCourses": "Retry course data",
+      "retryOverview": "Retry dashboard data",
+      "pendingActions": {
+        "heading": "What needs your attention",
+        "description": "Evaluation and Resit actions currently available to you.",
+        "loading": "Loading actions…",
+        "error": "Unable to load pending actions right now.",
+        "empty": "You have no pending actions right now.",
+        "evaluationRevisionTitle": "Your assignment needs a revision",
+        "resitAuthorizedTitle": "A Resit opportunity is available",
+        "resitDraftTitle": "Prepare your Resit",
+        "evaluationDraftTitle": "Evaluation draft to prepare",
+        "evaluationRevisionLink": "Open evaluation and feedback",
+        "resitAuthorizedLink": "View Resit opportunity",
+        "resitDraftLink": "Continue Resit preparation",
+        "evaluationDraftLink": "Continue evaluation",
+        "revisionDeadline": "Revision check deadline:"
+      },
+      "milestones": {
+        "heading": "Learning milestones",
+        "description": "Earned from real learning activity",
+        "loading": "Loading milestones…",
+        "error": "Learning milestones could not be loaded.",
+        "empty": "No learning milestones have been recorded yet.",
+        "completedAria": "Completed",
+        "incompleteAria": "Not completed yet",
+        "completeCount": "complete"
+      },
+      "deadlines": {
+        "eyebrow": "Stay on track",
+        "heading": "Upcoming deadlines",
+        "error": "Upcoming deadlines could not be loaded.",
+        "due": "Due:",
+        "empty": "There are no upcoming coursework deadlines in your courses."
+      },
+      "quickLinks": {
+        "coursesDescription": "Continue learning and track progress.",
+        "evaluateTitle": "Evaluate my assignment",
+        "evaluateDescription": "Upload your assignment, use an included Unit evaluation when available, or request a one-time paid review.",
+        "supportDescription": "Open a ticket and follow the reply.",
+        "plannerTitle": "Learning planner",
+        "plannerDescription": "Plan your work and see live sessions.",
+        "notesTitle": "My notes",
+        "notesDescription": "Return to notes made inside lessons.",
+        "certificatesTitle": "My certificates",
+        "certificatesDescription": "Print completion certificates after finishing a course.",
+        "accountDescription": "Review your profile, memberships, and payments securely.",
+        "open": "Open"
+      },
+      "eyebrow": "BETCCO Student"
+    }
   }
 }

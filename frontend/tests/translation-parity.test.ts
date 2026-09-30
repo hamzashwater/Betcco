@@ -11,6 +11,7 @@ const parityNamespaces = [
   "auth.accountProfile",
   "auth.accountSecurity",
   "auth.studentEmailChange",
+  "studentWorkspace",
 ] as const;
 
 function namespaceValue(value: unknown, namespace: string): unknown {
@@ -33,7 +34,7 @@ function shape(value: unknown, prefix = ""): string[] {
   return [prefix];
 }
 
-describe("shared shell, authentication, and account translation parity", () => {
+describe("shared shell, authentication, account, and student workspace translation parity", () => {
   it.each(parityNamespaces)("has matching AR/EN keys in %s", (namespace) => {
     const arabicShape = shape(namespaceValue(arabicMessages, namespace)).sort();
     const englishShape = shape(

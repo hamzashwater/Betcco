@@ -10,6 +10,7 @@ import {
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import enMessages from "../messages/en.json";
+import arMessages from "../messages/ar.json";
 import { StudentArea } from "@/features/student/student-area";
 
 const apiMock = vi.hoisted(() => vi.fn());
@@ -54,12 +55,14 @@ function renderDashboard(
     coursesEmpty?: boolean;
     failFirstOverview?: boolean;
     failFirstCourses?: boolean;
+    locale?: "ar" | "en";
   } = {},
 ) {
+  const locale = options.locale ?? "en";
   let overviewCalls = 0;
   let courseCalls = 0;
   apiMock.mockImplementation((path: string) => {
-    if (path === "/student-tools/overview?locale=en") {
+    if (path === `/student-tools/overview?locale=${locale}`) {
       overviewCalls += 1;
       if (
         options.overviewError ||
@@ -135,7 +138,10 @@ function renderDashboard(
     defaultOptions: { queries: { retry: false } },
   });
   return render(
-    <NextIntlClientProvider locale="en" messages={enMessages}>
+    <NextIntlClientProvider
+      locale={locale}
+      messages={locale === "ar" ? arMessages : enMessages}
+    >
       <QueryClientProvider client={client}>
         <StudentArea segment={[]} />
       </QueryClientProvider>
@@ -149,6 +155,91 @@ afterEach(() => {
 });
 
 describe("student dashboard pending actions", () => {
+  it("renders English student navigation, dashboard copy, and quick links", async () => {
+    renderDashboard([]);
+    const nav = screen.getByRole("navigation", {
+      name: "Student workspace navigation",
+    });
+    for (const [name, href] of [
+      ["Overview", "/en/student"],
+      ["My courses", "/en/student/courses"],
+      ["My evaluations", "/en/student/evaluations"],
+      ["My account", "/en/student/account"],
+      ["Account security", "/en/student/security"],
+    ]) {
+      expect(within(nav).getByRole("link", { name })).toHaveAttribute(
+        "href",
+        href,
+      );
+    }
+    expect(screen.getByText("Student dashboard")).toBeVisible();
+    expect(screen.getByText("Continue learning")).toBeVisible();
+    expect(screen.getByText("Enrolled courses")).toBeVisible();
+    expect(screen.getByText("What needs your attention")).toBeVisible();
+    expect(screen.getByText("Learning milestones")).toBeVisible();
+    expect(screen.getByText("Upcoming deadlines")).toBeVisible();
+    expect(screen.getByText("Evaluate my assignment")).toBeVisible();
+    await screen.findByText("You have no pending actions right now.");
+  });
+
+  it("renders Arabic student navigation, dashboard copy, and all pending action kinds", async () => {
+    renderDashboard(
+      [
+        action("EvaluationDraft", "draft-1"),
+        action("EvaluationRevision", "revision-1", "2026-10-03T12:00:00Z"),
+        action("ResitAuthorized", "original-1"),
+        action("ResitDraft", "resit-draft-1"),
+      ],
+      { locale: "ar" },
+    );
+    const nav = screen.getByRole("navigation", { name: "تنقل مساحة الطالب" });
+    for (const [name, href] of [
+      ["الملخص", "/ar/student"],
+      ["دوراتي", "/ar/student/courses"],
+      ["تقييماتي", "/ar/student/evaluations"],
+      ["حسابي", "/ar/student/account"],
+      ["أمان الحساب", "/ar/student/security"],
+    ]) {
+      expect(within(nav).getByRole("link", { name })).toHaveAttribute(
+        "href",
+        href,
+      );
+    }
+    expect(screen.getByText("لوحة الطالب")).toBeVisible();
+    expect(screen.getByText("متابعة التعلّم")).toBeVisible();
+    expect(screen.getByText("الدورات المسجل بها")).toBeVisible();
+    expect(screen.getByText("إنجازات التعلّم")).toBeVisible();
+    expect(screen.getByText("مواعيد التسليم القادمة")).toBeVisible();
+    expect(screen.getByText("قيّم مهمتك")).toBeVisible();
+    const pending = await screen.findByRole("region", {
+      name: "المطلوب منك الآن",
+    });
+    for (const title of [
+      "تقييم بانتظار التجهيز",
+      "لديك نسخة معدلة مطلوبة",
+      "فرصة إعادة تقييم متاحة",
+      "جهّز إعادة التقييم",
+    ]) {
+      expect(await within(pending).findByText(title)).toBeVisible();
+    }
+    expect(
+      within(pending).getByRole("link", { name: "متابعة تجهيز التقييم" }),
+    ).toHaveAttribute("href", "/ar/student/evaluations/new?resume=draft-1");
+    expect(
+      within(pending).getByRole("link", { name: "فتح التقييم والملاحظات" }),
+    ).toHaveAttribute("href", "/ar/student/evaluations");
+    expect(
+      within(pending).getByRole("link", { name: "عرض فرصة إعادة التقييم" }),
+    ).toHaveAttribute("href", "/ar/student/evaluations");
+    expect(
+      within(pending).getByRole("link", { name: "متابعة تجهيز إعادة التقييم" }),
+    ).toHaveAttribute("href", "/ar/student/evaluations/resit-draft-1");
+    expect(
+      within(pending).getByText(/آخر موعد للمراجعة الثانية:/),
+    ).toBeVisible();
+    expect(apiMock).toHaveBeenCalledWith("/student-tools/overview?locale=ar");
+  });
+
   it("links a standard draft to N8-A resume and shows immutable academic context", async () => {
     renderDashboard([action("EvaluationDraft", "draft-1")]);
     const section = await screen.findByRole("region", {
