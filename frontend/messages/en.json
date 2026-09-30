@@ -1437,6 +1437,106 @@
         "start": "Unable to start the submission.",
         "load": "Unable to load coursework."
       }
+    },
+    "evaluationWizard": {
+      "resume": {
+        "loading": "Loading your draft…",
+        "restoring": "Restoring your draft…",
+        "loadError": "Unable to load this evaluation draft. Check your connection and try again.",
+        "retry": "Retry",
+        "back": "Back to My Evaluations"
+      },
+      "header": {
+        "eyebrow": "BETCCO · Evaluate my assignment",
+        "title": "Understand your assignment before official submission",
+        "description": "Choose the Unit and assignment, upload your work and evidence, then use an included Unit evaluation when available. If no included credit is available, you can request a one-time paid BETCCO review. The result is guidance, not an official Pearson grade."
+      },
+      "intro": {
+        "creditTitle": "Have an included evaluation?",
+        "creditDescription": "If your paid Unit has an unused included credit, it is applied automatically without creating a new payment.",
+        "noCreditTitle": "No included credit",
+        "noCreditDescription": "The standard one-time payment flow is used for the full review, with server-side provider confirmation required."
+      },
+      "draft": {
+        "title": "Evaluation draft",
+        "savedCriteria": "Saved criteria",
+        "savedPrice": "Saved price",
+        "uploadedFiles": "Uploaded files",
+        "scanStatus": "Scan status",
+        "noFiles": "No files have been uploaded to this draft yet. Add a file to continue."
+      },
+      "scope": {
+        "none": "No published assessments are available right now. Please check back later.",
+        "qualification": "Qualification and version",
+        "grade": "Grade",
+        "specialization": "Specialization",
+        "unit": "Unit",
+        "assessment": "Assessment or assignment",
+        "scopeLabel": "scope",
+        "coverage": "Assessment coverage",
+        "aims": "Learning aims",
+        "criteria": "Criteria",
+        "disclaimer": "BETCCO evaluation and review; not an official Pearson grade."
+      },
+      "credit": {
+        "checking": "Checking your included evaluation credit for this Unit…",
+        "error": "We could not verify your evaluation credit. Retry before submitting.",
+        "retry": "Retry credit check",
+        "available": "You have 1 assignment evaluation included with this Unit",
+        "availableDescription": "It includes the initial review, teacher feedback, and one revised-work check. No separate payment will be created.",
+        "unavailable": "No included evaluation credit is available for this Unit; the standard one-time paid review applies."
+      },
+      "files": {
+        "label": "Assignment files",
+        "choose": "Choose assignment files",
+        "help": "You can add multiple files. Each file is limited to 100MB and uploads securely one at a time."
+      },
+      "evidence": {
+        "comment": "What do you need from the evaluator?",
+        "portfolio": "Criterion evidence portfolio",
+        "description": "Link a short explanation to each criterion. Assignment files remain private to you, the assigned evaluator, and the platform administration.",
+        "placeholder": "What evidence demonstrates your work for this criterion?"
+      },
+      "payment": {
+        "title": "One-time paid review",
+        "priceKnown": "Server-owned review price: {price}. Any applicable tax is calculated at checkout.",
+        "pricePending": "The price will be confirmed by the server before payment is created.",
+        "method": "Payment method",
+        "card": "Bank card",
+        "bankTransfer": "Bank transfer",
+        "eWallet": "E-wallet"
+      },
+      "authenticity": {
+        "title": "Originality declaration",
+        "description": "I declare that the submitted files and evidence are my own and that I have acknowledged any permitted sources or assistance."
+      },
+      "actions": {
+        "save": "Save and review",
+        "included": "Use included assignment evaluation",
+        "payment": "Continue to payment"
+      },
+      "developmentPayment": {
+        "title": "Development test payment only",
+        "description": "A fake development payment session was created. Complete it explicitly below; this is not a substitute for real provider confirmation in production.",
+        "total": "Total:",
+        "confirm": "Complete test payment",
+        "sessionTitle": "Payment session created",
+        "sessionDescription": "The payment provider did not return a redirect URL. Do not resubmit the request; check your payment history or contact support if the payment remains pending."
+      },
+      "errors": {
+        "fileRequired": "Choose at least one assignment file before submitting the review request.",
+        "authenticityRequired": "Confirm the originality declaration before submitting the review request.",
+        "invalidDevelopmentPayment": "There is no valid development test payment to complete.",
+        "options": "Unable to load available assessments. Please try again.",
+        "upload": "A file could not be uploaded. Your draft is saved; retry to continue the upload.",
+        "checkout": "Unable to complete this evaluation request. No replacement request was created; check the details and retry.",
+        "request": "Request failed."
+      }
+    },
+    "evaluationResume": {
+      "incomplete": "This evaluation draft link is incomplete. Return to My Evaluations and choose a draft to continue.",
+      "invalid": "This request is not an active standard evaluation draft. Return to My Evaluations to choose an available action.",
+      "back": "Back to My Evaluations"
     }
   }
 }

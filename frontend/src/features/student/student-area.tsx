@@ -3525,6 +3525,7 @@ export function CourseAssignmentPanel({
 }
 
 function EvaluationWizard() {
+  const t = useTranslations("studentWorkspace.evaluationWizard");
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -3663,17 +3664,9 @@ function EvaluationWizard() {
         resumeDetail.data?.files.some((item) => item.scanStatus === "Clean") ??
         false;
       if (!evaluationId || (!hasCleanServerFile && files.length === 0))
-        throw new Error(
-          locale === "ar"
-            ? "اختر ملف مهمة واحدًا على الأقل قبل إرسال طلب المراجعة."
-            : "Choose at least one assignment file before submitting the review request.",
-        );
+        throw new Error(t("errors.fileRequired"));
       if (!authenticityConfirmed)
-        throw new Error(
-          locale === "ar"
-            ? "يجب تأكيد إقرار أصالة العمل قبل إرسال طلب المراجعة."
-            : "Confirm the originality declaration before submitting the review request.",
-        );
+        throw new Error(t("errors.authenticityRequired"));
       const pendingFiles = files.filter(
         (item) => !uploadedFileKeys.includes(fileKey(item)),
       );
@@ -3723,11 +3716,7 @@ function EvaluationWizard() {
         !paymentSession?.paymentId ||
         !paymentSession.provider?.startsWith("Fake")
       )
-        throw new Error(
-          locale === "ar"
-            ? "لا توجد دفعة اختبارية صالحة لإتمامها."
-            : "There is no valid development test payment to complete.",
-        );
+        throw new Error(t("errors.invalidDevelopmentPayment"));
       return api("/payments/fake/confirm", {
         method: "POST",
         body: JSON.stringify({
@@ -3739,18 +3728,12 @@ function EvaluationWizard() {
     onSuccess: () => router.push(`/${locale}/student/evaluations`),
   });
   if (resumeRequested && !resumeId)
-    return (
-      <EvaluationResumeMessage
-        locale={locale}
-        textEn="This evaluation draft link is incomplete. Return to My Evaluations and choose a draft to continue."
-        textAr="رابط استئناف التقييم غير مكتمل. عُد إلى طلباتي واختر مسودة للمتابعة."
-      />
-    );
+    return <EvaluationResumeMessage locale={locale} kind="incomplete" />;
   if (resumeRequested && resumeDetail.isPending)
     return (
       <section className="shell py-10">
         <div className="card p-6" aria-busy>
-          {locale === "ar" ? "جارٍ تحميل المسودة…" : "Loading your draft…"}
+          {t("resume.loading")}
         </div>
       </section>
     );
@@ -3758,23 +3741,19 @@ function EvaluationWizard() {
     return (
       <section className="shell py-10">
         <div className="card grid justify-items-start gap-3 p-6">
-          <p role="alert">
-            {locale === "ar"
-              ? "تعذر تحميل مسودة التقييم. تحقق من اتصالك ثم أعد المحاولة."
-              : "Unable to load this evaluation draft. Check your connection and try again."}
-          </p>
+          <p role="alert">{t("resume.loadError")}</p>
           <button
             type="button"
             onClick={() => void resumeDetail.refetch()}
             className="focus-ring rounded-lg border border-primary px-3 py-2 font-semibold text-primary"
           >
-            {locale === "ar" ? "إعادة المحاولة" : "Retry"}
+            {t("resume.retry")}
           </button>
           <Link
             className="focus-ring font-bold text-primary underline"
             href={`/${locale}/student/evaluations`}
           >
-            {locale === "ar" ? "العودة إلى طلباتي" : "Back to My Evaluations"}
+            {t("resume.back")}
           </Link>
         </div>
       </section>
@@ -3787,18 +3766,12 @@ function EvaluationWizard() {
       resumeDetail.data.isResit !== false ||
       !resumeDetail.data.assessmentScopeId)
   )
-    return (
-      <EvaluationResumeMessage
-        locale={locale}
-        textEn="This request is not an active standard evaluation draft. Return to My Evaluations to choose an available action."
-        textAr="هذا الطلب ليس مسودة تقييم عادية قابلة للمتابعة. عُد إلى طلباتي لاختيار الإجراء المتاح."
-      />
-    );
+    return <EvaluationResumeMessage locale={locale} kind="invalid" />;
   if (resumeRequested && resumeDetail.data && !evaluationId)
     return (
       <section className="shell py-10">
         <div className="card p-6" aria-busy>
-          {locale === "ar" ? "جارٍ استعادة المسودة…" : "Restoring your draft…"}
+          {t("resume.restoring")}
         </div>
       </section>
     );
@@ -3813,11 +3786,7 @@ function EvaluationWizard() {
   if (!resumeRequested && (options.isError || !options.data))
     return (
       <section className="shell py-10">
-        <p className="card p-6">
-          {locale === "ar"
-            ? "تعذر تحميل التقييمات المتاحة. حاول مجددًا."
-            : "Unable to load available assessments. Please try again."}
-        </p>
+        <p className="card p-6">{t("errors.options")}</p>
       </section>
     );
   const scopes = options.data ?? [];
@@ -3886,60 +3855,37 @@ function EvaluationWizard() {
         }}
         className="card mx-auto grid min-w-0 max-w-2xl grid-cols-[minmax(0,1fr)] gap-4 p-6"
       >
-        <p className="font-bold text-primary">
-          {locale === "ar"
-            ? "BETCCO · قيّم مهمتك"
-            : "BETCCO · Evaluate my assignment"}
-        </p>
-        <h1 className="text-3xl font-black">
-          {locale === "ar"
-            ? "اعرف مستوى مهمتك قبل التسليم الرسمي"
-            : "Understand your assignment before official submission"}
-        </h1>
+        <p className="font-bold text-primary">{t("header.eyebrow")}</p>
+        <h1 className="text-3xl font-black">{t("header.title")}</h1>
         <p className="text-sm leading-7 text-muted">
-          {locale === "ar"
-            ? "اختر الوحدة والمهمة، ارفع عملك وأدلته، ثم استخدم تقييم الوحدة المشمول إن كان متاحًا. إذا لم يكن لديك رصيد مشمول، يمكنك طلب مراجعة BETCCO مدفوعة مرة واحدة. النتيجة إرشادية وليست علامة رسمية من Pearson."
-            : "Choose the Unit and assignment, upload your work and evidence, then use an included Unit evaluation when available. If no included credit is available, you can request a one-time paid BETCCO review. The result is guidance, not an official Pearson grade."}
+          {t("header.description")}
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
-            <p className="font-black text-primary">
-              {locale === "ar"
-                ? "لديك تقييم مشمول؟"
-                : "Have an included evaluation?"}
-            </p>
+            <p className="font-black text-primary">{t("intro.creditTitle")}</p>
             <p className="mt-1 text-xs leading-5 text-muted">
-              {locale === "ar"
-                ? "إذا كانت وحدتك المدفوعة تحتوي على رصيد غير مستخدم، سيُطبّق تلقائيًا بدون إنشاء دفعة جديدة."
-                : "If your paid Unit has an unused included credit, it is applied automatically without creating a new payment."}
+              {t("intro.creditDescription")}
             </p>
           </div>
           <div className="rounded-xl border border-border bg-surface-solid/60 p-4">
-            <p className="font-black">
-              {locale === "ar" ? "بدون رصيد مشمول" : "No included credit"}
-            </p>
+            <p className="font-black">{t("intro.noCreditTitle")}</p>
             <p className="mt-1 text-xs leading-5 text-muted">
-              {locale === "ar"
-                ? "يُستخدم مسار الدفع العادي مرة واحدة للمراجعة كاملة، مع انتظار تأكيد مزود الدفع من الخادم."
-                : "The standard one-time payment flow is used for the full review, with server-side provider confirmation required."}
+              {t("intro.noCreditDescription")}
             </p>
           </div>
         </div>
         {resumeRequested && resumeDetail.data ? (
           <section className="grid gap-3 rounded-xl border border-border bg-surface-solid/60 p-4">
-            <h2 className="font-black">
-              {locale === "ar" ? "مسودة التقييم" : "Evaluation draft"}
-            </h2>
+            <h2 className="font-black">{t("draft.title")}</h2>
             <AcademicIdentity
               academic={resumeDetail.data.academic}
               locale={locale}
             />
             <p className="text-sm">
-              {locale === "ar" ? "المعايير المحفوظة" : "Saved criteria"}:{" "}
-              {evaluationCriteria.join(", ") || "—"}
+              {t("draft.savedCriteria")}: {evaluationCriteria.join(", ") || "—"}
             </p>
             <p className="text-sm font-semibold">
-              {locale === "ar" ? "السعر المحفوظ" : "Saved price"}:{" "}
+              {t("draft.savedPrice")}:{" "}
               {evaluationPrice
                 ? formatLocalizedCurrency(
                     evaluationPrice.price,
@@ -3949,9 +3895,7 @@ function EvaluationWizard() {
                 : "—"}
             </p>
             <div className="grid gap-2 text-sm">
-              <strong>
-                {locale === "ar" ? "الملفات المرفوعة" : "Uploaded files"}
-              </strong>
+              <strong>{t("draft.uploadedFiles")}</strong>
               {resumeDetail.data.files.length ? (
                 <ul className="grid gap-2">
                   {resumeDetail.data.files.map((file) => (
@@ -3966,18 +3910,13 @@ function EvaluationWizard() {
                         {file.originalFileName}
                       </a>
                       <span className="text-xs text-muted">
-                        {locale === "ar" ? "حالة الفحص" : "Scan status"}:{" "}
-                        {file.scanStatus}
+                        {t("draft.scanStatus")}: {file.scanStatus}
                       </span>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-muted">
-                  {locale === "ar"
-                    ? "لا توجد ملفات مرفوعة في هذه المسودة بعد. أضف ملفًا للمتابعة."
-                    : "No files have been uploaded to this draft yet. Add a file to continue."}
-                </p>
+                <p className="text-muted">{t("draft.noFiles")}</p>
               )}
             </div>
           </section>
@@ -3986,17 +3925,11 @@ function EvaluationWizard() {
           <>
             {scopes.length === 0 ? (
               <p role="status" className="text-muted">
-                {locale === "ar"
-                  ? "لا توجد تقييمات منشورة متاحة الآن. يُرجى المحاولة لاحقًا."
-                  : "No published assessments are available right now. Please check back later."}
+                {t("scope.none")}
               </p>
             ) : null}
             <Select
-              label={
-                locale === "ar"
-                  ? "المؤهل والإصدار"
-                  : "Qualification and version"
-              }
+              label={t("scope.qualification")}
               value={selected.qualification}
               setValue={(value) =>
                 setSelected({
@@ -4012,7 +3945,7 @@ function EvaluationWizard() {
               disabled={Boolean(evaluationId)}
             />
             <Select
-              label={locale === "ar" ? "الصف" : "Grade"}
+              label={t("scope.grade")}
               value={selected.grade}
               setValue={(value) =>
                 setSelected({
@@ -4027,7 +3960,7 @@ function EvaluationWizard() {
               disabled={!selected.qualification || Boolean(evaluationId)}
             />
             <Select
-              label={locale === "ar" ? "التخصص" : "Specialization"}
+              label={t("scope.specialization")}
               value={selected.specialization}
               setValue={(value) =>
                 setSelected({
@@ -4041,7 +3974,7 @@ function EvaluationWizard() {
               disabled={!selected.grade || Boolean(evaluationId)}
             />
             <Select
-              label={locale === "ar" ? "الوحدة" : "Unit"}
+              label={t("scope.unit")}
               value={selected.unit}
               setValue={(value) =>
                 setSelected({ ...selected, unit: value, assessmentScopeId: "" })
@@ -4050,18 +3983,14 @@ function EvaluationWizard() {
               disabled={!selected.specialization || Boolean(evaluationId)}
             />
             <Select
-              label={
-                locale === "ar"
-                  ? "التقييم أو المهمة"
-                  : "Assessment or assignment"
-              }
+              label={t("scope.assessment")}
               value={selected.assessmentScopeId}
               setValue={(value) =>
                 setSelected({ ...selected, assessmentScopeId: value })
               }
               items={forUnit.map((item) => ({
                 id: item.assessmentScopeId,
-                label: `${item.assessmentCode} · ${locale === "ar" ? item.assessmentArabicTitle : item.assessmentEnglishTitle} (v${item.assessmentVersion}${forUnit.length > 1 ? ` · ${locale === "ar" ? "النطاق" : "scope"} ${item.scopeVersion}` : ""})`,
+                label: `${item.assessmentCode} · ${locale === "ar" ? item.assessmentArabicTitle : item.assessmentEnglishTitle} (v${item.assessmentVersion}${forUnit.length > 1 ? ` · ${t("scope.scopeLabel")} ${item.scopeVersion}` : ""})`,
               }))}
               disabled={!selected.unit || Boolean(evaluationId)}
             />
@@ -4070,24 +3999,17 @@ function EvaluationWizard() {
                 className="rounded-xl border border-border bg-surface-solid/60 p-4 text-sm"
                 role="status"
               >
-                <p className="font-bold">
-                  {locale === "ar" ? "نطاق التقييم" : "Assessment coverage"}
-                </p>
+                <p className="font-bold">{t("scope.coverage")}</p>
                 <p className="mt-2">
-                  {locale === "ar" ? "أهداف التعلم" : "Learning aims"}:{" "}
-                  {currentScope.learningAimCodes.join(", ")}
+                  {t("scope.aims")}: {currentScope.learningAimCodes.join(", ")}
                 </p>
                 <p className="mt-1">
-                  {locale === "ar" ? "المعايير" : "Criteria"}:{" "}
+                  {t("scope.criteria")}:{" "}
                   {currentScope.criteria
                     .map((item) => `${item.code} (${item.band})`)
                     .join(", ")}
                 </p>
-                <p className="mt-2 text-muted">
-                  {locale === "ar"
-                    ? "تقييم ومراجعة BETCCO؛ ليس درجة رسمية من Pearson."
-                    : "BETCCO evaluation and review; not an official Pearson grade."}
-                </p>
+                <p className="mt-2 text-muted">{t("scope.disclaimer")}</p>
               </div>
             ) : null}
           </>
@@ -4099,71 +4021,45 @@ function EvaluationWizard() {
           >
             {includedCredit.isPending ||
             (includedCredit.isError && includedCredit.isFetching) ? (
-              <p className="text-muted">
-                {locale === "ar"
-                  ? "جارٍ التحقق من رصيد تقييم المهمة لهذه الوحدة…"
-                  : "Checking your included evaluation credit for this Unit…"}
-              </p>
+              <p className="text-muted">{t("credit.checking")}</p>
             ) : includedCredit.isError ? (
               <div className="grid justify-items-start gap-2">
-                <p className="text-red-500">
-                  {locale === "ar"
-                    ? "تعذر التحقق من رصيد التقييم الآن. أعد المحاولة قبل إرسال الطلب."
-                    : "We could not verify your evaluation credit. Retry before submitting."}
-                </p>
+                <p className="text-red-500">{t("credit.error")}</p>
                 <button
                   type="button"
                   onClick={() => void includedCredit.refetch()}
                   className="focus-ring rounded-lg border border-primary px-3 py-2 font-semibold text-primary"
                 >
-                  {locale === "ar"
-                    ? "إعادة التحقق من الرصيد"
-                    : "Retry credit check"}
+                  {t("credit.retry")}
                 </button>
               </div>
             ) : hasIncludedCredit ? (
               <>
                 <p className="font-black text-primary">
-                  {locale === "ar"
-                    ? "لديك تقييم مهمة واحد مشمول مع هذه الوحدة"
-                    : "You have 1 assignment evaluation included with this Unit"}
+                  {t("credit.available")}
                 </p>
                 <p className="mt-1 text-muted">
-                  {locale === "ar"
-                    ? "يشمل المراجعة الأولى، ملاحظات المعلم، وفحص نسخة معدلة واحدة. لن يتم إنشاء دفعة منفصلة."
-                    : "It includes the initial review, teacher feedback, and one revised-work check. No separate payment will be created."}
+                  {t("credit.availableDescription")}
                 </p>
               </>
             ) : (
-              <p className="text-muted">
-                {locale === "ar"
-                  ? "لا يوجد رصيد تقييم مشمول لهذه الوحدة؛ سيُستخدم مسار الدفع العادي مرة واحدة للخدمة كاملة."
-                  : "No included evaluation credit is available for this Unit; the standard one-time paid review applies."}
-              </p>
+              <p className="text-muted">{t("credit.unavailable")}</p>
             )}
           </div>
         ) : null}
         <FilePicker
-          label={locale === "ar" ? "ملفات المهمة" : "Assignment files"}
+          label={t("files.label")}
           files={files}
           onFilesChange={setFiles}
           locale={locale}
           accept=".pdf,.docx,.xlsx,.txt,.jpg,.jpeg,.png,.webp"
           multiple
           maxFileBytes={maxFileBytes}
-          chooseLabel={
-            locale === "ar" ? "اختيار ملفات المهمة" : "Choose assignment files"
-          }
-          helpText={
-            locale === "ar"
-              ? "يمكنك إضافة أكثر من ملف. الحد الأقصى 100MB لكل ملف، وتُرفع الملفات بشكل آمن واحدًا تلو الآخر."
-              : "You can add multiple files. Each file is limited to 100MB and uploads securely one at a time."
-          }
+          chooseLabel={t("files.choose")}
+          helpText={t("files.help")}
         />
         <label className="grid gap-1 text-sm font-semibold">
-          {locale === "ar"
-            ? "ماذا تريد من المقيّم؟"
-            : "What do you need from the evaluator?"}
+          {t("evidence.comment")}
           <textarea
             value={selected.comment}
             readOnly={resumeRequested}
@@ -4179,15 +4075,9 @@ function EvaluationWizard() {
         {evaluationId && (
           <section className="grid gap-3 rounded-xl border border-border bg-surface-solid/60 p-4">
             <div>
-              <h2 className="font-black">
-                {locale === "ar"
-                  ? "ملف أدلة المعايير"
-                  : "Criterion evidence portfolio"}
-              </h2>
+              <h2 className="font-black">{t("evidence.portfolio")}</h2>
               <p className="mt-1 text-xs leading-5 text-muted">
-                {locale === "ar"
-                  ? "اربط شرحًا مختصرًا بما يوضّح كل معيار. تبقى ملفات المهمة خاصة ولا يراها سوى الطالب والمقيّم المعيّن والإدارة."
-                  : "Link a short explanation to each criterion. Assignment files remain private to you, the assigned evaluator, and the platform administration."}
+                {t("evidence.description")}
               </p>
             </div>
             {evaluationCriteria.map((criterion) => (
@@ -4203,11 +4093,7 @@ function EvaluationWizard() {
                   }
                   maxLength={4000}
                   className="min-h-20 rounded-lg border bg-transparent p-3"
-                  placeholder={
-                    locale === "ar"
-                      ? "ما الدليل الذي يوضح عملك لهذا المعيار؟"
-                      : "What evidence demonstrates your work for this criterion?"
-                  }
+                  placeholder={t("evidence.placeholder")}
                 />
               </label>
             ))}
@@ -4219,37 +4105,31 @@ function EvaluationWizard() {
         !hasIncludedCredit ? (
           <section className="grid gap-3 rounded-xl border border-border bg-surface-solid/60 p-4">
             <div>
-              <p className="font-black">
-                {locale === "ar"
-                  ? "مراجعة مدفوعة مرة واحدة"
-                  : "One-time paid review"}
-              </p>
+              <p className="font-black">{t("payment.title")}</p>
               <p className="mt-1 text-sm text-muted">
                 {evaluationPrice
-                  ? locale === "ar"
-                    ? `السعر المحدد من الخادم: ${formatLocalizedCurrency(evaluationPrice.price, evaluationPrice.currency, locale)}. تُحسب أي ضريبة مطبقة عند الدفع.`
-                    : `Server-owned review price: ${formatLocalizedCurrency(evaluationPrice.price, evaluationPrice.currency, locale)}. Any applicable tax is calculated at checkout.`
-                  : locale === "ar"
-                    ? "سيتم تأكيد السعر من الخادم قبل إنشاء الدفع."
-                    : "The price will be confirmed by the server before payment is created."}
+                  ? t("payment.priceKnown", {
+                      price: formatLocalizedCurrency(
+                        evaluationPrice.price,
+                        evaluationPrice.currency,
+                        locale,
+                      ),
+                    })
+                  : t("payment.pricePending")}
               </p>
             </div>
             <label className="grid gap-1 text-sm font-semibold">
-              {locale === "ar" ? "طريقة الدفع" : "Payment method"}
+              {t("payment.method")}
               <select
                 value={paymentMethod}
                 onChange={(event) => setPaymentMethod(event.target.value)}
                 className="rounded-lg border bg-transparent p-3"
               >
-                <option value="Card">
-                  {locale === "ar" ? "بطاقة بنكية" : "Bank card"}
-                </option>
+                <option value="Card">{t("payment.card")}</option>
                 <option value="BankTransfer">
-                  {locale === "ar" ? "تحويل بنكي" : "Bank transfer"}
+                  {t("payment.bankTransfer")}
                 </option>
-                <option value="EWallet">
-                  {locale === "ar" ? "محفظة إلكترونية" : "E-wallet"}
-                </option>
+                <option value="EWallet">{t("payment.eWallet")}</option>
               </select>
             </label>
           </section>
@@ -4266,15 +4146,9 @@ function EvaluationWizard() {
               className="mt-1 size-4 accent-primary"
             />
             <span>
-              <strong>
-                {locale === "ar"
-                  ? "إقرار أصالة العمل"
-                  : "Originality declaration"}
-              </strong>
+              <strong>{t("authenticity.title")}</strong>
               <span className="mt-1 block text-muted">
-                {locale === "ar"
-                  ? "أقر بأن الملفات والأدلة المقدمة تخصني، وأنني ذكرت أي مصادر أو مساعدة مسموح بها."
-                  : "I declare that the submitted files and evidence are my own and that I have acknowledged any permitted sources or assistance."}
+                {t("authenticity.description")}
               </span>
             </span>
           </label>
@@ -4289,7 +4163,7 @@ function EvaluationWizard() {
             }
             className="focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-white"
           >
-            {locale === "ar" ? "حفظ ومراجعة الطلب" : "Save and review"}
+            {t("actions.save")}
           </button>
         ) : (
           <button
@@ -4307,12 +4181,8 @@ function EvaluationWizard() {
             {checkout.isPending
               ? "…"
               : hasIncludedCredit
-                ? locale === "ar"
-                  ? "استخدام تقييم المهمة المشمول مع الوحدة"
-                  : "Use included assignment evaluation"
-                : locale === "ar"
-                  ? "متابعة إلى الدفع"
-                  : "Continue to payment"}
+                ? t("actions.included")
+                : t("actions.payment")}
           </button>
         )}
         {paymentSession ? (
@@ -4323,19 +4193,15 @@ function EvaluationWizard() {
             {paymentSession.provider?.startsWith("Fake") ? (
               <>
                 <p className="font-black text-primary">
-                  {locale === "ar"
-                    ? "دفعة اختبارية — بيئة التطوير فقط"
-                    : "Development test payment only"}
+                  {t("developmentPayment.title")}
                 </p>
                 <p className="mt-1 leading-6 text-muted">
-                  {locale === "ar"
-                    ? "تم إنشاء جلسة دفع تجريبية. أكملها يدويًا أدناه؛ هذا الزر لا يظهر كبديل عن تأكيد مزود الدفع الحقيقي في الإنتاج."
-                    : "A fake development payment session was created. Complete it explicitly below; this is not a substitute for real provider confirmation in production."}
+                  {t("developmentPayment.description")}
                 </p>
                 {typeof paymentSession.total === "number" &&
                 paymentSession.currency ? (
                   <p className="mt-2 font-black">
-                    {locale === "ar" ? "المجموع:" : "Total:"}{" "}
+                    {t("developmentPayment.total")}{" "}
                     {formatLocalizedCurrency(
                       paymentSession.total,
                       paymentSession.currency,
@@ -4351,22 +4217,16 @@ function EvaluationWizard() {
                 >
                   {confirmDevelopmentPayment.isPending
                     ? "…"
-                    : locale === "ar"
-                      ? "إتمام الدفع الاختباري"
-                      : "Complete test payment"}
+                    : t("developmentPayment.confirm")}
                 </button>
               </>
             ) : (
               <>
                 <p className="font-black">
-                  {locale === "ar"
-                    ? "تم إنشاء جلسة الدفع"
-                    : "Payment session created"}
+                  {t("developmentPayment.sessionTitle")}
                 </p>
                 <p className="mt-1 leading-6 text-muted">
-                  {locale === "ar"
-                    ? "لم يُرجع مزود الدفع رابط تحويل. لا تعِد إرسال الطلب؛ تابع حالة الدفع من سجل دفعاتك أو تواصل مع الدعم إذا بقيت الحالة معلقة."
-                    : "The payment provider did not return a redirect URL. Do not resubmit the request; check your payment history or contact support if the payment remains pending."}
+                  {t("developmentPayment.sessionDescription")}
                 </p>
               </>
             )}
@@ -4374,23 +4234,19 @@ function EvaluationWizard() {
         ) : null}
         {fileUploadFailed ? (
           <p role="alert" className="text-sm text-red-600">
-            {locale === "ar"
-              ? "تعذر رفع أحد الملفات. بقيت المسودة محفوظة؛ أعد المحاولة لمتابعة الرفع."
-              : "A file could not be uploaded. Your draft is saved; retry to continue the upload."}
+            {t("errors.upload")}
           </p>
         ) : null}
         {checkout.isError ? (
           <p role="alert" className="text-sm text-red-600">
-            {locale === "ar"
-              ? "تعذر إكمال طلب التقييم. لم يُنشأ طلب بديل؛ تحقق من البيانات وأعد المحاولة."
-              : "Unable to complete this evaluation request. No replacement request was created; check the details and retry."}
+            {t("errors.checkout")}
           </p>
         ) : null}
         {(create.isError || confirmDevelopmentPayment.isError) && (
           <p role="alert" className="text-sm text-red-600">
             {(create.error ?? confirmDevelopmentPayment.error) instanceof Error
               ? (create.error ?? confirmDevelopmentPayment.error)?.message
-              : "Request failed."}
+              : t("errors.request")}
           </p>
         )}
       </form>
@@ -4434,22 +4290,21 @@ function Select({
 
 function EvaluationResumeMessage({
   locale,
-  textEn,
-  textAr,
+  kind,
 }: {
   locale: string;
-  textEn: string;
-  textAr: string;
+  kind: "incomplete" | "invalid";
 }) {
+  const t = useTranslations("studentWorkspace.evaluationResume");
   return (
     <section className="shell py-10">
       <div className="card grid justify-items-start gap-3 p-6">
-        <p role="alert">{locale === "ar" ? textAr : textEn}</p>
+        <p role="alert">{t(kind)}</p>
         <Link
           className="focus-ring font-bold text-primary underline"
           href={`/${locale}/student/evaluations`}
         >
-          {locale === "ar" ? "العودة إلى طلباتي" : "Back to My Evaluations"}
+          {t("back")}
         </Link>
       </div>
     </section>
