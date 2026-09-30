@@ -1299,6 +1299,113 @@
         "week": "الأسبوع",
         "day": "اليوم"
       }
+    },
+    "coursePlayer": {
+      "eyebrow": "BETCCO Player",
+      "noAccess": "لا تملك صلاحية الوصول إلى محتوى هذه الدورة.",
+      "modules": "وحدات",
+      "hideContent": "إخفاء المحتوى",
+      "showContent": "إظهار المحتوى",
+      "requestedLessonUnavailable": "الدرس المطلوب غير متاح. تمت إعادتك إلى موضع التعلّم المسموح به.",
+      "minutes": "min",
+      "lockedOnDate": "يفتح هذا المحتوى في {date}.",
+      "lockedPrerequisite": "أكمل المتطلبات السابقة لفتح هذا المحتوى.",
+      "noLessonText": "لم يضف المعلم نصًا لهذا الدرس بعد.",
+      "lessonFiles": "ملفات الدرس",
+      "completed": "مكتمل",
+      "videoCompletion": "يكتمل بعد مشاهدة 80%",
+      "markComplete": "تمييز كمكتمل",
+      "issueCertificate": "طلب شهادة الإكمال",
+      "certificateIssued": "تم إصدار الشهادة. رمز التحقق:",
+      "completeLessonsFirst": "أكمل جميع الدروس أولًا.",
+      "progressSaved": "تم حفظ تقدمك.",
+      "progressSaveError": "تعذر حفظ التقدم. حاول مرة أخرى.",
+      "previousLesson": "الدرس السابق",
+      "nextLesson": "الدرس التالي",
+      "evaluateAssignment": "تقييم مهمتي المدرسية مع BETCCO",
+      "noPublishedLesson": "No published lesson.",
+      "courseContent": "محتوى الدورة"
+    },
+    "lessonVideo": {
+      "accessibleLabel": "فيديو {title}",
+      "unsupported": "المتصفح لا يدعم تشغيل الفيديو.",
+      "loading": "جارٍ تحميل الفيديو…",
+      "unavailable": "تعذر تشغيل الفيديو. حاول مجددًا أو تواصل مع الدعم.",
+      "retry": "إعادة المحاولة",
+      "minutes": "دقيقة"
+    },
+    "announcements": {
+      "title": "إعلانات الدورة",
+      "loadError": "تعذر تحميل الإعلانات الآن."
+    },
+    "resources": {
+      "title": "مركز الموارد",
+      "description": "موارد هذه الدورة المتاحة لك حاليًا.",
+      "filter": "تصفية الموارد",
+      "loadError": "تعذر تحميل الموارد الآن.",
+      "categories": {
+        "all": "كل الأنواع",
+        "pdf": "PDF",
+        "powerPoint": "PowerPoint",
+        "word": "Word",
+        "excel": "Excel",
+        "code": "كود",
+        "video": "فيديو / صوت",
+        "zip": "ZIP",
+        "link": "رابط",
+        "other": "أخرى"
+      }
+    },
+    "lessonWorkspace": {
+      "privateNote": "ملاحظة خاصة",
+      "removeBookmark": "إزالة الإشارة المرجعية",
+      "saveBookmark": "حفظ إشارة مرجعية",
+      "notePlaceholder": "اكتب ملاحظة لا يراها سواك…",
+      "saveNote": "حفظ الملاحظة",
+      "delete": "حذف",
+      "askTeacher": "اسأل معلم الدورة",
+      "questionPlaceholder": "اكتب سؤالك المتعلق بهذا الدرس…",
+      "sendQuestion": "إرسال السؤال",
+      "answered": "تمت الإجابة"
+    },
+    "aiTutor": {
+      "title": "مساعد BETCCO الذكي",
+      "description": "مساند للتعلّم، وليس بديلًا عن عملك",
+      "modes": {
+        "explain": "اشرح",
+        "practice": "تدرّب",
+        "plan": "خطّط"
+      },
+      "placeholder": "اسأل عن محتوى هذا الدرس أو اطلب خطة تدريب…",
+      "askForHelp": "اطلب المساعدة",
+      "sourcesUsed": "المصادر المستخدمة:",
+      "unavailable": "المساعد الذكي غير متاح حاليًا."
+    },
+    "gradebook": {
+      "eyebrow": "BETCCO BTEC",
+      "heading": "تقدّمك ودرجتك المتوقعة",
+      "description": "تُحسب من نتائج المعايير التي قيّمها المعلم على الخادم.",
+      "predictedGrade": "النتيجة المتوقعة",
+      "lessons": "الدروس",
+      "courseworkAssessed": "المهام المكتملة",
+      "assignments": "مهام",
+      "achieved": "مُحقَّق",
+      "criterionStatus": "حالة معايير BTEC",
+      "grades": {
+        "notYetAchieved": "لم يتحقق بعد",
+        "pass": "نجاح",
+        "merit": "تفوق",
+        "distinction": "امتياز"
+      },
+      "criterionStatuses": {
+        "notStarted": "لم يبدأ",
+        "inReview": "قيد المراجعة",
+        "achieved": "مُحقَّق",
+        "notAchieved": "غير مُحقَّق",
+        "needsImprovement": "يحتاج تحسين",
+        "resubmissionRequired": "إعادة تسليم مطلوبة",
+        "notApplicable": "غير منطبق"
+      }
     }
   }
 }
