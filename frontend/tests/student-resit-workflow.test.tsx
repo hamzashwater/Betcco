@@ -19,6 +19,7 @@ import {
 import { StudentArea } from "@/features/student/student-area";
 import { ApiError } from "@/lib/api";
 import { formatLocalizedDate } from "@/i18n/date-time";
+import { formatLocalizedCurrency } from "@/i18n/number-format";
 
 const push = vi.hoisted(() => vi.fn());
 const formattedJodFive = new Intl.NumberFormat("en-JO", {
@@ -361,6 +362,215 @@ describe.each(["en", "ar"] as const)("Resit opportunities in %s", (locale) => {
     },
   );
 });
+
+describe.each(["en", "ar"] as const)(
+  "Resit detail localization in %s",
+  (locale) => {
+    const copy =
+      locale === "ar"
+        ? {
+            back: "العودة إلى الطلبات",
+            loading: "جارٍ تحميل الطلب…",
+            unavailable: "طلب إعادة التقييم غير متاح.",
+            title: "مراجعة Resit نهائية",
+            status: "الحالة",
+            originalRequest: "الطلب الأصلي",
+            draftTitle: "تجهيز أدلة إعادة التقييم",
+            fileLabel: "ملفات إعادة التقييم الجديدة",
+            savedFiles: "الملفات المحفوظة",
+            noFiles: "لم تُرفع ملفات بعد.",
+            evidenceTitle: "أدلة المعايير",
+            evidenceLabel: "دليل A.P1",
+            declaration:
+              "أقر بأن الملفات والأدلة المقدمة تخصني وأنني ذكرت مصادر المساعدة المسموح بها.",
+            paidTitle: "مراجعة Resit مدفوعة",
+            paymentMethod: "طريقة الدفع",
+            card: "بطاقة بنكية",
+            bankTransfer: "تحويل بنكي",
+            eWallet: "محفظة إلكترونية",
+            continuePayment: "المتابعة إلى الدفع",
+            pendingTitle: "الدفع قيد الانتظار",
+            pendingHelp:
+              "تحقق من سجل دفعاتك أو تواصل مع الدعم إذا بقيت الحالة معلقة. لا تبدأ دفعة أخرى.",
+            completedTitle: "النتيجة الاستشارية النهائية للـ Resit",
+            disclaimer:
+              "هذه نتيجة إرشادية من BETCCO وليست نتيجة رسمية من الجهة التعليمية.",
+            awaiting: "ستظهر النتيجة بعد اكتمال المراجعة.",
+          }
+        : {
+            back: "Back to evaluations",
+            loading: "Loading request…",
+            unavailable: "Resit request unavailable.",
+            title: "Resit final review",
+            status: "Status",
+            originalRequest: "Original request",
+            draftTitle: "Prepare Resit evidence",
+            fileLabel: "Fresh Resit files",
+            savedFiles: "Saved files",
+            noFiles: "No files uploaded yet.",
+            evidenceTitle: "Criterion evidence",
+            evidenceLabel: "Evidence for A.P1",
+            declaration:
+              "I declare these files and evidence are my own and acknowledge permitted sources of help.",
+            paidTitle: "Paid Resit review",
+            paymentMethod: "Payment method",
+            card: "Bank card",
+            bankTransfer: "Bank transfer",
+            eWallet: "E-wallet",
+            continuePayment: "Continue to payment",
+            pendingTitle: "Payment pending",
+            pendingHelp:
+              "Check your payment history or contact support if this remains pending. Do not start another payment.",
+            completedTitle: "Final Resit advisory result",
+            disclaimer:
+              "This is a BETCCO advisory result, not an official school or awarding body result.",
+            awaiting: "The result will appear after review is complete.",
+          };
+
+    function detail(status: string) {
+      return {
+        id: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+        status,
+        price: 5,
+        currency: "JOD",
+        isResit: true,
+        resitOfEvaluationRequestId: authorized.originalEvaluationRequestId,
+        academic: null,
+        criteria: ["A.P1"],
+        files: [],
+        evidence: [],
+        hasAuthenticityDeclaration: false,
+        calculatedGrade: null,
+        sectionResults: [],
+        results: [],
+        feedback: [],
+      };
+    }
+
+    it("renders localized Draft copy while preserving raw identifiers, state, criterion, and server price", async () => {
+      const data = detail("Draft");
+      apiMock.mockResolvedValue(data);
+      renderPage(<StudentResitDetail evaluationId={data.id} />, locale);
+
+      expect(
+        await screen.findByRole("heading", { level: 1, name: copy.title }),
+      ).toBeVisible();
+      expect(screen.getByRole("link", { name: copy.back })).toHaveAttribute(
+        "href",
+        `/${locale}/student/evaluations`,
+      );
+      expect(screen.getByText(`${copy.status}: Draft`)).toBeVisible();
+      expect(
+        screen.getByText(`${copy.originalRequest}: bbbbbbbb`),
+      ).toBeVisible();
+      expect(screen.getByText(copy.draftTitle)).toBeVisible();
+      expect(screen.getByText(copy.fileLabel)).toBeVisible();
+      expect(screen.getByText(copy.savedFiles)).toBeVisible();
+      expect(screen.getByText(copy.noFiles)).toBeVisible();
+      expect(screen.getByText(copy.evidenceTitle)).toBeVisible();
+      expect(
+        screen.getByRole("textbox", { name: copy.evidenceLabel }),
+      ).toBeVisible();
+      expect(screen.getByText(copy.declaration)).toBeVisible();
+      expect(screen.getByText(copy.paidTitle)).toBeVisible();
+      expect(screen.getByText(copy.paymentMethod)).toBeVisible();
+      expect(screen.getByRole("option", { name: copy.card })).toHaveValue(
+        "Card",
+      );
+      expect(
+        screen.getByRole("option", { name: copy.bankTransfer }),
+      ).toHaveValue("BankTransfer");
+      expect(screen.getByRole("option", { name: copy.eWallet })).toHaveValue(
+        "EWallet",
+      );
+      expect(
+        screen.getByRole("button", { name: copy.continuePayment }),
+      ).toBeDisabled();
+      const formattedPrice = formatLocalizedCurrency(5, "JOD", locale);
+      const expectedPrice = (
+        locale === "ar"
+          ? `السعر المحدد من الخادم: ${formattedPrice}. تُحسب أي ضريبة مطبقة عند الدفع.`
+          : `Server-owned Resit review price: ${formattedPrice}. Any applicable tax is calculated at checkout.`
+      )
+        .replace(/\s+/gu, " ")
+        .trim();
+      expect(
+        screen.getByText(
+          (_content, element) =>
+            element?.textContent?.replace(/\s+/gu, " ").trim() ===
+            expectedPrice,
+        ),
+      ).toBeVisible();
+    });
+
+    it("localizes loading and unavailable states", async () => {
+      apiMock.mockReturnValue(new Promise(() => {}));
+      const view = renderPage(
+        <StudentResitDetail evaluationId="loading-id" />,
+        locale,
+      );
+      expect(screen.getByRole("status")).toHaveTextContent(copy.loading);
+      view.unmount();
+
+      apiMock.mockReset();
+      apiMock.mockResolvedValue({ ...detail("Draft"), isResit: false });
+      renderPage(<StudentResitDetail evaluationId="not-resit-id" />, locale);
+      expect(await screen.findByRole("alert")).toHaveTextContent(
+        copy.unavailable,
+      );
+    });
+
+    it("localizes PendingPayment and awaiting-review states", async () => {
+      apiMock.mockResolvedValue(detail("PendingPayment"));
+      const pending = renderPage(
+        <StudentResitDetail evaluationId="pending-id" />,
+        locale,
+      );
+      expect(
+        await screen.findByRole("heading", { name: copy.pendingTitle }),
+      ).toBeVisible();
+      expect(screen.getByText(copy.pendingHelp)).toBeVisible();
+      pending.unmount();
+
+      apiMock.mockReset();
+      apiMock.mockResolvedValue(detail("PendingAssignment"));
+      renderPage(<StudentResitDetail evaluationId="review-id" />, locale);
+      expect(await screen.findByText(copy.awaiting)).toBeVisible();
+    });
+
+    it("localizes completed framing while preserving raw result and feedback values", async () => {
+      apiMock.mockResolvedValue({
+        ...detail("Completed"),
+        calculatedGrade: "Raw Grade",
+        sectionResults: [
+          { section: "Raw Section", grade: "Raw Section Grade" },
+        ],
+        results: [
+          {
+            criterionCode: "A.P1",
+            achievement: "Raw Achievement",
+            comment: "Raw Comment",
+          },
+        ],
+        feedback: [
+          { body: "Raw Feedback", createdAtUtc: "2026-09-30T00:00:00Z" },
+        ],
+      });
+      renderPage(<StudentResitDetail evaluationId="completed-id" />, locale);
+
+      expect(
+        await screen.findByRole("heading", { name: copy.completedTitle }),
+      ).toBeVisible();
+      expect(screen.getByText("Raw Grade")).toBeVisible();
+      expect(screen.getByText("Raw Section: Raw Section Grade")).toBeVisible();
+      expect(
+        screen.getByText("A.P1: Raw Achievement · Raw Comment"),
+      ).toBeVisible();
+      expect(screen.getByText("Raw Feedback")).toBeVisible();
+      expect(screen.getByText(copy.disclaimer)).toBeVisible();
+    });
+  },
+);
 
 describe("student Resit workflow", () => {
   it("keeps authorization discovery available when evaluation history fails", async () => {
