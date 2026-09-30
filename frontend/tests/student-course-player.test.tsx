@@ -24,6 +24,8 @@ function playerResponse(
   options: {
     currentLessonId?: string;
     requestedLessonRejected?: boolean;
+    lockedReason?: string;
+    availableAtUtc?: string;
   } = {},
 ) {
   return {
@@ -74,7 +76,8 @@ function playerResponse(
             durationSeconds: 0,
             type: "Text",
             isLocked: true,
-            lockReason: "CompletePrerequisite",
+            lockReason: options.lockedReason ?? "CompletePrerequisite",
+            availableAtUtc: options.availableAtUtc,
             resources: [],
             isCompleted: false,
             lastPositionSeconds: 0,
@@ -96,7 +99,10 @@ function playerResponse(
   };
 }
 
-function installFetch(response = playerResponse()) {
+function installFetch(
+  response = playerResponse(),
+  extra?: (url: URL, init?: RequestInit) => Response | undefined,
+) {
   const fetchMock = vi.fn(
     async (input: string | URL | Request, init?: RequestInit) => {
       const url = new URL(String(input), "https://betcco.test");
@@ -115,6 +121,8 @@ function installFetch(response = playerResponse()) {
           lastVisitedAtUtc: "2026-09-16T08:01:00Z",
         });
       }
+      const extraResponse = extra?.(url, init);
+      if (extraResponse) return extraResponse;
       return Response.json(
         { message: "Not part of this focused test" },
         { status: 404 },
@@ -141,6 +149,135 @@ function renderPlayer(locale: "ar" | "en" = "en", requestedLessonId?: string) {
         />
       </NextIntlClientProvider>
     </QueryClientProvider>,
+  );
+}
+
+function installLearningFetch() {
+  return installFetch(
+    playerResponse({
+      lockedReason: "AvailableOnDate",
+      availableAtUtc: "2026-10-01T09:00:00Z",
+    }),
+    (url) => {
+      if (
+        url.pathname.endsWith(
+          `/student-tools/courses/${courseId}/announcements`,
+        )
+      )
+        return Response.json({ message: "Unavailable" }, { status: 503 });
+      if (url.pathname.endsWith(`/learning/courses/${courseId}/resources`))
+        return Response.json([
+          {
+            id: "resource-1",
+            lessonId: resumeId,
+            lessonTitle: "Server lesson title",
+            displayName: "Course handout",
+            contentType: "application/pdf",
+            category: "PDF",
+          },
+          {
+            id: "resource-2",
+            lessonId: resumeId,
+            lessonTitle: "Server lesson title",
+            displayName: "Legacy file",
+            contentType: "application/octet-stream",
+            category: "LegacyPack",
+          },
+          {
+            id: "resource-3",
+            lessonId: resumeId,
+            lessonTitle: "Server lesson title",
+            displayName: "Code sample",
+            contentType: "text/plain",
+            category: "Code",
+          },
+        ]);
+      if (url.pathname.endsWith("/student-tools/overview"))
+        return Response.json({
+          notes: [{ lessonId: resumeId, body: "Server note" }],
+          bookmarks: [],
+          calendar: [],
+          certificates: [],
+          upcomingAssignments: [],
+          unreadNotifications: 0,
+          achievements: [],
+          pendingActions: [],
+        });
+      if (
+        url.pathname.endsWith(`/course-community/courses/${courseId}/questions`)
+      )
+        return Response.json([
+          {
+            id: "question-1",
+            lessonId: resumeId,
+            body: "Server question",
+            isResolved: true,
+            replies: [
+              { id: "reply-1", body: "Server reply", authorName: "Tutor" },
+            ],
+          },
+        ]);
+      if (url.pathname.endsWith(`/gradebook/student/courses/${courseId}`)) {
+        const grade = {
+          predictedGrade: "Pass",
+          passAchieved: 1,
+          passRequired: 2,
+          meritAchieved: 0,
+          meritRequired: 1,
+          distinctionAchieved: 0,
+          distinctionRequired: 1,
+        };
+        return Response.json({
+          courseId,
+          courseTitle: "Server course title",
+          lessonProgressPercent: 50,
+          lessonsCompleted: 1,
+          lessonsTotal: 2,
+          assignmentsCompleted: 1,
+          assignmentsTotal: 1,
+          predictedGrade: grade,
+          units: [
+            {
+              unitId: "unit-1",
+              unitTitle: "Server unit title",
+              lessonProgressPercent: 50,
+              lessonsCompleted: 1,
+              lessonsTotal: 2,
+              predictedGrade: { ...grade, predictedGrade: "LegacyGrade" },
+              learningAims: [],
+            },
+          ],
+          criteria: [
+            {
+              assignmentId: "assignment-1",
+              assignmentTitle: "Server assignment",
+              code: "P1",
+              band: "Pass",
+              status: "InReview",
+            },
+            {
+              assignmentId: "assignment-2",
+              assignmentTitle: "Server assignment",
+              code: "M1",
+              band: "Merit",
+              status: "LegacyStatus",
+            },
+          ],
+        });
+      }
+      if (url.pathname.endsWith(`/ai/courses/${courseId}/chat`))
+        return Response.json({
+          text: "Server AI reply",
+          citations: ["Server citation\nprivate line"],
+        });
+      if (
+        url.pathname.endsWith("/student-tools/notes") ||
+        url.pathname.endsWith(`/student-tools/notes/${resumeId}`) ||
+        url.pathname.endsWith(`/student-tools/bookmarks/${resumeId}`)
+      )
+        return Response.json({});
+      return undefined;
+    },
   );
 }
 
@@ -263,6 +400,225 @@ describe("Student course player resume", () => {
       expect(screen.queryByRole("status")).not.toBeInTheDocument();
     },
   );
+});
+
+describe.each([
+  [
+    "en",
+    {
+      player: "BETCCO Player",
+      modules: "modules",
+      previous: "Previous lesson",
+      next: "Next lesson",
+      locked: "This content opens on",
+      video: "Resume video video",
+      videoLoading: "Loading video…",
+      videoRetry: "Retry video",
+      announcements: "Course announcements",
+      announcementError: "Announcements could not be loaded now.",
+      resources: "Resource center",
+      filter: "Filter resources",
+      all: "All types",
+      code: "Code",
+      note: "Private note",
+      notePlaceholder: "Write a note only you can see…",
+      saveNote: "Save note",
+      delete: "Delete",
+      bookmark: "Save bookmark",
+      askTeacher: "Ask the course teacher",
+      questionPlaceholder: "Ask about this lesson…",
+      sendQuestion: "Send question",
+      answered: "Answered",
+      tutor: "BETCCO AI Tutor",
+      plan: "Plan",
+      aiPlaceholder: "Ask about this lesson or request a practice plan…",
+      askForHelp: "Ask for help",
+      sources: "Sources used:",
+      gradebook: "Your progress and predicted grade",
+      predicted: "Predicted grade",
+      grade: "Pass",
+      criterionHeading: "BTEC criterion status",
+      criterion: "In review",
+    },
+  ],
+  [
+    "ar",
+    {
+      player: "BETCCO Player",
+      modules: "وحدات",
+      previous: "الدرس السابق",
+      next: "الدرس التالي",
+      locked: "يفتح هذا المحتوى في",
+      video: "فيديو Resume video",
+      videoLoading: "جارٍ تحميل الفيديو…",
+      videoRetry: "إعادة المحاولة",
+      announcements: "إعلانات الدورة",
+      announcementError: "تعذر تحميل الإعلانات الآن.",
+      resources: "مركز الموارد",
+      filter: "تصفية الموارد",
+      all: "كل الأنواع",
+      code: "كود",
+      note: "ملاحظة خاصة",
+      notePlaceholder: "اكتب ملاحظة لا يراها سواك…",
+      saveNote: "حفظ الملاحظة",
+      delete: "حذف",
+      bookmark: "حفظ إشارة مرجعية",
+      askTeacher: "اسأل معلم الدورة",
+      questionPlaceholder: "اكتب سؤالك المتعلق بهذا الدرس…",
+      sendQuestion: "إرسال السؤال",
+      answered: "تمت الإجابة",
+      tutor: "مساعد BETCCO الذكي",
+      plan: "خطّط",
+      aiPlaceholder: "اسأل عن محتوى هذا الدرس أو اطلب خطة تدريب…",
+      askForHelp: "اطلب المساعدة",
+      sources: "المصادر المستخدمة:",
+      gradebook: "تقدّمك ودرجتك المتوقعة",
+      predicted: "النتيجة المتوقعة",
+      grade: "نجاح",
+      criterionHeading: "حالة معايير BTEC",
+      criterion: "قيد المراجعة",
+    },
+  ],
+] as const)("localized course learning in %s", (locale, copy) => {
+  afterEach(() => {
+    cleanup();
+    invalidateCsrfToken();
+    vi.restoreAllMocks();
+  });
+
+  it("renders player, video, announcements and resource labels", async () => {
+    installLearningFetch();
+    const { container } = renderPlayer(locale);
+    expect(await screen.findByText(copy.player)).toBeVisible();
+    expect(screen.getByText(new RegExp(copy.modules))).toBeVisible();
+    expect(screen.getByRole("link", { name: copy.previous })).toHaveAttribute(
+      "href",
+      `/${locale}/student/learn/${courseId}?lessonId=${firstId}`,
+    );
+    expect(screen.getByRole("link", { name: copy.next })).toHaveAttribute(
+      "href",
+      `/${locale}/student/learn/${courseId}?lessonId=${fourthId}`,
+    );
+    expect(
+      screen.getByRole("button", { name: "Locked lesson" }),
+    ).toHaveAttribute("title", expect.stringContaining(copy.locked));
+    expect(container.querySelector("section[dir]")).toHaveAttribute(
+      "dir",
+      locale === "ar" ? "rtl" : "ltr",
+    );
+    expect(screen.getByLabelText(copy.video)).toBeVisible();
+    expect(screen.getByRole("status")).toHaveTextContent(copy.videoLoading);
+    fireEvent.error(container.querySelector("video")!);
+    expect(screen.getByRole("button", { name: copy.videoRetry })).toBeVisible();
+    expect(await screen.findByText(copy.announcements)).toBeVisible();
+    expect(screen.getByText(copy.announcementError)).toBeVisible();
+    expect(await screen.findByText(copy.resources)).toBeVisible();
+    const filter = screen.getByRole("combobox", { name: copy.filter });
+    expect(filter).toHaveValue("All");
+    expect(screen.getByRole("option", { name: copy.all })).toBeVisible();
+    expect(screen.getByRole("option", { name: copy.code })).toBeVisible();
+    expect(screen.getByRole("option", { name: "LegacyPack" })).toBeVisible();
+    expect(screen.getByText("Course handout")).toBeVisible();
+    expect(screen.getAllByText(/LegacyPack/).length).toBeGreaterThan(1);
+  });
+
+  it("renders notes, questions, tutor and gradebook while keeping API enums and fallbacks", async () => {
+    const fetchMock = installLearningFetch();
+    renderPlayer(locale);
+    expect(await screen.findByText(copy.note)).toBeVisible();
+    await waitFor(() =>
+      expect(screen.getByPlaceholderText(copy.notePlaceholder)).toHaveValue(
+        "Server note",
+      ),
+    );
+    expect(screen.getByRole("button", { name: copy.saveNote })).toBeVisible();
+    expect(screen.getByRole("button", { name: copy.delete })).toBeVisible();
+    expect(screen.getByRole("button", { name: copy.bookmark })).toBeVisible();
+    expect(screen.getByText(copy.askTeacher)).toBeVisible();
+    expect(screen.getByPlaceholderText(copy.questionPlaceholder)).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: copy.sendQuestion }),
+    ).toBeVisible();
+    expect(screen.getByText(copy.answered)).toBeVisible();
+    expect(screen.getByText("Server question")).toBeVisible();
+    expect(screen.getByText(copy.tutor)).toBeVisible();
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: copy.saveNote }));
+    await waitFor(() =>
+      expect(
+        fetchMock.mock.calls.some(
+          ([input, init]) =>
+            String(input).endsWith("/student-tools/notes") &&
+            init?.method === "POST" &&
+            JSON.parse(String(init.body)).lessonId === resumeId &&
+            JSON.parse(String(init.body)).body === "Server note",
+        ),
+      ).toBe(true),
+    );
+    await user.click(screen.getByRole("button", { name: copy.delete }));
+    await waitFor(() =>
+      expect(
+        fetchMock.mock.calls.some(
+          ([input, init]) =>
+            String(input).endsWith(`/student-tools/notes/${resumeId}`) &&
+            init?.method === "DELETE",
+        ),
+      ).toBe(true),
+    );
+    await user.click(screen.getByRole("button", { name: copy.bookmark }));
+    await waitFor(() =>
+      expect(
+        fetchMock.mock.calls.some(
+          ([input, init]) =>
+            String(input).endsWith(`/student-tools/bookmarks/${resumeId}`) &&
+            init?.method === "POST",
+        ),
+      ).toBe(true),
+    );
+    await user.type(
+      screen.getByPlaceholderText(copy.questionPlaceholder),
+      "How does this work?",
+    );
+    await user.click(screen.getByRole("button", { name: copy.sendQuestion }));
+    await waitFor(() =>
+      expect(
+        fetchMock.mock.calls.some(
+          ([input, init]) =>
+            String(input).endsWith(
+              `/course-community/courses/${courseId}/questions`,
+            ) &&
+            init?.method === "POST" &&
+            JSON.parse(String(init.body)).body === "How does this work?" &&
+            JSON.parse(String(init.body)).lessonId === resumeId,
+        ),
+      ).toBe(true),
+    );
+    await user.click(screen.getByRole("button", { name: copy.plan }));
+    await user.type(
+      screen.getByPlaceholderText(copy.aiPlaceholder),
+      "Help me study",
+    );
+    await user.click(screen.getByRole("button", { name: copy.askForHelp }));
+    await waitFor(() =>
+      expect(
+        fetchMock.mock.calls.some(
+          ([input, init]) =>
+            String(input).endsWith(`/ai/courses/${courseId}/chat`) &&
+            JSON.parse(String(init?.body)).mode === "Plan",
+        ),
+      ).toBe(true),
+    );
+    expect(await screen.findByText("Server AI reply")).toBeVisible();
+    expect(screen.getByText(new RegExp(copy.sources))).toBeVisible();
+    expect(await screen.findByText(copy.gradebook)).toBeVisible();
+    expect(screen.getByText(copy.predicted)).toBeVisible();
+    expect(screen.getByText(copy.grade)).toBeVisible();
+    expect(screen.getByText(copy.criterionHeading)).toBeVisible();
+    await user.click(screen.getByText(copy.criterionHeading));
+    expect(screen.getByText(copy.criterion)).toBeVisible();
+    expect(screen.getByText(/LegacyGrade/)).toBeVisible();
+    expect(screen.getByText("LegacyStatus")).toBeVisible();
+  });
 });
 
 function progressCalls(fetchMock: ReturnType<typeof vi.fn>) {

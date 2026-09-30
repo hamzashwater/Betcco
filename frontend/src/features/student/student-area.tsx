@@ -1877,6 +1877,7 @@ function CoursePlayer({
   courseId: string;
   requestedLessonId?: string;
 }) {
+  const t = useTranslations("studentWorkspace");
   const locale = useLocale();
   const client = useQueryClient();
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -1949,22 +1950,25 @@ function CoursePlayer({
     onSuccess: () =>
       client.invalidateQueries({ queryKey: ["student-learning-overview"] }),
   });
+  const lockedMessage = (reason?: string, availableAtUtc?: string) => {
+    if (reason === "AvailableOnDate" || reason === "AvailableAfterEnrollment")
+      return t("coursePlayer.lockedOnDate", {
+        date: formatLocalizedDateTime(availableAtUtc, locale),
+      });
+    return t("coursePlayer.lockedPrerequisite");
+  };
   if (result.isPending)
     return (
       <section className="shell py-10">
         <div className="card p-6" aria-busy>
-          …
+          {t("loading")}
         </div>
       </section>
     );
   if (result.isError || !result.data)
     return (
       <section className="shell py-10">
-        <p className="card p-6">
-          {locale === "ar"
-            ? "لا تملك صلاحية الوصول إلى محتوى هذه الدورة."
-            : "You do not have access to this course."}
-        </p>
+        <p className="card p-6">{t("coursePlayer.noAccess")}</p>
       </section>
     );
   const visibleModules = result.data.modules.map((module) => ({
@@ -1992,13 +1996,13 @@ function CoursePlayer({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-              BETCCO Player
+              {t("coursePlayer.eyebrow")}
             </p>
             <h1 className="mt-2 text-3xl font-black">{result.data.title}</h1>
           </div>
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-white/5 px-3 py-2 text-xs font-bold text-muted">
             <ListVideo size={15} aria-hidden="true" />
-            {result.data.modules.length} {locale === "ar" ? "وحدات" : "modules"}
+            {result.data.modules.length} {t("coursePlayer.modules")}
           </span>
           <button
             type="button"
@@ -2013,12 +2017,8 @@ function CoursePlayer({
               <PanelRightOpen size={17} aria-hidden="true" />
             )}
             {sidebarOpen
-              ? locale === "ar"
-                ? "إخفاء المحتوى"
-                : "Hide content"
-              : locale === "ar"
-                ? "إظهار المحتوى"
-                : "Show content"}
+              ? t("coursePlayer.hideContent")
+              : t("coursePlayer.showContent")}
           </button>
         </div>
         {result.data.requestedLessonRejected ? (
@@ -2026,9 +2026,7 @@ function CoursePlayer({
             role="alert"
             className="mt-5 rounded-xl border border-amber-400/35 bg-amber-400/10 px-4 py-3 text-sm font-semibold text-amber-200"
           >
-            {locale === "ar"
-              ? "الدرس المطلوب غير متاح. تمت إعادتك إلى موضع التعلّم المسموح به."
-              : "That lesson is unavailable. You were returned to your authorized learning position."}
+            {t("coursePlayer.requestedLessonUnavailable")}
           </p>
         ) : null}
         <StudentProgressIntelligence courseId={courseId} />
@@ -2040,7 +2038,6 @@ function CoursePlayer({
               <LessonVideo
                 key={`video-${lesson.id}`}
                 lesson={lesson}
-                locale={locale}
                 savePending={progress.isPending}
                 onSave={(lastPositionSeconds, markCompleted) =>
                   progress.mutate({
@@ -2061,19 +2058,13 @@ function CoursePlayer({
                 </p>
                 <p className="relative mt-2 flex items-center gap-2 text-sm text-slate-300">
                   <Timer size={15} aria-hidden="true" />
-                  {lesson.type} · {Math.round(lesson.durationSeconds / 60)} min
+                  {lesson.type} · {Math.round(lesson.durationSeconds / 60)}{" "}
+                  {t("coursePlayer.minutes")}
                 </p>
                 <p className="relative mt-8 max-w-md whitespace-pre-wrap text-sm leading-6 text-slate-300">
                   {lesson.isLocked
-                    ? lockedContentMessage(
-                        locale,
-                        lesson.lockReason,
-                        lesson.availableAtUtc,
-                      )
-                    : lesson.body ||
-                      (locale === "ar"
-                        ? "لم يضف المعلم نصًا لهذا الدرس بعد."
-                        : "The teacher has not added lesson text yet.")}
+                    ? lockedMessage(lesson.lockReason, lesson.availableAtUtc)
+                    : lesson.body || t("coursePlayer.noLessonText")}
                 </p>
               </div>
             )}
@@ -2084,9 +2075,7 @@ function CoursePlayer({
             ) : null}
             {lesson.resources.length ? (
               <div className="mt-5 rounded-2xl border border-border bg-surface-solid/55 p-4">
-                <h2 className="font-black">
-                  {locale === "ar" ? "ملفات الدرس" : "Lesson files"}
-                </h2>
+                <h2 className="font-black">{t("coursePlayer.lessonFiles")}</h2>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {lesson.resources.map((resource) => (
                     <a
@@ -2127,16 +2116,10 @@ function CoursePlayer({
             >
               <CircleCheckBig size={18} aria-hidden="true" />
               {lesson.isCompleted
-                ? locale === "ar"
-                  ? "مكتمل"
-                  : "Completed"
+                ? t("coursePlayer.completed")
                 : lesson.type === "Video"
-                  ? locale === "ar"
-                    ? "يكتمل بعد مشاهدة 80%"
-                    : "Completes after 80% watched"
-                  : locale === "ar"
-                    ? "تمييز كمكتمل"
-                    : "Mark complete"}
+                  ? t("coursePlayer.videoCompletion")
+                  : t("coursePlayer.markComplete")}
             </button>
             <button
               type="button"
@@ -2145,15 +2128,11 @@ function CoursePlayer({
               className="focus-ring ms-3 mt-5 inline-flex items-center gap-2 rounded-xl border border-primary/50 px-4 py-3 font-bold text-primary hover:bg-primary/10"
             >
               <FileBadge size={18} aria-hidden="true" />
-              {locale === "ar"
-                ? "طلب شهادة الإكمال"
-                : "Issue completion certificate"}
+              {t("coursePlayer.issueCertificate")}
             </button>
             {certificate.data ? (
               <p role="status" className="mt-3 text-sm text-primary">
-                {locale === "ar"
-                  ? "تم إصدار الشهادة. رمز التحقق: "
-                  : "Certificate issued. Verification code: "}
+                {t("coursePlayer.certificateIssued")}{" "}
                 {certificate.data.verificationCode}
               </p>
             ) : null}
@@ -2161,21 +2140,17 @@ function CoursePlayer({
               <p role="alert" className="mt-3 text-sm text-red-400">
                 {certificate.error instanceof Error
                   ? certificate.error.message
-                  : locale === "ar"
-                    ? "أكمل جميع الدروس أولًا."
-                    : "Complete all lessons first."}
+                  : t("coursePlayer.completeLessonsFirst")}
               </p>
             ) : null}
             {progress.isSuccess ? (
               <p role="status" className="mt-3 text-sm text-primary">
-                {locale === "ar" ? "تم حفظ تقدمك." : "Your progress was saved."}
+                {t("coursePlayer.progressSaved")}
               </p>
             ) : null}
             {progress.isError ? (
               <p role="alert" className="mt-3 text-sm text-red-400">
-                {locale === "ar"
-                  ? "تعذر حفظ التقدم. حاول مرة أخرى."
-                  : "Progress could not be saved. Try again."}
+                {t("coursePlayer.progressSaveError")}
               </p>
             ) : null}
             <MotivationCard variant="player" className="mt-5" />
@@ -2197,7 +2172,7 @@ function CoursePlayer({
                     className="rtl:rotate-180"
                     aria-hidden="true"
                   />
-                  {locale === "ar" ? "الدرس السابق" : "Previous lesson"}
+                  {t("coursePlayer.previousLesson")}
                 </Link>
               ) : (
                 <span className="inline-flex cursor-not-allowed items-center gap-1 rounded-xl border border-border px-3 py-2.5 text-sm font-bold text-muted opacity-40">
@@ -2206,7 +2181,7 @@ function CoursePlayer({
                     className="rtl:rotate-180"
                     aria-hidden="true"
                   />
-                  {locale === "ar" ? "الدرس السابق" : "Previous lesson"}
+                  {t("coursePlayer.previousLesson")}
                 </span>
               )}
               {nextLesson ? (
@@ -2214,7 +2189,7 @@ function CoursePlayer({
                   href={lessonHref(nextLesson.id)}
                   className="focus-ring inline-flex items-center gap-1 rounded-xl bg-primary px-3 py-2.5 text-sm font-black text-slate-950"
                 >
-                  {locale === "ar" ? "الدرس التالي" : "Next lesson"}
+                  {t("coursePlayer.nextLesson")}
                   <ArrowRight
                     size={16}
                     className="rtl:rotate-180"
@@ -2223,7 +2198,7 @@ function CoursePlayer({
                 </Link>
               ) : (
                 <span className="inline-flex cursor-not-allowed items-center gap-1 rounded-xl bg-primary px-3 py-2.5 text-sm font-black text-slate-950 opacity-40">
-                  {locale === "ar" ? "الدرس التالي" : "Next lesson"}
+                  {t("coursePlayer.nextLesson")}
                   <ArrowRight
                     size={16}
                     className="rtl:rotate-180"
@@ -2242,15 +2217,15 @@ function CoursePlayer({
                   className="focus-ring mt-4 inline-block rounded-xl border border-primary/40 px-4 py-3 text-sm font-bold text-primary"
                   href={`/${locale}/student/evaluations/new`}
                 >
-                  {locale === "ar"
-                    ? "تقييم مهمتي المدرسية مع BETCCO"
-                    : "Evaluate my school assignment with BETCCO"}
+                  {t("coursePlayer.evaluateAssignment")}
                 </Link>
               </>
             ) : null}
           </>
         ) : (
-          <p className="mt-5 text-muted">No published lesson.</p>
+          <p className="mt-5 text-muted">
+            {t("coursePlayer.noPublishedLesson")}
+          </p>
         )}
       </div>
       <aside
@@ -2259,7 +2234,7 @@ function CoursePlayer({
       >
         <h2 className="flex items-center gap-2 font-black">
           <ListVideo size={18} className="text-primary" aria-hidden="true" />
-          {locale === "ar" ? "محتوى الدورة" : "Course content"}
+          {t("coursePlayer.courseContent")}
         </h2>
         <div className="mt-3 space-y-4">
           {visibleModules.map((module) => (
@@ -2272,8 +2247,7 @@ function CoursePlayer({
                       key={item.id}
                       type="button"
                       disabled
-                      title={lockedContentMessage(
-                        locale,
+                      title={lockedMessage(
                         item.lockReason,
                         item.availableAtUtc,
                       )}
@@ -2294,7 +2268,7 @@ function CoursePlayer({
                         <CircleCheckBig
                           size={15}
                           className="shrink-0 text-emerald-400"
-                          aria-label={locale === "ar" ? "مكتمل" : "Completed"}
+                          aria-label={t("coursePlayer.completed")}
                         />
                       ) : null}
                     </Link>
@@ -2311,15 +2285,14 @@ function CoursePlayer({
 
 function LessonVideo({
   lesson,
-  locale,
   savePending,
   onSave,
 }: {
   lesson: StudentCoursePlayerLesson;
-  locale: string;
   savePending: boolean;
   onSave: (lastPositionSeconds: number, markCompleted: boolean) => void;
 }) {
+  const t = useTranslations("studentWorkspace");
   const lastSubmittedPosition = useRef(lesson.lastPositionSeconds);
   const lastSubmittedAt = useRef(0);
   const [playbackState, setPlaybackState] = useState<
@@ -2367,9 +2340,7 @@ function LessonVideo({
         controls
         preload="metadata"
         className="aspect-video w-full"
-        aria-label={
-          locale === "ar" ? `فيديو ${lesson.title}` : `${lesson.title} video`
-        }
+        aria-label={t("lessonVideo.accessibleLabel", { title: lesson.title })}
         src={`/api/v1/learning/lessons/${lesson.id}/video?retry=${retryCount}`}
         onCanPlay={() => setPlaybackState("ready")}
         onWaiting={() => setPlaybackState("loading")}
@@ -2392,13 +2363,11 @@ function LessonVideo({
           save(event.currentTarget, { force: true, complete: true })
         }
       >
-        {locale === "ar"
-          ? "المتصفح لا يدعم تشغيل الفيديو."
-          : "Your browser does not support video playback."}
+        {t("lessonVideo.unsupported")}
       </video>
       {playbackState === "loading" ? (
         <p role="status" className="px-4 py-2 text-sm text-slate-300">
-          {locale === "ar" ? "جارٍ تحميل الفيديو…" : "Loading video…"}
+          {t("lessonVideo.loading")}
         </p>
       ) : null}
       {playbackState === "error" ? (
@@ -2406,11 +2375,7 @@ function LessonVideo({
           role="alert"
           className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm text-white"
         >
-          <span>
-            {locale === "ar"
-              ? "تعذر تشغيل الفيديو. حاول مجددًا أو تواصل مع الدعم."
-              : "Video unavailable. Try again or contact support."}
-          </span>
+          <span>{t("lessonVideo.unavailable")}</span>
           <button
             type="button"
             className="focus-ring rounded-lg border border-white/40 px-3 py-1.5 font-bold"
@@ -2419,7 +2384,7 @@ function LessonVideo({
               setRetryCount((count) => count + 1);
             }}
           >
-            {locale === "ar" ? "إعادة المحاولة" : "Retry video"}
+            {t("lessonVideo.retry")}
           </button>
         </div>
       ) : null}
@@ -2428,31 +2393,15 @@ function LessonVideo({
         <p className="mt-1 flex items-center gap-2 text-xs text-slate-300">
           <Timer size={14} aria-hidden="true" />
           {lesson.video?.displayName} ·{" "}
-          {Math.round(lesson.durationSeconds / 60)}{" "}
-          {locale === "ar" ? "دقيقة" : "min"}
+          {Math.round(lesson.durationSeconds / 60)} {t("lessonVideo.minutes")}
         </p>
       </div>
     </div>
   );
 }
 
-function lockedContentMessage(
-  locale: string,
-  reason?: string,
-  availableAtUtc?: string,
-) {
-  if (reason === "AvailableOnDate" || reason === "AvailableAfterEnrollment") {
-    const date = formatLocalizedDateTime(availableAtUtc, locale);
-    return locale === "ar"
-      ? `يفتح هذا المحتوى في ${date}.`
-      : `This content opens on ${date}.`;
-  }
-  return locale === "ar"
-    ? "أكمل المتطلبات السابقة لفتح هذا المحتوى."
-    : "Complete the required previous content to unlock this item.";
-}
-
 function CourseAnnouncementsPanel({ courseId }: { courseId: string }) {
+  const t = useTranslations("studentWorkspace");
   const locale = useLocale();
   const announcements = useQuery({
     queryKey: ["student-course-announcements", courseId, locale],
@@ -2478,13 +2427,11 @@ function CourseAnnouncementsPanel({ courseId }: { courseId: string }) {
           className="text-primary"
           aria-hidden="true"
         />
-        {locale === "ar" ? "إعلانات الدورة" : "Course announcements"}
+        {t("announcements.title")}
       </h2>
       {announcements.isError ? (
         <p className="mt-2 text-sm text-muted">
-          {locale === "ar"
-            ? "تعذر تحميل الإعلانات الآن."
-            : "Announcements could not be loaded now."}
+          {t("announcements.loadError")}
         </p>
       ) : (
         <div className="mt-3 grid gap-3">
@@ -2516,6 +2463,7 @@ function CourseAnnouncementsPanel({ courseId }: { courseId: string }) {
 }
 
 function CourseResourceCenter({ courseId }: { courseId: string }) {
+  const t = useTranslations("studentWorkspace");
   const locale = useLocale();
   const [category, setCategory] = useState("All");
   const resources = useQuery({
@@ -2534,6 +2482,18 @@ function CourseResourceCenter({ courseId }: { courseId: string }) {
       >(`/learning/courses/${courseId}/resources?locale=${locale}`),
   });
   const items = resources.data ?? [];
+  const categoryLabels: Record<string, string> = {
+    All: t("resources.categories.all"),
+    PDF: t("resources.categories.pdf"),
+    PowerPoint: t("resources.categories.powerPoint"),
+    Word: t("resources.categories.word"),
+    Excel: t("resources.categories.excel"),
+    Code: t("resources.categories.code"),
+    Video: t("resources.categories.video"),
+    ZIP: t("resources.categories.zip"),
+    Link: t("resources.categories.link"),
+    Other: t("resources.categories.other"),
+  };
   const categories = ["All", ...new Set(items.map((item) => item.category))];
   const visible =
     category === "All"
@@ -2546,33 +2506,27 @@ function CourseResourceCenter({ courseId }: { courseId: string }) {
         <div>
           <h2 className="flex items-center gap-2 font-black">
             <FolderOpen size={18} className="text-primary" aria-hidden="true" />
-            {locale === "ar" ? "مركز الموارد" : "Resource center"}
+            {t("resources.title")}
           </h2>
           <p className="mt-1 text-xs text-muted">
-            {locale === "ar"
-              ? "موارد هذه الدورة المتاحة لك حاليًا."
-              : "Course resources currently available to you."}
+            {t("resources.description")}
           </p>
         </div>
         <select
           value={category}
           onChange={(event) => setCategory(event.target.value)}
           className="rounded-xl border border-border bg-transparent px-3 py-2 text-sm"
-          aria-label={locale === "ar" ? "تصفية الموارد" : "Filter resources"}
+          aria-label={t("resources.filter")}
         >
           {categories.map((item) => (
             <option key={item} value={item}>
-              {resourceCategoryLabel(item, locale)}
+              {resourceCategoryLabel(item, categoryLabels)}
             </option>
           ))}
         </select>
       </div>
       {resources.isError ? (
-        <p className="mt-3 text-sm text-muted">
-          {locale === "ar"
-            ? "تعذر تحميل الموارد الآن."
-            : "Resources could not be loaded now."}
-        </p>
+        <p className="mt-3 text-sm text-muted">{t("resources.loadError")}</p>
       ) : (
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {visible.map((resource) => (
@@ -2590,7 +2544,7 @@ function CourseResourceCenter({ courseId }: { courseId: string }) {
                 {resource.displayName}
               </span>
               <span className="mt-1 block text-xs text-muted">
-                {resourceCategoryLabel(resource.category, locale)} ·{" "}
+                {resourceCategoryLabel(resource.category, categoryLabels)} ·{" "}
                 {resource.lessonTitle}
               </span>
             </a>
@@ -2601,20 +2555,11 @@ function CourseResourceCenter({ courseId }: { courseId: string }) {
   );
 }
 
-function resourceCategoryLabel(category: string, locale: string) {
-  const labels: Record<string, [string, string]> = {
-    All: ["كل الأنواع", "All types"],
-    PDF: ["PDF", "PDF"],
-    PowerPoint: ["PowerPoint", "PowerPoint"],
-    Word: ["Word", "Word"],
-    Excel: ["Excel", "Excel"],
-    Code: ["كود", "Code"],
-    Video: ["فيديو / صوت", "Video / audio"],
-    ZIP: ["ZIP", "ZIP"],
-    Link: ["رابط", "Link"],
-    Other: ["أخرى", "Other"],
-  };
-  return labels[category]?.[locale === "ar" ? 0 : 1] ?? category;
+function resourceCategoryLabel(
+  category: string,
+  labels: Record<string, string>,
+) {
+  return labels[category] ?? category;
 }
 
 function LessonWorkspace({
@@ -2624,6 +2569,7 @@ function LessonWorkspace({
   courseId: string;
   lessonId: string;
 }) {
+  const t = useTranslations("studentWorkspace");
   const locale = useLocale();
   const client = useQueryClient();
   const [note, setNote] = useState<string>();
@@ -2695,7 +2641,7 @@ function LessonWorkspace({
         <div className="flex items-center justify-between gap-3">
           <h2 className="flex items-center gap-2 font-black">
             <StickyNote size={18} className="text-primary" aria-hidden="true" />
-            {locale === "ar" ? "ملاحظة خاصة" : "Private note"}
+            {t("lessonWorkspace.privateNote")}
           </h2>
           <button
             type="button"
@@ -2704,12 +2650,8 @@ function LessonWorkspace({
             className="focus-ring rounded-lg border border-border p-2 text-primary"
             aria-label={
               bookmarked
-                ? locale === "ar"
-                  ? "إزالة الإشارة المرجعية"
-                  : "Remove bookmark"
-                : locale === "ar"
-                  ? "حفظ إشارة مرجعية"
-                  : "Save bookmark"
+                ? t("lessonWorkspace.removeBookmark")
+                : t("lessonWorkspace.saveBookmark")
             }
           >
             <Bookmark
@@ -2724,11 +2666,7 @@ function LessonWorkspace({
           onChange={(event) => setNote(event.target.value)}
           maxLength={5000}
           className="mt-3 min-h-28 w-full rounded-xl border border-border bg-page/40 p-3 text-sm"
-          placeholder={
-            locale === "ar"
-              ? "اكتب ملاحظة لا يراها سواك…"
-              : "Write a note only you can see…"
-          }
+          placeholder={t("lessonWorkspace.notePlaceholder")}
         />
         <div className="mt-3 flex gap-2">
           <button
@@ -2737,7 +2675,7 @@ function LessonWorkspace({
             disabled={saveNote.isPending || !noteValue.trim()}
             className="focus-ring rounded-xl bg-primary px-4 py-2 text-sm font-black text-slate-950"
           >
-            {locale === "ar" ? "حفظ الملاحظة" : "Save note"}
+            {t("lessonWorkspace.saveNote")}
           </button>
           {currentNote ? (
             <button
@@ -2746,7 +2684,7 @@ function LessonWorkspace({
               disabled={deleteNote.isPending}
               className="focus-ring rounded-xl border border-red-500/40 px-4 py-2 text-sm font-black text-red-400"
             >
-              {locale === "ar" ? "حذف" : "Delete"}
+              {t("lessonWorkspace.delete")}
             </button>
           ) : null}
         </div>
@@ -2758,7 +2696,7 @@ function LessonWorkspace({
             className="text-secondary"
             aria-hidden="true"
           />
-          {locale === "ar" ? "اسأل معلم الدورة" : "Ask the course teacher"}
+          {t("lessonWorkspace.askTeacher")}
         </h2>
         <form
           onSubmit={(event) => {
@@ -2772,17 +2710,13 @@ function LessonWorkspace({
             required
             maxLength={2000}
             className="mt-3 min-h-24 w-full rounded-xl border border-border bg-page/40 p-3 text-sm"
-            placeholder={
-              locale === "ar"
-                ? "اكتب سؤالك المتعلق بهذا الدرس…"
-                : "Ask about this lesson…"
-            }
+            placeholder={t("lessonWorkspace.questionPlaceholder")}
           />
           <button
             disabled={ask.isPending}
             className="focus-ring mt-3 rounded-xl border border-secondary/50 px-4 py-2 text-sm font-black text-secondary hover:bg-secondary/10"
           >
-            {locale === "ar" ? "إرسال السؤال" : "Send question"}
+            {t("lessonWorkspace.sendQuestion")}
           </button>
         </form>
         <div className="mt-4 grid gap-3">
@@ -2807,7 +2741,7 @@ function LessonWorkspace({
                 ))}
                 {item.isResolved ? (
                   <span className="mt-2 inline-block text-xs font-black text-primary">
-                    {locale === "ar" ? "تمت الإجابة" : "Answered"}
+                    {t("lessonWorkspace.answered")}
                   </span>
                 ) : null}
               </article>
@@ -2825,7 +2759,7 @@ function AiTutorPanel({
   courseId: string;
   lessonId: string;
 }) {
-  const locale = useLocale();
+  const t = useTranslations("studentWorkspace");
   const [mode, setMode] = useState("Explain");
   const [message, setMessage] = useState("");
   const chat = useMutation({
@@ -2843,12 +2777,10 @@ function AiTutorPanel({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="flex items-center gap-2 font-black">
           <Sparkles size={18} className="text-accent" aria-hidden="true" />
-          {locale === "ar" ? "مساعد BETCCO الذكي" : "BETCCO AI Tutor"}
+          {t("aiTutor.title")}
         </h2>
         <span className="text-xs font-bold text-muted">
-          {locale === "ar"
-            ? "مساند للتعلّم، وليس بديلًا عن عملك"
-            : "Learning support, not a substitute for your work"}
+          {t("aiTutor.description")}
         </span>
       </div>
       <form
@@ -2860,9 +2792,9 @@ function AiTutorPanel({
       >
         <div className="flex flex-wrap gap-2">
           {[
-            ["Explain", locale === "ar" ? "اشرح" : "Explain"],
-            ["Practice", locale === "ar" ? "تدرّب" : "Practice"],
-            ["Plan", locale === "ar" ? "خطّط" : "Plan"],
+            ["Explain", t("aiTutor.modes.explain")],
+            ["Practice", t("aiTutor.modes.practice")],
+            ["Plan", t("aiTutor.modes.plan")],
           ].map(([value, label]) => (
             <button
               key={value}
@@ -2880,21 +2812,13 @@ function AiTutorPanel({
           required
           maxLength={2000}
           className="min-h-24 rounded-xl border border-border bg-page/40 p-3 text-sm"
-          placeholder={
-            locale === "ar"
-              ? "اسأل عن محتوى هذا الدرس أو اطلب خطة تدريب…"
-              : "Ask about this lesson or request a practice plan…"
-          }
+          placeholder={t("aiTutor.placeholder")}
         />
         <button
           disabled={chat.isPending || !message.trim()}
           className="focus-ring w-fit rounded-xl border border-accent/60 px-4 py-2 text-sm font-black text-foreground hover:bg-accent/15 disabled:opacity-50"
         >
-          {chat.isPending
-            ? "…"
-            : locale === "ar"
-              ? "اطلب المساعدة"
-              : "Ask for help"}
+          {chat.isPending ? t("loading") : t("aiTutor.askForHelp")}
         </button>
       </form>
       {chat.data ? (
@@ -2904,7 +2828,7 @@ function AiTutorPanel({
           </p>
           {chat.data.citations.length ? (
             <p className="mt-3 text-xs text-muted">
-              {locale === "ar" ? "المصادر المستخدمة: " : "Sources used: "}
+              {t("aiTutor.sourcesUsed")}{" "}
               {chat.data.citations
                 .map((citation) => citation.split("\n")[0])
                 .join(" · ")}
@@ -2916,9 +2840,7 @@ function AiTutorPanel({
         <p role="status" className="mt-3 text-sm text-muted">
           {chat.error instanceof Error
             ? chat.error.message
-            : locale === "ar"
-              ? "المساعد الذكي غير متاح حاليًا."
-              : "The AI tutor is unavailable right now."}
+            : t("aiTutor.unavailable")}
         </p>
       ) : null}
     </section>
@@ -3039,7 +2961,23 @@ type StudentCourseGradebook = {
 };
 
 function StudentCourseGradebookPanel({ courseId }: { courseId: string }) {
+  const t = useTranslations("studentWorkspace");
   const locale = useLocale();
+  const gradeLabels: Record<string, string> = {
+    NotYetAchieved: t("gradebook.grades.notYetAchieved"),
+    Pass: t("gradebook.grades.pass"),
+    Merit: t("gradebook.grades.merit"),
+    Distinction: t("gradebook.grades.distinction"),
+  };
+  const criterionStatusLabels: Record<string, string> = {
+    NotStarted: t("gradebook.criterionStatuses.notStarted"),
+    InReview: t("gradebook.criterionStatuses.inReview"),
+    Achieved: t("gradebook.criterionStatuses.achieved"),
+    NotAchieved: t("gradebook.criterionStatuses.notAchieved"),
+    NeedsImprovement: t("gradebook.criterionStatuses.needsImprovement"),
+    ResubmissionRequired: t("gradebook.criterionStatuses.resubmissionRequired"),
+    NotApplicable: t("gradebook.criterionStatuses.notApplicable"),
+  };
   const gradebook = useQuery({
     queryKey: ["student-course-gradebook", courseId, locale],
     queryFn: () =>
@@ -3053,7 +2991,7 @@ function StudentCourseGradebookPanel({ courseId }: { courseId: string }) {
         className="mt-5 rounded-2xl border border-border bg-surface-solid/55 p-4"
         aria-busy
       >
-        <p className="text-sm text-muted">…</p>
+        <p className="text-sm text-muted">{t("loading")}</p>
       </section>
     );
   }
@@ -3065,39 +3003,33 @@ function StudentCourseGradebookPanel({ courseId }: { courseId: string }) {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.16em] text-secondary">
-            BETCCO BTEC
+            {t("gradebook.eyebrow")}
           </p>
-          <h2 className="mt-1 text-lg font-black">
-            {locale === "ar"
-              ? "تقدّمك ودرجتك المتوقعة"
-              : "Your progress and predicted grade"}
-          </h2>
+          <h2 className="mt-1 text-lg font-black">{t("gradebook.heading")}</h2>
           <p className="mt-1 text-sm text-muted">
-            {locale === "ar"
-              ? "تُحسب من نتائج المعايير التي قيّمها المعلم على الخادم."
-              : "Calculated from teacher-assessed criterion results on the server."}
+            {t("gradebook.description")}
           </p>
         </div>
         <div className="rounded-xl border border-secondary/35 bg-page/50 px-4 py-3 text-center">
           <p className="text-xs font-bold text-muted">
-            {locale === "ar" ? "النتيجة المتوقعة" : "Predicted grade"}
+            {t("gradebook.predictedGrade")}
           </p>
           <p className="mt-1 text-xl font-black text-secondary">
-            {gradeLabel(summary.predictedGrade, locale)}
+            {gradeLabel(summary.predictedGrade, gradeLabels)}
           </p>
         </div>
       </div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <GradeProgressStat
-          label={locale === "ar" ? "الدروس" : "Lessons"}
+          label={t("gradebook.lessons")}
           value={`${data.lessonsCompleted} / ${data.lessonsTotal}`}
           detail={formatLocalizedPercentage(data.lessonProgressPercent, locale)}
         />
 
         <GradeProgressStat
-          label={locale === "ar" ? "المهام المكتملة" : "Coursework assessed"}
+          label={t("gradebook.courseworkAssessed")}
           value={`${data.assignmentsCompleted} / ${data.assignmentsTotal}`}
-          detail={locale === "ar" ? "مهام" : "assignments"}
+          detail={t("gradebook.assignments")}
         />
       </div>
       <div className="mt-4 grid gap-2 sm:grid-cols-3">
@@ -3116,7 +3048,7 @@ function StudentCourseGradebookPanel({ courseId }: { courseId: string }) {
             className="rounded-xl border border-border/70 bg-page/40 px-3 py-2 text-sm"
           >
             <strong className={String(tone)}>{band}</strong>{" "}
-            {locale === "ar" ? "مُحقَّق" : "achieved"}:{" "}
+            {t("gradebook.achieved")}:{" "}
             {formatLocalizedNumber(Number(achieved), locale)} /{" "}
             {formatLocalizedNumber(Number(required), locale)}
           </p>
@@ -3134,7 +3066,7 @@ function StudentCourseGradebookPanel({ courseId }: { courseId: string }) {
                 {formatLocalizedNumber(unit.lessonsCompleted, locale)}/
                 {formatLocalizedNumber(unit.lessonsTotal, locale)} ·{" "}
                 {formatLocalizedPercentage(unit.lessonProgressPercent, locale)}{" "}
-                · {gradeLabel(unit.predictedGrade.predictedGrade, locale)}
+                · {gradeLabel(unit.predictedGrade.predictedGrade, gradeLabels)}
               </span>
               {unit.learningAims.length ? (
                 <div className="basis-full grid gap-2 border-t border-border/60 pt-2 sm:grid-cols-2">
@@ -3157,7 +3089,10 @@ function StudentCourseGradebookPanel({ courseId }: { courseId: string }) {
                       <p className="mt-1 text-muted">
                         {formatLocalizedNumber(aim.lessonsCompleted, locale)}/
                         {formatLocalizedNumber(aim.lessonsTotal, locale)} ·{" "}
-                        {gradeLabel(aim.predictedGrade.predictedGrade, locale)}
+                        {gradeLabel(
+                          aim.predictedGrade.predictedGrade,
+                          gradeLabels,
+                        )}
                       </p>
                     </div>
                   ))}
@@ -3170,7 +3105,7 @@ function StudentCourseGradebookPanel({ courseId }: { courseId: string }) {
       {data.criteria.length ? (
         <details className="mt-4 rounded-xl border border-border/70 bg-page/35 p-3">
           <summary className="cursor-pointer font-black">
-            {locale === "ar" ? "حالة معايير BTEC" : "BTEC criterion status"}
+            {t("gradebook.criterionStatus")}
           </summary>
           <ul className="mt-3 grid gap-2 text-sm">
             {data.criteria.map((criterion) => (
@@ -3181,7 +3116,10 @@ function StudentCourseGradebookPanel({ courseId }: { courseId: string }) {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <strong>{criterion.code}</strong>
                   <span className="font-bold text-primary">
-                    {criterionStatusLabel(criterion.status, locale)}
+                    {criterionStatusLabel(
+                      criterion.status,
+                      criterionStatusLabels,
+                    )}
                   </span>
                 </div>
                 <p className="mt-1 text-xs text-muted">
@@ -3219,27 +3157,12 @@ function GradeProgressStat({
   );
 }
 
-function gradeLabel(grade: string, locale: string) {
-  const labels: Record<string, [string, string]> = {
-    NotYetAchieved: ["لم يتحقق بعد", "Not achieved yet"],
-    Pass: ["نجاح", "Pass"],
-    Merit: ["تفوق", "Merit"],
-    Distinction: ["امتياز", "Distinction"],
-  };
-  return labels[grade]?.[locale === "ar" ? 0 : 1] ?? grade;
+function gradeLabel(grade: string, labels: Record<string, string>) {
+  return labels[grade] ?? grade;
 }
 
-function criterionStatusLabel(status: string, locale: string) {
-  const labels: Record<string, [string, string]> = {
-    NotStarted: ["لم يبدأ", "Not started"],
-    InReview: ["قيد المراجعة", "In review"],
-    Achieved: ["مُحقَّق", "Achieved"],
-    NotAchieved: ["غير مُحقَّق", "Not achieved"],
-    NeedsImprovement: ["يحتاج تحسين", "Needs improvement"],
-    ResubmissionRequired: ["إعادة تسليم مطلوبة", "Resubmission required"],
-    NotApplicable: ["غير منطبق", "Not applicable"],
-  };
-  return labels[status]?.[locale === "ar" ? 0 : 1] ?? status;
+function criterionStatusLabel(status: string, labels: Record<string, string>) {
+  return labels[status] ?? status;
 }
 
 export function CourseAssignmentPanel({

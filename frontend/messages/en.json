@@ -1299,6 +1299,113 @@
         "week": "Week",
         "day": "Day"
       }
+    },
+    "coursePlayer": {
+      "eyebrow": "BETCCO Player",
+      "noAccess": "You do not have access to this course.",
+      "modules": "modules",
+      "hideContent": "Hide content",
+      "showContent": "Show content",
+      "requestedLessonUnavailable": "That lesson is unavailable. You were returned to your authorized learning position.",
+      "minutes": "min",
+      "lockedOnDate": "This content opens on {date}.",
+      "lockedPrerequisite": "Complete the required previous content to unlock this item.",
+      "noLessonText": "The teacher has not added lesson text yet.",
+      "lessonFiles": "Lesson files",
+      "completed": "Completed",
+      "videoCompletion": "Completes after 80% watched",
+      "markComplete": "Mark complete",
+      "issueCertificate": "Issue completion certificate",
+      "certificateIssued": "Certificate issued. Verification code:",
+      "completeLessonsFirst": "Complete all lessons first.",
+      "progressSaved": "Your progress was saved.",
+      "progressSaveError": "Progress could not be saved. Try again.",
+      "previousLesson": "Previous lesson",
+      "nextLesson": "Next lesson",
+      "evaluateAssignment": "Evaluate my school assignment with BETCCO",
+      "noPublishedLesson": "No published lesson.",
+      "courseContent": "Course content"
+    },
+    "lessonVideo": {
+      "accessibleLabel": "{title} video",
+      "unsupported": "Your browser does not support video playback.",
+      "loading": "Loading video…",
+      "unavailable": "Video unavailable. Try again or contact support.",
+      "retry": "Retry video",
+      "minutes": "min"
+    },
+    "announcements": {
+      "title": "Course announcements",
+      "loadError": "Announcements could not be loaded now."
+    },
+    "resources": {
+      "title": "Resource center",
+      "description": "Course resources currently available to you.",
+      "filter": "Filter resources",
+      "loadError": "Resources could not be loaded now.",
+      "categories": {
+        "all": "All types",
+        "pdf": "PDF",
+        "powerPoint": "PowerPoint",
+        "word": "Word",
+        "excel": "Excel",
+        "code": "Code",
+        "video": "Video / audio",
+        "zip": "ZIP",
+        "link": "Link",
+        "other": "Other"
+      }
+    },
+    "lessonWorkspace": {
+      "privateNote": "Private note",
+      "removeBookmark": "Remove bookmark",
+      "saveBookmark": "Save bookmark",
+      "notePlaceholder": "Write a note only you can see…",
+      "saveNote": "Save note",
+      "delete": "Delete",
+      "askTeacher": "Ask the course teacher",
+      "questionPlaceholder": "Ask about this lesson…",
+      "sendQuestion": "Send question",
+      "answered": "Answered"
+    },
+    "aiTutor": {
+      "title": "BETCCO AI Tutor",
+      "description": "Learning support, not a substitute for your work",
+      "modes": {
+        "explain": "Explain",
+        "practice": "Practice",
+        "plan": "Plan"
+      },
+      "placeholder": "Ask about this lesson or request a practice plan…",
+      "askForHelp": "Ask for help",
+      "sourcesUsed": "Sources used:",
+      "unavailable": "The AI tutor is unavailable right now."
+    },
+    "gradebook": {
+      "eyebrow": "BETCCO BTEC",
+      "heading": "Your progress and predicted grade",
+      "description": "Calculated from teacher-assessed criterion results on the server.",
+      "predictedGrade": "Predicted grade",
+      "lessons": "Lessons",
+      "courseworkAssessed": "Coursework assessed",
+      "assignments": "assignments",
+      "achieved": "achieved",
+      "criterionStatus": "BTEC criterion status",
+      "grades": {
+        "notYetAchieved": "Not achieved yet",
+        "pass": "Pass",
+        "merit": "Merit",
+        "distinction": "Distinction"
+      },
+      "criterionStatuses": {
+        "notStarted": "Not started",
+        "inReview": "In review",
+        "achieved": "Achieved",
+        "notAchieved": "Not achieved",
+        "needsImprovement": "Needs improvement",
+        "resubmissionRequired": "Resubmission required",
+        "notApplicable": "Not applicable"
+      }
     }
   }
 }
