@@ -1406,6 +1406,37 @@
         "resubmissionRequired": "إعادة تسليم مطلوبة",
         "notApplicable": "غير منطبق"
       }
+    },
+    "coursework": {
+      "title": "مهمة الدورة",
+      "description": "ارفع عملك بشكل خاص. لا تظهر النتيجة إلا بعد تدقيق المعلم واحتسابها من المعايير.",
+      "due": "الموعد النهائي:",
+      "deadlineAdjustment": "تمديد فردي لموعد التسليم",
+      "opens": "تفتح المهمة:",
+      "files": "الملفات:",
+      "criterionResult": "نتيجة المعايير",
+      "actions": {
+        "deadlinePassed": "انتهى موعد التسليم",
+        "notOpenYet": "المهمة لم تُفتح بعد",
+        "resubmissionUnavailable": "إعادة التسليم غير متاحة",
+        "startResubmission": "بدء إعادة التسليم",
+        "continueDraft": "متابعة المسودة",
+        "startSubmission": "بدء التسليم"
+      },
+      "submission": {
+        "notePlaceholder": "ملاحظة اختيارية للمعلم",
+        "workFiles": "ملفات الحل",
+        "chooseFiles": "اختيار ملفات الحل",
+        "fileHelp": "يمكن إضافة أكثر من ملف؛ الحد {size}MB لكل ملف. تفحص الملفات أمنيًا قبل حفظها.",
+        "saveNote": "حفظ الملاحظة",
+        "uploadFiles": "رفع الملفات",
+        "submit": "تسليم للمعلم"
+      },
+      "errors": {
+        "action": "تعذر تنفيذ العملية.",
+        "start": "تعذر بدء التسليم.",
+        "load": "تعذر تحميل مهمة الدورة."
+      }
     }
   }
 }

@@ -3172,6 +3172,7 @@ export function CourseAssignmentPanel({
   courseId: string;
   lessonId: string;
 }) {
+  const t = useTranslations("studentWorkspace");
   const locale = useLocale();
   const client = useQueryClient();
   const [active, setActive] = useState<{
@@ -3263,13 +3264,9 @@ export function CourseAssignmentPanel({
             className="text-primary"
             aria-hidden="true"
           />
-          {locale === "ar" ? "مهمة الدورة" : "Coursework"}
+          {t("coursework.title")}
         </h2>
-        <p className="mt-1 text-sm text-muted">
-          {locale === "ar"
-            ? "ارفع عملك بشكل خاص. لا تظهر النتيجة إلا بعد تدقيق المعلم واحتسابها من المعايير."
-            : "Upload your work privately. Results appear only after teacher review and server-side criterion calculation."}
-        </p>
+        <p className="mt-1 text-sm text-muted">{t("coursework.description")}</p>
       </div>
       {visible.map((assignment) => {
         const submission = mine.data?.find(
@@ -3303,7 +3300,7 @@ export function CourseAssignmentPanel({
                 </p>
                 {assignment.effectiveDueAtUtc ? (
                   <p className="mt-2 text-xs text-muted">
-                    {locale === "ar" ? "الموعد النهائي: " : "Due: "}
+                    {t("coursework.due")}{" "}
                     {formatLocalizedDateTime(
                       assignment.effectiveDueAtUtc,
                       locale,
@@ -3312,14 +3309,12 @@ export function CourseAssignmentPanel({
                 ) : null}
                 {assignment.hasDeadlineExtension ? (
                   <p className="mt-1 text-xs font-bold text-primary">
-                    {locale === "ar"
-                      ? "تمديد فردي لموعد التسليم"
-                      : "Individual deadline adjustment"}
+                    {t("coursework.deadlineAdjustment")}
                   </p>
                 ) : null}
                 {assignment.availableFromUtc ? (
                   <p className="mt-2 text-xs text-muted">
-                    {locale === "ar" ? "تفتح المهمة: " : "Opens: "}
+                    {t("coursework.opens")}{" "}
                     {formatLocalizedDateTime(
                       assignment.availableFromUtc,
                       locale,
@@ -3327,10 +3322,8 @@ export function CourseAssignmentPanel({
                   </p>
                 ) : null}
                 <p className="mt-2 text-xs text-muted">
-                  {locale === "ar" ? "الملفات: " : "Files: "}
-                  {assignment.allowedFileExtensions
-                    .join(", ")
-                    .toUpperCase()} ·{" "}
+                  {t("coursework.files")}{" "}
+                  {assignment.allowedFileExtensions.join(", ").toUpperCase()} ·{" "}
                   {Math.round(assignment.maxFileSizeBytes / 1024 / 1024)}MB
                 </p>
                 {assignment.resources.length ? (
@@ -3377,9 +3370,7 @@ export function CourseAssignmentPanel({
             </ul>
             {submission?.results.length ? (
               <div className="mt-3 grid gap-2 border-t border-border pt-3">
-                <p className="font-bold">
-                  {locale === "ar" ? "نتيجة المعايير" : "Criterion result"}
-                </p>
+                <p className="font-bold">{t("coursework.criterionResult")}</p>
                 {submission.results.map((result) => (
                   <p key={result.code} className="text-sm text-muted">
                     <strong className="text-primary">{result.code}</strong> —{" "}
@@ -3439,29 +3430,17 @@ export function CourseAssignmentPanel({
                     className="focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
                   >
                     {deadlinePassed
-                      ? locale === "ar"
-                        ? "انتهى موعد التسليم"
-                        : "Submission deadline passed"
+                      ? t("coursework.actions.deadlinePassed")
                       : opensInFuture
-                        ? locale === "ar"
-                          ? "المهمة لم تُفتح بعد"
-                          : "This coursework is not open yet"
+                        ? t("coursework.actions.notOpenYet")
                         : submission?.status === "NeedsRevision" &&
                             !assignment.allowResubmission
-                          ? locale === "ar"
-                            ? "إعادة التسليم غير متاحة"
-                            : "Resubmission is unavailable"
+                          ? t("coursework.actions.resubmissionUnavailable")
                           : submission?.status === "NeedsRevision"
-                            ? locale === "ar"
-                              ? "بدء إعادة التسليم"
-                              : "Start resubmission"
+                            ? t("coursework.actions.startResubmission")
                             : submission?.status === "Draft"
-                              ? locale === "ar"
-                                ? "متابعة المسودة"
-                                : "Continue draft"
-                              : locale === "ar"
-                                ? "بدء التسليم"
-                                : "Start submission"}
+                              ? t("coursework.actions.continueDraft")
+                              : t("coursework.actions.startSubmission")}
                   </button>
                 ) : (
                   <div className="grid gap-3">
@@ -3469,31 +3448,23 @@ export function CourseAssignmentPanel({
                       value={comment}
                       onChange={(event) => setComment(event.target.value)}
                       maxLength={4000}
-                      placeholder={
-                        locale === "ar"
-                          ? "ملاحظة اختيارية للمعلم"
-                          : "Optional note to your teacher"
-                      }
+                      placeholder={t("coursework.submission.notePlaceholder")}
                       className="min-h-20 rounded-xl border border-border bg-transparent p-2.5 text-sm"
                     />
                     <FilePicker
-                      label={locale === "ar" ? "ملفات الحل" : "Your work files"}
+                      label={t("coursework.submission.workFiles")}
                       files={files}
                       onFilesChange={setFiles}
                       locale={locale}
                       multiple
                       accept={assignment.allowedFileExtensions.join(",")}
                       maxFileBytes={assignment.maxFileSizeBytes}
-                      chooseLabel={
-                        locale === "ar"
-                          ? "اختيار ملفات الحل"
-                          : "Choose work files"
-                      }
-                      helpText={
-                        locale === "ar"
-                          ? `يمكن إضافة أكثر من ملف؛ الحد ${Math.round(assignment.maxFileSizeBytes / 1024 / 1024)}MB لكل ملف. تفحص الملفات أمنيًا قبل حفظها.`
-                          : `You can add multiple files; the limit is ${Math.round(assignment.maxFileSizeBytes / 1024 / 1024)}MB per file. Files are security-scanned before storage.`
-                      }
+                      chooseLabel={t("coursework.submission.chooseFiles")}
+                      helpText={t("coursework.submission.fileHelp", {
+                        size: String(
+                          Math.round(assignment.maxFileSizeBytes / 1024 / 1024),
+                        ),
+                      })}
                     />
                     <div className="flex flex-wrap gap-2">
                       <button
@@ -3502,7 +3473,7 @@ export function CourseAssignmentPanel({
                         disabled={start.isPending || deadlinePassed}
                         className="focus-ring rounded-xl border border-border px-4 py-2.5 text-sm font-bold text-muted disabled:opacity-50"
                       >
-                        {locale === "ar" ? "حفظ الملاحظة" : "Save note"}
+                        {t("coursework.submission.saveNote")}
                       </button>
                       <button
                         type="button"
@@ -3512,7 +3483,7 @@ export function CourseAssignmentPanel({
                         }
                         className="focus-ring rounded-xl border border-primary/40 px-4 py-2.5 text-sm font-bold text-primary disabled:opacity-50"
                       >
-                        {locale === "ar" ? "رفع الملفات" : "Upload files"}
+                        {t("coursework.submission.uploadFiles")}
                       </button>
                       <button
                         type="button"
@@ -3520,16 +3491,14 @@ export function CourseAssignmentPanel({
                         disabled={submit.isPending || deadlinePassed}
                         className="focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
                       >
-                        {locale === "ar" ? "تسليم للمعلم" : "Submit to teacher"}
+                        {t("coursework.submission.submit")}
                       </button>
                     </div>
                     {upload.isError || submit.isError ? (
                       <p role="alert" className="text-sm text-red-400">
                         {(upload.error ?? submit.error) instanceof Error
                           ? (upload.error ?? submit.error)?.message
-                          : locale === "ar"
-                            ? "تعذر تنفيذ العملية."
-                            : "The action could not be completed."}
+                          : t("coursework.errors.action")}
                       </p>
                     ) : null}
                   </div>
@@ -3543,16 +3512,12 @@ export function CourseAssignmentPanel({
         <p role="alert" className="text-sm text-red-400">
           {start.error instanceof Error
             ? start.error.message
-            : locale === "ar"
-              ? "تعذر بدء التسليم."
-              : "Unable to start the submission."}
+            : t("coursework.errors.start")}
         </p>
       ) : null}
       {assignments.isError || mine.isError ? (
         <p role="alert" className="text-sm text-red-400">
-          {locale === "ar"
-            ? "تعذر تحميل مهمة الدورة."
-            : "Unable to load coursework."}
+          {t("coursework.errors.load")}
         </p>
       ) : null}
     </section>

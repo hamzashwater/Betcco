@@ -1406,6 +1406,37 @@
         "resubmissionRequired": "Resubmission required",
         "notApplicable": "Not applicable"
       }
+    },
+    "coursework": {
+      "title": "Coursework",
+      "description": "Upload your work privately. Results appear only after teacher review and server-side criterion calculation.",
+      "due": "Due:",
+      "deadlineAdjustment": "Individual deadline adjustment",
+      "opens": "Opens:",
+      "files": "Files:",
+      "criterionResult": "Criterion result",
+      "actions": {
+        "deadlinePassed": "Submission deadline passed",
+        "notOpenYet": "This coursework is not open yet",
+        "resubmissionUnavailable": "Resubmission is unavailable",
+        "startResubmission": "Start resubmission",
+        "continueDraft": "Continue draft",
+        "startSubmission": "Start submission"
+      },
+      "submission": {
+        "notePlaceholder": "Optional note to your teacher",
+        "workFiles": "Your work files",
+        "chooseFiles": "Choose work files",
+        "fileHelp": "You can add multiple files; the limit is {size}MB per file. Files are security-scanned before storage.",
+        "saveNote": "Save note",
+        "uploadFiles": "Upload files",
+        "submit": "Submit to teacher"
+      },
+      "errors": {
+        "action": "The action could not be completed.",
+        "start": "Unable to start the submission.",
+        "load": "Unable to load coursework."
+      }
     }
   }
 }
