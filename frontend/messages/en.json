@@ -1117,6 +1117,32 @@
     "page": "Page {page} of {pageCount}"
   },
   "studentWorkspace": {
+    "resitWorkflow": {
+      "opportunities": {
+        "ariaLabel": "Resit opportunities",
+        "title": "Resit opportunities",
+        "loading": "Loading opportunities…",
+        "loadError": "Unable to load Resit opportunities.",
+        "empty": "No Resit opportunities available.",
+        "cardTitle": "Resit opportunity",
+        "originalRequest": "Original request",
+        "authorizedDescription": "One separate final BETCCO advisory review with fresh files and evidence. Separate payment follows later.",
+        "start": "Start Resit",
+        "activatedRequest": "Activated · Resit request",
+        "openDraft": "Open Resit draft",
+        "unavailable": "This Resit opportunity is no longer available.",
+        "previous": "Previous",
+        "next": "Next"
+      },
+      "activationErrors": {
+        "fallback": "Unable to start the Resit. Please retry.",
+        "revoked": "This Resit opportunity is no longer available.",
+        "originalNoLongerValid": "The original request is no longer eligible for Resit.",
+        "academicSnapshotInvalid": "The original assessment details are unavailable. Contact support.",
+        "conflict": "This opportunity changed. Refresh and try again.",
+        "notFound": "Opportunity unavailable. Refresh the page."
+      }
+    },
     "loading": "…",
     "academicIdentity": {
       "learningAims": "Learning aims"

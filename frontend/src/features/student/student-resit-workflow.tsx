@@ -7,7 +7,7 @@ import { academicText } from "@/lib/academic-localization";
 import { api, ApiError } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
@@ -93,45 +93,34 @@ function AcademicContext({
   );
 }
 
-function activationError(error: Error, locale: string) {
-  if (!(error instanceof ApiError))
-    return locale === "ar"
-      ? "تعذر بدء إعادة التقييم. حاول مجددًا."
-      : "Unable to start the Resit. Please retry.";
-  const messages: Record<string, [string, string]> = {
-    RESIT_AUTHORIZATION_REVOKED: [
-      "فرصة إعادة التقييم هذه لم تعد متاحة.",
-      "This Resit opportunity is no longer available.",
-    ],
-    RESIT_ORIGINAL_NO_LONGER_VALID: [
-      "لم يعد الطلب الأصلي مؤهلًا لإعادة التقييم.",
-      "The original request is no longer eligible for Resit.",
-    ],
-    RESIT_ACADEMIC_SNAPSHOT_INVALID: [
-      "تعذر قراءة بيانات التقييم الأصلية. تواصل مع الدعم.",
-      "The original assessment details are unavailable. Contact support.",
-    ],
-    RESIT_ACTIVATION_CONFLICT: [
-      "تغيرت حالة الفرصة. حدّث الصفحة وحاول مجددًا.",
-      "This opportunity changed. Refresh and try again.",
-    ],
-  };
-  const message =
-    error.status === 404
-      ? [
-          "الفرصة غير متاحة. حدّث الصفحة.",
-          "Opportunity unavailable. Refresh the page.",
-        ]
-      : messages[error.code ?? ""];
-  return message
-    ? message[locale === "ar" ? 0 : 1]
-    : locale === "ar"
-      ? "تعذر بدء إعادة التقييم. حاول مجددًا."
-      : "Unable to start the Resit. Please retry.";
+function activationError(
+  error: Error,
+  t: ReturnType<
+    typeof useTranslations<"studentWorkspace.resitWorkflow.activationErrors">
+  >,
+) {
+  if (!(error instanceof ApiError)) return t("fallback");
+  if (error.status === 404) return t("notFound");
+  switch (error.code) {
+    case "RESIT_AUTHORIZATION_REVOKED":
+      return t("revoked");
+    case "RESIT_ORIGINAL_NO_LONGER_VALID":
+      return t("originalNoLongerValid");
+    case "RESIT_ACADEMIC_SNAPSHOT_INVALID":
+      return t("academicSnapshotInvalid");
+    case "RESIT_ACTIVATION_CONFLICT":
+      return t("conflict");
+    default:
+      return t("fallback");
+  }
 }
 
 export function StudentResitOpportunities() {
   const locale = useLocale();
+  const t = useTranslations("studentWorkspace.resitWorkflow.opportunities");
+  const tActivationErrors = useTranslations(
+    "studentWorkspace.resitWorkflow.activationErrors",
+  );
   const router = useRouter();
   const client = useQueryClient();
   const [page, setPage] = useState(1);
@@ -162,43 +151,22 @@ export function StudentResitOpportunities() {
     },
   });
   return (
-    <section
-      className="mt-6 grid gap-3"
-      aria-label={locale === "ar" ? "فرص إعادة التقييم" : "Resit opportunities"}
-    >
-      <h2 className="text-xl font-black">
-        {locale === "ar" ? "فرص إعادة التقييم" : "Resit opportunities"}
-      </h2>
-      {opportunities.isPending ? (
-        <p role="status">
-          {locale === "ar" ? "جارٍ تحميل الفرص…" : "Loading opportunities…"}
-        </p>
-      ) : null}
-      {opportunities.isError ? (
-        <p role="alert">
-          {locale === "ar"
-            ? "تعذر تحميل فرص إعادة التقييم."
-            : "Unable to load Resit opportunities."}
-        </p>
-      ) : null}
+    <section className="mt-6 grid gap-3" aria-label={t("ariaLabel")}>
+      <h2 className="text-xl font-black">{t("title")}</h2>
+      {opportunities.isPending ? <p role="status">{t("loading")}</p> : null}
+      {opportunities.isError ? <p role="alert">{t("loadError")}</p> : null}
       {opportunities.data?.items?.length === 0 ? (
-        <p className="text-sm text-muted">
-          {locale === "ar"
-            ? "لا توجد فرص إعادة تقييم حاليًا."
-            : "No Resit opportunities available."}
-        </p>
+        <p className="text-sm text-muted">{t("empty")}</p>
       ) : null}
       {opportunities.data?.items?.map((item) => (
         <article
           className="card grid min-w-0 gap-2 p-4"
           key={item.authorizationId}
         >
-          <strong className="text-primary">
-            {locale === "ar" ? "فرصة إعادة التقييم" : "Resit opportunity"}
-          </strong>
+          <strong className="text-primary">{t("cardTitle")}</strong>
           <AcademicContext academic={item.academic} locale={locale} />
           <p className="text-sm">
-            {locale === "ar" ? "الطلب الأصلي" : "Original request"}:{" "}
+            {t("originalRequest")}:{" "}
             {item.originalEvaluationRequestId.slice(0, 8)}
           </p>
           <p className="text-xs text-muted">
@@ -206,49 +174,37 @@ export function StudentResitOpportunities() {
           </p>
           {item.state === "Authorized" ? (
             <>
-              <p className="text-sm text-muted">
-                {locale === "ar"
-                  ? "مراجعة استشارية نهائية مستقلة من BETCCO بملفات وأدلة جديدة ودفع منفصل لاحقًا."
-                  : "One separate final BETCCO advisory review with fresh files and evidence. Separate payment follows later."}
-              </p>
+              <p className="text-sm text-muted">{t("authorizedDescription")}</p>
               <button
                 type="button"
                 className="focus-ring w-fit rounded-xl bg-primary px-4 py-2 font-bold text-white disabled:opacity-50"
                 disabled={activate.isPending}
                 onClick={() => activate.mutate(item.authorizationId)}
               >
-                {locale === "ar" ? "بدء إعادة التقييم" : "Start Resit"}
+                {t("start")}
               </button>
             </>
           ) : item.state === "Activated" && item.resitEvaluationRequestId ? (
             <>
               <p className="text-sm">
-                {locale === "ar"
-                  ? "تم التفعيل · طلب إعادة التقييم"
-                  : "Activated · Resit request"}
-                : {item.resitEvaluationRequestId.slice(0, 8)}
+                {t("activatedRequest")}:{" "}
+                {item.resitEvaluationRequestId.slice(0, 8)}
               </p>
               <Link
                 className="focus-ring w-fit font-bold text-primary underline"
                 href={`/${locale}/student/evaluations/${item.resitEvaluationRequestId}`}
               >
-                {locale === "ar"
-                  ? "فتح مسودة إعادة التقييم"
-                  : "Open Resit draft"}
+                {t("openDraft")}
               </Link>
             </>
           ) : (
-            <p className="text-sm text-muted">
-              {locale === "ar"
-                ? "فرصة إعادة التقييم هذه لم تعد متاحة."
-                : "This Resit opportunity is no longer available."}
-            </p>
+            <p className="text-sm text-muted">{t("unavailable")}</p>
           )}
         </article>
       ))}
       {activate.isError ? (
         <p role="alert" className="text-sm text-red-500">
-          {activationError(activate.error, locale)}
+          {activationError(activate.error, tActivationErrors)}
         </p>
       ) : null}
       {opportunities.data ? (
@@ -259,7 +215,7 @@ export function StudentResitOpportunities() {
             disabled={page === 1}
             onClick={() => setPage((current) => current - 1)}
           >
-            {locale === "ar" ? "السابق" : "Previous"}
+            {t("previous")}
           </button>
           <button
             type="button"
@@ -267,7 +223,7 @@ export function StudentResitOpportunities() {
             disabled={!opportunities.data.hasNextPage}
             onClick={() => setPage((current) => current + 1)}
           >
-            {locale === "ar" ? "التالي" : "Next"}
+            {t("next")}
           </button>
         </div>
       ) : null}
