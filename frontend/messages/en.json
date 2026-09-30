@@ -1633,6 +1633,26 @@
         "authenticityRequired": "Confirm the originality declaration before payment.",
         "requestFailed": "Request failed."
       }
+    },
+    "certificateDocument": {
+      "errors": {
+        "notFound": "The certificate could not be found, or you do not have permission to view it."
+      },
+      "actions": {
+        "back": "My certificates",
+        "print": "Print certificate"
+      },
+      "content": {
+        "type": "Certificate of Completion",
+        "completionStatement": "has successfully completed the core learning requirements for the following BETCCO course:",
+        "issueDate": "Issue date",
+        "certificateId": "Certificate ID"
+      },
+      "qr": {
+        "alt": "Certificate verification QR code",
+        "help": "Scan to verify this certificate"
+      },
+      "disclaimer": "This is a BETCCO completion certificate. It is not a Pearson certificate or official Pearson BTEC accreditation."
     }
   }
 }

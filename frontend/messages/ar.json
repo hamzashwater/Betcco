@@ -1633,6 +1633,26 @@
         "authenticityRequired": "أكد إقرار أصالة العمل قبل الدفع.",
         "requestFailed": "فشل الطلب."
       }
+    },
+    "certificateDocument": {
+      "errors": {
+        "notFound": "تعذّر العثور على الشهادة أو لا تملك صلاحية عرضها."
+      },
+      "actions": {
+        "back": "شهاداتي",
+        "print": "طباعة الشهادة"
+      },
+      "content": {
+        "type": "شهادة إكمال",
+        "completionStatement": "أتم بنجاح متطلبات التعلّم الأساسية في الدورة التالية على منصة BETCCO:",
+        "issueDate": "تاريخ الإصدار",
+        "certificateId": "رقم الشهادة"
+      },
+      "qr": {
+        "alt": "رمز QR للتحقق من الشهادة",
+        "help": "امسح الرمز للتحقق من الشهادة"
+      },
+      "disclaimer": "هذه شهادة إكمال صادرة من BETCCO وليست شهادة Pearson أو اعتمادًا رسميًا من Pearson BTEC."
     }
   }
 }
