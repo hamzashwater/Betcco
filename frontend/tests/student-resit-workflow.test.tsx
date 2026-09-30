@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   cleanup,
+  act,
   fireEvent,
   render,
   screen,
@@ -16,6 +17,8 @@ import {
   StudentResitOpportunities,
 } from "@/features/student/student-resit-workflow";
 import { StudentArea } from "@/features/student/student-area";
+import { ApiError } from "@/lib/api";
+import { formatLocalizedDate } from "@/i18n/date-time";
 
 const push = vi.hoisted(() => vi.fn());
 const formattedJodFive = new Intl.NumberFormat("en-JO", {
@@ -33,29 +36,31 @@ const matchesResitPrice = (_content: string, element: Element | null) =>
   element?.textContent?.replace(/\s+/gu, " ").trim() === resitPriceText;
 const apiMock = vi.hoisted(() => vi.fn());
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
-vi.mock("@/lib/api", () => ({
+vi.mock("@/lib/api", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/api")>()),
   api: apiMock,
-  ApiError: class ApiError extends Error {},
 }));
 
-function renderPage(node: React.ReactNode, locale: "en" | "ar" = "en") {
+function createClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  });
+}
+
+function renderPage(
+  node: React.ReactNode,
+  locale: "en" | "ar" = "en",
+  client = createClient(),
+) {
   return render(
     <NextIntlClientProvider
       locale={locale}
       messages={locale === "ar" ? arMessages : enMessages}
     >
-      <QueryClientProvider
-        client={
-          new QueryClient({
-            defaultOptions: {
-              queries: { retry: false },
-              mutations: { retry: false },
-            },
-          })
-        }
-      >
-        {node}
-      </QueryClientProvider>
+      <QueryClientProvider client={client}>{node}</QueryClientProvider>
     </NextIntlClientProvider>,
   );
 }
@@ -74,6 +79,287 @@ afterEach(() => {
   cleanup();
   apiMock.mockReset();
   push.mockReset();
+});
+
+describe.each(["en", "ar"] as const)("Resit opportunities in %s", (locale) => {
+  const copy =
+    locale === "ar"
+      ? {
+          title: "فرص إعادة التقييم",
+          loading: "جارٍ تحميل الفرص…",
+          loadError: "تعذر تحميل فرص إعادة التقييم.",
+          empty: "لا توجد فرص إعادة تقييم حاليًا.",
+          cardTitle: "فرصة إعادة التقييم",
+          originalRequest: "الطلب الأصلي",
+          description:
+            "مراجعة استشارية نهائية مستقلة من BETCCO بملفات وأدلة جديدة ودفع منفصل لاحقًا.",
+          start: "بدء إعادة التقييم",
+          previous: "السابق",
+          next: "التالي",
+        }
+      : {
+          title: "Resit opportunities",
+          loading: "Loading opportunities…",
+          loadError: "Unable to load Resit opportunities.",
+          empty: "No Resit opportunities available.",
+          cardTitle: "Resit opportunity",
+          originalRequest: "Original request",
+          description:
+            "One separate final BETCCO advisory review with fresh files and evidence. Separate payment follows later.",
+          start: "Start Resit",
+          previous: "Previous",
+          next: "Next",
+        };
+
+  it("renders translated copy and server-owned academic data without expanding IDs", async () => {
+    apiMock.mockResolvedValue({
+      items: [
+        {
+          ...authorized,
+          academic: {
+            qualificationCode: "Q-CODE",
+            qualificationArabicName: "مؤهل من الخادم",
+            qualificationEnglishName: "Server qualification",
+            unitCode: "U-CODE",
+            unitArabicTitle: "وحدة من الخادم",
+            unitEnglishTitle: "Server unit",
+            assessmentCode: "A-CODE",
+            assessmentArabicTitle: "تقييم من الخادم",
+            assessmentEnglishTitle: "Server assessment",
+          },
+        },
+      ],
+      page: 1,
+      pageSize: 10,
+      hasNextPage: false,
+    });
+    renderPage(<StudentResitOpportunities />, locale);
+    expect(screen.getByRole("region", { name: copy.title })).toBeVisible();
+    expect(screen.getByRole("heading", { name: copy.title })).toBeVisible();
+    expect(
+      await screen.findByRole("button", { name: copy.start }),
+    ).toBeEnabled();
+    expect(screen.getByText(copy.cardTitle)).toBeVisible();
+    expect(screen.getByText(copy.description)).toBeVisible();
+    expect(screen.getByText(`${copy.originalRequest}: bbbbbbbb`)).toBeVisible();
+    expect(
+      screen.queryByText(authorized.originalEvaluationRequestId, {
+        exact: false,
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText(formatLocalizedDate(authorized.authorizedAtUtc, locale)),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        locale === "ar"
+          ? "Q-CODE · U-CODE · وحدة من الخادم · تقييم من الخادم"
+          : "Q-CODE · U-CODE · Server unit · Server assessment",
+      ),
+    ).toBeVisible();
+    expect(screen.getByRole("button", { name: copy.previous })).toBeDisabled();
+    expect(screen.getByRole("button", { name: copy.next })).toBeDisabled();
+  });
+
+  it("localizes loading and empty states", async () => {
+    let resolvePage!: (value: unknown) => void;
+    apiMock.mockReturnValue(
+      new Promise((resolve) => {
+        resolvePage = resolve;
+      }),
+    );
+    renderPage(<StudentResitOpportunities />, locale);
+    expect(screen.getByRole("status")).toHaveTextContent(copy.loading);
+    await act(async () =>
+      resolvePage({ items: [], page: 1, pageSize: 10, hasNextPage: false }),
+    );
+    expect(await screen.findByText(copy.empty)).toBeVisible();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("localizes a query failure without presenting it as empty or exposing details", async () => {
+    apiMock.mockRejectedValue(new Error("private staff rationale"));
+    renderPage(<StudentResitOpportunities />, locale);
+    expect(await screen.findByRole("alert")).toHaveTextContent(copy.loadError);
+    expect(screen.queryByText(copy.empty)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/private staff rationale/),
+    ).not.toBeInTheDocument();
+  });
+
+  it("preserves page size, query identity, and Previous/Next behavior", async () => {
+    apiMock.mockImplementation((path: string) =>
+      Promise.resolve({
+        items: [authorized],
+        page: path.includes("page=2") ? 2 : 1,
+        pageSize: 10,
+        hasNextPage: !path.includes("page=2"),
+      }),
+    );
+    const client = createClient();
+    renderPage(<StudentResitOpportunities />, locale, client);
+    await screen.findByRole("button", { name: copy.start });
+    expect(screen.getByRole("button", { name: copy.previous })).toBeDisabled();
+    await userEvent
+      .setup()
+      .click(screen.getByRole("button", { name: copy.next }));
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: copy.next })).toBeDisabled(),
+    );
+    expect(apiMock).toHaveBeenCalledWith(
+      "/student/resit-authorizations?page=2&pageSize=10",
+    );
+    expect(
+      client.getQueryData(["student", "resit-authorizations", 2]),
+    ).toMatchObject({ page: 2 });
+    await userEvent
+      .setup()
+      .click(screen.getByRole("button", { name: copy.previous }));
+    await waitFor(() =>
+      expect(
+        screen.getByRole("button", { name: copy.previous }),
+      ).toBeDisabled(),
+    );
+    expect(
+      client.getQueryData(["student", "resit-authorizations", 1]),
+    ).toMatchObject({ page: 1 });
+  });
+
+  it("disables activation while pending and waits for both invalidations before navigation", async () => {
+    let resolveActivation!: (value: unknown) => void;
+    const activation = new Promise((resolve) => {
+      resolveActivation = resolve;
+    });
+    apiMock.mockImplementation((path: string) =>
+      path.endsWith("/activate")
+        ? activation
+        : Promise.resolve({
+            items: [authorized],
+            page: 1,
+            pageSize: 10,
+            hasNextPage: false,
+          }),
+    );
+    const client = createClient();
+    let resolveAuthorizations!: () => void;
+    let resolveEvaluations!: () => void;
+    const invalidate = vi
+      .spyOn(client, "invalidateQueries")
+      .mockReturnValueOnce(
+        new Promise<void>((resolve) => {
+          resolveAuthorizations = resolve;
+        }),
+      )
+      .mockReturnValueOnce(
+        new Promise<void>((resolve) => {
+          resolveEvaluations = resolve;
+        }),
+      );
+    renderPage(<StudentResitOpportunities />, locale, client);
+    const button = await screen.findByRole("button", { name: copy.start });
+    await userEvent.setup().click(button);
+    expect(button).toBeDisabled();
+    expect(apiMock).toHaveBeenCalledWith(
+      `/student/resit-authorizations/${authorized.authorizationId}/activate`,
+      { method: "POST" },
+    );
+    await act(async () =>
+      resolveActivation({
+        status: "Activated",
+        resitEvaluationRequestId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      }),
+    );
+    await waitFor(() => expect(invalidate).toHaveBeenCalledTimes(2));
+    expect(invalidate).toHaveBeenNthCalledWith(1, {
+      queryKey: ["student", "resit-authorizations"],
+    });
+    expect(invalidate).toHaveBeenNthCalledWith(2, {
+      queryKey: ["evaluations", "mine"],
+    });
+    expect(push).not.toHaveBeenCalled();
+    await act(async () => resolveAuthorizations());
+    expect(push).not.toHaveBeenCalled();
+    await act(async () => resolveEvaluations());
+    await waitFor(() =>
+      expect(push).toHaveBeenCalledWith(
+        `/${locale}/student/evaluations/cccccccc-cccc-cccc-cccc-cccccccccccc`,
+      ),
+    );
+  });
+
+  const privateDetail =
+    "private staff rationale, revocation reason, LIV internal notes";
+  it.each([
+    [
+      "non-ApiError",
+      () => new Error(privateDetail),
+      "تعذر بدء إعادة التقييم. حاول مجددًا.",
+      "Unable to start the Resit. Please retry.",
+    ],
+    [
+      "404 takes precedence over code",
+      () => new ApiError(404, privateDetail, "RESIT_AUTHORIZATION_REVOKED"),
+      "الفرصة غير متاحة. حدّث الصفحة.",
+      "Opportunity unavailable. Refresh the page.",
+    ],
+    [
+      "RESIT_AUTHORIZATION_REVOKED",
+      () => new ApiError(409, privateDetail, "RESIT_AUTHORIZATION_REVOKED"),
+      "فرصة إعادة التقييم هذه لم تعد متاحة.",
+      "This Resit opportunity is no longer available.",
+    ],
+    [
+      "RESIT_ORIGINAL_NO_LONGER_VALID",
+      () => new ApiError(409, privateDetail, "RESIT_ORIGINAL_NO_LONGER_VALID"),
+      "لم يعد الطلب الأصلي مؤهلًا لإعادة التقييم.",
+      "The original request is no longer eligible for Resit.",
+    ],
+    [
+      "RESIT_ACADEMIC_SNAPSHOT_INVALID",
+      () => new ApiError(409, privateDetail, "RESIT_ACADEMIC_SNAPSHOT_INVALID"),
+      "تعذر قراءة بيانات التقييم الأصلية. تواصل مع الدعم.",
+      "The original assessment details are unavailable. Contact support.",
+    ],
+    [
+      "RESIT_ACTIVATION_CONFLICT",
+      () => new ApiError(409, privateDetail, "RESIT_ACTIVATION_CONFLICT"),
+      "تغيرت حالة الفرصة. حدّث الصفحة وحاول مجددًا.",
+      "This opportunity changed. Refresh and try again.",
+    ],
+    [
+      "unknown ApiError code",
+      () => new ApiError(500, privateDetail, "UNKNOWN_CODE"),
+      "تعذر بدء إعادة التقييم. حاول مجددًا.",
+      "Unable to start the Resit. Please retry.",
+    ],
+  ] as const)(
+    "localizes %s without raw backend details",
+    async (_name, createError, arabic, english) => {
+      apiMock.mockImplementation((path: string) =>
+        path.endsWith("/activate")
+          ? Promise.reject(createError())
+          : Promise.resolve({
+              items: [authorized],
+              page: 1,
+              pageSize: 10,
+              hasNextPage: false,
+            }),
+      );
+      renderPage(<StudentResitOpportunities />, locale);
+      await userEvent
+        .setup()
+        .click(await screen.findByRole("button", { name: copy.start }));
+      expect(await screen.findByRole("alert")).toHaveTextContent(
+        locale === "ar" ? arabic : english,
+      );
+      expect(
+        screen.queryByText(/rationale|revocation reason|LIV internal notes/i),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByText(/UNKNOWN_CODE|RESIT_/)).not.toBeInTheDocument();
+      expect(push).not.toHaveBeenCalled();
+    },
+  );
 });
 
 describe("student Resit workflow", () => {
@@ -131,41 +417,68 @@ describe("student Resit workflow", () => {
     },
   );
 
-  it("shows activated and revoked states without an activation action or staff rationale", async () => {
-    apiMock.mockResolvedValue({
-      items: [
-        {
-          ...authorized,
-          state: "Activated",
-          resitEvaluationRequestId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
-        },
-        {
-          ...authorized,
-          authorizationId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
-          state: "Revoked",
-        },
-      ],
-      page: 1,
-      pageSize: 10,
-      hasNextPage: false,
-    });
-    renderPage(<StudentResitOpportunities />);
-    expect(
-      await screen.findByRole("link", { name: "Open Resit draft" }),
-    ).toHaveAttribute(
-      "href",
-      "/en/student/evaluations/cccccccc-cccc-cccc-cccc-cccccccccccc",
-    );
-    expect(
-      screen.getByText("This Resit opportunity is no longer available."),
-    ).toBeVisible();
-    expect(
-      screen.queryByRole("button", { name: "Start Resit" }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText(/rationale|revocation reason/i),
-    ).not.toBeInTheDocument();
-  });
+  it.each(["en", "ar"] as const)(
+    "shows activated and revoked states without an activation action or staff rationale in %s",
+    async (locale) => {
+      apiMock.mockResolvedValue({
+        items: [
+          {
+            ...authorized,
+            state: "Activated",
+            resitEvaluationRequestId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+          },
+          {
+            ...authorized,
+            authorizationId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+            state: "Revoked",
+            rationale: "private staff rationale",
+            revocationReason: "private revocation reason",
+            internalNotes: "private LIV internal notes",
+          },
+        ],
+        page: 1,
+        pageSize: 10,
+        hasNextPage: false,
+      });
+      renderPage(<StudentResitOpportunities />, locale);
+      expect(
+        await screen.findByRole("link", {
+          name:
+            locale === "ar" ? "فتح مسودة إعادة التقييم" : "Open Resit draft",
+        }),
+      ).toHaveAttribute(
+        "href",
+        `/${locale}/student/evaluations/cccccccc-cccc-cccc-cccc-cccccccccccc`,
+      );
+      expect(
+        screen.getByText(
+          locale === "ar"
+            ? "فرصة إعادة التقييم هذه لم تعد متاحة."
+            : "This Resit opportunity is no longer available.",
+        ),
+      ).toBeVisible();
+      expect(
+        screen.queryByRole("button", {
+          name: locale === "ar" ? "بدء إعادة التقييم" : "Start Resit",
+        }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(/rationale|revocation reason|LIV internal notes/i),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByText(
+          locale === "ar"
+            ? "تم التفعيل · طلب إعادة التقييم: cccccccc"
+            : "Activated · Resit request: cccccccc",
+        ),
+      ).toBeVisible();
+      expect(
+        screen.queryByText("cccccccc-cccc-cccc-cccc-cccccccccccc", {
+          exact: false,
+        }),
+      ).not.toBeInTheDocument();
+    },
+  );
 
   it("persists fresh files, criterion evidence and originality before payment", async () => {
     let detail = {

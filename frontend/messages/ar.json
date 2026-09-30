@@ -1117,6 +1117,32 @@
     "page": "الصفحة {page} من {pageCount}"
   },
   "studentWorkspace": {
+    "resitWorkflow": {
+      "opportunities": {
+        "ariaLabel": "فرص إعادة التقييم",
+        "title": "فرص إعادة التقييم",
+        "loading": "جارٍ تحميل الفرص…",
+        "loadError": "تعذر تحميل فرص إعادة التقييم.",
+        "empty": "لا توجد فرص إعادة تقييم حاليًا.",
+        "cardTitle": "فرصة إعادة التقييم",
+        "originalRequest": "الطلب الأصلي",
+        "authorizedDescription": "مراجعة استشارية نهائية مستقلة من BETCCO بملفات وأدلة جديدة ودفع منفصل لاحقًا.",
+        "start": "بدء إعادة التقييم",
+        "activatedRequest": "تم التفعيل · طلب إعادة التقييم",
+        "openDraft": "فتح مسودة إعادة التقييم",
+        "unavailable": "فرصة إعادة التقييم هذه لم تعد متاحة.",
+        "previous": "السابق",
+        "next": "التالي"
+      },
+      "activationErrors": {
+        "fallback": "تعذر بدء إعادة التقييم. حاول مجددًا.",
+        "revoked": "فرصة إعادة التقييم هذه لم تعد متاحة.",
+        "originalNoLongerValid": "لم يعد الطلب الأصلي مؤهلًا لإعادة التقييم.",
+        "academicSnapshotInvalid": "تعذر قراءة بيانات التقييم الأصلية. تواصل مع الدعم.",
+        "conflict": "تغيرت حالة الفرصة. حدّث الصفحة وحاول مجددًا.",
+        "notFound": "الفرصة غير متاحة. حدّث الصفحة."
+      }
+    },
     "loading": "…",
     "academicIdentity": {
       "learningAims": "أهداف التعلم"
