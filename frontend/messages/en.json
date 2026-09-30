@@ -1583,6 +1583,28 @@
         "loading": "Loading…",
         "loadMore": "Load more requests"
       }
+    },
+    "evaluationRevision": {
+      "title": "Submit revised assignment for checking",
+      "description": "Revise the assignment using the teacher feedback, then send the updated version for your second and final review check.",
+      "files": {
+        "label": "Updated files",
+        "choose": "Choose updated files",
+        "help": "You can select multiple files, up to 100MB per file."
+      },
+      "authenticity": {
+        "title": "Updated-work originality declaration",
+        "description": "I declare that this revised work and its evidence are my own and that I have acknowledged any permitted sources or assistance."
+      },
+      "actions": {
+        "submit": "Submit revised assignment"
+      },
+      "errors": {
+        "fileRequired": "Choose at least one updated file.",
+        "authenticityRequired": "Confirm the revised-work originality declaration before submitting.",
+        "fileSize": "Each file is limited to 100MB.",
+        "requestFailed": "Request failed."
+      }
     }
   }
 }
