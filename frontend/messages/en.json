@@ -1141,6 +1141,65 @@
         "academicSnapshotInvalid": "The original assessment details are unavailable. Contact support.",
         "conflict": "This opportunity changed. Refresh and try again.",
         "notFound": "Opportunity unavailable. Refresh the page."
+      },
+      "detail": {
+        "back": "Back to evaluations",
+        "loading": "Loading request…",
+        "unavailable": "Resit request unavailable.",
+        "header": {
+          "title": "Resit final review",
+          "status": "Status",
+          "originalRequest": "Original request"
+        },
+        "draft": {
+          "title": "Prepare Resit evidence",
+          "files": {
+            "label": "Fresh Resit files",
+            "choose": "Choose files",
+            "upload": "Upload files",
+            "uploadError": "File upload failed. Please retry.",
+            "saved": "Files saved.",
+            "savedTitle": "Saved files",
+            "empty": "No files uploaded yet."
+          },
+          "evidence": {
+            "title": "Criterion evidence",
+            "label": "Evidence for {criterion}",
+            "save": "Save evidence",
+            "saveError": "Unable to save evidence.",
+            "saved": "Evidence saved."
+          },
+          "authenticity": {
+            "confirmed": "Originality confirmed",
+            "declaration": "I declare these files and evidence are my own and acknowledge permitted sources of help.",
+            "confirm": "Confirm originality",
+            "error": "Unable to record declaration."
+          },
+          "preparationComplete": "Preparation complete."
+        },
+        "payment": {
+          "title": "Paid Resit review",
+          "price": "Server-owned Resit review price: {price}. Any applicable tax is calculated at checkout.",
+          "method": "Payment method",
+          "methods": {
+            "card": "Bank card",
+            "bankTransfer": "Bank transfer",
+            "eWallet": "E-wallet"
+          },
+          "continue": "Continue to payment",
+          "stateConflict": "Payment state conflict. Contact support.",
+          "startError": "Unable to start payment. Refresh the request status before retrying.",
+          "pendingTitle": "Payment pending",
+          "developmentDescription": "Development test payment only. Complete it explicitly; this is not a substitute for real provider confirmation.",
+          "completeTest": "Complete test payment",
+          "confirmTestError": "Unable to confirm test payment.",
+          "pendingHelp": "Check your payment history or contact support if this remains pending. Do not start another payment."
+        },
+        "completed": {
+          "title": "Final Resit advisory result",
+          "disclaimer": "This is a BETCCO advisory result, not an official school or awarding body result."
+        },
+        "awaitingResult": "The result will appear after review is complete."
       }
     },
     "loading": "…",

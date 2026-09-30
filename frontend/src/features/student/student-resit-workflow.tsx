@@ -233,6 +233,7 @@ export function StudentResitOpportunities() {
 
 export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
   const locale = useLocale();
+  const t = useTranslations("studentWorkspace.resitWorkflow.detail");
   const router = useRouter();
   const client = useQueryClient();
   const [files, setFiles] = useState<File[]>([]);
@@ -351,59 +352,39 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
         className="focus-ring w-fit font-semibold text-primary underline"
         href={`/${locale}/student/evaluations`}
       >
-        {locale === "ar" ? "العودة إلى الطلبات" : "Back to evaluations"}
+        {t("back")}
       </Link>
-      {detail.isPending ? (
-        <p role="status">
-          {locale === "ar" ? "جارٍ تحميل الطلب…" : "Loading request…"}
-        </p>
-      ) : null}
+      {detail.isPending ? <p role="status">{t("loading")}</p> : null}
       {detail.isError || (data && !data.isResit) ? (
-        <p role="alert">
-          {locale === "ar"
-            ? "طلب إعادة التقييم غير متاح."
-            : "Resit request unavailable."}
-        </p>
+        <p role="alert">{t("unavailable")}</p>
       ) : null}
       {data?.isResit ? (
         <>
           <header className="card grid gap-2 p-5">
-            <h1 className="text-2xl font-black">
-              {locale === "ar" ? "مراجعة Resit نهائية" : "Resit final review"}
-            </h1>
+            <h1 className="text-2xl font-black">{t("header.title")}</h1>
             <AcademicContext academic={data.academic} locale={locale} />
             <p>
-              {locale === "ar" ? "الحالة" : "Status"}: {data.status}
+              {t("header.status")}: {data.status}
             </p>
             {data.resitOfEvaluationRequestId ? (
               <p className="text-sm">
-                {locale === "ar" ? "الطلب الأصلي" : "Original request"}:{" "}
+                {t("header.originalRequest")}:{" "}
                 {data.resitOfEvaluationRequestId.slice(0, 8)}
               </p>
             ) : null}
           </header>
           {data.status === "Draft" ? (
             <div className="card grid gap-5 p-5">
-              <h2 className="text-xl font-black">
-                {locale === "ar"
-                  ? "تجهيز أدلة إعادة التقييم"
-                  : "Prepare Resit evidence"}
-              </h2>
+              <h2 className="text-xl font-black">{t("draft.title")}</h2>
               <FilePicker
-                label={
-                  locale === "ar"
-                    ? "ملفات إعادة التقييم الجديدة"
-                    : "Fresh Resit files"
-                }
+                label={t("draft.files.label")}
                 files={files}
                 onFilesChange={setFiles}
                 locale={locale}
                 accept=".pdf,.docx,.xlsx,.txt,.jpg,.jpeg,.png,.webp"
                 multiple
                 maxFileBytes={100 * 1024 * 1024}
-                chooseLabel={
-                  locale === "ar" ? "اختيار الملفات" : "Choose files"
-                }
+                chooseLabel={t("draft.files.choose")}
               />
               <button
                 type="button"
@@ -411,24 +392,20 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
                 disabled={!files.length || upload.isPending}
                 onClick={() => upload.mutate()}
               >
-                {locale === "ar" ? "رفع الملفات" : "Upload files"}
+                {t("draft.files.upload")}
               </button>
               {upload.isError ? (
                 <p role="alert" className="text-red-500">
-                  {locale === "ar"
-                    ? "تعذر رفع الملفات. حاول مجددًا."
-                    : "File upload failed. Please retry."}
+                  {t("draft.files.uploadError")}
                 </p>
               ) : null}
               {upload.isSuccess ? (
                 <p role="status" className="text-sm text-primary">
-                  {locale === "ar" ? "تم حفظ الملفات." : "Files saved."}
+                  {t("draft.files.saved")}
                 </p>
               ) : null}
               <div className="grid gap-2">
-                <h3 className="font-bold">
-                  {locale === "ar" ? "الملفات المحفوظة" : "Saved files"}
-                </h3>
+                <h3 className="font-bold">{t("draft.files.savedTitle")}</h3>
                 {data.files.length ? (
                   <ul className="grid gap-1 text-sm">
                     {data.files.map((file) => (
@@ -438,17 +415,11 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-sm text-muted">
-                    {locale === "ar"
-                      ? "لم تُرفع ملفات بعد."
-                      : "No files uploaded yet."}
-                  </p>
+                  <p className="text-sm text-muted">{t("draft.files.empty")}</p>
                 )}
               </div>
               <div className="grid gap-3">
-                <h3 className="font-bold">
-                  {locale === "ar" ? "أدلة المعايير" : "Criterion evidence"}
-                </h3>
+                <h3 className="font-bold">{t("draft.evidence.title")}</h3>
                 {data.criteria.map((criterion) => {
                   const saved =
                     data.evidence.find(
@@ -457,9 +428,7 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
                   return (
                     <div key={criterion} className="grid gap-2">
                       <label className="grid gap-1 text-sm font-semibold">
-                        {locale === "ar"
-                          ? `دليل ${criterion}`
-                          : `Evidence for ${criterion}`}
+                        {t("draft.evidence.label", { criterion })}
                         <textarea
                           key={`${criterion}:${saved}`}
                           className="min-h-24 min-w-0 rounded-xl border border-border bg-transparent p-3"
@@ -487,29 +456,25 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
                           })
                         }
                       >
-                        {locale === "ar" ? "حفظ الدليل" : "Save evidence"}
+                        {t("draft.evidence.save")}
                       </button>
                     </div>
                   );
                 })}
                 {saveEvidence.isError ? (
                   <p role="alert" className="text-red-500">
-                    {locale === "ar"
-                      ? "تعذر حفظ الدليل."
-                      : "Unable to save evidence."}
+                    {t("draft.evidence.saveError")}
                   </p>
                 ) : null}
                 {saveEvidence.isSuccess ? (
                   <p role="status" className="text-sm text-primary">
-                    {locale === "ar" ? "تم حفظ الدليل." : "Evidence saved."}
+                    {t("draft.evidence.saved")}
                   </p>
                 ) : null}
               </div>
               {data.hasAuthenticityDeclaration ? (
                 <p role="status" className="font-semibold text-primary">
-                  {locale === "ar"
-                    ? "تم تأكيد أصالة العمل"
-                    : "Originality confirmed"}
+                  {t("draft.authenticity.confirmed")}
                 </p>
               ) : (
                 <>
@@ -522,9 +487,7 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
                         setConfirmOriginality(event.target.checked)
                       }
                     />
-                    {locale === "ar"
-                      ? "أقر بأن الملفات والأدلة المقدمة تخصني وأنني ذكرت مصادر المساعدة المسموح بها."
-                      : "I declare these files and evidence are my own and acknowledge permitted sources of help."}
+                    {t("draft.authenticity.declaration")}
                   </label>
                   <button
                     type="button"
@@ -532,15 +495,11 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
                     disabled={!confirmOriginality || declare.isPending}
                     onClick={() => declare.mutate()}
                   >
-                    {locale === "ar"
-                      ? "تأكيد أصالة العمل"
-                      : "Confirm originality"}
+                    {t("draft.authenticity.confirm")}
                   </button>
                   {declare.isError ? (
                     <p role="alert" className="text-red-500">
-                      {locale === "ar"
-                        ? "تعذر تسجيل الإقرار."
-                        : "Unable to record declaration."}
+                      {t("draft.authenticity.error")}
                     </p>
                   ) : null}
                 </>
@@ -548,37 +507,33 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
               {data.files.some((file) => file.scanStatus === "Clean") &&
               data.hasAuthenticityDeclaration ? (
                 <p role="status" className="font-semibold">
-                  {locale === "ar"
-                    ? "اكتمل تجهيز الأدلة."
-                    : "Preparation complete."}
+                  {t("draft.preparationComplete")}
                 </p>
               ) : null}
               <div className="grid gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm">
-                <p className="font-black">
-                  {locale === "ar"
-                    ? "مراجعة Resit مدفوعة"
-                    : "Paid Resit review"}
-                </p>
+                <p className="font-black">{t("payment.title")}</p>
                 <p>
-                  {locale === "ar"
-                    ? `السعر المحدد من الخادم: ${formatLocalizedCurrency(data.price, data.currency, locale)}. تُحسب أي ضريبة مطبقة عند الدفع.`
-                    : `Server-owned Resit review price: ${formatLocalizedCurrency(data.price, data.currency, locale)}. Any applicable tax is calculated at checkout.`}
+                  {t("payment.price", {
+                    price: formatLocalizedCurrency(
+                      data.price,
+                      data.currency,
+                      locale,
+                    ),
+                  })}
                 </p>
                 <label className="grid gap-1 font-semibold">
-                  {locale === "ar" ? "طريقة الدفع" : "Payment method"}
+                  {t("payment.method")}
                   <select
                     value={paymentMethod}
                     onChange={(event) => setPaymentMethod(event.target.value)}
                     className="rounded-lg border bg-transparent p-3"
                   >
-                    <option value="Card">
-                      {locale === "ar" ? "بطاقة بنكية" : "Bank card"}
-                    </option>
+                    <option value="Card">{t("payment.methods.card")}</option>
                     <option value="BankTransfer">
-                      {locale === "ar" ? "تحويل بنكي" : "Bank transfer"}
+                      {t("payment.methods.bankTransfer")}
                     </option>
                     <option value="EWallet">
-                      {locale === "ar" ? "محفظة إلكترونية" : "E-wallet"}
+                      {t("payment.methods.eWallet")}
                     </option>
                   </select>
                 </label>
@@ -592,22 +547,14 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
                   }
                   onClick={() => checkout.mutate()}
                 >
-                  {checkout.isPending
-                    ? "…"
-                    : locale === "ar"
-                      ? "المتابعة إلى الدفع"
-                      : "Continue to payment"}
+                  {checkout.isPending ? "…" : t("payment.continue")}
                 </button>
                 {checkout.isError ? (
                   <p role="alert" className="text-red-500">
                     {checkout.error.message ===
                     "RESIT_INCLUDED_CREDIT_INVARIANT_VIOLATION"
-                      ? locale === "ar"
-                        ? "تعارض في حالة الدفع. تواصل مع الدعم."
-                        : "Payment state conflict. Contact support."
-                      : locale === "ar"
-                        ? "تعذر بدء الدفع. حدّث حالة الطلب قبل المحاولة مجددًا."
-                        : "Unable to start payment. Refresh the request status before retrying."}
+                      ? t("payment.stateConflict")
+                      : t("payment.startError")}
                   </p>
                 ) : null}
               </div>
@@ -615,15 +562,11 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
           ) : data.status === "PendingPayment" ? (
             <div className="card grid gap-3 p-5" aria-live="polite">
               <h2 className="text-xl font-black">
-                {locale === "ar" ? "الدفع قيد الانتظار" : "Payment pending"}
+                {t("payment.pendingTitle")}
               </h2>
               {paymentSession?.provider.startsWith("Fake") ? (
                 <>
-                  <p>
-                    {locale === "ar"
-                      ? "دفعة اختبارية — بيئة التطوير فقط. أكملها يدويًا؛ هذا ليس بديلًا عن تأكيد مزود الدفع الحقيقي."
-                      : "Development test payment only. Complete it explicitly; this is not a substitute for real provider confirmation."}
-                  </p>
+                  <p>{t("payment.developmentDescription")}</p>
                   <button
                     type="button"
                     className="focus-ring w-fit rounded-lg border border-primary px-3 py-2 font-black text-primary disabled:opacity-50"
@@ -632,33 +575,19 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
                   >
                     {confirmDevelopmentPayment.isPending
                       ? "…"
-                      : locale === "ar"
-                        ? "إتمام الدفع الاختباري"
-                        : "Complete test payment"}
+                      : t("payment.completeTest")}
                   </button>
                   {confirmDevelopmentPayment.isError ? (
-                    <p role="alert">
-                      {locale === "ar"
-                        ? "تعذر تأكيد الدفع الاختباري."
-                        : "Unable to confirm test payment."}
-                    </p>
+                    <p role="alert">{t("payment.confirmTestError")}</p>
                   ) : null}
                 </>
               ) : (
-                <p>
-                  {locale === "ar"
-                    ? "تحقق من سجل دفعاتك أو تواصل مع الدعم إذا بقيت الحالة معلقة. لا تبدأ دفعة أخرى."
-                    : "Check your payment history or contact support if this remains pending. Do not start another payment."}
-                </p>
+                <p>{t("payment.pendingHelp")}</p>
               )}
             </div>
           ) : data.status === "Completed" ? (
             <div className="card grid gap-3 p-5">
-              <h2 className="text-xl font-black">
-                {locale === "ar"
-                  ? "النتيجة الاستشارية النهائية للـ Resit"
-                  : "Final Resit advisory result"}
-              </h2>
+              <h2 className="text-xl font-black">{t("completed.title")}</h2>
               <p className="text-2xl font-black">
                 {data.calculatedGrade ?? "—"}
               </p>
@@ -676,18 +605,10 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
               {data.feedback.map((item) => (
                 <p key={item.createdAtUtc}>{item.body}</p>
               ))}
-              <p className="text-xs text-muted">
-                {locale === "ar"
-                  ? "هذه نتيجة إرشادية من BETCCO وليست نتيجة رسمية من الجهة التعليمية."
-                  : "This is a BETCCO advisory result, not an official school or awarding body result."}
-              </p>
+              <p className="text-xs text-muted">{t("completed.disclaimer")}</p>
             </div>
           ) : (
-            <p className="card p-5 text-sm text-muted">
-              {locale === "ar"
-                ? "ستظهر النتيجة بعد اكتمال المراجعة."
-                : "The result will appear after review is complete."}
-            </p>
+            <p className="card p-5 text-sm text-muted">{t("awaitingResult")}</p>
           )}
         </>
       ) : null}
