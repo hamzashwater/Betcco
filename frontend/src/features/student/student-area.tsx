@@ -4312,6 +4312,7 @@ function EvaluationResumeMessage({
 }
 
 function MyEvaluations() {
+  const t = useTranslations("studentWorkspace.myEvaluations");
   const locale = useLocale();
   const result = useStudentEvaluations<{
     id: string;
@@ -4346,9 +4347,7 @@ function MyEvaluations() {
   const items = result.data?.pages.flatMap((page) => page.items) ?? [];
   return (
     <section className="shell py-10">
-      <h1 className="text-3xl font-black">
-        {locale === "ar" ? "طلبات التقييم" : "Evaluation requests"}
-      </h1>
+      <h1 className="text-3xl font-black">{t("title")}</h1>
       <StudentResitOpportunities />
       {result.isPending ? (
         <div className="card mt-6 p-5" aria-busy>
@@ -4357,7 +4356,7 @@ function MyEvaluations() {
       ) : null}
       {result.isError && !result.data ? (
         <p role="alert" className="card mt-6 p-5">
-          {locale === "ar" ? "تعذر تحميل الطلبات." : "Unable to load requests."}
+          {t("errors.load")}
         </p>
       ) : null}
       <div className="mt-6 space-y-3">
@@ -4365,14 +4364,10 @@ function MyEvaluations() {
           <article key={item.id} className="card grid gap-4 p-4">
             {item.isResit ? (
               <div className="grid gap-1 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3">
-                <strong className="text-primary">
-                  {locale === "ar"
-                    ? "مراجعة Resit نهائية"
-                    : "Resit final review"}
-                </strong>
+                <strong className="text-primary">{t("resit.title")}</strong>
                 {item.resitOfEvaluationRequestId ? (
                   <span className="text-xs text-muted">
-                    {locale === "ar" ? "الطلب الأصلي" : "Original request"}:{" "}
+                    {t("resit.originalRequest")}:{" "}
                     {item.resitOfEvaluationRequestId.slice(0, 8)}
                   </span>
                 ) : null}
@@ -4380,13 +4375,9 @@ function MyEvaluations() {
             ) : null}
             {item.isRetake && !item.isResit ? (
               <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3">
-                <strong className="text-primary">
-                  {locale === "ar" ? "طلب Retake" : "Retake evaluation"}
-                </strong>
+                <strong className="text-primary">{t("retake.title")}</strong>
                 <span className="text-xs text-muted">
-                  {locale === "ar"
-                    ? "النتيجة محدودة بـ Pass"
-                    : "Pass-only outcome"}
+                  {t("retake.outcome")}
                 </span>
               </div>
             ) : null}
@@ -4400,24 +4391,14 @@ function MyEvaluations() {
             {(item.status === "NeedsRevision" || item.status === "Completed") &&
             item.results.length > 0 ? (
               <div className="rounded-xl border border-border/70 bg-surface-solid/70 p-4">
-                <h2 className="font-bold">
-                  {locale === "ar"
-                    ? "المعايير التي حققتها في المهمة"
-                    : "Criteria achieved in this task"}
-                </h2>
+                <h2 className="font-bold">{t("results.title")}</h2>
                 <div className="mt-3 rounded-xl border border-primary/30 bg-primary/10 p-4">
                   <p className="text-xs font-black uppercase tracking-wide text-primary">
                     {item.status === "NeedsRevision"
-                      ? locale === "ar"
-                        ? "النتيجة التقديرية الحالية من BETCCO"
-                        : "Current BETCCO estimated result"
+                      ? t("results.current")
                       : item.isResit
-                        ? locale === "ar"
-                          ? "النتيجة الاستشارية النهائية للـ Resit"
-                          : "Final Resit advisory result"
-                        : locale === "ar"
-                          ? "النتيجة التقديرية النهائية من BETCCO"
-                          : "Final BETCCO estimated result"}
+                        ? t("resit.result")
+                        : t("results.final")}
                   </p>
                   <p className="mt-1 text-2xl font-black text-foreground">
                     {item.calculatedGrade ?? "—"}
@@ -4429,9 +4410,7 @@ function MyEvaluations() {
                         className="rounded-lg border border-border/70 bg-page/40 px-3 py-2 text-xs text-muted"
                       >
                         <strong className="text-foreground">
-                          {locale === "ar"
-                            ? `القسم ${section.section}`
-                            : `Section ${section.section}`}
+                          {t("results.section", { section: section.section })}
                           :{" "}
                         </strong>
                         {section.grade}
@@ -4440,15 +4419,11 @@ function MyEvaluations() {
                   </div>
                 </div>
                 <p className="mt-3 text-xs leading-5 text-muted">
-                  {locale === "ar"
-                    ? "هذه نتيجة إرشادية من BETCCO لمساعدتك قبل التسليم الرسمي في المدرسة، وليست علامة رسمية."
-                    : "This is BETCCO guidance to help before your official school submission; it is not an official grade."}
+                  {t("results.guidance")}
                 </p>
                 <ul
                   className="mt-3 grid gap-2"
-                  aria-label={
-                    locale === "ar" ? "نتائج المعايير" : "Criterion results"
-                  }
+                  aria-label={t("criteria.title")}
                 >
                   {item.results.map((criterion) => (
                     <li
@@ -4460,12 +4435,8 @@ function MyEvaluations() {
                       </span>
                       <span>
                         {criterion.achievement === "Achieved"
-                          ? locale === "ar"
-                            ? "مُحقَّق"
-                            : "Achieved"
-                          : locale === "ar"
-                            ? "غير مُحقَّق بعد"
-                            : "Not achieved yet"}
+                          ? t("criteria.achieved")
+                          : t("criteria.notAchieved")}
                       </span>
                       {criterion.comment && (
                         <span className="w-full text-sm text-muted">
@@ -4478,17 +4449,11 @@ function MyEvaluations() {
               </div>
             ) : item.status !== "Completed" &&
               item.status !== "NeedsRevision" ? (
-              <p className="text-sm text-muted">
-                {locale === "ar"
-                  ? "ستظهر النتيجة التقديرية وملاحظات المعلم بعد انتهاء مراجعة BETCCO."
-                  : "Your estimated result and teacher feedback will appear after the BETCCO review."}
-              </p>
+              <p className="text-sm text-muted">{t("results.pending")}</p>
             ) : null}
             {item.evidence.length ? (
               <div className="rounded-xl border border-border/70 bg-page/40 p-4">
-                <h2 className="font-bold">
-                  {locale === "ar" ? "ملف الأدلة" : "Evidence portfolio"}
-                </h2>
+                <h2 className="font-bold">{t("evidence.title")}</h2>
                 <ul className="mt-3 grid gap-2 text-sm">
                   {item.evidence.map((evidence) => (
                     <li key={evidence.criterionCode}>
@@ -4501,9 +4466,7 @@ function MyEvaluations() {
             ) : null}
             {item.feedback.length ? (
               <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
-                <h2 className="font-bold">
-                  {locale === "ar" ? "ملاحظات المعلم" : "Teacher feedback"}
-                </h2>
+                <h2 className="font-bold">{t("feedback.title")}</h2>
                 {item.feedback.map((feedback) => (
                   <p
                     key={feedback.createdAtUtc}
@@ -4518,9 +4481,7 @@ function MyEvaluations() {
               <>
                 {item.effectiveRevisionDueAtUtc && (
                   <p className="rounded-xl border border-primary/30 bg-primary/5 p-3 text-sm font-semibold">
-                    {locale === "ar"
-                      ? "آخر موعد للمراجعة الثانية: "
-                      : "Revision check deadline: "}
+                    {t("revision.deadline")}{" "}
                     {formatLocalizedDateTime(
                       item.effectiveRevisionDueAtUtc,
                       locale,
@@ -4538,9 +4499,7 @@ function MyEvaluations() {
                 className="focus-ring w-fit font-bold text-primary underline"
                 href={`/${locale}/student/evaluations/${item.id}`}
               >
-                {locale === "ar"
-                  ? "متابعة تجهيز إعادة التقييم"
-                  : "Continue Resit preparation"}
+                {t("resit.continue")}
               </Link>
             ) : null}
             {item.status === "Draft" && !item.isRetake && !item.isResit ? (
@@ -4548,9 +4507,7 @@ function MyEvaluations() {
                 className="focus-ring w-fit font-bold text-primary underline"
                 href={`/${locale}/student/evaluations/new?resume=${encodeURIComponent(item.id)}`}
               >
-                {locale === "ar"
-                  ? "متابعة تجهيز التقييم"
-                  : "Continue evaluation"}
+                {t("actions.continueStandard")}
               </Link>
             ) : null}
           </article>
@@ -4558,9 +4515,7 @@ function MyEvaluations() {
       </div>
       {result.isFetchNextPageError ? (
         <p role="alert" className="mt-4 text-sm text-red-500">
-          {locale === "ar"
-            ? "تعذر تحميل المزيد من الطلبات."
-            : "Unable to load more requests."}
+          {t("errors.loadMore")}
         </p>
       ) : null}
       {result.hasNextPage || result.isFetchNextPageError ? (
@@ -4571,12 +4526,8 @@ function MyEvaluations() {
           onClick={() => void result.fetchNextPage()}
         >
           {result.isFetchingNextPage
-            ? locale === "ar"
-              ? "جارٍ التحميل…"
-              : "Loading…"
-            : locale === "ar"
-              ? "عرض المزيد من الطلبات"
-              : "Load more requests"}
+            ? t("pagination.loading")
+            : t("pagination.loadMore")}
         </button>
       ) : null}
     </section>
