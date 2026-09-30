@@ -1605,6 +1605,34 @@
         "fileSize": "الحد الأقصى 100MB لكل ملف.",
         "requestFailed": "فشل الطلب."
       }
+    },
+    "retakePayment": {
+      "title": "تسليم ودفع Retake",
+      "description": "هذا طلب مستقل بملفاته وأدلته وإقرار الأصالة والدفع الخاص به.",
+      "files": {
+        "label": "ملفات Retake",
+        "choose": "اختيار الملفات"
+      },
+      "evidence": {
+        "label": "دليل {criterion}"
+      },
+      "payment": {
+        "method": "طريقة الدفع",
+        "card": "بطاقة بنكية",
+        "bankTransfer": "تحويل بنكي",
+        "eWallet": "محفظة إلكترونية"
+      },
+      "authenticity": {
+        "description": "أقر بأن ملفات وأدلة Retake المقدمة تخصني."
+      },
+      "actions": {
+        "submit": "رفع الملفات والدفع"
+      },
+      "errors": {
+        "fileRequired": "اختر ملف Retake واحدًا على الأقل.",
+        "authenticityRequired": "أكد إقرار أصالة العمل قبل الدفع.",
+        "requestFailed": "فشل الطلب."
+      }
     }
   }
 }
