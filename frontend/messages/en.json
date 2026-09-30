@@ -1605,6 +1605,34 @@
         "fileSize": "Each file is limited to 100MB.",
         "requestFailed": "Request failed."
       }
+    },
+    "retakePayment": {
+      "title": "Submit and pay for Retake",
+      "description": "This request has its own files, evidence, authenticity declaration, and payment.",
+      "files": {
+        "label": "Retake files",
+        "choose": "Choose files"
+      },
+      "evidence": {
+        "label": "Evidence for {criterion}"
+      },
+      "payment": {
+        "method": "Payment method",
+        "card": "Bank card",
+        "bankTransfer": "Bank transfer",
+        "eWallet": "E-wallet"
+      },
+      "authenticity": {
+        "description": "I declare that the submitted Retake files and evidence are my own."
+      },
+      "actions": {
+        "submit": "Upload files and pay"
+      },
+      "errors": {
+        "fileRequired": "Choose at least one Retake file.",
+        "authenticityRequired": "Confirm the originality declaration before payment.",
+        "requestFailed": "Request failed."
+      }
     }
   }
 }

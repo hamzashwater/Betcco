@@ -4542,6 +4542,7 @@ function RetakePayment({
   criteria: string[];
 }) {
   const locale = useLocale();
+  const t = useTranslations("studentWorkspace.retakePayment");
   const client = useQueryClient();
   const [files, setFiles] = useState<File[]>([]);
   const [paymentMethod, setPaymentMethod] = useState("Card");
@@ -4549,18 +4550,9 @@ function RetakePayment({
   const [evidence, setEvidence] = useState<Record<string, string>>({});
   const checkout = useMutation({
     mutationFn: async () => {
-      if (!files.length)
-        throw new Error(
-          locale === "ar"
-            ? "اختر ملف Retake واحدًا على الأقل."
-            : "Choose at least one Retake file.",
-        );
+      if (!files.length) throw new Error(t("errors.fileRequired"));
       if (!authenticityConfirmed)
-        throw new Error(
-          locale === "ar"
-            ? "أكد إقرار أصالة العمل قبل الدفع."
-            : "Confirm the originality declaration before payment.",
-        );
+        throw new Error(t("errors.authenticityRequired"));
       for (const file of files) {
         const form = new FormData();
         form.set("file", file);
@@ -4602,31 +4594,25 @@ function RetakePayment({
   return (
     <section className="grid min-w-0 gap-4 rounded-xl border border-primary/30 bg-primary/5 p-4">
       <div>
-        <h2 className="font-black">
-          {locale === "ar" ? "تسليم ودفع Retake" : "Submit and pay for Retake"}
-        </h2>
-        <p className="mt-1 text-sm text-muted">
-          {locale === "ar"
-            ? "هذا طلب مستقل بملفاته وأدلته وإقرار الأصالة والدفع الخاص به."
-            : "This request has its own files, evidence, authenticity declaration, and payment."}
-        </p>
+        <h2 className="font-black">{t("title")}</h2>
+        <p className="mt-1 text-sm text-muted">{t("description")}</p>
       </div>
       <FilePicker
-        label={locale === "ar" ? "ملفات Retake" : "Retake files"}
+        label={t("files.label")}
         files={files}
         onFilesChange={setFiles}
         locale={locale}
         accept=".pdf,.docx,.xlsx,.txt,.jpg,.jpeg,.png,.webp"
         multiple
         maxFileBytes={100 * 1024 * 1024}
-        chooseLabel={locale === "ar" ? "اختيار الملفات" : "Choose files"}
+        chooseLabel={t("files.choose")}
       />
       {criteria.map((criterion) => (
         <label
           key={criterion}
           className="grid min-w-0 gap-1 text-sm font-semibold"
         >
-          {locale === "ar" ? `دليل ${criterion}` : `Evidence for ${criterion}`}
+          {t("evidence.label", { criterion })}
           <textarea
             className="min-h-20 min-w-0 rounded-xl border border-border bg-transparent p-3"
             maxLength={4000}
@@ -4641,21 +4627,15 @@ function RetakePayment({
         </label>
       ))}
       <label className="grid gap-1 text-sm font-semibold">
-        {locale === "ar" ? "طريقة الدفع" : "Payment method"}
+        {t("payment.method")}
         <select
           className="min-w-0 rounded-xl border border-border bg-transparent p-3"
           value={paymentMethod}
           onChange={(event) => setPaymentMethod(event.target.value)}
         >
-          <option value="Card">
-            {locale === "ar" ? "بطاقة بنكية" : "Bank card"}
-          </option>
-          <option value="BankTransfer">
-            {locale === "ar" ? "تحويل بنكي" : "Bank transfer"}
-          </option>
-          <option value="EWallet">
-            {locale === "ar" ? "محفظة إلكترونية" : "E-wallet"}
-          </option>
+          <option value="Card">{t("payment.card")}</option>
+          <option value="BankTransfer">{t("payment.bankTransfer")}</option>
+          <option value="EWallet">{t("payment.eWallet")}</option>
         </select>
       </label>
       <label className="flex items-start gap-3 text-sm leading-6">
@@ -4665,11 +4645,7 @@ function RetakePayment({
           checked={authenticityConfirmed}
           onChange={(event) => setAuthenticityConfirmed(event.target.checked)}
         />
-        <span>
-          {locale === "ar"
-            ? "أقر بأن ملفات وأدلة Retake المقدمة تخصني."
-            : "I declare that the submitted Retake files and evidence are my own."}
-        </span>
+        <span>{t("authenticity.description")}</span>
       </label>
       <button
         type="button"
@@ -4677,17 +4653,13 @@ function RetakePayment({
         disabled={checkout.isPending || !files.length || !authenticityConfirmed}
         onClick={() => checkout.mutate()}
       >
-        {checkout.isPending
-          ? "…"
-          : locale === "ar"
-            ? "رفع الملفات والدفع"
-            : "Upload files and pay"}
+        {checkout.isPending ? "…" : t("actions.submit")}
       </button>
       {checkout.isError ? (
         <p className="text-sm text-red-500" role="alert">
           {checkout.error instanceof Error
             ? checkout.error.message
-            : "Request failed."}
+            : t("errors.requestFailed")}
         </p>
       ) : null}
     </section>
