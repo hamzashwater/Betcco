@@ -831,6 +831,8 @@ type StudentEntitlementResponse = {
 };
 
 function StudentAccount() {
+  const t = useTranslations("studentWorkspace");
+  const tProfile = useTranslations("auth.accountProfile");
   const locale = useLocale();
   const client = useQueryClient();
   const [notice, setNotice] = useState<string | null>(null);
@@ -857,11 +859,7 @@ function StudentAccount() {
         }),
       }),
     onSuccess: () => {
-      setNotice(
-        locale === "ar"
-          ? "تم حفظ إعدادات الحساب."
-          : "Account settings were saved.",
-      );
+      setNotice(t("account.saved"));
       void client.invalidateQueries({ queryKey: ["student-profile"] });
       void client.invalidateQueries({ queryKey: ["current-user"] });
     },
@@ -869,11 +867,11 @@ function StudentAccount() {
   const entries = [
     ...(memberships.data?.memberships ?? []).map((item) => ({
       ...item,
-      kind: locale === "ar" ? "عضوية" : "Membership",
+      kind: t("account.membershipKind"),
     })),
     ...(memberships.data?.subscriptions ?? []).map((item) => ({
       ...item,
-      kind: locale === "ar" ? "اشتراك دورة" : "Course subscription",
+      kind: t("account.subscriptionKind"),
     })),
   ].sort(
     (first, second) =>
@@ -901,30 +899,24 @@ function StudentAccount() {
               <UserRound size={22} aria-hidden="true" />
             </span>
             <div>
-              <h2 className="text-xl font-black">
-                {locale === "ar" ? "البيانات الأساسية" : "Basic details"}
-              </h2>
+              <h2 className="text-xl font-black">{tProfile("basicDetails")}</h2>
               <p className="mt-1 text-sm leading-6 text-muted">
-                {locale === "ar"
-                  ? "نطلب الحد الأدنى اللازم لتشغيل حسابك التعليمي فقط."
-                  : "We request only the minimum information needed to operate your learning account."}
+                {t("account.description")}
               </p>
             </div>
           </div>
           {profile.isPending ? (
             <p className="mt-6 text-sm text-muted" aria-busy>
-              …
+              {t("loading")}
             </p>
           ) : profile.isError || !profile.data ? (
             <p role="alert" className="mt-6 text-sm text-red-600">
-              {locale === "ar"
-                ? "تعذر تحميل بيانات الحساب."
-                : "Your account details could not be loaded."}
+              {tProfile("loadError")}
             </p>
           ) : (
             <div className="mt-6 grid gap-4">
               <label className="grid gap-1 text-sm font-bold">
-                <span>{locale === "ar" ? "الاسم" : "Name"}</span>
+                <span>{tProfile("name")}</span>
                 <input
                   required
                   minLength={2}
@@ -935,7 +927,7 @@ function StudentAccount() {
                 />
               </label>
               <label className="grid gap-1 text-sm font-bold">
-                <span>{locale === "ar" ? "البريد الإلكتروني" : "Email"}</span>
+                <span>{tProfile("email")}</span>
                 <input
                   readOnly
                   value={profile.data.email ?? ""}
@@ -943,11 +935,7 @@ function StudentAccount() {
                 />
               </label>
               <label className="grid gap-1 text-sm font-bold">
-                <span>
-                  {locale === "ar"
-                    ? "رقم الهاتف (اختياري)"
-                    : "Phone (optional)"}
-                </span>
+                <span>{tProfile("phoneOptional")}</span>
                 <input
                   inputMode="tel"
                   maxLength={40}
@@ -963,24 +951,14 @@ function StudentAccount() {
                   defaultChecked={profile.data.marketingConsent}
                   className="mt-1 size-4 accent-[var(--primary)]"
                 />
-                <span>
-                  {locale === "ar"
-                    ? "أوافق اختياريًا على تلقي العروض والرسائل التسويقية. يمكنني سحب الموافقة في أي وقت."
-                    : "I optionally agree to receive offers and marketing messages. I can withdraw consent at any time."}
-                </span>
+                <span>{tProfile("marketingConsent")}</span>
               </label>
               <button
                 type="submit"
                 disabled={save.isPending}
                 className="focus-ring rounded-xl bg-primary px-4 py-3 text-sm font-black text-slate-950 disabled:cursor-wait disabled:opacity-60"
               >
-                {save.isPending
-                  ? locale === "ar"
-                    ? "جارٍ الحفظ…"
-                    : "Saving…"
-                  : locale === "ar"
-                    ? "حفظ البيانات"
-                    : "Save details"}
+                {save.isPending ? tProfile("saving") : tProfile("saveDetails")}
               </button>
               {notice ? (
                 <p
@@ -994,9 +972,7 @@ function StudentAccount() {
                 <p role="alert" className="text-sm text-red-600">
                   {save.error instanceof Error
                     ? save.error.message
-                    : locale === "ar"
-                      ? "تعذر حفظ البيانات."
-                      : "Your details could not be saved."}
+                    : tProfile("saveError")}
                 </p>
               ) : null}
             </div>
@@ -1009,26 +985,20 @@ function StudentAccount() {
             </span>
             <div>
               <h2 className="text-xl font-black">
-                {locale === "ar"
-                  ? "العضويات والاشتراكات"
-                  : "Memberships and subscriptions"}
+                {t("account.membershipsHeading")}
               </h2>
               <p className="mt-1 text-sm leading-6 text-muted">
-                {locale === "ar"
-                  ? "تظهر هنا الحالات الفعلية المسجلة في الحساب."
-                  : "Only the actual statuses recorded for this account appear here."}
+                {t("account.membershipsDescription")}
               </p>
             </div>
           </div>
           {memberships.isPending ? (
             <p className="mt-6 text-sm text-muted" aria-busy>
-              …
+              {t("loading")}
             </p>
           ) : memberships.isError ? (
             <p role="alert" className="mt-6 text-sm text-red-600">
-              {locale === "ar"
-                ? "تعذر تحميل العضويات."
-                : "Memberships could not be loaded."}
+              {t("account.membershipsError")}
             </p>
           ) : entries.length ? (
             <div className="mt-6 grid gap-3">
@@ -1046,16 +1016,12 @@ function StudentAccount() {
                       className={`rounded-full px-2.5 py-1 text-xs font-black ${entry.status === "Active" ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" : "bg-muted text-muted"}`}
                     >
                       {entry.status === "Active"
-                        ? locale === "ar"
-                          ? "نشط"
-                          : "Active"
-                        : locale === "ar"
-                          ? "منتهٍ"
-                          : "Expired"}
+                        ? t("account.active")
+                        : t("account.expired")}
                     </span>
                   </div>
                   <p className="mt-3 text-xs text-muted">
-                    {locale === "ar" ? "ينتهي:" : "Ends:"}{" "}
+                    {t("account.ends")}{" "}
                     {formatLocalizedDate(entry.endsAtUtc, locale)}
                   </p>
                 </article>
@@ -1063,16 +1029,12 @@ function StudentAccount() {
             </div>
           ) : (
             <div className="mt-6 rounded-xl border border-dashed border-border p-4 text-sm leading-6 text-muted">
-              <p>
-                {locale === "ar"
-                  ? "لا توجد عضوية أو اشتراك نشط أو سابق في هذا الحساب."
-                  : "There is no active or previous membership or subscription for this account."}
-              </p>
+              <p>{t("account.membershipsEmpty")}</p>
               <Link
                 href={`/${locale}/memberships`}
                 className="focus-ring mt-3 inline-flex font-black text-primary"
               >
-                {locale === "ar" ? "استكشف العضويات" : "Explore memberships"}
+                {t("account.exploreMemberships")}
               </Link>
             </div>
           )}
@@ -1081,7 +1043,7 @@ function StudentAccount() {
             className="focus-ring mt-6 inline-flex items-center gap-2 text-sm font-black text-primary"
           >
             <CreditCard size={16} aria-hidden="true" />
-            {locale === "ar" ? "عرض سجل الدفعات" : "View payment history"}
+            {t("account.viewPaymentHistory")}
           </Link>
         </section>
       </div>
@@ -1091,6 +1053,7 @@ function StudentAccount() {
 }
 
 function StudentPurchases() {
+  const t = useTranslations("studentWorkspace");
   const locale = useLocale();
   const [page, setPage] = useState(1);
   const purchases = useQuery({
@@ -1108,27 +1071,27 @@ function StudentPurchases() {
       ),
   });
   const labelForPurpose = (purpose: string) => {
-    const labels: Record<string, [string, string]> = {
-      CoursePurchase: ["شراء دورة", "Course purchase"],
-      CoursePackage: ["شراء باقة", "Package purchase"],
-      Evaluation: ["طلب تقييم", "Evaluation request"],
-      Membership: ["عضوية", "Membership"],
-      CourseSubscription: ["اشتراك دورة", "Course subscription"],
+    const labels: Record<string, string> = {
+      CoursePurchase: t("purchases.purpose.coursePurchase"),
+      CoursePackage: t("purchases.purpose.coursePackage"),
+      Evaluation: t("purchases.purpose.evaluation"),
+      Membership: t("account.membershipKind"),
+      CourseSubscription: t("account.subscriptionKind"),
     };
-    return labels[purpose]?.[locale === "ar" ? 0 : 1] ?? purpose;
+    return labels[purpose] ?? purpose;
   };
   const labelForStatus = (status: string) => {
-    const labels: Record<string, [string, string]> = {
-      Pending: ["بانتظار الدفع", "Pending payment"],
-      Processing: ["قيد المعالجة", "Processing"],
-      Paid: ["مدفوع", "Paid"],
-      Failed: ["فشل", "Failed"],
-      Cancelled: ["ملغى", "Cancelled"],
-      Refunded: ["مسترد", "Refunded"],
-      PartiallyRefunded: ["مسترد جزئيًا", "Partially refunded"],
-      Chargeback: ["اعتراض بنكي", "Chargeback"],
+    const labels: Record<string, string> = {
+      Pending: t("purchases.status.pending"),
+      Processing: t("purchases.status.processing"),
+      Paid: t("purchases.status.paid"),
+      Failed: t("purchases.status.failed"),
+      Cancelled: t("purchases.status.cancelled"),
+      Refunded: t("purchases.status.refunded"),
+      PartiallyRefunded: t("purchases.status.partiallyRefunded"),
+      Chargeback: t("purchases.status.chargeback"),
     };
-    return labels[status]?.[locale === "ar" ? 0 : 1] ?? status;
+    return labels[status] ?? status;
   };
   const formatAmount = (amount: number, currency: string) =>
     formatLocalizedCurrency(amount, currency, locale, {
@@ -1136,44 +1099,37 @@ function StudentPurchases() {
       maximumFractionDigits: 2,
     });
   const labelForSource = (purpose: string) => {
-    const labels: Record<string, [string, string]> = {
-      CourseCart: ["شراء دورة", "Course purchase"],
-      Membership: ["عضوية", "Membership"],
-      CourseSubscription: ["اشتراك دورة", "Course subscription"],
-      DirectEnrollment: ["وصول مباشر", "Direct enrollment"],
+    const labels: Record<string, string> = {
+      CourseCart: t("purchases.purpose.coursePurchase"),
+      Membership: t("account.membershipKind"),
+      CourseSubscription: t("account.subscriptionKind"),
+      DirectEnrollment: t("purchases.sourcePurpose.directEnrollment"),
     };
-    return labels[purpose]?.[locale === "ar" ? 0 : 1] ?? purpose;
+    return labels[purpose] ?? purpose;
   };
   const labelForCreditStatus = (
     status: StudentIncludedEvaluationCredit["status"],
   ) => {
-    const labels: Record<
-      StudentIncludedEvaluationCredit["status"],
-      [string, string]
-    > = {
-      Available: ["متاح", "Available"],
-      Consumed: ["مستخدم", "Consumed"],
-      Revoked: ["ملغى", "Revoked"],
+    const labels: Record<StudentIncludedEvaluationCredit["status"], string> = {
+      Available: t("purchases.creditStatus.available"),
+      Consumed: t("purchases.creditStatus.consumed"),
+      Revoked: t("purchases.creditStatus.revoked"),
     };
-    return labels[status][locale === "ar" ? 0 : 1];
+    return labels[status];
   };
   return (
     <section className="shell py-10">
       <DashboardHeader
-        eyebrow="BETCCO PAYMENTS"
-        title={locale === "ar" ? "سجل الدفعات" : "Payment history"}
-        description={
-          locale === "ar"
-            ? "هذه المعاملات تخص حسابك فقط. حالة الدفع تأتي من الخادم بعد التحقق، وليست من رابط نجاح الواجهة."
-            : "These transactions belong only to your account. Payment status comes from server-side verification, never from a client success URL."
-        }
+        eyebrow={t("purchases.eyebrow")}
+        title={t("purchases.title")}
+        description={t("purchases.description")}
         actions={
           <Link
             href={`/${locale}/student/account`}
             className="focus-ring inline-flex items-center gap-2 rounded-xl border border-border px-4 py-3 text-sm font-black text-foreground"
           >
             <UserRound size={18} aria-hidden="true" />
-            {locale === "ar" ? "حسابي" : "My account"}
+            {t("navigation.account")}
           </Link>
         }
       />
@@ -1187,25 +1143,21 @@ function StudentPurchases() {
               id="student-entitlements-heading"
               className="text-xl font-black"
             >
-              {locale === "ar" ? "صلاحيات الوصول للدورات" : "My course access"}
+              {t("purchases.courseAccessHeading")}
             </h2>
             <p className="mt-1 max-w-3xl text-sm leading-6 text-muted">
-              {locale === "ar"
-                ? "هذه الصلاحيات تأتي من التسجيلات الفعلية المسجلة على الخادم. ويظهر رصيد تقييم الوحدة المشمول بحالته الحالية فقط."
-                : "These access rights come from server-owned enrollments. Included Unit evaluation credits are shown with their current recorded state."}
+              {t("purchases.courseAccessDescription")}
             </p>
           </div>
           <LockKeyhole size={22} className="text-primary" aria-hidden="true" />
         </div>
         {entitlements.isPending ? (
           <p className="mt-5 text-sm text-muted" aria-busy>
-            …
+            {t("loading")}
           </p>
         ) : entitlements.isError || !entitlements.data ? (
           <p role="alert" className="mt-5 text-sm text-red-600">
-            {locale === "ar"
-              ? "تعذر تحميل صلاحيات الوصول الحالية."
-              : "Your current course access could not be loaded."}
+            {t("purchases.courseAccessError")}
           </p>
         ) : entitlements.data.items.length ? (
           <div className="mt-5 grid gap-4">
@@ -1218,7 +1170,7 @@ function StudentPurchases() {
                   <div>
                     <p className="font-black">{entitlement.courseTitle}</p>
                     <p className="mt-1 text-xs text-muted">
-                      {locale === "ar" ? "المصدر:" : "Source:"}{" "}
+                      {t("purchases.source")}{" "}
                       {labelForSource(entitlement.sourcePurpose)}
                     </p>
                     {entitlement.sourcePaymentId ? (
@@ -1229,25 +1181,19 @@ function StudentPurchases() {
                   </div>
                   <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-black text-primary">
                     {entitlement.accessType === "Permanent"
-                      ? locale === "ar"
-                        ? "وصول دائم"
-                        : "Permanent access"
-                      : locale === "ar"
-                        ? "وصول محدد المدة"
-                        : "Timed access"}
+                      ? t("purchases.permanentAccess")
+                      : t("purchases.timedAccess")}
                   </span>
                 </div>
                 {entitlement.accessEndsAtUtc ? (
                   <p className="mt-3 text-xs text-muted">
-                    {locale === "ar" ? "ينتهي الوصول:" : "Access ends:"}{" "}
+                    {t("purchases.accessEnds")}{" "}
                     {formatLocalizedDate(entitlement.accessEndsAtUtc, locale)}
                   </p>
                 ) : null}
                 <div className="mt-4 border-t border-border pt-4">
                   <p className="text-sm font-black">
-                    {locale === "ar"
-                      ? "أرصدة تقييم الوحدات المشمولة"
-                      : "Included Unit evaluation credits"}
+                    {t("purchases.includedCredits")}
                   </p>
                   {entitlement.includedEvaluationCredits.length ? (
                     <div className="mt-3 grid gap-2">
@@ -1277,9 +1223,7 @@ function StudentPurchases() {
                     </div>
                   ) : (
                     <p className="mt-2 text-sm text-muted">
-                      {locale === "ar"
-                        ? "لا توجد أرصدة تقييم وحدات مشمولة مسجلة لهذا الوصول."
-                        : "No included Unit evaluation credits are recorded for this access."}
+                      {t("purchases.creditsEmpty")}
                     </p>
                   )}
                 </div>
@@ -1288,21 +1232,17 @@ function StudentPurchases() {
           </div>
         ) : (
           <p className="mt-5 rounded-xl border border-dashed border-border p-4 text-sm text-muted">
-            {locale === "ar"
-              ? "لا يوجد وصول نشط إلى دورات في هذا الحساب حاليًا."
-              : "There is no active course access on this account."}
+            {t("purchases.courseAccessEmpty")}
           </p>
         )}
       </section>
       {purchases.isPending ? (
         <div className="card mt-6 p-6" aria-busy>
-          …
+          {t("loading")}
         </div>
       ) : purchases.isError || !purchases.data ? (
         <p role="alert" className="card mt-6 p-6 text-red-600">
-          {locale === "ar"
-            ? "تعذر تحميل سجل الدفعات."
-            : "Payment history could not be loaded."}
+          {t("purchases.loadError")}
         </p>
       ) : purchases.data.items.length ? (
         <>
@@ -1333,13 +1273,13 @@ function StudentPurchases() {
                 <div className="mt-5 grid gap-3 border-t border-border pt-4 text-sm sm:grid-cols-3">
                   <div>
                     <span className="text-muted">
-                      {locale === "ar" ? "طريقة الدفع" : "Payment method"}
+                      {t("purchases.paymentMethod")}
                     </span>
                     <p className="mt-1 font-bold">{payment.method}</p>
                   </div>
                   <div>
                     <span className="text-muted">
-                      {locale === "ar" ? "الخصم" : "Discount"}
+                      {t("purchases.discount")}
                     </span>
                     <p className="mt-1 font-bold">
                       {formatAmount(payment.discount, payment.currency)}
@@ -1347,7 +1287,7 @@ function StudentPurchases() {
                   </div>
                   <div>
                     <span className="text-muted">
-                      {locale === "ar" ? "المرجع" : "Reference"}
+                      {t("purchases.reference")}
                     </span>
                     <p className="mt-1 break-all font-mono text-xs font-bold">
                       {payment.id}
@@ -1360,7 +1300,7 @@ function StudentPurchases() {
           {purchases.data.totalCount > purchases.data.pageSize ? (
             <nav
               className="mt-6 flex items-center justify-center gap-3"
-              aria-label={locale === "ar" ? "صفحات الدفعات" : "Payment pages"}
+              aria-label={t("purchases.pages")}
             >
               <button
                 type="button"
@@ -1368,7 +1308,7 @@ function StudentPurchases() {
                 onClick={() => setPage((current) => Math.max(1, current - 1))}
                 className="focus-ring rounded-xl border border-border px-4 py-2 text-sm font-bold disabled:opacity-50"
               >
-                {locale === "ar" ? "السابق" : "Previous"}
+                {t("purchases.previous")}
               </button>
               <span className="text-sm text-muted">
                 {purchases.data.page} /{" "}
@@ -1382,7 +1322,7 @@ function StudentPurchases() {
                 onClick={() => setPage((current) => current + 1)}
                 className="focus-ring rounded-xl border border-border px-4 py-2 text-sm font-bold disabled:opacity-50"
               >
-                {locale === "ar" ? "التالي" : "Next"}
+                {t("purchases.next")}
               </button>
             </nav>
           ) : null}
@@ -1391,18 +1331,16 @@ function StudentPurchases() {
         <div className="card mt-6 p-6 text-center">
           <CreditCard className="mx-auto text-primary" aria-hidden="true" />
           <h2 className="mt-3 text-xl font-black">
-            {locale === "ar" ? "لا توجد دفعات بعد" : "No payments yet"}
+            {t("purchases.emptyHeading")}
           </h2>
           <p className="mt-2 text-sm leading-6 text-muted">
-            {locale === "ar"
-              ? "عند إتمام عملية شراء موثقة ستظهر تفاصيلها هنا."
-              : "Verified purchases will appear here once you complete them."}
+            {t("purchases.emptyDescription")}
           </p>
           <Link
             href={`/${locale}/courses`}
             className="focus-ring mt-4 inline-flex font-black text-primary"
           >
-            {locale === "ar" ? "استكشف الدورات" : "Explore courses"}
+            {t("purchases.exploreCourses")}
           </Link>
         </div>
       )}
@@ -1480,6 +1418,7 @@ function LearningOrganizer({
 }: {
   initialTab: "planner" | "notes" | "bookmarks" | "certificates";
 }) {
+  const t = useTranslations("studentWorkspace");
   const locale = useLocale();
   const client = useQueryClient();
   const [title, setTitle] = useState("");
@@ -1488,6 +1427,11 @@ function LearningOrganizer({
   const [calendarView, setCalendarView] = useState<"month" | "week" | "day">(
     "month",
   );
+  const calendarViewLabels = {
+    month: t("organizer.calendar.month"),
+    week: t("organizer.calendar.week"),
+    day: t("organizer.calendar.day"),
+  } as const;
   const overview = useQuery({
     queryKey: ["student-learning-overview", locale],
     queryFn: () =>
@@ -1520,36 +1464,24 @@ function LearningOrganizer({
   });
   const heading =
     initialTab === "planner"
-      ? locale === "ar"
-        ? "مخطط التعلّم"
-        : "Learning planner"
+      ? t("dashboard.quickLinks.plannerTitle")
       : initialTab === "notes"
-        ? locale === "ar"
-          ? "ملاحظاتي"
-          : "My notes"
+        ? t("dashboard.quickLinks.notesTitle")
         : initialTab === "bookmarks"
-          ? locale === "ar"
-            ? "إشاراتي المرجعية"
-            : "My bookmarks"
-          : locale === "ar"
-            ? "شهاداتي"
-            : "My certificates";
+          ? t("organizer.bookmarksTitle")
+          : t("dashboard.quickLinks.certificatesTitle");
   if (overview.isPending)
     return (
       <section className="shell py-10">
         <div className="card p-6" aria-busy>
-          …
+          {t("loading")}
         </div>
       </section>
     );
   if (overview.isError || !overview.data)
     return (
       <section className="shell py-10">
-        <p className="card p-6">
-          {locale === "ar"
-            ? "تعذر تحميل أدوات التعلّم."
-            : "Learning tools could not be loaded."}
-        </p>
+        <p className="card p-6">{t("organizer.loadError")}</p>
       </section>
     );
   const data = overview.data;
@@ -1557,13 +1489,9 @@ function LearningOrganizer({
   return (
     <section className="shell py-10">
       <DashboardHeader
-        eyebrow="BETCCO Learning Space"
+        eyebrow={t("organizer.eyebrow")}
         title={heading}
-        description={
-          locale === "ar"
-            ? "مساحتك الخاصة منظمة من بياناتك الفعلية داخل المنصة."
-            : "Your private workspace, built from your real learning activity."
-        }
+        description={t("organizer.description")}
       />
       {initialTab === "planner" ? (
         <>
@@ -1580,11 +1508,7 @@ function LearningOrganizer({
               required
               maxLength={180}
               className="rounded-xl border border-border bg-surface-solid px-3 py-2"
-              placeholder={
-                locale === "ar"
-                  ? "مثال: مراجعة الوحدة الأولى"
-                  : "Example: revise module one"
-              }
+              placeholder={t("organizer.titlePlaceholder")}
             />
             <input
               type="datetime-local"
@@ -1597,22 +1521,20 @@ function LearningOrganizer({
               disabled={addCalendar.isPending}
               className="focus-ring rounded-xl bg-primary px-4 py-2 font-black text-slate-950"
             >
-              {locale === "ar" ? "إضافة" : "Add"}
+              {t("organizer.add")}
             </button>
             <textarea
               value={details}
               onChange={(event) => setDetails(event.target.value)}
               maxLength={1000}
               className="min-h-20 rounded-xl border border-border bg-surface-solid px-3 py-2 md:col-span-3"
-              placeholder={
-                locale === "ar" ? "تفاصيل اختيارية" : "Optional details"
-              }
+              placeholder={t("organizer.detailsPlaceholder")}
             />
           </form>
           <div
             className="mt-5 flex flex-wrap gap-2"
             role="group"
-            aria-label={locale === "ar" ? "عرض التقويم" : "Calendar view"}
+            aria-label={t("organizer.calendarView")}
           >
             {(["month", "week", "day"] as const).map((view) => (
               <button
@@ -1622,7 +1544,7 @@ function LearningOrganizer({
                 aria-pressed={calendarView === view}
                 className={`focus-ring rounded-lg border px-3 py-2 text-sm font-bold ${calendarView === view ? "border-primary bg-primary text-slate-950" : "border-border text-muted"}`}
               >
-                {calendarViewLabel(view, locale)}
+                {calendarViewLabels[view]}
               </button>
             ))}
           </div>
@@ -1647,7 +1569,7 @@ function LearningOrganizer({
                       href={`/${locale}/live`}
                       className="focus-ring rounded-lg border border-border px-3 py-2 text-sm font-bold text-primary"
                     >
-                      {locale === "ar" ? "فتح الجلسة" : "Open session"}
+                      {t("organizer.openSession")}
                     </Link>
                   ) : entry.personalEntryId ? (
                     <button
@@ -1657,22 +1579,20 @@ function LearningOrganizer({
                       }
                       className="focus-ring rounded-lg border border-red-500/40 px-3 py-2 text-sm font-bold text-red-400"
                     >
-                      {locale === "ar" ? "حذف" : "Delete"}
+                      {t("organizer.delete")}
                     </button>
                   ) : (
                     <Link
                       href={`/${locale}/student/courses`}
                       className="focus-ring rounded-lg border border-border px-3 py-2 text-sm font-bold text-primary"
                     >
-                      {locale === "ar" ? "فتح الواجب" : "Open assignment"}
+                      {t("organizer.openAssignment")}
                     </Link>
                   )}
                 </article>
               ))
             ) : (
-              <p className="card p-5 text-muted">
-                {locale === "ar" ? "لا توجد مواعيد بعد." : "No dates yet."}
-              </p>
+              <p className="card p-5 text-muted">{t("organizer.noDates")}</p>
             )}
           </div>
         </>
@@ -1693,11 +1613,7 @@ function LearningOrganizer({
               </Link>
             ))
           ) : (
-            <p className="card p-5 text-muted">
-              {locale === "ar"
-                ? "أضف ملاحظة من داخل أي درس لتظهر هنا."
-                : "Add a note inside a lesson and it will appear here."}
-            </p>
+            <p className="card p-5 text-muted">{t("organizer.notesEmpty")}</p>
           )}
         </div>
       ) : null}
@@ -1716,9 +1632,7 @@ function LearningOrganizer({
             ))
           ) : (
             <p className="card p-5 text-muted">
-              {locale === "ar"
-                ? "احفظ أي درس من مشغّل الدورة للرجوع إليه لاحقًا."
-                : "Save a lesson in the course player to revisit it later."}
+              {t("organizer.bookmarksEmpty")}
             </p>
           )}
         </div>
@@ -1731,24 +1645,20 @@ function LearningOrganizer({
                 <FileBadge className="text-primary" aria-hidden="true" />
                 <h2 className="mt-4 text-xl font-black">{certificate.title}</h2>
                 <p className="mt-2 text-sm text-muted">
-                  {locale === "ar" ? "رمز التحقق:" : "Verification code:"}{" "}
+                  {t("organizer.verificationCode")}{" "}
                   {certificate.verificationCode}
                 </p>
                 <Link
                   href={`/${locale}/student/certificates/${certificate.verificationCode}`}
                   className="focus-ring mt-5 inline-flex rounded-xl bg-primary px-4 py-2 text-sm font-black text-slate-950"
                 >
-                  {locale === "ar"
-                    ? "عرض وطباعة الشهادة"
-                    : "View and print certificate"}
+                  {t("organizer.viewCertificate")}
                 </Link>
               </article>
             ))
           ) : (
             <p className="card p-5 text-muted">
-              {locale === "ar"
-                ? "أكمل جميع دروس الدورة ثم اطلب شهادتها من المشغّل."
-                : "Complete every course lesson, then issue its certificate in the player."}
+              {t("organizer.certificatesEmpty")}
             </p>
           )}
         </div>
@@ -1776,15 +1686,6 @@ function calendarEntriesForView(
     const date = new Date(entry.startsAtUtc);
     return date >= start && date < end;
   });
-}
-
-function calendarViewLabel(view: "month" | "week" | "day", locale: string) {
-  const labels = {
-    month: ["الشهر", "Month"],
-    week: ["الأسبوع", "Week"],
-    day: ["اليوم", "Day"],
-  } as const;
-  return labels[view][locale === "ar" ? 0 : 1];
 }
 
 type CertificateDetail = {

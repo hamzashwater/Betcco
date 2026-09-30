@@ -1117,6 +1117,7 @@
     "page": "الصفحة {page} من {pageCount}"
   },
   "studentWorkspace": {
+    "loading": "…",
     "academicIdentity": {
       "learningAims": "أهداف التعلم"
     },
@@ -1211,6 +1212,93 @@
         "open": "فتح"
       },
       "eyebrow": "BETCCO Student"
+    },
+    "account": {
+      "saved": "تم حفظ إعدادات الحساب.",
+      "membershipKind": "عضوية",
+      "subscriptionKind": "اشتراك دورة",
+      "description": "نطلب الحد الأدنى اللازم لتشغيل حسابك التعليمي فقط.",
+      "membershipsHeading": "العضويات والاشتراكات",
+      "membershipsDescription": "تظهر هنا الحالات الفعلية المسجلة في الحساب.",
+      "membershipsError": "تعذر تحميل العضويات.",
+      "active": "نشط",
+      "expired": "منتهٍ",
+      "ends": "ينتهي:",
+      "membershipsEmpty": "لا توجد عضوية أو اشتراك نشط أو سابق في هذا الحساب.",
+      "exploreMemberships": "استكشف العضويات",
+      "viewPaymentHistory": "عرض سجل الدفعات"
+    },
+    "purchases": {
+      "title": "سجل الدفعات",
+      "description": "هذه المعاملات تخص حسابك فقط. حالة الدفع تأتي من الخادم بعد التحقق، وليست من رابط نجاح الواجهة.",
+      "courseAccessHeading": "صلاحيات الوصول للدورات",
+      "courseAccessDescription": "هذه الصلاحيات تأتي من التسجيلات الفعلية المسجلة على الخادم. ويظهر رصيد تقييم الوحدة المشمول بحالته الحالية فقط.",
+      "courseAccessError": "تعذر تحميل صلاحيات الوصول الحالية.",
+      "source": "المصدر:",
+      "permanentAccess": "وصول دائم",
+      "timedAccess": "وصول محدد المدة",
+      "accessEnds": "ينتهي الوصول:",
+      "includedCredits": "أرصدة تقييم الوحدات المشمولة",
+      "creditsEmpty": "لا توجد أرصدة تقييم وحدات مشمولة مسجلة لهذا الوصول.",
+      "courseAccessEmpty": "لا يوجد وصول نشط إلى دورات في هذا الحساب حاليًا.",
+      "loadError": "تعذر تحميل سجل الدفعات.",
+      "paymentMethod": "طريقة الدفع",
+      "discount": "الخصم",
+      "reference": "المرجع",
+      "pages": "صفحات الدفعات",
+      "previous": "السابق",
+      "next": "التالي",
+      "emptyHeading": "لا توجد دفعات بعد",
+      "emptyDescription": "عند إتمام عملية شراء موثقة ستظهر تفاصيلها هنا.",
+      "exploreCourses": "استكشف الدورات",
+      "eyebrow": "BETCCO PAYMENTS",
+      "purpose": {
+        "coursePurchase": "شراء دورة",
+        "coursePackage": "شراء باقة",
+        "evaluation": "طلب تقييم"
+      },
+      "status": {
+        "pending": "بانتظار الدفع",
+        "processing": "قيد المعالجة",
+        "paid": "مدفوع",
+        "failed": "فشل",
+        "cancelled": "ملغى",
+        "refunded": "مسترد",
+        "partiallyRefunded": "مسترد جزئيًا",
+        "chargeback": "اعتراض بنكي"
+      },
+      "sourcePurpose": {
+        "directEnrollment": "وصول مباشر"
+      },
+      "creditStatus": {
+        "available": "متاح",
+        "consumed": "مستخدم",
+        "revoked": "ملغى"
+      }
+    },
+    "organizer": {
+      "bookmarksTitle": "إشاراتي المرجعية",
+      "loadError": "تعذر تحميل أدوات التعلّم.",
+      "description": "مساحتك الخاصة منظمة من بياناتك الفعلية داخل المنصة.",
+      "titlePlaceholder": "مثال: مراجعة الوحدة الأولى",
+      "add": "إضافة",
+      "detailsPlaceholder": "تفاصيل اختيارية",
+      "calendarView": "عرض التقويم",
+      "openSession": "فتح الجلسة",
+      "delete": "حذف",
+      "openAssignment": "فتح الواجب",
+      "noDates": "لا توجد مواعيد بعد.",
+      "notesEmpty": "أضف ملاحظة من داخل أي درس لتظهر هنا.",
+      "bookmarksEmpty": "احفظ أي درس من مشغّل الدورة للرجوع إليه لاحقًا.",
+      "verificationCode": "رمز التحقق:",
+      "viewCertificate": "عرض وطباعة الشهادة",
+      "certificatesEmpty": "أكمل جميع دروس الدورة ثم اطلب شهادتها من المشغّل.",
+      "eyebrow": "BETCCO Learning Space",
+      "calendar": {
+        "month": "الشهر",
+        "week": "الأسبوع",
+        "day": "اليوم"
+      }
     }
   }
 }

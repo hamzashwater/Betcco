@@ -1117,6 +1117,7 @@
     "page": "Page {page} of {pageCount}"
   },
   "studentWorkspace": {
+    "loading": "…",
     "academicIdentity": {
       "learningAims": "Learning aims"
     },
@@ -1211,6 +1212,93 @@
         "open": "Open"
       },
       "eyebrow": "BETCCO Student"
+    },
+    "account": {
+      "saved": "Account settings were saved.",
+      "membershipKind": "Membership",
+      "subscriptionKind": "Course subscription",
+      "description": "We request only the minimum information needed to operate your learning account.",
+      "membershipsHeading": "Memberships and subscriptions",
+      "membershipsDescription": "Only the actual statuses recorded for this account appear here.",
+      "membershipsError": "Memberships could not be loaded.",
+      "active": "Active",
+      "expired": "Expired",
+      "ends": "Ends:",
+      "membershipsEmpty": "There is no active or previous membership or subscription for this account.",
+      "exploreMemberships": "Explore memberships",
+      "viewPaymentHistory": "View payment history"
+    },
+    "purchases": {
+      "title": "Payment history",
+      "description": "These transactions belong only to your account. Payment status comes from server-side verification, never from a client success URL.",
+      "courseAccessHeading": "My course access",
+      "courseAccessDescription": "These access rights come from server-owned enrollments. Included Unit evaluation credits are shown with their current recorded state.",
+      "courseAccessError": "Your current course access could not be loaded.",
+      "source": "Source:",
+      "permanentAccess": "Permanent access",
+      "timedAccess": "Timed access",
+      "accessEnds": "Access ends:",
+      "includedCredits": "Included Unit evaluation credits",
+      "creditsEmpty": "No included Unit evaluation credits are recorded for this access.",
+      "courseAccessEmpty": "There is no active course access on this account.",
+      "loadError": "Payment history could not be loaded.",
+      "paymentMethod": "Payment method",
+      "discount": "Discount",
+      "reference": "Reference",
+      "pages": "Payment pages",
+      "previous": "Previous",
+      "next": "Next",
+      "emptyHeading": "No payments yet",
+      "emptyDescription": "Verified purchases will appear here once you complete them.",
+      "exploreCourses": "Explore courses",
+      "eyebrow": "BETCCO PAYMENTS",
+      "purpose": {
+        "coursePurchase": "Course purchase",
+        "coursePackage": "Package purchase",
+        "evaluation": "Evaluation request"
+      },
+      "status": {
+        "pending": "Pending payment",
+        "processing": "Processing",
+        "paid": "Paid",
+        "failed": "Failed",
+        "cancelled": "Cancelled",
+        "refunded": "Refunded",
+        "partiallyRefunded": "Partially refunded",
+        "chargeback": "Chargeback"
+      },
+      "sourcePurpose": {
+        "directEnrollment": "Direct enrollment"
+      },
+      "creditStatus": {
+        "available": "Available",
+        "consumed": "Consumed",
+        "revoked": "Revoked"
+      }
+    },
+    "organizer": {
+      "bookmarksTitle": "My bookmarks",
+      "loadError": "Learning tools could not be loaded.",
+      "description": "Your private workspace, built from your real learning activity.",
+      "titlePlaceholder": "Example: revise module one",
+      "add": "Add",
+      "detailsPlaceholder": "Optional details",
+      "calendarView": "Calendar view",
+      "openSession": "Open session",
+      "delete": "Delete",
+      "openAssignment": "Open assignment",
+      "noDates": "No dates yet.",
+      "notesEmpty": "Add a note inside a lesson and it will appear here.",
+      "bookmarksEmpty": "Save a lesson in the course player to revisit it later.",
+      "verificationCode": "Verification code:",
+      "viewCertificate": "View and print certificate",
+      "certificatesEmpty": "Complete every course lesson, then issue its certificate in the player.",
+      "eyebrow": "BETCCO Learning Space",
+      "calendar": {
+        "month": "Month",
+        "week": "Week",
+        "day": "Day"
+      }
     }
   }
 }
