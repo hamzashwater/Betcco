@@ -1537,6 +1537,52 @@
       "incomplete": "This evaluation draft link is incomplete. Return to My Evaluations and choose a draft to continue.",
       "invalid": "This request is not an active standard evaluation draft. Return to My Evaluations to choose an available action.",
       "back": "Back to My Evaluations"
+    },
+    "myEvaluations": {
+      "title": "Evaluation requests",
+      "errors": {
+        "load": "Unable to load requests.",
+        "loadMore": "Unable to load more requests."
+      },
+      "resit": {
+        "title": "Resit final review",
+        "originalRequest": "Original request",
+        "continue": "Continue Resit preparation",
+        "result": "Final Resit advisory result"
+      },
+      "retake": {
+        "title": "Retake evaluation",
+        "outcome": "Pass-only outcome"
+      },
+      "results": {
+        "title": "Criteria achieved in this task",
+        "current": "Current BETCCO estimated result",
+        "final": "Final BETCCO estimated result",
+        "section": "Section {section}",
+        "guidance": "This is BETCCO guidance to help before your official school submission; it is not an official grade.",
+        "pending": "Your estimated result and teacher feedback will appear after the BETCCO review."
+      },
+      "criteria": {
+        "title": "Criterion results",
+        "achieved": "Achieved",
+        "notAchieved": "Not achieved yet"
+      },
+      "evidence": {
+        "title": "Evidence portfolio"
+      },
+      "feedback": {
+        "title": "Teacher feedback"
+      },
+      "revision": {
+        "deadline": "Revision check deadline:"
+      },
+      "actions": {
+        "continueStandard": "Continue evaluation"
+      },
+      "pagination": {
+        "loading": "Loading…",
+        "loadMore": "Load more requests"
+      }
     }
   }
 }
