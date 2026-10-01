@@ -2,14 +2,66 @@
 @import "./brand-tokens.css";
 
 :root {
+  /* Opt-in, opaque working surfaces. Legacy glass containers below retain
+     their current appearance until a separately scoped screen migration. */
+  --ui-surface-page: var(--betcco-navy);
+  --ui-surface-content: #133147;
+  --ui-surface-raised: #173a52;
+  --ui-surface-overlay: #10283b;
+  --ui-surface-muted: #10283b;
+  --ui-surface-interactive: #1b4f72;
+  --ui-text-primary: var(--betcco-white);
+  --ui-text-secondary: #d5e4e8;
+  --ui-text-muted: #b8d1d6;
+  --ui-text-inverse: #0d1b2a;
+  --ui-text-link: #80ded0;
+  --ui-border-subtle: #294556;
+  --ui-border-default: #456779;
+  --ui-border-strong: #95b7c4;
+  --ui-focus: #67e8f9;
+  --ui-border-focus: var(--ui-focus);
+  --ui-action-primary: var(--betcco-blue);
+  --ui-action-primary-text: #f5f6f8;
+  --ui-action-secondary: #173a52;
+  --ui-action-secondary-text: #f5f6f8;
+  --ui-action-danger: #b91c1c;
+  --ui-action-danger-text: #ffffff;
+  --ui-action-disabled: #294556;
+  --ui-action-disabled-text: #b8d1d6;
+  /* Pending retains the action's meaning: use disabled/aria-busy and text,
+     rather than treating a request in flight as a new workflow state. */
+  --ui-action-pending: var(--ui-action-primary);
+  --ui-action-pending-text: var(--ui-action-primary-text);
+  /* State colors never derive from a brand accent. Pair with a text label. */
+  --ui-state-success: #86efac;
+  --ui-state-success-surface: #12362b;
+  --ui-state-warning: #fcd34d;
+  --ui-state-warning-surface: #3c2d12;
+  --ui-state-danger: #fda4af;
+  --ui-state-danger-surface: #431c28;
+  --ui-state-info: #93c5fd;
+  --ui-state-info-surface: #162f4c;
+  --ui-font-body: var(--betcco-font-en);
+  --ui-font-heading: var(--ui-font-body);
+  --ui-type-page-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  --ui-type-section-size: 1.25rem;
+  --ui-type-body-size: 1rem;
+  --ui-type-meta-size: 0.875rem;
+  --ui-heading-leading: 1.4;
+  --ui-body-leading: 1.65;
+  --ui-heading-tracking: -0.015em;
+  --ui-radius-control: 0.75rem;
+  --ui-radius-region: 1rem;
+  --ui-shadow-raised: 0 4px 16px rgb(0 0 0 / 0.15);
+  --ui-shadow-overlay: 0 16px 40px rgb(0 0 0 / 0.3);
   --shell-max-width: 1180px;
   --shell-gutter: 1rem;
-  --background: var(--betcco-navy);
-  --background-elevated: #10283b;
-  --foreground: var(--betcco-white);
-  --surface: #133147;
-  --surface-solid: #173a52;
-  --muted: #b8d1d6;
+  --background: var(--ui-surface-page);
+  --background-elevated: var(--ui-surface-overlay);
+  --foreground: var(--ui-text-primary);
+  --surface: var(--ui-surface-content);
+  --surface-solid: var(--ui-surface-raised);
+  --muted: var(--ui-text-muted);
   --primary: var(--betcco-blue);
   --primary-strong: #123d5b;
   --secondary: var(--betcco-teal-strong);
@@ -31,17 +83,83 @@
   --color-surface: var(--surface);
   --color-muted: var(--muted);
   --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-secondary: var(--secondary);
   --color-accent: var(--accent);
-  --font-sans: "Tajawal", "Noto Sans Arabic", "Segoe UI", Arial, sans-serif;
+  --color-warm: var(--warm);
+  --color-border: var(--border);
+  --color-page: var(--ui-surface-page);
+  --color-surface-solid: var(--surface-solid);
+  --color-surface-content: var(--ui-surface-content);
+  --color-surface-raised: var(--ui-surface-raised);
+  --color-surface-overlay: var(--ui-surface-overlay);
+  --color-surface-muted: var(--ui-surface-muted);
+  --color-surface-interactive: var(--ui-surface-interactive);
+  --color-text-primary: var(--ui-text-primary);
+  --color-text-secondary: var(--ui-text-secondary);
+  --color-text-muted: var(--ui-text-muted);
+  --color-text-inverse: var(--ui-text-inverse);
+  --color-text-link: var(--ui-text-link);
+  --color-border-subtle: var(--ui-border-subtle);
+  --color-border-default: var(--ui-border-default);
+  --color-border-strong: var(--ui-border-strong);
+  --color-focus: var(--ui-focus);
+  --color-border-focus: var(--ui-border-focus);
+  --color-action-primary: var(--ui-action-primary);
+  --color-action-primary-text: var(--ui-action-primary-text);
+  --color-action-secondary: var(--ui-action-secondary);
+  --color-action-secondary-text: var(--ui-action-secondary-text);
+  --color-action-danger: var(--ui-action-danger);
+  --color-action-danger-text: var(--ui-action-danger-text);
+  --color-action-disabled: var(--ui-action-disabled);
+  --color-action-disabled-text: var(--ui-action-disabled-text);
+  --color-action-pending: var(--ui-action-pending);
+  --color-action-pending-text: var(--ui-action-pending-text);
+  --color-success: var(--ui-state-success);
+  --color-success-surface: var(--ui-state-success-surface);
+  --color-warning: var(--ui-state-warning);
+  --color-warning-surface: var(--ui-state-warning-surface);
+  --color-danger: var(--ui-state-danger);
+  --color-danger-surface: var(--ui-state-danger-surface);
+  --color-info: var(--ui-state-info);
+  --color-info-surface: var(--ui-state-info-surface);
+  --font-sans: var(--ui-font-body);
+  --radius-control: var(--ui-radius-control);
+  --radius-region: var(--ui-radius-region);
+  --shadow-raised: var(--ui-shadow-raised);
+  --shadow-overlay: var(--ui-shadow-overlay);
 }
 
 :root[data-theme="light"] {
-  --background: var(--betcco-white);
-  --background-elevated: #ffffff;
-  --foreground: var(--betcco-navy);
-  --surface: var(--betcco-white);
-  --surface-solid: #ffffff;
-  --muted: #496679;
+  --ui-surface-page: var(--betcco-white);
+  --ui-surface-content: var(--betcco-white);
+  --ui-surface-raised: #ffffff;
+  --ui-surface-overlay: #ffffff;
+  --ui-surface-muted: #eaf0f3;
+  --ui-surface-interactive: #e6f7f5;
+  --ui-text-primary: var(--betcco-navy);
+  --ui-text-secondary: #334f63;
+  --ui-text-muted: #496679;
+  --ui-text-inverse: #f5f6f8;
+  --ui-text-link: #087d6f;
+  --ui-border-subtle: #d5dfe5;
+  --ui-border-default: #899eac;
+  --ui-border-strong: #496679;
+  --ui-focus: #075985;
+  --ui-action-secondary: #eaf0f3;
+  --ui-action-secondary-text: #0d1b2a;
+  --ui-action-disabled: #d5dfe5;
+  --ui-action-disabled-text: #405c6f;
+  --ui-state-success: #166534;
+  --ui-state-success-surface: #f0fdf4;
+  --ui-state-warning: #854d0e;
+  --ui-state-warning-surface: #fffbeb;
+  --ui-state-danger: #9f1239;
+  --ui-state-danger-surface: #fff1f2;
+  --ui-state-info: #1e40af;
+  --ui-state-info-surface: #eff6ff;
+  --ui-shadow-raised: 0 4px 16px rgb(15 23 42 / 0.06);
+  --ui-shadow-overlay: 0 16px 40px rgb(15 23 42 / 0.14);
   --primary: var(--betcco-blue);
   --primary-strong: #123d5b;
   --secondary: var(--betcco-teal-strong);
@@ -182,8 +300,49 @@ select optgroup {
   border-radius: 1.25rem;
 }
 .focus-ring:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--primary) 78%, white);
+  outline: 3px solid var(--ui-focus);
   outline-offset: 3px;
+}
+
+/* Typography roles are opt-in. Arabic has its own leading/tracking even
+   inside an English interface; existing feature-specific styles are intact. */
+:lang(ar) {
+  --ui-font-body: var(--betcco-font-ar);
+  --ui-font-heading: var(--ui-font-body);
+  --ui-heading-leading: 1.6;
+  --ui-body-leading: 1.8;
+  --ui-heading-tracking: normal;
+}
+
+.ui-type-page,
+.ui-type-section {
+  font-family: var(--ui-font-heading);
+  line-height: var(--ui-heading-leading);
+  letter-spacing: var(--ui-heading-tracking);
+  font-weight: 700;
+}
+
+.ui-type-page {
+  font-size: var(--ui-type-page-size);
+}
+
+.ui-type-section {
+  font-size: var(--ui-type-section-size);
+}
+
+.ui-type-body,
+.ui-type-meta {
+  font-family: var(--ui-font-body);
+  line-height: var(--ui-body-leading);
+  letter-spacing: normal;
+}
+
+.ui-type-body {
+  font-size: var(--ui-type-body-size);
+}
+
+.ui-type-meta {
+  font-size: var(--ui-type-meta-size);
 }
 
 @media print {
@@ -382,6 +541,13 @@ select optgroup {
   display: block;
   height: auto;
   object-fit: contain;
+  max-inline-size: 100%;
+}
+
+.brand-logo-fallback {
+  overflow-wrap: anywhere;
+  font-family: var(--ui-font-heading);
+  font-weight: 700;
 }
 
 :root:not([data-theme="light"]) .brand-logo-on-light {

@@ -6,6 +6,11 @@
   --betcco-mint: #e6f7f5;
   --betcco-white: #f5f6f8;
 
-  --betcco-font-en: "Poppins", Arial, sans-serif;
-  --betcco-font-ar: "Cairo", Tahoma, sans-serif;
+  /* Keep the existing application stack; these are fallback contracts, not
+     promises that a web font has been downloaded. Identity and UI state
+     colors are intentionally separate (semantic roles live in globals.css). */
+  --betcco-font-en:
+    "Tajawal", "Noto Sans Arabic", "Segoe UI", Arial, sans-serif;
+  --betcco-font-ar:
+    "Tajawal", "Noto Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
 }
