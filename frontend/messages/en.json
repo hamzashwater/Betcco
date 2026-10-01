@@ -1202,6 +1202,36 @@
         "awaitingResult": "The result will appear after review is complete."
       }
     },
+    "evaluationAppeals": {
+      "integrity": "academic integrity",
+      "title": "Academic appeals",
+      "description": "Submit a documented appeal for a released result. An appeal never changes a result automatically; it is independently reviewed before a decision is recorded.",
+      "form": {
+        "title": "New appeal",
+        "releasedEvaluation": "Released evaluation",
+        "chooseEvaluation": "Choose an evaluation",
+        "outcome": "Outcome",
+        "reason": "Reason for appeal",
+        "reasonHelp": "Provide a clear reason between 10 and 4,000 characters. Your result remains unchanged until the independent decision is complete.",
+        "submitting": "Submitting…",
+        "submit": "Submit appeal",
+        "submitError": "Unable to submit the appeal."
+      },
+      "evaluations": {
+        "loadMoreError": "Unable to load more evaluations.",
+        "loading": "Loading…",
+        "loadMore": "Load more evaluations",
+        "empty": "There are no released evaluations available for appeal right now."
+      },
+      "appeals": {
+        "title": "Your appeals",
+        "loading": "…",
+        "loadError": "Unable to load appeals.",
+        "empty": "You have not submitted an appeal yet.",
+        "reviewerDecision": "Reviewer decision: ",
+        "withdraw": "Withdraw appeal"
+      }
+    },
     "loading": "…",
     "academicIdentity": {
       "learningAims": "Learning aims"

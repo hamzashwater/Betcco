@@ -4,7 +4,7 @@ import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useStudentEvaluations } from "@/features/student/student-evaluation-page";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 type Evaluation = {
@@ -26,7 +26,7 @@ type Appeal = {
 
 export function EvaluationAppeals() {
   const locale = useLocale();
-  const ar = locale === "ar";
+  const t = useTranslations("studentWorkspace.evaluationAppeals");
   const client = useQueryClient();
   const [evaluationRequestId, setEvaluationRequestId] = useState("");
   const [reason, setReason] = useState("");
@@ -70,16 +70,12 @@ export function EvaluationAppeals() {
     <section className="shell py-8 sm:py-10">
       <div className="max-w-3xl">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-          BETCCO · {ar ? "النزاهة الأكاديمية" : "academic integrity"}
+          BETCCO · {t("integrity")}
         </p>
         <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
-          {ar ? "الاستئنافات الأكاديمية" : "Academic appeals"}
+          {t("title")}
         </h1>
-        <p className="mt-3 leading-7 text-muted">
-          {ar
-            ? "قدّم استئنافًا موثقًا على نتيجة منشورة. لا يغيّر الاستئناف النتيجة تلقائيًا؛ ويُراجع بصورة مستقلة قبل تسجيل القرار."
-            : "Submit a documented appeal for a released result. An appeal never changes a result automatically; it is independently reviewed before a decision is recorded."}
-        </p>
+        <p className="mt-3 leading-7 text-muted">{t("description")}</p>
       </div>
 
       <form
@@ -89,33 +85,27 @@ export function EvaluationAppeals() {
           if (canSubmit) create.mutate();
         }}
       >
-        <h2 className="text-lg font-black">
-          {ar ? "طلب استئناف جديد" : "New appeal"}
-        </h2>
+        <h2 className="text-lg font-black">{t("form.title")}</h2>
         <label className="grid gap-2 text-sm font-black">
-          {ar ? "التقييم المنشور" : "Released evaluation"}
+          {t("form.releasedEvaluation")}
           <select
             className="focus-ring rounded-xl border border-border bg-background px-3 py-3 text-foreground"
             value={evaluationRequestId}
             onChange={(event) => setEvaluationRequestId(event.target.value)}
             required
           >
-            <option value="">
-              {ar ? "اختر تقييمًا" : "Choose an evaluation"}
-            </option>
+            <option value="">{t("form.chooseEvaluation")}</option>
             {completed.map((evaluation) => (
               <option key={evaluation.id} value={evaluation.id}>
-                {ar ? "النتيجة" : "Outcome"} {evaluation.calculatedGrade ?? "—"}{" "}
-                · {evaluation.id.slice(0, 8)}
+                {t("form.outcome")} {evaluation.calculatedGrade ?? "—"} ·{" "}
+                {evaluation.id.slice(0, 8)}
               </option>
             ))}
           </select>
         </label>
         {evaluations.isFetchNextPageError ? (
           <p role="alert" className="text-sm text-red-500">
-            {ar
-              ? "تعذر تحميل المزيد من التقييمات."
-              : "Unable to load more evaluations."}
+            {t("evaluations.loadMoreError")}
           </p>
         ) : null}
         {evaluations.hasNextPage || evaluations.isFetchNextPageError ? (
@@ -126,25 +116,19 @@ export function EvaluationAppeals() {
             onClick={() => void evaluations.fetchNextPage()}
           >
             {evaluations.isFetchingNextPage
-              ? ar
-                ? "جارٍ التحميل…"
-                : "Loading…"
-              : ar
-                ? "عرض المزيد من التقييمات"
-                : "Load more evaluations"}
+              ? t("evaluations.loading")
+              : t("evaluations.loadMore")}
           </button>
         ) : null}
         {evaluations.isSuccess &&
         !evaluations.hasNextPage &&
         completed.length === 0 ? (
           <p className="rounded-xl border border-border bg-page/40 p-3 text-sm text-muted">
-            {ar
-              ? "لا توجد تقييمات منشورة متاحة للاستئناف حاليًا."
-              : "There are no released evaluations available for appeal right now."}
+            {t("evaluations.empty")}
           </p>
         ) : null}
         <label className="grid gap-2 text-sm font-black">
-          {ar ? "سبب الاستئناف" : "Reason for appeal"}
+          {t("form.reason")}
           <textarea
             className="focus-ring min-h-32 rounded-xl border border-border bg-background px-3 py-3 text-foreground"
             value={reason}
@@ -158,9 +142,7 @@ export function EvaluationAppeals() {
             id="appeal-reason-help"
             className="text-xs font-normal text-muted"
           >
-            {ar
-              ? "اكتب سببًا واضحًا من 10 إلى 4000 حرف. ستبقى النتيجة كما هي حتى ينتهي القرار المستقل."
-              : "Provide a clear reason between 10 and 4,000 characters. Your result remains unchanged until the independent decision is complete."}
+            {t("form.reasonHelp")}
           </span>
         </label>
         <button
@@ -168,41 +150,29 @@ export function EvaluationAppeals() {
           disabled={!canSubmit || create.isPending}
           className="focus-ring justify-self-start rounded-xl bg-primary px-5 py-3 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {create.isPending
-            ? ar
-              ? "جارٍ الإرسال…"
-              : "Submitting…"
-            : ar
-              ? "إرسال الاستئناف"
-              : "Submit appeal"}
+          {create.isPending ? t("form.submitting") : t("form.submit")}
         </button>
         {create.isError ? (
           <p role="alert" className="text-sm text-red-500">
             {create.error instanceof Error
               ? create.error.message
-              : ar
-                ? "تعذر إرسال الاستئناف."
-                : "Unable to submit the appeal."}
+              : t("form.submitError")}
           </p>
         ) : null}
       </form>
 
       <div className="mt-8 max-w-3xl">
-        <h2 className="text-xl font-black">
-          {ar ? "استئنافاتك" : "Your appeals"}
-        </h2>
-        {appeals.isPending ? <p className="mt-4 text-muted">…</p> : null}
+        <h2 className="text-xl font-black">{t("appeals.title")}</h2>
+        {appeals.isPending ? (
+          <p className="mt-4 text-muted">{t("appeals.loading")}</p>
+        ) : null}
         {appeals.isError ? (
           <p role="alert" className="mt-4 text-sm text-red-500">
-            {ar ? "تعذر تحميل الاستئنافات." : "Unable to load appeals."}
+            {t("appeals.loadError")}
           </p>
         ) : null}
         {appeals.isSuccess && appeals.data.length === 0 ? (
-          <p className="card mt-4 p-4 text-muted">
-            {ar
-              ? "لم تقدّم أي استئناف بعد."
-              : "You have not submitted an appeal yet."}
-          </p>
+          <p className="card mt-4 p-4 text-muted">{t("appeals.empty")}</p>
         ) : null}
         <div className="mt-4 grid gap-3">
           {appeals.data?.map((appeal) => {
@@ -223,9 +193,7 @@ export function EvaluationAppeals() {
                 <p className="whitespace-pre-wrap leading-7">{appeal.reason}</p>
                 {appeal.decisionRationale ? (
                   <div className="rounded-xl border border-border bg-page/40 p-3 text-sm leading-6">
-                    <strong>
-                      {ar ? "قرار المراجع: " : "Reviewer decision: "}
-                    </strong>
+                    <strong>{t("appeals.reviewerDecision")}</strong>
                     {appeal.decisionRationale}
                   </div>
                 ) : null}
@@ -236,7 +204,7 @@ export function EvaluationAppeals() {
                     disabled={withdraw.isPending}
                     className="focus-ring justify-self-start rounded-xl border border-border px-4 py-2 text-sm font-black hover:border-primary disabled:opacity-60"
                   >
-                    {ar ? "سحب الاستئناف" : "Withdraw appeal"}
+                    {t("appeals.withdraw")}
                   </button>
                 ) : null}
               </article>

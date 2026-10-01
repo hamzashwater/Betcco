@@ -479,3 +479,166 @@ describe("student evaluation pagination", () => {
     ).toBeVisible();
   });
 });
+
+describe.each(["en", "ar"] as const)(
+  "evaluation appeals localization in %s",
+  (locale) => {
+    const copy =
+      locale === "ar"
+        ? {
+            title: "الاستئنافات الأكاديمية",
+            released: "التقييم المنشور",
+            outcome: "النتيجة",
+            reason: "سبب الاستئناف",
+            submit: "إرسال الاستئناف",
+            appeals: "استئنافاتك",
+            decision: "قرار المراجع: ",
+            withdraw: "سحب الاستئناف",
+            loadError: "تعذر تحميل الاستئنافات.",
+          }
+        : {
+            title: "Academic appeals",
+            released: "Released evaluation",
+            outcome: "Outcome",
+            reason: "Reason for appeal",
+            submit: "Submit appeal",
+            appeals: "Your appeals",
+            decision: "Reviewer decision: ",
+            withdraw: "Withdraw appeal",
+            loadError: "Unable to load appeals.",
+          };
+    const completedId = "abcdefgh-1111-2222-3333-444444444444";
+    const completed = evaluation(
+      "abcdefgh-1111-2222-3333-444444444444",
+      "Completed",
+      5,
+      {},
+      {
+        calculatedGrade: "Distinction",
+      },
+    );
+    const submittedAppeal = {
+      id: "appeal-1",
+      evaluationRequestId: completedId,
+      status: "Submitted",
+      reason: "Raw student reason",
+      decisionRationale: "Raw reviewer rationale",
+      createdAtUtc: "2026-09-30T12:34:00Z",
+      reviewedAtUtc: null,
+      withdrawnAtUtc: null,
+    };
+
+    it("renders localized framing while preserving raw appeal values", async () => {
+      apiMock.mockImplementation((path: string) => {
+        if (path === "/evaluations/mine?page=1&pageSize=20")
+          return Promise.resolve(page([completed], 1, false));
+        if (path === "/evaluation-appeals/mine")
+          return Promise.resolve([submittedAppeal]);
+        return Promise.resolve([]);
+      });
+      renderWithProviders(<EvaluationAppeals />, locale);
+      expect(
+        await screen.findByRole("heading", { level: 1, name: copy.title }),
+      ).toBeVisible();
+      expect(
+        await screen.findByRole("option", {
+          name: `${copy.outcome} Distinction · abcdefgh`,
+        }),
+      ).toHaveValue(completedId);
+      expect(screen.getByText("Submitted")).toBeVisible();
+      expect(screen.getByText("Raw student reason")).toBeVisible();
+      expect(
+        screen.getByText(
+          matchesNormalizedText(`${copy.decision}Raw reviewer rationale`),
+        ),
+      ).toBeVisible();
+      expect(
+        screen.getByText(
+          matchesNormalizedText(
+            formatLocalizedDateTime(submittedAppeal.createdAtUtc, locale),
+          ),
+        ),
+      ).toBeVisible();
+      expect(screen.getByRole("button", { name: copy.withdraw })).toBeVisible();
+      expect(
+        screen.queryByText(completedId, { exact: false }),
+      ).not.toBeInTheDocument();
+    });
+    it("preserves the create contract and trims the submitted reason", async () => {
+      apiMock.mockImplementation((path: string) => {
+        if (path === "/evaluations/mine?page=1&pageSize=20")
+          return Promise.resolve(page([completed], 1, false));
+        if (path === "/evaluation-appeals/mine") return Promise.resolve([]);
+        if (path === "/evaluation-appeals")
+          return Promise.resolve(submittedAppeal);
+        return Promise.resolve([]);
+      });
+      renderWithProviders(<EvaluationAppeals />, locale);
+      const user = userEvent.setup();
+      await screen.findByRole("option", {
+        name: `${copy.outcome} Distinction · abcdefgh`,
+      });
+      await user.selectOptions(
+        screen.getByLabelText(copy.released),
+        completedId,
+      );
+      await user.type(
+        screen.getByRole("textbox"),
+        "  Documented appeal reason  ",
+      );
+      await user.click(screen.getByRole("button", { name: copy.submit }));
+      await waitFor(() =>
+        expect(apiMock).toHaveBeenCalledWith("/evaluation-appeals", {
+          method: "POST",
+          body: JSON.stringify({
+            evaluationRequestId: completedId,
+            reason: "Documented appeal reason",
+          }),
+        }),
+      );
+    });
+
+    it("preserves withdraw and localizes appeal-load failures", async () => {
+      let failAppeals = false;
+      apiMock.mockImplementation((path: string) => {
+        if (path === "/evaluations/mine?page=1&pageSize=20")
+          return Promise.resolve(page([completed], 1, false));
+        if (path === "/evaluation-appeals/mine")
+          return failAppeals
+            ? Promise.reject(new Error("private backend detail"))
+            : Promise.resolve([submittedAppeal]);
+        if (path === "/evaluation-appeals/appeal-1/withdraw")
+          return Promise.resolve(undefined);
+        return Promise.resolve([]);
+      });
+      const view = renderWithProviders(<EvaluationAppeals />, locale);
+      await userEvent
+        .setup()
+        .click(await screen.findByRole("button", { name: copy.withdraw }));
+      await waitFor(() =>
+        expect(apiMock).toHaveBeenCalledWith(
+          "/evaluation-appeals/appeal-1/withdraw",
+          { method: "POST" },
+        ),
+      );
+      view.unmount();
+      cleanup();
+      apiMock.mockReset();
+      failAppeals = true;
+      apiMock.mockImplementation((path: string) => {
+        if (path === "/evaluations/mine?page=1&pageSize=20")
+          return Promise.resolve(page([completed], 1, false));
+        if (path === "/evaluation-appeals/mine")
+          return Promise.reject(new Error("private backend detail"));
+        return Promise.resolve([]);
+      });
+      renderWithProviders(<EvaluationAppeals />, locale);
+      expect(await screen.findByRole("alert")).toHaveTextContent(
+        copy.loadError,
+      );
+      expect(
+        screen.queryByText("private backend detail"),
+      ).not.toBeInTheDocument();
+    });
+  },
+);
