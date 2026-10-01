@@ -1,6 +1,10 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
+// Shared presentation entry points; existing dashboards opt in per scoped slice.
+export { Action, actionClassName } from "@/components/ui/action";
+export { QueryState, MutationOutcome } from "@/components/ui/query-state";
+
 export function DashboardHeader({
   eyebrow,
   title,

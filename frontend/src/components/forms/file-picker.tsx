@@ -2,6 +2,7 @@
 
 import { FileText, FileUp, Image as ImageIcon, X } from "lucide-react";
 import { useId, useRef, useState } from "react";
+import { Action } from "@/components/ui/action";
 
 type FilePickerProps = {
   label: string;
@@ -85,18 +86,18 @@ export function FilePicker({
 
   return (
     <section
-      className="min-w-0 rounded-2xl border border-border bg-surface-solid/55 p-4"
+      className="min-w-0 rounded-2xl border border-border-default! bg-surface-content p-4"
       aria-labelledby={`${inputId}-label`}
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p
             id={`${inputId}-label`}
-            className="text-sm font-black text-foreground"
+            className="text-sm font-black text-text-primary"
           >
             {label}
           </p>
-          <p className="mt-1 text-xs text-muted" aria-live="polite">
+          <p className="mt-1 text-xs text-text-muted" aria-live="polite">
             {files.length > 0
               ? selectionStatus
               : isArabic
@@ -104,15 +105,22 @@ export function FilePicker({
                 : "No files selected yet"}
           </p>
         </div>
-        <button
-          type="button"
+        <Action
+          variant="secondary"
           onClick={() => inputRef.current?.click()}
           disabled={disabled}
-          className="focus-ring inline-flex min-h-11 max-w-full items-center gap-2 rounded-xl border border-primary/45 bg-primary/15 px-4 py-2.5 text-sm font-black text-primary hover:bg-primary/25 disabled:cursor-not-allowed disabled:opacity-55"
+          aria-describedby={
+            [
+              helpText ? `${inputId}-help` : undefined,
+              error ? `${inputId}-error` : undefined,
+            ]
+              .filter(Boolean)
+              .join(" ") || undefined
+          }
         >
           <FileUp size={18} aria-hidden="true" />
           {chooseLabel ?? defaultChooseLabel}
-        </button>
+        </Action>
       </div>
       <input
         ref={inputRef}
@@ -123,13 +131,32 @@ export function FilePicker({
         disabled={disabled}
         onChange={(event) => chooseFiles(Array.from(event.target.files ?? []))}
         className="sr-only"
+        tabIndex={-1}
+        aria-invalid={Boolean(error)}
+        aria-describedby={
+          [
+            helpText ? `${inputId}-help` : undefined,
+            error ? `${inputId}-error` : undefined,
+          ]
+            .filter(Boolean)
+            .join(" ") || undefined
+        }
         aria-label={isArabic ? `اختيار ${label}` : `Choose ${label}`}
       />
       {helpText ? (
-        <p className="mt-3 text-xs leading-5 text-muted">{helpText}</p>
+        <p
+          id={`${inputId}-help`}
+          className="mt-3 text-sm leading-6 text-text-muted"
+        >
+          {helpText}
+        </p>
       ) : null}
       {error ? (
-        <p role="alert" className="mt-3 text-xs font-bold text-red-400">
+        <p
+          id={`${inputId}-error`}
+          role="alert"
+          className="mt-3 text-sm font-bold leading-6 text-danger"
+        >
           {error}
         </p>
       ) : null}
@@ -141,9 +168,9 @@ export function FilePicker({
           {files.map((file) => (
             <li
               key={fileKey(file)}
-              className="flex min-w-0 items-center gap-3 rounded-xl border border-border bg-page/45 p-3"
+              className="flex min-w-0 items-center gap-3 rounded-xl border border-border-subtle! bg-surface-raised p-3"
             >
-              <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary">
+              <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-surface-muted text-text-secondary">
                 {file.type.startsWith("image/") ? (
                   <ImageIcon size={17} aria-hidden="true" />
                 ) : (
@@ -151,10 +178,10 @@ export function FilePicker({
                 )}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-bold text-foreground">
+                <span className="block break-words text-sm font-bold text-text-primary">
                   {file.name}
                 </span>
-                <span className="mt-0.5 block text-xs text-muted">
+                <span className="mt-0.5 block text-xs text-text-muted">
                   {fileType(file)} · {formatBytes(file.size)}
                 </span>
               </span>
@@ -164,7 +191,7 @@ export function FilePicker({
                 aria-label={
                   isArabic ? `إزالة الملف ${file.name}` : `Remove ${file.name}`
                 }
-                className="focus-ring grid size-9 shrink-0 place-items-center rounded-lg border border-border text-muted hover:border-red-400/50 hover:bg-red-500/10 hover:text-red-300"
+                className="focus-ring grid size-11 shrink-0 place-items-center rounded-control border border-border-default! text-text-muted transition-colors duration-150 hover:border-danger! hover:bg-danger-surface hover:text-danger motion-reduce:transition-none"
               >
                 <X size={17} aria-hidden="true" />
               </button>
