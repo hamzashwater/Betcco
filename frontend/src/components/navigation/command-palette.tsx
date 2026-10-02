@@ -1,12 +1,15 @@
 "use client";
 
+import { Action } from "@/components/ui/action";
+import { QueryState } from "@/components/ui/query-state";
+import { useDialogFocus } from "./use-dialog-focus";
 import { api } from "@/lib/api";
 import type { CourseSummary, PagedResult } from "@/types/api";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, BookOpen, Compass, Home, Search, X } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 type PaletteItem = {
   id: string;
@@ -25,7 +28,10 @@ export function CommandPalette({
 }) {
   const locale = useLocale();
   const router = useRouter();
+  const t = useTranslations();
+  const dialog = useRef<HTMLElement>(null);
   const input = useRef<HTMLInputElement>(null);
+  useDialogFocus(open, dialog, onClose, input);
   const [term, setTerm] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const result = useQuery({
@@ -71,11 +77,9 @@ export function CommandPalette({
   }));
   const items = term.trim().length >= 2 ? courseItems : navigation;
 
-  useEffect(() => {
-    if (!open) return;
-    const timer = window.setTimeout(() => input.current?.focus(), 0);
-    return () => window.clearTimeout(timer);
-  }, [open]);
+  const searchRequested = term.trim().length >= 2;
+  const searching = searchRequested && result.isPending;
+  const failed = searchRequested && result.isError;
 
   if (!open) return null;
 
@@ -85,19 +89,21 @@ export function CommandPalette({
   };
   return (
     <div
-      className="fixed inset-0 z-[80] grid place-items-start bg-slate-950/65 px-4 pt-[12vh] backdrop-blur-sm"
+      className="fixed inset-0 z-[80] grid place-items-start bg-slate-950/65 px-4 pt-[12vh]"
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
     >
       <section
+        ref={dialog}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-label={locale === "ar" ? "البحث السريع" : "Quick search"}
-        className="glass-panel w-full max-w-2xl overflow-hidden rounded-2xl"
+        className="w-full max-w-2xl overflow-hidden rounded-region border border-border-default! bg-surface-overlay text-text-primary shadow-overlay"
         onKeyDown={(event) => {
-          if (event.key === "Escape") onClose();
+          if (event.target !== input.current) return;
           if (event.key === "ArrowDown") {
             event.preventDefault();
             setActiveIndex((index) =>
@@ -118,6 +124,7 @@ export function CommandPalette({
           <Search className="text-primary" size={20} aria-hidden="true" />
           <input
             ref={input}
+            aria-label={t("navigation.accessibility.searchCourses")}
             value={term}
             onChange={(event) => {
               setTerm(event.target.value);
@@ -128,24 +135,42 @@ export function CommandPalette({
                 ? "ابحث عن دورة أو انتقل إلى صفحة…"
                 : "Search courses or jump to a page…"
             }
-            className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted"
+            className="focus-ring min-w-0 flex-1 bg-transparent text-sm placeholder:text-muted"
           />
-          <button
-            type="button"
+          <Action
+            variant="quiet"
             onClick={onClose}
-            className="focus-ring rounded-lg p-2 text-muted hover:text-foreground"
+            className="px-3!"
             aria-label={locale === "ar" ? "إغلاق البحث" : "Close search"}
           >
-            <X size={18} />
-          </button>
+            <X size={18} aria-hidden="true" />
+          </Action>
         </div>
         <div className="max-h-[52vh] overflow-y-auto p-2">
-          {result.isPending && (
-            <p className="px-3 py-5 text-sm text-muted">
-              {locale === "ar" ? "جارٍ البحث…" : "Searching…"}
-            </p>
+          {searching && (
+            <QueryState
+              kind="loading"
+              title={locale === "ar" ? "جارٍ البحث…" : "Searching…"}
+            />
           )}
-          {!result.isPending &&
+          {failed && (
+            <QueryState
+              kind="error"
+              title={t("navigation.accessibility.searchCourses")}
+              action={
+                <Action
+                  variant="secondary"
+                  onClick={() => void result.refetch()}
+                  pending={result.isFetching}
+                  pendingLabel={locale === "ar" ? "جارٍ البحث…" : "Searching…"}
+                >
+                  {t("auth.accountProfile.retry")}
+                </Action>
+              }
+            />
+          )}
+          {!searching &&
+            !failed &&
             items.map((item, index) => {
               const Icon = item.icon;
               return (
@@ -154,9 +179,13 @@ export function CommandPalette({
                   key={item.id}
                   onMouseEnter={() => setActiveIndex(index)}
                   onClick={() => select(item)}
-                  className={`focus-ring flex w-full items-center gap-3 rounded-xl px-3 py-3 text-start text-sm ${index === activeIndex ? "bg-primary/15 text-foreground" : "text-muted hover:bg-white/5"}`}
+                  className={`focus-ring flex w-full items-center gap-3 rounded-xl px-3 py-3 text-start text-sm ${index === activeIndex ? "bg-surface-interactive text-text-primary" : "text-text-secondary hover:bg-surface-muted"}`}
                 >
-                  <Icon size={18} className="shrink-0 text-primary" />
+                  <Icon
+                    size={18}
+                    className="shrink-0 text-text-link"
+                    aria-hidden="true"
+                  />
                   <span className="min-w-0 flex-1 truncate font-semibold">
                     {item.label}
                   </span>
@@ -167,24 +196,31 @@ export function CommandPalette({
                   )}
                   <ArrowLeft
                     size={16}
-                    className="shrink-0 text-muted rtl:rotate-180"
+                    className="shrink-0 text-text-muted ltr:rotate-180"
                     aria-hidden="true"
                   />
                 </button>
               );
             })}
-          {!result.isPending && term.trim().length >= 2 && !items.length && (
-            <p className="px-3 py-5 text-sm text-muted">
-              {locale === "ar"
-                ? "لم نجد دورات مطابقة."
-                : "No matching courses found."}
-            </p>
-          )}
+          {!searching &&
+            !failed &&
+            searchRequested &&
+            result.isSuccess &&
+            !items.length && (
+              <p className="px-3 py-5 text-sm text-muted">
+                {locale === "ar"
+                  ? "لم نجد دورات مطابقة."
+                  : "No matching courses found."}
+              </p>
+            )}
         </div>
         <p className="border-t border-border px-4 py-2 text-xs text-muted">
           {locale === "ar"
             ? "↑↓ للتنقل · Enter للفتح · Esc للإغلاق"
             : "↑↓ to navigate · Enter to open · Esc to close"}
+        </p>
+        <p className="sr-only" role="status">
+          {!searching && !failed ? items[activeIndex]?.label : null}
         </p>
       </section>
     </div>

@@ -239,52 +239,9 @@ export function StudentArea({
   if (current === "purchases") content = <StudentPurchases />;
   if (current === "security") content = <AccountSecurity role="student" />;
   return (
-    <>
-      <StudentWorkspaceNav current={current} />
+    <div className="pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
       {content}
-    </>
-  );
-}
-
-function StudentWorkspaceNav({ current }: { current: string }) {
-  const t = useTranslations("studentWorkspace");
-  const locale = useLocale();
-  const links = [
-    ["", t("navigation.overview")],
-    ["courses", t("navigation.courses")],
-    ["ai-practice", t("navigation.aiPractice")],
-    ["evaluations", t("navigation.evaluations")],
-    ["appeals", t("navigation.appeals")],
-    ["planner", t("navigation.planner")],
-    ["notes", t("navigation.notes")],
-    ["bookmarks", t("navigation.bookmarks")],
-    ["certificates", t("navigation.certificates")],
-    ["purchases", t("navigation.payments")],
-    ["account", t("navigation.account")],
-    ["security", t("navigation.security")],
-    ["support", t("navigation.support")],
-  ] as const;
-  const isCurrent = (href: string) =>
-    href === ""
-      ? current === "dashboard"
-      : current === href || current.startsWith(`${href}/`);
-  return (
-    <nav
-      aria-label={t("navigation.ariaLabel")}
-      className="sticky top-[4.5rem] z-30 border-b border-border bg-[color:var(--background)]/95 backdrop-blur-xl"
-    >
-      <div className="shell flex gap-1 overflow-x-auto py-2">
-        {links.map(([href, label]) => (
-          <Link
-            key={href || "dashboard"}
-            href={href ? `/${locale}/student/${href}` : `/${locale}/student`}
-            className={`focus-ring shrink-0 rounded-xl px-3 py-2 text-sm font-bold transition-colors ${isCurrent(href) ? "bg-primary text-slate-950" : "text-muted hover:bg-primary/10 hover:text-foreground"}`}
-          >
-            {label}
-          </Link>
-        ))}
-      </div>
-    </nav>
+    </div>
   );
 }
 
