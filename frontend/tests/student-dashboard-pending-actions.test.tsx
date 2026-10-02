@@ -11,6 +11,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import enMessages from "../messages/en.json";
 import arMessages from "../messages/ar.json";
+import type { StudentCourseLearningHubItem } from "@/features/student/student-courses-learning-hub";
 import { StudentArea } from "@/features/student/student-area";
 
 const apiMock = vi.hoisted(() => vi.fn());
@@ -56,6 +57,7 @@ function renderDashboard(
     failFirstOverview?: boolean;
     failFirstCourses?: boolean;
     locale?: "ar" | "en";
+    courseItems?: StudentCourseLearningHubItem[];
   } = {},
 ) {
   const locale = options.locale ?? "en";
@@ -117,7 +119,7 @@ function renderDashboard(
       )
         return Promise.reject(new Error("Courses unavailable"));
       return Promise.resolve({
-        items: [],
+        items: options.courseItems ?? [],
         page: 1,
         pageSize: 3,
         totalCount: options.coursesEmpty ? 0 : 1,
@@ -155,6 +157,133 @@ afterEach(() => {
 });
 
 describe("student dashboard pending actions", () => {
+  it("prioritizes actual recent accessible learning before attention, deadlines and metrics", async () => {
+    const current: StudentCourseLearningHubItem = {
+      courseId: "actual",
+      arabicTitle: "دورة",
+      englishTitle: "Actual course",
+      localizedTitle: "Actual course",
+      completedLessons: 2,
+      totalLessons: 7,
+      publishedModuleCount: 3,
+      progressPercent: 28.57,
+      progressState: "InProgress",
+      hasCover: false,
+      teacherName: "Actual teacher",
+      enrolledAtUtc: "2026-09-29T09:00:00Z",
+      accessAvailable: true,
+    };
+    renderDashboard([action("EvaluationDraft", "draft-1")], {
+      courseItems: [
+        {
+          ...current,
+          courseId: "locked",
+          localizedTitle: "Locked recent course",
+          accessAvailable: false,
+        },
+        current,
+        {
+          ...current,
+          courseId: "later",
+          localizedTitle: "Later high progress",
+          progressPercent: 99,
+        },
+      ],
+    });
+    const hero = await screen.findByRole("region", {
+      name: "Continue learning",
+    });
+    expect(
+      await within(hero).findByRole("heading", { name: "Actual course" }),
+    ).toBeVisible();
+    expect(within(hero).getByText("Actual teacher")).toBeVisible();
+    expect(within(hero).getByText("28.57%")).toBeVisible();
+    expect(within(hero).getByText("2/7 lessons completed")).toBeVisible();
+    expect(within(hero).getByRole("progressbar")).toHaveAttribute(
+      "aria-valuenow",
+      "28.57",
+    );
+    expect(
+      within(hero).getByRole("link", {
+        name: "Continue learning: Actual course",
+      }),
+    ).toHaveAttribute("href", "/en/student/learn/actual");
+    expect(
+      within(hero).queryByText("Later high progress"),
+    ).not.toBeInTheDocument();
+    expect(
+      within(hero).queryByText(
+        /on track|minutes remaining|learning aim|merit|distinction/i,
+      ),
+    ).not.toBeInTheDocument();
+    const attention = screen.getByRole("region", {
+      name: "What needs your attention",
+    });
+    const upcoming = screen.getByRole("region", { name: "Upcoming deadlines" });
+    const metric = screen.getByText("Enrolled courses");
+    expect(
+      hero.compareDocumentPosition(attention) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      attention.compareDocumentPosition(upcoming) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      upcoming.compareDocumentPosition(metric) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      within(hero).queryByRole("link", { name: /evaluation/i }),
+    ).not.toBeInTheDocument();
+    const request = apiMock.mock.calls
+      .map(([path]) => String(path))
+      .find((path) => path.startsWith("/learning/my-courses?"));
+    const query = new URL(request!, "https://betcco.test").searchParams;
+    expect([
+      query.get("page"),
+      query.get("pageSize"),
+      query.get("sort"),
+      query.get("progress"),
+    ]).toEqual(["1", "3", "Recent", "All"]);
+  });
+
+  it("presents a locked recent course truthfully without a learning action", async () => {
+    renderDashboard([], {
+      courseItems: [
+        {
+          courseId: "locked",
+          arabicTitle: "مغلقة",
+          englishTitle: "Locked course",
+          localizedTitle: "Locked course",
+          completedLessons: 0,
+          totalLessons: 4,
+          publishedModuleCount: 1,
+          progressPercent: 0,
+          progressState: "NotStarted",
+          hasCover: false,
+          enrolledAtUtc: "2026-09-29T09:00:00Z",
+          accessAvailable: false,
+          accessReason: "Scheduled",
+          accessAvailableAtUtc: "2026-11-01T09:00:00Z",
+        },
+      ],
+    });
+    const hero = screen.getByRole("region", { name: "Continue learning" });
+    await within(hero).findByRole("heading", { name: "Locked course" });
+    expect(
+      within(hero).queryByRole("link", {
+        name: /Start learning|Continue learning:/,
+      }),
+    ).not.toBeInTheDocument();
+    expect(hero.querySelector('[aria-disabled="true"]')).toHaveTextContent(
+      /Available.*Nov 2026/,
+    );
+    expect(
+      within(hero).getByRole("link", { name: "View all courses" }),
+    ).toHaveAttribute("href", "/en/student/courses");
+  });
+
   it("renders English dashboard copy and quick links without a second shell", async () => {
     renderDashboard([]);
     expect(
@@ -301,7 +430,7 @@ describe("student dashboard pending actions", () => {
     expect(screen.getByText("Learning milestones")).toBeVisible();
     expect(screen.getByText("Upcoming deadlines")).toBeVisible();
     expect(
-      screen.getAllByRole("link", { name: /My courses/ }).length,
+      screen.getAllByRole("link", { name: "View all courses" }).length,
     ).toBeGreaterThan(0);
     expect(
       await screen.findByRole("region", { name: "Continue learning" }),

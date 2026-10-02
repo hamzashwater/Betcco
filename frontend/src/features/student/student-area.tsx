@@ -10,6 +10,7 @@ import {
 } from "@/i18n/number-format";
 import { api } from "@/lib/api";
 import { academicText } from "@/lib/academic-localization";
+import styles from "./student-learning-presentation.module.css";
 import { MotivationCard } from "@/components/motivation-card";
 import { FilePicker } from "@/components/forms/file-picker";
 import { StudentLearningAimPractice } from "@/features/learning/learning-aim-practice";
@@ -28,6 +29,7 @@ import { AiPracticeShell } from "@/features/student/ai-practice-shell";
 import { StudentProgressIntelligence } from "@/features/student/student-progress-intelligence";
 import {
   compactStudentCoursesQueryOptions,
+  CourseCard,
   StudentCoursesLearningHub,
 } from "@/features/student/student-courses-learning-hub";
 import {
@@ -41,7 +43,6 @@ import {
   CreditCard,
   FileBadge,
   FolderOpen,
-  Headphones,
   LockKeyhole,
   ListVideo,
   MessageSquareText,
@@ -55,9 +56,10 @@ import {
   UserRound,
 } from "lucide-react";
 import {
-  ActionCard,
+  Action,
+  actionClassName,
+  QueryState,
   DashboardHeader,
-  MetricCard,
 } from "@/components/dashboard/dashboard-ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
@@ -248,6 +250,7 @@ export function StudentArea({
 function StudentDashboard() {
   const t = useTranslations("studentWorkspace");
   const locale = useLocale();
+  const hub = useTranslations("studentCoursesLearningHub");
   const courses = useQuery(compactStudentCoursesQueryOptions(locale));
   const overview = useQuery({
     queryKey: ["student-learning-overview", locale],
@@ -271,27 +274,289 @@ function StudentDashboard() {
     : t("dashboard.overviewLoadError");
   const courseLoadingCopy = t("dashboard.courseLoading");
   const overviewLoadingCopy = t("dashboard.overviewLoading");
+  // Presentation only: the first usable item in the server's existing Recent order.
+  const currentCourse =
+    courses.data?.items.find((course) => course.accessAvailable) ??
+    courses.data?.items[0];
   return (
-    <section className="shell py-10">
-      <DashboardHeader
-        eyebrow={t("dashboard.eyebrow")}
-        title={t("dashboard.title")}
-        description={t("dashboard.description")}
-        actions={
-          <Link
-            href={`/${locale}/student/courses`}
-            className="focus-ring inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-black text-slate-950"
+    <section
+      className="shell min-w-0 py-6 sm:py-8"
+      dir={locale === "ar" ? "rtl" : "ltr"}
+    >
+      <header className="mb-6">
+        <h1 className="text-2xl font-extrabold sm:text-3xl">
+          {t("dashboard.title")}
+        </h1>
+      </header>
+      <div className={styles.todayGrid}>
+        <section
+          className={styles.currentLearning}
+          aria-label={t("dashboard.continueLearning")}
+        >
+          {courses.isPending ? (
+            <>
+              <h2 className="mb-3 text-lg font-bold">
+                {t("dashboard.continueLearning")}
+              </h2>
+              <QueryState kind="loading" title={courseLoadingCopy} />
+            </>
+          ) : courseUnavailable ? (
+            <>
+              <h2 className="mb-3 text-lg font-bold">
+                {t("dashboard.continueLearning")}
+              </h2>
+              <QueryState
+                kind="error"
+                title={courseErrorCopy}
+                action={
+                  <Action
+                    variant="secondary"
+                    onClick={() => void courses.refetch()}
+                    pending={courses.isFetching}
+                    pendingLabel={t("dashboard.retrying")}
+                  >
+                    {t("dashboard.retryCourses")}
+                  </Action>
+                }
+              />
+            </>
+          ) : currentCourse ? (
+            <CourseCard
+              key={currentCourse.courseId}
+              course={currentCourse}
+              featured
+            />
+          ) : (
+            <>
+              <h2 className="mb-3 text-lg font-bold">
+                {t("dashboard.continueLearning")}
+              </h2>
+              {courseSummary?.totalCourses === 0 ? (
+                <QueryState kind="empty" title={hub("empty.noCourses")} />
+              ) : null}
+              <Link
+                href={`/${locale}/student/courses`}
+                className={actionClassName("secondary", "mt-3")}
+              >
+                {hub("viewAll")}
+              </Link>
+            </>
+          )}
+          {courses.isError && courses.data ? (
+            <QueryState
+              kind="error"
+              title={courseErrorCopy}
+              className="mt-3"
+              action={
+                <Action
+                  variant="secondary"
+                  onClick={() => void courses.refetch()}
+                  pending={courses.isFetching}
+                  pendingLabel={t("dashboard.retrying")}
+                >
+                  {t("dashboard.retryCourses")}
+                </Action>
+              }
+            />
+          ) : null}
+          {currentCourse && (
+            <Link
+              href={`/${locale}/student/courses`}
+              className={actionClassName("quiet", "mt-2 px-0!")}
+            >
+              {hub("viewAll")}
+              <ArrowRight
+                size={17}
+                className="rtl:rotate-180"
+                aria-hidden="true"
+              />
+            </Link>
+          )}
+        </section>
+        <div className={styles.attention}>
+          {overview.isError ? (
+            <QueryState
+              kind="error"
+              title={overviewErrorCopy}
+              action={
+                <Action
+                  variant="secondary"
+                  onClick={() => void overview.refetch()}
+                  pending={overview.isFetching}
+                  pendingLabel={t("dashboard.retrying")}
+                >
+                  {t("dashboard.retryOverview")}
+                </Action>
+              }
+            />
+          ) : null}
+          <section
+            className="min-w-0"
+            aria-labelledby="student-pending-actions-heading"
           >
-            <PlayCircle size={18} aria-hidden="true" />
-            {t("dashboard.continueLearning")}
-          </Link>
-        }
-      />
+            <h2
+              id="student-pending-actions-heading"
+              className="text-xl font-black"
+            >
+              {t("dashboard.pendingActions.heading")}
+            </h2>
+            <p className="mt-1 text-sm text-muted">
+              {t("dashboard.pendingActions.description")}
+            </p>
+            {overview.isPending ? (
+              <p className="mt-4 text-sm text-muted" aria-busy>
+                {t("dashboard.pendingActions.loading")}
+              </p>
+            ) : overviewUnavailable || !pendingActions ? (
+              <p className="mt-4 text-sm text-muted">
+                {t("dashboard.pendingActions.error")}
+              </p>
+            ) : pendingActions.length === 0 ? (
+              <p className="mt-4 text-sm text-muted">
+                {t("dashboard.pendingActions.empty")}
+              </p>
+            ) : (
+              <div className="mt-3">
+                {pendingActions.map((action) => {
+                  const title = {
+                    EvaluationRevision: t(
+                      "dashboard.pendingActions.evaluationRevisionTitle",
+                    ),
+                    ResitAuthorized: t(
+                      "dashboard.pendingActions.resitAuthorizedTitle",
+                    ),
+                    ResitDraft: t("dashboard.pendingActions.resitDraftTitle"),
+                    EvaluationDraft: t(
+                      "dashboard.pendingActions.evaluationDraftTitle",
+                    ),
+                  }[action.kind];
+                  const label = {
+                    EvaluationRevision: t(
+                      "dashboard.pendingActions.evaluationRevisionLink",
+                    ),
+                    ResitAuthorized: t(
+                      "dashboard.pendingActions.resitAuthorizedLink",
+                    ),
+                    ResitDraft: t("dashboard.pendingActions.resitDraftLink"),
+                    EvaluationDraft: t(
+                      "dashboard.pendingActions.evaluationDraftLink",
+                    ),
+                  }[action.kind];
+                  const href =
+                    action.kind === "EvaluationDraft"
+                      ? `/${locale}/student/evaluations/new?resume=${action.evaluationRequestId}`
+                      : action.kind === "ResitDraft"
+                        ? `/${locale}/student/evaluations/${action.evaluationRequestId}`
+                        : `/${locale}/student/evaluations`;
+                  return (
+                    <article
+                      key={`${action.kind}:${action.evaluationRequestId}`}
+                      className={styles.attentionRow}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-bold leading-6">{title}</h3>
+                        {action.academic ? (
+                          <p className="mt-2 text-sm text-muted">
+                            {action.academic.unitCode} ·{" "}
+                            {academicText(
+                              locale,
+                              action.academic.unitArabicTitle,
+                              action.academic.unitEnglishTitle,
+                            )}
+                            {" · "}
+                            {academicText(
+                              locale,
+                              action.academic.assessmentArabicTitle,
+                              action.academic.assessmentEnglishTitle,
+                            )}
+                          </p>
+                        ) : null}
+                        {action.kind === "EvaluationRevision" &&
+                        action.effectiveDueAtUtc ? (
+                          <p className="mt-2 text-sm font-semibold text-text-secondary">
+                            {t("dashboard.pendingActions.revisionDeadline")}{" "}
+                            {formatLocalizedDateTime(
+                              action.effectiveDueAtUtc,
+                              locale,
+                            )}
+                          </p>
+                        ) : null}
+                      </div>
+                      <Link
+                        className={actionClassName(
+                          "quiet",
+                          "justify-start! px-0! underline",
+                        )}
+                        href={href}
+                      >
+                        {label}
+                      </Link>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        </div>
+        <section
+          className={styles.upcoming}
+          aria-label={t("dashboard.deadlines.heading")}
+        >
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="mt-1 text-xl font-black">
+                {t("dashboard.deadlines.heading")}
+              </h2>
+            </div>
+            <CalendarDays className="text-primary" aria-hidden="true" />
+          </div>
+          {overview.isPending ? (
+            <p className="mt-4 text-sm text-muted" aria-busy>
+              …
+            </p>
+          ) : overviewUnavailable ? (
+            <p className="mt-4 text-sm text-muted">
+              {t("dashboard.deadlines.error")}
+            </p>
+          ) : upcomingAssignments.length ? (
+            <div className="mt-4">
+              {upcomingAssignments.map((assignment) => (
+                <Link
+                  key={assignment.id}
+                  href={`/${locale}/student/learn/${assignment.courseId}`}
+                  className="focus-ring block border-b border-border-subtle! py-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="font-black">{assignment.title}</h3>
+                      <p className="mt-1 text-xs text-muted">
+                        {assignment.courseTitle}
+                      </p>
+                    </div>
+                    <ClipboardCheck
+                      className="shrink-0 text-primary"
+                      size={18}
+                    />
+                  </div>
+                  <p className="mt-2 text-sm font-semibold text-text-secondary">
+                    {t("dashboard.deadlines.due")}{" "}
+                    {formatLocalizedDateTime(assignment.dueAtUtc, locale)}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-4 text-sm text-muted">
+              {t("dashboard.deadlines.empty")}
+            </p>
+          )}
+        </section>
+      </div>
       <div
-        className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        className={styles.overviewBand}
         aria-busy={courses.isPending || overview.isPending}
       >
-        <MetricCard
+        <StudentOverviewMetric
           label={t("dashboard.metrics.enrolledCourses")}
           value={
             courses.isPending || courseUnavailable
@@ -307,7 +572,7 @@ function StudentDashboard() {
           }
           icon={BookOpenCheck}
         />
-        <MetricCard
+        <StudentOverviewMetric
           label={t("dashboard.metrics.completedLessons")}
           value={
             courses.isPending || courseUnavailable
@@ -324,7 +589,7 @@ function StudentDashboard() {
           icon={CircleCheckBig}
           tone="secondary"
         />
-        <MetricCard
+        <StudentOverviewMetric
           label={t("dashboard.metrics.overallProgress")}
           value={
             courses.isPending || courseUnavailable
@@ -343,7 +608,7 @@ function StudentDashboard() {
           icon={Timer}
           tone="accent"
         />
-        <MetricCard
+        <StudentOverviewMetric
           label={t("dashboard.metrics.upcomingCoursework")}
           value={
             overview.isPending || overviewUnavailable
@@ -360,7 +625,7 @@ function StudentDashboard() {
           icon={ClipboardCheck}
           tone="warm"
         />
-        <MetricCard
+        <StudentOverviewMetric
           label={t("dashboard.metrics.unreadNotifications")}
           value={
             overview.isPending || overviewUnavailable
@@ -376,7 +641,7 @@ function StudentDashboard() {
           }
           icon={MessageSquareText}
         />
-        <MetricCard
+        <StudentOverviewMetric
           label={t("dashboard.metrics.completionCertificates")}
           value={
             overview.isPending || overviewUnavailable
@@ -394,141 +659,8 @@ function StudentDashboard() {
           tone="secondary"
         />
       </div>
-      {courses.isError ? (
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <p className="text-sm text-muted" role="alert">
-            {courseErrorCopy}
-          </p>
-          <button
-            type="button"
-            className="focus-ring rounded-xl border border-border px-3 py-2 text-sm font-bold text-primary disabled:cursor-not-allowed disabled:opacity-60"
-            onClick={() => void courses.refetch()}
-            disabled={courses.isFetching}
-          >
-            {courses.isFetching
-              ? t("dashboard.retrying")
-              : t("dashboard.retryCourses")}
-          </button>
-        </div>
-      ) : null}
-      {overview.isError ? (
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <p className="text-sm text-muted" role="alert">
-            {overviewErrorCopy}
-          </p>
-          <button
-            type="button"
-            className="focus-ring rounded-xl border border-border px-3 py-2 text-sm font-bold text-primary disabled:cursor-not-allowed disabled:opacity-60"
-            onClick={() => void overview.refetch()}
-            disabled={overview.isFetching}
-          >
-            {overview.isFetching
-              ? t("dashboard.retrying")
-              : t("dashboard.retryOverview")}
-          </button>
-        </div>
-      ) : null}
-      <section
-        className="card mt-5 p-5"
-        aria-labelledby="student-pending-actions-heading"
-      >
-        <h2 id="student-pending-actions-heading" className="text-xl font-black">
-          {t("dashboard.pendingActions.heading")}
-        </h2>
-        <p className="mt-1 text-sm text-muted">
-          {t("dashboard.pendingActions.description")}
-        </p>
-        {overview.isPending ? (
-          <p className="mt-4 text-sm text-muted" aria-busy>
-            {t("dashboard.pendingActions.loading")}
-          </p>
-        ) : overviewUnavailable || !pendingActions ? (
-          <p className="mt-4 text-sm text-muted">
-            {t("dashboard.pendingActions.error")}
-          </p>
-        ) : pendingActions.length === 0 ? (
-          <p className="mt-4 text-sm text-muted">
-            {t("dashboard.pendingActions.empty")}
-          </p>
-        ) : (
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            {pendingActions.map((action) => {
-              const title = {
-                EvaluationRevision: t(
-                  "dashboard.pendingActions.evaluationRevisionTitle",
-                ),
-                ResitAuthorized: t(
-                  "dashboard.pendingActions.resitAuthorizedTitle",
-                ),
-                ResitDraft: t("dashboard.pendingActions.resitDraftTitle"),
-                EvaluationDraft: t(
-                  "dashboard.pendingActions.evaluationDraftTitle",
-                ),
-              }[action.kind];
-              const label = {
-                EvaluationRevision: t(
-                  "dashboard.pendingActions.evaluationRevisionLink",
-                ),
-                ResitAuthorized: t(
-                  "dashboard.pendingActions.resitAuthorizedLink",
-                ),
-                ResitDraft: t("dashboard.pendingActions.resitDraftLink"),
-                EvaluationDraft: t(
-                  "dashboard.pendingActions.evaluationDraftLink",
-                ),
-              }[action.kind];
-              const href =
-                action.kind === "EvaluationDraft"
-                  ? `/${locale}/student/evaluations/new?resume=${action.evaluationRequestId}`
-                  : action.kind === "ResitDraft"
-                    ? `/${locale}/student/evaluations/${action.evaluationRequestId}`
-                    : `/${locale}/student/evaluations`;
-              return (
-                <article
-                  key={`${action.kind}:${action.evaluationRequestId}`}
-                  className="rounded-xl border border-border bg-surface-solid/45 p-4"
-                >
-                  <h3 className="font-black">{title}</h3>
-                  {action.academic ? (
-                    <p className="mt-2 text-sm text-muted">
-                      {action.academic.unitCode} ·{" "}
-                      {academicText(
-                        locale,
-                        action.academic.unitArabicTitle,
-                        action.academic.unitEnglishTitle,
-                      )}
-                      {" · "}
-                      {academicText(
-                        locale,
-                        action.academic.assessmentArabicTitle,
-                        action.academic.assessmentEnglishTitle,
-                      )}
-                    </p>
-                  ) : null}
-                  {action.kind === "EvaluationRevision" &&
-                  action.effectiveDueAtUtc ? (
-                    <p className="mt-2 text-sm font-semibold text-amber-500">
-                      {t("dashboard.pendingActions.revisionDeadline")}{" "}
-                      {formatLocalizedDateTime(
-                        action.effectiveDueAtUtc,
-                        locale,
-                      )}
-                    </p>
-                  ) : null}
-                  <Link
-                    className="focus-ring mt-3 inline-block font-bold text-primary underline"
-                    href={href}
-                  >
-                    {label}
-                  </Link>
-                </article>
-              );
-            })}
-          </div>
-        )}
-      </section>
-      <MotivationCard variant="dashboard" className="mt-5" />
-      <section className="card mt-5 p-5">
+
+      <section className={styles.openSection}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">
@@ -557,7 +689,7 @@ function StudentDashboard() {
             {achievements.map((achievement) => (
               <article
                 key={achievement.code}
-                className={`rounded-2xl border p-4 ${achievement.isCompleted ? "border-primary/40 bg-primary/10" : "border-border bg-muted/30"}`}
+                className="min-w-0 border-s-2 border-border-default! ps-4"
               >
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="font-black">{achievement.title}</h3>
@@ -585,132 +717,53 @@ function StudentDashboard() {
           </div>
         )}
       </section>
-      <section className="card mt-5 p-5">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">
-              {t("dashboard.deadlines.eyebrow")}
-            </p>
-            <h2 className="mt-1 text-xl font-black">
-              {t("dashboard.deadlines.heading")}
-            </h2>
-          </div>
-          <CalendarDays className="text-primary" aria-hidden="true" />
-        </div>
-        {overview.isPending ? (
-          <p className="mt-4 text-sm text-muted" aria-busy>
-            …
-          </p>
-        ) : overviewUnavailable ? (
-          <p className="mt-4 text-sm text-muted">
-            {t("dashboard.deadlines.error")}
-          </p>
-        ) : upcomingAssignments.length ? (
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            {upcomingAssignments.map((assignment) => (
-              <Link
-                key={assignment.id}
-                href={`/${locale}/student/learn/${assignment.courseId}`}
-                className="focus-ring rounded-xl border border-border bg-surface-solid/45 p-4 hover:border-primary/45"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="font-black">{assignment.title}</h3>
-                    <p className="mt-1 text-xs text-muted">
-                      {assignment.courseTitle}
-                    </p>
-                  </div>
-                  <ClipboardCheck className="shrink-0 text-primary" size={18} />
-                </div>
-                <p className="mt-3 text-sm font-bold text-amber-500">
-                  {t("dashboard.deadlines.due")}{" "}
-                  {formatLocalizedDateTime(assignment.dueAtUtc, locale)}
-                </p>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <p className="mt-4 text-sm text-muted">
-            {t("dashboard.deadlines.empty")}
-          </p>
-        )}
-      </section>
-      <div className="mt-5 grid gap-4 md:grid-cols-3">
-        <DashboardLink
-          href="courses"
-          title={t("navigation.courses")}
-          text={t("dashboard.quickLinks.coursesDescription")}
-          icon={BookOpenCheck}
-        />
-        <DashboardLink
-          href="evaluations/new"
-          title={t("dashboard.quickLinks.evaluateTitle")}
-          text={t("dashboard.quickLinks.evaluateDescription")}
-          icon={ClipboardCheck}
-        />
-        <DashboardLink
-          href="support"
-          title={t("navigation.support")}
-          text={t("dashboard.quickLinks.supportDescription")}
-          icon={Headphones}
-        />
-        <DashboardLink
-          href="planner"
-          title={t("dashboard.quickLinks.plannerTitle")}
-          text={t("dashboard.quickLinks.plannerDescription")}
-          icon={CalendarDays}
-        />
-        <DashboardLink
-          href="notes"
-          title={t("dashboard.quickLinks.notesTitle")}
-          text={t("dashboard.quickLinks.notesDescription")}
-          icon={StickyNote}
-        />
-        <DashboardLink
-          href="certificates"
-          title={t("dashboard.quickLinks.certificatesTitle")}
-          text={t("dashboard.quickLinks.certificatesDescription")}
-          icon={FileBadge}
-        />
-        <DashboardLink
-          href="account"
-          title={t("navigation.account")}
-          text={t("dashboard.quickLinks.accountDescription")}
-          icon={UserRound}
-        />
+
+      <div className={styles.utilityLinks}>
+        <Link
+          href={`/${locale}/student/evaluations/new`}
+          className={actionClassName("secondary")}
+        >
+          {t("dashboard.quickLinks.evaluateTitle")}
+        </Link>
+        <Link
+          href={`/${locale}/student/planner`}
+          className={actionClassName("quiet")}
+        >
+          {t("dashboard.quickLinks.plannerTitle")}
+        </Link>
+        <Link
+          href={`/${locale}/student/support`}
+          className={actionClassName("quiet")}
+        >
+          {t("navigation.support")}
+        </Link>
       </div>
-      <div className="mt-8">
-        <StudentCoursesLearningHub variant="compact" />
-      </div>
+      <MotivationCard variant="dashboard" className="mt-6" />
     </section>
   );
 }
 
-function DashboardLink({
-  href,
-  title,
-  text,
-  icon,
+function StudentOverviewMetric({
+  label,
+  value,
+  detail,
+  icon: Icon,
 }: {
-  href: string;
-  title: string;
-  text: string;
+  label: string;
+  value: string | number;
+  detail?: string;
   icon: typeof BookOpenCheck;
+  tone?: string;
 }) {
-  const locale = useLocale();
-  const t = useTranslations("studentWorkspace");
   return (
-    <Link
-      href={`/${locale}/student/${href}`}
-      className="focus-ring block rounded-[1.25rem]"
-    >
-      <ActionCard title={title} description={text} icon={icon}>
-        <span className="mt-4 inline-flex items-center gap-1 text-sm font-black text-primary">
-          {t("dashboard.quickLinks.open")}
-          <ArrowLeft size={16} className="rtl:rotate-180" aria-hidden="true" />
-        </span>
-      </ActionCard>
-    </Link>
+    <article className={styles.metric}>
+      <div className="flex items-start gap-2 text-xs leading-5 text-text-secondary">
+        <Icon size={15} className="mt-0.5 shrink-0" aria-hidden="true" />
+        <p>{label}</p>
+      </div>
+      <p className={styles.metricValue}>{value}</p>
+      {detail && <p className="text-xs leading-5 text-text-muted">{detail}</p>}
+    </article>
   );
 }
 

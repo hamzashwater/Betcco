@@ -1,0 +1,235 @@
+.hero {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--ui-radius-region);
+  background: linear-gradient(
+    125deg,
+    var(--betcco-navy),
+    var(--ui-action-primary)
+  );
+  color: var(--ui-action-primary-text);
+  box-shadow: var(--ui-shadow-raised);
+}
+.hero::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 65% 0%,
+    color-mix(in srgb, var(--betcco-teal) 22%, transparent),
+    transparent 65%
+  );
+}
+.heroBody {
+  position: relative;
+  padding: 1.5rem;
+  min-width: 0;
+}
+.heroTitle {
+  font-size: clamp(1.65rem, 2.8vw, 2.65rem);
+  line-height: 1.35;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+.heroMeta {
+  color: inherit;
+  opacity: 0.9;
+}
+.artwork {
+  min-width: 0;
+  height: 8rem;
+  overflow: hidden;
+  background: color-mix(
+    in srgb,
+    var(--ui-action-primary) 15%,
+    var(--ui-surface-muted)
+  );
+}
+.hero .artwork {
+  position: relative;
+  background: color-mix(
+    in srgb,
+    var(--ui-action-primary) 70%,
+    var(--betcco-navy)
+  );
+}
+.cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.fallback {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  color: var(--ui-text-link);
+}
+.hero .fallback {
+  color: var(--ui-action-primary-text);
+  opacity: 0.65;
+}
+.courseRow {
+  display: grid;
+  min-width: 0;
+  overflow: hidden;
+  border-block-end: 1px solid var(--ui-border-subtle);
+  padding-block: 1.25rem;
+  gap: 1.25rem;
+}
+.courseRow .artwork {
+  border-radius: var(--ui-radius-control);
+}
+.courseBody {
+  min-width: 0;
+}
+.progressTrack {
+  margin-block-start: 0.75rem;
+  height: 0.5rem;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--ui-text-muted) 22%, transparent);
+}
+.hero .progressTrack {
+  height: 0.625rem;
+  background: rgb(0 0 0 / 0.25);
+}
+.progressFill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ui-text-link);
+  animation: course-progress-entry 360ms ease-out both;
+}
+.hero .progressFill {
+  background: var(--betcco-teal);
+}
+@keyframes course-progress-entry {
+  from {
+    width: 0;
+  }
+}
+.overviewBand {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-block: 1px solid var(--ui-border-subtle);
+  margin-block: 2.5rem;
+}
+.metric {
+  min-width: 0;
+  padding: 1.25rem 0.75rem;
+}
+.metricValue {
+  font-size: 1.5rem;
+  line-height: 1.4;
+  font-weight: 800;
+  margin-block: 0.35rem;
+  color: var(--ui-text-primary);
+}
+.attentionRow {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-block: 1.25rem;
+  border-block-end: 1px solid var(--ui-border-subtle);
+  min-width: 0;
+}
+.openSection {
+  min-width: 0;
+  border-block-start: 1px solid var(--ui-border-subtle);
+  padding-block: 1.5rem;
+}
+.utilityLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-block: 2rem;
+}
+@media (min-width: 640px) {
+  .courseRow {
+    grid-template-columns: 10rem minmax(0, 1fr);
+  }
+  .overviewBand {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .attentionRow {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+@media (min-width: 768px) {
+  .hero {
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.75fr);
+  }
+  .hero .artwork {
+    order: 2;
+    height: 100%;
+    min-height: 18rem;
+  }
+  .heroBody {
+    order: 1;
+    padding: 2rem;
+  }
+}
+@media (min-width: 1280px) {
+  .overviewBand {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .progressFill {
+    animation: none;
+  }
+}
+.todayGrid {
+  display: grid;
+  gap: 2rem;
+  min-width: 0;
+}
+.currentLearning,
+.attention,
+.upcoming {
+  min-width: 0;
+}
+.attention,
+.upcoming {
+  padding-block: 1.25rem;
+  border-block-start: 1px solid var(--ui-border-subtle);
+}
+.compactCourse {
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 640px) {
+  .compactCourse {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (min-width: 1280px) {
+  .todayGrid {
+    grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 2rem 2.5rem;
+  }
+  .currentLearning {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .attention {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+  .upcoming {
+    grid-column: 1;
+    grid-row: 2;
+  }
+}
+
+@media (min-width: 640px) {
+  .coursesOverview {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

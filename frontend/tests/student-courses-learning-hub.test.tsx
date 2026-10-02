@@ -1,5 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -171,10 +177,10 @@ describe("StudentCoursesLearningHub", () => {
     ).toBeVisible();
   });
 
-  it("renders a compact dashboard preview without full controls", async () => {
+  it("renders the current-learning dashboard hero without full controls", async () => {
     renderWithProviders(<StudentArea segment={[]} />);
     expect(
-      await screen.findByRole("heading", { name: "Continue learning" }),
+      await screen.findByRole("heading", { name: "Alpha course" }),
     ).toBeVisible();
     expect(
       screen.getByRole("link", { name: "View all courses" }),
@@ -357,6 +363,39 @@ describe("StudentCoursesLearningHub", () => {
     expect(screen.queryByText("Teacher unavailable")).not.toBeInTheDocument();
   });
 
+  it("uses the existing cover endpoint and restores fallback after an image failure", async () => {
+    renderWithProviders(<StudentCoursesLearningHub />);
+    const cover = await screen.findByRole("img", {
+      name: "Cover for Beta course",
+    });
+    expect(cover).toHaveAttribute("src", "/api/v1/catalog/courses/beta/cover");
+    fireEvent.error(cover);
+    expect(
+      screen.queryByRole("img", { name: "Cover for Beta course" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getAllByTestId("course-cover-fallback")).toHaveLength(3);
+  });
+
+  it("features only the first server-ordered recent course and returns filtered results as a collection", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<StudentCoursesLearningHub />);
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "Alpha course" }),
+    ).toBeVisible();
+    expect(
+      within(screen.getByRole("list", { name: "Student courses" }))
+        .getAllByRole("heading", { level: 3 })
+        .map((h) => h.textContent),
+    ).toEqual(["Beta course", "Gamma course"]);
+    await user.click(screen.getByRole("button", { name: "In progress" }));
+    expect(
+      await screen.findByRole("heading", { level: 3, name: "Beta course" }),
+    ).toBeVisible();
+    expect(
+      screen.queryByRole("heading", { level: 2, name: "Beta course" }),
+    ).not.toBeInTheDocument();
+  });
+
   it("does not derive completion from lesson counts in the frontend", async () => {
     const inconsistent = {
       ...courses[1],
@@ -421,7 +460,7 @@ describe("StudentCoursesLearningHub", () => {
     await screen.findByText("Alpha course");
     await user.tab();
     expect(
-      screen.getByRole("link", { name: "Open AI practice" }),
+      screen.getByRole("link", { name: "Start learning: Alpha course" }),
     ).toHaveFocus();
     await user.tab();
     expect(
