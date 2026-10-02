@@ -4,7 +4,6 @@ import { AccountProfile } from "@/features/auth/account-profile";
 import { AccountSecurity } from "@/features/auth/account-security";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Link from "next/link";
 import { useLocale } from "next-intl";
 import { useState, useSyncExternalStore } from "react";
 
@@ -84,17 +83,6 @@ export function SupportAccountArea({ segment }: { segment: string[] }) {
           ? "يمكنك تجميد حسابات الطلاب والمعلمين أو إعادة تفعيلها فقط."
           : "Freeze or reactivate Student and Teacher accounts only."}
       </p>
-      <nav
-        aria-label={locale === "ar" ? "روابط الحساب" : "Account links"}
-        className="mt-5 flex flex-wrap gap-3 text-sm font-bold text-primary"
-      >
-        <Link className="focus-ring" href={`/${locale}/support/profile`}>
-          {locale === "ar" ? "الملف الشخصي" : "Profile"}
-        </Link>
-        <Link className="focus-ring" href={`/${locale}/support/security`}>
-          {locale === "ar" ? "أمان الحساب" : "Security"}
-        </Link>
-      </nav>
       <div className="card mt-6 grid min-w-0 gap-4 p-5 sm:p-6">
         <div className="flex flex-wrap gap-2">
           {(["Student", "Teacher"] as const).map((value) => (

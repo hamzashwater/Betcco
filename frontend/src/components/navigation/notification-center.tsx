@@ -1,5 +1,6 @@
 "use client";
 
+import { actionClassName } from "@/components/ui/action";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, CheckCheck, Inbox } from "lucide-react";
@@ -65,7 +66,7 @@ export function NotificationCenter({
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="focus-ring relative inline-flex rounded-lg p-2 text-muted hover:bg-white/5 hover:text-foreground"
+        className={actionClassName("quiet", "relative min-w-11 px-3!")}
         aria-label={
           locale === "ar"
             ? `الإشعارات، ${unread} غير مقروءة`
@@ -84,7 +85,7 @@ export function NotificationCenter({
           id="notification-center"
           role="dialog"
           aria-label={locale === "ar" ? "الإشعارات" : "Notifications"}
-          className="glass-panel navigation-popover absolute end-0 top-[calc(100%+0.6rem)] z-[80] w-[min(23rem,calc(100vw-2rem))] overflow-hidden shadow-2xl"
+          className="navigation-popover fixed inset-x-4 top-20 z-[80] overflow-hidden border border-border-default! bg-surface-overlay shadow-overlay sm:absolute sm:inset-x-auto sm:end-0 sm:top-[calc(100%+0.6rem)] sm:w-[min(23rem,calc(100vw-2rem))]"
         >
           <div className="flex items-center justify-between gap-3 border-b border-border p-4">
             <div>

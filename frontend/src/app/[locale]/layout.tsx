@@ -94,12 +94,18 @@ export default async function LocaleLayout({ children, params }: Props) {
           <Providers dehydratedState={dehydrate(queryClient)}>
             <DeepSpaceBackground />
             <div className="relative z-10 flex min-h-screen flex-col">
-              <MfaEnrollmentBoundary navigation={<SiteNavigation />}>
-                <a className="skip-link" href="#main-content">
-                  {locale === "ar"
-                    ? "الانتقال إلى المحتوى الرئيسي"
-                    : "Skip to main content"}
-                </a>
+              <MfaEnrollmentBoundary
+                navigation={
+                  <>
+                    <a className="skip-link" href="#main-content">
+                      {locale === "ar"
+                        ? "الانتقال إلى المحتوى الرئيسي"
+                        : "Skip to main content"}
+                    </a>
+                    <SiteNavigation />
+                  </>
+                }
+              >
                 <main
                   id="main-content"
                   tabIndex={-1}

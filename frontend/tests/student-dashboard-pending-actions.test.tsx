@@ -155,23 +155,13 @@ afterEach(() => {
 });
 
 describe("student dashboard pending actions", () => {
-  it("renders English student navigation, dashboard copy, and quick links", async () => {
+  it("renders English dashboard copy and quick links without a second shell", async () => {
     renderDashboard([]);
-    const nav = screen.getByRole("navigation", {
-      name: "Student workspace navigation",
-    });
-    for (const [name, href] of [
-      ["Overview", "/en/student"],
-      ["My courses", "/en/student/courses"],
-      ["My evaluations", "/en/student/evaluations"],
-      ["My account", "/en/student/account"],
-      ["Account security", "/en/student/security"],
-    ]) {
-      expect(within(nav).getByRole("link", { name })).toHaveAttribute(
-        "href",
-        href,
-      );
-    }
+    expect(
+      screen.queryByRole("navigation", {
+        name: "Student workspace navigation",
+      }),
+    ).not.toBeInTheDocument();
     expect(screen.getByText("Student dashboard")).toBeVisible();
     expect(screen.getByText("Continue learning")).toBeVisible();
     expect(screen.getByText("Enrolled courses")).toBeVisible();
@@ -182,7 +172,7 @@ describe("student dashboard pending actions", () => {
     await screen.findByText("You have no pending actions right now.");
   });
 
-  it("renders Arabic student navigation, dashboard copy, and all pending action kinds", async () => {
+  it("renders Arabic dashboard copy and all pending action kinds without a second shell", async () => {
     renderDashboard(
       [
         action("EvaluationDraft", "draft-1"),
@@ -192,19 +182,9 @@ describe("student dashboard pending actions", () => {
       ],
       { locale: "ar" },
     );
-    const nav = screen.getByRole("navigation", { name: "تنقل مساحة الطالب" });
-    for (const [name, href] of [
-      ["الملخص", "/ar/student"],
-      ["دوراتي", "/ar/student/courses"],
-      ["تقييماتي", "/ar/student/evaluations"],
-      ["حسابي", "/ar/student/account"],
-      ["أمان الحساب", "/ar/student/security"],
-    ]) {
-      expect(within(nav).getByRole("link", { name })).toHaveAttribute(
-        "href",
-        href,
-      );
-    }
+    expect(
+      screen.queryByRole("navigation", { name: "تنقل مساحة الطالب" }),
+    ).not.toBeInTheDocument();
     expect(screen.getByText("لوحة الطالب")).toBeVisible();
     expect(screen.getByText("متابعة التعلّم")).toBeVisible();
     expect(screen.getByText("الدورات المسجل بها")).toBeVisible();
@@ -322,7 +302,7 @@ describe("student dashboard pending actions", () => {
     expect(screen.getByText("Upcoming deadlines")).toBeVisible();
     expect(
       screen.getAllByRole("link", { name: /My courses/ }).length,
-    ).toBeGreaterThan(1);
+    ).toBeGreaterThan(0);
     expect(
       await screen.findByRole("region", { name: "Continue learning" }),
     ).toBeVisible();

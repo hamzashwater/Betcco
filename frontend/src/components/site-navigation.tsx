@@ -7,10 +7,17 @@ import { ApiError, api, invalidateCsrfToken } from "@/lib/api";
 import {
   publicBrandSettingsQueryKey,
   resolveBrandSettings,
+  resolveBrandIdentity,
   type BrandSettings,
 } from "@/lib/brand";
-import { getGsap, motionIsReduced } from "@/lib/gsap";
-import { useGSAP } from "@gsap/react";
+import { Action, actionClassName } from "@/components/ui/action";
+import { useDialogFocus } from "@/components/navigation/use-dialog-focus";
+import {
+  WorkspaceNavigation,
+  GroupedDestinations,
+  type ShellDestination,
+  type DestinationGroup,
+} from "@/components/navigation/workspace-navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BookOpen,
@@ -50,6 +57,8 @@ export function SiteNavigation() {
   const [megaOpen, setMegaOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const mega = useRef<HTMLDivElement>(null);
+  const subjectsTrigger = useRef<HTMLButtonElement>(null);
+  const header = useRef<HTMLElement>(null);
   const drawer = useRef<HTMLElement>(null);
   const alternate = getAlternateLocale(locale);
   const localeSwitchPathname = getLocaleSwitchPathname(
@@ -61,6 +70,8 @@ export function SiteNavigation() {
     preventDefault: () => void;
   }) => {
     event.preventDefault();
+    setDrawerOpen(false);
+    setMegaOpen(false);
     const destination = new URL(localeSwitchPathname, window.location.href);
     destination.search = window.location.search;
     destination.hash = window.location.hash;
@@ -120,6 +131,7 @@ export function SiteNavigation() {
     },
   });
   const brand = resolveBrandSettings(locale, settings.data);
+  const identity = resolveBrandIdentity(locale, settings.data);
   const isSignedIn = Boolean(user.data);
   const isStudent = user.data?.roles.includes("Student") ?? false;
   const authResolved = !user.isPending;
@@ -365,47 +377,37 @@ export function SiteNavigation() {
     router.replace(`/${locale}/login`);
   }, [isAccountArea, locale, router, user.data, user.isPending]);
 
-  useGSAP(
-    () => {
-      if (!megaOpen || !mega.current || motionIsReduced()) return;
-      getGsap().from(mega.current, {
-        opacity: 0,
-        y: -8,
-        filter: "blur(5px)",
-        duration: 0.22,
-        ease: "power2.out",
-      });
-    },
-    { scope: mega, dependencies: [megaOpen] },
-  );
-  useGSAP(
-    () => {
-      if (!drawerOpen || !drawer.current || motionIsReduced()) return;
-      getGsap().fromTo(
-        drawer.current,
-        { xPercent: locale === "ar" ? 104 : -104 },
-        { xPercent: 0, duration: 0.3, ease: "power3.out" },
-      );
-    },
-    { scope: drawer, dependencies: [drawerOpen, locale] },
-  );
+  useDialogFocus(drawerOpen, drawer, () => setDrawerOpen(false));
   useEffect(() => {
-    if (!drawerOpen) return;
-    const previousOverflow = document.body.style.overflow;
-    const closeOnEscape = (event: KeyboardEvent) =>
-      event.key === "Escape" && setDrawerOpen(false);
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", closeOnEscape);
+    if (!megaOpen) return;
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMegaOpen(false);
+        subjectsTrigger.current?.focus();
+      }
     };
-  }, [drawerOpen]);
+    const outside = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (
+        !header.current?.contains(target) &&
+        !subjectsTrigger.current?.contains(target) &&
+        !mega.current?.contains(target)
+      )
+        setMegaOpen(false);
+    };
+    document.addEventListener("keydown", escape);
+    document.addEventListener("pointerdown", outside);
+    return () => {
+      document.removeEventListener("keydown", escape);
+      document.removeEventListener("pointerdown", outside);
+    };
+  }, [megaOpen]);
   useEffect(() => {
     const onShortcut = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        setPaletteOpen(true);
+        setDrawerOpen(false);
+        window.requestAnimationFrame(() => setPaletteOpen(true));
       }
     };
     window.addEventListener("keydown", onShortcut);
@@ -415,18 +417,171 @@ export function SiteNavigation() {
     exact
       ? pathname === href || (isWorkspace && pathname === `${href}/dashboard`)
       : pathname === href || pathname.startsWith(`${href}/`);
+  const studentShell = pathname.startsWith(`/${locale}/student`);
+  const shellWorkspace = isWorkspace || studentShell;
+  const student = useTranslations("studentWorkspace.navigation");
+  const studentLinks: ShellDestination[] = [
+    { href: `/${locale}/student`, label: student("overview"), exact: true },
+    ...[
+      "courses",
+      "evaluations",
+      "planner",
+      "notes",
+      "bookmarks",
+      "certificates",
+      "purchases",
+      "ai-practice",
+      "appeals",
+      "account",
+      "security",
+      "support",
+    ].map((segment) => ({
+      href: `/${locale}/student/${segment}`,
+      label: student(
+        segment === "purchases"
+          ? "payments"
+          : segment === "ai-practice"
+            ? "aiPractice"
+            : segment,
+      ),
+    })),
+  ];
+  const shellLinks = studentShell ? studentLinks : navLinks;
+  const shellActive = (href: string, exact = false) =>
+    active(href, exact) ||
+    (studentShell &&
+      href === `/${locale}/student` &&
+      pathname === `${href}/dashboard`) ||
+    (studentShell &&
+      href === `/${locale}/student/courses` &&
+      pathname.startsWith(`/${locale}/student/learn/`));
+  const pick = (...segments: string[]) =>
+    shellLinks.filter((link) =>
+      segments.includes(link.href.split("/").at(-1) ?? ""),
+    );
+  const shellLabel = studentShell
+    ? nav("account.student")
+    : shellWorkspace
+      ? workspaceLabel
+      : nav("accessibility.primary");
+  let primary: ShellDestination[];
+  let groups: DestinationGroup[];
+  if (studentShell) {
+    primary = studentLinks.slice(0, 4);
+    groups = [
+      {
+        label: nav("accessibility.menuLinks"),
+        links: studentLinks.slice(4, 10),
+      },
+      { label: student("account"), links: studentLinks.slice(10) },
+    ];
+  } else if (workspace === "admin") {
+    primary = shellLinks.filter((link) => link.exact);
+    groups = [
+      {
+        label: nav("admin.students"),
+        links: pick("students", "teachers", "account-identities"),
+      },
+      {
+        label: t("academicCatalogue.title"),
+        links: pick(
+          "course-approvals",
+          "qualification-registry",
+          "academic-catalogue",
+          "delivery-planning",
+        ),
+      },
+      {
+        label: nav("admin.evaluations"),
+        links: pick(
+          "evaluations",
+          "evaluator-specialisms",
+          "internal-verification",
+          "evaluation-appeals",
+        ),
+      },
+      { label: nav("admin.wallet"), links: pick("wallet", "commerce") },
+      {
+        label: nav("accessibility.menuLinks"),
+        links: pick(
+          "content",
+          "audit-logs",
+          "privacy",
+          "security-incidents",
+          "ratings",
+          "support",
+          "integrations",
+          "profile",
+          "security",
+        ),
+      },
+    ];
+  } else if (workspace === "teacher") {
+    primary = shellLinks.filter(
+      (link) =>
+        link.exact ||
+        ["courses", "students", "evaluations"].includes(
+          link.href.split("/").at(-1) ?? "",
+        ),
+    );
+    groups = [
+      {
+        label: nav("accessibility.menuLinks"),
+        links: pick("wallet", "profile", "security"),
+      },
+    ];
+  } else if (workspace === "support") {
+    primary = pick("accounts");
+    groups = [
+      { label: nav("support.profile"), links: pick("profile", "security") },
+    ];
+  } else {
+    primary = publicNavLinks.filter(
+      (link) =>
+        link.exact ||
+        [`/${locale}/courses`, `/${locale}/tracks`].includes(link.href),
+    );
+    groups = [
+      {
+        label: nav("accessibility.menuLinks"),
+        links: publicNavLinks.filter((link) => !primary.includes(link)),
+      },
+    ];
+  }
+  const currentDestination = shellLinks.find((link) =>
+    shellActive(link.href, link.exact),
+  );
+  const drawerGroups = [{ label: shellLabel, links: primary }, ...groups];
   const closeDrawer = () => setDrawerOpen(false);
+  const logo = (
+    <span className="block w-full max-w-36 text-sm font-bold leading-5 break-words [&_.brand-logo-fallback]:line-clamp-2!">
+      <BrandLogo
+        identity={identity}
+        variant="horizontal"
+        priority
+        maxBlockSize="2.25rem"
+        className="brand-logo-on-light"
+      />
+      <BrandLogo
+        identity={identity}
+        variant="dark"
+        priority
+        maxBlockSize="2.25rem"
+        className="brand-logo-on-dark"
+      />
+    </span>
+  );
   return (
     <>
       <header
-        className="elevated-surface sticky top-0 z-50 border-b border-border backdrop-blur-xl"
-        onMouseLeave={() => setMegaOpen(false)}
+        ref={header}
+        className="sticky top-0 z-50 border-b border-border-default! bg-surface-overlay text-text-primary"
       >
-        <div className="shell flex min-h-[4.5rem] items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-3">
+        <div className="shell flex min-h-[4.5rem] items-center justify-between gap-2 py-2">
+          <div className="min-w-0 flex-1">
             <Link
               href={brandDestination}
-              className="focus-ring inline-flex shrink-0 items-center"
+              className="focus-ring inline-flex max-w-full items-center"
               aria-label={
                 isWorkspace
                   ? nav("accessibility.brandBack", {
@@ -436,86 +591,47 @@ export function SiteNavigation() {
                   : brand.BrandName
               }
             >
-              <span className="block w-[7.5rem] sm:w-36">
-                <BrandLogo
-                  variant="horizontal"
-                  src={brand.Logo}
-                  alt={brand.BrandName}
-                  priority
-                  className="brand-logo-on-light w-full"
-                />
-                <BrandLogo
-                  variant="dark"
-                  src={brand.DarkModeLogo}
-                  alt={brand.BrandName}
-                  priority
-                  className="brand-logo-on-dark w-full"
-                />
-              </span>
+              {logo}
             </Link>
-            {isWorkspace && (
-              <span className="hidden border-s border-border ps-3 text-sm font-bold text-muted sm:inline">
-                {workspaceLabel}
-              </span>
+            {shellWorkspace && (
+              <p className="mt-1 flex min-w-0 items-center gap-2 text-[0.6875rem] leading-4 text-text-muted">
+                <span className="truncate" title={shellLabel}>
+                  {shellLabel}
+                </span>
+                {currentDestination && (
+                  <>
+                    <span aria-hidden="true">/</span>
+                    <span
+                      className="truncate font-bold text-text-primary"
+                      title={currentDestination.label}
+                    >
+                      {currentDestination.label}
+                    </span>
+                  </>
+                )}
+              </p>
             )}
           </div>
-
-          {!isWorkspace && (
-            <nav
-              aria-label={nav("accessibility.primary")}
-              className="hidden items-center gap-1 lg:flex"
-            >
-              {publicNavLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`focus-ring relative rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${link.compact ? "hidden xl:inline-flex" : ""} ${active(link.href, link.exact) ? "text-primary" : "text-muted hover:text-foreground"}`}
-                >
-                  {link.label}
-                  {active(link.href, link.exact) && (
-                    <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-primary" />
-                  )}
-                </Link>
-              ))}
-              <button
-                type="button"
-                aria-expanded={megaOpen}
-                aria-controls="subjects-mega-menu"
-                onClick={() => setMegaOpen((value) => !value)}
-                className={`focus-ring inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-semibold ${megaOpen ? "text-primary" : "text-muted hover:text-foreground"}`}
-              >
-                {nav("subjects")}
-                <ChevronDown
-                  size={15}
-                  className={
-                    megaOpen
-                      ? "rotate-180 transition-transform"
-                      : "transition-transform"
-                  }
-                  aria-hidden="true"
-                />
-              </button>
-            </nav>
-          )}
-
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
+          <div className="flex shrink-0 items-center gap-0.5">
+            <Action
+              variant="quiet"
+              className="hidden! px-3! sm:inline-flex!"
               onClick={() => setPaletteOpen(true)}
-              className="focus-ring hidden items-center gap-2 rounded-lg px-2.5 py-2 text-sm text-muted hover:bg-white/5 hover:text-foreground sm:inline-flex"
               aria-label={nav("search")}
             >
-              <Search size={18} />
-              <span className="hidden xl:inline">{nav("search")}</span>
-              <kbd className="hidden rounded border border-border px-1.5 py-0.5 text-[10px] text-muted xl:inline">
+              <Search size={19} aria-hidden="true" />
+              <kbd className="hidden text-[10px] text-text-muted xl:inline">
                 Ctrl K
               </kbd>
-            </button>
+            </Action>
             <ThemeToggle locale={locale} />
             <Link
               href={localeSwitchPathname}
               onNavigate={preserveLocaleSwitchContext}
-              className="focus-ring hidden rounded-lg px-2.5 py-2 text-xs font-black text-muted hover:bg-white/5 hover:text-foreground sm:inline-flex"
+              className={actionClassName(
+                "quiet",
+                "hidden! px-3! text-xs! md:inline-flex!",
+              )}
               aria-label={nav("accessibility.switchLanguage")}
             >
               {alternate.toUpperCase()}
@@ -524,15 +640,18 @@ export function SiteNavigation() {
             {!isWorkspace && isStudent && (
               <Link
                 href={`/${locale}/cart`}
-                className="focus-ring relative inline-flex rounded-lg p-2 text-primary hover:bg-white/5"
+                className={actionClassName(
+                  "quiet",
+                  "relative hidden! px-3! md:inline-flex!",
+                )}
                 aria-label={nav("accessibility.cartItems", {
                   count: cartItemCount,
                 })}
               >
-                <ShoppingCart size={20} aria-hidden="true" />
+                <ShoppingCart size={19} aria-hidden="true" />
                 {cartItemCount > 0 && (
                   <span
-                    className="absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full bg-red-600 px-1 text-[11px] font-bold leading-5 text-white"
+                    className="absolute end-0 top-0 rounded-control bg-action-danger px-1 text-xs text-action-danger-text"
                     aria-hidden="true"
                   >
                     {cartItemCount > 99 ? "99+" : cartItemCount}
@@ -544,89 +663,107 @@ export function SiteNavigation() {
               <>
                 <Link
                   href={accountDestination}
-                  className="focus-ring hidden items-center gap-2 rounded-lg bg-primary/15 px-3 py-2 text-sm font-bold text-primary hover:bg-primary/25 sm:inline-flex"
+                  className={actionClassName(
+                    "secondary",
+                    "hidden! px-3! md:inline-flex!",
+                  )}
+                  aria-label={accountLabel}
                   title={accountLabel}
                 >
-                  <LayoutDashboard size={17} aria-hidden="true" />
-                  <span className="max-w-32 truncate">
-                    {visibleAccountRole === "student"
-                      ? `${accountLabel}: ${user.data?.displayName ?? ""}`
-                      : user.data?.displayName}
+                  <LayoutDashboard size={18} aria-hidden="true" />
+                  <span className="hidden max-w-32 truncate lg:inline">
+                    {user.data?.displayName}
                   </span>
                 </Link>
-                <button
-                  type="button"
+                <Action
+                  variant="quiet"
                   onClick={() => logout.mutate()}
-                  disabled={logout.isPending}
-                  aria-busy={logout.isPending}
-                  className="focus-ring hidden items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold text-muted hover:bg-red-500/10 hover:text-red-400 disabled:cursor-wait disabled:opacity-60 md:inline-flex"
+                  pending={logout.isPending}
+                  pendingLabel={nav("signingOut")}
+                  className="hidden! px-3! md:inline-flex!"
                   aria-label={nav("accessibility.logout")}
-                  title={nav("accessibility.logout")}
                 >
-                  <LogOut size={17} aria-hidden="true" />
-                  <span className="hidden 2xl:inline">
-                    {logout.isPending ? nav("signingOut") : nav("logoutShort")}
-                  </span>
-                </button>
+                  <LogOut size={18} aria-hidden="true" />
+                </Action>
               </>
             ) : authResolved && !isAccountArea ? (
               <Link
-                className="focus-ring hidden rounded-lg bg-primary px-3 py-2 text-sm font-bold text-slate-950 sm:inline-flex"
                 href={`/${locale}/login`}
+                className={actionClassName(
+                  "primary",
+                  "hidden! sm:inline-flex!",
+                )}
               >
                 {t("login")}
               </Link>
             ) : null}
-            <button
-              type="button"
+            <Action
+              variant="quiet"
               onClick={() => setDrawerOpen(true)}
-              className="focus-ring rounded-lg p-2 text-foreground lg:hidden"
+              className={
+                studentShell
+                  ? "px-3! hidden! md:inline-flex! lg:hidden!"
+                  : "px-3! md:hidden!"
+              }
               aria-label={nav("accessibility.openMenu")}
               aria-expanded={drawerOpen}
+              aria-controls="shell-drawer"
             >
-              <Menu size={22} />
-            </button>
+              <Menu size={21} aria-hidden="true" />
+            </Action>
           </div>
         </div>
-        {isWorkspace && (
-          <nav
-            className="hidden border-t border-border bg-[color-mix(in_srgb,var(--surface)_72%,transparent)] lg:block"
-            aria-label={nav("accessibility.workspace")}
-          >
-            <div className="shell flex min-h-12 items-center gap-1 overflow-x-auto py-1">
-              {workspaceNavLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`focus-ring shrink-0 rounded-lg px-3 py-2 text-sm font-bold transition-colors ${active(link.href, link.exact) ? "bg-primary/15 text-primary" : "text-muted hover:bg-white/5 hover:text-foreground"}`}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          </nav>
-        )}
-        {!isWorkspace && megaOpen && (
+      </header>
+      <div className="relative z-40 border-border-default! bg-surface-overlay md:border-b">
+        <WorkspaceNavigation
+          label={
+            studentShell
+              ? student("ariaLabel")
+              : shellWorkspace
+                ? nav("accessibility.workspace")
+                : nav("accessibility.primary")
+          }
+          primary={primary}
+          groups={groups}
+          active={shellActive}
+          student={studentShell}
+          moreLabel={nav("accessibility.openMenu")}
+          onMore={() => setDrawerOpen(true)}
+          moreExpanded={drawerOpen}
+        >
+          {!shellWorkspace && (
+            <button
+              ref={subjectsTrigger}
+              type="button"
+              className={actionClassName("quiet", "px-3!")}
+              onClick={() => setMegaOpen(!megaOpen)}
+              aria-expanded={megaOpen}
+              aria-controls="subjects-mega-menu"
+            >
+              {nav("subjects")}
+              <ChevronDown size={14} aria-hidden="true" />
+            </button>
+          )}
+        </WorkspaceNavigation>
+        {!shellWorkspace && megaOpen && (
           <div
             ref={mega}
             id="subjects-mega-menu"
-            className="elevated-surface absolute inset-x-0 top-full hidden border-y border-border shadow-2xl backdrop-blur-xl lg:block"
+            className="absolute inset-x-0 top-full border-y border-border-default! bg-surface-overlay shadow-overlay"
           >
-            <div className="shell grid gap-8 py-6 md:grid-cols-[0.8fr_1fr_1fr]">
+            <div className="shell grid gap-6 py-6 md:grid-cols-3">
               <div>
-                <p className="text-sm font-black text-primary">
-                  {nav("explorePath")}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-muted">
+                <p className="text-sm font-bold">{nav("explorePath")}</p>
+                <p className="mt-2 text-sm leading-6 text-text-secondary">
                   {nav("exploreDescription")}
                 </p>
                 <Link
                   href={`/${locale}/tracks`}
                   onClick={() => setMegaOpen(false)}
-                  className="focus-ring mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary"
+                  className={actionClassName("quiet", "mt-3 px-0!")}
                 >
                   {nav("allTracks")}
-                  <BookOpen size={16} />
+                  <BookOpen size={16} aria-hidden="true" />
                 </Link>
               </div>
               <TaxonomyColumn
@@ -642,136 +779,131 @@ export function SiteNavigation() {
             </div>
           </div>
         )}
-      </header>
-
+      </div>
       {drawerOpen && (
-        <div className="fixed inset-0 z-[70] lg:hidden" role="presentation">
-          <div
-            className="absolute inset-0 bg-slate-950/65 backdrop-blur-sm"
-            onMouseDown={closeDrawer}
-          />
+        <div
+          className="fixed inset-0 z-[70] bg-slate-950/65"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closeDrawer();
+          }}
+        >
           <aside
             ref={drawer}
+            id="shell-drawer"
+            tabIndex={-1}
             role="dialog"
             aria-modal="true"
             aria-label={nav("accessibility.navigationMenu")}
-            className="glass-panel absolute inset-y-0 end-0 flex w-[min(88vw,23rem)] flex-col overflow-y-auto border-y-0 border-e-0 p-5 shadow-2xl"
+            className="absolute inset-y-0 end-0 flex w-[min(90vw,28rem)] flex-col border-s border-border-default! bg-surface-overlay text-text-primary shadow-overlay"
           >
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-2">
-                <BrandLogo
-                  variant="icon"
-                  src={brand.Favicon}
-                  alt={brand.BrandName}
-                  className="size-9"
-                />
-                <span className="font-black text-foreground">
-                  {brand.BrandShortName}
-                </span>
-              </span>
-              <button
-                type="button"
+            <div className="flex items-start justify-between gap-3 border-b border-border-subtle! p-4">
+              <div className="min-w-0">
+                <p className="text-sm font-bold break-words">
+                  {identity.shortName}
+                </p>
+                <p className="mt-1 text-xs text-text-muted">{shellLabel}</p>
+              </div>
+              <Action
+                variant="quiet"
+                className="shrink-0 px-3!"
                 onClick={closeDrawer}
-                className="focus-ring rounded-lg p-2 text-muted hover:text-foreground"
                 aria-label={nav("accessibility.closeMenu")}
               >
-                <X size={21} />
-              </button>
+                <X size={20} aria-hidden="true" />
+              </Action>
             </div>
-            {!isWorkspace && (
-              <button
-                type="button"
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
+              <Action
+                variant="secondary"
+                className="mb-5 w-full justify-start!"
                 onClick={() => {
-                  setPaletteOpen(true);
                   closeDrawer();
+                  window.requestAnimationFrame(() => setPaletteOpen(true));
                 }}
-                className="focus-ring mt-6 flex items-center gap-3 rounded-xl border border-border bg-white/5 px-3 py-3 text-start text-sm text-muted"
               >
-                <Search size={18} />
+                <Search size={18} aria-hidden="true" />
                 {nav("accessibility.searchCourses")}
-              </button>
-            )}
-            <nav
-              className={`${isWorkspace ? "mt-6" : "mt-5"} grid gap-1`}
-              aria-label={nav("accessibility.menuLinks")}
-            >
-              {navLinks.map((link) => (
+              </Action>
+              <nav aria-label={nav("accessibility.menuLinks")}>
+                <GroupedDestinations
+                  groups={drawerGroups}
+                  active={shellActive}
+                  onNavigate={closeDrawer}
+                />
+              </nav>
+              {!shellWorkspace && (
+                <div className="mt-5 border-t border-border-subtle! pt-4">
+                  <Link
+                    href={`/${locale}/tracks`}
+                    onClick={closeDrawer}
+                    className={actionClassName("quiet", "px-3!")}
+                  >
+                    {nav("subjects")}
+                  </Link>
+                  <TaxonomyColumn
+                    title={nav("accessibility.availableSpecializations")}
+                    items={
+                      taxonomy.data?.specializations.map((item) => item.name) ??
+                      []
+                    }
+                  />
+                </div>
+              )}
+            </div>
+            <div className="flex flex-wrap items-center gap-2 border-t border-border-subtle! p-4">
+              <ThemeToggle locale={locale} />
+              <Link
+                href={localeSwitchPathname}
+                onNavigate={preserveLocaleSwitchContext}
+                className={actionClassName("quiet", "px-3!")}
+                aria-label={nav("accessibility.switchLanguage")}
+              >
+                {alternate.toUpperCase()}
+              </Link>
+              {!isWorkspace && isStudent && (
                 <Link
-                  key={link.href}
-                  href={link.href}
+                  href={`/${locale}/cart`}
                   onClick={closeDrawer}
-                  className={`focus-ring rounded-xl px-3 py-3 text-sm font-bold ${active(link.href, link.exact) ? "bg-primary/15 text-primary" : "text-foreground hover:bg-white/5"}`}
+                  className={actionClassName("quiet", "px-3!")}
+                  aria-label={nav("accessibility.cartItems", {
+                    count: cartItemCount,
+                  })}
                 >
-                  {link.label}
-                </Link>
-              ))}
-              {!isWorkspace && (
-                <Link
-                  href={`/${locale}/tracks`}
-                  onClick={closeDrawer}
-                  className="focus-ring rounded-xl px-3 py-3 text-sm font-bold text-foreground hover:bg-white/5"
-                >
-                  {nav("subjects")}
+                  <ShoppingCart size={19} aria-hidden="true" />
                 </Link>
               )}
-            </nav>
-            {!isWorkspace && (
-              <div className="mt-7 border-t border-border pt-5">
-                <p className="text-xs font-bold uppercase tracking-wider text-muted">
-                  {nav("accessibility.availableSpecializations")}
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {(taxonomy.data?.specializations ?? []).map((item) => (
-                    <span
-                      key={item.id}
-                      className="rounded-full border border-border bg-white/5 px-3 py-1 text-xs text-muted"
-                    >
-                      {item.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-            <div className="mt-auto grid gap-3 pt-8">
               {isSignedIn ? (
                 <>
                   <Link
-                    onClick={closeDrawer}
                     href={accountDestination}
-                    className="focus-ring rounded-xl bg-primary px-4 py-3 text-center font-bold text-slate-950"
+                    onClick={closeDrawer}
+                    className={actionClassName("secondary")}
+                    aria-label={accountLabel}
                   >
+                    <LayoutDashboard size={18} aria-hidden="true" />
                     {nav("dashboard")}
                   </Link>
-                  <button
-                    type="button"
+                  <Action
+                    variant="quiet"
                     onClick={() => logout.mutate()}
-                    disabled={logout.isPending}
-                    aria-busy={logout.isPending}
-                    className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/35 px-4 py-3 text-sm font-bold text-red-400 hover:bg-red-500/10 disabled:cursor-wait disabled:opacity-60"
+                    pending={logout.isPending}
+                    pendingLabel={nav("signingOut")}
+                    aria-label={nav("accessibility.logout")}
                   >
-                    <LogOut size={17} aria-hidden="true" />
-                    {logout.isPending
-                      ? nav("signingOut")
-                      : nav("accessibility.logout")}
-                  </button>
+                    <LogOut size={18} aria-hidden="true" />
+                    {nav("logoutShort")}
+                  </Action>
                 </>
               ) : authResolved && !isAccountArea ? (
                 <Link
-                  onClick={closeDrawer}
                   href={`/${locale}/login`}
-                  className="focus-ring rounded-xl bg-primary px-4 py-3 text-center font-bold text-slate-950"
+                  onClick={closeDrawer}
+                  className={actionClassName("primary")}
                 >
                   {t("login")}
                 </Link>
               ) : null}
-              <Link
-                onClick={closeDrawer}
-                href={localeSwitchPathname}
-                onNavigate={preserveLocaleSwitchContext}
-                className="focus-ring rounded-xl border border-border px-4 py-3 text-center text-sm font-bold"
-              >
-                {alternate.toUpperCase()}
-              </Link>
             </div>
           </aside>
         </div>

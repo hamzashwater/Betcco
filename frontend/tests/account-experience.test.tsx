@@ -577,10 +577,9 @@ describe("email confirmation and account administration", () => {
         }),
       ),
     );
-    expect(screen.getByRole("link", { name: "Security" })).toHaveAttribute(
-      "href",
-      "/en/support/security",
-    );
+    expect(
+      screen.queryByRole("navigation", { name: "Account links" }),
+    ).not.toBeInTheDocument();
   });
 });
 
