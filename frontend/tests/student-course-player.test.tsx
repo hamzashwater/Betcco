@@ -5,10 +5,11 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import arMessages from "../messages/ar.json";
 import enMessages from "../messages/en.json";
 import { StudentArea } from "@/features/student/student-area";
@@ -19,6 +20,17 @@ const firstId = "00000000-0000-0000-0000-000000000101";
 const resumeId = "00000000-0000-0000-0000-000000000102";
 const lockedId = "00000000-0000-0000-0000-000000000103";
 const fourthId = "00000000-0000-0000-0000-000000000104";
+
+beforeEach(() => {
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn(() => ({
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    })),
+  );
+});
 
 function playerResponse(
   options: {
@@ -385,19 +397,23 @@ describe("Student course player resume", () => {
       const loading =
         locale === "ar" ? "جارٍ تحميل الفيديو…" : "Loading video…";
       const retry = locale === "ar" ? "إعادة المحاولة" : "Retry video";
-      expect(await screen.findByRole("status")).toHaveTextContent(loading);
+      expect(await screen.findByText(loading)).toHaveAttribute(
+        "role",
+        "status",
+      );
       const firstVideo = container.querySelector("video")!;
+      const media = within(firstVideo.parentElement!);
       fireEvent.error(firstVideo);
-      expect(screen.getByRole("alert")).toBeVisible();
-      const retryButton = screen.getByRole("button", { name: retry });
+      expect(media.getByRole("alert")).toBeVisible();
+      const retryButton = media.getByRole("button", { name: retry });
       retryButton.focus();
       await userEvent.setup().keyboard("{Enter}");
-      expect(screen.getByRole("status")).toHaveTextContent(loading);
+      expect(media.getByRole("status")).toHaveTextContent(loading);
       const retriedVideo = container.querySelector("video")!;
       expect(retriedVideo).not.toBe(firstVideo);
       expect(retriedVideo.getAttribute("src")).toContain("retry=1");
       fireEvent.canPlay(retriedVideo);
-      expect(screen.queryByRole("status")).not.toBeInTheDocument();
+      expect(media.queryByRole("status")).not.toBeInTheDocument();
     },
   );
 });
@@ -406,8 +422,6 @@ describe.each([
   [
     "en",
     {
-      player: "BETCCO Player",
-      modules: "modules",
       previous: "Previous lesson",
       next: "Next lesson",
       locked: "This content opens on",
@@ -444,8 +458,6 @@ describe.each([
   [
     "ar",
     {
-      player: "BETCCO Player",
-      modules: "وحدات",
       previous: "الدرس السابق",
       next: "الدرس التالي",
       locked: "يفتح هذا المحتوى في",
@@ -489,8 +501,10 @@ describe.each([
   it("renders player, video, announcements and resource labels", async () => {
     installLearningFetch();
     const { container } = renderPlayer(locale);
-    expect(await screen.findByText(copy.player)).toBeVisible();
-    expect(screen.getByText(new RegExp(copy.modules))).toBeVisible();
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Resume video" }),
+    ).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Unit one" })).toBeVisible();
     expect(screen.getByRole("link", { name: copy.previous })).toHaveAttribute(
       "href",
       `/${locale}/student/learn/${courseId}?lessonId=${firstId}`,
@@ -507,7 +521,10 @@ describe.each([
       locale === "ar" ? "rtl" : "ltr",
     );
     expect(screen.getByLabelText(copy.video)).toBeVisible();
-    expect(screen.getByRole("status")).toHaveTextContent(copy.videoLoading);
+    expect(screen.getByText(copy.videoLoading)).toHaveAttribute(
+      "role",
+      "status",
+    );
     fireEvent.error(container.querySelector("video")!);
     expect(screen.getByRole("button", { name: copy.videoRetry })).toBeVisible();
     expect(await screen.findByText(copy.announcements)).toBeVisible();
@@ -626,3 +643,244 @@ function progressCalls(fetchMock: ReturnType<typeof vi.fn>) {
     String(input).endsWith(`/learning/lessons/${resumeId}/progress`),
   );
 }
+describe("lesson-first workspace", () => {
+  afterEach(() => {
+    cleanup();
+    invalidateCsrfToken();
+    vi.restoreAllMocks();
+  });
+  it("places content and navigation before real Unit/Aim context and unchanged practice slots", async () => {
+    const units = [
+      {
+        id: "unit-real",
+        englishTitle: "Authoritative Unit",
+        arabicTitle: "الوحدة المعتمدة",
+        aims: [
+          {
+            id: "aim-real",
+            code: "A",
+            englishTitle: "Authoritative Aim",
+            arabicTitle: "الهدف المعتمد",
+            isUnlocked: true,
+            contentTotal: 2,
+            contentCompleted: 1,
+            contentComplete: false,
+            practiceAvailable: false,
+            practiceStatus: "Locked",
+            isComplete: false,
+            maxAttempts: 0,
+            attemptsUsed: 0,
+            attemptsRemaining: 0,
+            attemptHistory: [],
+          },
+        ],
+        finalPractice: {
+          isAvailable: false,
+          status: "NotConfigured",
+          isTrainingComplete: false,
+        },
+      },
+    ];
+    installFetch(playerResponse(), (url) =>
+      url.pathname.endsWith("/learning-aim-practice")
+        ? Response.json(units)
+        : undefined,
+    );
+    const { container } = renderPlayer();
+    const progress = await screen.findByRole("heading", {
+      name: "My progress",
+    });
+    const lesson = screen.getByRole("heading", {
+      level: 1,
+      name: "Resume video",
+    });
+    const next = screen.getByRole("link", { name: "Next lesson" });
+    expect(
+      lesson.compareDocumentPosition(progress) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      next.compareDocumentPosition(progress) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    const secondary = progress.closest("section")!.parentElement!;
+    expect(secondary.children.length).toBeGreaterThan(3);
+    expect(lesson.closest("header")).not.toHaveTextContent("Authoritative Aim");
+    expect(container.querySelector('input[type="search"]')).toBeNull();
+    expect(container).not.toHaveTextContent("Lesson Objective");
+  });
+  it("collapses and reopens the contextual desktop outline", async () => {
+    installFetch();
+    renderPlayer();
+    const hide = await screen.findByRole("button", { name: "Hide content" });
+    expect(screen.getByRole("link", { name: "Resume video" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    await userEvent.setup().click(hide);
+    expect(
+      screen.queryByRole("heading", { name: "Unit one" }),
+    ).not.toBeInTheDocument();
+    const show = screen.getByRole("button", { name: "Show content" });
+    expect(show).toHaveAttribute("aria-expanded", "false");
+    await userEvent.setup().click(show);
+    expect(screen.getByRole("heading", { name: "Unit one" })).toBeVisible();
+  });
+  it.each(["en", "ar"] as const)(
+    "traps and restores %s mobile outline focus",
+    async (locale) => {
+      installFetch();
+      renderPlayer(locale);
+      await screen.findByRole("heading", { level: 1, name: "Resume video" });
+      const user = userEvent.setup(),
+        opener = screen.getByRole("button", {
+          name: locale === "ar" ? "محتوى الدورة" : "Course content",
+        });
+      const previousOverflow = document.body.style.overflow;
+      await user.click(opener);
+      const dialog = screen.getByRole("dialog");
+      expect(dialog).toHaveAttribute("dir", locale === "ar" ? "rtl" : "ltr");
+      expect(
+        within(dialog).getByRole("link", { name: "Resume video" }),
+      ).toHaveFocus();
+      expect(document.body.style.overflow).toBe("hidden");
+      within(dialog).getByRole("link", { name: "Available follow-up" }).focus();
+      await user.keyboard("{Tab}");
+      expect(
+        within(dialog).getByRole("button", {
+          name: locale === "ar" ? "إخفاء المحتوى" : "Hide content",
+        }),
+      ).toHaveFocus();
+      await user.keyboard("{Shift>}{Tab}{/Shift}");
+      expect(
+        within(dialog).getByRole("link", { name: "Available follow-up" }),
+      ).toHaveFocus();
+      await user.keyboard("{Escape}");
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+      expect(opener).toHaveFocus();
+      expect(document.body.style.overflow).toBe(previousOverflow);
+    },
+  );
+  it("keeps locked reasons inline and excludes private content and resources", async () => {
+    const response = playerResponse({
+      currentLessonId: lockedId,
+      lockedReason: "AvailableOnDate",
+      availableAtUtc: "2026-11-01T09:00:00Z",
+    });
+    const locked = response.modules[0].lessons[2];
+    Object.assign(locked, {
+      body: "Private lesson body",
+      resources: [
+        {
+          id: "private-file",
+          displayName: "Private resource",
+          contentType: "application/pdf",
+        },
+      ],
+    });
+    installFetch(response);
+    renderPlayer();
+    await screen.findByRole("heading", { level: 1, name: "Locked lesson" });
+    const button = screen.getByRole("button", { name: "Locked lesson" });
+    expect(button).toBeDisabled();
+    expect(
+      document.getElementById(button.getAttribute("aria-describedby")!),
+    ).toHaveTextContent("This content opens on");
+    expect(screen.queryByText("Private lesson body")).not.toBeInTheDocument();
+    expect(screen.queryByText("Private resource")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Locked lesson" }),
+    ).not.toBeInTheDocument();
+  });
+  it("retains native video attributes and the exact 80 percent completion boundary", async () => {
+    const fetchMock = installFetch();
+    const { container } = renderPlayer();
+    await screen.findByRole("heading", { level: 1, name: "Resume video" });
+    const video = container.querySelector("video")!;
+    expect(video).toHaveAttribute("controls");
+    expect(video).toHaveAttribute("preload", "metadata");
+    Object.defineProperty(video, "duration", {
+      value: 100,
+      configurable: true,
+    });
+    fireEvent.loadedMetadata(video);
+    video.currentTime = 79;
+    fireEvent.timeUpdate(video);
+    await waitFor(() => expect(progressCalls(fetchMock)).toHaveLength(1));
+    expect(
+      JSON.parse(String(progressCalls(fetchMock)[0][1].body)).markCompleted,
+    ).toBe(false);
+    await waitFor(() =>
+      expect(
+        screen.getByRole("button", { name: "Completes after 80% watched" }),
+      ).not.toHaveAttribute("aria-busy", "true"),
+    );
+    video.currentTime = 80;
+    fireEvent.timeUpdate(video);
+    await waitFor(() => expect(progressCalls(fetchMock)).toHaveLength(2));
+    expect(JSON.parse(String(progressCalls(fetchMock)[1][1].body))).toEqual({
+      lastPositionSeconds: 80,
+      markCompleted: true,
+    });
+  });
+  it("preserves manual text completion and prevents duplicate pending submissions", async () => {
+    const response = playerResponse();
+    Object.assign(response.modules[0].lessons[1], {
+      type: "Text",
+      video: undefined,
+    });
+    const fetchMock = installFetch(response);
+    const baseFetch = fetchMock.getMockImplementation()!;
+    let finishSave!: (response: Response) => void;
+    fetchMock.mockImplementation(async (input, init) => {
+      if (String(input).endsWith(`/learning/lessons/${resumeId}/progress`))
+        return new Promise<Response>((resolve) => {
+          finishSave = resolve;
+        });
+      return baseFetch(input, init);
+    });
+    renderPlayer();
+    const complete = await screen.findByRole("button", {
+      name: "Mark complete",
+    });
+    await userEvent.setup().click(complete);
+    await waitFor(() => expect(progressCalls(fetchMock)).toHaveLength(1));
+    expect(complete).toBeDisabled();
+    fireEvent.click(complete);
+    expect(progressCalls(fetchMock)).toHaveLength(1);
+    expect(JSON.parse(String(progressCalls(fetchMock)[0][1].body))).toEqual({
+      lastPositionSeconds: 42,
+      markCompleted: true,
+    });
+    finishSave(Response.json({ isCompleted: true, lastPositionSeconds: 42 }));
+  });
+  it("preserves internal and external resource destinations", async () => {
+    const response = playerResponse();
+    Object.assign(response.modules[0].lessons[1], {
+      resources: [
+        {
+          id: "internal",
+          displayName: "Lesson handout",
+          contentType: "application/pdf",
+        },
+        {
+          id: "external",
+          displayName: "Official reference",
+          contentType: "text/html",
+          externalUrl: "https://example.org/reference",
+        },
+      ],
+    });
+    installFetch(response);
+    renderPlayer();
+    expect(
+      await screen.findByRole("link", { name: "Lesson handout" }),
+    ).toHaveAttribute(
+      "href",
+      `/api/v1/learning/lessons/${resumeId}/resources/internal`,
+    );
+    const external = screen.getByRole("link", { name: "Official reference" });
+    expect(external).toHaveAttribute("href", "https://example.org/reference");
+    expect(external).toHaveAttribute("target", "_blank");
+    expect(external).toHaveAttribute("rel", "noreferrer");
+  });
+});
