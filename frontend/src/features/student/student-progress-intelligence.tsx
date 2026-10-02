@@ -1,5 +1,7 @@
 "use client";
 
+import styles from "./student-course-player.module.css";
+import { QueryState } from "@/components/dashboard/dashboard-ui";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -8,7 +10,6 @@ import {
   CheckCircle2,
   CircleDot,
   Flag,
-  Gauge,
   Target,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -89,17 +90,20 @@ export function StudentProgressIntelligence({
 
   if (result.isPending) {
     return (
-      <section className="card mt-6 p-5" aria-busy="true">
-        <p className="text-sm text-muted">{t("loading")}</p>
+      <section className={styles.journey}>
+        <QueryState kind="loading" title={t("loading")} />
       </section>
     );
   }
 
   if (result.isError) {
     return (
-      <section className="card mt-6 p-5" role="alert">
-        <p className="font-black">{t("loadError")}</p>
-        <p className="mt-1 text-sm text-muted">{t("loadErrorDescription")}</p>
+      <section className={styles.journey}>
+        <QueryState
+          kind="error"
+          title={t("loadError")}
+          description={t("loadErrorDescription")}
+        />
       </section>
     );
   }
@@ -125,42 +129,26 @@ export function StudentProgressIntelligence({
   ).length;
   const focusUnit =
     units.find((unit) => !unit.finalPractice?.isTrainingComplete) ?? units[0];
-  const next = deriveNextAction(focusUnit);
 
   return (
     <section
-      className="card mt-6 overflow-hidden p-5 sm:p-6"
+      className={styles.journey}
       aria-labelledby="student-progress-intelligence-heading"
     >
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div className={styles.journeyHeader}>
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">
-            {t("eyebrow")}
-          </p>
           <h2
             id="student-progress-intelligence-heading"
-            className="mt-2 text-2xl font-black"
+            className="text-xl font-extrabold"
           >
             {t("title")}
           </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
+          <p className="mt-2 text-sm leading-6 text-text-secondary">
             {t("description")}
           </p>
         </div>
-        <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 lg:max-w-md">
-          <p className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.12em] text-primary">
-            <Target size={16} aria-hidden="true" />
-            {t("next.title")}
-          </p>
-          <p className="mt-2 font-black">
-            {t(`next.${next.key}`, next.values)}
-          </p>
-          <p className="mt-1 text-xs leading-5 text-muted">
-            {t("next.ruleBased")}
-          </p>
-        </div>
-      </div>{" "}
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      </div>
+      <div className={styles.journeyMetrics}>
         <MetricCard
           icon={<BookOpenCheck size={18} />}
           label={t("metrics.content")}
@@ -182,7 +170,7 @@ export function StudentProgressIntelligence({
           value={`${completedUnits}/${units.length}`}
         />
       </div>
-      <div className="mt-5 grid gap-4">
+      <div className="min-w-0">
         {units.map((unit) => {
           const unitTitle =
             locale === "ar" ? unit.arabicTitle : unit.englishTitle;
@@ -197,14 +185,15 @@ export function StudentProgressIntelligence({
           const aimComplete = unit.aims.filter((aim) => aim.isComplete).length;
           const unitNext = deriveNextAction(unit);
           return (
-            <article
+            <details
               key={unit.id}
-              className="rounded-2xl border border-border bg-surface-solid/45 p-4 sm:p-5"
+              open={unit.id === focusUnit.id}
+              className={styles.journeyUnit}
             >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h3 className="text-lg font-black">{unitTitle}</h3>
-                  <p className="mt-1 text-xs font-semibold text-muted">
+              <summary className={`focus-ring ${styles.unitSummary}`}>
+                <h3 className={styles.unitHeading}>{unitTitle}</h3>
+                <div className={styles.unitOverview}>
+                  <p className="text-xs text-text-secondary">
                     {t("unitSummary", {
                       contentCompleted,
                       contentTotal,
@@ -212,16 +201,23 @@ export function StudentProgressIntelligence({
                       aimTotal: unit.aims.length,
                     })}
                   </p>
+                  <UnitState unit={unit} />
                 </div>
-                <UnitState unit={unit} />
-              </div>{" "}
-              <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,0.35fr)]">
+              </summary>
+              <div className="mt-3 min-w-0">
                 <div className="grid gap-2">
                   {unit.aims.map((aim) => (
-                    <AimRow key={aim.id} aim={aim} />
+                    <AimRow
+                      key={aim.id}
+                      aim={aim}
+                      focused={
+                        aim.id ===
+                        unit.aims.find((item) => !item.isComplete)?.id
+                      }
+                    />
                   ))}
                 </div>
-                <div className="rounded-xl border border-border bg-page/35 p-4">
+                <div className={styles.unitNext}>
                   <p className="flex items-center gap-2 text-sm font-black">
                     <ArrowRight
                       size={16}
@@ -235,7 +231,7 @@ export function StudentProgressIntelligence({
                   </p>
                 </div>
               </div>
-            </article>
+            </details>
           );
         })}
       </div>
@@ -243,12 +239,12 @@ export function StudentProgressIntelligence({
   );
 }
 
-function AimRow({ aim }: { aim: Aim }) {
+function AimRow({ aim, focused }: { aim: Aim; focused: boolean }) {
   const locale = useLocale();
   const t = useTranslations("studentProgressIntelligence");
   const title = locale === "ar" ? aim.arabicTitle : aim.englishTitle;
   return (
-    <div className="rounded-xl border border-border bg-page/25 p-3">
+    <div className={styles.aimRow} data-focus-aim={focused}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="font-black">
           {aim.code} · {title}
@@ -328,13 +324,12 @@ function MetricCard({
   value: string;
 }) {
   return (
-    <article className="rounded-2xl border border-border bg-surface-solid/55 p-4">
-      <div className="flex items-center gap-2 text-primary" aria-hidden="true">
-        <Gauge size={18} />
-        {icon}
+    <article className={styles.journeyMetric}>
+      <div className="flex items-center gap-2">
+        <span aria-hidden="true">{icon}</span>
+        <p>{label}</p>
       </div>
-      <p className="mt-3 text-xs font-bold text-muted">{label}</p>
-      <p className="mt-1 text-2xl font-black">{value}</p>
+      <strong>{value}</strong>
     </article>
   );
 }

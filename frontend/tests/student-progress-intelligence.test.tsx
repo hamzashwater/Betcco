@@ -92,10 +92,10 @@ describe("StudentProgressIntelligence", () => {
       screen.getAllByText("Continue Aim B content (1/3 complete).").length,
     ).toBeGreaterThan(0);
     expect(
-      screen.getByText("Learning content").parentElement,
+      screen.getByText("Learning content").closest("article"),
     ).toHaveTextContent("3/5");
     expect(
-      screen.getByText("Learning Aims complete").parentElement,
+      screen.getByText("Learning Aims complete").closest("article"),
     ).toHaveTextContent("1/2");
     expect(screen.getByText(/Attempts 2\/3 · 1 remaining/)).toBeVisible();
     expect(screen.getByText(/Latest: Merit/)).toBeVisible();
@@ -152,7 +152,7 @@ describe("StudentProgressIntelligence", () => {
       ).length,
     ).toBeGreaterThan(0);
     expect(
-      screen.getByText("Units ready for Final Practice").parentElement,
+      screen.getByText("Units ready for Final Practice").closest("article"),
     ).toHaveTextContent("1");
   });
 
@@ -286,5 +286,103 @@ describe("StudentProgressIntelligence", () => {
         .length,
     ).toBeGreaterThan(0);
     expect(screen.getByText(/لا يستخدم الذكاء الاصطناعي/)).toBeVisible();
+  });
+});
+
+function contextualUnit() {
+  return {
+    id: "context-unit",
+    englishTitle: "Context Unit",
+    arabicTitle: "الوحدة",
+    aims: [
+      {
+        id: "context-aim",
+        code: "A",
+        englishTitle: "Context Aim",
+        arabicTitle: "الهدف",
+        isUnlocked: true,
+        contentTotal: 2,
+        contentCompleted: 2,
+        contentComplete: true,
+        assignmentId: "practice",
+        practiceAvailable: true,
+        practiceStatus: "Available",
+        maxAttempts: 2,
+        attemptsUsed: 0,
+        attemptsRemaining: 2,
+        isComplete: false,
+      },
+    ],
+    finalPractice: {
+      assignmentId: "final",
+      isAvailable: false,
+      status: "Locked",
+      isTrainingComplete: false,
+    },
+  };
+}
+describe("contextual progress disclosure", () => {
+  it.each([
+    ["Draft", "Finish and submit your Aim A practice attempt."],
+    [
+      "Submitted",
+      "Aim A practice is submitted. Wait for the teacher's review.",
+    ],
+    ["Available", "Aim A content is complete. Start its practice activity."],
+  ])(
+    "retains the authoritative %s practice guidance",
+    async (status, expected) => {
+      const unit = contextualUnit();
+      unit.aims[0].practiceStatus = status;
+      apiMock.mockResolvedValue([unit]);
+      renderProgress();
+      expect(await screen.findByText(expected)).toBeVisible();
+    },
+  );
+  it.each([
+    [
+      "Submitted",
+      false,
+      "Your Final Unit Practice is submitted. Wait for the teacher's review.",
+    ],
+    [
+      "Available",
+      false,
+      "All Learning Aims are complete. Start the Final Unit Practice.",
+    ],
+    ["Finalized", true, "This Unit's formative training path is complete."],
+  ])(
+    "retains %s Final Unit Practice semantics",
+    async (status, complete, expected) => {
+      const unit = contextualUnit();
+      unit.aims[0].isComplete = true;
+      Object.assign(unit.finalPractice, {
+        status,
+        isAvailable: status === "Available",
+        isTrainingComplete: complete,
+      });
+      apiMock.mockResolvedValue([unit]);
+      renderProgress();
+      expect(await screen.findByText(expected)).toBeVisible();
+    },
+  );
+  it("opens the first unfinished Unit and keeps completed Unit information accessible", async () => {
+    const completed = contextualUnit(),
+      unfinished = contextualUnit();
+    completed.id = "completed";
+    completed.englishTitle = "Completed Unit";
+    completed.aims[0].isComplete = true;
+    completed.finalPractice.isTrainingComplete = true;
+    unfinished.id = "unfinished";
+    unfinished.englishTitle = "Unfinished Unit";
+    apiMock.mockResolvedValue([completed, unfinished]);
+    const { container } = renderProgress();
+    await screen.findByText("Unfinished Unit");
+    const details = container.querySelectorAll("details");
+    expect(details[0]).not.toHaveAttribute("open");
+    expect(details[1]).toHaveAttribute("open");
+    expect(details[0]).toHaveTextContent("Context Aim", {
+      normalizeWhitespace: true,
+    });
   });
 });

@@ -11,6 +11,9 @@ import {
 import { api } from "@/lib/api";
 import { academicText } from "@/lib/academic-localization";
 import styles from "./student-learning-presentation.module.css";
+import playerStyles from "./student-course-player.module.css";
+import { useDialogFocus } from "@/components/navigation/use-dialog-focus";
+import { createPortal } from "react-dom";
 import { MotivationCard } from "@/components/motivation-card";
 import { FilePicker } from "@/components/forms/file-picker";
 import { StudentLearningAimPractice } from "@/features/learning/learning-aim-practice";
@@ -34,6 +37,8 @@ import {
 } from "@/features/student/student-courses-learning-hub";
 import {
   ArrowLeft,
+  ArrowUpRight,
+  X,
   ArrowRight,
   Bookmark,
   BookOpenCheck,
@@ -48,7 +53,6 @@ import {
   MessageSquareText,
   PanelRightClose,
   PanelRightOpen,
-  PlayCircle,
   Sparkles,
   StickyNote,
   Timer,
@@ -65,7 +69,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, type ReactNode, useEffect, useRef, useState } from "react";
+import {
+  Suspense,
+  type ReactNode,
+  type RefObject,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 type AssessmentScopeOption = {
   assessmentScopeId: string;
@@ -1880,6 +1891,24 @@ function CoursePlayer({
   const locale = useLocale();
   const client = useQueryClient();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileOutlineOpen, setMobileOutlineOpen] = useState(false);
+  const outlineDialog = useRef<HTMLDivElement>(null);
+  const currentOutlineLink = useRef<HTMLAnchorElement>(null);
+  useDialogFocus(
+    mobileOutlineOpen,
+    outlineDialog,
+    () => setMobileOutlineOpen(false),
+    currentOutlineLink,
+  );
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const closeOnDesktop = () => {
+      if (desktop.matches) setMobileOutlineOpen(false);
+    };
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => desktop.removeEventListener("change", closeOnDesktop);
+  }, []);
+
   const result = useQuery({
     queryKey: ["player", courseId, locale, requestedLessonId],
     queryFn: () => {
@@ -1958,18 +1987,38 @@ function CoursePlayer({
   };
   if (result.isPending)
     return (
-      <section className="shell py-10">
-        <div className="card p-6" aria-busy>
-          {t("loading")}
-        </div>
+      <section className="shell py-8">
+        <QueryState kind="loading" title={t("loading")} />
       </section>
     );
-  if (result.isError || !result.data)
+  if (result.isError || !result.data) {
+    const denied =
+      result.error &&
+      "status" in result.error &&
+      [401, 403].includes(Number(result.error.status));
     return (
-      <section className="shell py-10">
-        <p className="card p-6">{t("coursePlayer.noAccess")}</p>
+      <section className="shell py-8">
+        <QueryState
+          kind={denied ? "restricted" : "error"}
+          title={
+            denied ? t("coursePlayer.noAccess") : t("dashboard.courseLoadError")
+          }
+          action={
+            !denied ? (
+              <Action
+                variant="secondary"
+                pending={result.isFetching}
+                pendingLabel={t("loading")}
+                onClick={() => void result.refetch()}
+              >
+                {t("dashboard.retryCourses")}
+              </Action>
+            ) : undefined
+          }
+        />
       </section>
     );
+  }
   const visibleModules = result.data.modules.map((module) => ({
     ...module,
     lessons: module.lessons.filter((item) => item.type !== "LegacyArchived"),
@@ -1986,299 +2035,493 @@ function CoursePlayer({
   );
   const lessonHref = (lessonId: string) =>
     `/${locale}/student/learn/${courseId}?lessonId=${encodeURIComponent(lessonId)}`;
+  const outline = (headingId: string, mobile = false) => (
+    <PlayerOutline
+      modules={visibleModules}
+      currentLessonId={lesson?.id}
+      headingId={headingId}
+      lessonHref={lessonHref}
+      lockedMessage={lockedMessage}
+      currentLinkRef={mobile ? currentOutlineLink : undefined}
+      onNavigate={mobile ? () => setMobileOutlineOpen(false) : undefined}
+    />
+  );
   return (
     <section
       dir={locale === "ar" ? "rtl" : "ltr"}
-      className={`shell grid gap-6 py-10 ${sidebarOpen ? "lg:grid-cols-[minmax(0,1fr)_340px]" : "lg:grid-cols-1"}`}
+      className={`shell ${playerStyles.workspace}`}
     >
-      <div className="card p-5 sm:p-7">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-              {t("coursePlayer.eyebrow")}
-            </p>
-            <h1 className="mt-2 text-3xl font-black">{result.data.title}</h1>
-          </div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-white/5 px-3 py-2 text-xs font-bold text-muted">
-            <ListVideo size={15} aria-hidden="true" />
-            {result.data.modules.length} {t("coursePlayer.modules")}
-          </span>
-          <button
-            type="button"
-            onClick={() => setSidebarOpen((value) => !value)}
-            className="focus-ring inline-flex items-center gap-2 rounded-xl border border-border bg-white/5 px-3 py-2 text-sm font-bold text-muted hover:bg-primary/10 hover:text-primary"
-            aria-expanded={sidebarOpen}
-            aria-controls="player-course-content"
+      <header className={playerStyles.courseContext}>
+        <div className="min-w-0">
+          <Link
+            href={`/${locale}/student/courses`}
+            className="focus-ring inline-flex min-h-11 items-center gap-2 text-sm font-bold text-text-link"
           >
-            {sidebarOpen ? (
-              <PanelRightClose size={17} aria-hidden="true" />
-            ) : (
-              <PanelRightOpen size={17} aria-hidden="true" />
-            )}
-            {sidebarOpen
-              ? t("coursePlayer.hideContent")
-              : t("coursePlayer.showContent")}
-          </button>
-        </div>
-        {result.data.requestedLessonRejected ? (
-          <p
-            role="alert"
-            className="mt-5 rounded-xl border border-amber-400/35 bg-amber-400/10 px-4 py-3 text-sm font-semibold text-amber-200"
-          >
-            {t("coursePlayer.requestedLessonUnavailable")}
-          </p>
-        ) : null}
-        <StudentProgressIntelligence courseId={courseId} />
-        <StudentLearningAimPractice courseId={courseId} />
-        <StudentComprehensivePractice courseId={courseId} />
-        {lesson ? (
-          <>
-            {lesson.video && !lesson.isLocked ? (
-              <LessonVideo
-                key={`video-${lesson.id}`}
-                lesson={lesson}
-                savePending={progress.isPending}
-                onSave={(lastPositionSeconds, markCompleted) =>
-                  progress.mutate({
-                    lessonId: lesson.id,
-                    lastPositionSeconds,
-                    markCompleted,
-                  })
-                }
-              />
-            ) : (
-              <div className="relative mt-6 aspect-video overflow-hidden rounded-2xl border border-white/10 bg-[radial-gradient(circle_at_75%_20%,rgba(38,211,199,.22),transparent_30%),linear-gradient(135deg,#101e42,#080f24)] p-6 text-white shadow-2xl sm:p-8">
-                <span className="absolute -end-14 -top-14 size-48 rounded-full border border-primary/25" />
-                <span className="relative grid size-12 place-items-center rounded-2xl bg-primary text-slate-950 shadow-lg">
-                  <PlayCircle size={25} aria-hidden="true" />
-                </span>
-                <p className="relative mt-8 text-xl font-black">
-                  {lesson.title}
-                </p>
-                <p className="relative mt-2 flex items-center gap-2 text-sm text-slate-300">
-                  <Timer size={15} aria-hidden="true" />
-                  {lesson.type} · {Math.round(lesson.durationSeconds / 60)}{" "}
-                  {t("coursePlayer.minutes")}
-                </p>
-                <p className="relative mt-8 max-w-md whitespace-pre-wrap text-sm leading-6 text-slate-300">
-                  {lesson.isLocked
-                    ? lockedMessage(lesson.lockReason, lesson.availableAtUtc)
-                    : lesson.body || t("coursePlayer.noLessonText")}
-                </p>
-              </div>
-            )}
-            {lesson.video && lesson.body && !lesson.isLocked ? (
-              <p className="mt-5 whitespace-pre-wrap text-sm leading-7 text-muted">
-                {lesson.body}
-              </p>
-            ) : null}
-            {lesson.resources.length ? (
-              <div className="mt-5 rounded-2xl border border-border bg-surface-solid/55 p-4">
-                <h2 className="font-black">{t("coursePlayer.lessonFiles")}</h2>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {lesson.resources.map((resource) => (
-                    <a
-                      key={resource.id}
-                      href={
-                        resource.externalUrl ||
-                        `/api/v1/learning/lessons/${lesson.id}/resources/${resource.id}`
-                      }
-                      target={resource.externalUrl ? "_blank" : undefined}
-                      rel={resource.externalUrl ? "noreferrer" : undefined}
-                      className="focus-ring inline-flex items-center gap-2 rounded-xl border border-primary/35 px-3 py-2 text-sm font-bold text-primary hover:bg-primary/10"
-                    >
-                      <FileBadge size={16} aria-hidden="true" />
-                      {resource.displayName}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-            <CourseResourceCenter courseId={courseId} />
-            <CourseAnnouncementsPanel courseId={courseId} />
-            <button
-              type="button"
-              onClick={() =>
-                progress.mutate({
-                  lessonId: lesson.id,
-                  lastPositionSeconds: lesson.lastPositionSeconds,
-                  markCompleted: true,
-                })
-              }
-              disabled={
-                progress.isPending ||
-                lesson.isLocked ||
-                lesson.isCompleted ||
-                lesson.type === "Video"
-              }
-              className="focus-ring mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 font-bold text-slate-950"
-            >
-              <CircleCheckBig size={18} aria-hidden="true" />
-              {lesson.isCompleted
-                ? t("coursePlayer.completed")
-                : lesson.type === "Video"
-                  ? t("coursePlayer.videoCompletion")
-                  : t("coursePlayer.markComplete")}
-            </button>
-            <button
-              type="button"
-              onClick={() => certificate.mutate()}
-              disabled={certificate.isPending}
-              className="focus-ring ms-3 mt-5 inline-flex items-center gap-2 rounded-xl border border-primary/50 px-4 py-3 font-bold text-primary hover:bg-primary/10"
-            >
-              <FileBadge size={18} aria-hidden="true" />
-              {t("coursePlayer.issueCertificate")}
-            </button>
-            {certificate.data ? (
-              <p role="status" className="mt-3 text-sm text-primary">
-                {t("coursePlayer.certificateIssued")}{" "}
-                {certificate.data.verificationCode}
-              </p>
-            ) : null}
-            {certificate.isError ? (
-              <p role="alert" className="mt-3 text-sm text-red-400">
-                {certificate.error instanceof Error
-                  ? certificate.error.message
-                  : t("coursePlayer.completeLessonsFirst")}
-              </p>
-            ) : null}
-            {progress.isSuccess ? (
-              <p role="status" className="mt-3 text-sm text-primary">
-                {t("coursePlayer.progressSaved")}
-              </p>
-            ) : null}
-            {progress.isError ? (
-              <p role="alert" className="mt-3 text-sm text-red-400">
-                {t("coursePlayer.progressSaveError")}
-              </p>
-            ) : null}
-            <MotivationCard variant="player" className="mt-5" />
-            <StudentCourseGradebookPanel courseId={courseId} />
-            <LessonWorkspace
-              key={lesson.id}
-              courseId={courseId}
-              lessonId={lesson.id}
+            <ArrowLeft
+              size={17}
+              className="rtl:rotate-180"
+              aria-hidden="true"
             />
-            <AiTutorPanel courseId={courseId} lessonId={lesson.id} />
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
-              {previousLesson ? (
-                <Link
-                  href={lessonHref(previousLesson.id)}
-                  className="focus-ring inline-flex items-center gap-1 rounded-xl border border-border px-3 py-2.5 text-sm font-bold text-muted hover:bg-white/5"
+            {t("navigation.courses")}
+          </Link>
+          <p className="mt-1 text-sm font-semibold text-text-secondary break-words">
+            {result.data.title}
+          </p>
+        </div>
+        <Action
+          variant="secondary"
+          className={playerStyles.desktopControl}
+          onClick={() => setSidebarOpen((value) => !value)}
+          aria-expanded={sidebarOpen}
+          aria-controls="player-course-content"
+        >
+          {sidebarOpen ? (
+            <PanelRightClose size={18} aria-hidden="true" />
+          ) : (
+            <PanelRightOpen size={18} aria-hidden="true" />
+          )}
+          {sidebarOpen
+            ? t("coursePlayer.hideContent")
+            : t("coursePlayer.showContent")}
+        </Action>
+        <Action
+          variant="secondary"
+          className={playerStyles.mobileControl}
+          onClick={() => setMobileOutlineOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={mobileOutlineOpen}
+          aria-controls="player-mobile-content"
+        >
+          <ListVideo size={18} aria-hidden="true" />
+          {t("coursePlayer.courseContent")}
+        </Action>
+      </header>
+      {result.data.requestedLessonRejected ? (
+        <div role="alert" className="mb-5">
+          <QueryState
+            kind="unavailable"
+            title={t("coursePlayer.requestedLessonUnavailable")}
+          />
+        </div>
+      ) : null}
+      <div className={playerStyles.layout} data-outline-open={sidebarOpen}>
+        <div className="min-w-0">
+          {lesson ? (
+            <section
+              aria-labelledby="player-current-lesson"
+              className={playerStyles.lesson}
+            >
+              <header className={playerStyles.lessonHeader}>
+                <h1
+                  id="player-current-lesson"
+                  className={playerStyles.lessonTitle}
                 >
-                  <ArrowLeft
-                    size={16}
-                    className="rtl:rotate-180"
-                    aria-hidden="true"
+                  {lesson.title}
+                </h1>
+                <div className={playerStyles.lessonMeta}>
+                  <span>{lesson.type}</span>
+                  {Math.round(lesson.durationSeconds / 60) > 0 ? (
+                    <span className="inline-flex items-center gap-1.5">
+                      <Timer size={15} aria-hidden="true" />
+                      {formatLocalizedNumber(
+                        Math.round(lesson.durationSeconds / 60),
+                        locale,
+                      )}{" "}
+                      {t("coursePlayer.minutes")}
+                    </span>
+                  ) : null}
+                  {lesson.isCompleted ? (
+                    <span className="inline-flex items-center gap-1.5 font-bold">
+                      <CircleCheckBig size={16} aria-hidden="true" />
+                      {t("coursePlayer.completed")}
+                    </span>
+                  ) : null}
+                </div>
+              </header>
+              {lesson.isLocked ? (
+                <QueryState
+                  kind="restricted"
+                  title={lockedMessage(
+                    lesson.lockReason,
+                    lesson.availableAtUtc,
+                  )}
+                />
+              ) : lesson.video ? (
+                <>
+                  <LessonVideo
+                    key={`video-${lesson.id}`}
+                    lesson={lesson}
+                    savePending={progress.isPending}
+                    onSave={(lastPositionSeconds, markCompleted) =>
+                      progress.mutate({
+                        lessonId: lesson.id,
+                        lastPositionSeconds,
+                        markCompleted,
+                      })
+                    }
                   />
-                  {t("coursePlayer.previousLesson")}
-                </Link>
+                  {lesson.body ? (
+                    <div className={playerStyles.lessonBody}>{lesson.body}</div>
+                  ) : null}
+                </>
               ) : (
-                <span className="inline-flex cursor-not-allowed items-center gap-1 rounded-xl border border-border px-3 py-2.5 text-sm font-bold text-muted opacity-40">
-                  <ArrowLeft
-                    size={16}
-                    className="rtl:rotate-180"
+                <div className={playerStyles.readingCanvas}>
+                  <BookOpenCheck
+                    size={25}
+                    className="text-text-link"
                     aria-hidden="true"
                   />
-                  {t("coursePlayer.previousLesson")}
-                </span>
+                  <div className={playerStyles.lessonBody}>
+                    {lesson.body || t("coursePlayer.noLessonText")}
+                  </div>
+                </div>
               )}
-              {nextLesson ? (
-                <Link
-                  href={lessonHref(nextLesson.id)}
-                  className="focus-ring inline-flex items-center gap-1 rounded-xl bg-primary px-3 py-2.5 text-sm font-black text-slate-950"
+              <div className={playerStyles.lessonNavigation}>
+                {previousLesson ? (
+                  <Link
+                    href={lessonHref(previousLesson.id)}
+                    className={actionClassName("secondary")}
+                  >
+                    <ArrowLeft
+                      size={17}
+                      className="rtl:rotate-180"
+                      aria-hidden="true"
+                    />
+                    {t("coursePlayer.previousLesson")}
+                  </Link>
+                ) : (
+                  <Action variant="secondary" disabled>
+                    <ArrowLeft
+                      size={17}
+                      className="rtl:rotate-180"
+                      aria-hidden="true"
+                    />
+                    {t("coursePlayer.previousLesson")}
+                  </Action>
+                )}
+                <Action
+                  variant="secondary"
+                  pending={progress.isPending}
+                  pendingLabel={t("loading")}
+                  onClick={() =>
+                    progress.mutate({
+                      lessonId: lesson.id,
+                      lastPositionSeconds: lesson.lastPositionSeconds,
+                      markCompleted: true,
+                    })
+                  }
+                  disabled={
+                    lesson.isLocked ||
+                    lesson.isCompleted ||
+                    lesson.type === "Video"
+                  }
                 >
-                  {t("coursePlayer.nextLesson")}
-                  <ArrowRight
-                    size={16}
-                    className="rtl:rotate-180"
-                    aria-hidden="true"
+                  <CircleCheckBig size={18} aria-hidden="true" />
+                  {lesson.isCompleted
+                    ? t("coursePlayer.completed")
+                    : lesson.type === "Video"
+                      ? t("coursePlayer.videoCompletion")
+                      : t("coursePlayer.markComplete")}
+                </Action>
+                {nextLesson ? (
+                  <Link
+                    href={lessonHref(nextLesson.id)}
+                    className={actionClassName("primary")}
+                  >
+                    {t("coursePlayer.nextLesson")}
+                    <ArrowRight
+                      size={17}
+                      className="rtl:rotate-180"
+                      aria-hidden="true"
+                    />
+                  </Link>
+                ) : (
+                  <Action disabled>
+                    {t("coursePlayer.nextLesson")}
+                    <ArrowRight
+                      size={17}
+                      className="rtl:rotate-180"
+                      aria-hidden="true"
+                    />
+                  </Action>
+                )}
+              </div>
+              {progress.isSuccess ? (
+                <p role="status" className="mt-3 text-sm text-success">
+                  {t("coursePlayer.progressSaved")}
+                </p>
+              ) : null}
+              {progress.isError ? (
+                <p role="alert" className="mt-3 text-sm text-danger">
+                  {t("coursePlayer.progressSaveError")}
+                </p>
+              ) : null}
+              {!lesson.isLocked && lesson.resources.length ? (
+                <section
+                  className={playerStyles.lessonResources}
+                  aria-labelledby="player-lesson-files"
+                >
+                  <h2 id="player-lesson-files" className="text-base font-bold">
+                    {t("coursePlayer.lessonFiles")}
+                  </h2>
+                  <ul className="mt-3 grid gap-2">
+                    {lesson.resources.map((resource) => (
+                      <li key={resource.id} className="min-w-0">
+                        <a
+                          href={
+                            resource.externalUrl ||
+                            `/api/v1/learning/lessons/${lesson.id}/resources/${resource.id}`
+                          }
+                          target={resource.externalUrl ? "_blank" : undefined}
+                          rel={resource.externalUrl ? "noreferrer" : undefined}
+                          className="focus-ring flex min-h-11 items-center gap-3 py-2 text-sm font-semibold text-text-link break-words"
+                        >
+                          <FileBadge
+                            size={19}
+                            className="shrink-0"
+                            aria-hidden="true"
+                          />
+                          <span className="min-w-0 break-words">
+                            {resource.displayName}
+                          </span>
+                          {resource.externalUrl ? (
+                            <ArrowUpRight
+                              size={17}
+                              className="shrink-0 rtl:-scale-x-100"
+                              aria-hidden="true"
+                            />
+                          ) : null}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+              {lesson.type === "Assignment" ? (
+                <div className={playerStyles.secondarySlot}>
+                  <CourseAssignmentPanel
+                    courseId={courseId}
+                    lessonId={lesson.id}
                   />
-                </Link>
-              ) : (
-                <span className="inline-flex cursor-not-allowed items-center gap-1 rounded-xl bg-primary px-3 py-2.5 text-sm font-black text-slate-950 opacity-40">
-                  {t("coursePlayer.nextLesson")}
-                  <ArrowRight
-                    size={16}
-                    className="rtl:rotate-180"
-                    aria-hidden="true"
-                  />
-                </span>
-              )}
-            </div>
-            {lesson.type === "Assignment" ? (
+                  <Link
+                    className={actionClassName("quiet", "mt-3")}
+                    href={`/${locale}/student/evaluations/new`}
+                  >
+                    {t("coursePlayer.evaluateAssignment")}
+                  </Link>
+                </div>
+              ) : null}
+            </section>
+          ) : (
+            <>
+              <h1 className={playerStyles.lessonTitle}>{result.data.title}</h1>
+              <QueryState
+                kind="empty"
+                title={t("coursePlayer.noPublishedLesson")}
+                className="mt-5"
+              />
+            </>
+          )}
+          <div className={playerStyles.secondary}>
+            <StudentProgressIntelligence courseId={courseId} />
+            <StudentLearningAimPractice courseId={courseId} />
+            <StudentComprehensivePractice courseId={courseId} />
+            {lesson ? (
               <>
-                <CourseAssignmentPanel
+                <CourseResourceCenter courseId={courseId} />
+                <CourseAnnouncementsPanel courseId={courseId} />
+                <LessonWorkspace
+                  key={lesson.id}
                   courseId={courseId}
                   lessonId={lesson.id}
                 />
-                <Link
-                  className="focus-ring mt-4 inline-block rounded-xl border border-primary/40 px-4 py-3 text-sm font-bold text-primary"
-                  href={`/${locale}/student/evaluations/new`}
-                >
-                  {t("coursePlayer.evaluateAssignment")}
-                </Link>
+                <StudentCourseGradebookPanel courseId={courseId} />
+                <AiTutorPanel courseId={courseId} lessonId={lesson.id} />
+                <div className={playerStyles.secondarySlot}>
+                  <Action
+                    variant="quiet"
+                    onClick={() => certificate.mutate()}
+                    pending={certificate.isPending}
+                    pendingLabel={t("loading")}
+                  >
+                    <FileBadge size={18} aria-hidden="true" />
+                    {t("coursePlayer.issueCertificate")}
+                  </Action>
+                  {certificate.data ? (
+                    <p role="status" className="mt-3 text-sm text-success">
+                      {t("coursePlayer.certificateIssued")}{" "}
+                      {certificate.data.verificationCode}
+                    </p>
+                  ) : null}
+                  {certificate.isError ? (
+                    <p role="alert" className="mt-3 text-sm text-danger">
+                      {certificate.error instanceof Error
+                        ? certificate.error.message
+                        : t("coursePlayer.completeLessonsFirst")}
+                    </p>
+                  ) : null}
+                </div>
+                <MotivationCard variant="player" className="mt-6" />
               </>
             ) : null}
-          </>
-        ) : (
-          <p className="mt-5 text-muted">
-            {t("coursePlayer.noPublishedLesson")}
-          </p>
-        )}
+          </div>
+        </div>
+        <aside
+          id="player-course-content"
+          aria-labelledby="player-outline-title"
+          hidden={!sidebarOpen || mobileOutlineOpen}
+          className={playerStyles.desktopOutline}
+        >
+          {outline("player-outline-title")}
+        </aside>
       </div>
-      <aside
-        id="player-course-content"
-        className={`card h-fit p-4 lg:sticky lg:top-24 ${sidebarOpen ? "block" : "hidden"}`}
+      {mobileOutlineOpen
+        ? createPortal(
+            <div
+              className={playerStyles.backdrop}
+              onClick={(event) => {
+                if (event.target === event.currentTarget)
+                  setMobileOutlineOpen(false);
+              }}
+            >
+              <div
+                ref={outlineDialog}
+                id="player-mobile-content"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="player-mobile-outline-title"
+                tabIndex={-1}
+                dir={locale === "ar" ? "rtl" : "ltr"}
+                className={playerStyles.outlineDrawer}
+              >
+                <div className={playerStyles.drawerClose}>
+                  <Action
+                    variant="quiet"
+                    onClick={() => setMobileOutlineOpen(false)}
+                  >
+                    <X size={19} aria-hidden="true" />
+                    {t("coursePlayer.hideContent")}
+                  </Action>
+                </div>
+                {outline("player-mobile-outline-title", true)}
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
+    </section>
+  );
+}
+
+function PlayerOutline({
+  modules,
+  currentLessonId,
+  headingId,
+  lessonHref,
+  lockedMessage,
+  currentLinkRef,
+  onNavigate,
+}: {
+  modules: StudentCoursePlayerResult["modules"];
+  currentLessonId?: string;
+  headingId: string;
+  lessonHref: (id: string) => string;
+  lockedMessage: (reason?: string, date?: string) => string;
+  currentLinkRef?: RefObject<HTMLAnchorElement | null>;
+  onNavigate?: () => void;
+}) {
+  const t = useTranslations("studentWorkspace");
+  return (
+    <>
+      <h2
+        id={headingId}
+        className="flex items-center gap-2 text-base font-extrabold"
       >
-        <h2 className="flex items-center gap-2 font-black">
-          <ListVideo size={18} className="text-primary" aria-hidden="true" />
-          {t("coursePlayer.courseContent")}
-        </h2>
-        <div className="mt-3 space-y-4">
-          {visibleModules.map((module) => (
-            <div key={module.id}>
-              <p className="text-sm font-bold">{module.title}</p>
-              <div className="mt-2 grid gap-1">
-                {module.lessons.map((item) =>
-                  item.isLocked ? (
-                    <button
-                      key={item.id}
-                      type="button"
-                      disabled
-                      title={lockedMessage(
-                        item.lockReason,
-                        item.availableAtUtc,
-                      )}
-                      className="focus-ring flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-start text-sm text-muted opacity-55 disabled:cursor-not-allowed"
-                    >
-                      <span>{item.title}</span>
-                      <LockKeyhole size={14} aria-hidden="true" />
-                    </button>
+        <ListVideo size={20} aria-hidden="true" />
+        {t("coursePlayer.courseContent")}
+      </h2>
+      <div className="mt-5 grid gap-5">
+        {modules.map((module) => (
+          <section
+            key={module.id}
+            className="min-w-0"
+            aria-label={module.title}
+          >
+            <h3 className="text-sm leading-6 font-bold break-words">
+              {module.title}
+            </h3>
+            {module.isLocked ? (
+              <p className="mt-2 text-xs leading-5 text-text-secondary">
+                {lockedMessage(module.lockReason, module.availableAtUtc)}
+              </p>
+            ) : null}
+            <ul className="mt-2 grid gap-1">
+              {module.lessons.map((item) => (
+                <li key={item.id} className="min-w-0">
+                  {item.isLocked ? (
+                    <div className={playerStyles.lockedRow}>
+                      <button
+                        type="button"
+                        disabled
+                        aria-current={
+                          item.id === currentLessonId ? "page" : undefined
+                        }
+                        title={lockedMessage(
+                          item.lockReason,
+                          item.availableAtUtc,
+                        )}
+                        aria-describedby={`${headingId}-${item.id}-lock`}
+                        className={playerStyles.lockedLesson}
+                      >
+                        <span>{item.title}</span>
+                        <LockKeyhole
+                          size={16}
+                          className="shrink-0"
+                          aria-hidden="true"
+                        />
+                      </button>
+                      <p
+                        id={`${headingId}-${item.id}-lock`}
+                        className="mt-1 text-xs leading-5 text-text-secondary"
+                      >
+                        {lockedMessage(item.lockReason, item.availableAtUtc)}
+                      </p>
+                    </div>
                   ) : (
                     <Link
-                      key={item.id}
                       href={lessonHref(item.id)}
-                      aria-current={lesson?.id === item.id ? "page" : undefined}
-                      className={`focus-ring flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-start text-sm transition-colors motion-reduce:transition-none ${lesson?.id === item.id ? "bg-primary/15 font-bold text-primary" : "text-muted hover:bg-white/5 hover:text-foreground"}`}
+                      aria-current={
+                        currentLessonId === item.id ? "page" : undefined
+                      }
+                      ref={
+                        currentLessonId === item.id ? currentLinkRef : undefined
+                      }
+                      onClick={onNavigate}
+                      className={`focus-ring ${playerStyles.outlineLesson}`}
                     >
-                      <span>{item.title}</span>
+                      <span className="min-w-0 break-words">{item.title}</span>
                       {item.isCompleted ? (
                         <CircleCheckBig
-                          size={15}
-                          className="shrink-0 text-emerald-400"
+                          size={17}
+                          className="shrink-0"
                           aria-label={t("coursePlayer.completed")}
+                        />
+                      ) : currentLessonId === item.id ? (
+                        <ArrowRight
+                          size={17}
+                          className="shrink-0 rtl:rotate-180"
+                          aria-hidden="true"
                         />
                       ) : null}
                     </Link>
-                  ),
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </aside>
-    </section>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -2333,12 +2576,13 @@ function LessonVideo({
   };
 
   return (
-    <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl">
+    <div className={playerStyles.videoSurface}>
       <video
         key={retryCount}
         controls
         preload="metadata"
         className="aspect-video w-full"
+        dir="ltr"
         aria-label={t("lessonVideo.accessibleLabel", { title: lesson.title })}
         src={`/api/v1/learning/lessons/${lesson.id}/video?retry=${retryCount}`}
         onCanPlay={() => setPlaybackState("ready")}
@@ -2377,7 +2621,10 @@ function LessonVideo({
           <span>{t("lessonVideo.unavailable")}</span>
           <button
             type="button"
-            className="focus-ring rounded-lg border border-white/40 px-3 py-1.5 font-bold"
+            className={actionClassName(
+              "secondary",
+              "border-white/40! bg-transparent! text-white!",
+            )}
             onClick={() => {
               setPlaybackState("loading");
               setRetryCount((count) => count + 1);
@@ -2387,12 +2634,9 @@ function LessonVideo({
           </button>
         </div>
       ) : null}
-      <div className="border-t border-white/10 bg-[#0b1735] px-4 py-3 text-white">
-        <p className="font-black">{lesson.title}</p>
-        <p className="mt-1 flex items-center gap-2 text-xs text-slate-300">
-          <Timer size={14} aria-hidden="true" />
-          {lesson.video?.displayName} ·{" "}
-          {Math.round(lesson.durationSeconds / 60)} {t("lessonVideo.minutes")}
+      <div className={playerStyles.videoCaption}>
+        <p className="text-xs text-slate-300 break-words">
+          {lesson.video?.displayName}
         </p>
       </div>
     </div>
