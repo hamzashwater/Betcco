@@ -5,11 +5,15 @@
 
 import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
+import {
+  Action,
+  actionClassName,
+  QueryState,
+} from "@/components/dashboard/dashboard-ui";
 import { formatLocalizedPercentage } from "@/i18n/number-format";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowUpRight,
-  BookOpenCheck,
   BrainCircuit,
   ChevronLeft,
   ChevronRight,
@@ -157,9 +161,7 @@ export function StudentCoursesLearningHub({
         className={variant === "full" ? "shell py-10" : "min-w-0"}
         dir={locale === "ar" ? "rtl" : "ltr"}
       >
-        <div className="card p-6 text-sm text-muted" aria-busy="true">
-          {t("loading")}
-        </div>
+        <QueryState kind="loading" title={t("loading")} />
       </section>
     );
   }
@@ -170,16 +172,20 @@ export function StudentCoursesLearningHub({
         className={variant === "full" ? "shell py-10" : "min-w-0"}
         dir={locale === "ar" ? "rtl" : "ltr"}
       >
-        <div className="card p-6" role="alert">
-          <p className="font-bold text-foreground">{t("loadError")}</p>
-          <button
-            type="button"
-            className="focus-ring mt-4 rounded-xl border border-border px-4 py-2 text-sm font-black text-primary"
-            onClick={() => void result.refetch()}
-          >
-            {t("retry")}
-          </button>
-        </div>
+        <QueryState
+          kind="error"
+          title={t("loadError")}
+          action={
+            <Action
+              variant="secondary"
+              pending={result.isFetching}
+              pendingLabel={t("loading")}
+              onClick={() => void result.refetch()}
+            >
+              {t("retry")}
+            </Action>
+          }
+        />
       </section>
     );
   }
@@ -416,20 +422,23 @@ export function StudentCoursesLearningHub({
       {hasNoEnrollments ? (
         <EmptyEnrollment />
       ) : hasNoMatches ? (
-        <div className="card mt-5 p-6 text-center">
-          <p className="font-bold">{t("empty.noMatches")}</p>
-          <button
-            type="button"
-            onClick={() => {
-              setSearch("");
-              setProgress("All");
-              setPage(1);
-            }}
-            className="focus-ring mt-4 rounded-xl border border-border px-4 py-2 text-sm font-black text-primary"
-          >
-            {t("showAll")}
-          </button>
-        </div>
+        <QueryState
+          kind="empty"
+          title={t("empty.noMatches")}
+          className="mt-5"
+          action={
+            <Action
+              variant="secondary"
+              onClick={() => {
+                setSearch("");
+                setProgress("All");
+                setPage(1);
+              }}
+            >
+              {t("showAll")}
+            </Action>
+          }
+        />
       ) : (
         <ul
           className="mt-5 grid min-w-0 gap-4 md:grid-cols-2 xl:grid-cols-3"
@@ -496,20 +505,19 @@ function EmptyEnrollment() {
   const locale = useLocale();
   const t = useTranslations("studentCoursesLearningHub");
   return (
-    <div className="card mt-5 p-6 text-center">
-      <BookOpenCheck
-        className="mx-auto text-primary"
-        size={28}
-        aria-hidden="true"
-      />
-      <p className="mt-3 font-bold">{t("empty.noCourses")}</p>
-      <Link
-        href={`/${locale}/courses`}
-        className="focus-ring mt-4 inline-flex rounded-xl bg-primary px-4 py-2 text-sm font-black text-slate-950"
-      >
-        {t("exploreCourses")}
-      </Link>
-    </div>
+    <QueryState
+      kind="empty"
+      title={t("empty.noCourses")}
+      className="mt-5"
+      action={
+        <Link
+          href={`/${locale}/courses`}
+          className={actionClassName("primary")}
+        >
+          {t("exploreCourses")}
+        </Link>
+      }
+    />
   );
 }
 

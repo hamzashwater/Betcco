@@ -325,10 +325,7 @@ describe("StudentCoursesLearningHub", () => {
       vi.fn(() => new Promise<Response>(() => undefined)),
     );
     renderWithProviders(<StudentCoursesLearningHub />);
-    expect(screen.getByText("Loading your courses…")).toHaveAttribute(
-      "aria-busy",
-      "true",
-    );
+    expect(screen.getByRole("status")).toHaveAttribute("aria-busy", "true");
   });
 
   it("shows an API error and retries", async () => {
