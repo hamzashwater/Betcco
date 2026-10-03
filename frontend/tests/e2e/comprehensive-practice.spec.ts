@@ -100,13 +100,31 @@ for (const scenario of [
         return json({
           id: courseId,
           title: "Course",
-          resumeLessonId: null,
-          currentLessonId: null,
+          resumeLessonId: "lesson-A",
+          currentLessonId: "lesson-A",
           previousLessonId: null,
           nextLessonId: null,
           requestedLessonRejected: false,
           modules: [
-            { id: "unit-1", title: "Unit one", isLocked: false, lessons: [] },
+            {
+              id: "unit-1",
+              title: "Unit one",
+              isLocked: false,
+              lessons: [
+                {
+                  id: "lesson-A",
+                  title: "Unit content",
+                  type: "Text",
+                  body: "Learn A",
+                  durationSeconds: 0,
+                  isLocked: false,
+                  resources: [],
+                  video: null,
+                  isCompleted: true,
+                  lastPositionSeconds: 0,
+                },
+              ],
+            },
           ],
         });
       if (path === `/api/v1/student/courses/${courseId}/learning-aim-practice`)

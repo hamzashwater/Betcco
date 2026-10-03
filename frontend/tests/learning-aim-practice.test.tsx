@@ -4,6 +4,7 @@ import {
   fireEvent,
   render,
   screen,
+  within,
   waitFor,
 } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
@@ -17,6 +18,257 @@ import {
 
 const apiMock = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/api", () => ({ api: apiMock }));
+
+describe("UI4B contextual Goal practice", () => {
+  const goal = (overrides: Record<string, unknown> = {}) => ({
+    id: "aim",
+    code: "B",
+    arabicTitle: "تطوير الحل",
+    englishTitle: "Develop the solution",
+    isUnlocked: true,
+    isComplete: false,
+    contentTotal: 2,
+    contentCompleted: 2,
+    contentComplete: true,
+    assignmentId: "practice",
+    assignmentEnglishTitle: "Solution practice",
+    assignmentArabicTitle: "تدريب الحل",
+    englishInstructions: "Explain your solution.",
+    practiceAvailable: true,
+    practiceStatus: "Available",
+    maxAttempts: 3,
+    attemptsUsed: 0,
+    attemptsRemaining: 3,
+    canStartNewAttempt: false,
+    attemptHistory: [],
+    ...overrides,
+  });
+  const units = (aim: ReturnType<typeof goal>) => [
+    {
+      id: "unit",
+      arabicTitle: "الوحدة",
+      englishTitle: "Unit",
+      aims: [aim],
+    },
+  ];
+  const mockGoal = (
+    aim: ReturnType<typeof goal>,
+    submissions: unknown[] = [],
+  ) => {
+    apiMock.mockImplementation((path: string) =>
+      Promise.resolve(
+        path === "/student/assignments/mine" ? submissions : units(aim),
+      ),
+    );
+  };
+
+  it.each([
+    [
+      { isUnlocked: false, practiceAvailable: false, practiceStatus: "Locked" },
+      "Complete the previous aim and its review to unlock this aim.",
+    ],
+    [
+      {
+        contentComplete: false,
+        contentCompleted: 1,
+        practiceAvailable: false,
+        practiceStatus: "Locked",
+      },
+      "Complete all content items to unlock practice.",
+    ],
+  ])(
+    "keeps the prerequisite visible without submission controls (%j)",
+    async (state, reason) => {
+      mockGoal(goal(state));
+      renderWithLocale(<StudentLearningAimPractice courseId="course" />, "en");
+      expect(await screen.findByText(reason)).toBeVisible();
+      expect(screen.queryByRole("button")).toBeNull();
+      expect(screen.getByText(/This formative training result/)).toBeVisible();
+    },
+  );
+
+  it("opens a Draft workspace with only the current version's evidence and prevents duplicate requests", async () => {
+    const aim = goal({
+      practiceStatus: "Draft",
+      attemptsUsed: 2,
+      attemptsRemaining: 1,
+    });
+    const submission = {
+      id: "submission",
+      assignmentId: "practice",
+      status: "Draft",
+      currentVersionNumber: 2,
+      versions: [
+        {
+          versionNumber: 1,
+          files: [{ id: "old", originalFileName: "old.pdf" }],
+        },
+        {
+          versionNumber: 2,
+          files: [{ id: "current", originalFileName: "current.pdf" }],
+        },
+      ],
+    };
+    let resolveStart: (value: unknown) => void = () => {};
+    apiMock.mockImplementation((path: string, options?: RequestInit) => {
+      if (options?.method === "POST")
+        return new Promise((resolve) => {
+          resolveStart = resolve;
+        });
+      return Promise.resolve(
+        path === "/student/assignments/mine" ? [submission] : units(aim),
+      );
+    });
+    renderWithLocale(<StudentLearningAimPractice courseId="course" />, "en");
+    const open = await screen.findByRole("button", { name: "Continue draft" });
+    expect(screen.queryByLabelText("Note to teacher (optional)")).toBeNull();
+    fireEvent.click(open);
+    await waitFor(() => expect(open).toBeDisabled());
+    fireEvent.click(open);
+    expect(
+      apiMock.mock.calls.filter(([, options]) => options?.method === "POST"),
+    ).toHaveLength(1);
+    resolveStart({ submissionId: "submission", versionNumber: 2 });
+    expect(
+      await screen.findByLabelText("Note to teacher (optional)"),
+    ).toHaveAttribute("maxlength", "4000");
+    expect(screen.getByRole("link", { name: "current.pdf" })).toHaveAttribute(
+      "href",
+      "/api/v1/assignments/submissions/submission/files/current",
+    );
+    expect(screen.queryByRole("link", { name: "old.pdf" })).toBeNull();
+    expect(
+      screen.getByRole("button", { name: "Submit to teacher" }),
+    ).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Upload files" })).toBeDisabled();
+  });
+
+  it("shows Submitted evidence and the supplied timestamp while waiting for review", async () => {
+    mockGoal(
+      goal({
+        practiceStatus: "Submitted",
+        attemptsUsed: 1,
+        attemptHistory: [
+          {
+            attemptNumber: 1,
+            status: "Submitted",
+            submittedAtUtc: "2026-10-03T12:00:00Z",
+          },
+        ],
+      }),
+      [
+        {
+          id: "submission",
+          assignmentId: "practice",
+          currentVersionNumber: 1,
+          versions: [
+            {
+              versionNumber: 1,
+              files: [{ id: "file", originalFileName: "submitted.pdf" }],
+            },
+          ],
+        },
+      ],
+    );
+    renderWithLocale(<StudentLearningAimPractice courseId="course" />, "en");
+    await waitFor(() =>
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "awaiting teacher review",
+      ),
+    );
+    expect(screen.queryByRole("button")).toBeNull();
+    const article = screen
+      .getByRole("heading", { name: /Develop the solution/ })
+      .closest("article")!;
+    const evidence = article.querySelector(
+      '[aria-label="Work files"]',
+    ) as HTMLElement;
+    expect(
+      within(evidence).getByRole("link", { name: "submitted.pdf" }),
+    ).toBeVisible();
+    expect(
+      article.querySelector('time[datetime="2026-10-03T12:00:00Z"]'),
+    ).toBeTruthy();
+  });
+
+  it.each([true, false])(
+    "keeps latest/best feedback distinct and respects improvement allowance %s",
+    async (canStartNewAttempt) => {
+      mockGoal(
+        goal({
+          practiceStatus: "Finalized",
+          isComplete: true,
+          canStartNewAttempt,
+          trainingOutcome: "NotYetAchieved",
+          bestTrainingOutcome: "Merit",
+          strengths: "A clear explanation",
+          gaps: "Missing comparison",
+          improvementGuidance: "Add the comparison",
+          attemptHistory: [
+            { attemptNumber: 1, status: "Finalized", trainingOutcome: "Merit" },
+          ],
+        }),
+      );
+      renderWithLocale(<StudentLearningAimPractice courseId="course" />, "en");
+      await screen.findByText(/Practice: Finalized/);
+      const disclosure = screen
+        .getByText("Solution practice")
+        .closest("details")!;
+      if (!canStartNewAttempt) {
+        expect(disclosure).not.toHaveAttribute("open");
+        fireEvent.click(screen.getByText("Solution practice"));
+        disclosure.open = true;
+      }
+      expect(screen.getByText(/Training Outcome:/)).toHaveTextContent(
+        "NotYetAchieved",
+      );
+      expect(
+        screen.getByText(/Best achieved:/).parentElement,
+      ).toHaveTextContent("Merit");
+      expect(screen.getByText("Missing comparison")).toBeVisible();
+      const action = screen.queryByRole("button", {
+        name: "Start improvement attempt",
+      });
+      expect(Boolean(action)).toBe(canStartNewAttempt);
+      const history = screen.getByText("Attempt history").closest("details")!;
+      expect(history).not.toHaveAttribute("open");
+      if (action)
+        expect(
+          action.compareDocumentPosition(history) &
+            Node.DOCUMENT_POSITION_FOLLOWING,
+        ).toBeTruthy();
+      expect(
+        screen.queryByRole("link", { name: /Evaluation|ASSESS/ }),
+      ).toBeNull();
+    },
+  );
+
+  it("waits honestly for evidence and reports its query failure", async () => {
+    apiMock.mockImplementation((path: string) =>
+      path === "/student/assignments/mine"
+        ? new Promise(() => {})
+        : Promise.resolve(units(goal())),
+    );
+    const view = renderWithLocale(
+      <StudentLearningAimPractice courseId="course" />,
+      "en",
+    );
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "Loading learning aims",
+    );
+    expect(screen.queryByRole("button")).toBeNull();
+    view.unmount();
+    apiMock.mockImplementation((path: string) =>
+      path === "/student/assignments/mine"
+        ? Promise.reject(new Error("Evidence unavailable"))
+        : Promise.resolve(units(goal())),
+    );
+    renderWithLocale(<StudentLearningAimPractice courseId="course" />, "en");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Practice activities could not be loaded.",
+    );
+  });
+});
 
 function renderWithLocale(element: React.ReactNode, locale: "ar" | "en") {
   return render(

@@ -1,10 +1,13 @@
 "use client";
 
 import { formatLocalizedDateTime } from "@/i18n/date-time";
+import { Action } from "@/components/ui/action";
+import { QueryState, MutationOutcome } from "@/components/ui/query-state";
+import styles from "./student-practice-presentation.module.css";
 import { FilePicker } from "@/components/forms/file-picker";
 import { ApiError, api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 const tr = (locale: string, ar: string, en: string) =>
@@ -64,6 +67,7 @@ type Unit = {
   finalPractice?: FinalPractice;
 };
 type Mine = {
+  id: string;
   assignmentId: string;
   versions: { files: { id: string; originalFileName: string }[] }[];
 };
@@ -74,6 +78,7 @@ export function StudentComprehensivePractice({
   courseId: string;
 }) {
   const locale = useLocale();
+  const access = useTranslations("studentCoursesLearningHub.access");
   const client = useQueryClient();
   const [active, setActive] = useState<{
     assignmentId: string;
@@ -142,24 +147,30 @@ export function StudentComprehensivePractice({
   });
   if (units.isPending || mine.isPending)
     return (
-      <p aria-busy="true" className="mt-5 text-sm text-muted">
-        {tr(locale, "جارٍ تحميل تدريب الوحدة…", "Loading Final Unit Practice…")}
-      </p>
+      <QueryState
+        kind="loading"
+        title={tr(
+          locale,
+          "جارٍ تحميل تدريب الوحدة…",
+          "Loading Final Unit Practice…",
+        )}
+      />
     );
   if (units.isError || mine.isError)
     return (
-      <p role="alert" className="mt-5 text-sm text-red-400">
-        {tr(
+      <QueryState
+        kind="error"
+        title={tr(
           locale,
           "تعذر تحميل تدريب الوحدة.",
           "Final Unit Practice could not be loaded.",
         )}
-      </p>
+      />
     );
   if (!units.data?.length) return null;
   return (
     <section
-      className="mt-6 grid gap-4"
+      className={styles.region}
       aria-label={tr(locale, "التدريب النهائي للوحدة", "Final Unit Practice")}
     >
       {units.data.map((unit) => {
@@ -176,10 +187,7 @@ export function StudentComprehensivePractice({
           practice.status !== "Submitted" &&
           practice.status !== "Finalized";
         return (
-          <article
-            key={unit.id}
-            className="min-w-0 rounded-2xl border border-primary/30 p-4"
-          >
+          <article key={unit.id} className={styles.final}>
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
                 <h2 className="text-lg font-black">
@@ -196,10 +204,27 @@ export function StudentComprehensivePractice({
                   {unit.aims.length}
                 </p>
               </div>
-              <span className="text-sm font-bold text-primary">
+              <span
+                className={styles.status}
+                role={practice.status === "Submitted" ? "status" : undefined}
+              >
                 {statusLabel(locale, practice.status)}
               </span>
             </div>
+            <p className={styles.disclaimer}>
+              {tr(
+                locale,
+                "هذه نتيجة تدريبية لمهمة الوحدة وليست نتيجة تقييم BTEC رسمي.",
+                "This is a training result for the Unit Practice and is not a formal BTEC assessment result.",
+              )}
+            </p>
+            {practice.effectiveDueAtUtc ? (
+              <p className="mt-1 text-sm text-muted">
+                {tr(locale, "الموعد النهائي", "Deadline")}:{" "}
+                {formatLocalizedDateTime(practice.effectiveDueAtUtc, locale)}
+              </p>
+            ) : null}
+
             {practice.isTrainingComplete ? (
               <p className="mt-2 font-bold">
                 {tr(
@@ -233,8 +258,14 @@ export function StudentComprehensivePractice({
                 )}
               </p>
             ) : null}
+            {!practice.isAvailable &&
+            practice.status !== "Submitted" &&
+            practice.status !== "Finalized" &&
+            practice.unavailableReason === "AccessRestricted" ? (
+              <QueryState kind="restricted" title={access("unavailable")} />
+            ) : null}
             {practice.assignmentId && practice.isAvailable ? (
-              <div className="mt-3 border-t border-border pt-3">
+              <div className={styles.brief}>
                 <h3 className="font-bold">
                   {tr(
                     locale,
@@ -242,27 +273,18 @@ export function StudentComprehensivePractice({
                     practice.englishTitle ?? "Unit Practice",
                   )}
                 </h3>
-                <p className="mt-1 whitespace-pre-wrap text-sm text-muted">
+                <p className={styles.instructions}>
                   {tr(
                     locale,
                     practice.arabicInstructions ?? "",
                     practice.englishInstructions ?? "",
                   )}
                 </p>
-                {practice.effectiveDueAtUtc ? (
-                  <p className="mt-1 text-sm text-muted">
-                    {tr(locale, "الموعد النهائي", "Deadline")}:{" "}
-                    {formatLocalizedDateTime(
-                      practice.effectiveDueAtUtc,
-                      locale,
-                    )}
-                  </p>
-                ) : null}
                 {practice.resources?.map((resource) => (
                   <a
                     key={resource.id}
                     href={`/api/v1/assignments/${practice.assignmentId}/resources/${resource.id}`}
-                    className="focus-ring block w-fit text-sm text-primary underline"
+                    className={styles.fileRow + " focus-ring"}
                   >
                     {resource.displayName}
                   </a>
@@ -278,7 +300,7 @@ export function StudentComprehensivePractice({
                     </p>
                     {practice.criteria.map((criterion) => (
                       <p key={criterion.code}>
-                        {criterion.code} ·{" "}
+                        <bdi>{criterion.code}</bdi> ·{" "}
                         {tr(
                           locale,
                           criterion.arabicDescription,
@@ -290,19 +312,129 @@ export function StudentComprehensivePractice({
                 ) : null}
               </div>
             ) : null}
+            {uploaded.length ? (
+              <div
+                className={styles.evidence}
+                aria-label={tr(locale, "ملفات الحل", "Work files")}
+              >
+                <p
+                  className={styles.meta}
+                  role={upload.isSuccess ? "status" : undefined}
+                >
+                  {tr(locale, "ملفات الحل", "Work files")}
+                </p>{" "}
+                {uploaded.map((file) => (
+                  <a
+                    key={file.id}
+                    href={`/api/v1/assignments/submissions/${editing ? active!.submissionId : submission!.id}/files/${file.id}`}
+                    className={styles.fileRow + " focus-ring"}
+                  >
+                    <bdi>{file.originalFileName}</bdi>
+                  </a>
+                ))}
+              </div>
+            ) : null}
+            {canAct && practice.assignmentId ? (
+              <div className={styles.work}>
+                {!editing ? (
+                  <Action
+                    variant="primary"
+                    pending={start.isPending}
+                    pendingLabel={tr(locale, "فتح التدريب", "Open Practice")}
+                    type="button"
+                    disabled={start.isPending}
+                    onClick={() => start.mutate(practice.assignmentId!)}
+                    className={styles.action}
+                  >
+                    {submission
+                      ? tr(locale, "متابعة المسودة", "Continue draft")
+                      : tr(locale, "فتح التدريب", "Open Practice")}
+                  </Action>
+                ) : (
+                  <>
+                    <label className="grid gap-1 text-sm">
+                      {tr(
+                        locale,
+                        "ملاحظة للمعلم (اختيارية)",
+                        "Note to teacher (optional)",
+                      )}
+                      <textarea
+                        value={comment}
+                        maxLength={4000}
+                        onChange={(event) => setComment(event.target.value)}
+                        className={styles.note + " focus-ring"}
+                      />
+                    </label>
+                    <FilePicker
+                      label={tr(locale, "ملفات الحل", "Work files")}
+                      files={files}
+                      onFilesChange={setFiles}
+                      locale={locale}
+                      multiple
+                      accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg,.zip,.txt"
+                      maxFileBytes={100 * 1024 * 1024}
+                      chooseLabel={tr(locale, "اختيار ملفات", "Choose files")}
+                    />
+                    <div className="flex flex-wrap gap-2">
+                      <Action
+                        variant="secondary"
+                        pending={start.isPending}
+                        pendingLabel={tr(locale, "حفظ الملاحظة", "Save note")}
+                        type="button"
+                        disabled={
+                          start.isPending ||
+                          upload.isPending ||
+                          submit.isPending
+                        }
+                        onClick={() => start.mutate(practice.assignmentId!)}
+                        className={styles.action}
+                      >
+                        {tr(locale, "حفظ الملاحظة", "Save note")}
+                      </Action>
+                      <Action
+                        variant="secondary"
+                        pending={upload.isPending}
+                        pendingLabel={tr(locale, "رفع الملفات", "Upload files")}
+                        type="button"
+                        disabled={
+                          !files.length || upload.isPending || submit.isPending
+                        }
+                        onClick={() => upload.mutate()}
+                        className={styles.action}
+                      >
+                        {tr(locale, "رفع الملفات", "Upload files")}
+                      </Action>
+                      <Action
+                        variant="primary"
+                        pending={submit.isPending}
+                        pendingLabel={tr(
+                          locale,
+                          "تسليم للمعلم",
+                          "Submit to teacher",
+                        )}
+                        type="button"
+                        disabled={
+                          !uploaded.length ||
+                          upload.isPending ||
+                          submit.isPending
+                        }
+                        onClick={() => submit.mutate()}
+                        className={styles.action}
+                      >
+                        {tr(locale, "تسليم للمعلم", "Submit to teacher")}
+                      </Action>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : null}
             {practice.trainingOutcome ? (
-              <div className="mt-3 grid gap-2 text-sm">
+              <div className={styles.feedback}>
                 <p className="font-black">
                   {tr(locale, "النتيجة التدريبية", "Training Outcome")}:{" "}
                   {outcomeLabel(locale, practice.trainingOutcome)}
                 </p>
-                <p className="rounded-lg border border-amber-400/30 bg-amber-400/10 p-2">
-                  {tr(
-                    locale,
-                    "هذه نتيجة تدريبية لمهمة الوحدة وليست نتيجة تقييم BTEC رسمي.",
-                    "This is a training result for the Unit Practice and is not a formal BTEC assessment result.",
-                  )}
-                </p>
+
                 <p>
                   <strong>{tr(locale, "نقاط القوة", "Strengths")}:</strong>{" "}
                   {practice.strengths}
@@ -326,100 +458,18 @@ export function StudentComprehensivePractice({
                 </p>
               </div>
             ) : null}
-            {canAct && practice.assignmentId ? (
-              <div className="mt-3 grid gap-3">
-                {!editing ? (
-                  <button
-                    type="button"
-                    disabled={start.isPending}
-                    onClick={() => start.mutate(practice.assignmentId!)}
-                    className="focus-ring w-fit rounded-xl bg-primary px-4 py-2 text-sm font-bold text-slate-950 disabled:opacity-50"
-                  >
-                    {submission
-                      ? tr(locale, "متابعة المسودة", "Continue draft")
-                      : tr(locale, "فتح التدريب", "Open Practice")}
-                  </button>
-                ) : (
-                  <>
-                    <label className="grid gap-1 text-sm">
-                      {tr(
-                        locale,
-                        "ملاحظة للمعلم (اختيارية)",
-                        "Note to teacher (optional)",
-                      )}
-                      <textarea
-                        value={comment}
-                        maxLength={4000}
-                        onChange={(event) => setComment(event.target.value)}
-                        className="rounded-xl border border-border bg-transparent p-2"
-                      />
-                    </label>
-                    <FilePicker
-                      label={tr(locale, "ملفات الحل", "Work files")}
-                      files={files}
-                      onFilesChange={setFiles}
-                      locale={locale}
-                      multiple
-                      accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg,.zip,.txt"
-                      maxFileBytes={100 * 1024 * 1024}
-                      chooseLabel={tr(locale, "اختيار ملفات", "Choose files")}
-                    />
-                    {uploaded.map((file) => (
-                      <a
-                        key={file.id}
-                        href={`/api/v1/assignments/submissions/${active!.submissionId}/files/${file.id}`}
-                        className="focus-ring w-fit text-sm text-primary underline"
-                      >
-                        {file.originalFileName}
-                      </a>
-                    ))}
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        disabled={
-                          start.isPending ||
-                          upload.isPending ||
-                          submit.isPending
-                        }
-                        onClick={() => start.mutate(practice.assignmentId!)}
-                        className="focus-ring rounded-xl border border-border px-4 py-2 text-sm font-bold disabled:opacity-50"
-                      >
-                        {tr(locale, "حفظ الملاحظة", "Save note")}
-                      </button>
-                      <button
-                        type="button"
-                        disabled={
-                          !files.length || upload.isPending || submit.isPending
-                        }
-                        onClick={() => upload.mutate()}
-                        className="focus-ring rounded-xl border border-primary/40 px-4 py-2 text-sm font-bold text-primary disabled:opacity-50"
-                      >
-                        {tr(locale, "رفع الملفات", "Upload files")}
-                      </button>
-                      <button
-                        type="button"
-                        disabled={
-                          !uploaded.length ||
-                          upload.isPending ||
-                          submit.isPending
-                        }
-                        onClick={() => submit.mutate()}
-                        className="focus-ring rounded-xl bg-primary px-4 py-2 text-sm font-bold text-slate-950 disabled:opacity-50"
-                      >
-                        {tr(locale, "تسليم للمعلم", "Submit to teacher")}
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            ) : null}
           </article>
         );
       })}
+      {start.isSuccess && active ? (
+        <MutationOutcome kind="success">
+          {tr(locale, "حُفظت التعديلات.", "Changes saved.")}
+        </MutationOutcome>
+      ) : null}
       {start.isError || upload.isError || submit.isError ? (
-        <p role="alert" className="text-sm text-red-400">
+        <MutationOutcome kind="error">
           {(start.error ?? upload.error ?? submit.error)?.message}
-        </p>
+        </MutationOutcome>
       ) : null}
     </section>
   );

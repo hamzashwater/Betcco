@@ -81,6 +81,133 @@ const unit = (
 });
 
 describe("comprehensive practice", () => {
+  it.each(["en", "ar"] as const)(
+    "shows the supplied access restriction without inventing another prerequisite (%s)",
+    async (locale) => {
+      apiMock.mockImplementation((path: string) =>
+        Promise.resolve(
+          path === "/student/assignments/mine"
+            ? []
+            : [unit(4, "Locked", undefined, "AccessRestricted")],
+        ),
+      );
+      renderWithLocale(
+        <StudentComprehensivePractice courseId="course" />,
+        locale,
+      );
+      expect(
+        await screen.findByText(
+          locale === "ar"
+            ? "الوصول إلى التعلّم غير متاح حاليًا"
+            : "Learning access is currently unavailable",
+        ),
+      ).toBeVisible();
+      expect(
+        screen.queryByText(/Complete all Learning Aims|أكمل جميع أهداف/),
+      ).toBeNull();
+      expect(screen.queryByRole("button")).toBeNull();
+    },
+  );
+
+  it("presents the effective deadline, authorized resources and contextual criteria before the action", async () => {
+    const ready = unit(4, "Available");
+    const practice = {
+      ...ready.finalPractice,
+      effectiveDueAtUtc: "2027-01-05T11:30:00Z",
+      resources: [{ id: "brief", displayName: "Task brief.pdf" }],
+      criteria: [
+        {
+          code: "A.P1",
+          arabicDescription: "معيار مرجعي",
+          englishDescription: "Contextual reference",
+        },
+      ],
+    };
+    apiMock.mockImplementation((path: string) =>
+      Promise.resolve(
+        path === "/student/assignments/mine"
+          ? []
+          : [{ ...ready, finalPractice: practice }],
+      ),
+    );
+    renderWithLocale(<StudentComprehensivePractice courseId="course" />, "en");
+    const action = await screen.findByRole("button", { name: "Open Practice" });
+    expect(screen.getByText(/Deadline:/)).toHaveTextContent(
+      "5 Jan 2027, 14:30",
+    );
+    const resource = screen.getByRole("link", { name: "Task brief.pdf" });
+    expect(resource).toHaveAttribute(
+      "href",
+      "/api/v1/assignments/final/resources/brief",
+    );
+    expect(
+      resource.compareDocumentPosition(action) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(screen.getByText("Training reference criteria")).toBeVisible();
+    expect(screen.getByText(/Contextual reference/)).toHaveTextContent(
+      "A.P1 · Contextual reference",
+    );
+    expect(screen.queryByLabelText("Note to teacher (optional)")).toBeNull();
+    expect(
+      screen.getByText(/not a formal BTEC assessment result/),
+    ).toBeVisible();
+  });
+
+  it("retains authorized Submitted evidence without new actions or premature completion", async () => {
+    apiMock.mockImplementation((path: string) =>
+      Promise.resolve(
+        path === "/student/assignments/mine"
+          ? [
+              {
+                id: "submission",
+                assignmentId: "final",
+                versions: [
+                  {
+                    files: [
+                      { id: "file", originalFileName: "unit evidence.pdf" },
+                    ],
+                  },
+                ],
+              },
+            ]
+          : [unit(4, "Submitted")],
+      ),
+    );
+    renderWithLocale(<StudentComprehensivePractice courseId="course" />, "en");
+    await waitFor(() =>
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "Submitted, awaiting teacher review",
+      ),
+    );
+    expect(
+      screen.getByRole("link", { name: "unit evidence.pdf" }),
+    ).toHaveAttribute(
+      "href",
+      "/api/v1/assignments/submissions/submission/files/file",
+    );
+    expect(screen.queryByRole("button")).toBeNull();
+    expect(screen.queryByText("Unit Training Complete")).toBeNull();
+  });
+
+  it("uses only the server training-completion flag and keeps feedback formative", async () => {
+    const finalized = unit(4, "Finalized", "Distinction");
+    finalized.finalPractice.isTrainingComplete = false;
+    apiMock.mockImplementation((path: string) =>
+      Promise.resolve(path === "/student/assignments/mine" ? [] : [finalized]),
+    );
+    renderWithLocale(<StudentComprehensivePractice courseId="course" />, "en");
+    expect(await screen.findByText(/Training Outcome:/)).toHaveTextContent(
+      "Distinction",
+    );
+    expect(screen.queryByText("Unit Training Complete")).toBeNull();
+    expect(
+      screen.getByText(/not a formal BTEC assessment result/),
+    ).toBeVisible();
+    expect(
+      screen.queryByRole("link", { name: /Evaluation|ASSESS|certificate/i }),
+    ).toBeNull();
+  });
   it.each([3, 4])(
     "keeps a %i aim Unit Practice locked before every review is complete",
     async (count) => {
