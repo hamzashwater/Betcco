@@ -1,6 +1,9 @@
 "use client";
 
 import { formatLocalizedDateTime } from "@/i18n/date-time";
+import { Action } from "@/components/ui/action";
+import { QueryState, MutationOutcome } from "@/components/ui/query-state";
+import styles from "./student-practice-presentation.module.css";
 import { FilePicker } from "@/components/forms/file-picker";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -192,38 +195,50 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
       refresh();
     },
   });
-  if (units.isPending)
+  if (units.isPending || mine.isPending)
     return (
-      <p className="mt-5 text-sm text-muted" aria-busy="true">
-        {tr(locale, "جارٍ تحميل أهداف التعلم…", "Loading learning aims…")}
-      </p>
+      <QueryState
+        kind="loading"
+        title={tr(locale, "جارٍ تحميل أهداف التعلم…", "Loading learning aims…")}
+      />
     );
   if (units.isError || mine.isError)
     return (
-      <p className="mt-5 text-sm text-red-400" role="alert">
-        {tr(
+      <QueryState
+        kind="error"
+        title={tr(
           locale,
           "تعذر تحميل أنشطة التدريب.",
           "Practice activities could not be loaded.",
         )}
-      </p>
+      />
     );
   if (!units.data?.length) return null;
   return (
     <section
-      className="mt-6 grid gap-4"
+      className={styles.region}
       aria-label={tr(
         locale,
         "أهداف التعلم والتدريب",
         "Learning aims and practice",
       )}
     >
+      <h2 className={styles.regionTitle}>
+        {tr(locale, "أهداف التعلم والتدريب", "Learning aims and practice")}
+      </h2>
+      <p className={styles.disclaimer}>
+        {tr(
+          locale,
+          "هذه نتيجة تدريبية تكوينية وليست نتيجة تقييم BTEC رسمي ولا تدخل في ASSESS.",
+          "This formative training result is not a formal BTEC assessment result and is not part of ASSESS.",
+        )}
+      </p>
       {units.data.map((unit) => (
-        <div key={unit.id} className="rounded-2xl border border-border p-4">
-          <h2 className="text-lg font-black">
+        <div key={unit.id} className={styles.unit}>
+          <h3 className={styles.unitTitle}>
             {tr(locale, unit.arabicTitle, unit.englishTitle)}
-          </h2>
-          <div className="mt-3 grid gap-3">
+          </h3>
+          <div className={styles.aims}>
             {unit.aims.map((aim) => {
               const submission = mine.data?.find(
                 (item) => item.assignmentId === aim.assignmentId,
@@ -233,6 +248,9 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                 active && active.assignmentId === aim.assignmentId
                   ? active.versionNumber
                   : submission?.currentVersionNumber;
+              const currentAttempt = aim.attemptHistory?.find(
+                (attempt) => attempt.attemptNumber === activeVersion,
+              );
               const uploaded =
                 submission?.versions.find(
                   (version) => version.versionNumber === activeVersion,
@@ -240,14 +258,19 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
               return (
                 <article
                   key={aim.id}
-                  className="min-w-0 rounded-xl border border-border bg-white/5 p-4"
+                  className={styles.aim}
+                  data-emphasized={
+                    (aim.isUnlocked &&
+                      (!aim.isComplete || aim.canStartNewAttempt)) ||
+                    undefined
+                  }
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
-                    <h3 className="font-black">
-                      {aim.code} ·{" "}
+                    <h4 className={styles.aimTitle}>
+                      <bdi>{aim.code}</bdi> ·{" "}
                       {tr(locale, aim.arabicTitle, aim.englishTitle)}
-                    </h3>
-                    <span className="text-sm font-bold text-primary">
+                    </h4>
+                    <span className={styles.status}>
                       {aim.isComplete
                         ? tr(locale, "مكتمل", "Complete")
                         : aim.isUnlocked
@@ -262,6 +285,15 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                   <p className="mt-1 text-sm text-muted">
                     {tr(locale, "التدريب", "Practice")}:{" "}
                     {practiceStatus(locale, aim.practiceStatus)}
+                    {aim.practiceStatus === "Submitted" ? (
+                      <span className={styles.waiting} role="status">
+                        {tr(
+                          locale,
+                          "مُسلَّم، بانتظار مراجعة المعلم",
+                          "Submitted, awaiting teacher review",
+                        )}
+                      </span>
+                    ) : null}
                   </p>
                   {aim.assignmentId ? (
                     <p className="mt-1 text-sm text-muted">
@@ -282,21 +314,7 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                     </p>
                   ) : null}
                   {aim.isUnlocked && aim.assignmentId ? (
-                    <div className="mt-3 border-t border-border pt-3">
-                      <h4 className="font-bold">
-                        {tr(
-                          locale,
-                          aim.assignmentArabicTitle ?? "نشاط تدريبي",
-                          aim.assignmentEnglishTitle ?? "Practice activity",
-                        )}
-                      </h4>
-                      <p className="mt-1 whitespace-pre-wrap text-sm text-muted">
-                        {tr(
-                          locale,
-                          aim.arabicInstructions ?? "",
-                          aim.englishInstructions ?? "",
-                        )}
-                      </p>
+                    <>
                       {!aim.contentComplete ? (
                         <p className="mt-2 text-sm text-muted">
                           {tr(
@@ -306,298 +324,387 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                           )}
                         </p>
                       ) : null}
-                      {aim.trainingOutcome ? (
-                        <div className="mt-3 grid gap-2 text-sm">
-                          <p className="font-black">
-                            {tr(
-                              locale,
-                              "النتيجة التدريبية",
-                              "Training Outcome",
-                            )}
-                            :{" "}
-                            {trainingOutcomeLabel(locale, aim.trainingOutcome)}
-                          </p>
-                          <p className="rounded-lg border border-amber-400/30 bg-amber-400/10 p-2">
-                            {tr(
-                              locale,
-                              "هذه نتيجة تدريبية تكوينية وليست نتيجة تقييم BTEC رسمي ولا تدخل في ASSESS.",
-                              "This formative training result is not a formal BTEC assessment result and is not part of ASSESS.",
-                            )}
-                          </p>
-                          <p>
-                            <strong>
-                              {tr(locale, "نقاط القوة", "Strengths")}:
-                            </strong>{" "}
-                            {aim.strengths}
-                          </p>
-                          <p>
-                            <strong>
-                              {tr(locale, "الفجوات", "Missing / gaps")}:
-                            </strong>{" "}
-                            {aim.gaps}
-                          </p>
-                          <p>
-                            <strong>
-                              {tr(locale, "كيفية التحسين", "How to improve")}:
-                            </strong>{" "}
-                            {aim.improvementGuidance}
-                          </p>
-                          {aim.bestTrainingOutcome ? (
-                            <p>
-                              <strong>
-                                {tr(locale, "أفضل نتيجة", "Best achieved")}:
-                              </strong>{" "}
-                              {trainingOutcomeLabel(
-                                locale,
-                                aim.bestTrainingOutcome,
-                              )}
+                    </>
+                  ) : null}
+                  {aim.isUnlocked && aim.assignmentId ? (
+                    <details
+                      className={styles.activity}
+                      open={!aim.isComplete || aim.canStartNewAttempt}
+                    >
+                      <summary className={styles.disclosure}>
+                        {tr(
+                          locale,
+                          aim.assignmentArabicTitle ?? "نشاط تدريبي",
+                          aim.assignmentEnglishTitle ?? "Practice activity",
+                        )}
+                      </summary>
+                      <div className={styles.activityBody}>
+                        <p className={styles.instructions}>
+                          {tr(
+                            locale,
+                            aim.arabicInstructions ?? "",
+                            aim.englishInstructions ?? "",
+                          )}
+                        </p>
+                        {uploaded.length ? (
+                          <div
+                            className={styles.evidence}
+                            aria-label={tr(locale, "ملفات الحل", "Work files")}
+                          >
+                            <p role={upload.isSuccess ? "status" : undefined}>
+                              {tr(locale, "المحاولة", "Attempt")}{" "}
+                              {activeVersion} · {uploaded.length}{" "}
+                              {tr(locale, "ملفات مرفوعة", "uploaded files")}
                             </p>
-                          ) : null}
-                          {(aim.attemptHistory ?? []).some(
-                            (attempt) => attempt.trainingOutcome,
-                          ) ? (
-                            <p>
-                              <strong>
-                                {tr(locale, "مسار التحسن", "Progress")}:
-                              </strong>{" "}
-                              {(aim.attemptHistory ?? [])
-                                .filter((attempt) => attempt.trainingOutcome)
-                                .map((attempt) =>
-                                  trainingOutcomeLabel(
-                                    locale,
-                                    attempt.trainingOutcome!,
-                                  ),
-                                )
-                                .join(" → ")}
-                            </p>
-                          ) : null}
-                        </div>
-                      ) : null}
-                      {(aim.attemptHistory ?? []).length ? (
-                        <details className="mt-3 rounded-lg border border-border p-3 text-sm">
-                          <summary className="cursor-pointer font-bold">
-                            {tr(locale, "سجل المحاولات", "Attempt history")}
-                          </summary>
-                          <div className="mt-2 grid gap-2">
-                            {(aim.attemptHistory ?? []).map((attempt) => {
-                              const attemptFiles =
-                                submission?.versions.find(
-                                  (version) =>
-                                    version.versionNumber ===
-                                    attempt.attemptNumber,
-                                )?.files ?? [];
-                              return (
-                                <div
-                                  key={attempt.attemptNumber}
-                                  className="rounded-lg bg-white/5 p-2"
-                                >
-                                  <p className="font-bold">
-                                    {tr(locale, "المحاولة", "Attempt")}{" "}
-                                    {attempt.attemptNumber} ·{" "}
-                                    {practiceStatus(locale, attempt.status)}
-                                  </p>
-                                  {attempt.submittedAtUtc ? (
-                                    <p>
-                                      <strong>
-                                        {tr(
-                                          locale,
-                                          "تاريخ التسليم",
-                                          "Submitted",
-                                        )}
-                                        :
-                                      </strong>{" "}
-                                      <time dateTime={attempt.submittedAtUtc}>
-                                        {formatAttemptTimestamp(
-                                          locale,
-                                          attempt.submittedAtUtc,
-                                        )}
-                                      </time>
-                                    </p>
-                                  ) : null}
-                                  {attempt.reviewedAtUtc ? (
-                                    <p>
-                                      <strong>
-                                        {tr(
-                                          locale,
-                                          "تاريخ المراجعة",
-                                          "Reviewed",
-                                        )}
-                                        :
-                                      </strong>{" "}
-                                      <time dateTime={attempt.reviewedAtUtc}>
-                                        {formatAttemptTimestamp(
-                                          locale,
-                                          attempt.reviewedAtUtc,
-                                        )}
-                                      </time>
-                                    </p>
-                                  ) : null}
-                                  {attemptFiles.length ? (
-                                    <div className="grid gap-1">
-                                      <strong>
-                                        {tr(
-                                          locale,
-                                          "ملفات المحاولة",
-                                          "Attempt files",
-                                        )}
-                                        :
-                                      </strong>
-                                      {attemptFiles.map((file) => (
-                                        <a
-                                          key={file.id}
-                                          href={`/api/v1/assignments/submissions/${submission!.id}/files/${file.id}`}
-                                          className="focus-ring text-primary underline"
-                                        >
-                                          {file.originalFileName}
-                                        </a>
-                                      ))}
-                                    </div>
-                                  ) : null}
-                                  {attempt.trainingOutcome ? (
-                                    <p>
-                                      {tr(locale, "النتيجة", "Result")}:{" "}
-                                      {trainingOutcomeLabel(
-                                        locale,
-                                        attempt.trainingOutcome,
-                                      )}
-                                    </p>
-                                  ) : null}
-                                  {attempt.strengths ? (
-                                    <p>
-                                      {tr(locale, "نقاط القوة", "Strengths")}:{" "}
-                                      {attempt.strengths}
-                                    </p>
-                                  ) : null}
-                                  {attempt.gaps ? (
-                                    <p>
-                                      {tr(locale, "الفجوات", "Missing / gaps")}:{" "}
-                                      {attempt.gaps}
-                                    </p>
-                                  ) : null}
-                                  {attempt.improvementGuidance ? (
-                                    <p>
-                                      {tr(
-                                        locale,
-                                        "إرشادات التحسين",
-                                        "Improvement guidance",
-                                      )}
-                                      : {attempt.improvementGuidance}
-                                    </p>
-                                  ) : null}
-                                </div>
-                              );
-                            })}
+                            {uploaded.map((file) => (
+                              <a
+                                key={file.id}
+                                className={styles.fileRow + " focus-ring"}
+                                href={`/api/v1/assignments/submissions/${submission!.id}/files/${file.id}`}
+                              >
+                                <bdi>{file.originalFileName}</bdi>
+                              </a>
+                            ))}
                           </div>
-                        </details>
-                      ) : null}
-                      {aim.practiceAvailable &&
-                      aim.practiceStatus !== "Submitted" &&
-                      (aim.practiceStatus !== "Finalized" ||
-                        aim.canStartNewAttempt) ? (
-                        <div className="mt-3 grid gap-3">
-                          {!draft ? (
-                            <button
-                              type="button"
-                              disabled={start.isPending}
-                              onClick={() => start.mutate(aim.assignmentId!)}
-                              className="focus-ring w-fit rounded-xl bg-primary px-4 py-2 text-sm font-bold text-slate-950 disabled:opacity-50"
-                            >
-                              {submission?.status === "Draft"
-                                ? tr(locale, "متابعة المسودة", "Continue draft")
-                                : aim.practiceStatus === "Finalized"
+                        ) : null}
+                        {currentAttempt?.submittedAtUtc ? (
+                          <p className={styles.meta}>
+                            {tr(locale, "تاريخ التسليم", "Submitted")}{" "}
+                            <time dateTime={currentAttempt.submittedAtUtc}>
+                              {formatAttemptTimestamp(
+                                locale,
+                                currentAttempt.submittedAtUtc,
+                              )}
+                            </time>
+                          </p>
+                        ) : null}
+                        {aim.practiceAvailable &&
+                        aim.practiceStatus !== "Submitted" &&
+                        (aim.practiceStatus !== "Finalized" ||
+                          aim.canStartNewAttempt) ? (
+                          <div className={styles.work}>
+                            {!draft ? (
+                              <Action
+                                variant="primary"
+                                pending={start.isPending}
+                                pendingLabel={tr(
+                                  locale,
+                                  "بدء التدريب",
+                                  "Start practice",
+                                )}
+                                type="button"
+                                disabled={start.isPending}
+                                onClick={() => start.mutate(aim.assignmentId!)}
+                                className={styles.action}
+                              >
+                                {submission?.status === "Draft"
                                   ? tr(
                                       locale,
-                                      "بدء محاولة تحسين",
-                                      "Start improvement attempt",
+                                      "متابعة المسودة",
+                                      "Continue draft",
                                     )
-                                  : tr(locale, "بدء التدريب", "Start practice")}
-                            </button>
-                          ) : (
-                            <>
-                              <label className="grid gap-1 text-sm">
-                                {tr(
-                                  locale,
-                                  "ملاحظة للمعلم (اختيارية)",
-                                  "Note to teacher (optional)",
-                                )}
-                                <textarea
-                                  value={comment}
-                                  maxLength={4000}
-                                  onChange={(event) =>
-                                    setComment(event.target.value)
-                                  }
-                                  className="rounded-xl border border-border bg-transparent p-2"
-                                />
-                              </label>
-                              <FilePicker
-                                label={tr(locale, "ملفات الحل", "Work files")}
-                                files={files}
-                                onFilesChange={setFiles}
-                                locale={locale}
-                                multiple
-                                accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg,.zip,.txt"
-                                maxFileBytes={100 * 1024 * 1024}
-                                chooseLabel={tr(
-                                  locale,
-                                  "اختيار ملفات",
-                                  "Choose files",
-                                )}
-                              />
-                              {uploaded.length ? (
-                                <p className="text-sm text-muted">
-                                  {uploaded.length}{" "}
-                                  {tr(locale, "ملفات مرفوعة", "uploaded files")}
-                                </p>
-                              ) : null}
-                              <div className="flex flex-wrap gap-2">
-                                <button
-                                  type="button"
-                                  disabled={
-                                    start.isPending ||
-                                    upload.isPending ||
-                                    submit.isPending
-                                  }
-                                  onClick={() =>
-                                    start.mutate(aim.assignmentId!)
-                                  }
-                                  className="focus-ring rounded-xl border border-border px-4 py-2 text-sm font-bold text-muted disabled:opacity-50"
-                                >
-                                  {tr(locale, "حفظ الملاحظة", "Save note")}
-                                </button>
-                                <button
-                                  type="button"
-                                  disabled={
-                                    !files.length ||
-                                    upload.isPending ||
-                                    submit.isPending
-                                  }
-                                  onClick={() => upload.mutate()}
-                                  className="focus-ring rounded-xl border border-primary/40 px-4 py-2 text-sm font-bold text-primary disabled:opacity-50"
-                                >
-                                  {tr(locale, "رفع الملفات", "Upload files")}
-                                </button>
-                                <button
-                                  type="button"
-                                  disabled={
-                                    !uploaded.length ||
-                                    upload.isPending ||
-                                    submit.isPending
-                                  }
-                                  onClick={() => submit.mutate()}
-                                  className="focus-ring rounded-xl bg-primary px-4 py-2 text-sm font-bold text-slate-950 disabled:opacity-50"
-                                >
+                                  : aim.practiceStatus === "Finalized"
+                                    ? tr(
+                                        locale,
+                                        "بدء محاولة تحسين",
+                                        "Start improvement attempt",
+                                      )
+                                    : tr(
+                                        locale,
+                                        "بدء التدريب",
+                                        "Start practice",
+                                      )}
+                              </Action>
+                            ) : (
+                              <>
+                                <label className="grid gap-1 text-sm">
                                   {tr(
                                     locale,
-                                    "تسليم للمعلم",
-                                    "Submit to teacher",
+                                    "ملاحظة للمعلم (اختيارية)",
+                                    "Note to teacher (optional)",
                                   )}
-                                </button>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      ) : null}
-                    </div>
+                                  <textarea
+                                    value={comment}
+                                    maxLength={4000}
+                                    onChange={(event) =>
+                                      setComment(event.target.value)
+                                    }
+                                    className={styles.note + " focus-ring"}
+                                  />
+                                </label>
+                                <FilePicker
+                                  label={tr(locale, "ملفات الحل", "Work files")}
+                                  files={files}
+                                  onFilesChange={setFiles}
+                                  locale={locale}
+                                  multiple
+                                  accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg,.zip,.txt"
+                                  maxFileBytes={100 * 1024 * 1024}
+                                  chooseLabel={tr(
+                                    locale,
+                                    "اختيار ملفات",
+                                    "Choose files",
+                                  )}
+                                />
+
+                                <div className="flex flex-wrap gap-2">
+                                  <Action
+                                    variant="secondary"
+                                    pending={start.isPending}
+                                    pendingLabel={tr(
+                                      locale,
+                                      "حفظ الملاحظة",
+                                      "Save note",
+                                    )}
+                                    type="button"
+                                    disabled={
+                                      start.isPending ||
+                                      upload.isPending ||
+                                      submit.isPending
+                                    }
+                                    onClick={() =>
+                                      start.mutate(aim.assignmentId!)
+                                    }
+                                    className={styles.action}
+                                  >
+                                    {tr(locale, "حفظ الملاحظة", "Save note")}
+                                  </Action>
+                                  <Action
+                                    variant="secondary"
+                                    pending={upload.isPending}
+                                    pendingLabel={tr(
+                                      locale,
+                                      "رفع الملفات",
+                                      "Upload files",
+                                    )}
+                                    type="button"
+                                    disabled={
+                                      !files.length ||
+                                      upload.isPending ||
+                                      submit.isPending
+                                    }
+                                    onClick={() => upload.mutate()}
+                                    className={styles.action}
+                                  >
+                                    {tr(locale, "رفع الملفات", "Upload files")}
+                                  </Action>
+                                  <Action
+                                    variant="primary"
+                                    pending={submit.isPending}
+                                    pendingLabel={tr(
+                                      locale,
+                                      "تسليم للمعلم",
+                                      "Submit to teacher",
+                                    )}
+                                    type="button"
+                                    disabled={
+                                      !uploaded.length ||
+                                      upload.isPending ||
+                                      submit.isPending
+                                    }
+                                    onClick={() => submit.mutate()}
+                                    className={styles.action}
+                                  >
+                                    {tr(
+                                      locale,
+                                      "تسليم للمعلم",
+                                      "Submit to teacher",
+                                    )}
+                                  </Action>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        ) : null}
+                        {aim.trainingOutcome ? (
+                          <div className={styles.feedback}>
+                            <p className="font-black">
+                              {tr(
+                                locale,
+                                "النتيجة التدريبية",
+                                "Training Outcome",
+                              )}
+                              :{" "}
+                              {trainingOutcomeLabel(
+                                locale,
+                                aim.trainingOutcome,
+                              )}
+                            </p>
+
+                            <p>
+                              <strong>
+                                {tr(locale, "نقاط القوة", "Strengths")}:
+                              </strong>{" "}
+                              {aim.strengths}
+                            </p>
+                            <p>
+                              <strong>
+                                {tr(locale, "الفجوات", "Missing / gaps")}:
+                              </strong>{" "}
+                              {aim.gaps}
+                            </p>
+                            <p>
+                              <strong>
+                                {tr(locale, "كيفية التحسين", "How to improve")}:
+                              </strong>{" "}
+                              {aim.improvementGuidance}
+                            </p>
+                            {aim.bestTrainingOutcome ? (
+                              <p>
+                                <strong>
+                                  {tr(locale, "أفضل نتيجة", "Best achieved")}:
+                                </strong>{" "}
+                                {trainingOutcomeLabel(
+                                  locale,
+                                  aim.bestTrainingOutcome,
+                                )}
+                              </p>
+                            ) : null}
+                            {(aim.attemptHistory ?? []).some(
+                              (attempt) => attempt.trainingOutcome,
+                            ) ? (
+                              <p>
+                                <strong>
+                                  {tr(locale, "مسار التحسن", "Progress")}:
+                                </strong>{" "}
+                                {(aim.attemptHistory ?? [])
+                                  .filter((attempt) => attempt.trainingOutcome)
+                                  .map((attempt) =>
+                                    trainingOutcomeLabel(
+                                      locale,
+                                      attempt.trainingOutcome!,
+                                    ),
+                                  )
+                                  .join(" → ")}
+                              </p>
+                            ) : null}
+                          </div>
+                        ) : null}
+                        {(aim.attemptHistory ?? []).length ? (
+                          <details className={styles.history}>
+                            <summary className={styles.disclosure}>
+                              {tr(locale, "سجل المحاولات", "Attempt history")}
+                            </summary>
+                            <div className="mt-2 grid gap-2">
+                              {(aim.attemptHistory ?? []).map((attempt) => {
+                                const attemptFiles =
+                                  submission?.versions.find(
+                                    (version) =>
+                                      version.versionNumber ===
+                                      attempt.attemptNumber,
+                                  )?.files ?? [];
+                                return (
+                                  <div
+                                    key={attempt.attemptNumber}
+                                    className="rounded-lg bg-white/5 p-2"
+                                  >
+                                    <p className="font-bold">
+                                      {tr(locale, "المحاولة", "Attempt")}{" "}
+                                      {attempt.attemptNumber} ·{" "}
+                                      {practiceStatus(locale, attempt.status)}
+                                    </p>
+                                    {attempt.submittedAtUtc ? (
+                                      <p>
+                                        <strong>
+                                          {tr(
+                                            locale,
+                                            "تاريخ التسليم",
+                                            "Submitted",
+                                          )}
+                                          :
+                                        </strong>{" "}
+                                        <time dateTime={attempt.submittedAtUtc}>
+                                          {formatAttemptTimestamp(
+                                            locale,
+                                            attempt.submittedAtUtc,
+                                          )}
+                                        </time>
+                                      </p>
+                                    ) : null}
+                                    {attempt.reviewedAtUtc ? (
+                                      <p>
+                                        <strong>
+                                          {tr(
+                                            locale,
+                                            "تاريخ المراجعة",
+                                            "Reviewed",
+                                          )}
+                                          :
+                                        </strong>{" "}
+                                        <time dateTime={attempt.reviewedAtUtc}>
+                                          {formatAttemptTimestamp(
+                                            locale,
+                                            attempt.reviewedAtUtc,
+                                          )}
+                                        </time>
+                                      </p>
+                                    ) : null}
+                                    {attemptFiles.length ? (
+                                      <div className="grid gap-1">
+                                        <strong>
+                                          {tr(
+                                            locale,
+                                            "ملفات المحاولة",
+                                            "Attempt files",
+                                          )}
+                                          :
+                                        </strong>
+                                        {attemptFiles.map((file) => (
+                                          <a
+                                            key={file.id}
+                                            href={`/api/v1/assignments/submissions/${submission!.id}/files/${file.id}`}
+                                            className={
+                                              styles.fileRow + " focus-ring"
+                                            }
+                                          >
+                                            <bdi>{file.originalFileName}</bdi>
+                                          </a>
+                                        ))}
+                                      </div>
+                                    ) : null}
+                                    {attempt.trainingOutcome ? (
+                                      <p>
+                                        {tr(locale, "النتيجة", "Result")}:{" "}
+                                        {trainingOutcomeLabel(
+                                          locale,
+                                          attempt.trainingOutcome,
+                                        )}
+                                      </p>
+                                    ) : null}
+                                    {attempt.strengths ? (
+                                      <p>
+                                        {tr(locale, "نقاط القوة", "Strengths")}:{" "}
+                                        {attempt.strengths}
+                                      </p>
+                                    ) : null}
+                                    {attempt.gaps ? (
+                                      <p>
+                                        {tr(
+                                          locale,
+                                          "الفجوات",
+                                          "Missing / gaps",
+                                        )}
+                                        : {attempt.gaps}
+                                      </p>
+                                    ) : null}
+                                    {attempt.improvementGuidance ? (
+                                      <p>
+                                        {tr(
+                                          locale,
+                                          "إرشادات التحسين",
+                                          "Improvement guidance",
+                                        )}
+                                        : {attempt.improvementGuidance}
+                                      </p>
+                                    ) : null}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </details>
+                        ) : null}
+                      </div>
+                    </details>
                   ) : null}
                 </article>
               );
@@ -605,11 +712,16 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
           </div>
         </div>
       ))}
+      {start.isSuccess && active ? (
+        <MutationOutcome kind="success">
+          {tr(locale, "حُفظت التعديلات.", "Changes saved.")}
+        </MutationOutcome>
+      ) : null}
       {start.isError || upload.isError || submit.isError ? (
-        <p role="alert" className="text-sm text-red-400">
+        <MutationOutcome kind="error">
           {(start.error ?? upload.error ?? submit.error)?.message ??
             tr(locale, "تعذر إكمال العملية.", "The action failed.")}
-        </p>
+        </MutationOutcome>
       ) : null}
     </section>
   );

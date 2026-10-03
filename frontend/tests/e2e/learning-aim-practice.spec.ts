@@ -193,6 +193,7 @@ for (const scenario of [
             ? [
                 {
                   id: submissionId,
+                  currentVersionNumber: 1,
                   assignmentId,
                   status: reviewed
                     ? "Finalized"
@@ -295,6 +296,11 @@ for (const scenario of [
     ).toBeVisible();
     reviewed = true;
     await page.reload();
+    await area
+      .locator("summary")
+      .filter({ hasText: scenario.locale === "ar" ? "نشاط أ" : "Practice A" })
+      .first()
+      .click();
     await expect(
       area.getByText(
         scenario.locale === "ar"
