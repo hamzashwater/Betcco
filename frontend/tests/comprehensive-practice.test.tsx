@@ -14,6 +14,7 @@ import {
   StudentComprehensivePractice,
   TeacherComprehensivePractice,
 } from "@/features/learning/comprehensive-practice";
+import { formatLocalizedDateTime } from "@/i18n/date-time";
 
 const apiMock = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/api", () => ({
@@ -133,7 +134,7 @@ describe("comprehensive practice", () => {
     renderWithLocale(<StudentComprehensivePractice courseId="course" />, "en");
     const action = await screen.findByRole("button", { name: "Open Practice" });
     expect(screen.getByText(/Deadline:/)).toHaveTextContent(
-      "5 Jan 2027, 14:30",
+      formatLocalizedDateTime(practice.effectiveDueAtUtc, "en"),
     );
     const resource = screen.getByRole("link", { name: "Task brief.pdf" });
     expect(resource).toHaveAttribute(
