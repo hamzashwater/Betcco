@@ -1,5 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -256,6 +263,223 @@ describe("Student scoped evaluation wizard", () => {
     vi.unstubAllGlobals();
     searchParamsMock.includeResume = false;
     searchParamsMock.resumeId = "";
+  });
+
+  it("replaces new setup with a stable saved context and never recreates on form submission", async () => {
+    const fetchMock = mockFetch();
+    const user = userEvent.setup();
+    const { container } = renderWizard();
+    await selectPrimaryScope(user);
+    expect(
+      screen.queryByRole("heading", { name: "Criterion evidence portfolio" }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
+    await user.type(
+      screen.getByLabelText("What do you need from the evaluator?"),
+      "Initial comment",
+    );
+    await user.click(screen.getByRole("button", { name: "Save and review" }));
+    const saved = await screen.findByRole("region", {
+      name: "Evaluation draft",
+    });
+    expect(within(saved).getByText(/Q · Qualification/)).toBeVisible();
+    expect(within(saved).getByDisplayValue("Initial comment")).toHaveAttribute(
+      "readonly",
+    );
+    expect(
+      screen.queryByLabelText("Qualification and version"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Save and review" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Criterion evidence portfolio" }),
+    ).toBeVisible();
+    fireEvent.submit(container.querySelector("form")!);
+    await user.type(
+      screen.getByPlaceholderText(
+        enMessages.studentWorkspace.evaluationWizard.evidence.placeholder,
+      ),
+      "Local evidence",
+    );
+    expect(
+      fetchMock.mock.calls.filter(([input]) =>
+        String(input).endsWith("/evaluations/scoped"),
+      ),
+    ).toHaveLength(1);
+    expect(
+      fetchMock.mock.calls.some(([input]) =>
+        String(input).endsWith("/evidence"),
+      ),
+    ).toBe(false);
+    expect(container.querySelector('[aria-current="step"]')).toHaveTextContent(
+      "Criterion evidence portfolio",
+    );
+  });
+
+  it("freezes academic selection and the submitted comment while the request is being saved", async () => {
+    const fetchMock = mockFetch();
+    const originalFetch = fetchMock.getMockImplementation()!;
+    let finishSave!: () => void;
+    const save = new Promise<void>((resolve) => {
+      finishSave = resolve;
+    });
+    fetchMock.mockImplementation(async (input, init) => {
+      if (String(input).endsWith("/evaluations/scoped")) await save;
+      return originalFetch(input, init);
+    });
+    const user = userEvent.setup();
+    renderWizard();
+    await selectPrimaryScope(user);
+    const comment = screen.getByLabelText(
+      "What do you need from the evaluator?",
+    );
+    await user.type(comment, "The submitted comment");
+    await user.click(screen.getByRole("button", { name: "Save and review" }));
+    expect(screen.getByRole("button", { name: "Loading…" })).toBeDisabled();
+    for (const control of screen.getAllByRole("combobox"))
+      expect(control).toBeDisabled();
+    expect(comment).toHaveAttribute("readonly");
+    finishSave();
+    expect(
+      await screen.findByRole("region", { name: "Evaluation draft" }),
+    ).toHaveTextContent("Q · Qualification");
+    expect(screen.getByDisplayValue("The submitted comment")).toHaveAttribute(
+      "readonly",
+    );
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/v1/evaluations/scoped",
+      expect.objectContaining({
+        body: JSON.stringify({
+          assessmentScopeId: scope.assessmentScopeId,
+          studentComment: "The submitted comment",
+        }),
+      }),
+    );
+  });
+
+  it("keeps the current action pending while the new Draft's files finish uploading", async () => {
+    const fetchMock = mockFetch();
+    const originalFetch = fetchMock.getMockImplementation()!;
+    let finishUpload!: () => void;
+    const upload = new Promise<void>((resolve) => {
+      finishUpload = resolve;
+    });
+    fetchMock.mockImplementation(async (input, init) => {
+      if (String(input).endsWith("/evaluations/request-1/files")) await upload;
+      return originalFetch(input, init);
+    });
+    const user = userEvent.setup();
+    const { container } = renderWizard();
+    await selectPrimaryScope(user);
+    await user.upload(
+      container.querySelector('input[type="file"]')!,
+      new File(["work"], "work.pdf", { type: "application/pdf" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Save and review" }));
+    expect(
+      await screen.findByRole("heading", { name: "Evaluation draft" }),
+    ).toBeVisible();
+    const pending = screen.getByRole("button", { name: "Loading…" });
+    expect(pending).toBeDisabled();
+    expect(pending).toHaveAttribute("aria-busy", "true");
+    fireEvent.submit(container.querySelector("form")!);
+    expect(
+      fetchMock.mock.calls.filter(([input]) =>
+        String(input).endsWith("/evaluations/scoped"),
+      ),
+    ).toHaveLength(1);
+    finishUpload();
+    expect(
+      await screen.findByRole("button", { name: "Continue to payment" }),
+    ).not.toHaveAttribute("aria-busy", "true");
+  });
+
+  it.each(["Clean", "Pending", "UnknownScannerStatus"])(
+    "keeps server scan status %s separate from browser-selected files",
+    async (scanStatus) => {
+      mockFetch(
+        [scope],
+        false,
+        false,
+        0,
+        draftDetail({
+          files: [
+            {
+              id: "file-1",
+              originalFileName: "existing-assignment.pdf",
+              contentType: "application/pdf",
+              lengthBytes: 12,
+              scanStatus,
+            },
+          ],
+        }),
+      );
+      const user = userEvent.setup();
+      const { container } = renderWizard("en", "draft-1");
+      expect(
+        await screen.findByText(`Scan status: ${scanStatus}`),
+      ).toBeVisible();
+      await user.upload(
+        container.querySelector('input[type="file"]')!,
+        new File(["local"], "new-local.pdf", { type: "application/pdf" }),
+      );
+      const selectedList = screen.getByRole("list", { name: "Selected files" });
+      expect(within(selectedList).getByText("new-local.pdf")).toBeVisible();
+      expect(
+        within(selectedList).queryByText(/Scan status|Clean|Approved|Safe/),
+      ).not.toBeInTheDocument();
+      expect(
+        within(selectedList).queryByText("existing-assignment.pdf"),
+      ).not.toBeInTheDocument();
+    },
+  );
+
+  it("orders restored evidence and originality before the paid review and current action", async () => {
+    mockFetch([scope], false, false, 0, draftDetail());
+    renderWizard("en", "draft-1");
+    const evidence = await screen.findByRole("heading", {
+      name: "Criterion evidence portfolio",
+    });
+    const originality = screen.getByRole("checkbox", {
+      name: /Originality declaration/,
+    });
+    const payment = await screen.findByRole("heading", {
+      name: "One-time paid review",
+    });
+    const action = screen.getByRole("button", { name: "Continue to payment" });
+    expect(
+      evidence.compareDocumentPosition(originality) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      originality.compareDocumentPosition(payment) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      payment.compareDocumentPosition(action) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it("shows explicit development confirmation as the only current primary action after checkout", async () => {
+    const fetchMock = mockFetch([scope], false, false, 0, draftDetail());
+    const user = userEvent.setup();
+    renderWizard("en", "draft-1");
+    await user.click(
+      await screen.findByRole("button", { name: "Continue to payment" }),
+    );
+    expect(
+      await screen.findByRole("button", { name: "Complete test payment" }),
+    ).toBeVisible();
+    expect(
+      screen.queryByRole("button", { name: "Continue to payment" }),
+    ).not.toBeInTheDocument();
+    expect(
+      fetchMock.mock.calls.some(([input]) =>
+        String(input).endsWith("/payments/fake/confirm"),
+      ),
+    ).toBe(false);
   });
 
   it("shows loading, empty and error states", async () => {

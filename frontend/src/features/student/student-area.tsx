@@ -12,6 +12,7 @@ import { api } from "@/lib/api";
 import { academicText } from "@/lib/academic-localization";
 import styles from "./student-learning-presentation.module.css";
 import playerStyles from "./student-course-player.module.css";
+import wizardStyles from "./student-evaluation-wizard.module.css";
 import { useDialogFocus } from "@/components/navigation/use-dialog-focus";
 import { createPortal } from "react-dom";
 import { MotivationCard } from "@/components/motivation-card";
@@ -3769,6 +3770,9 @@ export function CourseAssignmentPanel({
 
 function EvaluationWizard() {
   const t = useTranslations("studentWorkspace.evaluationWizard");
+  const loadingLabel = useTranslations(
+    "studentWorkspace.myEvaluations.pagination",
+  )("loading");
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -3975,9 +3979,7 @@ function EvaluationWizard() {
   if (resumeRequested && resumeDetail.isPending)
     return (
       <section className="shell py-10">
-        <div className="card p-6" aria-busy>
-          {t("resume.loading")}
-        </div>
+        <QueryState kind="loading" title={t("resume.loading")} />
       </section>
     );
   if (resumeRequested && (resumeDetail.isError || !resumeDetail.data))
@@ -4013,23 +4015,19 @@ function EvaluationWizard() {
   if (resumeRequested && resumeDetail.data && !evaluationId)
     return (
       <section className="shell py-10">
-        <div className="card p-6" aria-busy>
-          {t("resume.restoring")}
-        </div>
+        <QueryState kind="loading" title={t("resume.restoring")} />
       </section>
     );
   if (!resumeRequested && options.isPending)
     return (
       <section className="shell py-10">
-        <div className="card p-6" aria-busy>
-          …
-        </div>
+        <QueryState kind="loading" title={loadingLabel} />
       </section>
     );
   if (!resumeRequested && (options.isError || !options.data))
     return (
       <section className="shell py-10">
-        <p className="card p-6">{t("errors.options")}</p>
+        <QueryState kind="error" title={t("errors.options")} />
       </section>
     );
   const scopes = options.data ?? [];
@@ -4085,413 +4083,499 @@ function EvaluationWizard() {
     (item) => item.assessmentScopeId === selected.assessmentScopeId,
   );
   return (
-    <section className="shell py-10">
+    <section className={`shell ${wizardStyles.workspace}`}>
+      <header className={wizardStyles.header}>
+        <p className={wizardStyles.eyebrow}>{t("header.eyebrow")}</p>
+        <h1>{t("header.title")}</h1>
+        <p>{t("header.description")}</p>
+      </header>
+      <ol className={wizardStyles.stages}>
+        <li aria-current={!evaluationId ? "step" : undefined}>
+          {`01 · ${t("scope.assessment")}`}
+        </li>
+        <li aria-current={evaluationId && !paymentSession ? "step" : undefined}>
+          {`02 · ${t("evidence.portfolio")}`}
+        </li>
+        <li aria-current={paymentSession ? "step" : undefined}>
+          {`03 · ${hasIncludedCredit ? t("actions.included") : t("actions.payment")}`}
+        </li>
+      </ol>
       <form
+        className={wizardStyles.layout}
         onSubmit={(event) => {
           event.preventDefault();
           if (
             !resumeRequested &&
+            !evaluationId &&
             !create.isPending &&
             selected.assessmentScopeId
           )
             create.mutate();
         }}
-        className="card mx-auto grid min-w-0 max-w-2xl grid-cols-[minmax(0,1fr)] gap-4 p-6"
       >
-        <p className="font-bold text-primary">{t("header.eyebrow")}</p>
-        <h1 className="text-3xl font-black">{t("header.title")}</h1>
-        <p className="text-sm leading-7 text-muted">
-          {t("header.description")}
-        </p>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
-            <p className="font-black text-primary">{t("intro.creditTitle")}</p>
-            <p className="mt-1 text-xs leading-5 text-muted">
-              {t("intro.creditDescription")}
-            </p>
-          </div>
-          <div className="rounded-xl border border-border bg-surface-solid/60 p-4">
-            <p className="font-black">{t("intro.noCreditTitle")}</p>
-            <p className="mt-1 text-xs leading-5 text-muted">
-              {t("intro.noCreditDescription")}
-            </p>
-          </div>
-        </div>
-        {resumeRequested && resumeDetail.data ? (
-          <section className="grid gap-3 rounded-xl border border-border bg-surface-solid/60 p-4">
-            <h2 className="font-black">{t("draft.title")}</h2>
-            <AcademicIdentity
-              academic={resumeDetail.data.academic}
-              locale={locale}
-            />
-            <p className="text-sm">
-              {t("draft.savedCriteria")}: {evaluationCriteria.join(", ") || "—"}
-            </p>
-            <p className="text-sm font-semibold">
-              {t("draft.savedPrice")}:{" "}
-              {evaluationPrice
-                ? formatLocalizedCurrency(
-                    evaluationPrice.price,
-                    evaluationPrice.currency,
-                    locale,
-                  )
-                : "—"}
-            </p>
-            <div className="grid gap-2 text-sm">
-              <strong>{t("draft.uploadedFiles")}</strong>
-              {resumeDetail.data.files.length ? (
-                <ul className="grid gap-2">
-                  {resumeDetail.data.files.map((file) => (
-                    <li
-                      key={file.id}
-                      className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border/70 px-3 py-2"
-                    >
-                      <a
-                        className="focus-ring font-semibold text-primary underline"
-                        href={`/api/v1/evaluations/${encodeURIComponent(resumeDetail.data.id)}/files/${encodeURIComponent(file.id)}`}
-                      >
-                        {file.originalFileName}
-                      </a>
-                      <span className="text-xs text-muted">
-                        {t("draft.scanStatus")}: {file.scanStatus}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-muted">{t("draft.noFiles")}</p>
-              )}
-            </div>
-          </section>
-        ) : null}
-        {!resumeRequested ? (
-          <>
-            {scopes.length === 0 ? (
-              <p role="status" className="text-muted">
-                {t("scope.none")}
-              </p>
-            ) : null}
-            <Select
-              label={t("scope.qualification")}
-              value={selected.qualification}
-              setValue={(value) =>
-                setSelected({
-                  ...selected,
-                  qualification: value,
-                  grade: "",
-                  specialization: "",
-                  unit: "",
-                  assessmentScopeId: "",
-                })
-              }
-              items={qualifications}
-              disabled={Boolean(evaluationId)}
-            />
-            <Select
-              label={t("scope.grade")}
-              value={selected.grade}
-              setValue={(value) =>
-                setSelected({
-                  ...selected,
-                  grade: value,
-                  specialization: "",
-                  unit: "",
-                  assessmentScopeId: "",
-                })
-              }
-              items={grades}
-              disabled={!selected.qualification || Boolean(evaluationId)}
-            />
-            <Select
-              label={t("scope.specialization")}
-              value={selected.specialization}
-              setValue={(value) =>
-                setSelected({
-                  ...selected,
-                  specialization: value,
-                  unit: "",
-                  assessmentScopeId: "",
-                })
-              }
-              items={specializations}
-              disabled={!selected.grade || Boolean(evaluationId)}
-            />
-            <Select
-              label={t("scope.unit")}
-              value={selected.unit}
-              setValue={(value) =>
-                setSelected({ ...selected, unit: value, assessmentScopeId: "" })
-              }
-              items={units}
-              disabled={!selected.specialization || Boolean(evaluationId)}
-            />
-            <Select
-              label={t("scope.assessment")}
-              value={selected.assessmentScopeId}
-              setValue={(value) =>
-                setSelected({ ...selected, assessmentScopeId: value })
-              }
-              items={forUnit.map((item) => ({
-                id: item.assessmentScopeId,
-                label: `${item.assessmentCode} · ${locale === "ar" ? item.assessmentArabicTitle : item.assessmentEnglishTitle} (v${item.assessmentVersion}${forUnit.length > 1 ? ` · ${t("scope.scopeLabel")} ${item.scopeVersion}` : ""})`,
-              }))}
-              disabled={!selected.unit || Boolean(evaluationId)}
-            />
-            {currentScope ? (
-              <div
-                className="rounded-xl border border-border bg-surface-solid/60 p-4 text-sm"
-                role="status"
-              >
-                <p className="font-bold">{t("scope.coverage")}</p>
-                <p className="mt-2">
-                  {t("scope.aims")}: {currentScope.learningAimCodes.join(", ")}
-                </p>
-                <p className="mt-1">
-                  {t("scope.criteria")}:{" "}
-                  {currentScope.criteria
-                    .map((item) => `${item.code} (${item.band})`)
-                    .join(", ")}
-                </p>
-                <p className="mt-2 text-muted">{t("scope.disclaimer")}</p>
+        <div className={wizardStyles.work}>
+          {evaluationId ? (
+            <section
+              className={wizardStyles.saved}
+              aria-labelledby="evaluation-draft-title"
+            >
+              <div className={wizardStyles.sectionHeading}>
+                <ClipboardCheck size={22} aria-hidden="true" />
+                <h2 id="evaluation-draft-title">{t("draft.title")}</h2>
               </div>
-            ) : null}
-          </>
-        ) : null}
-        {selected.assessmentScopeId ? (
-          <div
-            className="rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm"
-            role="status"
-          >
-            {includedCredit.isPending ||
-            (includedCredit.isError && includedCredit.isFetching) ? (
-              <p className="text-muted">{t("credit.checking")}</p>
-            ) : includedCredit.isError ? (
-              <div className="grid justify-items-start gap-2">
-                <p className="text-red-500">{t("credit.error")}</p>
-                <button
-                  type="button"
-                  onClick={() => void includedCredit.refetch()}
-                  className="focus-ring rounded-lg border border-primary px-3 py-2 font-semibold text-primary"
-                >
-                  {t("credit.retry")}
-                </button>
-              </div>
-            ) : hasIncludedCredit ? (
-              <>
-                <p className="font-black text-primary">
-                  {t("credit.available")}
+              <AcademicIdentity
+                academic={
+                  resumeRequested
+                    ? (resumeDetail.data?.academic ?? null)
+                    : (currentScope ?? null)
+                }
+                locale={locale}
+              />
+              <div className={wizardStyles.savedFacts}>
+                <p>
+                  {t("draft.savedCriteria")}:{" "}
+                  {evaluationCriteria.join(", ") || "—"}
                 </p>
-                <p className="mt-1 text-muted">
-                  {t("credit.availableDescription")}
-                </p>
-              </>
-            ) : (
-              <p className="text-muted">{t("credit.unavailable")}</p>
-            )}
-          </div>
-        ) : null}
-        <FilePicker
-          label={t("files.label")}
-          files={files}
-          onFilesChange={setFiles}
-          locale={locale}
-          accept=".pdf,.docx,.xlsx,.txt,.jpg,.jpeg,.png,.webp"
-          multiple
-          maxFileBytes={maxFileBytes}
-          chooseLabel={t("files.choose")}
-          helpText={t("files.help")}
-        />
-        <label className="grid gap-1 text-sm font-semibold">
-          {t("evidence.comment")}
-          <textarea
-            value={selected.comment}
-            readOnly={resumeRequested}
-            onChange={(event) =>
-              setSelected({
-                ...selected,
-                comment: event.target.value.slice(0, 1000),
-              })
-            }
-            className="min-h-24 rounded-lg border bg-transparent p-3"
-          />
-        </label>
-        {evaluationId && (
-          <section className="grid gap-3 rounded-xl border border-border bg-surface-solid/60 p-4">
-            <div>
-              <h2 className="font-black">{t("evidence.portfolio")}</h2>
-              <p className="mt-1 text-xs leading-5 text-muted">
-                {t("evidence.description")}
-              </p>
-            </div>
-            {evaluationCriteria.map((criterion) => (
-              <label key={criterion} className="grid gap-1 text-sm font-bold">
-                {criterion}
-                <textarea
-                  value={evidenceDrafts[criterion] ?? ""}
-                  onChange={(event) =>
-                    setEvidenceDrafts((current) => ({
-                      ...current,
-                      [criterion]: event.target.value,
-                    }))
-                  }
-                  maxLength={4000}
-                  className="min-h-20 rounded-lg border bg-transparent p-3"
-                  placeholder={t("evidence.placeholder")}
-                />
-              </label>
-            ))}
-          </section>
-        )}
-        {evaluationId &&
-        !includedCredit.isPending &&
-        !includedCredit.isError &&
-        !hasIncludedCredit ? (
-          <section className="grid gap-3 rounded-xl border border-border bg-surface-solid/60 p-4">
-            <div>
-              <p className="font-black">{t("payment.title")}</p>
-              <p className="mt-1 text-sm text-muted">
-                {evaluationPrice
-                  ? t("payment.priceKnown", {
-                      price: formatLocalizedCurrency(
+                <p>
+                  {t("draft.savedPrice")}:{" "}
+                  {evaluationPrice ? (
+                    <bdi>
+                      {formatLocalizedCurrency(
                         evaluationPrice.price,
                         evaluationPrice.currency,
                         locale,
-                      ),
+                      )}
+                    </bdi>
+                  ) : (
+                    "—"
+                  )}
+                </p>
+              </div>
+              <label className="grid gap-1 text-sm font-semibold">
+                {t("evidence.comment")}
+                <textarea
+                  value={selected.comment}
+                  readOnly={Boolean(evaluationId) || create.isPending}
+                  onChange={(event) =>
+                    setSelected({
+                      ...selected,
+                      comment: event.target.value.slice(0, 1000),
                     })
-                  : t("payment.pricePending")}
-              </p>
-            </div>
-            <label className="grid gap-1 text-sm font-semibold">
-              {t("payment.method")}
-              <select
-                value={paymentMethod}
-                onChange={(event) => setPaymentMethod(event.target.value)}
-                className="rounded-lg border bg-transparent p-3"
-              >
-                <option value="Card">{t("payment.card")}</option>
-                <option value="BankTransfer">
-                  {t("payment.bankTransfer")}
-                </option>
-                <option value="EWallet">{t("payment.eWallet")}</option>
-              </select>
-            </label>
-          </section>
-        ) : null}
-        {evaluationId && (
-          <label className="flex items-start gap-3 rounded-xl border border-border bg-surface-solid/60 p-3 text-sm leading-6">
-            <input
-              type="checkbox"
-              checked={authenticityConfirmed}
-              disabled={authenticityAlreadyDeclared}
-              onChange={(event) =>
-                setAuthenticityConfirmed(event.target.checked)
-              }
-              className="mt-1 size-4 accent-primary"
-            />
-            <span>
-              <strong>{t("authenticity.title")}</strong>
-              <span className="mt-1 block text-muted">
-                {t("authenticity.description")}
-              </span>
-            </span>
-          </label>
-        )}
-        {!evaluationId ? (
-          <button
-            disabled={
-              resumeRequested ||
-              create.isPending ||
-              !selected.assessmentScopeId ||
-              scopes.length === 0
-            }
-            className="focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-white"
-          >
-            {t("actions.save")}
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => checkout.mutate()}
-            disabled={
-              checkout.isPending ||
-              Boolean(paymentSession) ||
-              !authenticityConfirmed ||
-              includedCredit.isPending ||
-              includedCredit.isError
-            }
-            className="focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {checkout.isPending
-              ? "…"
-              : hasIncludedCredit
-                ? t("actions.included")
-                : t("actions.payment")}
-          </button>
-        )}
-        {paymentSession ? (
-          <section
-            className="rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm"
-            aria-live="polite"
-          >
-            {paymentSession.provider?.startsWith("Fake") ? (
-              <>
-                <p className="font-black text-primary">
-                  {t("developmentPayment.title")}
-                </p>
-                <p className="mt-1 leading-6 text-muted">
-                  {t("developmentPayment.description")}
-                </p>
-                {typeof paymentSession.total === "number" &&
-                paymentSession.currency ? (
-                  <p className="mt-2 font-black">
-                    {t("developmentPayment.total")}{" "}
-                    {formatLocalizedCurrency(
-                      paymentSession.total,
-                      paymentSession.currency,
-                      locale,
-                    )}
-                  </p>
-                ) : null}
-                <button
-                  type="button"
-                  disabled={confirmDevelopmentPayment.isPending}
-                  onClick={() => confirmDevelopmentPayment.mutate()}
-                  className="focus-ring mt-3 rounded-lg border border-primary px-3 py-2 font-black text-primary disabled:opacity-50"
+                  }
+                  className="min-h-24 rounded-lg border bg-transparent p-3"
+                />
+              </label>
+            </section>
+          ) : (
+            <section className={wizardStyles.panel}>
+              <div className={wizardStyles.sectionHeading}>
+                <BookOpenCheck size={22} aria-hidden="true" />
+                <h2 id="evaluation-scope-title">{t("scope.assessment")}</h2>
+              </div>
+              {scopes.length === 0 ? (
+                <QueryState kind="empty" title={t("scope.none")} />
+              ) : null}
+              <div className={wizardStyles.selects}>
+                <Select
+                  label={t("scope.qualification")}
+                  value={selected.qualification}
+                  setValue={(value) =>
+                    setSelected({
+                      ...selected,
+                      qualification: value,
+                      grade: "",
+                      specialization: "",
+                      unit: "",
+                      assessmentScopeId: "",
+                    })
+                  }
+                  items={qualifications}
+                  disabled={Boolean(evaluationId) || create.isPending}
+                />
+                <Select
+                  label={t("scope.grade")}
+                  value={selected.grade}
+                  setValue={(value) =>
+                    setSelected({
+                      ...selected,
+                      grade: value,
+                      specialization: "",
+                      unit: "",
+                      assessmentScopeId: "",
+                    })
+                  }
+                  items={grades}
+                  disabled={
+                    !selected.qualification ||
+                    Boolean(evaluationId) ||
+                    create.isPending
+                  }
+                />
+                <Select
+                  label={t("scope.specialization")}
+                  value={selected.specialization}
+                  setValue={(value) =>
+                    setSelected({
+                      ...selected,
+                      specialization: value,
+                      unit: "",
+                      assessmentScopeId: "",
+                    })
+                  }
+                  items={specializations}
+                  disabled={
+                    !selected.grade || Boolean(evaluationId) || create.isPending
+                  }
+                />
+                <Select
+                  label={t("scope.unit")}
+                  value={selected.unit}
+                  setValue={(value) =>
+                    setSelected({
+                      ...selected,
+                      unit: value,
+                      assessmentScopeId: "",
+                    })
+                  }
+                  items={units}
+                  disabled={
+                    !selected.specialization ||
+                    Boolean(evaluationId) ||
+                    create.isPending
+                  }
+                />
+                <Select
+                  label={t("scope.assessment")}
+                  value={selected.assessmentScopeId}
+                  setValue={(value) =>
+                    setSelected({ ...selected, assessmentScopeId: value })
+                  }
+                  items={forUnit.map((item) => ({
+                    id: item.assessmentScopeId,
+                    label: `${item.assessmentCode} · ${locale === "ar" ? item.assessmentArabicTitle : item.assessmentEnglishTitle} (v${item.assessmentVersion}${forUnit.length > 1 ? ` · ${t("scope.scopeLabel")} ${item.scopeVersion}` : ""})`,
+                  }))}
+                  disabled={
+                    !selected.unit || Boolean(evaluationId) || create.isPending
+                  }
+                />
+              </div>
+              {currentScope ? (
+                <div
+                  className="rounded-xl border border-border bg-surface-solid/60 p-4 text-sm"
+                  role="status"
                 >
-                  {confirmDevelopmentPayment.isPending
-                    ? "…"
-                    : t("developmentPayment.confirm")}
-                </button>
-              </>
-            ) : (
-              <>
-                <p className="font-black">
-                  {t("developmentPayment.sessionTitle")}
-                </p>
-                <p className="mt-1 leading-6 text-muted">
-                  {t("developmentPayment.sessionDescription")}
-                </p>
-              </>
-            )}
+                  <AcademicIdentity academic={currentScope} locale={locale} />
+                  <p className="font-bold">{t("scope.coverage")}</p>
+                  <p className="mt-2">
+                    {t("scope.aims")}:{" "}
+                    {currentScope.learningAimCodes.join(", ")}
+                  </p>
+                  <p className="mt-1">
+                    {t("scope.criteria")}:{" "}
+                    {currentScope.criteria
+                      .map((item) => `${item.code} (${item.band})`)
+                      .join(", ")}
+                  </p>
+                </div>
+              ) : null}
+
+              <label className="grid gap-1 text-sm font-semibold">
+                {t("evidence.comment")}
+                <textarea
+                  value={selected.comment}
+                  readOnly={Boolean(evaluationId) || create.isPending}
+                  onChange={(event) =>
+                    setSelected({
+                      ...selected,
+                      comment: event.target.value.slice(0, 1000),
+                    })
+                  }
+                  className="min-h-24 rounded-lg border bg-transparent p-3"
+                />
+              </label>
+            </section>
+          )}
+          <section className={wizardStyles.panel}>
+            <div className={wizardStyles.sectionHeading}>
+              <FolderOpen size={22} aria-hidden="true" />
+              <h2 id="evaluation-files-title">{t("files.label")}</h2>
+            </div>
+            {resumeRequested && resumeDetail.data ? (
+              <div className={wizardStyles.serverFiles}>
+                <h3>{t("draft.uploadedFiles")}</h3>
+                {resumeDetail.data.files.length ? (
+                  <ul>
+                    {resumeDetail.data.files.map((file) => (
+                      <li key={file.id}>
+                        <a
+                          className="focus-ring font-semibold text-primary underline"
+                          href={`/api/v1/evaluations/${encodeURIComponent(resumeDetail.data.id)}/files/${encodeURIComponent(file.id)}`}
+                        >
+                          <bdi>{file.originalFileName}</bdi>
+                        </a>
+                        <p>
+                          {t("draft.scanStatus")}: {file.scanStatus}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-muted">{t("draft.noFiles")}</p>
+                )}
+              </div>
+            ) : null}
+            {!resumeRequested && uploadedFileKeys.length > 0 ? (
+              <div className={wizardStyles.serverFiles} role="status">
+                <h3>{t("draft.uploadedFiles")}</h3>
+                <ul>
+                  {files
+                    .filter((item) => uploadedFileKeys.includes(fileKey(item)))
+                    .map((item) => (
+                      <li key={fileKey(item)}>
+                        <bdi>{item.name}</bdi>
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            ) : null}
+            <FilePicker
+              label={t("files.label")}
+              files={files}
+              onFilesChange={setFiles}
+              locale={locale}
+              accept=".pdf,.docx,.xlsx,.txt,.jpg,.jpeg,.png,.webp"
+              multiple
+              maxFileBytes={maxFileBytes}
+              chooseLabel={t("files.choose")}
+              helpText={t("files.help")}
+            />
           </section>
-        ) : null}
-        {fileUploadFailed ? (
-          <p role="alert" className="text-sm text-red-600">
-            {t("errors.upload")}
-          </p>
-        ) : null}
-        {checkout.isError ? (
-          <p role="alert" className="text-sm text-red-600">
-            {t("errors.checkout")}
-          </p>
-        ) : null}
-        {(create.isError || confirmDevelopmentPayment.isError) && (
-          <p role="alert" className="text-sm text-red-600">
-            {(create.error ?? confirmDevelopmentPayment.error) instanceof Error
-              ? (create.error ?? confirmDevelopmentPayment.error)?.message
-              : t("errors.request")}
-          </p>
-        )}
+          {evaluationId && (
+            <section className={wizardStyles.panel}>
+              <div>
+                <h2 className="font-black">{t("evidence.portfolio")}</h2>
+                <p className="mt-1 text-xs leading-5 text-muted">
+                  {t("evidence.description")}
+                </p>
+              </div>
+              {evaluationCriteria.map((criterion) => (
+                <label key={criterion} className={wizardStyles.criterion}>
+                  {criterion}
+                  <textarea
+                    value={evidenceDrafts[criterion] ?? ""}
+                    onChange={(event) =>
+                      setEvidenceDrafts((current) => ({
+                        ...current,
+                        [criterion]: event.target.value,
+                      }))
+                    }
+                    maxLength={4000}
+                    className="min-h-20 rounded-lg border bg-transparent p-3"
+                    placeholder={t("evidence.placeholder")}
+                  />
+                </label>
+              ))}
+            </section>
+          )}
+
+          {evaluationId && (
+            <label className={wizardStyles.authenticity}>
+              <input
+                type="checkbox"
+                checked={authenticityConfirmed}
+                disabled={authenticityAlreadyDeclared}
+                onChange={(event) =>
+                  setAuthenticityConfirmed(event.target.checked)
+                }
+                className="mt-1 size-4 accent-primary"
+              />
+              <span>
+                <strong>{t("authenticity.title")}</strong>
+                <span className="mt-1 block text-muted">
+                  {t("authenticity.description")}
+                </span>
+              </span>
+            </label>
+          )}
+        </div>
+        <div className={wizardStyles.review}>
+          {!evaluationId ? (
+            <div className={wizardStyles.service}>
+              <h2>{t("intro.creditTitle")}</h2>
+              <p>{t("intro.creditDescription")}</p>
+              <h3 className="font-bold">{t("intro.noCreditTitle")}</h3>
+              <p>{t("intro.noCreditDescription")}</p>
+            </div>
+          ) : null}
+          {selected.assessmentScopeId ? (
+            includedCredit.isPending ||
+            (includedCredit.isError && includedCredit.isFetching) ? (
+              <QueryState kind="loading" title={t("credit.checking")} />
+            ) : includedCredit.isError ? (
+              <QueryState
+                kind="error"
+                title={t("credit.error")}
+                action={
+                  <Action
+                    variant="secondary"
+                    onClick={() => void includedCredit.refetch()}
+                  >
+                    {t("credit.retry")}
+                  </Action>
+                }
+              />
+            ) : hasIncludedCredit ? (
+              <div className={wizardStyles.credit} role="status">
+                <h2>{t("credit.available")}</h2>
+                <p>{t("credit.availableDescription")}</p>
+              </div>
+            ) : (
+              <p className={wizardStyles.notice} role="status">
+                {t("credit.unavailable")}
+              </p>
+            )
+          ) : null}
+          {evaluationId &&
+          !includedCredit.isPending &&
+          !includedCredit.isError &&
+          !hasIncludedCredit ? (
+            <section className={wizardStyles.payment}>
+              <div>
+                <h2 className="font-black">{t("payment.title")}</h2>
+                <p className="mt-1 text-sm text-muted">
+                  {evaluationPrice
+                    ? t("payment.priceKnown", {
+                        price: formatLocalizedCurrency(
+                          evaluationPrice.price,
+                          evaluationPrice.currency,
+                          locale,
+                        ),
+                      })
+                    : t("payment.pricePending")}
+                </p>
+              </div>
+              <label className="grid gap-1 text-sm font-semibold">
+                {t("payment.method")}
+                <select
+                  value={paymentMethod}
+                  onChange={(event) => setPaymentMethod(event.target.value)}
+                  className="rounded-lg border bg-transparent p-3"
+                >
+                  <option value="Card">{t("payment.card")}</option>
+                  <option value="BankTransfer">
+                    {t("payment.bankTransfer")}
+                  </option>
+                  <option value="EWallet">{t("payment.eWallet")}</option>
+                </select>
+              </label>
+            </section>
+          ) : null}
+
+          <p className={wizardStyles.disclaimer}>{t("scope.disclaimer")}</p>
+          {!evaluationId ? (
+            <Action
+              type="submit"
+              pending={create.isPending}
+              pendingLabel={loadingLabel}
+              disabled={
+                resumeRequested ||
+                create.isPending ||
+                !selected.assessmentScopeId ||
+                scopes.length === 0
+              }
+              className={wizardStyles.primary}
+            >
+              {t("actions.save")}
+            </Action>
+          ) : !paymentSession ? (
+            <Action
+              type="button"
+              onClick={() => checkout.mutate()}
+              pending={create.isPending || checkout.isPending}
+              pendingLabel={loadingLabel}
+              disabled={
+                checkout.isPending ||
+                Boolean(paymentSession) ||
+                !authenticityConfirmed ||
+                includedCredit.isPending ||
+                includedCredit.isError
+              }
+              className={wizardStyles.primary}
+            >
+              {checkout.isPending
+                ? "…"
+                : hasIncludedCredit
+                  ? t("actions.included")
+                  : t("actions.payment")}
+            </Action>
+          ) : null}
+
+          {paymentSession ? (
+            <section className={wizardStyles.payment} aria-live="polite">
+              {paymentSession.provider?.startsWith("Fake") ? (
+                <>
+                  <p className="font-black text-primary">
+                    {t("developmentPayment.title")}
+                  </p>
+                  <p className="mt-1 leading-6 text-muted">
+                    {t("developmentPayment.description")}
+                  </p>
+                  {typeof paymentSession.total === "number" &&
+                  paymentSession.currency ? (
+                    <p className="mt-2 font-black">
+                      {t("developmentPayment.total")}{" "}
+                      {formatLocalizedCurrency(
+                        paymentSession.total,
+                        paymentSession.currency,
+                        locale,
+                      )}
+                    </p>
+                  ) : null}
+                  <Action
+                    type="button"
+                    pending={confirmDevelopmentPayment.isPending}
+                    pendingLabel={loadingLabel}
+                    disabled={confirmDevelopmentPayment.isPending}
+                    onClick={() => confirmDevelopmentPayment.mutate()}
+                    className={wizardStyles.primary}
+                  >
+                    {confirmDevelopmentPayment.isPending
+                      ? "…"
+                      : t("developmentPayment.confirm")}
+                  </Action>
+                </>
+              ) : (
+                <>
+                  <p className="font-black">
+                    {t("developmentPayment.sessionTitle")}
+                  </p>
+                  <p className="mt-1 leading-6 text-muted">
+                    {t("developmentPayment.sessionDescription")}
+                  </p>
+                </>
+              )}
+            </section>
+          ) : null}
+
+          {fileUploadFailed ? (
+            <p role="alert" className="text-sm text-danger">
+              {t("errors.upload")}
+            </p>
+          ) : null}
+          {checkout.isError ? (
+            <p role="alert" className="text-sm text-danger">
+              {t("errors.checkout")}
+            </p>
+          ) : null}
+          {(create.isError || confirmDevelopmentPayment.isError) && (
+            <p role="alert" className="text-sm text-danger">
+              {(create.error ?? confirmDevelopmentPayment.error) instanceof
+              Error
+                ? (create.error ?? confirmDevelopmentPayment.error)?.message
+                : t("errors.request")}
+            </p>
+          )}
+        </div>
       </form>
     </section>
   );
