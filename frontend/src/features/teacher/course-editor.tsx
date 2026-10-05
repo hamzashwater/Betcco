@@ -1741,6 +1741,7 @@ function CoverManager({
   disabled: boolean;
 }) {
   const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const client = useQueryClient();
   const [files, setFiles] = useState<File[]>([]);
   const upload = useMutation({
@@ -1766,39 +1767,31 @@ function CoverManager({
     <section className="card grid gap-4 p-5">
       <h2 className="flex items-center gap-2 text-lg font-black">
         <ImageIcon size={19} className="text-primary" aria-hidden="true" />
-        {locale === "ar" ? "غلاف الدورة" : "Course cover"}
+        {t("cover.title")}
       </h2>
       {course.hasCover ? (
         <img
           src={`/api/v1/teacher/courses/${course.id}/cover`}
-          alt={
-            locale === "ar"
-              ? `غلاف ${course.arabicTitle}`
-              : `${course.englishTitle} cover`
-          }
+          alt={t("cover.alt", {
+            title: locale === "ar" ? course.arabicTitle : course.englishTitle,
+          })}
           className="aspect-video w-full rounded-xl border border-border object-cover"
         />
       ) : (
         <div className="grid aspect-video place-items-center rounded-xl border border-dashed border-border text-sm text-muted">
-          {locale === "ar"
-            ? "لم يتم رفع غلاف بعد."
-            : "No cover has been uploaded."}
+          {t("cover.empty")}
         </div>
       )}
       <FilePicker
-        label={locale === "ar" ? "صورة الغلاف" : "Cover image"}
+        label={t("cover.image")}
         files={files}
         onFilesChange={setFiles}
         locale={locale}
         accept="image/jpeg,image/png,image/webp"
         maxFileBytes={5 * 1024 * 1024}
         disabled={disabled}
-        chooseLabel={locale === "ar" ? "اختيار غلاف" : "Choose cover"}
-        helpText={
-          locale === "ar"
-            ? "JPG أو PNG أو WEBP، حتى 5MB."
-            : "JPG, PNG, or WEBP up to 5MB."
-        }
+        chooseLabel={t("cover.choose")}
+        helpText={t("cover.help")}
       />
       <button
         type="button"
@@ -1807,9 +1800,12 @@ function CoverManager({
         className="focus-ring inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
       >
         <Upload size={17} aria-hidden="true" />
-        {locale === "ar" ? "رفع الغلاف" : "Upload cover"}
+        {t("cover.upload")}
       </button>
-      <RequestError error={upload.error} />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={upload.error}
+      />
     </section>
   );
 }
@@ -1821,7 +1817,7 @@ function OutcomesEditor({
   course: CourseEditorData;
   disabled: boolean;
 }) {
-  const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const client = useQueryClient();
   const [arabicText, setArabicText] = useState("");
   const [englishText, setEnglishText] = useState("");
@@ -1844,9 +1840,7 @@ function OutcomesEditor({
   });
   return (
     <section className="card p-5">
-      <h2 className="text-lg font-black">
-        {locale === "ar" ? "نواتج التعلّم" : "Learning outcomes"}
-      </h2>
+      <h2 className="text-lg font-black">{t("outcomes.title")}</h2>
       <ul className="mt-3 grid gap-2 text-sm text-muted">
         {course.outcomes.map((outcome) => (
           <li key={outcome.id} className="rounded-xl border border-border p-3">
@@ -1862,15 +1856,13 @@ function OutcomesEditor({
           <input
             value={arabicText}
             onChange={(event) => setArabicText(event.target.value)}
-            placeholder={locale === "ar" ? "ناتج بالعربية" : "Arabic outcome"}
+            placeholder={t("outcomes.arabic")}
             className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
           />
           <input
             value={englishText}
             onChange={(event) => setEnglishText(event.target.value)}
-            placeholder={
-              locale === "ar" ? "ناتج بالإنجليزية" : "English outcome"
-            }
+            placeholder={t("outcomes.english")}
             className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
           />
           <button
@@ -1881,11 +1873,14 @@ function OutcomesEditor({
             onClick={() => add.mutate()}
             className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 text-sm font-bold text-primary disabled:opacity-50"
           >
-            {locale === "ar" ? "إضافة ناتج" : "Add outcome"}
+            {t("outcomes.add")}
           </button>
         </div>
       ) : null}
-      <RequestError error={add.error} />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={add.error}
+      />
     </section>
   );
 }
@@ -1898,6 +1893,7 @@ export function CurriculumEditor({
   disabled: boolean;
 }) {
   const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const client = useQueryClient();
   const academicUnits = useQuery({
     queryKey: ["teacher-course-academic-units", course.id],
@@ -1945,12 +1941,10 @@ export function CurriculumEditor({
               className="text-primary"
               aria-hidden="true"
             />
-            {locale === "ar" ? "محتوى الدورة" : "Course content"}
+            {t("curriculum.title")}
           </h2>
           <p className="mt-1 text-sm text-muted">
-            {locale === "ar"
-              ? "أضف الوحدات والدروس، واكتب محتوى الدرس وارفع الموارد الخاصة به."
-              : "Add modules and lessons, write lesson content, and upload private resources."}
+            {t("curriculum.description")}
           </p>
         </div>
       </div>
@@ -1969,7 +1963,7 @@ export function CurriculumEditor({
         </div>
       ) : (
         <p className="mt-5 rounded-xl border border-dashed border-border p-4 text-sm text-muted">
-          {locale === "ar" ? "لا توجد وحدات بعد." : "No modules yet."}
+          {t("curriculum.empty")}
         </p>
       )}
       {!disabled && course.isBtecFocused && !course.deliveryPlanId ? (
@@ -1977,36 +1971,28 @@ export function CurriculumEditor({
           className="mt-5 rounded-xl border border-border p-4 text-sm text-muted"
           role="status"
         >
-          {locale === "ar"
-            ? "هذه دورة BTEC قديمة بلا خطة معتمدة. الوحدات الحالية متاحة للقراءة، ولا يمكن إضافة وحدة جديدة قبل ربط خطة بواسطة الإدارة."
-            : "This legacy BTEC course has no approved plan. Existing units remain readable; new units require an admin plan."}
+          {t("curriculum.legacyNoPlan")}
         </p>
       ) : null}
       {!disabled && (!course.isBtecFocused || course.deliveryPlanId) ? (
         <div className="mt-5 rounded-2xl border border-primary/20 bg-primary/5 p-4">
           <h3 className="flex items-center gap-2 font-black">
             <FolderPlus size={18} className="text-primary" aria-hidden="true" />
-            {locale === "ar" ? "إضافة وحدة" : "Add module"}
+            {t("curriculum.newModule")}
           </h3>
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             {course.isBtecFocused ? (
               <label className="grid min-w-0 gap-1 text-sm font-bold md:col-span-2">
-                {locale === "ar" ? "الوحدة الأكاديمية" : "Academic unit"}
+                {t("curriculum.academicUnit")}
                 <select
                   value={deliveryPlanEntryId}
                   onChange={(event) =>
                     setDeliveryPlanEntryId(event.target.value)
                   }
                   className="min-w-0 max-w-full rounded-xl border border-border bg-surface-solid p-3"
-                  aria-label={
-                    locale === "ar" ? "الوحدة الأكاديمية" : "Academic unit"
-                  }
+                  aria-label={t("curriculum.academicUnit")}
                 >
-                  <option value="">
-                    {locale === "ar"
-                      ? "اختر وحدة ضمن الخطة"
-                      : "Choose a planned unit"}
-                  </option>
+                  <option value="">{t("curriculum.chooseUnit")}</option>
                   {academicUnits.data?.map((unit) => (
                     <option
                       key={unit.deliveryPlanEntryId ?? unit.id}
@@ -2029,31 +2015,19 @@ export function CurriculumEditor({
                 <input
                   value={arabicTitle}
                   onChange={(event) => setArabicTitle(event.target.value)}
-                  placeholder={
-                    locale === "ar"
-                      ? "اسم الوحدة بالعربية"
-                      : "Arabic module title"
-                  }
+                  placeholder={t("curriculum.arabicTitle")}
                   className="rounded-xl border border-border bg-transparent p-3"
                 />
                 <input
                   value={unitCode}
                   onChange={(event) => setUnitCode(event.target.value)}
-                  placeholder={
-                    locale === "ar"
-                      ? "رمز الوحدة (مثال: UNIT-1)"
-                      : "Unit code (e.g. UNIT-1)"
-                  }
+                  placeholder={t("curriculum.unitCode")}
                   className="rounded-xl border border-border bg-transparent p-3"
                 />
                 <input
                   value={englishTitle}
                   onChange={(event) => setEnglishTitle(event.target.value)}
-                  placeholder={
-                    locale === "ar"
-                      ? "اسم الوحدة بالإنجليزية (اختياري)"
-                      : "English module title (optional)"
-                  }
+                  placeholder={t("curriculum.englishTitleOptional")}
                   className="rounded-xl border border-border bg-transparent p-3"
                 />
               </>
@@ -2061,18 +2035,14 @@ export function CurriculumEditor({
           </div>
           {course.isBtecFocused && academicUnits.isError ? (
             <p className="mt-2 text-sm text-red-400">
-              {locale === "ar"
-                ? "تعذر تحميل الوحدات الأكاديمية."
-                : "Could not load academic units."}
+              {t("curriculum.loadError")}
             </p>
           ) : null}
           {course.isBtecFocused &&
           academicUnits.isSuccess &&
           academicUnits.data.length === 0 ? (
             <p className="mt-2 text-sm text-muted">
-              {locale === "ar"
-                ? "لا توجد وحدات متاحة ضمن الخطة. اطلب من المدير إضافتها."
-                : "No units are available in this plan. Ask an admin to add them."}
+              {t("curriculum.noAvailableUnits")}
             </p>
           ) : null}
           <button
@@ -2087,9 +2057,12 @@ export function CurriculumEditor({
             className="focus-ring mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
           >
             <Plus size={17} aria-hidden="true" />
-            {locale === "ar" ? "إضافة الوحدة" : "Add module"}
+            {t("curriculum.add")}
           </button>
-          <RequestError error={addModule.error} />
+          <RequestError
+            fallback={t("courseEditor.requestFailed")}
+            error={addModule.error}
+          />
         </div>
       ) : null}
     </section>
@@ -2110,6 +2083,7 @@ function ModuleEditor({
   academicUnits: AcademicUnitOption[];
 }) {
   const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const client = useQueryClient();
   const [legacyUnitDefinitionId, setLegacyUnitDefinitionId] = useState("");
   const [titles, setTitles] = useState({
@@ -2225,7 +2199,7 @@ function ModuleEditor({
               disabled={save.isPending}
               className="focus-ring rounded-lg border border-primary/40 px-3 py-2 text-xs font-bold text-primary"
             >
-              {locale === "ar" ? "حفظ الوحدة" : "Save unit"}
+              {t("module.save")}
             </button>
             <button
               type="button"
@@ -2236,7 +2210,7 @@ function ModuleEditor({
               className="focus-ring inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-xs font-bold"
             >
               <Copy size={14} aria-hidden="true" />
-              {locale === "ar" ? "تكرار" : "Duplicate"}
+              {t("shared.duplicate")}
             </button>
             <button
               type="button"
@@ -2245,18 +2219,14 @@ function ModuleEditor({
               className="focus-ring inline-flex items-center gap-1 rounded-lg border border-red-400/40 px-3 py-2 text-xs font-bold text-red-400"
             >
               <Trash2 size={14} aria-hidden="true" />
-              {locale === "ar" ? "حذف" : "Delete"}
+              {t("announcements.delete")}
             </button>
           </div>
         ) : null}
       </div>
       {isBtecFocused && !module.unitDefinitionId ? (
         <div className="mt-3 rounded-xl border border-amber-400/40 p-3 text-sm">
-          <p>
-            {locale === "ar"
-              ? "وحدة قديمة بلا ربط أكاديمي. تبقى الدروس والتقدم متاحين. يمكن ربطها فقط إذا لم تتضمن أهدافاً أو معايير قديمة."
-              : "Legacy unit without an academic link. Lessons and progress remain available. It can be linked only when it has no legacy aims or criteria."}
-          </p>
+          <p>{t("module.legacyDescription")}</p>
           {!disabled &&
           module.learningAims.length === 0 &&
           module.criteria.length === 0 ? (
@@ -2266,16 +2236,10 @@ function ModuleEditor({
                 onChange={(event) =>
                   setLegacyUnitDefinitionId(event.target.value)
                 }
-                aria-label={
-                  locale === "ar" ? "ربط بوحدة أكاديمية" : "Link academic unit"
-                }
+                aria-label={t("module.academicLink")}
                 className="min-w-0 flex-1 rounded-lg border border-border bg-surface-solid p-2"
               >
-                <option value="">
-                  {locale === "ar"
-                    ? "اختر وحدة منشورة"
-                    : "Choose a published unit"}
-                </option>
+                <option value="">{t("module.choosePublishedUnit")}</option>
                 {academicUnits.map((unit) => (
                   <option key={unit.id} value={unit.id}>
                     {unit.qualificationCode} / {unit.versionCode} ·{" "}
@@ -2294,11 +2258,14 @@ function ModuleEditor({
                 disabled={!legacyUnitDefinitionId || linkModule.isPending}
                 className="focus-ring rounded-lg border border-primary/40 px-3 py-2 font-bold disabled:opacity-50"
               >
-                {locale === "ar" ? "ربط الوحدة" : "Link unit"}
+                {t("module.linkUnit")}
               </button>
             </div>
           ) : null}
-          <RequestError error={linkModule.error} />
+          <RequestError
+            fallback={t("courseEditor.requestFailed")}
+            error={linkModule.error}
+          />
         </div>
       ) : null}
       {!disabled ? (
@@ -2334,7 +2301,7 @@ function ModuleEditor({
                       unitCode: event.target.value,
                     }))
                   }
-                  placeholder={locale === "ar" ? "رمز الوحدة" : "Unit code"}
+                  placeholder={t("module.unitCode")}
                   className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
                 />
                 <input
@@ -2345,17 +2312,13 @@ function ModuleEditor({
                       qualificationLevel: event.target.value,
                     }))
                   }
-                  placeholder={
-                    locale === "ar" ? "المستوى / المؤهل" : "Qualification level"
-                  }
+                  placeholder={t("module.qualificationLevel")}
                   className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
                 />
               </>
             ) : (
               <p className="text-sm text-muted md:col-span-2">
-                {locale === "ar"
-                  ? "اسم الوحدة ورمزها وأهدافها ومعاييرها من الدليل الأكاديمي المنشور."
-                  : "Unit name, code, aims, and criteria come from the published academic catalogue."}
+                {t("module.catalogueDescription")}
               </p>
             )}
           </div>
@@ -2368,11 +2331,7 @@ function ModuleEditor({
                   arabicDescription: event.target.value,
                 }))
               }
-              placeholder={
-                locale === "ar"
-                  ? "وصف الوحدة بالعربية"
-                  : "Arabic unit description"
-              }
+              placeholder={t("module.arabicDescription")}
               className="min-h-20 rounded-xl border border-border bg-transparent p-2.5 text-sm"
             />
             <textarea
@@ -2383,11 +2342,7 @@ function ModuleEditor({
                   englishDescription: event.target.value,
                 }))
               }
-              placeholder={
-                locale === "ar"
-                  ? "وصف الوحدة بالإنجليزية"
-                  : "English unit description"
-              }
+              placeholder={t("module.englishDescription")}
               className="min-h-20 rounded-xl border border-border bg-transparent p-2.5 text-sm"
             />
           </div>
@@ -2402,12 +2357,8 @@ function ModuleEditor({
                   guidedLearningHours: event.target.value,
                 }))
               }
-              aria-label={
-                locale === "ar"
-                  ? "ساعات التعلّم الموجّه"
-                  : "Guided learning hours"
-              }
-              placeholder={locale === "ar" ? "GLH" : "GLH"}
+              aria-label={t("module.guidedLearningHours")}
+              placeholder={t("module.glh")}
               className="w-28 rounded-xl border border-border bg-transparent p-2.5 text-sm"
             />
             <input
@@ -2420,8 +2371,8 @@ function ModuleEditor({
                   credits: event.target.value,
                 }))
               }
-              aria-label={locale === "ar" ? "اعتمادات الوحدة" : "Unit credits"}
-              placeholder={locale === "ar" ? "الاعتمادات" : "Credits"}
+              aria-label={t("module.unitCredits")}
+              placeholder={t("module.credits")}
               className="w-32 rounded-xl border border-border bg-transparent p-2.5 text-sm"
             />
             <select
@@ -2434,22 +2385,14 @@ function ModuleEditor({
               }
               className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
             >
-              <option value="Published">
-                {locale === "ar" ? "منشور داخل الدورة" : "Published in course"}
-              </option>
-              <option value="Draft">
-                {locale === "ar" ? "مسودة" : "Draft"}
-              </option>
-              <option value="Archived">
-                {locale === "ar" ? "مؤرشف" : "Archived"}
-              </option>
-              <option value="Scheduled">
-                {locale === "ar" ? "مجدول" : "Scheduled"}
-              </option>
+              <option value="Published">{t("module.publishedInCourse")}</option>
+              <option value="Draft">{t("courseEditor.status.draft")}</option>
+              <option value="Archived">{t("shared.archived")}</option>
+              <option value="Scheduled">{t("shared.scheduled")}</option>
             </select>
             {unitDetails.publicationStatus === "Scheduled" ? (
               <label className="grid gap-1 text-xs font-bold text-muted">
-                {locale === "ar" ? "وقت إتاحة الوحدة" : "Unit release time"}
+                {t("module.releaseTime")}
                 <input
                   type="datetime-local"
                   required
@@ -2465,7 +2408,7 @@ function ModuleEditor({
               </label>
             ) : null}
             <label className="grid gap-1 text-xs font-bold text-muted">
-              {locale === "ar" ? "ترتيب الوحدة" : "Unit order"}
+              {t("module.order")}
               <input
                 type="number"
                 min="0"
@@ -2502,9 +2445,7 @@ function ModuleEditor({
       </div>
       {!disabled ? (
         <div className="mt-4 rounded-xl border border-border bg-surface-solid/35 p-4">
-          <h4 className="font-black">
-            {locale === "ar" ? "إضافة درس" : "Add lesson"}
-          </h4>
+          <h4 className="font-black">{t("module.newLesson")}</h4>
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             <input
               value={lesson.arabicTitle}
@@ -2514,9 +2455,7 @@ function ModuleEditor({
                   arabicTitle: event.target.value,
                 }))
               }
-              placeholder={
-                locale === "ar" ? "عنوان الدرس بالعربية" : "Arabic lesson title"
-              }
+              placeholder={t("module.arabicLessonTitle")}
               className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
             />
             <input
@@ -2527,11 +2466,7 @@ function ModuleEditor({
                   englishTitle: event.target.value,
                 }))
               }
-              placeholder={
-                locale === "ar"
-                  ? "عنوان الدرس بالإنجليزية (اختياري)"
-                  : "English lesson title (optional)"
-              }
+              placeholder={t("module.englishLessonTitleOptional")}
               className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
             />
           </div>
@@ -2544,11 +2479,7 @@ function ModuleEditor({
                   arabicBody: event.target.value,
                 }))
               }
-              placeholder={
-                locale === "ar"
-                  ? "محتوى الدرس بالعربية"
-                  : "Arabic lesson content"
-              }
+              placeholder={t("module.arabicLessonContent")}
               className="min-h-24 rounded-xl border border-border bg-transparent p-2.5 text-sm"
             />
             <textarea
@@ -2559,11 +2490,7 @@ function ModuleEditor({
                   englishBody: event.target.value,
                 }))
               }
-              placeholder={
-                locale === "ar"
-                  ? "محتوى الدرس بالإنجليزية (اختياري)"
-                  : "English lesson content (optional)"
-              }
+              placeholder={t("module.englishLessonContentOptional")}
               className="min-h-24 rounded-xl border border-border bg-transparent p-2.5 text-sm"
             />
           </div>
@@ -2578,11 +2505,13 @@ function ModuleEditor({
               }
               className="rounded-xl border border-border bg-transparent p-2 text-sm"
             >
-              <option value="Text">Text</option>
-              <option value="Video">Video</option>
-              <option value="Activity">Activity</option>
-              <option value="Assignment">Assignment</option>
-              <option value="LiveSession">Live session</option>
+              <option value="Text">{t("lesson.type.text")}</option>
+              <option value="Video">{t("lesson.type.video")}</option>
+              <option value="Activity">{t("lesson.type.activity")}</option>
+              <option value="Assignment">{t("lesson.type.assignment")}</option>
+              <option value="LiveSession">
+                {t("lesson.type.liveSession")}
+              </option>
             </select>
             <input
               type="number"
@@ -2595,11 +2524,7 @@ function ModuleEditor({
                 }))
               }
               className="w-32 rounded-xl border border-border bg-transparent p-2 text-sm"
-              aria-label={
-                locale === "ar"
-                  ? "مدة الدرس بالثواني"
-                  : "Lesson duration in seconds"
-              }
+              aria-label={t("module.lessonDuration")}
             />
             <label className="flex items-center gap-2 text-sm font-bold">
               <input
@@ -2613,7 +2538,7 @@ function ModuleEditor({
                 }
                 className="size-4 accent-[var(--primary)]"
               />
-              {locale === "ar" ? "درس تجريبي" : "Preview lesson"}
+              {t("module.previewLesson")}
             </label>
           </div>
           <button
@@ -2623,14 +2548,26 @@ function ModuleEditor({
             className="focus-ring mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
           >
             <Plus size={17} aria-hidden="true" />
-            {locale === "ar" ? "إضافة الدرس" : "Add lesson"}
+            {t("module.addLesson")}
           </button>
-          <RequestError error={addLesson.error} />
+          <RequestError
+            fallback={t("courseEditor.requestFailed")}
+            error={addLesson.error}
+          />
         </div>
       ) : null}
-      <RequestError error={save.error} />
-      <RequestError error={deleteModule.error} />
-      <RequestError error={duplicateModule.error} />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={save.error}
+      />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={deleteModule.error}
+      />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={duplicateModule.error}
+      />
     </article>
   );
 }
@@ -2649,6 +2586,7 @@ function BtecStructureEditor({
   allowAcademicCreation: boolean;
 }) {
   const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const client = useQueryClient();
   const [aim, setAim] = useState({
     code: "",
@@ -2719,15 +2657,9 @@ function BtecStructureEditor({
       <div className="flex items-center gap-2">
         <Target size={18} className="text-primary" aria-hidden="true" />
         <div>
-          <h4 className="font-black">
-            {locale === "ar"
-              ? "هيكل BTEC ومعاييره"
-              : "BTEC structure & criteria"}
-          </h4>
+          <h4 className="font-black">{t("btecStructure.title")}</h4>
           <p className="mt-1 text-xs leading-5 text-muted">
-            {locale === "ar"
-              ? "رتّب هدف التعلّم ثم الموضوعات ومعايير P/M/D المرتبطة بهذه الوحدة."
-              : "Structure learning aims, topics, and the P/M/D criteria for this unit."}
+            {t("btecStructure.description")}
           </p>
         </div>
       </div>
@@ -2744,11 +2676,7 @@ function BtecStructureEditor({
           ))}
         </div>
       ) : (
-        <p className="mt-4 text-sm text-muted">
-          {locale === "ar"
-            ? "لم تضف أهداف تعلّم بعد."
-            : "No learning aims yet."}
-        </p>
+        <p className="mt-4 text-sm text-muted">{t("btecStructure.noAims")}</p>
       )}
       {!disabled && allowAcademicCreation ? (
         <div className="mt-4 grid gap-3 rounded-xl border border-border bg-surface-solid/45 p-3 md:grid-cols-2">
@@ -2757,7 +2685,7 @@ function BtecStructureEditor({
             onChange={(event) =>
               setAim((current) => ({ ...current, code: event.target.value }))
             }
-            placeholder={locale === "ar" ? "رمز الهدف (A)" : "Aim code (A)"}
+            placeholder={t("btecStructure.aimCode")}
             className="rounded-lg border border-border bg-transparent p-2.5 text-sm"
           />
           <input
@@ -2768,9 +2696,7 @@ function BtecStructureEditor({
                 arabicTitle: event.target.value,
               }))
             }
-            placeholder={
-              locale === "ar" ? "هدف التعلّم بالعربية" : "Arabic learning aim"
-            }
+            placeholder={t("btecStructure.arabicAim")}
             className="rounded-lg border border-border bg-transparent p-2.5 text-sm"
           />
           <input
@@ -2781,11 +2707,7 @@ function BtecStructureEditor({
                 englishTitle: event.target.value,
               }))
             }
-            placeholder={
-              locale === "ar"
-                ? "هدف التعلّم بالإنجليزية"
-                : "English learning aim"
-            }
+            placeholder={t("btecStructure.englishAim")}
             className="rounded-lg border border-border bg-transparent p-2.5 text-sm"
           />
           <button
@@ -2800,7 +2722,7 @@ function BtecStructureEditor({
             className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
           >
             <Plus size={16} aria-hidden="true" />
-            {locale === "ar" ? "إضافة هدف تعلّم" : "Add learning aim"}
+            {t("btecStructure.addAim")}
           </button>
           <textarea
             value={aim.arabicDescription}
@@ -2810,11 +2732,7 @@ function BtecStructureEditor({
                 arabicDescription: event.target.value,
               }))
             }
-            placeholder={
-              locale === "ar"
-                ? "شرح عربي اختياري"
-                : "Optional Arabic description"
-            }
+            placeholder={t("btecStructure.arabicDescriptionOptional")}
             className="min-h-16 rounded-lg border border-border bg-transparent p-2.5 text-sm"
           />
           <textarea
@@ -2825,19 +2743,13 @@ function BtecStructureEditor({
                 englishDescription: event.target.value,
               }))
             }
-            placeholder={
-              locale === "ar"
-                ? "شرح إنجليزي اختياري"
-                : "Optional English description"
-            }
+            placeholder={t("btecStructure.englishDescriptionOptional")}
             className="min-h-16 rounded-lg border border-border bg-transparent p-2.5 text-sm"
           />
         </div>
       ) : null}
       <div className="mt-4 border-t border-border pt-4">
-        <h5 className="font-black">
-          {locale === "ar" ? "معايير الوحدة" : "Unit criteria"}
-        </h5>
+        <h5 className="font-black">{t("btecStructure.criteria")}</h5>
         {module.criteria.length ? (
           <div className="mt-3 grid gap-3">
             {module.criteria.map((item) => (
@@ -2851,7 +2763,7 @@ function BtecStructureEditor({
           </div>
         ) : (
           <p className="mt-2 text-sm text-muted">
-            {locale === "ar" ? "لا توجد معايير بعد." : "No criteria yet."}
+            {t("btecStructure.noCriteria")}
           </p>
         )}
         {!disabled && allowAcademicCreation ? (
@@ -2866,11 +2778,7 @@ function BtecStructureEditor({
               }
               className="rounded-lg border border-border bg-transparent p-2.5 text-sm"
             >
-              <option value="">
-                {locale === "ar"
-                  ? "هدف تعلّم اختياري"
-                  : "Optional learning aim"}
-              </option>
+              <option value="">{t("btecStructure.optionalAim")}</option>
               {module.learningAims.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.code} —{" "}
@@ -2899,9 +2807,11 @@ function BtecStructureEditor({
               }
               className="rounded-lg border border-border bg-transparent p-2.5 text-sm"
             >
-              <option value="Pass">P — Pass</option>
-              <option value="Merit">M — Merit</option>
-              <option value="Distinction">D — Distinction</option>
+              <option value="Pass">{t("btecStructure.band.pass")}</option>
+              <option value="Merit">{t("btecStructure.band.merit")}</option>
+              <option value="Distinction">
+                {t("btecStructure.band.distinction")}
+              </option>
             </select>
             <input
               value={criterion.arabicDescription}
@@ -2911,11 +2821,7 @@ function BtecStructureEditor({
                   arabicDescription: event.target.value,
                 }))
               }
-              placeholder={
-                locale === "ar"
-                  ? "وصف المعيار بالعربية"
-                  : "Arabic criterion description"
-              }
+              placeholder={t("btecStructure.arabicCriterion")}
               className="rounded-lg border border-border bg-transparent p-2.5 text-sm"
             />
             <input
@@ -2926,11 +2832,7 @@ function BtecStructureEditor({
                   englishDescription: event.target.value,
                 }))
               }
-              placeholder={
-                locale === "ar"
-                  ? "وصف المعيار بالإنجليزية"
-                  : "English criterion description"
-              }
+              placeholder={t("btecStructure.englishCriterion")}
               className="rounded-lg border border-border bg-transparent p-2.5 text-sm"
             />
             <button
@@ -2945,13 +2847,19 @@ function BtecStructureEditor({
               className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
             >
               <Plus size={16} aria-hidden="true" />
-              {locale === "ar" ? "إضافة معيار" : "Add criterion"}
+              {t("btecStructure.addCriterion")}
             </button>
           </div>
         ) : null}
       </div>
-      <RequestError error={addAim.error} />
-      <RequestError error={addCriterion.error} />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={addAim.error}
+      />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={addCriterion.error}
+      />
     </section>
   );
 }
@@ -2968,6 +2876,7 @@ function LearningAimEditor({
   academicLocked: boolean;
 }) {
   const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const client = useQueryClient();
   const [form, setForm] = useState({
     code: aim.code,
@@ -3031,7 +2940,7 @@ function LearningAimEditor({
               onClick={() => save.mutate()}
               className="focus-ring rounded-lg border border-primary/40 px-2.5 py-1.5 text-xs font-bold text-primary"
             >
-              {locale === "ar" ? "حفظ" : "Save"}
+              {t("shared.save")}
             </button>
             <button
               type="button"
@@ -3039,7 +2948,7 @@ function LearningAimEditor({
               className="focus-ring inline-flex items-center gap-1 rounded-lg border border-red-400/40 px-2.5 py-1.5 text-xs font-bold text-red-400"
             >
               <Trash2 size={13} aria-hidden="true" />
-              {locale === "ar" ? "حذف" : "Delete"}
+              {t("announcements.delete")}
             </button>
           </div>
         ) : null}
@@ -3051,7 +2960,7 @@ function LearningAimEditor({
             onChange={(event) =>
               setForm((current) => ({ ...current, code: event.target.value }))
             }
-            aria-label="Learning aim code"
+            aria-label={t("learningAim.code")}
             className="rounded-lg border border-border bg-transparent p-2 text-sm"
           />
           <input
@@ -3062,7 +2971,7 @@ function LearningAimEditor({
                 arabicTitle: event.target.value,
               }))
             }
-            aria-label="Arabic learning aim"
+            aria-label={t("btecStructure.arabicAim")}
             className="rounded-lg border border-border bg-transparent p-2 text-sm"
           />
           <input
@@ -3073,11 +2982,11 @@ function LearningAimEditor({
                 englishTitle: event.target.value,
               }))
             }
-            aria-label="English learning aim"
+            aria-label={t("btecStructure.englishAim")}
             className="rounded-lg border border-border bg-transparent p-2 text-sm"
           />
           <label className="grid gap-1 text-xs font-bold text-muted">
-            {locale === "ar" ? "ترتيب الهدف" : "Aim order"}
+            {t("learningAim.order")}
             <input
               type="number"
               min="0"
@@ -3113,7 +3022,7 @@ function LearningAimEditor({
                 arabicTitle: event.target.value,
               }))
             }
-            placeholder={locale === "ar" ? "موضوع بالعربية" : "Arabic topic"}
+            placeholder={t("topic.arabic")}
             className="rounded-lg border border-border bg-transparent p-2 text-sm"
           />
           <input
@@ -3124,9 +3033,7 @@ function LearningAimEditor({
                 englishTitle: event.target.value,
               }))
             }
-            placeholder={
-              locale === "ar" ? "موضوع بالإنجليزية" : "English topic"
-            }
+            placeholder={t("topic.english")}
             className="rounded-lg border border-border bg-transparent p-2 text-sm"
           />
           <button
@@ -3140,13 +3047,22 @@ function LearningAimEditor({
             className="focus-ring inline-flex items-center justify-center gap-1 rounded-lg border border-primary/40 px-2 py-2 text-xs font-bold text-primary"
           >
             <Plus size={14} aria-hidden="true" />
-            {locale === "ar" ? "موضوع" : "Topic"}
+            {t("topic.add")}
           </button>
         </div>
       ) : null}
-      <RequestError error={save.error} />
-      <RequestError error={remove.error} />
-      <RequestError error={addTopic.error} />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={save.error}
+      />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={remove.error}
+      />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={addTopic.error}
+      />
     </article>
   );
 }
@@ -3161,6 +3077,7 @@ function TopicEditor({
   disabled: boolean;
 }) {
   const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const client = useQueryClient();
   const [form, setForm] = useState({
     arabicTitle: topic.arabicTitle,
@@ -3199,7 +3116,7 @@ function TopicEditor({
                 arabicTitle: event.target.value,
               }))
             }
-            aria-label="Arabic topic"
+            aria-label={t("topic.arabic")}
             className="min-w-28 flex-1 rounded border border-border bg-transparent p-1.5"
           />
           <input
@@ -3210,7 +3127,7 @@ function TopicEditor({
                 englishTitle: event.target.value,
               }))
             }
-            aria-label="English topic"
+            aria-label={t("topic.english")}
             className="min-w-28 flex-1 rounded border border-border bg-transparent p-1.5"
           />
           <input
@@ -3223,7 +3140,7 @@ function TopicEditor({
                 sortOrder: event.target.value,
               }))
             }
-            aria-label={locale === "ar" ? "ترتيب الموضوع" : "Topic order"}
+            aria-label={t("topic.order")}
             className="w-20 rounded border border-border bg-transparent p-1.5"
           />
           <button
@@ -3231,19 +3148,25 @@ function TopicEditor({
             onClick={() => save.mutate()}
             className="focus-ring text-xs font-bold text-primary"
           >
-            {locale === "ar" ? "حفظ" : "Save"}
+            {t("shared.save")}
           </button>
           <button
             type="button"
             onClick={() => remove.mutate()}
             className="focus-ring text-xs font-bold text-red-400"
           >
-            {locale === "ar" ? "حذف" : "Delete"}
+            {t("announcements.delete")}
           </button>
         </>
       ) : null}
-      <RequestError error={save.error} />
-      <RequestError error={remove.error} />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={save.error}
+      />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={remove.error}
+      />
     </div>
   );
 }
@@ -3258,6 +3181,7 @@ function CriterionEditor({
   disabled: boolean;
 }) {
   const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const client = useQueryClient();
   const [form, setForm] = useState({
     code: criterion.code,
@@ -3299,7 +3223,7 @@ function CriterionEditor({
               onClick={() => save.mutate()}
               className="focus-ring text-xs font-bold text-primary"
             >
-              {locale === "ar" ? "حفظ" : "Save"}
+              {t("shared.save")}
             </button>
             <button
               type="button"
@@ -3307,7 +3231,7 @@ function CriterionEditor({
               className="focus-ring inline-flex items-center gap-1 text-xs font-bold text-red-400"
             >
               <Trash2 size={13} aria-hidden="true" />
-              {locale === "ar" ? "حذف" : "Delete"}
+              {t("announcements.delete")}
             </button>
           </div>
         ) : null}
@@ -3319,7 +3243,7 @@ function CriterionEditor({
             onChange={(event) =>
               setForm((current) => ({ ...current, code: event.target.value }))
             }
-            aria-label="Criterion code"
+            aria-label={t("criterion.code")}
             className="rounded border border-border bg-transparent p-2 text-sm"
           />
           <select
@@ -3346,7 +3270,7 @@ function CriterionEditor({
                 sortOrder: event.target.value,
               }))
             }
-            aria-label={locale === "ar" ? "ترتيب المعيار" : "Criterion order"}
+            aria-label={t("criterion.order")}
             className="rounded border border-border bg-transparent p-2 text-sm"
           />
           <input
@@ -3357,7 +3281,7 @@ function CriterionEditor({
                 arabicDescription: event.target.value,
               }))
             }
-            aria-label="Arabic criterion description"
+            aria-label={t("btecStructure.arabicCriterion")}
             className="rounded border border-border bg-transparent p-2 text-sm"
           />
           <input
@@ -3368,7 +3292,7 @@ function CriterionEditor({
                 englishDescription: event.target.value,
               }))
             }
-            aria-label="English criterion description"
+            aria-label={t("btecStructure.englishCriterion")}
             className="rounded border border-border bg-transparent p-2 text-sm"
           />
         </div>
@@ -3379,8 +3303,14 @@ function CriterionEditor({
             : criterion.englishDescription}
         </p>
       )}
-      <RequestError error={save.error} />
-      <RequestError error={remove.error} />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={save.error}
+      />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={remove.error}
+      />
     </article>
   );
 }
@@ -3397,6 +3327,7 @@ function LessonEditor({
   disabled: boolean;
 }) {
   const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const client = useQueryClient();
   const [form, setForm] = useState({
     arabicTitle: lesson.arabicTitle,
@@ -3516,7 +3447,7 @@ function LessonEditor({
           </h4>
           <p className="mt-1 text-xs text-muted">
             {lesson.type} · {Math.round(lesson.durationSeconds / 60)}{" "}
-            {locale === "ar" ? "دقيقة" : "min"}
+            {t("lesson.minutes")}
           </p>
         </div>
         {!disabled ? (
@@ -3527,7 +3458,7 @@ function LessonEditor({
               disabled={save.isPending}
               className="focus-ring rounded-lg border border-primary/40 px-3 py-2 text-xs font-bold text-primary"
             >
-              {locale === "ar" ? "حفظ الدرس" : "Save lesson"}
+              {t("lesson.save")}
             </button>
             <button
               type="button"
@@ -3536,7 +3467,7 @@ function LessonEditor({
               className="focus-ring inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-xs font-bold"
             >
               <Copy size={14} aria-hidden="true" />
-              {locale === "ar" ? "تكرار" : "Duplicate"}
+              {t("shared.duplicate")}
             </button>
             <button
               type="button"
@@ -3545,7 +3476,7 @@ function LessonEditor({
               className="focus-ring inline-flex items-center gap-1 rounded-lg border border-red-400/40 px-3 py-2 text-xs font-bold text-red-400"
             >
               <Trash2 size={14} aria-hidden="true" />
-              {locale === "ar" ? "حذف" : "Delete"}
+              {t("announcements.delete")}
             </button>
           </div>
         ) : null}
@@ -3604,11 +3535,13 @@ function LessonEditor({
               }
               className="rounded-xl border border-border bg-transparent p-2 text-sm"
             >
-              <option value="Text">Text</option>
-              <option value="Video">Video</option>
-              <option value="Activity">Activity</option>
-              <option value="Assignment">Assignment</option>
-              <option value="LiveSession">Live session</option>
+              <option value="Text">{t("lesson.type.text")}</option>
+              <option value="Video">{t("lesson.type.video")}</option>
+              <option value="Activity">{t("lesson.type.activity")}</option>
+              <option value="Assignment">{t("lesson.type.assignment")}</option>
+              <option value="LiveSession">
+                {t("lesson.type.liveSession")}
+              </option>
             </select>
             <select
               value={form.publicationStatus}
@@ -3623,20 +3556,12 @@ function LessonEditor({
                 }))
               }
               className="rounded-xl border border-border bg-transparent p-2 text-sm"
-              aria-label={locale === "ar" ? "حالة الدرس" : "Lesson status"}
+              aria-label={t("lesson.status")}
             >
-              <option value="Draft">
-                {locale === "ar" ? "مسودة" : "Draft"}
-              </option>
-              <option value="Published">
-                {locale === "ar" ? "منشور" : "Published"}
-              </option>
-              <option value="Archived">
-                {locale === "ar" ? "مؤرشف" : "Archived"}
-              </option>
-              <option value="Scheduled">
-                {locale === "ar" ? "مجدول" : "Scheduled"}
-              </option>
+              <option value="Draft">{t("courseEditor.status.draft")}</option>
+              <option value="Published">{t("announcements.published")}</option>
+              <option value="Archived">{t("shared.archived")}</option>
+              <option value="Scheduled">{t("shared.scheduled")}</option>
             </select>
             <select
               value={form.learningAimId}
@@ -3648,11 +3573,9 @@ function LessonEditor({
                 }))
               }
               className="rounded-xl border border-border bg-transparent p-2 text-sm"
-              aria-label={locale === "ar" ? "هدف التعلم" : "Learning aim"}
+              aria-label={t("lesson.learningAim")}
             >
-              <option value="">
-                {locale === "ar" ? "بدون هدف محدد" : "No specific aim"}
-              </option>
+              <option value="">{t("lesson.noAim")}</option>
               {module.learningAims.map((aim) => (
                 <option key={aim.id} value={aim.id}>
                   {aim.code} —{" "}
@@ -3670,11 +3593,9 @@ function LessonEditor({
               }
               disabled={!form.learningAimId}
               className="rounded-xl border border-border bg-transparent p-2 text-sm disabled:opacity-50"
-              aria-label={locale === "ar" ? "الموضوع" : "Topic"}
+              aria-label={t("lesson.topic")}
             >
-              <option value="">
-                {locale === "ar" ? "بدون موضوع محدد" : "No specific topic"}
-              </option>
+              <option value="">{t("lesson.noTopic")}</option>
               {(
                 module.learningAims.find((aim) => aim.id === form.learningAimId)
                   ?.topics ?? []
@@ -3697,7 +3618,7 @@ function LessonEditor({
               className="w-32 rounded-xl border border-border bg-transparent p-2 text-sm"
             />
             <label className="grid gap-1 text-xs font-bold text-muted">
-              {locale === "ar" ? "ترتيب الدرس" : "Lesson order"}
+              {t("lesson.order")}
               <input
                 type="number"
                 min="0"
@@ -3713,7 +3634,7 @@ function LessonEditor({
             </label>
             {form.publicationStatus === "Scheduled" ? (
               <label className="grid gap-1 text-xs font-bold text-muted">
-                {locale === "ar" ? "وقت إتاحة الدرس" : "Lesson release time"}
+                {t("lesson.releaseTime")}
                 <input
                   type="datetime-local"
                   required
@@ -3740,7 +3661,7 @@ function LessonEditor({
                 }
                 className="size-4 accent-[var(--primary)]"
               />
-              {locale === "ar" ? "تجريبي" : "Preview"}
+              {t("lesson.preview")}
             </label>
           </div>
         </div>
@@ -3753,23 +3674,20 @@ function LessonEditor({
               controls
               preload="metadata"
               className="aspect-video w-full"
-              aria-label={
-                locale === "ar"
-                  ? `معاينة فيديو ${lesson.arabicTitle}`
-                  : `Preview ${lesson.englishTitle} video`
-              }
+              aria-label={t("lesson.videoAlt", {
+                title:
+                  locale === "ar" ? lesson.arabicTitle : lesson.englishTitle,
+              })}
               src={`/api/v1/teacher/courses/lessons/${lesson.id}/video?retry=${videoRetryCount}`}
               onCanPlay={() => setVideoPlaybackState("ready")}
               onWaiting={() => setVideoPlaybackState("loading")}
               onError={() => setVideoPlaybackState("error")}
             >
-              {locale === "ar"
-                ? "المتصفح لا يدعم تشغيل الفيديو."
-                : "Your browser does not support video playback."}
+              {t("lesson.unsupportedVideo")}
             </video>
             {videoPlaybackState === "loading" ? (
               <p role="status" className="px-3 py-2 text-sm text-white/80">
-                {locale === "ar" ? "جارٍ تحميل الفيديو…" : "Loading video…"}
+                {t("lesson.loadingVideo")}
               </p>
             ) : null}
             {videoPlaybackState === "error" ? (
@@ -3777,11 +3695,7 @@ function LessonEditor({
                 role="alert"
                 className="flex flex-wrap items-center gap-3 px-3 py-2 text-sm text-white"
               >
-                <span>
-                  {locale === "ar"
-                    ? "تعذر تشغيل الفيديو."
-                    : "Video unavailable."}
-                </span>
+                <span>{t("lesson.videoUnavailable")}</span>
                 <button
                   type="button"
                   className="focus-ring rounded-lg border border-white/40 px-3 py-1.5"
@@ -3790,14 +3704,12 @@ function LessonEditor({
                     setVideoRetryCount((count) => count + 1);
                   }}
                 >
-                  {locale === "ar" ? "إعادة المحاولة" : "Retry video"}
+                  {t("lesson.retryVideo")}
                 </button>
               </div>
             ) : null}
             <p className="border-t border-white/10 px-3 py-2 text-xs font-bold text-white/80">
-              {locale === "ar"
-                ? "فيديو الدرس الحالي: "
-                : "Current lesson video: "}
+              {t("lesson.currentVideo")}
               {lesson.video.displayName}
             </p>
             {!disabled ? (
@@ -3809,14 +3721,13 @@ function LessonEditor({
                   className="focus-ring rounded-lg border border-red-400/50 px-3 py-2 text-xs font-bold text-red-200 disabled:opacity-50"
                 >
                   {removeVideo.isPending
-                    ? locale === "ar"
-                      ? "جارٍ إزالة الفيديو…"
-                      : "Removing video…"
-                    : locale === "ar"
-                      ? "إزالة الفيديو"
-                      : "Remove video"}
+                    ? t("lesson.removingVideo")
+                    : t("lesson.removeVideo")}
                 </button>
-                <RequestError error={removeVideo.error} />
+                <RequestError
+                  fallback={t("courseEditor.requestFailed")}
+                  error={removeVideo.error}
+                />
               </div>
             ) : null}
           </div>
@@ -3824,26 +3735,14 @@ function LessonEditor({
         {!disabled ? (
           <div className="mb-4 rounded-xl border border-primary/30 bg-primary/5 p-3">
             <FilePicker
-              label={
-                locale === "ar"
-                  ? "فيديو الدرس المسجّل"
-                  : "Recorded lesson video"
-              }
+              label={t("lesson.recordedVideo")}
               files={videoFiles}
               onFilesChange={setVideoFiles}
               locale={locale}
               accept="video/mp4,video/webm,.mp4,.webm"
               maxFileBytes={500 * 1024 * 1024}
-              chooseLabel={
-                locale === "ar"
-                  ? "اختيار فيديو MP4 أو WEBM"
-                  : "Choose MP4 or WEBM video"
-              }
-              helpText={
-                locale === "ar"
-                  ? "حتى 500MB. رفع فيديو جديد يستبدل الفيديو الحالي. يُعرض للطلاب المصرّح لهم بعد النشر."
-                  : "Up to 500MB. Uploading a new video replaces the current one. Authorized learners can stream it after publication."
-              }
+              chooseLabel={t("lesson.chooseVideo")}
+              helpText={t("lesson.videoHelp")}
             />
             <button
               type="button"
@@ -3857,28 +3756,25 @@ function LessonEditor({
             >
               <Upload size={17} aria-hidden="true" />
               {uploadVideo.isPending
-                ? locale === "ar"
-                  ? "جارٍ رفع الفيديو…"
-                  : "Uploading video…"
-                : locale === "ar"
-                  ? lesson.video
-                    ? "استبدال فيديو الدرس"
-                    : "رفع وربط فيديو الدرس"
-                  : lesson.video
-                    ? "Replace lesson video"
-                    : "Upload and attach lesson video"}
+                ? t("lesson.uploadingVideo")
+                : lesson.video
+                  ? t("lesson.replaceVideo")
+                  : t("lesson.attachVideo")}
             </button>
             {uploadVideo.isSuccess ? (
               <p role="status" className="mt-2 text-xs text-primary">
-                {locale === "ar" ? "تم حفظ الفيديو." : "Video saved."}
+                {t("lesson.videoSaved")}
               </p>
             ) : null}
-            <RequestError error={uploadVideo.error} />
+            <RequestError
+              fallback={t("courseEditor.requestFailed")}
+              error={uploadVideo.error}
+            />
           </div>
         ) : null}
         <p className="flex items-center gap-2 text-sm font-black">
           <FileText size={16} className="text-primary" aria-hidden="true" />
-          {locale === "ar" ? "موارد الدرس" : "Lesson resources"}
+          {t("lesson.resources")}
         </p>
         {lesson.resources.filter((resource) => resource.id !== lesson.video?.id)
           .length ? (
@@ -3908,27 +3804,19 @@ function LessonEditor({
               ))}
           </ul>
         ) : (
-          <p className="mt-2 text-sm text-muted">
-            {locale === "ar" ? "لا توجد ملفات مرفوعة." : "No uploaded files."}
-          </p>
+          <p className="mt-2 text-sm text-muted">{t("lesson.noResources")}</p>
         )}
         {!disabled ? (
           <div className="mt-3">
             <FilePicker
-              label={
-                locale === "ar" ? "رفع ملفات الدرس" : "Upload lesson files"
-              }
+              label={t("lesson.uploadFiles")}
               files={files}
               onFilesChange={setFiles}
               locale={locale}
               multiple
               maxFileBytes={100 * 1024 * 1024}
-              chooseLabel={locale === "ar" ? "اختيار ملفات" : "Choose files"}
-              helpText={
-                locale === "ar"
-                  ? "حتى 100MB لكل ملف. الملفات تبقى خاصة ولا تصل للطلاب إلا ضمن الدورة المسجلين بها."
-                  : "Up to 100MB per file. Files remain private and are available only to enrolled students."
-              }
+              chooseLabel={t("lesson.chooseFiles")}
+              helpText={t("lesson.resourceHelp")}
             />
             <button
               type="button"
@@ -3937,12 +3825,15 @@ function LessonEditor({
               className="focus-ring mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
             >
               <Upload size={17} aria-hidden="true" />
-              {locale === "ar" ? "رفع الموارد" : "Upload resources"}
+              {t("lesson.uploadResources")}
             </button>
-            <RequestError error={upload.error} />
+            <RequestError
+              fallback={t("courseEditor.requestFailed")}
+              error={upload.error}
+            />
             <div className="mt-4 grid gap-2 rounded-xl border border-border bg-white/5 p-3 md:grid-cols-[1fr_1.5fr_auto] md:items-end">
               <label className="grid gap-1 text-xs font-bold text-muted">
-                {locale === "ar" ? "اسم الرابط" : "Link name"}
+                {t("lesson.linkName")}
                 <input
                   value={resourceLink.displayName}
                   onChange={(event) =>
@@ -3955,7 +3846,7 @@ function LessonEditor({
                 />
               </label>
               <label className="grid gap-1 text-xs font-bold text-muted">
-                {locale === "ar" ? "رابط HTTPS" : "HTTPS link"}
+                {t("lesson.httpsLink")}
                 <input
                   type="url"
                   value={resourceLink.externalUrl}
@@ -3979,16 +3870,28 @@ function LessonEditor({
                 }
                 className="focus-ring rounded-xl border border-primary/45 px-4 py-2.5 text-sm font-black text-primary disabled:opacity-50"
               >
-                {locale === "ar" ? "إضافة رابط" : "Add link"}
+                {t("lesson.addLink")}
               </button>
             </div>
-            <RequestError error={addResourceLink.error} />
+            <RequestError
+              fallback={t("courseEditor.requestFailed")}
+              error={addResourceLink.error}
+            />
           </div>
         ) : null}
       </div>
-      <RequestError error={save.error} />
-      <RequestError error={remove.error} />
-      <RequestError error={duplicate.error} />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={save.error}
+      />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={remove.error}
+      />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={duplicate.error}
+      />
     </article>
   );
 }

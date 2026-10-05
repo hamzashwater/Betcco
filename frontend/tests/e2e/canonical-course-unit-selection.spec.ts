@@ -1,4 +1,6 @@
 import { expect, test } from "@playwright/test";
+import arMessages from "../../messages/ar.json" with { type: "json" };
+import enMessages from "../../messages/en.json" with { type: "json" };
 
 const course = {
   id: "course-1",
@@ -21,11 +23,14 @@ for (const scenario of [
   { locale: "en", width: 1280 },
   { locale: "ar", width: 1280 },
   { locale: "en", width: 390 },
+  { locale: "ar", width: 390 },
 ]) {
   test(`teacher selects canonical unit in ${scenario.locale} at ${scenario.width}px`, async ({
     page,
   }) => {
     await page.setViewportSize({ width: scenario.width, height: 844 });
+    const m = (scenario.locale === "ar" ? arMessages : enMessages)
+      .teacherWorkspace;
     const pageErrors: string[] = [];
     const consoleErrors: string[] = [];
     page.on("pageerror", (error) => pageErrors.push(error.message));
@@ -41,6 +46,55 @@ for (const scenario of [
         consoleErrors.push(message.text());
     });
     let postedEntryId: string | undefined;
+    let unitCreated = false;
+    let postedTopic: Record<string, unknown> | undefined;
+    let savedLesson: Record<string, unknown> | undefined;
+    const deliveredUnit = {
+      id: "delivery-1",
+      unitDefinitionId: "unit-1",
+      arabicTitle: "وحدة الخادم",
+      englishTitle: "Server unit",
+      unitCode: "U1",
+      publicationStatus: "Published",
+      sortOrder: 1,
+      learningAims: [
+        {
+          id: "aim-1",
+          code: "A",
+          arabicTitle: "هدف الخادم",
+          englishTitle: "Server aim",
+          publicationStatus: "Published",
+          sortOrder: 1,
+          topics: [],
+        },
+      ],
+      criteria: [
+        {
+          id: "criterion-1",
+          code: "A.P1",
+          band: "Pass",
+          arabicDescription: "معيار الخادم",
+          englishDescription: "Server criterion",
+          publicationStatus: "Published",
+          sortOrder: 1,
+        },
+      ],
+      lessons: [
+        {
+          id: "lesson-1",
+          arabicTitle: "درس الخادم",
+          englishTitle: "Server lesson",
+          arabicBody: "نص",
+          englishBody: "Body",
+          type: "Text",
+          durationSeconds: 900,
+          isPreview: false,
+          publicationStatus: "Published",
+          sortOrder: 1,
+          resources: [],
+        },
+      ],
+    };
     await page.route("**/api/v1/**", async (route) => {
       const path = new URL(route.request().url()).pathname;
       const json = (value: unknown) =>
@@ -57,7 +111,7 @@ for (const scenario of [
         path === "/api/v1/teacher/courses/course-1" &&
         route.request().method() === "GET"
       )
-        return json(course);
+        return json({ ...course, modules: unitCreated ? [deliveredUnit] : [] });
       if (path === "/api/v1/teacher/courses/course-1/academic-units")
         return json([
           {
@@ -77,7 +131,22 @@ for (const scenario of [
         route.request().method() === "POST"
       ) {
         postedEntryId = route.request().postDataJSON().deliveryPlanEntryId;
+        unitCreated = true;
         return json({ id: "delivery-1" });
+      }
+      if (
+        path === "/api/v1/teacher/courses/topics" &&
+        route.request().method() === "POST"
+      ) {
+        postedTopic = route.request().postDataJSON();
+        return json({ id: "topic-new" });
+      }
+      if (
+        path === "/api/v1/teacher/courses/lessons/lesson-1" &&
+        route.request().method() === "PUT"
+      ) {
+        savedLesson = route.request().postDataJSON();
+        return json({});
       }
       if (path.endsWith("/learning-access"))
         return json({
@@ -122,6 +191,68 @@ for (const scenario of [
       })
       .click();
     await expect.poll(() => postedEntryId).toBe("entry-1");
+    const curriculum = page.locator("#curriculum");
+    await expect(
+      curriculum.getByRole("heading", {
+        name: scenario.locale === "ar" ? "وحدة الخادم" : "Server unit",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      curriculum.getByText(m.module.catalogueDescription),
+    ).toBeVisible();
+    await expect(curriculum.getByLabel(m.learningAim.code)).toHaveCount(0);
+    await expect(curriculum.getByLabel(m.criterion.code)).toHaveCount(0);
+    await curriculum.getByPlaceholder(m.topic.arabic).fill("موضوع جديد");
+    await curriculum.getByPlaceholder(m.topic.english).fill("New topic");
+    await curriculum
+      .getByRole("button", { name: m.topic.add, exact: true })
+      .click();
+    await expect
+      .poll(() => postedTopic)
+      .toEqual({
+        learningAimId: "aim-1",
+        arabicTitle: "موضوع جديد",
+        englishTitle: "New topic",
+        arabicDescription: "",
+        englishDescription: "",
+        sortOrder: 1,
+      });
+    await expect(curriculum.getByPlaceholder(m.topic.arabic)).toHaveValue("");
+    const lessonEditor = curriculum
+      .locator("article")
+      .filter({
+        has: page.getByRole("heading", {
+          name: scenario.locale === "ar" ? "درس الخادم" : "Server lesson",
+          exact: true,
+        }),
+      })
+      .last();
+    await lessonEditor.getByLabel(m.lesson.status).selectOption("Scheduled");
+    await lessonEditor
+      .getByLabel(m.lesson.releaseTime)
+      .fill("2026-10-08T12:45");
+    await lessonEditor.getByLabel(m.lesson.order).fill("4");
+    await lessonEditor.getByRole("button", { name: m.lesson.save }).click();
+    const expectedDate = await page.evaluate(() =>
+      new Date("2026-10-08T12:45").toISOString(),
+    );
+    await expect
+      .poll(() => savedLesson)
+      .toEqual({
+        arabicTitle: "درس الخادم",
+        englishTitle: "Server lesson",
+        arabicBody: "نص",
+        englishBody: "Body",
+        type: "Text",
+        durationSeconds: 900,
+        isPreview: false,
+        learningAimId: "",
+        topicId: "",
+        publicationStatus: "Scheduled",
+        availableFromUtc: expectedDate,
+        sortOrder: 4,
+      });
     expect(pageErrors).toEqual([]);
     expect(consoleErrors).toEqual([]);
     expect(
