@@ -1810,7 +1810,11 @@
       "megabytes": "MB",
       "loading": "…",
       "requestFailed": "فشل الطلب.",
-      "cancel": "إلغاء"
+      "cancel": "إلغاء",
+      "duplicate": "تكرار",
+      "archived": "مؤرشف",
+      "scheduled": "مجدول",
+      "save": "حفظ"
     },
     "wallet": {
       "description": "يُضاف لك 70٪ من صافي بيع كل دورة بعد التحقق من الدفع. اطلب السحب من رصيدك المتاح فقط.",
@@ -2008,6 +2012,142 @@
         "unit": "وحدة",
         "lesson": "درس",
         "assignment": "مهمة"
+      }
+    },
+    "cover": {
+      "title": "غلاف الدورة",
+      "alt": "غلاف {title}",
+      "empty": "لم يتم رفع غلاف بعد.",
+      "image": "صورة الغلاف",
+      "choose": "اختيار غلاف",
+      "help": "JPG أو PNG أو WEBP، حتى 5MB.",
+      "upload": "رفع الغلاف"
+    },
+    "outcomes": {
+      "title": "نواتج التعلّم",
+      "arabic": "ناتج بالعربية",
+      "english": "ناتج بالإنجليزية",
+      "add": "إضافة ناتج"
+    },
+    "curriculum": {
+      "title": "محتوى الدورة",
+      "description": "أضف الوحدات والدروس، واكتب محتوى الدرس وارفع الموارد الخاصة به.",
+      "empty": "لا توجد وحدات بعد.",
+      "legacyNoPlan": "هذه دورة BTEC قديمة بلا خطة معتمدة. الوحدات الحالية متاحة للقراءة، ولا يمكن إضافة وحدة جديدة قبل ربط خطة بواسطة الإدارة.",
+      "newModule": "إضافة وحدة",
+      "academicUnit": "الوحدة الأكاديمية",
+      "chooseUnit": "اختر وحدة ضمن الخطة",
+      "arabicTitle": "اسم الوحدة بالعربية",
+      "unitCode": "رمز الوحدة (مثال: UNIT-1)",
+      "englishTitleOptional": "اسم الوحدة بالإنجليزية (اختياري)",
+      "loadError": "تعذر تحميل الوحدات الأكاديمية.",
+      "noAvailableUnits": "لا توجد وحدات متاحة ضمن الخطة. اطلب من المدير إضافتها.",
+      "add": "إضافة الوحدة"
+    },
+    "module": {
+      "save": "حفظ الوحدة",
+      "legacyDescription": "وحدة قديمة بلا ربط أكاديمي. تبقى الدروس والتقدم متاحين. يمكن ربطها فقط إذا لم تتضمن أهدافاً أو معايير قديمة.",
+      "academicLink": "ربط بوحدة أكاديمية",
+      "choosePublishedUnit": "اختر وحدة منشورة",
+      "linkUnit": "ربط الوحدة",
+      "unitCode": "رمز الوحدة",
+      "qualificationLevel": "المستوى / المؤهل",
+      "catalogueDescription": "اسم الوحدة ورمزها وأهدافها ومعاييرها من الدليل الأكاديمي المنشور.",
+      "arabicDescription": "وصف الوحدة بالعربية",
+      "englishDescription": "وصف الوحدة بالإنجليزية",
+      "guidedLearningHours": "ساعات التعلّم الموجّه",
+      "glh": "GLH",
+      "unitCredits": "اعتمادات الوحدة",
+      "credits": "الاعتمادات",
+      "publishedInCourse": "منشور داخل الدورة",
+      "releaseTime": "وقت إتاحة الوحدة",
+      "order": "ترتيب الوحدة",
+      "newLesson": "إضافة درس",
+      "arabicLessonTitle": "عنوان الدرس بالعربية",
+      "englishLessonTitleOptional": "عنوان الدرس بالإنجليزية (اختياري)",
+      "arabicLessonContent": "محتوى الدرس بالعربية",
+      "englishLessonContentOptional": "محتوى الدرس بالإنجليزية (اختياري)",
+      "lessonDuration": "مدة الدرس بالثواني",
+      "previewLesson": "درس تجريبي",
+      "addLesson": "إضافة الدرس"
+    },
+    "btecStructure": {
+      "title": "هيكل BTEC ومعاييره",
+      "description": "رتّب هدف التعلّم ثم الموضوعات ومعايير P/M/D المرتبطة بهذه الوحدة.",
+      "noAims": "لم تضف أهداف تعلّم بعد.",
+      "aimCode": "رمز الهدف (A)",
+      "arabicAim": "هدف التعلّم بالعربية",
+      "englishAim": "هدف التعلّم بالإنجليزية",
+      "addAim": "إضافة هدف تعلّم",
+      "arabicDescriptionOptional": "شرح عربي اختياري",
+      "englishDescriptionOptional": "شرح إنجليزي اختياري",
+      "criteria": "معايير الوحدة",
+      "noCriteria": "لا توجد معايير بعد.",
+      "optionalAim": "هدف تعلّم اختياري",
+      "arabicCriterion": "وصف المعيار بالعربية",
+      "englishCriterion": "وصف المعيار بالإنجليزية",
+      "addCriterion": "إضافة معيار",
+      "band": {
+        "pass": "P — Pass",
+        "merit": "M — Merit",
+        "distinction": "D — Distinction"
+      }
+    },
+    "learningAim": {
+      "order": "ترتيب الهدف",
+      "code": "رمز هدف التعلّم"
+    },
+    "topic": {
+      "arabic": "موضوع بالعربية",
+      "english": "موضوع بالإنجليزية",
+      "add": "موضوع",
+      "order": "ترتيب الموضوع"
+    },
+    "criterion": {
+      "order": "ترتيب المعيار",
+      "code": "رمز المعيار"
+    },
+    "lesson": {
+      "minutes": "دقيقة",
+      "save": "حفظ الدرس",
+      "status": "حالة الدرس",
+      "learningAim": "هدف التعلم",
+      "noAim": "بدون هدف محدد",
+      "topic": "الموضوع",
+      "noTopic": "بدون موضوع محدد",
+      "order": "ترتيب الدرس",
+      "releaseTime": "وقت إتاحة الدرس",
+      "preview": "تجريبي",
+      "videoAlt": "معاينة فيديو {title}",
+      "unsupportedVideo": "المتصفح لا يدعم تشغيل الفيديو.",
+      "loadingVideo": "جارٍ تحميل الفيديو…",
+      "videoUnavailable": "تعذر تشغيل الفيديو.",
+      "retryVideo": "إعادة المحاولة",
+      "currentVideo": "فيديو الدرس الحالي: ",
+      "removingVideo": "جارٍ إزالة الفيديو…",
+      "removeVideo": "إزالة الفيديو",
+      "recordedVideo": "فيديو الدرس المسجّل",
+      "chooseVideo": "اختيار فيديو MP4 أو WEBM",
+      "videoHelp": "حتى 500MB. رفع فيديو جديد يستبدل الفيديو الحالي. يُعرض للطلاب المصرّح لهم بعد النشر.",
+      "uploadingVideo": "جارٍ رفع الفيديو…",
+      "replaceVideo": "استبدال فيديو الدرس",
+      "attachVideo": "رفع وربط فيديو الدرس",
+      "videoSaved": "تم حفظ الفيديو.",
+      "resources": "موارد الدرس",
+      "noResources": "لا توجد ملفات مرفوعة.",
+      "uploadFiles": "رفع ملفات الدرس",
+      "chooseFiles": "اختيار ملفات",
+      "resourceHelp": "حتى 100MB لكل ملف. الملفات تبقى خاصة ولا تصل للطلاب إلا ضمن الدورة المسجلين بها.",
+      "uploadResources": "رفع الموارد",
+      "linkName": "اسم الرابط",
+      "httpsLink": "رابط HTTPS",
+      "addLink": "إضافة رابط",
+      "type": {
+        "text": "Text",
+        "video": "Video",
+        "activity": "Activity",
+        "assignment": "Assignment",
+        "liveSession": "Live session"
       }
     }
   }

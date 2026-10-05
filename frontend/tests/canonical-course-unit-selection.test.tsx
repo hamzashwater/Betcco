@@ -5,6 +5,8 @@ import { NextIntlClientProvider } from "next-intl";
 import type { ComponentProps } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CurriculumEditor } from "@/features/teacher/course-editor";
+import arMessages from "../messages/ar.json";
+import enMessages from "../messages/en.json";
 
 const apiMock = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/api", () => ({ api: apiMock }));
@@ -57,7 +59,10 @@ describe("canonical BTEC unit selection", () => {
       });
       render(
         <QueryClientProvider client={client}>
-          <NextIntlClientProvider locale={locale} messages={{}}>
+          <NextIntlClientProvider
+            locale={locale}
+            messages={locale === "ar" ? arMessages : enMessages}
+          >
             <CurriculumEditor course={course} disabled={false} />
           </NextIntlClientProvider>
         </QueryClientProvider>,
@@ -132,7 +137,7 @@ describe("canonical BTEC unit selection", () => {
     } satisfies ComponentProps<typeof CurriculumEditor>["course"];
     render(
       <QueryClientProvider client={client}>
-        <NextIntlClientProvider locale="en" messages={{}}>
+        <NextIntlClientProvider locale="en" messages={enMessages}>
           <CurriculumEditor course={mappedCourse} disabled={false} />
         </NextIntlClientProvider>
       </QueryClientProvider>,

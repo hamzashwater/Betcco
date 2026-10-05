@@ -1810,7 +1810,11 @@
       "megabytes": "MB",
       "loading": "…",
       "requestFailed": "Request failed.",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "duplicate": "Duplicate",
+      "archived": "Archived",
+      "scheduled": "Scheduled",
+      "save": "Save"
     },
     "wallet": {
       "description": "70% of each course's net sale is credited after payment verification. Request withdrawals only from your available balance.",
@@ -2008,6 +2012,142 @@
         "unit": "Unit",
         "lesson": "Lesson",
         "assignment": "Assignment"
+      }
+    },
+    "cover": {
+      "title": "Course cover",
+      "alt": "{title} cover",
+      "empty": "No cover has been uploaded.",
+      "image": "Cover image",
+      "choose": "Choose cover",
+      "help": "JPG, PNG, or WEBP up to 5MB.",
+      "upload": "Upload cover"
+    },
+    "outcomes": {
+      "title": "Learning outcomes",
+      "arabic": "Arabic outcome",
+      "english": "English outcome",
+      "add": "Add outcome"
+    },
+    "curriculum": {
+      "title": "Course content",
+      "description": "Add modules and lessons, write lesson content, and upload private resources.",
+      "empty": "No modules yet.",
+      "legacyNoPlan": "This legacy BTEC course has no approved plan. Existing units remain readable; new units require an admin plan.",
+      "newModule": "Add module",
+      "academicUnit": "Academic unit",
+      "chooseUnit": "Choose a planned unit",
+      "arabicTitle": "Arabic module title",
+      "unitCode": "Unit code (e.g. UNIT-1)",
+      "englishTitleOptional": "English module title (optional)",
+      "loadError": "Could not load academic units.",
+      "noAvailableUnits": "No units are available in this plan. Ask an admin to add them.",
+      "add": "Add module"
+    },
+    "module": {
+      "save": "Save unit",
+      "legacyDescription": "Legacy unit without an academic link. Lessons and progress remain available. It can be linked only when it has no legacy aims or criteria.",
+      "academicLink": "Link academic unit",
+      "choosePublishedUnit": "Choose a published unit",
+      "linkUnit": "Link unit",
+      "unitCode": "Unit code",
+      "qualificationLevel": "Qualification level",
+      "catalogueDescription": "Unit name, code, aims, and criteria come from the published academic catalogue.",
+      "arabicDescription": "Arabic unit description",
+      "englishDescription": "English unit description",
+      "guidedLearningHours": "Guided learning hours",
+      "glh": "GLH",
+      "unitCredits": "Unit credits",
+      "credits": "Credits",
+      "publishedInCourse": "Published in course",
+      "releaseTime": "Unit release time",
+      "order": "Unit order",
+      "newLesson": "Add lesson",
+      "arabicLessonTitle": "Arabic lesson title",
+      "englishLessonTitleOptional": "English lesson title (optional)",
+      "arabicLessonContent": "Arabic lesson content",
+      "englishLessonContentOptional": "English lesson content (optional)",
+      "lessonDuration": "Lesson duration in seconds",
+      "previewLesson": "Preview lesson",
+      "addLesson": "Add lesson"
+    },
+    "btecStructure": {
+      "title": "BTEC structure & criteria",
+      "description": "Structure learning aims, topics, and the P/M/D criteria for this unit.",
+      "noAims": "No learning aims yet.",
+      "aimCode": "Aim code (A)",
+      "arabicAim": "Arabic learning aim",
+      "englishAim": "English learning aim",
+      "addAim": "Add learning aim",
+      "arabicDescriptionOptional": "Optional Arabic description",
+      "englishDescriptionOptional": "Optional English description",
+      "criteria": "Unit criteria",
+      "noCriteria": "No criteria yet.",
+      "optionalAim": "Optional learning aim",
+      "arabicCriterion": "Arabic criterion description",
+      "englishCriterion": "English criterion description",
+      "addCriterion": "Add criterion",
+      "band": {
+        "pass": "P — Pass",
+        "merit": "M — Merit",
+        "distinction": "D — Distinction"
+      }
+    },
+    "learningAim": {
+      "order": "Aim order",
+      "code": "Learning aim code"
+    },
+    "topic": {
+      "arabic": "Arabic topic",
+      "english": "English topic",
+      "add": "Topic",
+      "order": "Topic order"
+    },
+    "criterion": {
+      "order": "Criterion order",
+      "code": "Criterion code"
+    },
+    "lesson": {
+      "minutes": "min",
+      "save": "Save lesson",
+      "status": "Lesson status",
+      "learningAim": "Learning aim",
+      "noAim": "No specific aim",
+      "topic": "Topic",
+      "noTopic": "No specific topic",
+      "order": "Lesson order",
+      "releaseTime": "Lesson release time",
+      "preview": "Preview",
+      "videoAlt": "Preview {title} video",
+      "unsupportedVideo": "Your browser does not support video playback.",
+      "loadingVideo": "Loading video…",
+      "videoUnavailable": "Video unavailable.",
+      "retryVideo": "Retry video",
+      "currentVideo": "Current lesson video: ",
+      "removingVideo": "Removing video…",
+      "removeVideo": "Remove video",
+      "recordedVideo": "Recorded lesson video",
+      "chooseVideo": "Choose MP4 or WEBM video",
+      "videoHelp": "Up to 500MB. Uploading a new video replaces the current one. Authorized learners can stream it after publication.",
+      "uploadingVideo": "Uploading video…",
+      "replaceVideo": "Replace lesson video",
+      "attachVideo": "Upload and attach lesson video",
+      "videoSaved": "Video saved.",
+      "resources": "Lesson resources",
+      "noResources": "No uploaded files.",
+      "uploadFiles": "Upload lesson files",
+      "chooseFiles": "Choose files",
+      "resourceHelp": "Up to 100MB per file. Files remain private and are available only to enrolled students.",
+      "uploadResources": "Upload resources",
+      "linkName": "Link name",
+      "httpsLink": "HTTPS link",
+      "addLink": "Add link",
+      "type": {
+        "text": "Text",
+        "video": "Video",
+        "activity": "Activity",
+        "assignment": "Assignment",
+        "liveSession": "Live session"
       }
     }
   }
