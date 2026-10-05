@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
+import ts from "typescript";
 import arabicMessages from "../messages/ar.json";
 import englishMessages from "../messages/en.json";
 
@@ -58,6 +59,85 @@ describe("shared shell, authentication, account, student, and teacher workspace 
         [...source.matchAll(/\bt\(\s*"([^"]+)"/gu)].map((match) => match[1]),
       ),
     ].sort();
-    expect(usedKeys).toEqual(shape(englishMessages.teacherWorkspace).sort());
+    const editorSource = readFileSync(
+      "src/features/teacher/course-editor.tsx",
+      "utf8",
+    );
+    const editorKeys = [...editorSource.matchAll(/\bt\(\s*"([^"]+)"/gu)].map(
+      (match) => match[1],
+    );
+    expect([...new Set([...usedKeys, ...editorKeys])].sort()).toEqual(
+      shape(englishMessages.teacherWorkspace).sort(),
+    );
+  });
+
+  it("keeps scoped course setup/access copy in messages while allowing only server bilingual branches", () => {
+    const source = readFileSync(
+      "src/features/teacher/course-editor.tsx",
+      "utf8",
+    );
+    const file = ts.createSourceFile(
+      "course-editor.tsx",
+      source,
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TSX,
+    );
+    const scopedNames = [
+      "CreateCourse",
+      "TeacherSubjectCreator",
+      "ExistingCourseEditor",
+      "CourseAnnouncementsEditor",
+      "CourseDetailsForm",
+      "LearningAccessEditor",
+      "contentTypeLabel",
+      "statusLabel",
+    ];
+    const nodes = file.statements.filter(
+      (node) =>
+        ts.isFunctionDeclaration(node) &&
+        scopedNames.includes(node.name?.text ?? ""),
+    );
+    expect(nodes).toHaveLength(scopedNames.length);
+    const serverBranches: string[] = [];
+    for (const node of nodes) {
+      expect(node.getText(file)).not.toMatch(/[\u0600-\u06ff]/u);
+      const visit = (child: ts.Node) => {
+        if (
+          ts.isConditionalExpression(child) &&
+          child.condition.getText(file) === 'locale === "ar"'
+        ) {
+          expect(ts.isPropertyAccessExpression(child.whenTrue)).toBe(true);
+          expect(ts.isPropertyAccessExpression(child.whenFalse)).toBe(true);
+          serverBranches.push(
+            `${child.whenTrue.getText(file)} / ${child.whenFalse.getText(file)}`,
+          );
+        }
+        ts.forEachChild(child, visit);
+      };
+      visit(node);
+    }
+    expect(serverBranches).toEqual([
+      "plan.specializationArabicName / plan.specializationEnglishName",
+      "plan.gradeArabicName / plan.gradeEnglishName",
+      "course.data.arabicTitle / course.data.englishTitle",
+      "announcement.arabicTitle / announcement.englishTitle",
+      "item.arabicTitle / item.englishTitle",
+    ]);
+  });
+
+  it.each(["ar", "en"])("has no duplicate JSON keys in %s", (locale) => {
+    const source = readFileSync(`messages/${locale}.json`, "utf8");
+    const file = ts.parseJsonText(`${locale}.json`, source);
+    const visit = (node: ts.Node) => {
+      if (ts.isObjectLiteralExpression(node)) {
+        const keys = node.properties.map((property) =>
+          property.name?.getText(file),
+        );
+        expect(new Set(keys).size).toBe(keys.length);
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(file);
   });
 });

@@ -1020,7 +1020,11 @@
     "saving": "Saving…",
     "saved": "Saved successfully.",
     "saveError": "The change could not be saved. Review the catalogue and try again.",
-    "band": { "Pass": "Pass", "Merit": "Merit", "Distinction": "Distinction" }
+    "band": {
+      "Pass": "Pass",
+      "Merit": "Merit",
+      "Distinction": "Distinction"
+    }
   },
   "deliveryPlanning": {
     "eyebrow": "academic operations",
@@ -1805,7 +1809,8 @@
       "noStudentNote": "No student note was provided.",
       "megabytes": "MB",
       "loading": "…",
-      "requestFailed": "Request failed."
+      "requestFailed": "Request failed.",
+      "cancel": "Cancel"
     },
     "wallet": {
       "description": "70% of each course's net sale is credited after payment verification. Request withdrawals only from your available balance.",
@@ -1894,6 +1899,116 @@
       "retakeEyebrow": "Historical Retake",
       "initialEyebrow": "BETCCO Initial Review",
       "revisionEyebrow": "BETCCO Revision Check"
+    },
+    "courseEditor": {
+      "back": "Back to my courses",
+      "unavailable": "This course could not be found or edited.",
+      "editable": "This draft can be edited. Upload content, then submit it for review.",
+      "locked": "This course is locked while under review or after publication.",
+      "eyebrow": "{brand} Course Editor",
+      "requestFailed": "Request failed.",
+      "status": {
+        "draft": "Draft",
+        "rejected": "Needs revision",
+        "submittedForReview": "Under admin review",
+        "approved": "Approved, awaiting publication",
+        "published": "Published"
+      }
+    },
+    "courseSetup": {
+      "title": "Create a course draft",
+      "description": "Create the course information first, then add its cover, modules, lessons, and files from the editor.",
+      "englishTitleOptional": "English title (optional)",
+      "englishDescriptionOptional": "English description (optional)",
+      "price": "Price (JOD)",
+      "free": "This is a free course",
+      "approvedPlan": "Approved BTEC delivery plan",
+      "specialization": "Specialization",
+      "grade": "Grade",
+      "academicYear": "Academic year",
+      "programmePlan": "Programme plan",
+      "loadingPlans": "Loading plans…",
+      "plansError": "Could not load plans.",
+      "noPlans": "No approved plan is available. Ask an admin to create one.",
+      "classification": "Course classification and BTEC settings (optional)",
+      "classificationDescription": "The default BTEC track is used unless you choose another one. The approved plan sets BTEC grade and specialization; subject is optional.",
+      "learningTrack": "Learning track",
+      "subject": "Subject",
+      "submit": "Create draft and open editor",
+      "eyebrow": "{brand} Teacher Studio"
+    },
+    "courseDetails": {
+      "arabicTitle": "Arabic title",
+      "arabicDescription": "Arabic description",
+      "englishTitle": "English title",
+      "title": "Course information",
+      "englishDescription": "English description",
+      "price": "Price (JOD)",
+      "free": "Free course",
+      "save": "Save changes",
+      "saved": "Changes saved."
+    },
+    "subjects": {
+      "pendingReview": "(pending review)",
+      "description": "Can't find the subject? Add it to your draft; an admin approves it with the course.",
+      "open": "Add subject",
+      "chooseSpecialization": "Choose a specialization before adding a linked subject.",
+      "arabicName": "Arabic subject name",
+      "englishName": "English subject name",
+      "add": "Add"
+    },
+    "announcements": {
+      "title": "Course announcements",
+      "description": "Notify everyone in a course, a unit context, or selected learners. Server-side notifications are created only after publishing.",
+      "selectedLearnersCount": "Selected learners: {count}",
+      "unitAudience": "Unit",
+      "courseAudience": "All course learners",
+      "published": "Published",
+      "publish": "Publish",
+      "delete": "Delete",
+      "new": "New announcement",
+      "arabicBody": "Arabic announcement",
+      "englishBody": "English announcement",
+      "audience": "Audience",
+      "selectedLearners": "Selected learners",
+      "unit": "Unit",
+      "chooseUnit": "Choose unit",
+      "chooseLearners": "Choose learners",
+      "publishNow": "Publish and notify now",
+      "submit": "Publish announcement",
+      "saveDraft": "Save draft"
+    },
+    "learningAccess": {
+      "unavailableContent": "Unavailable content",
+      "title": "Content release & prerequisites",
+      "description": "Locks are enforced by the server for the player, files, and assignments—not just in the interface.",
+      "target": "Target content",
+      "chooseTarget": "Choose a course item",
+      "releaseMethod": "Release method",
+      "immediately": "Immediately",
+      "specificDate": "Specific date",
+      "daysAfterEnrollment": "Days after enrollment",
+      "afterPrevious": "After previous content",
+      "releaseDate": "Release date",
+      "numberOfDays": "Number of days",
+      "previousContent": "Previous content",
+      "chooseRequiredContent": "Choose required content",
+      "updateRelease": "Update release",
+      "saveRelease": "Save release",
+      "additionalPrerequisites": "Additional prerequisites",
+      "prerequisitesDescription": "You can add more than one requirement; learners must complete all of them. Cycles are blocked automatically.",
+      "choosePrerequisite": "Choose a prerequisite",
+      "addPrerequisite": "Add prerequisite",
+      "removePrerequisite": "Remove prerequisite",
+      "noPrerequisites": "No additional prerequisites.",
+      "chooseContentFirst": "Choose content first.",
+      "prerequisiteRequired": "Choose a prerequisite.",
+      "contentType": {
+        "course": "Course",
+        "unit": "Unit",
+        "lesson": "Lesson",
+        "assignment": "Assignment"
+      }
     }
   }
 }

@@ -32,7 +32,7 @@ import {
   Upload,
 } from "lucide-react";
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -366,6 +366,7 @@ export function CourseEditor({ courseId }: { courseId?: string }) {
 
 function CreateCourse() {
   const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const router = useRouter();
   const taxonomy = useQuery({
     queryKey: ["taxonomy", locale],
@@ -491,7 +492,7 @@ function CreateCourse() {
         className="focus-ring inline-flex items-center gap-2 text-sm font-bold text-primary"
       >
         <ArrowLeft size={17} className="rtl:rotate-180" aria-hidden="true" />
-        {locale === "ar" ? "العودة إلى دوراتي" : "Back to my courses"}
+        {t("courseEditor.back")}
       </Link>
       <form
         onSubmit={(event) => {
@@ -502,29 +503,21 @@ function CreateCourse() {
       >
         <div>
           <p className="font-bold text-primary">
-            {defaultBrand.BrandName} Teacher Studio
+            {t("courseSetup.eyebrow", { brand: defaultBrand.BrandName })}
           </p>
-          <h1 className="mt-1 text-3xl font-black">
-            {locale === "ar" ? "إنشاء مسودة دورة" : "Create a course draft"}
-          </h1>
+          <h1 className="mt-1 text-3xl font-black">{t("courseSetup.title")}</h1>
           <p className="mt-2 text-sm leading-6 text-muted">
-            {locale === "ar"
-              ? "أنشئ معلومات الدورة أولًا، ثم أضف الغلاف والوحدات والدروس والملفات من صفحة التحرير التالية."
-              : "Create the course information first, then add its cover, modules, lessons, and files from the editor."}
+            {t("courseSetup.description")}
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <TextField
-            label={locale === "ar" ? "العنوان بالعربية" : "Arabic title"}
+            label={t("courseDetails.arabicTitle")}
             value={form.arabicTitle}
             onChange={(value) => update("arabicTitle", value)}
           />
           <TextField
-            label={
-              locale === "ar"
-                ? "العنوان بالإنجليزية (اختياري)"
-                : "English title (optional)"
-            }
+            label={t("courseSetup.englishTitleOptional")}
             value={form.englishTitle}
             onChange={(value) => update("englishTitle", value)}
             required={false}
@@ -533,24 +526,20 @@ function CreateCourse() {
         <div className="grid gap-4 md:grid-cols-2">
           <TextField
             multiline
-            label={locale === "ar" ? "الوصف بالعربية" : "Arabic description"}
+            label={t("courseDetails.arabicDescription")}
             value={form.arabicDescription}
             onChange={(value) => update("arabicDescription", value)}
           />
           <TextField
             multiline
-            label={
-              locale === "ar"
-                ? "الوصف بالإنجليزية (اختياري)"
-                : "English description (optional)"
-            }
+            label={t("courseSetup.englishDescriptionOptional")}
             value={form.englishDescription}
             onChange={(value) => update("englishDescription", value)}
             required={false}
           />
         </div>
         <label className="grid max-w-md gap-1 text-sm font-bold text-muted">
-          {locale === "ar" ? "السعر (دينار أردني)" : "Price (JOD)"}
+          {t("courseSetup.price")}
           <input
             type="number"
             min="0"
@@ -569,17 +558,15 @@ function CreateCourse() {
             onChange={(event) => update("isFree", event.target.checked)}
             className="size-4 accent-[var(--primary)]"
           />
-          {locale === "ar" ? "هذه دورة مجانية" : "This is a free course"}
+          {t("courseSetup.free")}
         </label>
         {isBtecTrack ? (
           <div className="grid gap-3 rounded-2xl border border-border p-4 md:grid-cols-2">
             <p className="font-bold md:col-span-2">
-              {locale === "ar"
-                ? "خطة تسليم BTEC المعتمدة"
-                : "Approved BTEC delivery plan"}
+              {t("courseSetup.approvedPlan")}
             </p>
             <SelectField
-              label={locale === "ar" ? "التخصص" : "Specialization"}
+              label={t("courseSetup.specialization")}
               value={planSpecializationId}
               onChange={(value) => {
                 setPlanSpecializationId(value);
@@ -590,7 +577,7 @@ function CreateCourse() {
               options={specializationOptions}
             />
             <SelectField
-              label={locale === "ar" ? "الصف" : "Grade"}
+              label={t("courseSetup.grade")}
               value={planGradeId}
               onChange={(value) => {
                 setPlanGradeId(value);
@@ -600,7 +587,7 @@ function CreateCourse() {
               options={gradeOptions}
             />
             <SelectField
-              label={locale === "ar" ? "السنة الأكاديمية" : "Academic year"}
+              label={t("courseSetup.academicYear")}
               value={planYearId}
               onChange={(value) => {
                 setPlanYearId(value);
@@ -609,46 +596,36 @@ function CreateCourse() {
               options={yearOptions}
             />
             <SelectField
-              label={locale === "ar" ? "خطة البرنامج" : "Programme plan"}
+              label={t("courseSetup.programmePlan")}
               value={deliveryPlanId}
               onChange={setDeliveryPlanId}
               options={planOptions}
             />
             {availablePlans.isPending ? (
-              <p aria-busy="true">
-                {locale === "ar" ? "جارٍ تحميل الخطط…" : "Loading plans…"}
-              </p>
+              <p aria-busy="true">{t("courseSetup.loadingPlans")}</p>
             ) : null}
             {availablePlans.isError ? (
               <p role="alert" className="text-red-400">
-                {locale === "ar"
-                  ? "تعذر تحميل الخطط."
-                  : "Could not load plans."}
+                {t("courseSetup.plansError")}
               </p>
             ) : null}
             {availablePlans.isSuccess && trackPlans.length === 0 ? (
               <p className="text-muted md:col-span-2">
-                {locale === "ar"
-                  ? "لا توجد خطة معتمدة. اطلب من المدير إعدادها."
-                  : "No approved plan is available. Ask an admin to create one."}
+                {t("courseSetup.noPlans")}
               </p>
             ) : null}
           </div>
         ) : null}
         <details className="rounded-2xl border border-border bg-black/5 p-4">
           <summary className="cursor-pointer font-bold text-foreground">
-            {locale === "ar"
-              ? "تصنيف الدورة وإعدادات BTEC (اختياري)"
-              : "Course classification and BTEC settings (optional)"}
+            {t("courseSetup.classification")}
           </summary>
           <p className="mt-2 text-sm text-muted">
-            {locale === "ar"
-              ? "سيُستخدم مسار BTEC الافتراضي إن لم تختر مسارًا آخر. تتحدد بيانات BTEC من الخطة المعتمدة، ويمكن إضافة المادة اختياريًا."
-              : "The default BTEC track is used unless you choose another one. The approved plan sets BTEC grade and specialization; subject is optional."}
+            {t("courseSetup.classificationDescription")}
           </p>
           <div className="mt-4 grid gap-4 md:grid-cols-3">
             <SelectField
-              label={locale === "ar" ? "المسار التعليمي" : "Learning track"}
+              label={t("courseSetup.learningTrack")}
               value={selectedTrackId}
               onChange={(value) => {
                 setForm((current) => ({
@@ -667,7 +644,7 @@ function CreateCourse() {
             />
             {!isBtecTrack ? (
               <SelectField
-                label={locale === "ar" ? "الصف" : "Grade"}
+                label={t("courseSetup.grade")}
                 value={form.gradeId}
                 onChange={(value) => update("gradeId", value)}
                 options={(taxonomy.data?.grades ?? []).filter(
@@ -677,7 +654,7 @@ function CreateCourse() {
             ) : null}
             {!isBtecTrack ? (
               <SelectField
-                label={locale === "ar" ? "التخصص" : "Specialization"}
+                label={t("courseSetup.specialization")}
                 value={form.specializationId}
                 onChange={(value) => update("specializationId", value)}
                 options={(taxonomy.data?.specializations ?? []).filter(
@@ -688,7 +665,7 @@ function CreateCourse() {
           </div>
           <div className="mt-4 grid gap-2 md:max-w-[calc(66.666%-0.5rem)]">
             <SelectField
-              label={locale === "ar" ? "المادة" : "Subject"}
+              label={t("courseSetup.subject")}
               value={form.subjectId}
               onChange={(value) => update("subjectId", value)}
               options={(taxonomy.data?.subjects ?? [])
@@ -703,7 +680,7 @@ function CreateCourse() {
                 .map((item) => ({
                   ...item,
                   name: item.isPendingReview
-                    ? `${item.name} ${locale === "ar" ? "(بانتظار المراجعة)" : "(pending review)"}`
+                    ? `${item.name} ${t("subjects.pendingReview")}`
                     : item.name,
                 }))}
             />
@@ -727,18 +704,18 @@ function CreateCourse() {
           className="focus-ring inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-5 py-3 font-black text-slate-950 disabled:opacity-50"
         >
           <Plus size={18} aria-hidden="true" />
-          {locale === "ar"
-            ? "إنشاء المسودة وفتح المحرر"
-            : "Create draft and open editor"}
+          {t("courseSetup.submit")}
         </button>
-        <RequestError error={create.error} />
+        <RequestError
+          fallback={t("courseEditor.requestFailed")}
+          error={create.error}
+        />
       </form>
     </section>
   );
 }
 
 function TeacherSubjectCreator({
-  locale,
   specializationId,
   onCreated,
 }: {
@@ -746,6 +723,7 @@ function TeacherSubjectCreator({
   specializationId: string;
   onCreated: (subjectId: string) => void;
 }) {
+  const t = useTranslations("teacherWorkspace");
   const client = useQueryClient();
   const [open, setOpen] = useState(false);
   const [arabicName, setArabicName] = useState("");
@@ -778,9 +756,7 @@ function TeacherSubjectCreator({
     <div className="rounded-xl border border-dashed border-primary/35 bg-primary/5 p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-xs leading-5 text-muted">
-          {locale === "ar"
-            ? "لا تجد المادة؟ أضفها لتظهر في مسودتك، ثم يعتمدها الأدمن مع الدورة."
-            : "Can't find the subject? Add it to your draft; an admin approves it with the course."}
+          {t("subjects.description")}
         </p>
         <button
           type="button"
@@ -790,26 +766,18 @@ function TeacherSubjectCreator({
           aria-expanded={open}
         >
           <Plus size={15} aria-hidden="true" />
-          {open
-            ? locale === "ar"
-              ? "إلغاء"
-              : "Cancel"
-            : locale === "ar"
-              ? "إضافة مادة"
-              : "Add subject"}
+          {open ? t("shared.cancel") : t("subjects.open")}
         </button>
       </div>
       {!specializationId ? (
         <p className="mt-2 text-xs text-amber-500">
-          {locale === "ar"
-            ? "اختر التخصص أولًا لإضافة مادة مرتبطة به."
-            : "Choose a specialization before adding a linked subject."}
+          {t("subjects.chooseSpecialization")}
         </p>
       ) : null}
       {open ? (
         <div className="mt-3 grid gap-2 md:grid-cols-[1fr_1fr_auto]">
           <label className="grid gap-1 text-xs font-bold text-muted">
-            {locale === "ar" ? "اسم المادة بالعربية" : "Arabic subject name"}
+            {t("subjects.arabicName")}
             <input
               value={arabicName}
               onChange={(event) => setArabicName(event.target.value)}
@@ -818,9 +786,7 @@ function TeacherSubjectCreator({
             />
           </label>
           <label className="grid gap-1 text-xs font-bold text-muted">
-            {locale === "ar"
-              ? "اسم المادة بالإنجليزية"
-              : "English subject name"}
+            {t("subjects.englishName")}
             <input
               value={englishName}
               onChange={(event) => setEnglishName(event.target.value)}
@@ -835,17 +801,21 @@ function TeacherSubjectCreator({
             className="focus-ring mt-auto inline-flex items-center justify-center gap-1 rounded-lg bg-primary px-3 py-2 text-xs font-black text-slate-950 disabled:opacity-50"
           >
             <Plus size={15} aria-hidden="true" />
-            {locale === "ar" ? "إضافة" : "Add"}
+            {t("subjects.add")}
           </button>
         </div>
       ) : null}
-      <RequestError error={create.error} />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={create.error}
+      />
     </div>
   );
 }
 
 function ExistingCourseEditor({ courseId }: { courseId: string }) {
   const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const course = useQuery({
     queryKey: ["teacher-course", courseId],
     queryFn: () => api<CourseEditorData>(`/teacher/courses/${courseId}`),
@@ -854,7 +824,7 @@ function ExistingCourseEditor({ courseId }: { courseId: string }) {
     return (
       <section className="shell py-10">
         <div className="card p-6" aria-busy>
-          …
+          {t("shared.loading")}
         </div>
       </section>
     );
@@ -862,9 +832,7 @@ function ExistingCourseEditor({ courseId }: { courseId: string }) {
     return (
       <section className="shell py-10">
         <p className="card p-6" role="alert">
-          {locale === "ar"
-            ? "تعذر العثور على هذه الدورة أو لا تملك صلاحية تحريرها."
-            : "This course could not be found or edited."}
+          {t("courseEditor.unavailable")}
         </p>
       </section>
     );
@@ -883,12 +851,12 @@ function ExistingCourseEditor({ courseId }: { courseId: string }) {
         className="focus-ring inline-flex items-center gap-2 text-sm font-bold text-primary"
       >
         <ArrowLeft size={17} className="rtl:rotate-180" aria-hidden="true" />
-        {locale === "ar" ? "العودة إلى دوراتي" : "Back to my courses"}
+        {t("courseEditor.back")}
       </Link>
       <div className="mt-5 flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="font-bold text-primary">
-            {defaultBrand.BrandName} Course Editor
+            {t("courseEditor.eyebrow", { brand: defaultBrand.BrandName })}
           </p>
           <h1 className="mt-1 text-3xl font-black">
             {locale === "ar"
@@ -896,17 +864,11 @@ function ExistingCourseEditor({ courseId }: { courseId: string }) {
               : course.data.englishTitle}
           </h1>
           <p className="mt-2 text-sm text-muted">
-            {editable
-              ? locale === "ar"
-                ? "المسودة قابلة للتحرير. ارفع المحتوى ثم أرسلها للمراجعة."
-                : "This draft can be edited. Upload content, then submit it for review."
-              : locale === "ar"
-                ? "هذه الدورة مقفلة أثناء المراجعة أو بعد النشر."
-                : "This course is locked while under review or after publication."}
+            {editable ? t("courseEditor.editable") : t("courseEditor.locked")}
           </p>
         </div>
         <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-sm font-black text-primary">
-          {statusLabel(course.data.status, locale)}
+          {statusLabel(course.data.status, t)}
         </span>
       </div>
       <CourseWorkspaceNavigation />
@@ -960,6 +922,7 @@ function CourseAnnouncementsEditor({
   disabled: boolean;
 }) {
   const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const client = useQueryClient();
   const [form, setForm] = useState({
     arabicTitle: "",
@@ -1040,12 +1003,10 @@ function CourseAnnouncementsEditor({
       <div>
         <h2 className="flex items-center gap-2 text-xl font-black">
           <FileText size={20} className="text-primary" aria-hidden="true" />
-          {locale === "ar" ? "إعلانات الدورة" : "Course announcements"}
+          {t("announcements.title")}
         </h2>
         <p className="mt-1 text-sm leading-6 text-muted">
-          {locale === "ar"
-            ? "أرسل إعلانًا لكل طلاب الدورة أو لوحدة أو لطلاب تحددهم. تُنشأ الإشعارات من الخادم بعد النشر."
-            : "Notify everyone in a course, a unit context, or selected learners. Server-side notifications are created only after publishing."}
+          {t("announcements.description")}
         </p>
       </div>
       {announcements.data?.length ? (
@@ -1063,19 +1024,17 @@ function CourseAnnouncementsEditor({
                 </p>
                 <p className="mt-1 text-xs text-muted">
                   {announcement.audience === "SelectedStudents"
-                    ? locale === "ar"
-                      ? `طلاب محددون: ${announcement.selectedStudentIds.length}`
-                      : `Selected learners: ${announcement.selectedStudentIds.length}`
+                    ? t("announcements.selectedLearnersCount", {
+                        count: String(announcement.selectedStudentIds.length),
+                      })
                     : announcement.audience === "Unit"
-                      ? `${locale === "ar" ? "وحدة" : "Unit"}: ${academicText(locale, announcement.unitArabicTitle, announcement.unitEnglishTitle) || "—"}`
-                      : locale === "ar"
-                        ? "كل طلاب الدورة"
-                        : "All course learners"}
+                      ? `${t("announcements.unitAudience")}: ${academicText(locale, announcement.unitArabicTitle, announcement.unitEnglishTitle) || "—"}`
+                      : t("announcements.courseAudience")}
                 </p>
               </div>
               {announcement.isPublished ? (
                 <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-black text-primary">
-                  {locale === "ar" ? "منشور" : "Published"}
+                  {t("announcements.published")}
                 </span>
               ) : (
                 <div className="flex gap-2">
@@ -1085,7 +1044,7 @@ function CourseAnnouncementsEditor({
                     onClick={() => publish.mutate(announcement.id)}
                     className="focus-ring rounded-lg border border-primary/45 px-3 py-1.5 text-xs font-black text-primary disabled:opacity-50"
                   >
-                    {locale === "ar" ? "نشر" : "Publish"}
+                    {t("announcements.publish")}
                   </button>
                   <button
                     type="button"
@@ -1093,7 +1052,7 @@ function CourseAnnouncementsEditor({
                     onClick={() => remove.mutate(announcement.id)}
                     className="focus-ring rounded-lg border border-red-500/45 px-3 py-1.5 text-xs font-black text-red-400 disabled:opacity-50"
                   >
-                    {locale === "ar" ? "حذف" : "Delete"}
+                    {t("announcements.delete")}
                   </button>
                 </div>
               )}
@@ -1109,9 +1068,7 @@ function CourseAnnouncementsEditor({
             create.mutate();
           }}
         >
-          <h3 className="font-black">
-            {locale === "ar" ? "إعلان جديد" : "New announcement"}
-          </h3>
+          <h3 className="font-black">{t("announcements.new")}</h3>
           <div className="grid gap-3 md:grid-cols-2">
             <input
               required
@@ -1123,9 +1080,7 @@ function CourseAnnouncementsEditor({
                   arabicTitle: event.target.value,
                 }))
               }
-              placeholder={
-                locale === "ar" ? "العنوان بالعربية" : "Arabic title"
-              }
+              placeholder={t("courseDetails.arabicTitle")}
               className="rounded-xl border border-border bg-transparent p-3 text-sm"
             />
             <input
@@ -1138,9 +1093,7 @@ function CourseAnnouncementsEditor({
                   englishTitle: event.target.value,
                 }))
               }
-              placeholder={
-                locale === "ar" ? "العنوان بالإنجليزية" : "English title"
-              }
+              placeholder={t("courseDetails.englishTitle")}
               className="rounded-xl border border-border bg-transparent p-3 text-sm"
             />
             <textarea
@@ -1153,9 +1106,7 @@ function CourseAnnouncementsEditor({
                   arabicBody: event.target.value,
                 }))
               }
-              placeholder={
-                locale === "ar" ? "نص الإعلان بالعربية" : "Arabic announcement"
-              }
+              placeholder={t("announcements.arabicBody")}
               className="min-h-24 rounded-xl border border-border bg-transparent p-3 text-sm"
             />
             <textarea
@@ -1168,17 +1119,13 @@ function CourseAnnouncementsEditor({
                   englishBody: event.target.value,
                 }))
               }
-              placeholder={
-                locale === "ar"
-                  ? "نص الإعلان بالإنجليزية"
-                  : "English announcement"
-              }
+              placeholder={t("announcements.englishBody")}
               className="min-h-24 rounded-xl border border-border bg-transparent p-3 text-sm"
             />
           </div>
           <div className="grid gap-3 md:grid-cols-2">
             <label className="grid gap-1 text-xs font-bold text-muted">
-              {locale === "ar" ? "الجمهور" : "Audience"}
+              {t("announcements.audience")}
               <select
                 value={form.audience}
                 onChange={(event) =>
@@ -1192,19 +1139,17 @@ function CourseAnnouncementsEditor({
                 className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
               >
                 <option value="Course">
-                  {locale === "ar" ? "كل طلاب الدورة" : "All course learners"}
+                  {t("announcements.courseAudience")}
                 </option>
-                <option value="Unit">
-                  {locale === "ar" ? "وحدة" : "Unit"}
-                </option>
+                <option value="Unit">{t("announcements.unitAudience")}</option>
                 <option value="SelectedStudents">
-                  {locale === "ar" ? "طلاب محددون" : "Selected learners"}
+                  {t("announcements.selectedLearners")}
                 </option>
               </select>
             </label>
             {form.audience === "Unit" ? (
               <label className="grid gap-1 text-xs font-bold text-muted">
-                {locale === "ar" ? "الوحدة" : "Unit"}
+                {t("announcements.unit")}
                 <select
                   required
                   value={form.courseModuleId}
@@ -1216,9 +1161,7 @@ function CourseAnnouncementsEditor({
                   }
                   className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
                 >
-                  <option value="">
-                    {locale === "ar" ? "اختر وحدة" : "Choose unit"}
-                  </option>
+                  <option value="">{t("announcements.chooseUnit")}</option>
                   {course.modules.map((module) => (
                     <option key={module.id} value={module.id}>
                       {academicText(
@@ -1235,10 +1178,12 @@ function CourseAnnouncementsEditor({
           {form.audience === "SelectedStudents" ? (
             <fieldset className="grid gap-2 rounded-xl border border-border p-3">
               <legend className="px-1 text-xs font-bold text-muted">
-                {locale === "ar" ? "اختر الطلاب" : "Choose learners"}
+                {t("announcements.chooseLearners")}
               </legend>
               {students.isPending ? (
-                <span className="text-sm text-muted">…</span>
+                <span className="text-sm text-muted">
+                  {t("shared.loading")}
+                </span>
               ) : null}
               {students.data?.map((student) => (
                 <label
@@ -1268,26 +1213,26 @@ function CourseAnnouncementsEditor({
               }
               className="size-4 accent-[var(--primary)]"
             />
-            {locale === "ar"
-              ? "نشر وإرسال إشعار الآن"
-              : "Publish and notify now"}
+            {t("announcements.publishNow")}
           </label>
           <button
             disabled={create.isPending}
             className="focus-ring w-fit rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
           >
             {form.publish
-              ? locale === "ar"
-                ? "نشر الإعلان"
-                : "Publish announcement"
-              : locale === "ar"
-                ? "حفظ كمسودة"
-                : "Save draft"}
+              ? t("announcements.submit")
+              : t("announcements.saveDraft")}
           </button>
-          <RequestError error={create.error} />
+          <RequestError
+            fallback={t("courseEditor.requestFailed")}
+            error={create.error}
+          />
         </form>
       ) : null}
-      <RequestError error={announcements.error} />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={announcements.error}
+      />
     </section>
   );
 }
@@ -1299,7 +1244,7 @@ function CourseDetailsForm({
   course: CourseEditorData;
   disabled: boolean;
 }) {
-  const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const client = useQueryClient();
   const [form, setForm] = useState({
     arabicTitle: course.arabicTitle,
@@ -1331,11 +1276,11 @@ function CourseDetailsForm({
     >
       <h2 className="flex items-center gap-2 text-xl font-black">
         <PencilLine size={20} className="text-primary" aria-hidden="true" />
-        {locale === "ar" ? "معلومات الدورة" : "Course information"}
+        {t("courseDetails.title")}
       </h2>
       <div className="grid gap-4 md:grid-cols-2">
         <TextField
-          label={locale === "ar" ? "العنوان بالعربية" : "Arabic title"}
+          label={t("courseDetails.arabicTitle")}
           value={form.arabicTitle}
           disabled={disabled}
           onChange={(value) =>
@@ -1343,7 +1288,7 @@ function CourseDetailsForm({
           }
         />
         <TextField
-          label={locale === "ar" ? "العنوان بالإنجليزية" : "English title"}
+          label={t("courseDetails.englishTitle")}
           value={form.englishTitle}
           disabled={disabled}
           onChange={(value) =>
@@ -1354,7 +1299,7 @@ function CourseDetailsForm({
       <div className="grid gap-4 md:grid-cols-2">
         <TextField
           multiline
-          label={locale === "ar" ? "الوصف بالعربية" : "Arabic description"}
+          label={t("courseDetails.arabicDescription")}
           value={form.arabicDescription}
           disabled={disabled}
           onChange={(value) =>
@@ -1363,7 +1308,7 @@ function CourseDetailsForm({
         />
         <TextField
           multiline
-          label={locale === "ar" ? "الوصف بالإنجليزية" : "English description"}
+          label={t("courseDetails.englishDescription")}
           value={form.englishDescription}
           disabled={disabled}
           onChange={(value) =>
@@ -1372,7 +1317,7 @@ function CourseDetailsForm({
         />
       </div>
       <label className="grid max-w-xs gap-1 text-sm font-bold text-muted">
-        {locale === "ar" ? "السعر (JOD)" : "Price (JOD)"}
+        {t("courseDetails.price")}
         <input
           type="number"
           min="0"
@@ -1395,20 +1340,23 @@ function CourseDetailsForm({
           }
           className="size-4 accent-[var(--primary)]"
         />
-        {locale === "ar" ? "دورة مجانية" : "Free course"}
+        {t("courseDetails.free")}
       </label>
       <button
         disabled={disabled || save.isPending}
         className="focus-ring w-fit rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
       >
-        {locale === "ar" ? "حفظ التعديلات" : "Save changes"}
+        {t("courseDetails.save")}
       </button>
       {save.isSuccess ? (
         <p role="status" className="text-sm font-bold text-primary">
-          {locale === "ar" ? "تم حفظ التعديلات." : "Changes saved."}
+          {t("courseDetails.saved")}
         </p>
       ) : null}
-      <RequestError error={save.error} />
+      <RequestError
+        fallback={t("courseEditor.requestFailed")}
+        error={save.error}
+      />
     </form>
   );
 }
@@ -1421,6 +1369,7 @@ function LearningAccessEditor({
   disabled: boolean;
 }) {
   const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const client = useQueryClient();
   const access = useQuery({
     queryKey: ["course-learning-access", course.id],
@@ -1453,7 +1402,7 @@ function LearningAccessEditor({
     });
   const saveRelease = useMutation({
     mutationFn: () => {
-      if (!selected) throw new Error("Choose content first.");
+      if (!selected) throw new Error(t("learningAccess.chooseContentFirst"));
       const previous = prerequisiteOptions.find(
         (item) => accessKey(item) === previousKey,
       );
@@ -1486,11 +1435,11 @@ function LearningAccessEditor({
   });
   const addPrerequisite = useMutation({
     mutationFn: () => {
-      if (!selected) throw new Error("Choose content first.");
+      if (!selected) throw new Error(t("learningAccess.chooseContentFirst"));
       const required = prerequisiteOptions.find(
         (item) => accessKey(item) === requiredKey,
       );
-      if (!required) throw new Error("Choose a prerequisite.");
+      if (!required) throw new Error(t("learningAccess.prerequisiteRequired"));
       return api(
         `/teacher/courses/${course.id}/learning-access/prerequisites`,
         {
@@ -1536,10 +1485,8 @@ function LearningAccessEditor({
   };
   const itemLabel = (item?: LearningAccessItem) =>
     item
-      ? `${contentTypeLabel(item.type, locale)} · ${locale === "ar" ? item.arabicTitle : item.englishTitle}`
-      : locale === "ar"
-        ? "محتوى غير موجود"
-        : "Unavailable content";
+      ? `${contentTypeLabel(item.type, t)} · ${locale === "ar" ? item.arabicTitle : item.englishTitle}`
+      : t("learningAccess.unavailableContent");
   const selectedPrerequisites = selected
     ? (access.data?.prerequisites ?? []).filter(
         (item) =>
@@ -1551,35 +1498,30 @@ function LearningAccessEditor({
       <div>
         <h2 className="flex items-center gap-2 text-xl font-black">
           <Clock3 size={20} className="text-primary" aria-hidden="true" />
-          {locale === "ar"
-            ? "إتاحة المحتوى والمتطلبات"
-            : "Content release & prerequisites"}
+          {t("learningAccess.title")}
         </h2>
         <p className="mt-1 text-sm leading-6 text-muted">
-          {locale === "ar"
-            ? "تُطبَّق الأقفال من الخادم على المشغّل والملفات والمهام، وليس من الواجهة فقط."
-            : "Locks are enforced by the server for the player, files, and assignments—not just in the interface."}
+          {t("learningAccess.description")}
         </p>
       </div>
       {access.isPending ? (
-        <p className="text-sm text-muted">…</p>
+        <p className="text-sm text-muted">{t("shared.loading")}</p>
       ) : access.isError ? (
-        <RequestError error={access.error} />
+        <RequestError
+          fallback={t("courseEditor.requestFailed")}
+          error={access.error}
+        />
       ) : (
         <>
           <label className="grid gap-1 text-sm font-bold text-muted">
-            {locale === "ar" ? "المحتوى المستهدف" : "Target content"}
+            {t("learningAccess.target")}
             <select
               value={targetKey}
               onChange={(event) => chooseTarget(event.target.value)}
               disabled={disabled}
               className="min-w-0 rounded-xl border border-border bg-transparent p-3 text-foreground disabled:opacity-50"
             >
-              <option value="">
-                {locale === "ar"
-                  ? "اختر دورة أو وحدة أو درسًا أو مهمة"
-                  : "Choose a course item"}
-              </option>
+              <option value="">{t("learningAccess.chooseTarget")}</option>
               {items.map((item) => (
                 <option key={accessKey(item)} value={accessKey(item)}>
                   {itemLabel(item)}
@@ -1591,7 +1533,7 @@ function LearningAccessEditor({
             <div className="grid gap-4 rounded-2xl border border-primary/20 bg-primary/5 p-4">
               <div className="grid gap-3 md:grid-cols-2">
                 <label className="grid gap-1 text-sm font-bold text-muted">
-                  {locale === "ar" ? "طريقة الإتاحة" : "Release method"}
+                  {t("learningAccess.releaseMethod")}
                   <select
                     value={releaseMode}
                     onChange={(event) =>
@@ -1601,26 +1543,22 @@ function LearningAccessEditor({
                     className="rounded-xl border border-border bg-transparent p-3 text-foreground disabled:opacity-50"
                   >
                     <option value="Immediately">
-                      {locale === "ar" ? "فورًا" : "Immediately"}
+                      {t("learningAccess.immediately")}
                     </option>
                     <option value="SpecificDate">
-                      {locale === "ar" ? "تاريخ ووقت محدد" : "Specific date"}
+                      {t("learningAccess.specificDate")}
                     </option>
                     <option value="DaysAfterEnrollment">
-                      {locale === "ar"
-                        ? "أيام بعد التسجيل"
-                        : "Days after enrollment"}
+                      {t("learningAccess.daysAfterEnrollment")}
                     </option>
                     <option value="AfterPreviousContentCompletion">
-                      {locale === "ar"
-                        ? "بعد إكمال محتوى سابق"
-                        : "After previous content"}
+                      {t("learningAccess.afterPrevious")}
                     </option>
                   </select>
                 </label>
                 {releaseMode === "SpecificDate" ? (
                   <label className="grid gap-1 text-sm font-bold text-muted">
-                    {locale === "ar" ? "تاريخ الإتاحة" : "Release date"}
+                    {t("learningAccess.releaseDate")}
                     <input
                       type="datetime-local"
                       value={specificDate}
@@ -1632,7 +1570,7 @@ function LearningAccessEditor({
                 ) : null}
                 {releaseMode === "DaysAfterEnrollment" ? (
                   <label className="grid gap-1 text-sm font-bold text-muted">
-                    {locale === "ar" ? "عدد الأيام" : "Number of days"}
+                    {t("learningAccess.numberOfDays")}
                     <input
                       type="number"
                       min="0"
@@ -1648,7 +1586,7 @@ function LearningAccessEditor({
                 ) : null}
                 {releaseMode === "AfterPreviousContentCompletion" ? (
                   <label className="grid gap-1 text-sm font-bold text-muted">
-                    {locale === "ar" ? "المحتوى السابق" : "Previous content"}
+                    {t("learningAccess.previousContent")}
                     <select
                       value={previousKey}
                       onChange={(event) => setPreviousKey(event.target.value)}
@@ -1656,9 +1594,7 @@ function LearningAccessEditor({
                       className="rounded-xl border border-border bg-transparent p-3 text-foreground disabled:opacity-50"
                     >
                       <option value="">
-                        {locale === "ar"
-                          ? "اختر محتوى يجب إكماله"
-                          : "Choose required content"}
+                        {t("learningAccess.chooseRequiredContent")}
                       </option>
                       {prerequisiteOptions
                         .filter((item) => accessKey(item) !== targetKey)
@@ -1684,24 +1620,19 @@ function LearningAccessEditor({
                 className="focus-ring w-fit rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
               >
                 {selectedRule
-                  ? locale === "ar"
-                    ? "تحديث الإتاحة"
-                    : "Update release"
-                  : locale === "ar"
-                    ? "حفظ الإتاحة"
-                    : "Save release"}
+                  ? t("learningAccess.updateRelease")
+                  : t("learningAccess.saveRelease")}
               </button>
-              <RequestError error={saveRelease.error} />
+              <RequestError
+                fallback={t("courseEditor.requestFailed")}
+                error={saveRelease.error}
+              />
               <div className="border-t border-border pt-4">
                 <h3 className="font-black text-foreground">
-                  {locale === "ar"
-                    ? "متطلبات إضافية"
-                    : "Additional prerequisites"}
+                  {t("learningAccess.additionalPrerequisites")}
                 </h3>
                 <p className="mt-1 text-xs leading-5 text-muted">
-                  {locale === "ar"
-                    ? "يمكن إضافة أكثر من متطلب؛ يجب أن يحقق الطالب جميعها. يمنع النظام الحلقات تلقائيًا."
-                    : "You can add more than one requirement; learners must complete all of them. Cycles are blocked automatically."}
+                  {t("learningAccess.prerequisitesDescription")}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <select
@@ -1711,9 +1642,7 @@ function LearningAccessEditor({
                     className="min-w-64 flex-1 rounded-xl border border-border bg-transparent p-2.5 text-sm text-foreground disabled:opacity-50"
                   >
                     <option value="">
-                      {locale === "ar"
-                        ? "اختر متطلبًا"
-                        : "Choose a prerequisite"}
+                      {t("learningAccess.choosePrerequisite")}
                     </option>
                     {prerequisiteOptions
                       .filter((item) => accessKey(item) !== targetKey)
@@ -1731,7 +1660,7 @@ function LearningAccessEditor({
                     onClick={() => addPrerequisite.mutate()}
                     className="focus-ring rounded-xl border border-primary/40 px-4 py-2 text-sm font-black text-primary disabled:opacity-50"
                   >
-                    {locale === "ar" ? "إضافة متطلب" : "Add prerequisite"}
+                    {t("learningAccess.addPrerequisite")}
                   </button>
                 </div>
                 <div className="mt-3 grid gap-2">
@@ -1753,11 +1682,7 @@ function LearningAccessEditor({
                             disabled={disabled || removePrerequisite.isPending}
                             onClick={() => removePrerequisite.mutate(item.id)}
                             className="focus-ring rounded-lg p-1.5 text-red-500 disabled:opacity-50"
-                            aria-label={
-                              locale === "ar"
-                                ? "حذف المتطلب"
-                                : "Remove prerequisite"
-                            }
+                            aria-label={t("learningAccess.removePrerequisite")}
                           >
                             <Trash2 size={16} aria-hidden="true" />
                           </button>
@@ -1766,15 +1691,19 @@ function LearningAccessEditor({
                     })
                   ) : (
                     <p className="text-sm text-muted">
-                      {locale === "ar"
-                        ? "لا توجد متطلبات إضافية."
-                        : "No additional prerequisites."}
+                      {t("learningAccess.noPrerequisites")}
                     </p>
                   )}
                 </div>
               </div>
-              <RequestError error={addPrerequisite.error} />
-              <RequestError error={removePrerequisite.error} />
+              <RequestError
+                fallback={t("courseEditor.requestFailed")}
+                error={addPrerequisite.error}
+              />
+              <RequestError
+                fallback={t("courseEditor.requestFailed")}
+                error={removePrerequisite.error}
+              />
             </div>
           ) : null}
         </>
@@ -1787,14 +1716,21 @@ function accessKey(item: Pick<LearningAccessItem, "type" | "id">) {
   return `${item.type}:${item.id}`;
 }
 
-function contentTypeLabel(type: LearningAccessItem["type"], locale: string) {
-  const labels: Record<LearningAccessItem["type"], [string, string]> = {
-    Course: ["دورة", "Course"],
-    Unit: ["وحدة", "Unit"],
-    Lesson: ["درس", "Lesson"],
-    Assignment: ["مهمة", "Assignment"],
+type TeacherCourseTranslations = ReturnType<
+  typeof useTranslations<"teacherWorkspace">
+>;
+
+function contentTypeLabel(
+  type: LearningAccessItem["type"],
+  t: TeacherCourseTranslations,
+) {
+  const labels: Record<LearningAccessItem["type"], string> = {
+    Course: t("learningAccess.contentType.course"),
+    Unit: t("learningAccess.contentType.unit"),
+    Lesson: t("learningAccess.contentType.lesson"),
+    Assignment: t("learningAccess.contentType.assignment"),
   };
-  return labels[type][locale === "ar" ? 0 : 1];
+  return labels[type];
 }
 
 function CoverManager({
@@ -5965,12 +5901,18 @@ function SelectField({
   );
 }
 
-function RequestError({ error }: { error: unknown }) {
+function RequestError({
+  error,
+  fallback = "Request failed.",
+}: {
+  error: unknown;
+  fallback?: string;
+}) {
   const locale = useLocale();
   return error ? (
     <p role="alert" className="text-sm text-red-400">
       {localizeCourseMessage(
-        error instanceof Error ? error.message : "Request failed.",
+        error instanceof Error ? error.message : fallback,
         locale,
       )}
     </p>
@@ -6011,20 +5953,13 @@ function localizeCourseMessage(message: string, locale: string) {
   return messages[message] ?? message;
 }
 
-function statusLabel(status: string, locale: string) {
-  const ar: Record<string, string> = {
-    Draft: "مسودة",
-    Rejected: "تحتاج تعديلًا",
-    SubmittedForReview: "قيد مراجعة الأدمن",
-    Approved: "معتمدة بانتظار النشر",
-    Published: "منشورة",
+function statusLabel(status: string, t: TeacherCourseTranslations) {
+  const labels: Record<string, string> = {
+    Draft: t("courseEditor.status.draft"),
+    Rejected: t("courseEditor.status.rejected"),
+    SubmittedForReview: t("courseEditor.status.submittedForReview"),
+    Approved: t("courseEditor.status.approved"),
+    Published: t("courseEditor.status.published"),
   };
-  const en: Record<string, string> = {
-    Draft: "Draft",
-    Rejected: "Needs revision",
-    SubmittedForReview: "Under admin review",
-    Approved: "Approved, awaiting publication",
-    Published: "Published",
-  };
-  return (locale === "ar" ? ar : en)[status] ?? status;
+  return labels[status] ?? status;
 }
