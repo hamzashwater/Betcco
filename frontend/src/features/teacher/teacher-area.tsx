@@ -37,7 +37,7 @@ import {
   MetricCard,
 } from "@/components/dashboard/dashboard-ui";
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 
 export function TeacherArea({ segment }: { segment: string[] }) {
@@ -58,6 +58,7 @@ export function TeacherArea({ segment }: { segment: string[] }) {
 
 function TeacherDashboard() {
   const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const courses = useQuery({
     queryKey: ["teacher-courses"],
     queryFn: () => api<TeacherCourse[]>("/teacher/courses"),
@@ -77,80 +78,58 @@ function TeacherDashboard() {
   return (
     <section className="shell py-10">
       <DashboardHeader
-        eyebrow="BETCCO Teacher Studio"
-        title={locale === "ar" ? "لوحة المعلم" : "Teacher dashboard"}
-        description={
-          locale === "ar"
-            ? "أنشئ المحتوى، وتابع حالة مراجعته، وأنجز التقييمات المسندة إليك ضمن مساحة عمل مركزة."
-            : "Create content, track its review state, and complete assigned evaluations from one focused workspace."
-        }
+        eyebrow={t("dashboard.eyebrow")}
+        title={t("dashboard.title")}
+        description={t("dashboard.description")}
         actions={
           <Link
             href={`/${locale}/teacher/courses/new`}
             className="focus-ring inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-black text-slate-950"
           >
             <Plus size={18} aria-hidden="true" />
-            {locale === "ar" ? "إنشاء دورة" : "Create course"}
+            {t("dashboard.createCourse")}
           </Link>
         }
       />
       <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <MetricCard
-          label={locale === "ar" ? "مسوداتك" : "Your drafts"}
+          label={t("dashboard.drafts")}
           value={courses.isPending ? "—" : drafts}
-          detail={
-            locale === "ar"
-              ? "ابدأ بإكمال المتطلبات"
-              : "Complete their publishing requirements"
-          }
+          detail={t("dashboard.draftsDetail")}
           icon={FilePenLine}
         />
         <MetricCard
-          label={locale === "ar" ? "بانتظار المراجعة" : "Awaiting review"}
+          label={t("dashboard.awaitingReview")}
           value={courses.isPending ? "—" : waiting}
-          detail={
-            locale === "ar"
-              ? "دورات أُرسلت إلى الأدمن"
-              : "Courses submitted to an administrator"
-          }
+          detail={t("dashboard.awaitingReviewDetail")}
           icon={BadgeCheck}
           tone="warm"
         />
         <MetricCard
-          label={locale === "ar" ? "الدورات المنشورة" : "Published courses"}
+          label={t("dashboard.publishedCourses")}
           value={courses.isPending ? "—" : published}
-          detail={
-            locale === "ar" ? "متاحة الآن للطلاب" : "Available to students now"
-          }
+          detail={t("dashboard.publishedCoursesDetail")}
           icon={GraduationCap}
           tone="secondary"
         />
         <MetricCard
-          label={locale === "ar" ? "الطلاب المسجلون" : "Enrolled students"}
+          label={t("dashboard.enrolledStudents")}
           value={analytics.isPending ? "—" : (analytics.data?.students ?? 0)}
-          detail={
-            locale === "ar"
-              ? "عدد فريد عبر دوراتك"
-              : "Unique learners across your courses"
-          }
+          detail={t("dashboard.enrolledStudentsDetail")}
           icon={GraduationCap}
           tone="secondary"
         />
         <MetricCard
-          label={locale === "ar" ? "بانتظار تدقيقك" : "Awaiting review"}
+          label={t("dashboard.pendingReviews")}
           value={
             analytics.isPending ? "—" : (analytics.data?.pendingReviews ?? 0)
           }
-          detail={
-            locale === "ar"
-              ? "تسليمات مهام وتدريب تكويني"
-              : "Submitted coursework and formative practice"
-          }
+          detail={t("dashboard.pendingReviewsDetail")}
           icon={ClipboardCheck}
           tone="warm"
         />
         <MetricCard
-          label={locale === "ar" ? "متوسط التقدم" : "Average progress"}
+          label={t("dashboard.averageProgress")}
           value={
             analytics.isPending
               ? "—"
@@ -159,25 +138,17 @@ function TeacherDashboard() {
                   locale,
                 )
           }
-          detail={locale === "ar" ? "الدروس المنشورة" : "Published lessons"}
+          detail={t("dashboard.publishedLessons")}
           icon={BookOpenCheck}
         />
         <MetricCard
-          label={
-            locale === "ar"
-              ? "طلاب يحتاجون متابعة"
-              : "Students needing attention"
-          }
+          label={t("dashboard.studentsNeedingAttention")}
           value={
             analytics.isPending
               ? "—"
               : (analytics.data?.studentsAtRiskCount ?? 0)
           }
-          detail={
-            locale === "ar"
-              ? "بناءً على التقدم والمهام والتدريب التكويني"
-              : "Based on progress, coursework, and formative practice"
-          }
+          detail={t("dashboard.studentsNeedingAttentionDetail")}
           icon={AlertTriangle}
           tone="warm"
         />
@@ -190,42 +161,26 @@ function TeacherDashboard() {
       <div className="mt-5 grid gap-4 md:grid-cols-3">
         <AreaLink
           href="courses"
-          title={locale === "ar" ? "دوراتي" : "My courses"}
-          text={
-            locale === "ar"
-              ? "شاهد الحالة وعدّل مسوداتك."
-              : "Review the status of your course work."
-          }
+          title={t("dashboard.myCourses")}
+          text={t("dashboard.myCoursesDescription")}
           icon={BookOpenCheck}
         />
         <AreaLink
           href="courses/new"
-          title={locale === "ar" ? "أنشئ دورة" : "Create course"}
-          text={
-            locale === "ar"
-              ? "ابدأ مسودة جديدة قابلة للمراجعة."
-              : "Start a new draft ready for review."
-          }
+          title={t("dashboard.newCourse")}
+          text={t("dashboard.newCourseDescription")}
           icon={FilePenLine}
         />
         <AreaLink
           href="evaluations"
-          title={locale === "ar" ? "مهام التقييم" : "Evaluation work"}
-          text={
-            locale === "ar"
-              ? "افتح الطلبات المسندة إليك فقط."
-              : "Open only the requests assigned to you."
-          }
+          title={t("shared.evaluationWork")}
+          text={t("dashboard.evaluationWorkDescription")}
           icon={ClipboardCheck}
         />
         <AreaLink
           href="wallet"
-          title={locale === "ar" ? "محفظتي" : "My wallet"}
-          text={
-            locale === "ar"
-              ? "تابع أرباح دوراتك واطلب سحب رصيدك المتاح."
-              : "Track course earnings and request a withdrawal of your available balance."
-          }
+          title={t("shared.myWallet")}
+          text={t("dashboard.walletDescription")}
           icon={WalletCards}
         />
       </div>
@@ -268,6 +223,7 @@ type TeacherWalletView = {
 
 function TeacherWallet() {
   const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const client = useQueryClient();
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("BankTransfer");
@@ -301,58 +257,50 @@ function TeacherWallet() {
   return (
     <section className="shell py-10">
       <DashboardHeader
-        eyebrow="BETCCO Teacher Wallet"
-        title={locale === "ar" ? "محفظتي" : "My wallet"}
-        description={
-          locale === "ar"
-            ? "يُضاف لك 70٪ من صافي بيع كل دورة بعد التحقق من الدفع. اطلب السحب من رصيدك المتاح فقط."
-            : "70% of each course's net sale is credited after payment verification. Request withdrawals only from your available balance."
-        }
+        eyebrow={t("wallet.eyebrow")}
+        title={t("shared.myWallet")}
+        description={t("wallet.description")}
       />
       {wallet.isPending ? (
         <div className="card mt-6 p-6" aria-busy>
-          …
+          {t("shared.loading")}
         </div>
       ) : wallet.isError || !values ? (
         <p className="card mt-6 p-6" role="alert">
-          {locale === "ar"
-            ? "تعذّر تحميل المحفظة. تأكد من تسجيل الدخول كمعلم."
-            : "Unable to load your wallet. Confirm that you are signed in as a teacher."}
+          {t("wallet.loadError")}
         </p>
       ) : (
         <>
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
             <MetricCard
-              label={locale === "ar" ? "الرصيد المتاح" : "Available balance"}
+              label={t("wallet.availableBalance")}
               value={formatLocalizedCurrency(
                 values.availableBalance,
                 values.currency,
                 locale,
               )}
-              detail={
-                locale === "ar" ? "قابل لطلب السحب" : "Eligible for withdrawal"
-              }
+              detail={t("wallet.availableBalanceDetail")}
               icon={WalletCards}
               tone="secondary"
             />
             <MetricCard
-              label={locale === "ar" ? "إجمالي الأرباح" : "Total earnings"}
+              label={t("wallet.totalEarnings")}
               value={formatLocalizedCurrency(
                 values.totalEarned,
                 values.currency,
                 locale,
               )}
-              detail={locale === "ar" ? "حصة المعلم 70٪" : "Teacher share: 70%"}
+              detail={t("wallet.teacherShare")}
               icon={GraduationCap}
             />
             <MetricCard
-              label={locale === "ar" ? "طلبات السحب" : "Withdrawals"}
+              label={t("wallet.withdrawals")}
               value={formatLocalizedCurrency(
                 Math.abs(values.totalWithdrawn),
                 values.currency,
                 locale,
               )}
-              detail={locale === "ar" ? "محجوزة أو مدفوعة" : "Reserved or paid"}
+              detail={t("wallet.withdrawalsDetail")}
               icon={ArrowLeft}
               tone="warm"
             />
@@ -367,16 +315,14 @@ function TeacherWallet() {
             >
               <div>
                 <h2 className="text-lg font-black">
-                  {locale === "ar" ? "طلب سحب" : "Request withdrawal"}
+                  {t("wallet.requestWithdrawal")}
                 </h2>
                 <p className="mt-1 text-sm text-muted">
-                  {locale === "ar"
-                    ? "لا تُعرض بيانات الوجهة كاملة للأدمن، وهي مشفّرة في النظام."
-                    : "Destination details are encrypted in the system and masked for administrators."}
+                  {t("wallet.destinationPrivacy")}
                 </p>
               </div>
               <label className="grid gap-1 text-sm font-bold">
-                {locale === "ar" ? "المبلغ (دينار أردني)" : "Amount (JOD)"}
+                {t("wallet.amount")}
                 <input
                   type="number"
                   min="0.001"
@@ -389,28 +335,22 @@ function TeacherWallet() {
                 />
               </label>
               <label className="grid gap-1 text-sm font-bold">
-                {locale === "ar" ? "طريقة السحب" : "Withdrawal method"}
+                {t("wallet.method")}
                 <select
                   value={method}
                   onChange={(event) => setMethod(event.target.value)}
                   className="rounded-xl border border-border bg-white/5 p-3"
                 >
                   <option value="BankTransfer">
-                    {locale === "ar" ? "تحويل بنكي" : "Bank transfer"}
+                    {t("wallet.bankTransfer")}
                   </option>
-                  <option value="EWallet">
-                    {locale === "ar" ? "محفظة إلكترونية" : "E-wallet"}
-                  </option>
+                  <option value="EWallet">{t("wallet.eWallet")}</option>
                 </select>
               </label>
               <label className="grid gap-1 text-sm font-bold">
                 {method === "BankTransfer"
-                  ? locale === "ar"
-                    ? "رقم الحساب أو IBAN"
-                    : "Account number or IBAN"
-                  : locale === "ar"
-                    ? "رقم المحفظة الإلكترونية"
-                    : "E-wallet number"}
+                  ? t("wallet.bankDestination")
+                  : t("wallet.eWalletDestination")}
                 <input
                   value={destination}
                   onChange={(event) => setDestination(event.target.value)}
@@ -429,28 +369,20 @@ function TeacherWallet() {
                 className="focus-ring rounded-xl bg-primary px-4 py-3 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {requestWithdrawal.isPending
-                  ? locale === "ar"
-                    ? "جارٍ الإرسال…"
-                    : "Submitting…"
-                  : locale === "ar"
-                    ? "إرسال طلب السحب"
-                    : "Submit withdrawal request"}
+                  ? t("wallet.submitting")
+                  : t("wallet.submit")}
               </button>
               {requestWithdrawal.isError && (
                 <p role="alert" className="text-sm text-red-400">
                   {requestWithdrawal.error instanceof Error
                     ? requestWithdrawal.error.message
-                    : locale === "ar"
-                      ? "تعذّر إنشاء طلب السحب."
-                      : "Unable to create the withdrawal request."}
+                    : t("wallet.submitError")}
                 </p>
               )}
             </form>
             <WalletTable
-              title={locale === "ar" ? "آخر العمليات" : "Recent activity"}
-              empty={
-                locale === "ar" ? "لا توجد عمليات بعد." : "No transactions yet."
-              }
+              title={t("wallet.recentActivity")}
+              empty={t("wallet.noTransactions")}
               rows={values.transactions.map((transaction) => ({
                 id: transaction.id,
                 title: transaction.description,
@@ -467,15 +399,11 @@ function TeacherWallet() {
           </div>
           <div className="mt-6">
             <WalletTable
-              title={locale === "ar" ? "طلبات السحب" : "Withdrawal requests"}
-              empty={
-                locale === "ar"
-                  ? "لم تطلب سحبًا بعد."
-                  : "You have not requested a withdrawal yet."
-              }
+              title={t("wallet.withdrawalRequests")}
+              empty={t("wallet.noWithdrawals")}
               rows={values.payouts.map((payout) => ({
                 id: payout.id,
-                title: `${payout.method === "BankTransfer" ? (locale === "ar" ? "تحويل بنكي" : "Bank transfer") : locale === "ar" ? "محفظة إلكترونية" : "E-wallet"} — ${payout.destinationMasked}`,
+                title: `${payout.method === "BankTransfer" ? t("wallet.bankTransfer") : t("wallet.eWallet")} — ${payout.destinationMasked}`,
                 meta: `${payout.status}${payout.reviewNote ? ` — ${payout.reviewNote}` : ""}`,
                 amount: formatLocalizedCurrency(
                   payout.amount,
@@ -548,6 +476,7 @@ function AreaLink({
   icon: typeof BookOpenCheck;
 }) {
   const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   return (
     <Link
       href={`/${locale}/teacher/${href}`}
@@ -555,7 +484,7 @@ function AreaLink({
     >
       <ActionCard title={title} description={text} icon={icon}>
         <span className="mt-4 inline-flex items-center gap-1 text-sm font-black text-primary">
-          {locale === "ar" ? "فتح" : "Open"}
+          {t("shared.open")}
           <ArrowLeft size={16} className="rtl:rotate-180" aria-hidden="true" />
         </span>
       </ActionCard>
@@ -578,6 +507,7 @@ type AssignedEvaluation = {
 
 function TeacherEvaluations() {
   const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const evaluations = useQuery({
     queryKey: ["teacher-evaluations"],
     queryFn: () => api<AssignedEvaluation[]>("/evaluations/assigned"),
@@ -586,7 +516,7 @@ function TeacherEvaluations() {
     return (
       <section className="shell py-10">
         <div className="card p-6" aria-busy>
-          …
+          {t("shared.loading")}
         </div>
       </section>
     );
@@ -594,22 +524,16 @@ function TeacherEvaluations() {
     return (
       <section className="shell py-10">
         <p className="card p-6" role="alert">
-          {locale === "ar"
-            ? "تعذر تحميل التقييمات المسندة إليك."
-            : "Unable to load your assigned evaluations."}
+          {t("evaluations.loadError")}
         </p>
       </section>
     );
   return (
     <section className="shell py-10">
       <DashboardHeader
-        eyebrow="BETCCO Evaluation"
-        title={locale === "ar" ? "مهام التقييم" : "Evaluation work"}
-        description={
-          locale === "ar"
-            ? "لا تظهر هنا إلا الطلبات التي أسندها الأدمن إلى حسابك."
-            : "Only requests assigned to your account by an administrator appear here."
-        }
+        eyebrow={t("evaluations.eyebrow")}
+        title={t("shared.evaluationWork")}
+        description={t("evaluations.description")}
       />
       <div className="mt-5 grid gap-4">
         {evaluations.data?.map((evaluation) => (
@@ -625,30 +549,21 @@ function TeacherEvaluations() {
                   <ClipboardCheck size={18} aria-hidden="true" />
                   <span className="text-sm font-black">
                     {evaluation.isRetake
-                      ? locale === "ar"
-                        ? "Retake مسند · Pass فقط"
-                        : "Assigned Retake · Pass only"
+                      ? t("evaluations.assignedRetake")
                       : evaluation.isResit
-                        ? locale === "ar"
-                          ? "مراجعة Resit نهائية"
-                          : "Resit final review"
-                        : locale === "ar"
-                          ? "طلب تقييم مسند"
-                          : "Assigned evaluation"}
+                        ? t("evaluations.resitFinalReview")
+                        : t("evaluations.assignedEvaluation")}
                   </span>
                 </div>
                 {evaluation.isResit &&
                   evaluation.resitOfEvaluationRequestId && (
                     <p className="mt-2 text-xs text-muted">
-                      {locale === "ar" ? "الطلب الأصلي:" : "Original request:"}{" "}
+                      {t("shared.originalRequest")}{" "}
                       {evaluation.resitOfEvaluationRequestId.slice(0, 8)}
                     </p>
                   )}
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">
-                  {evaluation.studentComment ||
-                    (locale === "ar"
-                      ? "لا توجد ملاحظة من الطالب."
-                      : "No student note was provided.")}
+                  {evaluation.studentComment || t("shared.noStudentNote")}
                 </p>
               </div>
               <span className="rounded-full border border-border bg-white/5 px-3 py-1 text-xs font-bold text-muted">
@@ -658,14 +573,13 @@ function TeacherEvaluations() {
             <div className="mt-4 flex flex-wrap gap-3 text-xs text-muted">
               <span className="inline-flex items-center gap-1">
                 <Files size={14} aria-hidden="true" />
-                {evaluation.filesCount} {locale === "ar" ? "ملفات" : "files"}
+                {evaluation.filesCount} {t("evaluations.files")}
               </span>
               <span>
-                {evaluation.criteria.length}{" "}
-                {locale === "ar" ? "معايير" : "criteria"}
+                {evaluation.criteria.length} {t("evaluations.criteria")}
               </span>
               <span className="ms-auto inline-flex items-center gap-1 font-bold text-primary">
-                {locale === "ar" ? "بدء التقييم" : "Start evaluation"}
+                {t("evaluations.start")}
                 <ArrowLeft
                   size={15}
                   className="rtl:rotate-180"
@@ -677,9 +591,7 @@ function TeacherEvaluations() {
         ))}
         {!evaluations.data?.length && (
           <div className="card p-6 text-sm leading-6 text-muted">
-            {locale === "ar"
-              ? "لا توجد طلبات تقييم مسندة إليك حاليًا."
-              : "You have no assigned evaluation requests right now."}
+            {t("evaluations.empty")}
           </div>
         )}
       </div>
@@ -730,6 +642,7 @@ type ResultDraft = Record<
 
 function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
   const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const [draft, setDraft] = useState<ResultDraft>({});
   const [feedback, setFeedback] = useState("");
   const [requestRevision, setRequestRevision] = useState(false);
@@ -748,11 +661,7 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
         !evaluation.data?.isResit &&
         (!revisionDueLocal || !Number.isFinite(Date.parse(revisionDueLocal)))
       )
-        throw new Error(
-          locale === "ar"
-            ? "حدد موعدًا صالحًا لفرصة التعديل الوحيدة."
-            : "Choose a valid deadline for the one revision check.",
-        );
+        throw new Error(t("evaluationReview.invalidDeadline"));
       const results =
         activeCriteria.map((criterion) => {
           const value = criterionValue(criterion);
@@ -810,7 +719,7 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
     return (
       <section className="shell py-10">
         <div className="card p-6" aria-busy>
-          …
+          {t("shared.loading")}
         </div>
       </section>
     );
@@ -818,9 +727,7 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
     return (
       <section className="shell py-10">
         <p className="card p-6" role="alert">
-          {locale === "ar"
-            ? "هذا الطلب غير متاح لحسابك."
-            : "This request is unavailable to your account."}
+          {t("evaluationReview.unavailable")}
         </p>
       </section>
     );
@@ -886,7 +793,7 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
         className="focus-ring inline-flex items-center gap-1 text-sm font-bold text-primary"
       >
         <ArrowLeft size={16} className="rtl:rotate-180" aria-hidden="true" />
-        {locale === "ar" ? "كل مهام التقييم" : "All evaluation work"}
+        {t("evaluationReview.back")}
       </Link>
       <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <form
@@ -903,33 +810,27 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
         >
           <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">
             {evaluation.data.isRetake
-              ? "Historical Retake"
+              ? t("evaluationReview.retakeEyebrow")
               : evaluation.data.isResit
-                ? locale === "ar"
-                  ? "المراجعة الاستشارية النهائية للـ Resit"
-                  : "Final Resit advisory review"
+                ? t("evaluationReview.resitEyebrow")
                 : evaluation.data.submissionAttemptNumber === 1
-                  ? "BETCCO Initial Review"
-                  : "BETCCO Revision Check"}
+                  ? t("evaluationReview.initialEyebrow")
+                  : t("evaluationReview.revisionEyebrow")}
           </p>
           <h1 className="mt-2 text-3xl font-black">
-            {locale === "ar"
-              ? "مراجعة مهمة الطالب"
-              : "Student assignment review"}
+            {t("evaluationReview.title")}
           </h1>
           {evaluation.data.isResit &&
             evaluation.data.resitOfEvaluationRequestId && (
               <p className="mt-2 text-sm text-muted">
-                {locale === "ar" ? "الطلب الأصلي:" : "Original request:"}{" "}
+                {t("shared.originalRequest")}{" "}
                 {evaluation.data.resitOfEvaluationRequestId.slice(0, 8)}
               </p>
             )}
           {isPlanning ? (
             <>
               <p className="mt-3 text-sm leading-6 text-muted">
-                {locale === "ar"
-                  ? "الخطوة الأولى: حدّد معايير كل قسم من المهمة. لكل قسم ابدأ بمعايير P، ثم أضف M، ثم D عند الحاجة؛ لا يمكن اعتماد D بدون P وM في القسم نفسه."
-                  : "Step one: choose criteria within each task section. Start with P, then M, then D; a D criterion requires P and M in the same section."}
+                {t("evaluationReview.planningDescription")}
               </p>
               <div className="mt-6 grid gap-4">
                 {criterionSections.map((section) => (
@@ -938,7 +839,7 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                     className="rounded-2xl border border-primary/25 bg-white/[.025] p-4"
                   >
                     <legend className="px-1 text-base font-black text-foreground">
-                      {sectionLabel(section.section, locale)}
+                      {sectionLabel(section.section, t)}
                     </legend>
                     <div className="mt-3 grid gap-3">
                       {groupCriteriaByBand(section.criteria)
@@ -954,12 +855,13 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                             >
                               <div className="flex flex-wrap items-center justify-between gap-2">
                                 <p className="text-sm font-black text-foreground">
-                                  {criterionGroupLabel(group.band, locale)}
+                                  {criterionGroupLabel(group.band, t)}
                                 </p>
                                 <span className="text-xs text-muted">
-                                  {locale === "ar"
-                                    ? `${selectedCount} من ${group.criteria.length} محدد`
-                                    : `${selectedCount} of ${group.criteria.length} selected`}
+                                  {t("evaluationReview.selectedCount", {
+                                    selected: String(selectedCount),
+                                    total: String(group.criteria.length),
+                                  })}
                                 </span>
                               </div>
                               <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -999,16 +901,14 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
               >
                 <BadgeCheck size={18} aria-hidden="true" />
                 {saveCriteriaPlan.isPending
-                  ? "…"
-                  : locale === "ar"
-                    ? "تأكيد المعايير وبدء التقييم"
-                    : "Confirm criteria and start evaluation"}
+                  ? t("shared.loading")
+                  : t("evaluationReview.confirmCriteria")}
               </button>
               {saveCriteriaPlan.isError && (
                 <p className="mt-3 text-sm text-red-500" role="alert">
                   {saveCriteriaPlan.error instanceof Error
                     ? saveCriteriaPlan.error.message
-                    : "Request failed."}
+                    : t("shared.requestFailed")}
                 </p>
               )}
             </>
@@ -1018,14 +918,10 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
               role="status"
             >
               <p className="font-black text-foreground">
-                {locale === "ar"
-                  ? "تم إرسال الملاحظات للطالب. بانتظار النسخة المعدلة."
-                  : "Feedback sent. Waiting for the learner's revised assignment."}
+                {t("evaluationReview.awaitingRevision")}
               </p>
               <p className="mt-2 text-sm text-muted">
-                {locale === "ar"
-                  ? "النتيجة التقديرية الحالية من BETCCO:"
-                  : "Current BETCCO estimated result:"}
+                {t("evaluationReview.estimatedResult")}
               </p>
               <p className="mt-2 text-2xl font-black text-primary">
                 {evaluation.data.calculatedGrade ?? "—"}
@@ -1042,14 +938,10 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
               role="status"
             >
               <p className="font-black text-foreground">
-                {locale === "ar"
-                  ? "أُرسلت النتيجة إلى الأدمن للاعتماد النهائي."
-                  : "The result has been sent to the administrator for final approval."}
+                {t("evaluationReview.awaitingApproval")}
               </p>
               <p className="mt-2 text-sm text-muted">
-                {locale === "ar"
-                  ? "النتيجة المحسوبة من الخادم (لن تظهر للطالب قبل الاعتماد):"
-                  : "Server-calculated result (not visible to the student until approval):"}
+                {t("evaluationReview.serverResult")}
               </p>
               <p className="mt-2 text-2xl font-black text-primary">
                 {evaluation.data.calculatedGrade ?? "—"}
@@ -1060,7 +952,7 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                     key={section.section}
                     className="rounded-xl border border-border bg-surface-solid/60 p-3 text-sm"
                   >
-                    <strong>{sectionLabel(section.section, locale)}: </strong>
+                    <strong>{sectionLabel(section.section, t)}: </strong>
                     {section.grade}
                   </p>
                 ))}
@@ -1071,9 +963,7 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
               <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/25 bg-primary/10 p-4">
                 <div>
                   <p className="text-sm font-black text-foreground">
-                    {locale === "ar"
-                      ? "معايير المهمة المحددة"
-                      : "Selected task criteria"}
+                    {t("evaluationReview.selectedCriteria")}
                   </p>
                   <p className="mt-1 text-xs text-muted">
                     {activeCriterionSections
@@ -1091,14 +981,12 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                       onClick={() => setCriteriaPlanDraft([...activeCriteria])}
                       className="focus-ring rounded-xl border border-primary/40 px-3 py-2 text-xs font-bold text-primary hover:bg-primary/10"
                     >
-                      {locale === "ar" ? "تعديل المعايير" : "Edit criteria"}
+                      {t("evaluationReview.editCriteria")}
                     </button>
                   )}
               </div>
               <p className="mt-4 text-sm leading-6 text-muted">
-                {locale === "ar"
-                  ? "حدّد نتيجة كل معيار مختار. يحدد النظام النتيجة من المعايير المحققة وقاعدة التقييم المحفوظة للمهمة؛ لا تُحوّل النسبة المئوية إلى Pass أو Merit أو Distinction."
-                  : "Set each selected criterion outcome. The server derives the outcome from achieved criteria and the task's saved assessment rule; a percentage never becomes Pass, Merit, or Distinction."}
+                {t("evaluationReview.gradingDescription")}
               </p>
               <div className="mt-6 grid gap-4">
                 {activeCriterionSections.map((section) => (
@@ -1107,7 +995,7 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                     className="rounded-2xl border border-primary/25 bg-white/[.025] p-4"
                   >
                     <h2 className="text-lg font-black text-foreground">
-                      {sectionLabel(section.section, locale)}
+                      {sectionLabel(section.section, t)}
                     </h2>
                     <div className="mt-4 grid gap-4">
                       {groupCriteriaByBand(section.criteria)
@@ -1115,7 +1003,7 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                         .map((group) => (
                           <div key={`${section.section}-${group.band}`}>
                             <h3 className="text-sm font-black text-primary">
-                              {criterionGroupLabel(group.band, locale)}
+                              {criterionGroupLabel(group.band, t)}
                             </h3>
                             <div className="mt-2 grid gap-3">
                               {group.criteria.map((criterion) => (
@@ -1128,7 +1016,7 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                                   </legend>
                                   <div className="mt-2">
                                     <label className="grid gap-1 text-xs font-bold text-muted">
-                                      {locale === "ar" ? "النتيجة" : "Outcome"}
+                                      {t("evaluationReview.outcome")}
                                       <select
                                         required
                                         value={
@@ -1142,35 +1030,27 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                                         className="rounded-xl border border-border bg-transparent p-2.5 text-sm text-foreground"
                                       >
                                         <option value="">
-                                          {locale === "ar"
-                                            ? "اختر النتيجة"
-                                            : "Choose outcome"}
+                                          {t("evaluationReview.chooseOutcome")}
                                         </option>
                                         <option value="Achieved">
-                                          {locale === "ar"
-                                            ? "متحقق"
-                                            : "Achieved"}
+                                          {t("evaluationReview.achieved")}
                                         </option>
                                         <option value="PartiallyAchieved">
-                                          {locale === "ar"
-                                            ? "متحقق جزئيًا"
-                                            : "Partially achieved"}
+                                          {t(
+                                            "evaluationReview.partiallyAchieved",
+                                          )}
                                         </option>
                                         <option value="NotAchieved">
-                                          {locale === "ar"
-                                            ? "غير متحقق"
-                                            : "Not achieved"}
+                                          {t("evaluationReview.notAchieved")}
                                         </option>
                                         <option value="NotApplicable">
-                                          {locale === "ar"
-                                            ? "غير منطبق"
-                                            : "Not applicable"}
+                                          {t("evaluationReview.notApplicable")}
                                         </option>
                                       </select>
                                     </label>
                                   </div>
                                   <label className="mt-3 grid gap-1 text-xs font-bold text-muted">
-                                    {locale === "ar" ? "الدليل" : "Evidence"}
+                                    {t("evaluationReview.evidence")}
                                     <textarea
                                       value={criterionValue(criterion).evidence}
                                       onChange={(event) =>
@@ -1182,7 +1062,7 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                                     />
                                   </label>
                                   <label className="mt-3 grid gap-1 text-xs font-bold text-muted">
-                                    {locale === "ar" ? "ملاحظة" : "Comment"}
+                                    {t("evaluationReview.comment")}
                                     <textarea
                                       value={criterionValue(criterion).comment}
                                       onChange={(event) =>
@@ -1205,20 +1085,14 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
               {!evaluation.data.isRetake ? (
                 <div className="mt-6 grid gap-4 rounded-2xl border border-primary/25 bg-primary/5 p-4">
                   <label className="grid gap-2 text-sm font-bold text-foreground">
-                    {locale === "ar"
-                      ? "ملاحظات المعلم للطالب"
-                      : "Teacher feedback"}
+                    {t("evaluationReview.feedback")}
                     <textarea
                       required
                       maxLength={4000}
                       value={feedback}
                       onChange={(event) => setFeedback(event.target.value)}
                       className="min-h-28 rounded-xl border border-border bg-transparent p-3 text-sm font-normal text-foreground"
-                      placeholder={
-                        locale === "ar"
-                          ? "اشرح للطالب ما هو جيد، ما الناقص، وما الذي يجب تعديله قبل التسليم للمدرسة."
-                          : "Explain what is strong, what is missing, and what to revise before the school submission."
-                      }
+                      placeholder={t("evaluationReview.feedbackPlaceholder")}
                     />
                   </label>
                   {evaluation.data.isResit ? null : evaluation.data
@@ -1235,23 +1109,15 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                           className="mt-1 size-4 accent-[var(--primary)]"
                         />
                         <span>
-                          <strong>
-                            {locale === "ar"
-                              ? "فتح فرصة التعديل الوحيدة"
-                              : "Open the one revision check"}
-                          </strong>
+                          <strong>{t("evaluationReview.openRevision")}</strong>
                           <span className="mt-1 block text-muted">
-                            {locale === "ar"
-                              ? "سيشاهد الطالب النتيجة التقديرية الحالية وملاحظاتك، ثم يرفع نسخة معدلة مرة واحدة."
-                              : "The learner will see the current estimated result and your feedback, then can upload one revised version."}
+                            {t("evaluationReview.openRevisionDescription")}
                           </span>
                         </span>
                       </label>
                       {requestRevision && (
                         <label className="grid gap-2 text-sm font-bold text-foreground">
-                          {locale === "ar"
-                            ? "آخر موعد للمراجعة الثانية"
-                            : "Revision check deadline"}
+                          {t("evaluationReview.revisionDeadline")}
                           <input
                             type="datetime-local"
                             required
@@ -1266,17 +1132,13 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                     </div>
                   ) : (
                     <p className="rounded-xl border border-border bg-surface-solid/60 p-3 text-sm text-muted">
-                      {locale === "ar"
-                        ? "هذه هي مراجعة النسخة المعدلة النهائية. لا توجد محاولة تعديل ثالثة."
-                        : "This is the final revision check. No third revision is available."}
+                      {t("evaluationReview.finalRevision")}
                     </p>
                   )}
                 </div>
               ) : (
                 <p className="mt-6 rounded-xl border border-border bg-surface-solid/60 p-3 text-sm text-muted">
-                  {locale === "ar"
-                    ? "هذا Retake تاريخي موجود قبل تبسيط خدمة BETCCO. سيستمر بالمسار القديم حتى يكتمل، ولن يتم إنشاء Retake جديد."
-                    : "This is a historical Retake created before the BETCCO review-flow simplification. It can finish through the legacy path, but no new Retake is created."}
+                  {t("evaluationReview.historicalRetakeDescription")}
                 </p>
               )}
               <button
@@ -1290,16 +1152,10 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
               >
                 <BadgeCheck size={18} aria-hidden="true" />
                 {evaluation.data.isRetake
-                  ? locale === "ar"
-                    ? "إرسال نتيجة الـRetake التاريخي"
-                    : "Submit historical Retake result"
+                  ? t("evaluationReview.submitRetake")
                   : evaluation.data.submissionAttemptNumber === 1
-                    ? locale === "ar"
-                      ? "إرسال المراجعة والملاحظات"
-                      : "Send review and feedback"
-                    : locale === "ar"
-                      ? "إكمال فحص النسخة المعدلة"
-                      : "Complete revision check"}
+                    ? t("evaluationReview.submitReview")
+                    : t("evaluationReview.submitRevision")}
               </button>
               {submit.isSuccess && (
                 <p
@@ -1307,19 +1163,15 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                   role="status"
                 >
                   {evaluation.data.isRetake
-                    ? locale === "ar"
-                      ? "تم إرسال نتيجة الـRetake التاريخي للمسار القديم."
-                      : "The historical Retake result was sent through the legacy path."
-                    : locale === "ar"
-                      ? "تم حفظ مراجعة BETCCO وإرسال الملاحظات للطالب."
-                      : "The BETCCO review was saved and the learner was notified."}
+                    ? t("evaluationReview.retakeSuccess")
+                    : t("evaluationReview.reviewSuccess")}
                 </p>
               )}
               {submit.isError && (
                 <p className="mt-3 text-sm text-red-500" role="alert">
                   {submit.error instanceof Error
                     ? submit.error.message
-                    : "Request failed."}
+                    : t("shared.requestFailed")}
                 </p>
               )}
             </>
@@ -1328,13 +1180,10 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
         <aside className="card h-fit p-5 lg:sticky lg:top-24">
           <h2 className="flex items-center gap-2 font-black">
             <Files size={18} className="text-primary" aria-hidden="true" />
-            {locale === "ar" ? "ملفات الطالب" : "Student files"}
+            {t("evaluationReview.studentFiles")}
           </h2>
           <p className="mt-3 text-sm leading-6 text-muted">
-            {evaluation.data.studentComment ||
-              (locale === "ar"
-                ? "لا توجد ملاحظة من الطالب."
-                : "No student note was provided.")}
+            {evaluation.data.studentComment || t("shared.noStudentNote")}
           </p>
           <div className="mt-4 grid gap-2">
             {evaluation.data.files.map((file) => {
@@ -1351,30 +1200,26 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                     </span>
                     {revised ? (
                       <span className="shrink-0 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-black text-primary">
-                        {locale === "ar" ? "نسخة معدلة" : "Revised file"}
+                        {t("evaluationReview.revisedFile")}
                       </span>
                     ) : null}
                   </span>
                   <span className="mt-1 block text-xs font-normal text-muted">
-                    {(file.lengthBytes / 1024 / 1024).toFixed(2)} MB ·{" "}
-                    {file.scanStatus}
+                    {(file.lengthBytes / 1024 / 1024).toFixed(2)}{" "}
+                    {t("shared.megabytes")} · {file.scanStatus}
                   </span>
                 </a>
               );
             })}
             {!evaluation.data.files.length && (
               <p className="text-sm text-muted">
-                {locale === "ar"
-                  ? "لا توجد ملفات متاحة."
-                  : "No files are available."}
+                {t("evaluationReview.noFiles")}
               </p>
             )}
           </div>
           <div className="mt-6 border-t border-border pt-5">
             <h3 className="font-black">
-              {locale === "ar"
-                ? "ملف أدلة المعايير"
-                : "Criterion evidence portfolio"}
+              {t("evaluationReview.evidencePortfolio")}
             </h3>
             <div className="mt-3 grid gap-2 text-sm text-muted">
               {evaluation.data.evidence.map((item) => (
@@ -1386,11 +1231,7 @@ function TeacherEvaluationReview({ evaluationId }: { evaluationId: string }) {
                 </p>
               ))}
               {!evaluation.data.evidence.length ? (
-                <p>
-                  {locale === "ar"
-                    ? "لم يربط الطالب أدلة نصية بالمعايير."
-                    : "The student did not map written evidence to criteria."}
-                </p>
+                <p>{t("evaluationReview.noWrittenEvidence")}</p>
               ) : null}
             </div>
           </div>
@@ -1444,19 +1285,17 @@ function criterionLabel(criterion: string) {
   return describeCriterion(criterion).label;
 }
 
-function sectionLabel(section: string, locale: string) {
-  if (locale === "ar") return `القسم ${section}`;
-  return `Section ${section}`;
+type TeacherTranslations = ReturnType<
+  typeof useTranslations<"teacherWorkspace">
+>;
+
+function sectionLabel(section: string, t: TeacherTranslations) {
+  return t("evaluationReview.section", { section });
 }
 
-function criterionGroupLabel(family: string, locale: string) {
-  if (family === "P")
-    return locale === "ar" ? "معايير P (Pass)" : "P (Pass) criteria";
-  if (family === "M")
-    return locale === "ar" ? "معايير M (Merit)" : "M (Merit) criteria";
-  if (family === "D")
-    return locale === "ar"
-      ? "معايير D (Distinction)"
-      : "D (Distinction) criteria";
-  return locale === "ar" ? "معايير إضافية" : "Additional criteria";
+function criterionGroupLabel(family: string, t: TeacherTranslations) {
+  if (family === "P") return t("evaluationReview.passCriteria");
+  if (family === "M") return t("evaluationReview.meritCriteria");
+  if (family === "D") return t("evaluationReview.distinctionCriteria");
+  return t("evaluationReview.additionalCriteria");
 }
