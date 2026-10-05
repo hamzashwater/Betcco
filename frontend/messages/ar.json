@@ -1020,7 +1020,11 @@
     "saving": "جارٍ الحفظ…",
     "saved": "تم الحفظ بنجاح.",
     "saveError": "تعذر حفظ التغيير. راجع الكتالوج وحاول مجددًا.",
-    "band": { "Pass": "اجتياز", "Merit": "جدارة", "Distinction": "تميّز" }
+    "band": {
+      "Pass": "اجتياز",
+      "Merit": "جدارة",
+      "Distinction": "تميّز"
+    }
   },
   "deliveryPlanning": {
     "eyebrow": "العمليات الأكاديمية",
@@ -1805,7 +1809,8 @@
       "noStudentNote": "لا توجد ملاحظة من الطالب.",
       "megabytes": "MB",
       "loading": "…",
-      "requestFailed": "فشل الطلب."
+      "requestFailed": "فشل الطلب.",
+      "cancel": "إلغاء"
     },
     "wallet": {
       "description": "يُضاف لك 70٪ من صافي بيع كل دورة بعد التحقق من الدفع. اطلب السحب من رصيدك المتاح فقط.",
@@ -1894,6 +1899,116 @@
       "retakeEyebrow": "Historical Retake",
       "initialEyebrow": "BETCCO Initial Review",
       "revisionEyebrow": "BETCCO Revision Check"
+    },
+    "courseEditor": {
+      "back": "العودة إلى دوراتي",
+      "unavailable": "تعذر العثور على هذه الدورة أو لا تملك صلاحية تحريرها.",
+      "editable": "المسودة قابلة للتحرير. ارفع المحتوى ثم أرسلها للمراجعة.",
+      "locked": "هذه الدورة مقفلة أثناء المراجعة أو بعد النشر.",
+      "eyebrow": "{brand} Course Editor",
+      "requestFailed": "تعذّر تنفيذ الطلب. حاول مرة أخرى.",
+      "status": {
+        "draft": "مسودة",
+        "rejected": "تحتاج تعديلًا",
+        "submittedForReview": "قيد مراجعة الأدمن",
+        "approved": "معتمدة بانتظار النشر",
+        "published": "منشورة"
+      }
+    },
+    "courseSetup": {
+      "title": "إنشاء مسودة دورة",
+      "description": "أنشئ معلومات الدورة أولًا، ثم أضف الغلاف والوحدات والدروس والملفات من صفحة التحرير التالية.",
+      "englishTitleOptional": "العنوان بالإنجليزية (اختياري)",
+      "englishDescriptionOptional": "الوصف بالإنجليزية (اختياري)",
+      "price": "السعر (دينار أردني)",
+      "free": "هذه دورة مجانية",
+      "approvedPlan": "خطة تسليم BTEC المعتمدة",
+      "specialization": "التخصص",
+      "grade": "الصف",
+      "academicYear": "السنة الأكاديمية",
+      "programmePlan": "خطة البرنامج",
+      "loadingPlans": "جارٍ تحميل الخطط…",
+      "plansError": "تعذر تحميل الخطط.",
+      "noPlans": "لا توجد خطة معتمدة. اطلب من المدير إعدادها.",
+      "classification": "تصنيف الدورة وإعدادات BTEC (اختياري)",
+      "classificationDescription": "سيُستخدم مسار BTEC الافتراضي إن لم تختر مسارًا آخر. تتحدد بيانات BTEC من الخطة المعتمدة، ويمكن إضافة المادة اختياريًا.",
+      "learningTrack": "المسار التعليمي",
+      "subject": "المادة",
+      "submit": "إنشاء المسودة وفتح المحرر",
+      "eyebrow": "{brand} Teacher Studio"
+    },
+    "courseDetails": {
+      "arabicTitle": "العنوان بالعربية",
+      "arabicDescription": "الوصف بالعربية",
+      "englishTitle": "العنوان بالإنجليزية",
+      "title": "معلومات الدورة",
+      "englishDescription": "الوصف بالإنجليزية",
+      "price": "السعر (JOD)",
+      "free": "دورة مجانية",
+      "save": "حفظ التعديلات",
+      "saved": "تم حفظ التعديلات."
+    },
+    "subjects": {
+      "pendingReview": "(بانتظار المراجعة)",
+      "description": "لا تجد المادة؟ أضفها لتظهر في مسودتك، ثم يعتمدها الأدمن مع الدورة.",
+      "open": "إضافة مادة",
+      "chooseSpecialization": "اختر التخصص أولًا لإضافة مادة مرتبطة به.",
+      "arabicName": "اسم المادة بالعربية",
+      "englishName": "اسم المادة بالإنجليزية",
+      "add": "إضافة"
+    },
+    "announcements": {
+      "title": "إعلانات الدورة",
+      "description": "أرسل إعلانًا لكل طلاب الدورة أو لوحدة أو لطلاب تحددهم. تُنشأ الإشعارات من الخادم بعد النشر.",
+      "selectedLearnersCount": "طلاب محددون: {count}",
+      "unitAudience": "وحدة",
+      "courseAudience": "كل طلاب الدورة",
+      "published": "منشور",
+      "publish": "نشر",
+      "delete": "حذف",
+      "new": "إعلان جديد",
+      "arabicBody": "نص الإعلان بالعربية",
+      "englishBody": "نص الإعلان بالإنجليزية",
+      "audience": "الجمهور",
+      "selectedLearners": "طلاب محددون",
+      "unit": "الوحدة",
+      "chooseUnit": "اختر وحدة",
+      "chooseLearners": "اختر الطلاب",
+      "publishNow": "نشر وإرسال إشعار الآن",
+      "submit": "نشر الإعلان",
+      "saveDraft": "حفظ كمسودة"
+    },
+    "learningAccess": {
+      "unavailableContent": "محتوى غير موجود",
+      "title": "إتاحة المحتوى والمتطلبات",
+      "description": "تُطبَّق الأقفال من الخادم على المشغّل والملفات والمهام، وليس من الواجهة فقط.",
+      "target": "المحتوى المستهدف",
+      "chooseTarget": "اختر دورة أو وحدة أو درسًا أو مهمة",
+      "releaseMethod": "طريقة الإتاحة",
+      "immediately": "فورًا",
+      "specificDate": "تاريخ ووقت محدد",
+      "daysAfterEnrollment": "أيام بعد التسجيل",
+      "afterPrevious": "بعد إكمال محتوى سابق",
+      "releaseDate": "تاريخ الإتاحة",
+      "numberOfDays": "عدد الأيام",
+      "previousContent": "المحتوى السابق",
+      "chooseRequiredContent": "اختر محتوى يجب إكماله",
+      "updateRelease": "تحديث الإتاحة",
+      "saveRelease": "حفظ الإتاحة",
+      "additionalPrerequisites": "متطلبات إضافية",
+      "prerequisitesDescription": "يمكن إضافة أكثر من متطلب؛ يجب أن يحقق الطالب جميعها. يمنع النظام الحلقات تلقائيًا.",
+      "choosePrerequisite": "اختر متطلبًا",
+      "addPrerequisite": "إضافة متطلب",
+      "removePrerequisite": "حذف المتطلب",
+      "noPrerequisites": "لا توجد متطلبات إضافية.",
+      "chooseContentFirst": "اختر المحتوى أولًا.",
+      "prerequisiteRequired": "اختر متطلبًا.",
+      "contentType": {
+        "course": "دورة",
+        "unit": "وحدة",
+        "lesson": "درس",
+        "assignment": "مهمة"
+      }
     }
   }
 }
