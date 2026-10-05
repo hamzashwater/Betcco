@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import arabicMessages from "../messages/ar.json";
 import englishMessages from "../messages/en.json";
 
@@ -12,6 +13,7 @@ const parityNamespaces = [
   "auth.accountSecurity",
   "auth.studentEmailChange",
   "studentWorkspace",
+  "teacherWorkspace",
 ] as const;
 
 function namespaceValue(value: unknown, namespace: string): unknown {
@@ -34,7 +36,7 @@ function shape(value: unknown, prefix = ""): string[] {
   return [prefix];
 }
 
-describe("shared shell, authentication, account, and student workspace translation parity", () => {
+describe("shared shell, authentication, account, student, and teacher workspace translation parity", () => {
   it.each(parityNamespaces)("has matching AR/EN keys in %s", (namespace) => {
     const arabicShape = shape(namespaceValue(arabicMessages, namespace)).sort();
     const englishShape = shape(
@@ -42,5 +44,20 @@ describe("shared shell, authentication, account, and student workspace translati
     ).sort();
     expect(englishShape).toEqual(arabicShape);
     expect(arabicShape.every(Boolean)).toBe(true);
+  });
+
+  it("keeps teacher area copy in messages with no missing or unused teacher keys", () => {
+    const source = readFileSync(
+      "src/features/teacher/teacher-area.tsx",
+      "utf8",
+    );
+    expect(source).not.toMatch(/[\u0600-\u06ff]/u);
+    expect(source).not.toMatch(/locale\s*===\s*["']ar["']/u);
+    const usedKeys = [
+      ...new Set(
+        [...source.matchAll(/\bt\(\s*"([^"]+)"/gu)].map((match) => match[1]),
+      ),
+    ].sort();
+    expect(usedKeys).toEqual(shape(englishMessages.teacherWorkspace).sort());
   });
 });
