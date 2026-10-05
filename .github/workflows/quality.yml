@@ -44,14 +44,15 @@ jobs:
             python3 .github/scripts/classify_docs_only.py
           fi
 
-  full-quality:
-    name: Full application quality
+  application-quality:
+    name: Application quality
     needs: classify
-    if: ${{ always() && needs.classify.outputs.docs_only != 'true' }}
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: pgvector/pgvector:pg16@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b
+        # An empty service image disables PostgreSQL on the docs-only/failure paths.
+        image: ${{ needs.classify.result == 'success' && needs.classify.outputs.docs_only == 'false' && 'pgvector/pgvector:pg16@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b' || '' }}
         env:
           POSTGRES_DB: betcco_ci
           POSTGRES_USER: betcco_ci
@@ -78,25 +79,91 @@ jobs:
       MINIO_ROOT_PASSWORD: ci-only-minio-password
       MINIO_PRIVATE_BUCKET: betcco-ci-private
     steps:
+      - name: Require successful and explicit path classification
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          CLASSIFY_RESULT: ${{ needs.classify.result }}
+          DOCS_ONLY: ${{ needs.classify.outputs.docs_only }}
+        run: |
+          if [ "$CLASSIFY_RESULT" != "success" ]; then
+            echo "Path classification did not succeed; required gate fails closed."
+            exit 1
+          fi
+          case "$DOCS_ONLY" in
+            false) ;;
+            true)
+              if [ "$EVENT_NAME" != "pull_request" ]; then
+                echo "Only pull requests may use documentation-only validation."
+                exit 1
+              fi
+              ;;
+            *)
+              echo "Path classification did not return an explicit boolean; required gate fails closed."
+              exit 1
+              ;;
+          esac
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: ${{ needs.classify.outputs.docs_only == 'true' && '0' || '1' }}
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        if: ${{ github.event_name == 'pull_request' && needs.classify.outputs.docs_only == 'true' }}
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: .trusted-classifier
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Recheck documentation-only allowlist
+        id: docs-paths
+        if: ${{ github.event_name == 'pull_request' && needs.classify.outputs.docs_only == 'true' }}
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: python3 .trusted-classifier/.github/scripts/classify_docs_only.py
+      - name: Require the documentation recheck to agree
+        if: ${{ github.event_name == 'pull_request' && needs.classify.outputs.docs_only == 'true' }}
+        env:
+          RECHECK_DOCS_ONLY: ${{ steps.docs-paths.outputs.docs_only }}
+        run: |
+          if [ "$RECHECK_DOCS_ONLY" != "true" ]; then
+            echo "Trusted documentation recheck disagreed; required gate fails closed."
+            exit 1
+          fi
+      - name: Check documentation diff whitespace
+        id: docs-diff
+        if: ${{ github.event_name == 'pull_request' && needs.classify.outputs.docs_only == 'true' && steps.docs-paths.outputs.docs_only == 'true' }}
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: git diff --check "$PR_BASE_SHA" "$PR_HEAD_SHA" --
+      - name: Test documentation classifier behavior
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
+        run: python3 .github/scripts/test_classify_docs_only.py
       - name: Validate production Docker base image digests
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         run: python3 .github/scripts/validate_docker_base_images.py
       - name: Test production Docker base image validator
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         run: python3 .github/scripts/test_validate_docker_base_images.py
       - name: Validate immutable release artifact contract
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         run: python3 .github/scripts/test_validate_release_images.py
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         with:
           version: 11.19.0
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         with:
           node-version: 24.19.0
           cache: pnpm
           cache-dependency-path: frontend/pnpm-lock.yaml
       - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         with:
           dotnet-version: 10.0.x
       - name: Start private S3-compatible test storage
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         run: |
           docker build --pull --file infra/minio/Dockerfile --tag "$MINIO_COMMUNITY_IMAGE" .
           docker run --detach --rm --name betcco-minio --publish 9000:9000 \
@@ -118,28 +185,36 @@ jobs:
             exit 1
           fi
       - name: Install frontend dependencies
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         run: pnpm --dir frontend install --frozen-lockfile
       - name: Install Playwright Chromium
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         run: pnpm --dir frontend exec playwright install --with-deps chromium
       - name: Frontend format, lint, types and tests
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         run: |
           pnpm --dir frontend format:check
           pnpm --dir frontend lint
           pnpm --dir frontend typecheck
           pnpm --dir frontend test
       - name: Build frontend
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         run: pnpm --dir frontend build
       - name: Restore .NET tools and dependencies
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         run: |
           dotnet tool restore
           dotnet restore backend/Betcco.sln --locked-mode
       - name: Verify .NET formatting and build
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         run: |
           dotnet format backend/Betcco.sln --verify-no-changes
           dotnet build backend/Betcco.sln --no-restore
       - name: Apply migrations to an empty PostgreSQL database
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         run: dotnet tool run dotnet-ef database update --project backend/src/Betcco.Infrastructure --startup-project backend/src/Betcco.Api
       - name: Verify PostgreSQL backup and isolated restore
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         env:
           BETCCO_POSTGRES_CLIENT_IMAGE: pgvector/pgvector:pg16@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b
           PGPASSWORD: ci-only-password
@@ -159,19 +234,25 @@ jobs:
             "$BETCCO_POSTGRES_CLIENT_IMAGE" \
             bash scripts/run-postgres-recovery-drill.sh
       - name: Verify S3 private-object recovery
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         run: dotnet test backend/tests/Betcco.IntegrationTests --no-build --no-restore --filter FullyQualifiedName~S3PrivateObjectRecoveryTests
       - name: Verify Data Protection key-ring recovery
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         run: dotnet test backend/tests/Betcco.IntegrationTests --no-build --no-restore --filter FullyQualifiedName~DataProtectionRecoveryTests
       - name: Run .NET tests including required PostgreSQL finance and S3 storage tests
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         run: dotnet test backend/Betcco.sln --no-build --no-restore
       - name: Prepare standalone frontend for Playwright
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         run: |
           cp -R frontend/public frontend/.next-ci/standalone/public
           mkdir -p frontend/.next-ci/standalone/.next-ci
           cp -R frontend/.next-ci/static frontend/.next-ci/standalone/.next-ci/static
       - name: Run public Playwright smoke tests
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         run: pnpm --dir frontend exec playwright test tests/e2e/public.spec.ts
       - name: Validate Docker compose syntax
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         env:
           POSTGRES_PASSWORD: ci-only-password
         run: |
@@ -189,16 +270,19 @@ jobs:
           assert all("build" not in services[name] for name in ("migrate", "api", "web"))
           PY
       - name: Build non-root production images
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         run: |
           docker build --file backend/src/Betcco.Api/Dockerfile --tag betcco-api:ci .
           docker build --file frontend/Dockerfile --tag betcco-web:ci .
       - name: Verify controlled migration command from the production API image
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         run: |
           docker run --rm --network host \
             --env ASPNETCORE_ENVIRONMENT=Testing \
             --env 'ConnectionStrings__Postgres=Host=localhost;Port=5432;Database=betcco_ci;Username=betcco_ci;Password=ci-only-password' \
             betcco-api:ci --migrate
       - name: Verify production API image health endpoints
+        if: ${{ needs.classify.outputs.docs_only == 'false' }}
         run: |
           docker run --detach --name betcco-api-smoke --network host \
             --env ASPNETCORE_ENVIRONMENT=Testing \
@@ -211,60 +295,3 @@ jobs:
             sleep 2
           done
           curl --fail --silent http://127.0.0.1:8080/health/live >/dev/null
-
-  application-gate:
-    name: Application quality
-    needs: [classify, full-quality]
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out sources for documentation validation
-        if: ${{ github.event_name == 'pull_request' && needs.classify.result == 'success' && needs.classify.outputs.docs_only == 'true' }}
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-        with:
-          fetch-depth: 0
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-        if: ${{ github.event_name == 'pull_request' && needs.classify.result == 'success' && needs.classify.outputs.docs_only == 'true' }}
-        with:
-          ref: ${{ github.event.pull_request.base.sha }}
-          path: .trusted-classifier
-          fetch-depth: 1
-          persist-credentials: false
-      - name: Recheck documentation-only allowlist
-        id: docs-paths
-        if: ${{ github.event_name == 'pull_request' && needs.classify.result == 'success' && needs.classify.outputs.docs_only == 'true' }}
-        env:
-          GITHUB_EVENT_NAME: ${{ github.event_name }}
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: python3 .trusted-classifier/.github/scripts/classify_docs_only.py
-      - name: Check documentation diff whitespace
-        id: docs-diff
-        if: ${{ github.event_name == 'pull_request' && needs.classify.result == 'success' && needs.classify.outputs.docs_only == 'true' && steps.docs-paths.outputs.docs_only == 'true' }}
-        env:
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: git diff --check "$PR_BASE_SHA" "$PR_HEAD_SHA" --
-      - name: Require successful classification and the correct validation path
-        if: ${{ always() }}
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          CLASSIFY_RESULT: ${{ needs.classify.result }}
-          DOCS_ONLY: ${{ needs.classify.outputs.docs_only }}
-          FULL_QUALITY_RESULT: ${{ needs.full-quality.result }}
-          DOCS_PATHS_RESULT: ${{ steps.docs-paths.outcome }}
-          DOCS_DIFF_RESULT: ${{ steps.docs-diff.outcome }}
-        run: |
-          if [ "$CLASSIFY_RESULT" != "success" ]; then
-            echo "Path classification did not succeed; required gate fails closed."
-            exit 1
-          fi
-          if [ "$EVENT_NAME" = "pull_request" ] && [ "$DOCS_ONLY" = "true" ]; then
-            if [ "$DOCS_PATHS_RESULT" != "success" ] || [ "$DOCS_DIFF_RESULT" != "success" ]; then
-              echo "Documentation validation did not complete successfully."
-              exit 1
-            fi
-          elif [ "$FULL_QUALITY_RESULT" != "success" ]; then
-            echo "Full Application Quality did not succeed."
-            exit 1
-          fi
