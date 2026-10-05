@@ -44,6 +44,7 @@ jobs:
             python3 .github/scripts/classify_docs_only.py
           fi
 
+  # Keep the required gate in the same runner allocation as full validation.
   application-quality:
     name: Application quality
     needs: classify
