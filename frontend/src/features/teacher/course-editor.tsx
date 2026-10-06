@@ -275,16 +275,16 @@ const assignmentFileTypes = [
 function AssignmentFileTypeSelector({
   selected,
   onChange,
-  locale,
 }: {
   selected: string[];
   onChange: (values: string[]) => void;
   locale: string;
 }) {
+  const t = useTranslations("teacherWorkspace");
   return (
     <fieldset className="grid gap-2">
       <legend className="text-xs font-bold text-muted">
-        {locale === "ar" ? "أنواع الملفات المسموحة" : "Allowed file types"}
+        {t("assignmentFileTypes.legend")}
       </legend>
       <div className="flex flex-wrap gap-2">
         {assignmentFileTypes.map(([extension, label]) => {
@@ -3907,6 +3907,7 @@ function CourseAssignmentsEditor({
   course: CourseEditorData;
   disabled: boolean;
 }) {
+  const t = useTranslations("teacherWorkspace");
   const locale = useLocale();
   const client = useQueryClient();
   const [form, setForm] = useState({
@@ -4015,20 +4016,16 @@ function CourseAssignmentsEditor({
       <div>
         <h2 className="flex items-center gap-2 text-xl font-black">
           <FileText size={20} className="text-primary" aria-hidden="true" />
-          {locale === "ar"
-            ? "مهام الدورة وسجل الدرجات"
-            : "Coursework & gradebook"}
+          {t("assignments.title")}
         </h2>
         <p className="mt-1 text-sm leading-6 text-muted">
-          {locale === "ar"
-            ? "أنشئ مهمة مرتبطة بوحدة أو درس، ثم اربط معايير BTEC. يحسب الخادم نتيجة P أو M أو D من المعايير التي حققها الطالب بعد تدقيقك."
-            : "Create coursework linked to a unit or lesson, then attach BTEC criteria. The server derives the P, M, or D outcome from the criteria achieved after your review."}
+          {t("assignments.description")}
         </p>
       </div>
 
       {list.isPending ? (
         <p className="text-sm text-muted" aria-busy>
-          {locale === "ar" ? "يتم تحميل المهام…" : "Loading assignments…"}
+          {t("assignments.loading")}
         </p>
       ) : null}
       {list.data?.length ? (
@@ -4045,9 +4042,7 @@ function CourseAssignmentsEditor({
         </div>
       ) : !list.isPending ? (
         <p className="rounded-xl border border-dashed border-border p-4 text-sm text-muted">
-          {locale === "ar"
-            ? "لا توجد مهام في هذه الدورة بعد."
-            : "No coursework has been created for this course yet."}
+          {t("assignments.empty")}
         </p>
       ) : null}
 
@@ -4059,9 +4054,7 @@ function CourseAssignmentsEditor({
             create.mutate();
           }}
         >
-          <h3 className="font-black">
-            {locale === "ar" ? "إضافة مهمة جديدة" : "Add new coursework"}
-          </h3>
+          <h3 className="font-black">{t("assignments.new")}</h3>
           <div className="grid gap-3 md:grid-cols-3">
             <select
               value={form.moduleId}
@@ -4075,11 +4068,7 @@ function CourseAssignmentsEditor({
               }
               className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
             >
-              <option value="">
-                {locale === "ar"
-                  ? "دورة عامة (بدون وحدة)"
-                  : "Course-wide (no unit)"}
-              </option>
+              <option value="">{t("assignments.courseWide")}</option>
               {course.modules.map((module) => (
                 <option key={module.id} value={module.id}>
                   {module.unitCode ? `${module.unitCode} — ` : ""}
@@ -4102,9 +4091,7 @@ function CourseAssignmentsEditor({
               }
               className="rounded-xl border border-border bg-transparent p-2.5 text-sm disabled:opacity-50"
             >
-              <option value="">
-                {locale === "ar" ? "بدون درس محدد" : "No specific lesson"}
-              </option>
+              <option value="">{t("assignments.noLesson")}</option>
               {assignmentLessons.map((lesson) => (
                 <option key={lesson.id} value={lesson.id}>
                   {locale === "ar" ? lesson.arabicTitle : lesson.englishTitle}
@@ -4122,9 +4109,7 @@ function CourseAssignmentsEditor({
               }
               className="rounded-xl border border-border bg-transparent p-2.5 text-sm disabled:opacity-50"
             >
-              <option value="">
-                {locale === "ar" ? "بدون هدف محدد" : "No specific learning aim"}
-              </option>
+              <option value="">{t("assignments.noAim")}</option>
               {selectedModule?.learningAims.map((aim) => (
                 <option key={aim.id} value={aim.id}>
                   {aim.code} —{" "}
@@ -4143,11 +4128,7 @@ function CourseAssignmentsEditor({
                   arabicTitle: event.target.value,
                 }))
               }
-              placeholder={
-                locale === "ar"
-                  ? "عنوان المهمة بالعربية"
-                  : "Arabic assignment title"
-              }
+              placeholder={t("assignments.arabicTitle")}
               className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
             />
             <input
@@ -4159,11 +4140,7 @@ function CourseAssignmentsEditor({
                   englishTitle: event.target.value,
                 }))
               }
-              placeholder={
-                locale === "ar"
-                  ? "عنوان المهمة بالإنجليزية"
-                  : "English assignment title"
-              }
+              placeholder={t("assignments.englishTitle")}
               className="rounded-xl border border-border bg-transparent p-2.5 text-sm"
             />
             <textarea
@@ -4175,11 +4152,7 @@ function CourseAssignmentsEditor({
                   arabicInstructions: event.target.value,
                 }))
               }
-              placeholder={
-                locale === "ar"
-                  ? "تعليمات المهمة بالعربية"
-                  : "Arabic instructions"
-              }
+              placeholder={t("assignments.arabicInstructions")}
               className="min-h-24 rounded-xl border border-border bg-transparent p-2.5 text-sm"
             />
             <textarea
@@ -4191,17 +4164,13 @@ function CourseAssignmentsEditor({
                   englishInstructions: event.target.value,
                 }))
               }
-              placeholder={
-                locale === "ar"
-                  ? "تعليمات المهمة بالإنجليزية"
-                  : "English instructions"
-              }
+              placeholder={t("assignments.englishInstructions")}
               className="min-h-24 rounded-xl border border-border bg-transparent p-2.5 text-sm"
             />
           </div>
           <div className="flex flex-wrap gap-3">
             <label className="grid gap-1 text-xs font-bold text-muted">
-              {locale === "ar" ? "تاريخ فتح المهمة" : "Available from"}
+              {t("assignments.availableFrom")}
               <input
                 type="datetime-local"
                 value={form.availableFromUtc}
@@ -4215,9 +4184,7 @@ function CourseAssignmentsEditor({
               />
             </label>
             <label className="grid gap-1 text-xs font-bold text-muted">
-              {locale === "ar"
-                ? "الموعد النهائي (اختياري)"
-                : "Due date (optional)"}
+              {t("assignments.dueOptional")}
               <input
                 type="datetime-local"
                 value={form.dueAtUtc}
@@ -4231,7 +4198,7 @@ function CourseAssignmentsEditor({
               />
             </label>
             <label className="grid gap-1 text-xs font-bold text-muted">
-              {locale === "ar" ? "عدد المحاولات" : "Submission attempts"}
+              {t("assignments.attempts")}
               <input
                 type="number"
                 min="1"
@@ -4248,7 +4215,7 @@ function CourseAssignmentsEditor({
               />
             </label>
             <label className="grid gap-1 text-xs font-bold text-muted">
-              {locale === "ar" ? "الدرجة الكلية" : "Maximum score"}
+              {t("assignments.maxScore")}
               <input
                 type="number"
                 min="1"
@@ -4264,7 +4231,7 @@ function CourseAssignmentsEditor({
               />
             </label>
             <label className="grid gap-1 text-xs font-bold text-muted">
-              {locale === "ar" ? "حجم الملف (MB)" : "File size (MB)"}
+              {t("assignments.maxFileSize")}
               <input
                 type="number"
                 min="1"
@@ -4292,9 +4259,7 @@ function CourseAssignmentsEditor({
                 }))
               }
             />
-            {locale === "ar"
-              ? "السماح بإعادة التسليم عند طلب المعلم"
-              : "Allow resubmission when requested by the teacher"}
+            {t("assignments.allowResubmission")}
           </label>
           <AssignmentFileTypeSelector
             selected={form.allowedFileExtensions}
@@ -4308,16 +4273,17 @@ function CourseAssignmentsEditor({
             className="focus-ring inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
           >
             <Plus size={17} aria-hidden="true" />
-            {locale === "ar" ? "إنشاء المهمة" : "Create coursework"}
+            {t("assignments.create")}
           </button>
-          <RequestError error={create.error} />
+          <RequestError
+            error={create.error}
+            fallback={t("courseEditor.requestFailed")}
+          />
         </form>
       ) : null}
 
       <div className="border-t border-border pt-5">
-        <h3 className="font-black">
-          {locale === "ar" ? "تسليمات الطلاب" : "Student submissions"}
-        </h3>
+        <h3 className="font-black">{t("assignments.submissions")}</h3>
         {submissions.data?.length ? (
           <div className="mt-3 grid gap-3">
             {submissions.data.map((submission) => {
@@ -4337,14 +4303,18 @@ function CourseAssignmentsEditor({
           </div>
         ) : (
           <p className="mt-2 text-sm text-muted">
-            {locale === "ar"
-              ? "لا توجد تسليمات بعد."
-              : "No student submissions yet."}
+            {t("assignments.noSubmissions")}
           </p>
         )}
       </div>
-      <RequestError error={list.error} />
-      <RequestError error={submissions.error} />
+      <RequestError
+        error={list.error}
+        fallback={t("courseEditor.requestFailed")}
+      />
+      <RequestError
+        error={submissions.error}
+        fallback={t("courseEditor.requestFailed")}
+      />
     </section>
   );
 }
@@ -4374,6 +4344,7 @@ type TeacherCourseGradebook = {
 };
 
 function TeacherCourseGradebook({ course }: { course: CourseEditorData }) {
+  const t = useTranslations("teacherWorkspace");
   const locale = useLocale();
   const gradebook = useQuery({
     queryKey: ["teacher-course-gradebook", course.id, locale],
@@ -4383,13 +4354,13 @@ function TeacherCourseGradebook({ course }: { course: CourseEditorData }) {
       ),
   });
   const gradeLabel = (grade: string) => {
-    const labels: Record<string, [string, string]> = {
-      NotYetAchieved: ["لم يتحقق بعد", "Not achieved yet"],
-      Pass: ["نجاح", "Pass"],
-      Merit: ["تفوق", "Merit"],
-      Distinction: ["امتياز", "Distinction"],
+    const labels: Record<string, string> = {
+      NotYetAchieved: t("gradebook.grades.NotYetAchieved"),
+      Pass: t("gradebook.grades.Pass"),
+      Merit: t("gradebook.grades.Merit"),
+      Distinction: t("gradebook.grades.Distinction"),
     };
-    return labels[grade]?.[locale === "ar" ? 0 : 1] ?? grade;
+    return Object.hasOwn(labels, grade) ? labels[grade] : grade;
   };
   return (
     <section className="card grid gap-4 p-5">
@@ -4404,17 +4375,14 @@ function TeacherCourseGradebook({ course }: { course: CourseEditorData }) {
               className="text-secondary"
               aria-hidden="true"
             />
-            {locale === "ar" ? "دفتر درجات الدورة" : "Course gradebook"}
+            {t("gradebook.title")}
           </h2>
           <p className="mt-1 text-sm text-muted">
-            {locale === "ar"
-              ? "تظهر النتائج المحتسبة من معايير المهام فقط؛ لا يمكن تعديلها من هذا الجدول."
-              : "This view reports server-calculated coursework criteria only; it cannot edit a grade."}
+            {t("gradebook.description")}
           </p>
         </div>
         <span className="rounded-full border border-secondary/35 bg-secondary/10 px-3 py-1.5 text-sm font-black text-secondary">
-          {gradebook.data?.totalStudents ?? "—"}{" "}
-          {locale === "ar" ? "طلاب" : "students"}
+          {gradebook.data?.totalStudents ?? "—"} {t("gradebook.students")}
         </span>
       </div>
       {gradebook.isPending ? (
@@ -4426,9 +4394,7 @@ function TeacherCourseGradebook({ course }: { course: CourseEditorData }) {
           className="rounded-xl border border-red-500/35 p-3 text-sm text-red-400"
           role="alert"
         >
-          {locale === "ar"
-            ? "تعذّر تحميل دفتر الدرجات."
-            : "Unable to load the gradebook."}
+          {t("gradebook.loadError")}
         </p>
       ) : gradebook.data?.students.length ? (
         <div className="overflow-x-auto rounded-xl border border-border/70">
@@ -4436,16 +4402,16 @@ function TeacherCourseGradebook({ course }: { course: CourseEditorData }) {
             <thead className="bg-page/60 text-start text-xs text-muted">
               <tr>
                 <th className="px-3 py-3 font-black">
-                  {locale === "ar" ? "الطالب" : "Student"}
+                  {t("gradebook.student")}
                 </th>
                 <th className="px-3 py-3 font-black">
-                  {locale === "ar" ? "الدروس" : "Lessons"}
+                  {t("gradebook.lessons")}
                 </th>
                 <th className="px-3 py-3 font-black">
-                  {locale === "ar" ? "المهام" : "Coursework"}
+                  {t("gradebook.coursework")}
                 </th>
                 <th className="px-3 py-3 font-black">
-                  {locale === "ar" ? "النتيجة المتوقعة" : "Predicted grade"}
+                  {t("gradebook.predictedGrade")}
                 </th>
               </tr>
             </thead>
@@ -4475,9 +4441,7 @@ function TeacherCourseGradebook({ course }: { course: CourseEditorData }) {
         </div>
       ) : (
         <p className="rounded-xl border border-dashed border-border p-4 text-sm text-muted">
-          {locale === "ar"
-            ? "لا يوجد طلاب مسجلون في هذه الدورة حتى الآن."
-            : "No students are enrolled in this course yet."}
+          {t("gradebook.empty")}
         </p>
       )}
     </section>
@@ -4491,6 +4455,7 @@ export function CourseworkDeadlineExtensionPanel({
   assignment: CourseAssignmentData;
   disabled: boolean;
 }) {
+  const t = useTranslations("teacherWorkspace");
   const locale = useLocale();
   const client = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -4562,37 +4527,29 @@ export function CourseworkDeadlineExtensionPanel({
         onClick={() => setOpen((value) => !value)}
         className="focus-ring text-sm font-bold text-primary"
       >
-        {locale === "ar"
-          ? "تمديدات مواعيد الطلاب"
-          : "Student deadline extensions"}
+        {t("deadlineExtensions.title")}
       </button>
       {open ? (
         <div className="mt-3 grid gap-3">
           <p className="text-sm text-muted">
-            {locale === "ar" ? "الموعد الأساسي: " : "Base deadline: "}
+            {t("deadlineExtensions.baseDeadline")}
             {assignment.dueAtUtc
               ? formatLocalizedDateTime(assignment.dueAtUtc, locale)
-              : locale === "ar"
-                ? "لا يوجد"
-                : "None"}
+              : t("deadlineExtensions.none")}
           </p>
           {history.isPending || students.isPending ? (
             <p aria-busy className="text-sm text-muted">
-              {locale === "ar" ? "جارٍ التحميل…" : "Loading…"}
+              {t("deadlineExtensions.loading")}
             </p>
           ) : null}
           {history.isError || students.isError ? (
             <p role="alert" className="text-sm text-red-400">
-              {locale === "ar"
-                ? "تعذر تحميل بيانات التمديد. تحقق من صلاحية الوصول وحاول مجددًا."
-                : "Could not load extension data. Check access and try again."}
+              {t("deadlineExtensions.loadError")}
             </p>
           ) : null}
           {!history.isPending && !history.data?.length ? (
             <p className="text-sm text-muted">
-              {locale === "ar"
-                ? "لا توجد تمديدات مسجلة."
-                : "No extensions recorded."}
+              {t("deadlineExtensions.empty")}
             </p>
           ) : null}
           {history.data?.map((item) => (
@@ -4609,22 +4566,18 @@ export function CourseworkDeadlineExtensionPanel({
                 <p>{formatLocalizedDateTime(item.extendedDueAtUtc, locale)}</p>
                 <p className="text-muted">
                   {item.revokedAtUtc
-                    ? locale === "ar"
-                      ? "ملغى"
-                      : "Revoked"
-                    : locale === "ar"
-                      ? "نشط"
-                      : "Active"}
+                    ? t("deadlineExtensions.revoked")
+                    : t("deadlineExtensions.active")}
                 </p>
                 <p className="text-muted">
-                  {locale === "ar" ? "مُنح: " : "Granted: "}
+                  {t("deadlineExtensions.grantedPrefix")}
                   {formatLocalizedDateTime(item.grantedAtUtc, locale)}
                   {item.revokedAtUtc
-                    ? `${locale === "ar" ? " · أُلغي: " : " · Revoked: "}${formatLocalizedDateTime(item.revokedAtUtc, locale)}`
+                    ? `${t("deadlineExtensions.revokedPrefix")}${formatLocalizedDateTime(item.revokedAtUtc, locale)}`
                     : ""}
                 </p>
                 <p className="text-muted">
-                  {locale === "ar" ? "مبرر الموظف: " : "Staff rationale: "}
+                  {t("deadlineExtensions.staffReasonPrefix")}
                   {item.reason}
                 </p>
               </div>
@@ -4633,18 +4586,12 @@ export function CourseworkDeadlineExtensionPanel({
                   type="button"
                   disabled={revoke.isPending}
                   onClick={() => {
-                    if (
-                      window.confirm(
-                        locale === "ar"
-                          ? "هل تريد إلغاء هذا التمديد؟"
-                          : "Revoke this extension?",
-                      )
-                    )
+                    if (window.confirm(t("deadlineExtensions.revokeConfirm")))
                       revoke.mutate(item.id);
                   }}
                   className="focus-ring rounded-lg border border-red-400/40 px-3 py-2 font-bold text-red-400 disabled:opacity-50"
                 >
-                  {locale === "ar" ? "إلغاء التمديد" : "Revoke"}
+                  {t("deadlineExtensions.revoke")}
                 </button>
               ) : null}
             </div>
@@ -4658,7 +4605,7 @@ export function CourseworkDeadlineExtensionPanel({
               }}
             >
               <label className="grid gap-1 text-sm font-bold">
-                {locale === "ar" ? "الطالب المسجل" : "Enrolled student"}
+                {t("deadlineExtensions.student")}
                 <select
                   className="focus-ring rounded-lg border border-border bg-page p-2"
                   value={studentUserId}
@@ -4666,7 +4613,7 @@ export function CourseworkDeadlineExtensionPanel({
                   required
                 >
                   <option value="">
-                    {locale === "ar" ? "اختر طالبًا" : "Choose a student"}
+                    {t("deadlineExtensions.chooseStudent")}
                   </option>
                   {students.data?.map((student) => (
                     <option
@@ -4682,7 +4629,7 @@ export function CourseworkDeadlineExtensionPanel({
                 </select>
               </label>
               <label className="grid gap-1 text-sm font-bold">
-                {locale === "ar" ? "الموعد الممدد" : "Extended deadline"}
+                {t("deadlineExtensions.extendedDeadline")}
                 <input
                   className="focus-ring rounded-lg border border-border bg-page p-2"
                   type="datetime-local"
@@ -4692,7 +4639,7 @@ export function CourseworkDeadlineExtensionPanel({
                 />
               </label>
               <label className="grid gap-1 text-sm font-bold">
-                {locale === "ar" ? "المبرر الإداري" : "Staff rationale"}
+                {t("deadlineExtensions.reason")}
                 <textarea
                   className="focus-ring min-h-20 rounded-lg border border-border bg-page p-2"
                   value={reason}
@@ -4702,9 +4649,7 @@ export function CourseworkDeadlineExtensionPanel({
                 />
               </label>
               <p className="text-xs text-muted">
-                {locale === "ar"
-                  ? "اكتب سببًا إداريًا مختصرًا. لا تكتب تشخيصًا طبيًا أو معلومات شخصية حساسة غير ضرورية."
-                  : "Enter a brief operational reason. Do not enter medical diagnoses or unnecessary sensitive personal information."}
+                {t("deadlineExtensions.privacyWarning")}
               </p>
               <button
                 type="submit"
@@ -4712,25 +4657,19 @@ export function CourseworkDeadlineExtensionPanel({
                 className="focus-ring w-fit rounded-lg bg-primary px-4 py-2 text-sm font-bold text-slate-950 disabled:opacity-50"
               >
                 {grant.isPending
-                  ? locale === "ar"
-                    ? "جارٍ الحفظ…"
-                    : "Saving…"
-                  : locale === "ar"
-                    ? "منح التمديد"
-                    : "Grant extension"}
+                  ? t("deadlineExtensions.saving")
+                  : t("deadlineExtensions.grant")}
               </button>
             </form>
           ) : null}
           {grant.isSuccess || revoke.isSuccess ? (
             <p role="status" className="text-sm text-primary">
-              {locale === "ar" ? "تم تحديث التمديد." : "Extension updated."}
+              {t("deadlineExtensions.saved")}
             </p>
           ) : null}
           {grant.isError || revoke.isError ? (
             <p role="alert" className="text-sm text-red-400">
-              {locale === "ar"
-                ? "تعذر تحديث التمديد. تحقق من البيانات والصلاحيات."
-                : "Could not update the extension. Check the details and access."}
+              {t("deadlineExtensions.saveError")}
             </p>
           ) : null}
         </div>
@@ -4750,6 +4689,7 @@ function CourseAssignmentCard({
   disabled: boolean;
   onChanged: () => void;
 }) {
+  const t = useTranslations("teacherWorkspace");
   const locale = useLocale();
   const isDraft = assignment.publicationStatus === "Draft";
   const [criterionId, setCriterionId] = useState("");
@@ -4906,12 +4846,8 @@ function CourseAssignmentCard({
               className={`rounded-full px-2.5 py-1 text-xs font-bold ${assignment.isPublished ? "bg-primary/15 text-primary" : "bg-black/10 text-muted"}`}
             >
               {assignment.isPublished
-                ? locale === "ar"
-                  ? "منشورة"
-                  : "Published"
-                : locale === "ar"
-                  ? "مسودة"
-                  : "Draft"}
+                ? t("courseEditor.status.published")
+                : t("courseEditor.status.draft")}
             </span>
           </div>
           <p className="mt-1 whitespace-pre-wrap text-sm text-muted">
@@ -4922,13 +4858,10 @@ function CourseAssignmentCard({
           </p>
           <p className="mt-2 text-xs text-muted">
             {assignment.dueAtUtc
-              ? `${locale === "ar" ? "الموعد" : "Due"}: ${formatLocalizedDateTime(assignment.dueAtUtc, locale)}`
-              : locale === "ar"
-                ? "بدون موعد نهائي"
-                : "No due date"}
+              ? `${t("assignmentCard.due")}: ${formatLocalizedDateTime(assignment.dueAtUtc, locale)}`
+              : t("assignmentCard.noDue")}
             {" · "}
-            {assignment.maxSubmissionAttempts}{" "}
-            {locale === "ar" ? "محاولات" : "attempts"}
+            {assignment.maxSubmissionAttempts} {t("assignmentCard.attempts")}
           </p>
         </div>
         {!disabled ? (
@@ -4940,12 +4873,8 @@ function CourseAssignmentCard({
                 className="focus-ring rounded-lg border border-border px-3 py-2 text-xs font-bold text-muted hover:border-primary/50 hover:text-primary"
               >
                 {editing
-                  ? locale === "ar"
-                    ? "إغلاق التعديل"
-                    : "Close editor"
-                  : locale === "ar"
-                    ? "تعديل المهمة"
-                    : "Edit coursework"}
+                  ? t("assignmentCard.closeEditor")
+                  : t("assignmentCard.edit")}
               </button>
             ) : null}
             <button
@@ -4955,15 +4884,11 @@ function CourseAssignmentCard({
               className="focus-ring rounded-lg border border-primary/40 px-3 py-2 text-xs font-bold text-primary"
             >
               {assignment.isPublished
-                ? locale === "ar"
-                  ? "إلغاء النشر"
-                  : "Unpublish"
-                : locale === "ar"
-                  ? "نشر للطلاب"
-                  : "Publish to students"}
+                ? t("assignmentCard.unpublish")
+                : t("assignmentCard.publish")}
             </button>
             <label className="grid gap-1 text-xs font-bold text-muted">
-              {locale === "ar" ? "حالة النشر" : "Publication state"}
+              {t("assignmentCard.state")}
               <select
                 value={assignment.publicationStatus}
                 disabled={setPublication.isPending}
@@ -4971,49 +4896,35 @@ function CourseAssignmentCard({
                   const next = event.target
                     .value as CourseAssignmentData["publicationStatus"];
                   if (next === "Scheduled" && !assignment.availableFromUtc) {
-                    window.alert(
-                      locale === "ar"
-                        ? "حدّد تاريخ فتح مستقبليًا من تعديل المهمة أولًا."
-                        : "Set a future opening date in the assignment editor before scheduling.",
-                    );
+                    window.alert(t("assignmentCard.scheduleGuard"));
                     return;
                   }
                   setPublication.mutate(next);
                 }}
                 className="rounded-lg border border-border bg-page px-2 py-1.5 text-xs"
               >
-                <option value="Draft">
-                  {locale === "ar" ? "مسودة" : "Draft"}
-                </option>
+                <option value="Draft">{t("courseEditor.status.draft")}</option>
                 <option value="Published">
-                  {locale === "ar" ? "منشورة" : "Published"}
+                  {t("courseEditor.status.published")}
                 </option>
                 <option value="Scheduled">
-                  {locale === "ar" ? "مجدولة" : "Scheduled"}
+                  {t("assignmentCard.scheduled")}
                 </option>
-                <option value="Archived">
-                  {locale === "ar" ? "مؤرشفة" : "Archived"}
-                </option>
+                <option value="Archived">{t("assignmentCard.archived")}</option>
               </select>
             </label>
             {isDraft ? (
               <button
                 type="button"
                 onClick={() => {
-                  if (
-                    window.confirm(
-                      locale === "ar"
-                        ? "هل تريد حذف هذه المهمة المسودة؟ لا يمكن التراجع عن الحذف."
-                        : "Delete this draft coursework? This cannot be undone.",
-                    )
-                  )
+                  if (window.confirm(t("assignmentCard.deleteConfirm")))
                     remove.mutate();
                 }}
                 disabled={remove.isPending}
                 className="focus-ring inline-flex items-center gap-1 rounded-lg border border-red-400/40 px-3 py-2 text-xs font-bold text-red-400"
               >
                 <Trash2 size={14} aria-hidden="true" />
-                {locale === "ar" ? "حذف" : "Delete"}
+                {t("announcements.delete")}
               </button>
             ) : null}
           </div>
@@ -5025,11 +4936,9 @@ function CourseAssignmentCard({
       />
       <div className="mt-4 grid gap-3 border-t border-border pt-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="font-bold">
-            {locale === "ar" ? "موارد المهمة" : "Assignment resources"}
-          </p>
+          <p className="font-bold">{t("assignmentCard.resources")}</p>
           <span className="text-xs text-muted">
-            {assignment.resources.length} {locale === "ar" ? "ملف" : "files"}
+            {assignment.resources.length} {t("assignmentCard.files")}
           </span>
         </div>
         {assignment.resources.length ? (
@@ -5052,9 +4961,7 @@ function CourseAssignmentCard({
                 {!disabled ? (
                   <button
                     type="button"
-                    aria-label={
-                      locale === "ar" ? "حذف المورد" : "Delete resource"
-                    }
+                    aria-label={t("assignmentCard.deleteResource")}
                     onClick={() => removeResource.mutate(resource.id)}
                     className="text-red-400"
                   >
@@ -5068,22 +4975,14 @@ function CourseAssignmentCard({
         {!disabled ? (
           <div className="grid gap-2 rounded-xl border border-border bg-page/35 p-3">
             <FilePicker
-              label={
-                locale === "ar"
-                  ? "إرفاق موارد للطالب"
-                  : "Attach learner resources"
-              }
+              label={t("assignmentCard.attachResources")}
               files={resourceFiles}
               onFilesChange={setResourceFiles}
               locale={locale}
               multiple
               accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.jpg,.jpeg,.png,.webp"
               maxFileBytes={100 * 1024 * 1024}
-              chooseLabel={
-                locale === "ar"
-                  ? "اختيار ملفات الموارد"
-                  : "Choose resource files"
-              }
+              chooseLabel={t("assignmentCard.chooseResources")}
             />
             <button
               type="button"
@@ -5091,12 +4990,16 @@ function CourseAssignmentCard({
               disabled={!resourceFiles.length || uploadResources.isPending}
               className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 text-xs font-bold text-primary disabled:opacity-50"
             >
-              {locale === "ar"
-                ? "رفع موارد المهمة"
-                : "Upload assignment resources"}
+              {t("assignmentCard.uploadResources")}
             </button>
-            <RequestError error={uploadResources.error} />
-            <RequestError error={removeResource.error} />
+            <RequestError
+              error={uploadResources.error}
+              fallback={t("courseEditor.requestFailed")}
+            />
+            <RequestError
+              error={removeResource.error}
+              fallback={t("courseEditor.requestFailed")}
+            />
           </div>
         ) : null}
       </div>
@@ -5108,11 +5011,7 @@ function CourseAssignmentCard({
             update.mutate();
           }}
         >
-          <h4 className="font-black">
-            {locale === "ar"
-              ? "تعديل تفاصيل المهمة"
-              : "Edit coursework details"}
-          </h4>
+          <h4 className="font-black">{t("assignmentCard.editDetails")}</h4>
           <div className="grid gap-3 md:grid-cols-2">
             <input
               required
@@ -5123,9 +5022,7 @@ function CourseAssignmentCard({
                   arabicTitle: event.target.value,
                 }))
               }
-              placeholder={
-                locale === "ar" ? "العنوان بالعربية" : "Arabic title"
-              }
+              placeholder={t("courseDetails.arabicTitle")}
               className="rounded-lg border border-border bg-transparent p-2.5 text-sm"
             />
             <input
@@ -5137,9 +5034,7 @@ function CourseAssignmentCard({
                   englishTitle: event.target.value,
                 }))
               }
-              placeholder={
-                locale === "ar" ? "العنوان بالإنجليزية" : "English title"
-              }
+              placeholder={t("courseDetails.englishTitle")}
               className="rounded-lg border border-border bg-transparent p-2.5 text-sm"
             />
             <textarea
@@ -5167,7 +5062,7 @@ function CourseAssignmentCard({
           </div>
           <div className="flex flex-wrap gap-3">
             <label className="grid gap-1 text-xs font-bold text-muted">
-              {locale === "ar" ? "تاريخ الفتح" : "Available from"}
+              {t("assignmentCard.availableFrom")}
               <input
                 type="datetime-local"
                 value={draft.availableFromUtc}
@@ -5181,7 +5076,7 @@ function CourseAssignmentCard({
               />
             </label>
             <label className="grid gap-1 text-xs font-bold text-muted">
-              {locale === "ar" ? "الموعد النهائي" : "Due date"}
+              {t("assignmentCard.dueDate")}
               <input
                 type="datetime-local"
                 value={draft.dueAtUtc}
@@ -5195,7 +5090,7 @@ function CourseAssignmentCard({
               />
             </label>
             <label className="grid gap-1 text-xs font-bold text-muted">
-              {locale === "ar" ? "عدد المحاولات" : "Submission attempts"}
+              {t("assignments.attempts")}
               <input
                 type="number"
                 min="1"
@@ -5212,7 +5107,7 @@ function CourseAssignmentCard({
               />
             </label>
             <label className="grid gap-1 text-xs font-bold text-muted">
-              {locale === "ar" ? "الدرجة الكلية" : "Maximum score"}
+              {t("assignments.maxScore")}
               <input
                 type="number"
                 min="1"
@@ -5228,7 +5123,7 @@ function CourseAssignmentCard({
               />
             </label>
             <label className="grid gap-1 text-xs font-bold text-muted">
-              {locale === "ar" ? "حجم الملف (MB)" : "File size (MB)"}
+              {t("assignments.maxFileSize")}
               <input
                 type="number"
                 min="1"
@@ -5256,9 +5151,7 @@ function CourseAssignmentCard({
                 }))
               }
             />
-            {locale === "ar"
-              ? "السماح بإعادة التسليم عند الطلب"
-              : "Allow resubmission when requested"}
+            {t("assignmentCard.allowResubmission")}
           </label>
           <AssignmentFileTypeSelector
             selected={draft.allowedFileExtensions}
@@ -5272,7 +5165,7 @@ function CourseAssignmentCard({
               disabled={update.isPending || !draft.allowedFileExtensions.length}
               className="focus-ring rounded-lg bg-primary px-4 py-2 text-sm font-black text-slate-950 disabled:opacity-50"
             >
-              {locale === "ar" ? "حفظ التعديل" : "Save changes"}
+              {t("assignmentCard.save")}
             </button>
             <button
               type="button"
@@ -5304,16 +5197,17 @@ function CourseAssignmentCard({
               }}
               className="focus-ring rounded-lg border border-border px-4 py-2 text-sm font-bold text-muted"
             >
-              {locale === "ar" ? "إلغاء" : "Cancel"}
+              {t("shared.cancel")}
             </button>
           </div>
-          <RequestError error={update.error} />
+          <RequestError
+            error={update.error}
+            fallback={t("courseEditor.requestFailed")}
+          />
         </form>
       ) : null}
       <div className="mt-4 border-t border-border pt-4">
-        <p className="font-bold">
-          {locale === "ar" ? "معايير التقييم" : "Assessment criteria"}
-        </p>
+        <p className="font-bold">{t("assignmentCard.criteria")}</p>
         {assignment.criteria.length ? (
           <ul className="mt-2 grid gap-2">
             {assignment.criteria.map((criterion) => (
@@ -5333,16 +5227,14 @@ function CourseAssignmentCard({
                     onClick={() => {
                       if (
                         window.confirm(
-                          locale === "ar"
-                            ? "هل تريد حذف هذا المعيار من المهمة؟"
-                            : "Remove this criterion from the coursework?",
+                          t("assignmentCard.deleteCriterionConfirm"),
                         )
                       )
                         removeCriterion.mutate(criterion.id);
                     }}
                     className="focus-ring text-xs font-bold text-red-400"
                   >
-                    {locale === "ar" ? "حذف" : "Delete"}
+                    {t("announcements.delete")}
                   </button>
                 ) : null}
               </li>
@@ -5350,9 +5242,7 @@ function CourseAssignmentCard({
           </ul>
         ) : (
           <p className="mt-2 text-sm text-muted">
-            {locale === "ar"
-              ? "أضف معيارًا واحدًا على الأقل قبل النشر."
-              : "Add at least one criterion before publishing."}
+            {t("assignmentCard.criteriaRequired")}
           </p>
         )}
         {!disabled && isDraft ? (
@@ -5365,9 +5255,7 @@ function CourseAssignmentCard({
                   className="min-w-56 flex-1 rounded-lg border border-border bg-transparent p-2 text-sm"
                 >
                   <option value="">
-                    {locale === "ar"
-                      ? "اختر معيار BTEC من الدورة"
-                      : "Choose a BTEC criterion from the course"}
+                    {t("assignmentCard.chooseCriterion")}
                   </option>
                   {availableCriteria.map((criterion) => (
                     <option key={criterion.id} value={criterion.id}>
@@ -5386,7 +5274,7 @@ function CourseAssignmentCard({
                   }
                   className="focus-ring rounded-lg border border-primary/40 px-3 py-2 text-sm font-bold text-primary disabled:opacity-50"
                 >
-                  {locale === "ar" ? "ربط المعيار" : "Attach criterion"}
+                  {t("assignmentCard.attachCriterion")}
                 </button>
               </div>
             ) : null}
@@ -5412,9 +5300,11 @@ function CourseAssignmentCard({
                 }
                 className="rounded-lg border border-border bg-transparent p-2 text-sm"
               >
-                <option value="Pass">P — Pass</option>
-                <option value="Merit">M — Merit</option>
-                <option value="Distinction">D — Distinction</option>
+                <option value="Pass">{t("btecStructure.band.pass")}</option>
+                <option value="Merit">{t("btecStructure.band.merit")}</option>
+                <option value="Distinction">
+                  {t("btecStructure.band.distinction")}
+                </option>
               </select>
               <input
                 value={custom.arabicDescription}
@@ -5424,9 +5314,7 @@ function CourseAssignmentCard({
                     arabicDescription: event.target.value,
                   }))
                 }
-                placeholder={
-                  locale === "ar" ? "وصف عربي" : "Arabic description"
-                }
+                placeholder={t("assignmentCard.arabicDescription")}
                 className="rounded-lg border border-border bg-transparent p-2 text-sm"
               />
               <input
@@ -5437,9 +5325,7 @@ function CourseAssignmentCard({
                     englishDescription: event.target.value,
                   }))
                 }
-                placeholder={
-                  locale === "ar" ? "وصف إنجليزي" : "English description"
-                }
+                placeholder={t("assignmentCard.englishDescription")}
                 className="rounded-lg border border-border bg-transparent p-2 text-sm"
               />
             </div>
@@ -5454,15 +5340,27 @@ function CourseAssignmentCard({
               onClick={() => createCriterion.mutate(custom)}
               className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 text-sm font-bold text-primary disabled:opacity-50"
             >
-              {locale === "ar" ? "إضافة معيار مخصص" : "Add custom criterion"}
+              {t("assignmentCard.addCustomCriterion")}
             </button>
           </div>
         ) : null}
       </div>
-      <RequestError error={publish.error} />
-      <RequestError error={remove.error} />
-      <RequestError error={removeCriterion.error} />
-      <RequestError error={createCriterion.error} />
+      <RequestError
+        error={publish.error}
+        fallback={t("courseEditor.requestFailed")}
+      />
+      <RequestError
+        error={remove.error}
+        fallback={t("courseEditor.requestFailed")}
+      />
+      <RequestError
+        error={removeCriterion.error}
+        fallback={t("courseEditor.requestFailed")}
+      />
+      <RequestError
+        error={createCriterion.error}
+        fallback={t("courseEditor.requestFailed")}
+      />
     </article>
   );
 }
@@ -5478,6 +5376,7 @@ function AssignmentSubmissionCard({
   disabled: boolean;
   onChanged: () => void;
 }) {
+  const t = useTranslations("teacherWorkspace");
   const locale = useLocale();
   const [results, setResults] = useState<Record<string, string>>(() =>
     Object.fromEntries(
@@ -5522,8 +5421,8 @@ function AssignmentSubmissionCard({
             {locale === "ar" ? assignment.arabicTitle : assignment.englishTitle}
           </p>
           <p className="mt-1 text-sm text-muted">
-            {locale === "ar" ? "الطالب" : "Student"}: {submission.studentUserId}{" "}
-            · {submission.status}
+            {t("gradebook.student")}: {submission.studentUserId} ·{" "}
+            {submission.status}
           </p>
         </div>
         {submission.calculatedGrade ? (
@@ -5552,11 +5451,7 @@ function AssignmentSubmissionCard({
               key={`${item.createdAtUtc}-${item.body}`}
               className={`rounded-lg p-2.5 ${item.isPrivate ? "border border-amber-400/35 bg-amber-400/10 text-amber-200" : "bg-page/50 text-muted"}`}
             >
-              {item.isPrivate
-                ? locale === "ar"
-                  ? "ملاحظة خاصة: "
-                  : "Private note: "
-                : ""}
+              {item.isPrivate ? t("submissionReview.privatePrefix") : ""}
               {item.requestsResubmission ? "↻ " : ""}
               {item.body}
             </p>
@@ -5565,9 +5460,7 @@ function AssignmentSubmissionCard({
       ) : null}
       {canReview ? (
         <div className="mt-4 grid gap-3 border-t border-border pt-4">
-          <p className="font-bold">
-            {locale === "ar" ? "تدقيق المعايير" : "Criterion review"}
-          </p>
+          <p className="font-bold">{t("submissionReview.criteria")}</p>
           {assignment.criteria.map((criterion) => (
             <div
               key={criterion.id}
@@ -5591,16 +5484,16 @@ function AssignmentSubmissionCard({
                   className="rounded-lg border border-border bg-transparent p-2 text-sm"
                 >
                   <option value="Achieved">
-                    {locale === "ar" ? "متحقق" : "Achieved"}
+                    {t("evaluationReview.achieved")}
                   </option>
                   <option value="PartiallyAchieved">
-                    {locale === "ar" ? "متحقق جزئيًا" : "Partially achieved"}
+                    {t("evaluationReview.partiallyAchieved")}
                   </option>
                   <option value="NotAchieved">
-                    {locale === "ar" ? "غير متحقق" : "Not achieved"}
+                    {t("evaluationReview.notAchieved")}
                   </option>
                   <option value="NotApplicable">
-                    {locale === "ar" ? "لا ينطبق" : "Not applicable"}
+                    {t("submissionReview.notApplicable")}
                   </option>
                 </select>
               </div>
@@ -5613,11 +5506,9 @@ function AssignmentSubmissionCard({
                   }))
                 }
                 maxLength={4000}
-                placeholder={
-                  locale === "ar"
-                    ? `ملاحظات ظاهرة للطالب حول ${criterion.code}`
-                    : `Student-visible feedback for ${criterion.code}`
-                }
+                placeholder={t("submissionReview.criterionFeedback", {
+                  code: criterion.code,
+                })}
                 className="min-h-16 rounded-lg border border-border bg-transparent p-2 text-sm"
               />
             </div>
@@ -5625,22 +5516,14 @@ function AssignmentSubmissionCard({
           <textarea
             value={feedback}
             onChange={(event) => setFeedback(event.target.value)}
-            placeholder={
-              locale === "ar"
-                ? "ملاحظات عامة للطالب"
-                : "Overall feedback for the student"
-            }
+            placeholder={t("submissionReview.overallFeedback")}
             className="min-h-20 rounded-xl border border-border bg-transparent p-2.5 text-sm"
           />
           <textarea
             value={privateNotes}
             onChange={(event) => setPrivateNotes(event.target.value)}
             maxLength={4000}
-            placeholder={
-              locale === "ar"
-                ? "ملاحظات خاصة للمعلم/الأدمن — لا تظهر للطالب"
-                : "Private teacher/admin notes — never shown to the student"
-            }
+            placeholder={t("submissionReview.privateNotes")}
             className="min-h-20 rounded-xl border border-amber-400/35 bg-amber-400/5 p-2.5 text-sm"
           />
           <div className="flex flex-wrap gap-2">
@@ -5650,9 +5533,7 @@ function AssignmentSubmissionCard({
               disabled={grade.isPending}
               className="focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
             >
-              {locale === "ar"
-                ? "حفظ التقييم والنتيجة"
-                : "Save assessment & result"}
+              {t("submissionReview.save")}
             </button>
             <button
               type="button"
@@ -5660,11 +5541,17 @@ function AssignmentSubmissionCard({
               disabled={!feedback.trim() || revision.isPending}
               className="focus-ring rounded-xl border border-primary/40 px-4 py-2.5 text-sm font-bold text-primary disabled:opacity-50"
             >
-              {locale === "ar" ? "طلب إعادة تسليم" : "Request resubmission"}
+              {t("submissionReview.revision")}
             </button>
           </div>
-          <RequestError error={grade.error} />
-          <RequestError error={revision.error} />
+          <RequestError
+            error={grade.error}
+            fallback={t("courseEditor.requestFailed")}
+          />
+          <RequestError
+            error={revision.error}
+            fallback={t("courseEditor.requestFailed")}
+          />
         </div>
       ) : null}
     </article>
@@ -5678,6 +5565,7 @@ function ReviewSubmission({
   course: CourseEditorData;
   disabled: boolean;
 }) {
+  const t = useTranslations("teacherWorkspace");
   const locale = useLocale();
   const client = useQueryClient();
   const submit = useMutation({
@@ -5693,12 +5581,10 @@ function ReviewSubmission({
     <section className="card p-5">
       <h2 className="flex items-center gap-2 text-lg font-black">
         <CheckCircle2 size={19} className="text-primary" aria-hidden="true" />
-        {locale === "ar" ? "إرسال للمراجعة" : "Submit for review"}
+        {t("reviewSubmission.title")}
       </h2>
       <p className="mt-2 text-sm leading-6 text-muted">
-        {locale === "ar"
-          ? "لن يستطيع الأدمن اعتماد الدورة قبل مراجعة الغلاف والوحدات والدروس والملفات الموجودة هنا."
-          : "The administrator reviews the cover, modules, lessons, and uploaded files here before approving this course."}
+        {t("reviewSubmission.description")}
       </p>
       <button
         type="button"
@@ -5706,18 +5592,14 @@ function ReviewSubmission({
         onClick={() => submit.mutate()}
         className="focus-ring mt-4 w-full rounded-xl bg-primary px-4 py-3 text-sm font-black text-slate-950 disabled:opacity-50"
       >
-        {locale === "ar" ? "فحص وإرسال الدورة" : "Check and submit course"}
+        {t("reviewSubmission.submit")}
       </button>
       {submit.data ? (
         <div
           className={`mt-3 rounded-xl p-3 text-sm ${submit.data.passed ? "bg-primary/10 text-primary" : "bg-red-500/10 text-red-300"}`}
         >
           {submit.data.passed ? (
-            locale === "ar" ? (
-              "تم إرسال الدورة إلى الأدمن للمراجعة."
-            ) : (
-              "The course was submitted to the administrator."
-            )
+            t("reviewSubmission.success")
           ) : (
             <ul className="list-inside list-disc">
               {submit.data.reasons.map((reason) => (
@@ -5727,7 +5609,10 @@ function ReviewSubmission({
           )}
         </div>
       ) : null}
-      <RequestError error={submit.error} />
+      <RequestError
+        error={submit.error}
+        fallback={t("courseEditor.requestFailed")}
+      />
     </section>
   );
 }

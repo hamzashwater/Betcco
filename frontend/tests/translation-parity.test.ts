@@ -71,7 +71,7 @@ describe("shared shell, authentication, account, student, and teacher workspace 
     );
   });
 
-  it("keeps scoped course setup/access and curriculum copy in messages while allowing only server bilingual branches", () => {
+  it("keeps scoped course setup/access, curriculum, and coursework copy in messages while allowing only server bilingual branches", () => {
     const source = readFileSync(
       "src/features/teacher/course-editor.tsx",
       "utf8",
@@ -101,6 +101,13 @@ describe("shared shell, authentication, account, student, and teacher workspace 
       "TopicEditor",
       "CriterionEditor",
       "LessonEditor",
+      "AssignmentFileTypeSelector",
+      "CourseAssignmentsEditor",
+      "TeacherCourseGradebook",
+      "CourseworkDeadlineExtensionPanel",
+      "CourseAssignmentCard",
+      "AssignmentSubmissionCard",
+      "ReviewSubmission",
     ];
     const nodes = file.statements.filter(
       (node) =>
@@ -141,6 +148,14 @@ describe("shared shell, authentication, account, student, and teacher workspace 
       "aim.arabicTitle / aim.englishTitle",
       "topic.arabicTitle / topic.englishTitle",
       "lesson.arabicTitle / lesson.englishTitle",
+      "lesson.arabicTitle / lesson.englishTitle",
+      "aim.arabicTitle / aim.englishTitle",
+      "assignment.arabicTitle / assignment.englishTitle",
+      "assignment.arabicInstructions / assignment.englishInstructions",
+      "criterion.arabicDescription / criterion.englishDescription",
+      "criterion.arabicDescription / criterion.englishDescription",
+      "assignment.arabicTitle / assignment.englishTitle",
+      "criterion.arabicDescription / criterion.englishDescription",
     ]);
   });
 
