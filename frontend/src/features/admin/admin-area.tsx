@@ -190,6 +190,7 @@ function DateInputValue(date: Date) {
 }
 
 function AdminDashboard() {
+  const t = useTranslations("adminWorkspace");
   const locale = useLocale();
   const academicT = useTranslations("academicCatalogue");
   const deliveryT = useTranslations("deliveryPlanning");
@@ -213,43 +214,35 @@ function AdminDashboard() {
     return (
       <section className="shell py-10">
         <div className="card p-6" aria-busy>
-          …
+          {t("shared.loadingIndicator")}
         </div>
       </section>
     );
   if (result.isError || !result.data)
     return (
       <section className="shell py-10">
-        <p className="card p-6">
-          {locale === "ar"
-            ? "سجّل الدخول كأدمن للوصول إلى لوحة التحكم."
-            : "Sign in as an administrator to access this dashboard."}
-        </p>
+        <p className="card p-6">{t("dashboard.signIn")}</p>
       </section>
     );
   return (
     <section className="shell py-10">
       <DashboardHeader
-        eyebrow="BETCCO Control Center"
-        title={locale === "ar" ? "لوحة الأدمن" : "Admin dashboard"}
-        description={
-          locale === "ar"
-            ? "راقب مؤشرات المنصة الحقيقية، واعتمد الدورات، وأسند التقييمات مع بقاء الصلاحيات على الخادم."
-            : "Monitor real platform signals, approve courses, and assign evaluations with server-side authorization preserved."
-        }
+        eyebrow={t("dashboard.eyebrow")}
+        title={t("dashboard.title")}
+        description={t("dashboard.description")}
       />
       <div
         className="mt-5 flex flex-wrap gap-2"
-        aria-label={locale === "ar" ? "الفترة الزمنية" : "Time period"}
+        aria-label={t("dashboard.periodLabel")}
       >
         {[
-          ["today", locale === "ar" ? "اليوم" : "Today"],
-          ["7d", locale === "ar" ? "7 أيام" : "7 days"],
-          ["30d", locale === "ar" ? "30 يومًا" : "30 days"],
-          ["3m", locale === "ar" ? "3 أشهر" : "3 months"],
-          ["year", locale === "ar" ? "سنة" : "Year"],
-          ["custom", locale === "ar" ? "فترة مخصصة" : "Custom range"],
-          ["all", locale === "ar" ? "كل الوقت" : "All time"],
+          ["today", t("dashboard.periods.today")],
+          ["7d", t("dashboard.periods.sevenDays")],
+          ["30d", t("dashboard.periods.thirtyDays")],
+          ["3m", t("dashboard.periods.threeMonths")],
+          ["year", t("dashboard.periods.year")],
+          ["custom", t("dashboard.periods.custom")],
+          ["all", t("dashboard.periods.all")],
         ].map(([value, label]) => (
           <button
             key={value}
@@ -265,7 +258,7 @@ function AdminDashboard() {
       {period === "custom" ? (
         <div className="mt-4 flex flex-wrap items-end gap-3 rounded-2xl border border-border bg-surface/60 p-4">
           <label className="grid gap-1 text-sm font-bold">
-            <span>{locale === "ar" ? "من" : "From"}</span>
+            <span>{t("dashboard.from")}</span>
             <input
               type="date"
               value={customFrom}
@@ -275,7 +268,7 @@ function AdminDashboard() {
             />
           </label>
           <label className="grid gap-1 text-sm font-bold">
-            <span>{locale === "ar" ? "إلى" : "To"}</span>
+            <span>{t("dashboard.to")}</span>
             <input
               type="date"
               value={customTo}
@@ -287,131 +280,117 @@ function AdminDashboard() {
           </label>
           {!customRangeIsValid ? (
             <p role="alert" className="pb-2 text-sm text-red-500">
-              {locale === "ar"
-                ? "اختر نطاقًا زمنيًا صحيحًا."
-                : "Choose a valid date range."}
+              {t("dashboard.invalidRange")}
             </p>
           ) : null}
         </div>
       ) : null}
       <p className="mt-3 text-xs text-muted">
-        {locale === "ar"
-          ? "تتأثر الطلبات والإيرادات والنشاط التعليمي بالفترة المختارة، بينما تبقى مؤشرات الحالة الحالية لحظية."
-          : "Orders, revenue, and learning activity follow the selected period; current-state metrics remain live."}
+        {t("dashboard.periodExplanation")}
       </p>
       <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <MetricCard
-          label={locale === "ar" ? "الطلاب" : "Students"}
+          label={t("dashboard.metrics.students")}
           value={result.data.students}
           icon={UsersRound}
         />
         <MetricCard
-          label={locale === "ar" ? "طلاب نشطون" : "Active students"}
+          label={t("dashboard.metrics.activeStudents")}
           value={result.data.activeStudents}
           icon={UserRoundCheck}
           tone="secondary"
         />
         <MetricCard
-          label={locale === "ar" ? "المعلمون" : "Teachers"}
+          label={t("dashboard.metrics.teachers")}
           value={result.data.teachers}
           icon={GraduationCap}
           tone="secondary"
         />
         <MetricCard
-          label={locale === "ar" ? "معلمون مفعّلون" : "Active teachers"}
+          label={t("dashboard.metrics.activeTeachers")}
           value={result.data.activeTeachers}
           icon={UserRoundCheck}
           tone="accent"
         />
         <MetricCard
-          label={locale === "ar" ? "الدورات" : "Courses"}
+          label={t("dashboard.metrics.courses")}
           value={result.data.courses}
           icon={BookOpenCheck}
         />
         <MetricCard
-          label={locale === "ar" ? "الدورات المنشورة" : "Published courses"}
+          label={t("dashboard.metrics.publishedCourses")}
           value={result.data.publishedCourses}
           icon={BookOpenCheck}
           tone="accent"
         />
         <MetricCard
-          label={locale === "ar" ? "الوحدات" : "Units"}
+          label={t("dashboard.metrics.units")}
           value={result.data.units}
           icon={FileText}
           tone="secondary"
         />
         <MetricCard
-          label={locale === "ar" ? "التسجيلات" : "Enrollments"}
+          label={t("dashboard.metrics.enrollments")}
           value={result.data.enrollments}
           icon={UserRoundCheck}
           tone="accent"
         />
         <MetricCard
-          label={locale === "ar" ? "المهام" : "Assignments"}
+          label={t("dashboard.metrics.assignments")}
           value={result.data.assignments}
           icon={ClipboardCheck}
           tone="warm"
         />
         <MetricCard
-          label={locale === "ar" ? "مهام بانتظار التدقيق" : "Pending reviews"}
+          label={t("dashboard.metrics.pendingReviews")}
           value={result.data.pendingReviews}
           icon={ClipboardCheck}
           tone="warm"
         />
         <MetricCard
-          label={
-            locale === "ar" ? "نسبة إكمال التسجيلات" : "Enrollment completion"
-          }
+          label={t("dashboard.metrics.enrollmentCompletion")}
           value={formatLocalizedPercentage(result.data.completionRate, locale)}
           icon={BadgeCheck}
           tone="secondary"
         />
         <MetricCard
-          label={locale === "ar" ? "موافقات معلقة" : "Pending approvals"}
+          label={t("dashboard.metrics.pendingApprovals")}
           value={result.data.pendingApprovals}
           icon={BadgeCheck}
           tone="warm"
         />
         <MetricCard
-          label={
-            locale === "ar"
-              ? "نتائج بانتظار الاعتماد"
-              : "Results awaiting approval"
-          }
+          label={t("dashboard.metrics.resultsAwaitingApproval")}
           value={result.data.evaluationsAwaitingVerification}
           icon={ClipboardCheck}
           tone="secondary"
         />
         <MetricCard
-          label={
-            locale === "ar"
-              ? "تقييمات تحتاج إسنادًا"
-              : "Evaluations awaiting assignment"
-          }
+          label={t("dashboard.metrics.evaluationsAwaitingAssignment")}
           value={result.data.pendingEvaluations}
           icon={ClipboardCheck}
           tone="warm"
         />
         <MetricCard
-          label={locale === "ar" ? "الإيراد المؤكد" : "Confirmed revenue"}
+          label={t("dashboard.metrics.confirmedRevenue")}
           value={formatLocalizedCurrency(result.data.revenue, "JOD", locale)}
           icon={WalletCards}
           tone="secondary"
         />
         <MetricCard
-          label={locale === "ar" ? "الطلبات" : "Orders"}
+          label={t("dashboard.metrics.orders")}
           value={result.data.orders}
           icon={WalletCards}
           tone="accent"
         />
         <MetricCard
-          label={locale === "ar" ? "اشتراكات نشطة" : "Active subscriptions"}
+          label={t("dashboard.metrics.activeSubscriptions")}
           value={result.data.activeSubscriptions}
           icon={UserRoundCheck}
           tone="secondary"
         />
         <MetricCard
-          label={locale === "ar" ? "الاستردادات" : "Refunds"}
+          label={t("dashboard.metrics.refunds")}
           value={result.data.refunds}
           icon={RotateCcw}
           tone="warm"
@@ -421,84 +400,50 @@ function AdminDashboard() {
       <div className="mt-5 grid gap-4 md:grid-cols-3">
         <AdminLink
           href="students"
-          label={locale === "ar" ? "الطلاب" : "Students"}
-          text={
-            locale === "ar"
-              ? "ابحث عن حساب طالب وأعد ضبط جهازه عند الحاجة."
-              : "Find a student account and reset its device when needed."
-          }
+          label={t("navigation.students.title")}
+          text={t("navigation.students.description")}
           icon={UsersRound}
         />
         <AdminLink
           href="teachers"
-          label={locale === "ar" ? "إدارة المعلمين" : "Manage teachers"}
-          text={
-            locale === "ar"
-              ? "شاهد العدد، وأرسل الدعوات، وجمّد أو فعّل الحسابات."
-              : "See the count, send invitations, and freeze or activate accounts."
-          }
+          label={t("navigation.teachers.title")}
+          text={t("navigation.teachers.description")}
           icon={UserRoundCheck}
         />
         <AdminLink
           href="account-identities"
-          label={locale === "ar" ? "هويات الحسابات" : "Account identities"}
-          text={
-            locale === "ar"
-              ? "إدارة بريد المعلمين ومساعدي الإدارة ودعوات مساعدي الإدارة."
-              : "Manage Teacher and SupportAdmin email and support invitations."
-          }
+          label={t("navigation.accountIdentities.title")}
+          text={t("navigation.accountIdentities.description")}
           icon={UsersRound}
         />
         <AdminLink
           href="course-approvals"
-          label={locale === "ar" ? "موافقات الدورات" : "Course approvals"}
-          text={
-            locale === "ar"
-              ? "راجع متطلبات النشر قبل الإتاحة."
-              : "Review publishing requirements before availability."
-          }
+          label={t("navigation.courseApprovals.title")}
+          text={t("navigation.courseApprovals.description")}
           icon={BadgeCheck}
         />
         <AdminLink
           href="evaluations"
-          label={locale === "ar" ? "التقييمات" : "Evaluations"}
-          text={
-            locale === "ar"
-              ? "أسند التقييم ثم راجع النتيجة المحسوبة قبل الاعتماد النهائي."
-              : "Assign evaluation work, then review the calculated result before final approval."
-          }
+          label={t("navigation.evaluations.title")}
+          text={t("navigation.evaluations.description")}
           icon={ClipboardCheck}
         />
         <AdminLink
           href="internal-verification"
-          label={locale === "ar" ? "عينات التحقق الداخلي" : "IV sampling"}
-          text={
-            locale === "ar"
-              ? "حدد عينات مراجعة مستقلة بمبرر موثق بدل نسبة ثابتة."
-              : "Select independent review samples with a documented rationale, not a fixed rate."
-          }
+          label={t("navigation.internalVerification.title")}
+          text={t("navigation.internalVerification.description")}
           icon={ClipboardCheck}
         />
         <AdminLink
           href="evaluation-appeals"
-          label={
-            locale === "ar" ? "الاستئنافات الأكاديمية" : "Academic appeals"
-          }
-          text={
-            locale === "ar"
-              ? "راجع الاستئنافات بصورة مستقلة وسجل القرار وتعليله."
-              : "Review appeals independently and record a reasoned decision."
-          }
+          label={t("navigation.evaluationAppeals.title")}
+          text={t("navigation.evaluationAppeals.description")}
           icon={FileText}
         />
         <AdminLink
           href="qualification-registry"
-          label={locale === "ar" ? "سجل المؤهلات" : "Qualification registry"}
-          text={
-            locale === "ar"
-              ? "وثّق إصدارات المؤهلات واربطها بروبركات التقييم الجديدة."
-              : "Register sourced qualification versions and bind them to new assessment rubrics."
-          }
+          label={t("navigation.qualificationRegistry.title")}
+          text={t("navigation.qualificationRegistry.description")}
           icon={Network}
         />
         <AdminLink
@@ -515,86 +460,50 @@ function AdminDashboard() {
         />
         <AdminLink
           href="gradebook"
-          label={locale === "ar" ? "دفتر الدرجات" : "Gradebook"}
-          text={
-            locale === "ar"
-              ? "راجع نتائج الواجبات حسب الدورة والوحدة والمعلم والطالب والحالة والنتيجة."
-              : "Review coursework results by course, unit, teacher, student, status, and grade."
-          }
+          label={t("navigation.gradebook.title")}
+          text={t("navigation.gradebook.description")}
           icon={BookOpenCheck}
         />
         <AdminLink
           href="ratings"
-          label={locale === "ar" ? "تقييمات المنصة" : "Platform reviews"}
-          text={
-            locale === "ar"
-              ? "راجع ملاحظات الطلاب وانشر فقط التقييمات التي وافق أصحابها على عرضها."
-              : "Review learner feedback and publish only reviews whose authors opted in."
-          }
+          label={t("navigation.ratings.title")}
+          text={t("navigation.ratings.description")}
           icon={MessageSquareQuote}
         />
         <AdminLink
           href="wallet"
-          label={locale === "ar" ? "المحفظة والمستحقات" : "Wallet and payouts"}
-          text={
-            locale === "ar"
-              ? "راجع عمولة المنصة 30٪ واعتمد طلبات سحب المعلمين."
-              : "Review the platform's 30% commission and approve teacher withdrawals."
-          }
+          label={t("navigation.wallet.title")}
+          text={t("navigation.wallet.description")}
           icon={WalletCards}
         />
         <AdminLink
           href="content"
-          label={
-            locale === "ar" ? "المحتوى والتجارب" : "Content and experiences"
-          }
-          text={
-            locale === "ar"
-              ? "أنشئ مقالات وباقات وجلسات مباشرة وملفات عامة للمعلمين."
-              : "Create articles, packages, live sessions, and public teacher profiles."
-          }
+          label={t("navigation.content.title")}
+          text={t("navigation.content.description")}
           icon={FileText}
         />
         <AdminLink
           href="commerce"
-          label={
-            locale === "ar" ? "العضويات والخصومات" : "Memberships and discounts"
-          }
-          text={
-            locale === "ar"
-              ? "أدر العضويات واشتراكات الدورات والكوبونات من مكان واحد."
-              : "Manage memberships, course subscriptions, and coupons in one place."
-          }
+          label={t("navigation.commerce.title")}
+          text={t("navigation.commerce.description")}
           icon={WalletCards}
         />
         <AdminLink
           href="audit-logs"
-          label={locale === "ar" ? "سجل التدقيق" : "Audit logs"}
-          text={
-            locale === "ar"
-              ? "ابحث في العمليات الحساسة والجهة التي نفذتها وسياقها."
-              : "Search sensitive operations, their actor, and recorded context."
-          }
+          label={t("navigation.auditLogs.title")}
+          text={t("navigation.auditLogs.description")}
           icon={FileText}
         />
         <AdminLink
           href="privacy"
-          label={locale === "ar" ? "طلبات الخصوصية" : "Privacy requests"}
-          text={
-            locale === "ar"
-              ? "راجع طلبات الحقوق والهوية قبل اتخاذ أي إجراء على البيانات."
-              : "Review rights requests and identity checks before taking action on data."
-          }
+          label={t("navigation.privacy.title")}
+          text={t("navigation.privacy.description")}
           icon={LockKeyhole}
         />
         <AdminLink
           href="integrations"
-          label={locale === "ar" ? "تكاملات المدارس" : "School integrations"}
-          text={
-            locale === "ar"
-              ? "تحقق من اتصال OneRoster دون استيراد أي بيانات تلقائيًا."
-              : "Check OneRoster connectivity without importing data automatically."
-          }
+          label={t("navigation.integrations.title")}
+          text={t("navigation.integrations.description")}
           icon={Network}
         />
       </div>
@@ -609,22 +518,23 @@ function AdminAnalyticsTrend({
   locale: string;
   points: Dashboard["trend"];
 }) {
+  const t = useTranslations("adminWorkspace");
   const definitions = [
     {
       key: "revenue" as const,
-      label: locale === "ar" ? "الإيراد المؤكد" : "Confirmed revenue",
+      label: t("analytics.revenue"),
       color: "bg-primary",
       format: (value: number) => formatLocalizedCurrency(value, "JOD", locale),
     },
     {
       key: "paidOrders" as const,
-      label: locale === "ar" ? "الطلبات المدفوعة" : "Paid orders",
+      label: t("analytics.paidOrders"),
       color: "bg-secondary",
       format: (value: number) => formatLocalizedNumber(value, locale),
     },
     {
       key: "lessonActivity" as const,
-      label: locale === "ar" ? "نشاط التعلّم" : "Learning activity",
+      label: t("analytics.lessonActivity"),
       color: "bg-amber-400",
       format: (value: number) => formatLocalizedNumber(value, locale),
     },
@@ -632,16 +542,8 @@ function AdminAnalyticsTrend({
   return (
     <section className="card mt-5 p-5">
       <div>
-        <h2 className="font-black text-foreground">
-          {locale === "ar"
-            ? "اتجاهات الفترة المحددة"
-            : "Selected period trends"}
-        </h2>
-        <p className="mt-1 text-sm text-muted">
-          {locale === "ar"
-            ? "تعتمد على الطلبات المدفوعة الفعلية وتحديثات تقدّم الدروس في الفترة التي اخترتها."
-            : "Based on actual paid orders and lesson-progress updates in the selected period."}
-        </p>
+        <h2 className="font-black text-foreground">{t("analytics.title")}</h2>
+        <p className="mt-1 text-sm text-muted">{t("analytics.description")}</p>
       </div>
       {points.length ? (
         <div className="mt-5 grid gap-6 lg:grid-cols-3">
@@ -690,20 +592,14 @@ function AdminAnalyticsTrend({
                     );
                   })}
                 </div>
-                <p className="mt-2 text-xs text-muted">
-                  {locale === "ar"
-                    ? "مرّر فوق الأعمدة لعرض التفاصيل."
-                    : "Hover over bars for details."}
-                </p>
+                <p className="mt-2 text-xs text-muted">{t("analytics.hint")}</p>
               </article>
             );
           })}
         </div>
       ) : (
         <p className="mt-5 rounded-xl border border-dashed border-border px-4 py-6 text-sm text-muted">
-          {locale === "ar"
-            ? "لا توجد طلبات مدفوعة أو تحديثات تعلم ضمن الفترة المختارة بعد."
-            : "There are no paid orders or learning updates in the selected period yet."}
+          {t("analytics.empty")}
         </p>
       )}
     </section>
@@ -1739,6 +1635,7 @@ function AdminLink({
   text: string;
   icon: typeof ClipboardCheck;
 }) {
+  const t = useTranslations("adminWorkspace");
   const locale = useLocale();
   return (
     <Link
@@ -1747,7 +1644,7 @@ function AdminLink({
     >
       <ActionCard title={label} description={text} icon={icon}>
         <span className="mt-4 inline-flex items-center gap-1 text-sm font-black text-primary">
-          {locale === "ar" ? "فتح" : "Open"}
+          {t("shared.open")}
           <ArrowLeft size={16} className="rtl:rotate-180" aria-hidden="true" />
         </span>
       </ActionCard>
