@@ -1,0 +1,77 @@
+[
+  {
+    "match": "Course title is required.",
+    "ar": "أدخل عنوان الدورة.",
+    "en": "Course title is required."
+  },
+  {
+    "match": "Course description is required.",
+    "ar": "أدخل وصفًا مختصرًا للدورة.",
+    "en": "Course description is required."
+  },
+  {
+    "match": "A processed, safe cover image is required.",
+    "ar": "ارفع غلافًا صالحًا وآمنًا للدورة قبل إرسالها للمراجعة.",
+    "en": "A processed, safe cover image is required."
+  },
+  {
+    "match": "A paid course needs a valid price.",
+    "ar": "أدخل سعرًا صحيحًا للدورة المدفوعة أو اختر أنها مجانية.",
+    "en": "A paid course needs a valid price."
+  },
+  {
+    "match": "At least one published module and lesson are required.",
+    "ar": "أضف وحدة منشورة ودرسًا منشورًا واحدًا على الأقل قبل الإرسال.",
+    "en": "At least one published module and lesson are required."
+  },
+  {
+    "match": "Published video lessons need a duration.",
+    "ar": "أدخل مدة صحيحة لكل درس فيديو منشور.",
+    "en": "Published video lessons need a duration."
+  },
+  {
+    "match": "Enter the required course details and a valid price.",
+    "ar": "أدخل معلومات الدورة الأساسية وسعرًا صحيحًا، أو اختر أنها مجانية.",
+    "en": "Enter the required course details and a valid price."
+  },
+  {
+    "match": "Choose a valid learning track, grade, specialization, and subject.",
+    "ar": "تحقّق من المسار أو الصف أو التخصص أو المادة التي اخترتها.",
+    "en": "Choose a valid learning track, grade, specialization, and subject."
+  },
+  {
+    "match": "Only editable draft courses with complete details can be updated.",
+    "ar": "لا يمكن تعديل هذه الدورة إلا إذا كانت مسودة أو بحاجة إلى تعديل ومعلوماتها الأساسية مكتملة.",
+    "en": "Only editable draft courses with complete details can be updated."
+  },
+  {
+    "match": "This module cannot be updated.",
+    "ar": "تعذّر تعديل هذه الوحدة.",
+    "en": "This module cannot be updated."
+  },
+  {
+    "match": "Only an editable unit can be duplicated.",
+    "ar": "يمكن تكرار الوحدات القابلة للتحرير فقط.",
+    "en": "Only an editable unit can be duplicated."
+  },
+  {
+    "match": "Request failed.",
+    "ar": "تعذّر تنفيذ الطلب. حاول مرة أخرى.",
+    "en": "Request failed."
+  },
+  {
+    "match": "Unable to initialize request security.",
+    "ar": "تعذّر تهيئة حماية الطلب. حدّث الصفحة ثم حاول مرة أخرى.",
+    "en": "Unable to initialize request security."
+  },
+  {
+    "match": "Forbidden",
+    "ar": "ليس لديك صلاحية لتنفيذ هذه العملية أو أن الدورة لم تعد قابلة للتحرير.",
+    "en": "Forbidden"
+  },
+  {
+    "match": "Bad Request",
+    "ar": "البيانات المدخلة غير صحيحة. راجع الحقول وحاول مرة أخرى.",
+    "en": "Bad Request"
+  }
+]
