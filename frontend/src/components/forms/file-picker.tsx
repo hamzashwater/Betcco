@@ -4,6 +4,18 @@ import { FileText, FileUp, Image as ImageIcon, X } from "lucide-react";
 import { useId, useRef, useState } from "react";
 import { Action } from "@/components/ui/action";
 
+export type FilePickerCopy = {
+  noFilesSelected: string;
+  selectionStatus: (count: number) => string;
+  chooseFile: string;
+  chooseFiles: string;
+  selectedFiles: string;
+  inputLabel: (label: string) => string;
+  removeFile: (fileName: string) => string;
+  oversizedFile: (fileName: string, limit: string) => string;
+  typeLabel: (value: string) => string;
+};
+
 type FilePickerProps = {
   label: string;
   files: File[];
@@ -14,6 +26,7 @@ type FilePickerProps = {
   maxFileBytes?: number;
   helpText?: string;
   chooseLabel?: string;
+  copy?: FilePickerCopy;
   disabled?: boolean;
 };
 
@@ -27,24 +40,31 @@ export function FilePicker({
   maxFileBytes,
   helpText,
   chooseLabel,
+  copy,
   disabled = false,
 }: FilePickerProps) {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string>();
   const isArabic = locale === "ar";
-  const selectionStatus = isArabic
-    ? files.length === 1
-      ? "ملف واحد مختار"
-      : `${files.length} ملفات مختارة`
-    : `${files.length} ${files.length === 1 ? "file" : "files"} selected`;
-  const defaultChooseLabel = multiple
-    ? isArabic
-      ? "اختيار ملفات"
-      : "Choose files"
+  const selectionStatus = copy
+    ? copy.selectionStatus(files.length)
     : isArabic
-      ? "اختيار ملف"
-      : "Choose file";
+      ? files.length === 1
+        ? "ملف واحد مختار"
+        : `${files.length} ملفات مختارة`
+      : `${files.length} ${files.length === 1 ? "file" : "files"} selected`;
+  const defaultChooseLabel = copy
+    ? multiple
+      ? copy.chooseFiles
+      : copy.chooseFile
+    : multiple
+      ? isArabic
+        ? "اختيار ملفات"
+        : "Choose files"
+      : isArabic
+        ? "اختيار ملف"
+        : "Choose file";
 
   const chooseFiles = (selectedFiles: File[]) => {
     const oversized = maxFileBytes
@@ -52,9 +72,11 @@ export function FilePicker({
       : undefined;
     if (oversized) {
       setError(
-        isArabic
-          ? `الملف «${oversized.name}» أكبر من الحد المسموح: ${formatBytes(maxFileBytes!)} لكل ملف.`
-          : `“${oversized.name}” exceeds the ${formatBytes(maxFileBytes!)} limit per file.`,
+        copy
+          ? copy.oversizedFile(oversized.name, formatBytes(maxFileBytes!))
+          : isArabic
+            ? `الملف «${oversized.name}» أكبر من الحد المسموح: ${formatBytes(maxFileBytes!)} لكل ملف.`
+            : `“${oversized.name}” exceeds the ${formatBytes(maxFileBytes!)} limit per file.`,
       );
       if (inputRef.current) inputRef.current.value = "";
       return;
@@ -100,9 +122,11 @@ export function FilePicker({
           <p className="mt-1 text-xs text-text-muted" aria-live="polite">
             {files.length > 0
               ? selectionStatus
-              : isArabic
-                ? "لم يتم اختيار ملفات بعد"
-                : "No files selected yet"}
+              : copy
+                ? copy.noFilesSelected
+                : isArabic
+                  ? "لم يتم اختيار ملفات بعد"
+                  : "No files selected yet"}
           </p>
         </div>
         <Action
@@ -141,7 +165,13 @@ export function FilePicker({
             .filter(Boolean)
             .join(" ") || undefined
         }
-        aria-label={isArabic ? `اختيار ${label}` : `Choose ${label}`}
+        aria-label={
+          copy
+            ? copy.inputLabel(label)
+            : isArabic
+              ? `اختيار ${label}`
+              : `Choose ${label}`
+        }
       />
       {helpText ? (
         <p
@@ -163,7 +193,13 @@ export function FilePicker({
       {files.length > 0 ? (
         <ul
           className="mt-4 grid gap-2"
-          aria-label={isArabic ? "الملفات المختارة" : "Selected files"}
+          aria-label={
+            copy
+              ? copy.selectedFiles
+              : isArabic
+                ? "الملفات المختارة"
+                : "Selected files"
+          }
         >
           {files.map((file) => (
             <li
@@ -182,14 +218,19 @@ export function FilePicker({
                   {file.name}
                 </span>
                 <span className="mt-0.5 block text-xs text-text-muted">
-                  {fileType(file)} · {formatBytes(file.size)}
+                  {copy ? copy.typeLabel(fileType(file)) : fileType(file)} ·{" "}
+                  {formatBytes(file.size)}
                 </span>
               </span>
               <button
                 type="button"
                 onClick={() => removeFile(file)}
                 aria-label={
-                  isArabic ? `إزالة الملف ${file.name}` : `Remove ${file.name}`
+                  copy
+                    ? copy.removeFile(file.name)
+                    : isArabic
+                      ? `إزالة الملف ${file.name}`
+                      : `Remove ${file.name}`
                 }
                 className="focus-ring grid size-11 shrink-0 place-items-center rounded-control border border-border-default! text-text-muted transition-colors duration-150 hover:border-danger! hover:bg-danger-surface hover:text-danger motion-reduce:transition-none"
               >

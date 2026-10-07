@@ -7,8 +7,12 @@ import styles from "./student-practice-presentation.module.css";
 import { FilePicker } from "@/components/forms/file-picker";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
+import {
+  learningAimPracticeStatus,
+  learningAimTrainingOutcome,
+} from "@/features/teacher/practice-presentation";
 
 type Aim = {
   id: string;
@@ -745,6 +749,7 @@ export function TeacherLearningAimPractice({
     }[];
   }[];
 }) {
+  const t = useTranslations("teacherWorkspace");
   const locale = useLocale();
   const client = useQueryClient();
   const [form, setForm] = useState({
@@ -803,23 +808,17 @@ export function TeacherLearningAimPractice({
     <section className="grid gap-4 rounded-2xl border border-primary/25 p-4">
       <div>
         <h3 className="text-lg font-black">
-          {tr(
-            locale,
-            "أنشطة أهداف التعلم التدريبية",
-            "Learning Aim Practice Activities",
-          )}
+          {t("practice.learningAimPracticeActivities")}
         </h3>
         <p className="mt-1 text-sm text-muted">
-          {tr(
-            locale,
-            "نتائج تدريبية يحددها المعلم، وليست نتائج تقييم BTEC رسمي.",
-            "Teacher-decided formative outcomes, separate from formal BTEC assessment.",
+          {t(
+            "practice.teacherDecidedFormativeOutcomesSeparateFromFormalBTECAssessment",
           )}
         </p>
       </div>
       {practices.isPending || submissions.isPending ? (
         <p aria-busy="true" className="text-sm text-muted">
-          {tr(locale, "جارٍ التحميل…", "Loading…")}
+          {t("deadlineExtensions.loading")}
         </p>
       ) : null}
       {aims.map((aim) => {
@@ -862,7 +861,7 @@ export function TeacherLearningAimPractice({
                 }
                 className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 text-sm font-bold text-primary"
               >
-                {tr(locale, "إضافة نشاط تدريبي", "Add practice activity")}
+                {t("practice.addPracticeActivity")}
               </button>
             )}
           </div>
@@ -876,27 +875,17 @@ export function TeacherLearningAimPractice({
             if (!create.isPending) create.mutate();
           }}
         >
-          <h4 className="font-bold">
-            {tr(locale, "نشاط تدريبي جديد", "New practice activity")}
-          </h4>
+          <h4 className="font-bold">{t("practice.newPracticeActivity")}</h4>
           {(
             [
-              ["arabicTitle", "العنوان بالعربية", "Arabic title"],
-              ["englishTitle", "العنوان بالإنجليزية", "English title"],
-              [
-                "arabicInstructions",
-                "التعليمات بالعربية",
-                "Arabic instructions",
-              ],
-              [
-                "englishInstructions",
-                "التعليمات بالإنجليزية",
-                "English instructions",
-              ],
+              ["arabicTitle", t("courseDetails.arabicTitle")],
+              ["englishTitle", t("courseDetails.englishTitle")],
+              ["arabicInstructions", t("practice.arabicInstructions")],
+              ["englishInstructions", t("practice.englishInstructions")],
             ] as const
-          ).map(([key, ar, en]) => (
+          ).map(([key, label]) => (
             <label key={key} className="grid gap-1 text-sm">
-              {tr(locale, ar, en)}
+              {label}
               <textarea
                 required
                 maxLength={key.includes("Instructions") ? 4000 : 256}
@@ -912,7 +901,7 @@ export function TeacherLearningAimPractice({
             </label>
           ))}
           <label className="grid gap-1 text-sm">
-            {tr(locale, "الحد الأقصى للمحاولات", "Maximum attempts")}
+            {t("practice.maximumAttempts")}
             <input
               type="number"
               min={1}
@@ -933,7 +922,7 @@ export function TeacherLearningAimPractice({
             disabled={create.isPending}
             className="focus-ring w-fit rounded-xl bg-primary px-4 py-2 text-sm font-bold text-slate-950 disabled:opacity-50"
           >
-            {tr(locale, "حفظ النشاط", "Save activity")}
+            {t("practice.saveActivity")}
           </button>
           {create.isError ? (
             <p role="alert" className="text-sm text-red-400">
@@ -944,11 +933,7 @@ export function TeacherLearningAimPractice({
       ) : null}
       {practices.isError || submissions.isError ? (
         <p role="alert" className="text-sm text-red-400">
-          {tr(
-            locale,
-            "تعذر تحميل أنشطة التدريب.",
-            "Practice activities could not be loaded.",
-          )}
+          {t("practice.practiceActivitiesCouldNotBeLoaded")}
         </p>
       ) : null}
     </section>
@@ -962,7 +947,7 @@ function TeacherPracticeAttemptLimit({
   practice: Practice;
   onChanged: () => void;
 }) {
-  const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const [value, setValue] = useState(practice.maxSubmissionAttempts);
   const update = useMutation({
     mutationFn: () =>
@@ -975,7 +960,7 @@ function TeacherPracticeAttemptLimit({
   return (
     <div className="flex flex-wrap items-end gap-2 text-sm">
       <label className="grid gap-1">
-        {tr(locale, "الحد الأقصى للمحاولات", "Maximum attempts")}
+        {t("practice.maximumAttempts")}
         <input
           type="number"
           min={1}
@@ -991,7 +976,7 @@ function TeacherPracticeAttemptLimit({
         onClick={() => update.mutate()}
         className="focus-ring rounded-lg border border-primary/40 px-3 py-2 font-bold text-primary disabled:opacity-50"
       >
-        {tr(locale, "حفظ عدد المحاولات", "Save attempt limit")}
+        {t("practice.saveAttemptLimit")}
       </button>
       {update.isError ? (
         <p role="alert" className="text-red-400">
@@ -1009,6 +994,7 @@ function TeacherPracticeReview({
   submission: PracticeSubmission;
   onChanged: () => void;
 }) {
+  const t = useTranslations("teacherWorkspace");
   const locale = useLocale();
   const [form, setForm] = useState({
     trainingOutcome: "Pass",
@@ -1027,12 +1013,12 @@ function TeacherPracticeReview({
   return (
     <article className="grid gap-2 rounded-lg bg-white/5 p-3 text-sm">
       <p>
-        {tr(locale, "الطالب", "Learner")}: {submission.studentUserId} ·{" "}
+        {t("practice.learner")}: {submission.studentUserId} ·{" "}
         {submission.status}
       </p>
       <p className="text-muted">
-        {tr(locale, "المحاولة الحالية", "Current attempt")}:{" "}
-        {submission.currentVersionNumber} / {submission.maxSubmissionAttempts}
+        {t("practice.currentAttempt")}: {submission.currentVersionNumber} /{" "}
+        {submission.maxSubmissionAttempts}
       </p>
       {submission.files.map((file) => (
         <a
@@ -1045,14 +1031,14 @@ function TeacherPracticeReview({
       ))}
       {submission.trainingOutcome ? (
         <p>
-          {tr(locale, "النتيجة التدريبية", "Training Outcome")}:{" "}
-          {trainingOutcomeLabel(locale, submission.trainingOutcome)}
+          {t("practice.trainingOutcome")}:{" "}
+          {learningAimTrainingOutcome(submission.trainingOutcome, t)}
         </p>
       ) : null}
       {(submission.attemptHistory ?? []).length ? (
         <details className="rounded-lg border border-border p-2">
           <summary className="cursor-pointer font-bold">
-            {tr(locale, "سجل المحاولات", "Attempt history")}
+            {t("practice.attemptHistory")}
           </summary>
           <div className="mt-2 grid gap-2">
             {(submission.attemptHistory ?? []).map((attempt) => (
@@ -1061,12 +1047,12 @@ function TeacherPracticeReview({
                 className="rounded-lg bg-black/10 p-2"
               >
                 <p className="font-bold">
-                  {tr(locale, "المحاولة", "Attempt")} {attempt.attemptNumber} ·{" "}
-                  {practiceStatus(locale, attempt.status)}
+                  {t("practice.attempt")} {attempt.attemptNumber} ·{" "}
+                  {learningAimPracticeStatus(attempt.status, t)}
                 </p>
                 {attempt.submittedAtUtc ? (
                   <p>
-                    <strong>{tr(locale, "تاريخ التسليم", "Submitted")}:</strong>{" "}
+                    <strong>{t("practice.submitted")}:</strong>{" "}
                     <time dateTime={attempt.submittedAtUtc}>
                       {formatAttemptTimestamp(locale, attempt.submittedAtUtc)}
                     </time>
@@ -1074,7 +1060,7 @@ function TeacherPracticeReview({
                 ) : null}
                 {attempt.reviewedAtUtc ? (
                   <p>
-                    <strong>{tr(locale, "تاريخ المراجعة", "Reviewed")}:</strong>{" "}
+                    <strong>{t("practice.reviewed")}:</strong>{" "}
                     <time dateTime={attempt.reviewedAtUtc}>
                       {formatAttemptTimestamp(locale, attempt.reviewedAtUtc)}
                     </time>
@@ -1082,9 +1068,7 @@ function TeacherPracticeReview({
                 ) : null}
                 {attempt.files.length ? (
                   <div className="grid gap-1">
-                    <strong>
-                      {tr(locale, "ملفات المحاولة", "Attempt files")}:
-                    </strong>
+                    <strong>{t("practice.attemptFiles")}:</strong>
                     {attempt.files.map((file) => (
                       <a
                         key={file.id}
@@ -1098,25 +1082,23 @@ function TeacherPracticeReview({
                 ) : null}
                 {attempt.trainingOutcome ? (
                   <p>
-                    {tr(locale, "النتيجة", "Result")}:{" "}
-                    {trainingOutcomeLabel(locale, attempt.trainingOutcome)}
+                    {t("practice.result")}:{" "}
+                    {learningAimTrainingOutcome(attempt.trainingOutcome, t)}
                   </p>
                 ) : null}
                 {attempt.trainingStrengths ? (
                   <p>
-                    {tr(locale, "نقاط القوة", "Strengths")}:{" "}
-                    {attempt.trainingStrengths}
+                    {t("practice.strengths")}: {attempt.trainingStrengths}
                   </p>
                 ) : null}
                 {attempt.trainingGaps ? (
                   <p>
-                    {tr(locale, "الفجوات", "Missing / gaps")}:{" "}
-                    {attempt.trainingGaps}
+                    {t("practice.missingGaps")}: {attempt.trainingGaps}
                   </p>
                 ) : null}
                 {attempt.trainingImprovementGuidance ? (
                   <p>
-                    {tr(locale, "إرشادات التحسين", "Improvement guidance")}:{" "}
+                    {t("practice.improvementGuidance")}:{" "}
                     {attempt.trainingImprovementGuidance}
                   </p>
                 ) : null}
@@ -1134,7 +1116,7 @@ function TeacherPracticeReview({
           }}
         >
           <label className="grid gap-1">
-            {tr(locale, "النتيجة التدريبية", "Training Outcome")}
+            {t("practice.trainingOutcome")}
             <select
               value={form.trainingOutcome}
               onChange={(event) =>
@@ -1148,7 +1130,7 @@ function TeacherPracticeReview({
               {["NotYetAchieved", "Pass", "Merit", "Distinction"].map(
                 (value) => (
                   <option key={value} value={value}>
-                    {trainingOutcomeLabel(locale, value)}
+                    {learningAimTrainingOutcome(value, t)}
                   </option>
                 ),
               )}
@@ -1156,17 +1138,13 @@ function TeacherPracticeReview({
           </label>
           {(
             [
-              ["strengths", "نقاط القوة", "Strengths"],
-              ["gaps", "الفجوات", "Missing / gaps"],
-              [
-                "improvementGuidance",
-                "إرشادات التحسين",
-                "Improvement guidance",
-              ],
+              ["strengths", t("practice.strengths")],
+              ["gaps", t("practice.missingGaps")],
+              ["improvementGuidance", t("practice.improvementGuidance")],
             ] as const
-          ).map(([key, ar, en]) => (
+          ).map(([key, label]) => (
             <label key={key} className="grid gap-1">
-              {tr(locale, ar, en)}
+              {label}
               <textarea
                 required
                 maxLength={4000}
@@ -1186,7 +1164,7 @@ function TeacherPracticeReview({
             disabled={review.isPending}
             className="focus-ring w-fit rounded-xl bg-primary px-4 py-2 font-bold text-slate-950 disabled:opacity-50"
           >
-            {tr(locale, "اعتماد المراجعة", "Finalize review")}
+            {t("practice.finalizeReview")}
           </button>
           {review.isError ? (
             <p role="alert" className="text-red-400">

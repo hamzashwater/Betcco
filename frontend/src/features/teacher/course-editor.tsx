@@ -6,6 +6,7 @@
 import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { formatLocalizedPercentage } from "@/i18n/number-format";
 import { FilePicker } from "@/components/forms/file-picker";
+import { teacherFilePickerCopy } from "@/features/teacher/file-picker-copy";
 import { TeacherLearningAimPractice } from "@/features/learning/learning-aim-practice";
 import { TeacherComprehensivePractice } from "@/features/learning/comprehensive-practice";
 import {
@@ -13,7 +14,7 @@ import {
   CourseWorkspaceSection,
 } from "@/features/teacher/course-workspace-navigation";
 import { api } from "@/lib/api";
-import { academicText, academicUnitLabel } from "@/lib/academic-localization";
+import { academicText } from "@/lib/academic-localization";
 import { defaultBrand } from "@/lib/brand";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -1783,6 +1784,7 @@ function CoverManager({
         </div>
       )}
       <FilePicker
+        copy={teacherFilePickerCopy(t)}
         label={t("cover.image")}
         files={files}
         onFilesChange={setFiles}
@@ -2000,12 +2002,7 @@ export function CurriculumEditor({
                     >
                       {unit.termCode} · {unit.qualificationCode} /{" "}
                       {unit.versionCode} ·{" "}
-                      {academicUnitLabel(
-                        locale,
-                        unit.code,
-                        unit.arabicTitle,
-                        unit.englishTitle,
-                      )}
+                      {`${t("announcements.unit")} ${unit.code} — ${academicText(locale, unit.arabicTitle, unit.englishTitle)}`}
                     </option>
                   ))}
                 </select>
@@ -2243,12 +2240,7 @@ function ModuleEditor({
                 {academicUnits.map((unit) => (
                   <option key={unit.id} value={unit.id}>
                     {unit.qualificationCode} / {unit.versionCode} ·{" "}
-                    {academicUnitLabel(
-                      locale,
-                      unit.code,
-                      unit.arabicTitle,
-                      unit.englishTitle,
-                    )}
+                    {`${t("announcements.unit")} ${unit.code} — ${academicText(locale, unit.arabicTitle, unit.englishTitle)}`}
                   </option>
                 ))}
               </select>
@@ -3735,6 +3727,7 @@ function LessonEditor({
         {!disabled ? (
           <div className="mb-4 rounded-xl border border-primary/30 bg-primary/5 p-3">
             <FilePicker
+              copy={teacherFilePickerCopy(t)}
               label={t("lesson.recordedVideo")}
               files={videoFiles}
               onFilesChange={setVideoFiles}
@@ -3809,6 +3802,7 @@ function LessonEditor({
         {!disabled ? (
           <div className="mt-3">
             <FilePicker
+              copy={teacherFilePickerCopy(t)}
               label={t("lesson.uploadFiles")}
               files={files}
               onFilesChange={setFiles}
@@ -4975,6 +4969,7 @@ function CourseAssignmentCard({
         {!disabled ? (
           <div className="grid gap-2 rounded-xl border border-border bg-page/35 p-3">
             <FilePicker
+              copy={teacherFilePickerCopy(t)}
               label={t("assignmentCard.attachResources")}
               files={resourceFiles}
               onFilesChange={setResourceFiles}
@@ -5566,7 +5561,6 @@ function ReviewSubmission({
   disabled: boolean;
 }) {
   const t = useTranslations("teacherWorkspace");
-  const locale = useLocale();
   const client = useQueryClient();
   const submit = useMutation({
     mutationFn: () =>
@@ -5603,7 +5597,7 @@ function ReviewSubmission({
           ) : (
             <ul className="list-inside list-disc">
               {submit.data.reasons.map((reason) => (
-                <li key={reason}>{localizeCourseMessage(reason, locale)}</li>
+                <li key={reason}>{localizeCourseMessage(reason, t)}</li>
               ))}
             </ul>
           )}
@@ -5696,49 +5690,69 @@ function RequestError({
   error: unknown;
   fallback?: string;
 }) {
-  const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   return error ? (
     <p role="alert" className="text-sm text-red-400">
       {localizeCourseMessage(
         error instanceof Error ? error.message : fallback,
-        locale,
+        t,
       )}
     </p>
   ) : null;
 }
 
-function localizeCourseMessage(message: string, locale: string) {
-  if (locale !== "ar") return message;
-
-  const messages: Record<string, string> = {
-    "Course title is required.": "أدخل عنوان الدورة.",
-    "Course description is required.": "أدخل وصفًا مختصرًا للدورة.",
-    "A processed, safe cover image is required.":
-      "ارفع غلافًا صالحًا وآمنًا للدورة قبل إرسالها للمراجعة.",
-    "A paid course needs a valid price.":
-      "أدخل سعرًا صحيحًا للدورة المدفوعة أو اختر أنها مجانية.",
-    "At least one published module and lesson are required.":
-      "أضف وحدة منشورة ودرسًا منشورًا واحدًا على الأقل قبل الإرسال.",
-    "Published video lessons need a duration.":
-      "أدخل مدة صحيحة لكل درس فيديو منشور.",
-    "Enter the required course details and a valid price.":
-      "أدخل معلومات الدورة الأساسية وسعرًا صحيحًا، أو اختر أنها مجانية.",
-    "Choose a valid learning track, grade, specialization, and subject.":
-      "تحقّق من المسار أو الصف أو التخصص أو المادة التي اخترتها.",
-    "Only editable draft courses with complete details can be updated.":
-      "لا يمكن تعديل هذه الدورة إلا إذا كانت مسودة أو بحاجة إلى تعديل ومعلوماتها الأساسية مكتملة.",
-    "This module cannot be updated.": "تعذّر تعديل هذه الوحدة.",
-    "Only an editable unit can be duplicated.":
-      "يمكن تكرار الوحدات القابلة للتحرير فقط.",
-    "Request failed.": "تعذّر تنفيذ الطلب. حاول مرة أخرى.",
-    "Unable to initialize request security.":
-      "تعذّر تهيئة حماية الطلب. حدّث الصفحة ثم حاول مرة أخرى.",
-    Forbidden:
-      "ليس لديك صلاحية لتنفيذ هذه العملية أو أن الدورة لم تعد قابلة للتحرير.",
-    "Bad Request": "البيانات المدخلة غير صحيحة. راجع الحقول وحاول مرة أخرى.",
-  };
-
-  return messages[message] ?? message;
+function localizeCourseMessage(message: string, t: TeacherCourseTranslations) {
+  const translations = new Map<string, () => string>([
+    ["Course title is required.", () => t("courseErrors.courseTitleRequired")],
+    [
+      "Course description is required.",
+      () => t("courseErrors.courseDescriptionRequired"),
+    ],
+    [
+      "A processed, safe cover image is required.",
+      () => t("courseErrors.safeCoverRequired"),
+    ],
+    [
+      "A paid course needs a valid price.",
+      () => t("courseErrors.validPaidPriceRequired"),
+    ],
+    [
+      "At least one published module and lesson are required.",
+      () => t("courseErrors.publishedContentRequired"),
+    ],
+    [
+      "Published video lessons need a duration.",
+      () => t("courseErrors.videoDurationRequired"),
+    ],
+    [
+      "Enter the required course details and a valid price.",
+      () => t("courseErrors.requiredDetailsAndPrice"),
+    ],
+    [
+      "Choose a valid learning track, grade, specialization, and subject.",
+      () => t("courseErrors.validTaxonomyRequired"),
+    ],
+    [
+      "Only editable draft courses with complete details can be updated.",
+      () => t("courseErrors.editableCourseRequired"),
+    ],
+    [
+      "This module cannot be updated.",
+      () => t("courseErrors.moduleCannotUpdate"),
+    ],
+    [
+      "Only an editable unit can be duplicated.",
+      () => t("courseErrors.editableUnitRequired"),
+    ],
+    ["Request failed.", () => t("courseEditor.requestFailed")],
+    [
+      "Unable to initialize request security.",
+      () => t("courseErrors.requestSecurityFailed"),
+    ],
+    ["Forbidden", () => t("courseErrors.forbidden")],
+    ["Bad Request", () => t("courseErrors.badRequest")],
+  ]);
+  return translations.get(message)?.() ?? message;
 }
 
 function statusLabel(status: string, t: TeacherCourseTranslations) {

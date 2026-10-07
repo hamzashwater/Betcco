@@ -15,6 +15,8 @@ const parityNamespaces = [
   "auth.studentEmailChange",
   "studentWorkspace",
   "teacherWorkspace",
+  "teacherCoursesManagement",
+  "teacherStudentFollowUp",
 ] as const;
 
 function namespaceValue(value: unknown, namespace: string): unknown {
@@ -63,9 +65,17 @@ describe("shared shell, authentication, account, student, and teacher workspace 
       "src/features/teacher/course-editor.tsx",
       "utf8",
     );
-    const editorKeys = [...editorSource.matchAll(/\bt\(\s*"([^"]+)"/gu)].map(
-      (match) => match[1],
-    );
+    const practiceSources = [
+      "src/features/teacher/practice-presentation.ts",
+      "src/features/teacher/file-picker-copy.ts",
+      "src/features/learning/learning-aim-practice.tsx",
+      "src/features/learning/comprehensive-practice.tsx",
+    ]
+      .map((path) => readFileSync(path, "utf8"))
+      .join("\n");
+    const editorKeys = [
+      ...(editorSource + practiceSources).matchAll(/\bt\(\s*"([^"]+)"/gu),
+    ].map((match) => match[1]);
     expect([...new Set([...usedKeys, ...editorKeys])].sort()).toEqual(
       shape(englishMessages.teacherWorkspace).sort(),
     );

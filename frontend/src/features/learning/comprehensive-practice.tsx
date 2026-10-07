@@ -5,10 +5,15 @@ import { Action } from "@/components/ui/action";
 import { QueryState, MutationOutcome } from "@/components/ui/query-state";
 import styles from "./student-practice-presentation.module.css";
 import { FilePicker } from "@/components/forms/file-picker";
+import { teacherFilePickerCopy } from "@/features/teacher/file-picker-copy";
 import { ApiError, api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
+import {
+  unitPracticeStatus,
+  unitTrainingOutcome,
+} from "@/features/teacher/practice-presentation";
 
 const tr = (locale: string, ar: string, en: string) =>
   locale === "ar" ? ar : en;
@@ -519,6 +524,7 @@ export function TeacherComprehensivePractice({
   courseId: string;
   modules: TeacherModule[];
 }) {
+  const t = useTranslations("teacherWorkspace");
   const locale = useLocale();
   const client = useQueryClient();
   const [moduleId, setModuleId] = useState("");
@@ -578,23 +584,21 @@ export function TeacherComprehensivePractice({
   return (
     <section
       className="grid gap-4 rounded-2xl border border-primary/25 p-4"
-      aria-label={tr(locale, "التدريب النهائي للوحدات", "Final Unit Practice")}
+      aria-label={t("practice.finalUnitPractice")}
     >
       <div>
         <h3 className="text-lg font-black">
-          {tr(locale, "التدريب النهائي للوحدات", "Final Unit Practice")}
+          {t("practice.finalUnitPractice")}
         </h3>
         <p className="text-sm text-muted">
-          {tr(
-            locale,
-            "مهمة تدريبية تكوينية لكل وحدة، تُراجع بعد إكمال أهداف التعلم.",
-            "One formative Practice per Unit, reviewed after all Learning Aims are complete.",
+          {t(
+            "practice.oneFormativePracticePerUnitReviewedAfterAllLearningAimsAreComplete",
           )}
         </p>
       </div>
       {practices.isPending || submissions.isPending ? (
         <p aria-busy="true" className="text-sm text-muted">
-          {tr(locale, "جارٍ التحميل…", "Loading…")}
+          {t("deadlineExtensions.loading")}
         </p>
       ) : null}
       {units.map((unit) => {
@@ -614,8 +618,8 @@ export function TeacherComprehensivePractice({
                 <p className="text-sm text-muted">
                   {tr(locale, practice.arabicTitle, practice.englishTitle)} ·{" "}
                   {practice.isPublished
-                    ? tr(locale, "منشور", "Published")
-                    : tr(locale, "مسودة غير منشورة", "Unpublished draft")}
+                    ? t("announcements.published")
+                    : t("practice.unpublishedDraft")}
                 </p>
                 {!practice.isPublished ? (
                   <TeacherComprehensiveAuthoring
@@ -648,7 +652,7 @@ export function TeacherComprehensivePractice({
                 onClick={() => setModuleId(unit.id)}
                 className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 text-sm font-bold text-primary"
               >
-                {tr(locale, "إنشاء مهمة الوحدة", "Create Unit Practice")}
+                {t("practice.createUnitPractice")}
               </button>
             )}
           </div>
@@ -662,27 +666,17 @@ export function TeacherComprehensivePractice({
             if (!create.isPending) create.mutate();
           }}
         >
-          <h4 className="font-bold">
-            {tr(locale, "مهمة تدريبية جديدة للوحدة", "New Final Unit Practice")}
-          </h4>
+          <h4 className="font-bold">{t("practice.newFinalUnitPractice")}</h4>
           {(
             [
-              ["arabicTitle", "العنوان بالعربية", "Arabic title"],
-              ["englishTitle", "العنوان بالإنجليزية", "English title"],
-              [
-                "arabicInstructions",
-                "التعليمات بالعربية",
-                "Arabic instructions",
-              ],
-              [
-                "englishInstructions",
-                "التعليمات بالإنجليزية",
-                "English instructions",
-              ],
+              ["arabicTitle", t("courseDetails.arabicTitle")],
+              ["englishTitle", t("courseDetails.englishTitle")],
+              ["arabicInstructions", t("practice.arabicInstructions")],
+              ["englishInstructions", t("practice.englishInstructions")],
             ] as const
-          ).map(([key, ar, en]) => (
+          ).map(([key, label]) => (
             <label key={key} className="grid gap-1 text-sm">
-              {tr(locale, ar, en)}
+              {label}
               <textarea
                 required
                 maxLength={key.includes("Instructions") ? 4000 : 256}
@@ -698,7 +692,7 @@ export function TeacherComprehensivePractice({
             </label>
           ))}
           <label className="grid gap-1 text-sm">
-            {tr(locale, "الموعد النهائي (اختياري)", "Deadline (optional)")}
+            {t("practice.deadlineOptional")}
             <input
               type="datetime-local"
               value={form.dueAt}
@@ -716,7 +710,7 @@ export function TeacherComprehensivePractice({
             disabled={create.isPending}
             className="focus-ring w-fit rounded-xl bg-primary px-4 py-2 font-bold text-slate-950 disabled:opacity-50"
           >
-            {tr(locale, "حفظ المهمة", "Save Practice")}
+            {t("practice.savePractice")}
           </button>
           {create.isError ? (
             <p role="alert" className="text-sm text-red-400">
@@ -727,11 +721,7 @@ export function TeacherComprehensivePractice({
       ) : null}
       {practices.isError || submissions.isError ? (
         <p role="alert" className="text-sm text-red-400">
-          {tr(
-            locale,
-            "تعذر تحميل مهام الوحدة.",
-            "Unit Practice could not be loaded.",
-          )}
+          {t("practice.unitPracticeCouldNotBeLoaded")}
         </p>
       ) : null}
     </section>
@@ -753,7 +743,7 @@ function TeacherComprehensiveAuthoring({
   practice: TeacherPractice;
   onChanged: () => void;
 }) {
-  const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const [form, setForm] = useState({
     arabicTitle: practice.arabicTitle,
     englishTitle: practice.englishTitle,
@@ -786,10 +776,8 @@ function TeacherComprehensiveAuthoring({
   return (
     <div className="grid gap-3 rounded-lg border border-border p-3">
       <p className="text-sm text-muted">
-        {tr(
-          locale,
-          "أكمل إعداد المهمة والمواد والمعايير، ثم انشرها للطلاب.",
-          "Finish the task, resources and criteria before publishing for learners.",
+        {t(
+          "practice.finishTheTaskResourcesAndCriteriaBeforePublishingForLearners",
         )}
       </p>
       <form
@@ -801,18 +789,14 @@ function TeacherComprehensiveAuthoring({
       >
         {(
           [
-            ["arabicTitle", "العنوان بالعربية", "Arabic title"],
-            ["englishTitle", "العنوان بالإنجليزية", "English title"],
-            ["arabicInstructions", "التعليمات بالعربية", "Arabic instructions"],
-            [
-              "englishInstructions",
-              "التعليمات بالإنجليزية",
-              "English instructions",
-            ],
+            ["arabicTitle", t("courseDetails.arabicTitle")],
+            ["englishTitle", t("courseDetails.englishTitle")],
+            ["arabicInstructions", t("practice.arabicInstructions")],
+            ["englishInstructions", t("practice.englishInstructions")],
           ] as const
-        ).map(([key, ar, en]) => (
+        ).map(([key, label]) => (
           <label key={key} className="grid gap-1 text-sm">
-            {tr(locale, ar, en)}
+            {label}
             <textarea
               required
               maxLength={key.includes("Instructions") ? 4000 : 256}
@@ -828,7 +812,7 @@ function TeacherComprehensiveAuthoring({
           </label>
         ))}
         <label className="grid gap-1 text-sm">
-          {tr(locale, "الموعد النهائي (اختياري)", "Deadline (optional)")}
+          {t("practice.deadlineOptional")}
           <input
             type="datetime-local"
             value={form.dueAt}
@@ -843,12 +827,12 @@ function TeacherComprehensiveAuthoring({
           disabled={update.isPending || publish.isPending}
           className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 font-bold text-primary disabled:opacity-50"
         >
-          {tr(locale, "حفظ التعديلات", "Save changes")}
+          {t("courseDetails.save")}
         </button>
       </form>
       {update.isSuccess ? (
         <p role="status" className="text-sm text-primary">
-          {tr(locale, "حُفظت التعديلات.", "Changes saved.")}
+          {t("practice.changesSaved")}
         </p>
       ) : null}
       {update.isError ? (
@@ -862,7 +846,7 @@ function TeacherComprehensiveAuthoring({
         onClick={() => publish.mutate()}
         className="focus-ring w-fit rounded-xl bg-primary px-4 py-2 font-bold text-slate-950 disabled:opacity-50"
       >
-        {tr(locale, "نشر مهمة الوحدة", "Publish Unit Practice")}
+        {t("practice.publishUnitPractice")}
       </button>
       {publish.isError ? (
         <p role="alert" className="text-sm text-red-400">
@@ -880,6 +864,7 @@ function TeacherComprehensiveResources({
   practice: TeacherPractice;
   onChanged: () => void;
 }) {
+  const t = useTranslations("teacherWorkspace");
   const locale = useLocale();
   const [files, setFiles] = useState<File[]>([]);
   const upload = useMutation({
@@ -900,9 +885,7 @@ function TeacherComprehensiveResources({
   });
   return (
     <div className="grid gap-2 text-sm">
-      <p className="font-bold">
-        {tr(locale, "مواد مساعدة", "Supporting materials")}
-      </p>
+      <p className="font-bold">{t("practice.supportingMaterials")}</p>
       {practice.resources.map((resource) => (
         <a
           key={resource.id}
@@ -913,14 +896,15 @@ function TeacherComprehensiveResources({
         </a>
       ))}
       <FilePicker
-        label={tr(locale, "ملفات مساعدة", "Resource files")}
+        copy={teacherFilePickerCopy(t)}
+        label={t("practice.resourceFiles")}
         files={files}
         onFilesChange={setFiles}
         locale={locale}
         multiple
         accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg,.zip,.txt"
         maxFileBytes={100 * 1024 * 1024}
-        chooseLabel={tr(locale, "اختيار ملفات", "Choose files")}
+        chooseLabel={t("lesson.chooseFiles")}
       />
       <button
         type="button"
@@ -928,7 +912,7 @@ function TeacherComprehensiveResources({
         onClick={() => upload.mutate()}
         className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 font-bold text-primary disabled:opacity-50"
       >
-        {tr(locale, "رفع المواد", "Upload resources")}
+        {t("practice.uploadResources")}
       </button>
       {upload.isError ? (
         <p role="alert" className="text-red-400">
@@ -948,6 +932,7 @@ function TeacherComprehensiveCriteria({
   unit: TeacherModule;
   onChanged: () => void;
 }) {
+  const t = useTranslations("teacherWorkspace");
   const locale = useLocale();
   const [criterionId, setCriterionId] = useState("");
   const add = useMutation({
@@ -972,11 +957,7 @@ function TeacherComprehensiveCriteria({
   return (
     <div className="grid gap-2 text-sm">
       <p className="font-bold">
-        {tr(
-          locale,
-          "المعايير المرجعية للوحدة",
-          "Unit criteria for training context",
-        )}
+        {t("practice.unitCriteriaForTrainingContext")}
       </p>
       {practice.criteria.length ? (
         <p>{practice.criteria.map((criterion) => criterion.code).join(", ")}</p>
@@ -984,19 +965,13 @@ function TeacherComprehensiveCriteria({
       {available.length ? (
         <div className="flex flex-wrap gap-2">
           <label className="grid gap-1">
-            {tr(
-              locale,
-              "اختر معيارًا من الوحدة",
-              "Choose a criterion from this Unit",
-            )}
+            {t("practice.chooseACriterionFromThisUnit")}
             <select
               value={criterionId}
               onChange={(event) => setCriterionId(event.target.value)}
               className="w-full max-w-full rounded-lg border border-border bg-surface-solid p-2"
             >
-              <option value="">
-                {tr(locale, "اختر معيارًا", "Select criterion")}
-              </option>
+              <option value="">{t("practice.selectCriterion")}</option>
               {available.map((criterion) => (
                 <option key={criterion.id} value={criterion.id}>
                   {criterion.code} ·{" "}
@@ -1015,16 +990,12 @@ function TeacherComprehensiveCriteria({
             onClick={() => add.mutate()}
             className="focus-ring self-end rounded-lg border border-primary/40 px-3 py-2 font-bold text-primary disabled:opacity-50"
           >
-            {tr(locale, "ربط المعيار", "Attach criterion")}
+            {t("assignmentCard.attachCriterion")}
           </button>
         </div>
       ) : (
         <p className="text-muted">
-          {tr(
-            locale,
-            "لا تتوفر معايير أكاديمية إضافية في بيانات هذه الوحدة.",
-            "No additional canonical criteria are available for this Unit.",
-          )}
+          {t("practice.noAdditionalCanonicalCriteriaAreAvailableForThisUnit")}
         </p>
       )}
       {add.isError ? (
@@ -1043,7 +1014,7 @@ function TeacherComprehensiveReview({
   submission: TeacherSubmission;
   onChanged: () => void;
 }) {
-  const locale = useLocale();
+  const t = useTranslations("teacherWorkspace");
   const [form, setForm] = useState({
     trainingOutcome: "Pass",
     strengths: "",
@@ -1061,8 +1032,8 @@ function TeacherComprehensiveReview({
   return (
     <article className="grid gap-2 rounded-lg bg-white/5 p-3 text-sm">
       <p>
-        {tr(locale, "الطالب", "Learner")}: {submission.studentUserId} ·{" "}
-        {statusLabel(locale, submission.status)}
+        {t("practice.learner")}: {submission.studentUserId} ·{" "}
+        {unitPracticeStatus(submission.status, t)}
       </p>
       {submission.files.map((file) => (
         <a
@@ -1076,8 +1047,8 @@ function TeacherComprehensiveReview({
       {submission.trainingOutcome ? (
         <div className="grid gap-1">
           <p>
-            {tr(locale, "النتيجة التدريبية", "Training Outcome")}:{" "}
-            {outcomeLabel(locale, submission.trainingOutcome)}
+            {t("practice.trainingOutcome")}:{" "}
+            {unitTrainingOutcome(submission.trainingOutcome, t)}
           </p>
           <p>{submission.trainingStrengths}</p>
           <p>{submission.trainingGaps}</p>
@@ -1093,7 +1064,7 @@ function TeacherComprehensiveReview({
           }}
         >
           <label className="grid gap-1">
-            {tr(locale, "النتيجة التدريبية", "Training Outcome")}
+            {t("practice.trainingOutcome")}
             <select
               value={form.trainingOutcome}
               onChange={(event) =>
@@ -1107,7 +1078,7 @@ function TeacherComprehensiveReview({
               {["NotYetAchieved", "Pass", "Merit", "Distinction"].map(
                 (value) => (
                   <option key={value} value={value}>
-                    {outcomeLabel(locale, value)}
+                    {unitTrainingOutcome(value, t)}
                   </option>
                 ),
               )}
@@ -1115,17 +1086,13 @@ function TeacherComprehensiveReview({
           </label>
           {(
             [
-              ["strengths", "نقاط القوة", "Strengths"],
-              ["gaps", "الفجوات والأدلة الناقصة", "Gaps / missing evidence"],
-              [
-                "improvementGuidance",
-                "إرشادات التحسين",
-                "Improvement guidance",
-              ],
+              ["strengths", t("practice.strengths")],
+              ["gaps", t("practice.gapsMissingEvidence")],
+              ["improvementGuidance", t("practice.improvementGuidance")],
             ] as const
-          ).map(([key, ar, en]) => (
+          ).map(([key, label]) => (
             <label key={key} className="grid gap-1">
-              {tr(locale, ar, en)}
+              {label}
               <textarea
                 required
                 maxLength={4000}
@@ -1145,16 +1112,12 @@ function TeacherComprehensiveReview({
             disabled={review.isPending}
             className="focus-ring w-fit rounded-xl bg-primary px-4 py-2 font-bold text-slate-950 disabled:opacity-50"
           >
-            {tr(locale, "اعتماد المراجعة", "Finalize review")}
+            {t("practice.finalizeReview")}
           </button>
           {review.isError ? (
             <p role="alert" className="text-red-400">
               {review.error instanceof ApiError && review.error.status === 409
-                ? tr(
-                    locale,
-                    "اعتمدت مراجعة أخرى هذه المهمة. حدّث الصفحة.",
-                    "Another review finalized this Practice. Refresh the page.",
-                  )
+                ? t("practice.anotherReviewFinalizedThisPracticeRefreshThePage")
                 : review.error.message}
             </p>
           ) : null}
