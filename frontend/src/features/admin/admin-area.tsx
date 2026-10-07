@@ -1029,7 +1029,7 @@ type BulkStudentActionResult = {
 };
 
 function StudentManagement() {
-  const locale = useLocale();
+  const t = useTranslations("adminWorkspace");
   const client = useQueryClient();
   const [search, setSearch] = useState("");
   const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
@@ -1148,25 +1148,14 @@ function StudentManagement() {
   const allVisibleStudentsSelected =
     visibleStudentIds.length > 0 &&
     selectedVisibleStudentIds.length === visibleStudentIds.length;
-  const bulkActionLabel = (action: BulkStudentAction) => {
-    if (locale === "ar") {
-      return action === "approve"
-        ? "تأكيد الحسابات المحددة"
-        : action === "freeze"
-          ? "تجميد الحسابات المحددة"
-          : action === "unfreeze"
-            ? "إلغاء تجميد الحسابات المحددة"
-            : "حذف الحسابات المحددة";
-    }
-
-    return action === "approve"
-      ? "Approve selected accounts"
+  const bulkActionLabel = (action: BulkStudentAction) =>
+    action === "approve"
+      ? t("students.bulkActions.approve")
       : action === "freeze"
-        ? "Freeze selected accounts"
+        ? t("students.bulkActions.freeze")
         : action === "unfreeze"
-          ? "Unfreeze selected accounts"
-          : "Delete selected accounts";
-  };
+          ? t("students.bulkActions.unfreeze")
+          : t("students.bulkActions.delete");
   const toggleStudentSelection = (studentId: string) => {
     setLastBulkResult(null);
     setSelectedStudentIds((current) =>
@@ -1183,13 +1172,9 @@ function StudentManagement() {
   return (
     <section className="shell py-10">
       <DashboardHeader
-        eyebrow="BETCCO Control Center"
-        title={locale === "ar" ? "إدارة الطلاب" : "Student management"}
-        description={
-          locale === "ar"
-            ? "ابحث عن الطالب، ثم أعد ضبط ربط الجهاز عند الحاجة مع تسجيل سبب الإجراء."
-            : "Find a student and reset a device binding when needed, with a recorded reason."
-        }
+        eyebrow={t("dashboard.eyebrow")}
+        title={t("students.title")}
+        description={t("students.description")}
       />
       <label className="mt-6 flex max-w-xl items-center gap-2 rounded-xl border border-border bg-white/5 px-3 py-2.5">
         <Search size={18} className="text-muted" aria-hidden="true" />
@@ -1200,24 +1185,18 @@ function StudentManagement() {
             setSelectedStudentIds([]);
             setLastBulkResult(null);
           }}
-          placeholder={
-            locale === "ar"
-              ? "ابحث بالاسم أو البريد الإلكتروني"
-              : "Search by name or email"
-          }
+          placeholder={t("students.searchPlaceholder")}
           className="min-w-0 flex-1 border-0 bg-transparent p-0 text-sm outline-none"
-          aria-label={locale === "ar" ? "بحث عن طالب" : "Search students"}
+          aria-label={t("students.searchLabel")}
         />
       </label>
       {students.isPending ? (
         <div className="card mt-5 p-6" aria-busy>
-          …
+          {t("shared.loadingIndicator")}
         </div>
       ) : students.isError ? (
         <p className="card mt-5 p-6 text-sm text-red-500" role="alert">
-          {locale === "ar"
-            ? "تعذر تحميل قائمة الطلاب."
-            : "Unable to load students."}
+          {t("students.loadError")}
         </p>
       ) : (
         <div className="mt-5 grid gap-3">
@@ -1229,20 +1208,14 @@ function StudentManagement() {
                   checked={allVisibleStudentsSelected}
                   onChange={toggleAllVisibleStudents}
                   className="h-5 w-5 rounded border-border accent-primary"
-                  aria-label={
-                    locale === "ar"
-                      ? "تحديد جميع الطلاب الظاهرين"
-                      : "Select all visible students"
-                  }
+                  aria-label={t("students.selectAll")}
                 />
-                {locale === "ar"
-                  ? "تحديد جميع الطلاب الظاهرين"
-                  : "Select all visible students"}
+                {t("students.selectAll")}
               </label>
               <p className="text-xs text-muted">
-                {locale === "ar"
-                  ? `التحديد يقتصر على ${visibleStudentIds.length} حسابًا ظاهرًا في هذه الصفحة.`
-                  : `Selection is limited to the ${visibleStudentIds.length} accounts currently shown.`}
+                {t("students.selectionLimit", {
+                  count: visibleStudentIds.length,
+                })}
               </p>
             </div>
           )}
@@ -1252,9 +1225,9 @@ function StudentManagement() {
               role="status"
             >
               <p className="font-black text-foreground">
-                {locale === "ar"
-                  ? `تم تحديد ${selectedVisibleStudentIds.length} حساب${selectedVisibleStudentIds.length === 1 ? "" : "ات"}.`
-                  : `${selectedVisibleStudentIds.length} account${selectedVisibleStudentIds.length === 1 ? "" : "s"} selected.`}
+                {t("students.selectedCount", {
+                  count: selectedVisibleStudentIds.length,
+                })}
               </p>
               <div className="flex flex-wrap gap-2">
                 <button
@@ -1263,7 +1236,7 @@ function StudentManagement() {
                   className="focus-ring inline-flex items-center gap-2 rounded-xl border border-emerald-400/40 px-3 py-2 text-sm font-bold text-emerald-300 hover:bg-emerald-400/10"
                 >
                   <BadgeCheck size={16} aria-hidden="true" />
-                  {locale === "ar" ? "تأكيد المحددين" : "Approve selected"}
+                  {t("students.approveSelected")}
                 </button>
                 <button
                   type="button"
@@ -1271,7 +1244,7 @@ function StudentManagement() {
                   className="focus-ring inline-flex items-center gap-2 rounded-xl border border-red-400/40 px-3 py-2 text-sm font-bold text-red-300 hover:bg-red-400/10"
                 >
                   <LockKeyhole size={16} aria-hidden="true" />
-                  {locale === "ar" ? "تجميد المحددين" : "Freeze selected"}
+                  {t("students.freezeSelected")}
                 </button>
                 <button
                   type="button"
@@ -1279,9 +1252,7 @@ function StudentManagement() {
                   className="focus-ring inline-flex items-center gap-2 rounded-xl border border-emerald-400/40 px-3 py-2 text-sm font-bold text-emerald-300 hover:bg-emerald-400/10"
                 >
                   <UnlockKeyhole size={16} aria-hidden="true" />
-                  {locale === "ar"
-                    ? "إلغاء تجميد المحددين"
-                    : "Unfreeze selected"}
+                  {t("students.unfreezeSelected")}
                 </button>
                 <button
                   type="button"
@@ -1289,14 +1260,14 @@ function StudentManagement() {
                   className="focus-ring inline-flex items-center gap-2 rounded-xl border border-red-500/50 px-3 py-2 text-sm font-bold text-red-300 hover:bg-red-500/10"
                 >
                   <Trash2 size={16} aria-hidden="true" />
-                  {locale === "ar" ? "حذف المحددين" : "Delete selected"}
+                  {t("students.deleteSelected")}
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedStudentIds([])}
                   className="focus-ring rounded-xl border border-border px-3 py-2 text-sm font-bold text-muted hover:text-foreground"
                 >
-                  {locale === "ar" ? "إلغاء التحديد" : "Clear selection"}
+                  {t("students.clearSelection")}
                 </button>
               </div>
             </div>
@@ -1312,11 +1283,9 @@ function StudentManagement() {
                   checked={selectedStudentIds.includes(student.id)}
                   onChange={() => toggleStudentSelection(student.id)}
                   className="mt-1 h-5 w-5 shrink-0 rounded border-border accent-primary"
-                  aria-label={
-                    locale === "ar"
-                      ? `تحديد حساب ${student.displayName}`
-                      : `Select ${student.displayName}`
-                  }
+                  aria-label={t("students.selectStudent", {
+                    name: student.displayName,
+                  })}
                 />
                 <div className="min-w-0">
                   <p className="truncate font-black text-foreground">
@@ -1327,14 +1296,9 @@ function StudentManagement() {
                   </p>
                   <p className="mt-2 text-xs text-muted">
                     {student.emailConfirmed
-                      ? locale === "ar"
-                        ? "البريد مؤكّد"
-                        : "Email verified"
-                      : locale === "ar"
-                        ? "البريد غير مؤكّد"
-                        : "Email unverified"}
-                    {student.isFrozen &&
-                      ` · ${locale === "ar" ? "الحساب مجمّد" : "Account frozen"}`}
+                      ? t("students.emailVerified")
+                      : t("students.emailUnverified")}
+                    {student.isFrozen && ` · ${t("students.accountFrozen")}`}
                   </p>
                 </div>
               </div>
@@ -1342,7 +1306,7 @@ function StudentManagement() {
                 {student.emailConfirmed ? (
                   <span className="inline-flex items-center gap-2 rounded-xl border border-emerald-400/30 px-4 py-2.5 text-sm font-bold text-emerald-300">
                     <BadgeCheck size={16} aria-hidden="true" />
-                    {locale === "ar" ? "الحساب مؤكّد" : "Account approved"}
+                    {t("students.accountApproved")}
                   </span>
                 ) : (
                   <button
@@ -1352,7 +1316,7 @@ function StudentManagement() {
                     className="focus-ring inline-flex items-center gap-2 rounded-xl border border-emerald-400/40 px-4 py-2.5 text-sm font-bold text-emerald-300 hover:bg-emerald-400/10 disabled:cursor-wait disabled:opacity-50"
                   >
                     <BadgeCheck size={16} aria-hidden="true" />
-                    {locale === "ar" ? "تأكيد الحساب" : "Approve account"}
+                    {t("students.approve")}
                   </button>
                 )}
                 <button
@@ -1372,12 +1336,8 @@ function StudentManagement() {
                     <LockKeyhole size={16} aria-hidden="true" />
                   )}
                   {student.isFrozen
-                    ? locale === "ar"
-                      ? "إلغاء التجميد"
-                      : "Unfreeze"
-                    : locale === "ar"
-                      ? "تجميد الحساب"
-                      : "Freeze account"}
+                    ? t("students.unfreeze")
+                    : t("students.freeze")}
                 </button>
                 <button
                   type="button"
@@ -1389,7 +1349,7 @@ function StudentManagement() {
                   className="focus-ring inline-flex items-center gap-2 rounded-xl border border-amber-400/40 px-4 py-2.5 text-sm font-bold text-amber-300 hover:bg-amber-400/10 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <RotateCcw size={16} aria-hidden="true" />
-                  {locale === "ar" ? "إعادة ضبط الجهاز" : "Reset device"}
+                  {t("students.resetDevice")}
                 </button>
                 <button
                   type="button"
@@ -1398,17 +1358,13 @@ function StudentManagement() {
                   className="focus-ring inline-flex items-center gap-2 rounded-xl border border-red-500/50 px-4 py-2.5 text-sm font-bold text-red-300 hover:bg-red-500/10 disabled:cursor-wait disabled:opacity-50"
                 >
                   <Trash2 size={16} aria-hidden="true" />
-                  {locale === "ar" ? "حذف الحساب" : "Delete account"}
+                  {t("students.delete")}
                 </button>
               </div>
             </article>
           ))}
           {!students.data?.items.length && (
-            <p className="card p-6 text-sm text-muted">
-              {locale === "ar"
-                ? "لا يوجد طلاب مطابقون للبحث."
-                : "No matching students found."}
-            </p>
+            <p className="card p-6 text-sm text-muted">{t("students.empty")}</p>
           )}
         </div>
       )}
@@ -1418,9 +1374,7 @@ function StudentManagement() {
         deleteStudent.isError ||
         bulkStudentAction.isError) && (
         <p role="alert" className="mt-4 text-sm text-red-400">
-          {locale === "ar"
-            ? "تعذر تنفيذ الإجراء على حساب الطالب."
-            : "Unable to update the student account."}
+          {t("students.actionError")}
         </p>
       )}
       {lastBulkResult && (
@@ -1428,9 +1382,11 @@ function StudentManagement() {
           role={lastBulkResult.failedIds.length ? "alert" : "status"}
           className={`mt-4 text-sm ${lastBulkResult.failedIds.length ? "text-amber-300" : "text-emerald-300"}`}
         >
-          {locale === "ar"
-            ? `${bulkActionLabel(lastBulkResult.action)}: نجح ${lastBulkResult.succeededIds.length} حساب${lastBulkResult.failedIds.length ? `، وتعذر تنفيذ الإجراء على ${lastBulkResult.failedIds.length} حساب.` : "."}`
-            : `${bulkActionLabel(lastBulkResult.action)}: ${lastBulkResult.succeededIds.length} account${lastBulkResult.succeededIds.length === 1 ? "" : "s"} updated${lastBulkResult.failedIds.length ? `; ${lastBulkResult.failedIds.length} could not be updated.` : "."}`}
+          {t("students.bulkResult", {
+            action: bulkActionLabel(lastBulkResult.action),
+            succeeded: lastBulkResult.succeededIds.length,
+            failed: lastBulkResult.failedIds.length,
+          })}
         </p>
       )}
 
@@ -1457,13 +1413,13 @@ function StudentManagement() {
               {bulkActionLabel(pendingBulkAction)}
             </h2>
             <p className="mt-3 text-sm leading-6 text-muted">
-              {locale === "ar"
-                ? pendingBulkAction === "delete"
-                  ? `سيُحذف ${selectedVisibleStudentIds.length} حساب${selectedVisibleStudentIds.length === 1 ? "" : "ات"} محدد نهائيًا ولن يستطيع أصحابها تسجيل الدخول. لا يمكن التراجع عن الحذف، بينما تبقى سجلات الدفع والتدقيق اللازمة للمراجعة محفوظة.`
-                  : `سيُنفَّذ هذا الإجراء على ${selectedVisibleStudentIds.length} حساب${selectedVisibleStudentIds.length === 1 ? "" : "ات"} محدد فقط. يسجل النظام كل تغيير في سجل التدقيق، ولا يشمل الحذف أو إعادة ضبط الأجهزة.`
-                : pendingBulkAction === "delete"
-                  ? `${selectedVisibleStudentIds.length} selected account${selectedVisibleStudentIds.length === 1 ? " will" : "s will"} be permanently deleted and unable to sign in. This cannot be undone; required payment and audit records remain available for review.`
-                  : `This action will affect only the ${selectedVisibleStudentIds.length} selected account${selectedVisibleStudentIds.length === 1 ? "" : "s"}. Each change is recorded in the audit log; deletion and device resets are excluded.`}
+              {pendingBulkAction === "delete"
+                ? t("students.bulkDeleteWarning", {
+                    count: selectedVisibleStudentIds.length,
+                  })
+                : t("students.bulkActionWarning", {
+                    count: selectedVisibleStudentIds.length,
+                  })}
             </p>
             <div className="mt-6 flex flex-wrap justify-end gap-3">
               <button
@@ -1472,7 +1428,7 @@ function StudentManagement() {
                 onClick={() => setPendingBulkAction(null)}
                 className="focus-ring rounded-xl border border-border px-4 py-2.5 text-sm font-bold"
               >
-                {locale === "ar" ? "إلغاء" : "Cancel"}
+                {t("shared.cancel")}
               </button>
               <button
                 type="submit"
@@ -1480,10 +1436,8 @@ function StudentManagement() {
                 className={`focus-ring rounded-xl px-4 py-2.5 text-sm font-black disabled:cursor-wait disabled:opacity-60 ${pendingBulkAction === "delete" ? "bg-red-500 text-white" : "bg-primary text-slate-950"}`}
               >
                 {bulkStudentAction.isPending
-                  ? "…"
-                  : locale === "ar"
-                    ? "تأكيد الإجراء"
-                    : "Confirm action"}
+                  ? t("shared.loadingIndicator")
+                  : t("students.confirmAction")}
               </button>
             </div>
           </form>
@@ -1505,22 +1459,14 @@ function StudentManagement() {
               });
             }}
             className="glass-panel w-full max-w-lg p-6 shadow-2xl"
-            aria-label={
-              locale === "ar" ? "إعادة ضبط جهاز الطالب" : "Reset student device"
-            }
+            aria-label={t("students.resetTitle")}
           >
-            <h2 className="text-xl font-black">
-              {locale === "ar"
-                ? "إعادة ضبط جهاز الطالب"
-                : "Reset student device"}
-            </h2>
+            <h2 className="text-xl font-black">{t("students.resetTitle")}</h2>
             <p className="mt-2 text-sm leading-6 text-muted">
-              {locale === "ar"
-                ? `سيُسمح لـ ${resetTarget.displayName} بتسجيل الدخول من جهاز جديد. اكتب سبب الإجراء ليُحفظ في سجل التدقيق.`
-                : `${resetTarget.displayName} will be able to sign in from a new device. Record a reason for the audit log.`}
+              {t("students.resetWarning", { name: resetTarget.displayName })}
             </p>
             <label className="mt-5 grid gap-2 text-sm font-bold">
-              {locale === "ar" ? "سبب إعادة الضبط" : "Reset reason"}
+              {t("students.resetReason")}
               <textarea
                 value={reason}
                 onChange={(event) => setReason(event.target.value)}
@@ -1532,9 +1478,7 @@ function StudentManagement() {
               <p role="alert" className="mt-3 text-sm text-red-400">
                 {resetDevice.error instanceof Error
                   ? resetDevice.error.message
-                  : locale === "ar"
-                    ? "تعذر إعادة ضبط الجهاز."
-                    : "Unable to reset the device."}
+                  : t("students.resetError")}
               </p>
             )}
             <div className="mt-5 flex flex-wrap justify-end gap-3">
@@ -1544,7 +1488,7 @@ function StudentManagement() {
                 disabled={resetDevice.isPending}
                 className="focus-ring rounded-xl border border-border px-4 py-2.5 text-sm font-bold"
               >
-                {locale === "ar" ? "إلغاء" : "Cancel"}
+                {t("shared.cancel")}
               </button>
               <button
                 type="submit"
@@ -1553,10 +1497,8 @@ function StudentManagement() {
               >
                 <RotateCcw size={16} aria-hidden="true" />
                 {resetDevice.isPending
-                  ? "…"
-                  : locale === "ar"
-                    ? "تأكيد إعادة الضبط"
-                    : "Confirm reset"}
+                  ? t("shared.loadingIndicator")
+                  : t("students.confirmReset")}
               </button>
             </div>
           </form>
@@ -1567,9 +1509,7 @@ function StudentManagement() {
           className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/75 p-4 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
-          aria-label={
-            locale === "ar" ? "حذف حساب طالب" : "Delete student account"
-          }
+          aria-label={t("students.deleteDialogLabel")}
         >
           <form
             onSubmit={(event) => {
@@ -1579,20 +1519,16 @@ function StudentManagement() {
             className="glass-panel w-full max-w-lg p-6 shadow-2xl"
           >
             <h2 className="text-xl font-black text-red-300">
-              {locale === "ar" ? "حذف حساب الطالب" : "Delete student account"}
+              {t("students.deleteTitle")}
             </h2>
             <p className="mt-3 text-sm leading-6 text-muted">
-              {locale === "ar"
-                ? `سيُحذف حساب ${deleteTarget.displayName} نهائيًا ولن يتمكن من تسجيل الدخول. تبقى سجلات الدفع والتدقيق اللازمة للمراجعة محفوظة.`
-                : `${deleteTarget.displayName}'s account will be permanently deleted and they will no longer be able to sign in. Required payment and audit records remain for review.`}
+              {t("students.deleteWarning", { name: deleteTarget.displayName })}
             </p>
             {deleteStudent.isError && (
               <p role="alert" className="mt-3 text-sm text-red-300">
                 {deleteStudent.error instanceof Error
                   ? deleteStudent.error.message
-                  : locale === "ar"
-                    ? "تعذر حذف الحساب."
-                    : "Unable to delete the account."}
+                  : t("students.deleteError")}
               </p>
             )}
             <div className="mt-6 flex flex-wrap justify-end gap-3">
@@ -1602,7 +1538,7 @@ function StudentManagement() {
                 onClick={() => setDeleteTarget(null)}
                 className="focus-ring rounded-xl border border-border px-4 py-2.5 text-sm font-bold"
               >
-                {locale === "ar" ? "إلغاء" : "Cancel"}
+                {t("shared.cancel")}
               </button>
               <button
                 type="submit"
@@ -1611,10 +1547,8 @@ function StudentManagement() {
               >
                 <Trash2 size={16} aria-hidden="true" />
                 {deleteStudent.isPending
-                  ? "…"
-                  : locale === "ar"
-                    ? "حذف نهائي"
-                    : "Delete permanently"}
+                  ? t("shared.loadingIndicator")
+                  : t("students.confirmDelete")}
               </button>
             </div>
           </form>
@@ -1990,6 +1924,7 @@ function AdminEvaluations() {
   );
 }
 function TeacherInvites() {
+  const t = useTranslations("adminWorkspace");
   const locale = useLocale();
   const client = useQueryClient();
   const [displayName, setName] = useState("");
@@ -2065,28 +2000,20 @@ function TeacherInvites() {
   ).length;
   const formatInvitationDate = (value: string) =>
     formatLocalizedDateTime(value, locale);
-  const invitationStatus = (status: TeacherInvitation["status"]) => {
-    if (locale === "ar") {
-      return {
-        Issued: "صادرة",
-        Accepted: "مقبولة",
-        Expired: "منتهية",
-        Revoked: "ملغاة",
-      }[status];
-    }
-    return status;
-  };
+  const invitationStatus = (status: TeacherInvitation["status"]) =>
+    ({
+      Issued: t("teacherInvites.statuses.Issued"),
+      Accepted: t("teacherInvites.statuses.Accepted"),
+      Expired: t("teacherInvites.statuses.Expired"),
+      Revoked: t("teacherInvites.statuses.Revoked"),
+    })[status];
 
   return (
     <section className="shell py-10">
       <DashboardHeader
-        eyebrow="BETCCO Control Center"
-        title={locale === "ar" ? "إدارة المعلمين" : "Teacher management"}
-        description={
-          locale === "ar"
-            ? "شاهد عدد المعلمين، أرسل الدعوات، وجمّد أو فعّل حساب المعلم عند الحاجة."
-            : "See your teacher count, send invitations, and freeze or reactivate a teacher account when needed."
-        }
+        eyebrow={t("dashboard.eyebrow")}
+        title={t("teacherInvites.title")}
+        description={t("teacherInvites.description")}
       />
       <div className="mt-6 grid gap-5 xl:grid-cols-[minmax(19rem,0.8fr)_minmax(0,1.2fr)]">
         <div className="grid content-start gap-5">
@@ -2098,17 +2025,15 @@ function TeacherInvites() {
             className="card grid gap-4 p-6"
           >
             <h2 className="text-xl font-black">
-              {locale === "ar" ? "دعوة معلم جديد" : "Invite a new teacher"}
+              {t("teacherInvites.inviteTitle")}
             </h2>
             <p className="text-sm text-muted">
-              {locale === "ar"
-                ? "لا يوجد تسجيل ذاتي للمعلم. ترسل الدعوة رابط تعيين كلمة مرور آمن."
-                : "Teachers cannot self-register. The invitation sends a secure password-setting link."}
+              {t("teacherInvites.inviteDescription")}
             </p>
             <input
               value={displayName}
               onChange={(event) => setName(event.target.value)}
-              placeholder={locale === "ar" ? "اسم المعلم" : "Teacher name"}
+              placeholder={t("teacherInvites.namePlaceholder")}
               className="rounded-lg border bg-transparent p-3"
               required
             />
@@ -2116,7 +2041,7 @@ function TeacherInvites() {
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              placeholder="Email"
+              placeholder={t("teacherInvites.emailPlaceholder")}
               className="rounded-lg border bg-transparent p-3"
               required
             />
@@ -2125,34 +2050,34 @@ function TeacherInvites() {
               className="focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-white disabled:cursor-wait disabled:opacity-60"
             >
               {invite.isPending
-                ? "…"
-                : locale === "ar"
-                  ? "إرسال الدعوة"
-                  : "Send invitation"}
+                ? t("shared.loadingIndicator")
+                : t("teacherInvites.send")}
             </button>
             {invite.isSuccess && (
               <p role="status" className="text-emerald-300">
-                {locale === "ar" ? "أرسلت الدعوة." : "Invitation sent."}
+                {t("teacherInvites.sent")}
               </p>
             )}
             {invite.isError && (
               <p role="alert" className="text-red-400">
                 {invite.error instanceof Error
                   ? invite.error.message
-                  : "Request failed."}
+                  : t("teacherInvites.requestError")}
               </p>
             )}
           </form>
           <aside className="card grid content-start gap-4 p-6">
             <p className="text-sm font-bold text-muted">
-              {locale === "ar" ? "إجمالي المعلمين" : "Total teachers"}
+              {t("teacherInvites.totalTeachers")}
             </p>
             <p className="text-5xl font-black text-primary">
-              {teachers.isPending ? "—" : (teachers.data?.totalCount ?? 0)}
+              {teachers.isPending
+                ? t("teacherInvites.pendingCount")
+                : (teachers.data?.totalCount ?? 0)}
             </p>
             <div className="border-t border-border pt-4">
               <p className="text-sm font-bold text-muted">
-                {locale === "ar" ? "معلمون نشطون" : "Active teachers"}
+                {t("teacherInvites.activeTeachers")}
               </p>
               <p className="mt-1 text-2xl font-black">{activeCount}</p>
             </div>
@@ -2160,17 +2085,15 @@ function TeacherInvites() {
         </div>
         <section className="card min-w-0 p-5">
           <h2 className="text-xl font-black">
-            {locale === "ar" ? "حسابات المعلمين" : "Teacher accounts"}
+            {t("teacherInvites.accountsTitle")}
           </h2>
           {teachers.isPending ? (
             <div className="card mt-4 p-6" aria-busy>
-              …
+              {t("shared.loadingIndicator")}
             </div>
           ) : teachers.isError ? (
             <p role="alert" className="card mt-4 p-6 text-sm text-red-400">
-              {locale === "ar"
-                ? "تعذر تحميل قائمة المعلمين."
-                : "Unable to load teachers."}
+              {t("teacherInvites.loadError")}
             </p>
           ) : (
             <div className="mt-4 grid gap-3">
@@ -2186,12 +2109,8 @@ function TeacherInvites() {
                     </p>
                     <p className="mt-2 text-xs text-muted">
                       {teacher.isFrozen
-                        ? locale === "ar"
-                          ? "الحساب مجمّد"
-                          : "Account frozen"
-                        : locale === "ar"
-                          ? "الحساب نشط"
-                          : "Account active"}
+                        ? t("teacherInvites.accountFrozen")
+                        : t("teacherInvites.accountActive")}
                     </p>
                   </div>
                   <button
@@ -2211,18 +2130,14 @@ function TeacherInvites() {
                       <LockKeyhole size={16} aria-hidden="true" />
                     )}
                     {teacher.isFrozen
-                      ? locale === "ar"
-                        ? "تفعيل الحساب"
-                        : "Activate account"
-                      : locale === "ar"
-                        ? "تجميد الحساب"
-                        : "Freeze account"}
+                      ? t("teacherInvites.activate")
+                      : t("teacherInvites.freeze")}
                   </button>
                 </article>
               ))}
               {!teacherItems.length && (
                 <p className="card p-6 text-sm text-muted">
-                  {locale === "ar" ? "لا يوجد معلمون بعد." : "No teachers yet."}
+                  {t("teacherInvites.empty")}
                 </p>
               )}
             </div>
@@ -2231,9 +2146,7 @@ function TeacherInvites() {
             <p role="alert" className="mt-4 text-sm text-red-400">
               {freezeTeacher.error instanceof Error
                 ? freezeTeacher.error.message
-                : locale === "ar"
-                  ? "تعذر تحديث حالة حساب المعلم."
-                  : "Unable to update the teacher account."}
+                : t("teacherInvites.freezeError")}
             </p>
           )}
         </section>
@@ -2241,33 +2154,27 @@ function TeacherInvites() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-xl font-black">
-                {locale === "ar"
-                  ? "سجل دعوات المعلمين"
-                  : "Teacher invitation history"}
+                {t("teacherInvites.historyTitle")}
               </h2>
               <p className="mt-1 text-sm text-muted">
-                {locale === "ar"
-                  ? "تنتهي الدعوات غير المقبولة تلقائيًا بعد سبعة أيام."
-                  : "Unaccepted invitations expire automatically after seven days."}
+                {t("teacherInvites.historyDescription")}
               </p>
             </div>
             <p className="text-sm text-muted">
               {invitations.isPending
-                ? "…"
-                : locale === "ar"
-                  ? `${invitations.data?.totalCount ?? 0} دعوة`
-                  : `${invitations.data?.totalCount ?? 0} invitation(s)`}
+                ? t("shared.loadingIndicator")
+                : t("teacherInvites.invitationCount", {
+                    count: invitations.data?.totalCount ?? 0,
+                  })}
             </p>
           </div>
           {invitations.isPending ? (
             <div className="card mt-4 p-6" aria-busy>
-              …
+              {t("shared.loadingIndicator")}
             </div>
           ) : invitations.isError ? (
             <p role="alert" className="card mt-4 p-6 text-sm text-red-400">
-              {locale === "ar"
-                ? "تعذر تحميل سجل الدعوات."
-                : "Unable to load invitation history."}
+              {t("teacherInvites.historyError")}
             </p>
           ) : (
             <div className="mt-4 grid gap-3">
@@ -2290,20 +2197,20 @@ function TeacherInvites() {
                     </span>
                   </div>
                   <p className="mt-3 text-xs text-muted">
-                    {locale === "ar" ? "أُرسلت: " : "Issued: "}
+                    {t("teacherInvites.issuedAt")}
                     {formatInvitationDate(invitation.createdAtUtc)} ·{" "}
-                    {locale === "ar" ? "تنتهي: " : "Expires: "}
+                    {t("teacherInvites.expiresAt")}
                     {formatInvitationDate(invitation.expiresAtUtc)}
                   </p>
                   {invitation.acceptedAtUtc && (
                     <p className="mt-1 text-xs text-emerald-300">
-                      {locale === "ar" ? "قُبلت: " : "Accepted: "}
+                      {t("teacherInvites.acceptedAt")}
                       {formatInvitationDate(invitation.acceptedAtUtc)}
                     </p>
                   )}
                   {invitation.revokedAtUtc && (
                     <p className="mt-1 text-xs text-red-300">
-                      {locale === "ar" ? "أُلغيت: " : "Revoked: "}
+                      {t("teacherInvites.revokedAt")}
                       {formatInvitationDate(invitation.revokedAtUtc)}
                     </p>
                   )}
@@ -2318,9 +2225,7 @@ function TeacherInvites() {
                           }))
                         }
                         maxLength={500}
-                        placeholder={
-                          locale === "ar" ? "سبب الإلغاء" : "Revocation reason"
-                        }
+                        placeholder={t("teacherInvites.reasonPlaceholder")}
                         className="min-w-48 flex-1 rounded-lg border bg-transparent p-2 text-sm"
                       />
                       <button
@@ -2337,7 +2242,7 @@ function TeacherInvites() {
                         }
                         className="focus-ring rounded-lg border border-red-400/40 px-3 py-2 text-sm font-bold text-red-300 disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        {locale === "ar" ? "إلغاء الدعوة" : "Revoke invitation"}
+                        {t("teacherInvites.revoke")}
                       </button>
                     </div>
                   )}
@@ -2345,9 +2250,7 @@ function TeacherInvites() {
               ))}
               {!invitationItems.length && (
                 <p className="rounded-xl border border-border p-5 text-sm text-muted">
-                  {locale === "ar"
-                    ? "لا توجد دعوات بعد."
-                    : "No invitations yet."}
+                  {t("teacherInvites.historyEmpty")}
                 </p>
               )}
             </div>
@@ -2356,9 +2259,7 @@ function TeacherInvites() {
             <p role="alert" className="mt-4 text-sm text-red-400">
               {revokeInvitation.error instanceof Error
                 ? revokeInvitation.error.message
-                : locale === "ar"
-                  ? "تعذر إلغاء الدعوة."
-                  : "Unable to revoke the invitation."}
+                : t("teacherInvites.revokeError")}
             </p>
           )}
         </section>

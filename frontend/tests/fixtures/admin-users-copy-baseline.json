@@ -1,0 +1,1327 @@
+{
+  "baseMain": "76fc4deac263645daea28eb6bca4deb537c5f11b",
+  "cases": [
+    {
+      "key": "students.selectionLimit",
+      "values": {
+        "count": 0
+      },
+      "ar": "التحديد يقتصر على 0 حسابًا ظاهرًا في هذه الصفحة.",
+      "en": "Selection is limited to the 0 accounts currently shown."
+    },
+    {
+      "key": "students.selectionLimit",
+      "values": {
+        "count": 1
+      },
+      "ar": "التحديد يقتصر على 1 حسابًا ظاهرًا في هذه الصفحة.",
+      "en": "Selection is limited to the 1 accounts currently shown."
+    },
+    {
+      "key": "students.selectionLimit",
+      "values": {
+        "count": 2
+      },
+      "ar": "التحديد يقتصر على 2 حسابًا ظاهرًا في هذه الصفحة.",
+      "en": "Selection is limited to the 2 accounts currently shown."
+    },
+    {
+      "key": "students.selectionLimit",
+      "values": {
+        "count": 5
+      },
+      "ar": "التحديد يقتصر على 5 حسابًا ظاهرًا في هذه الصفحة.",
+      "en": "Selection is limited to the 5 accounts currently shown."
+    },
+    {
+      "key": "students.selectedCount",
+      "values": {
+        "count": 0
+      },
+      "ar": "تم تحديد 0 حسابات.",
+      "en": "0 accounts selected."
+    },
+    {
+      "key": "students.selectedCount",
+      "values": {
+        "count": 1
+      },
+      "ar": "تم تحديد 1 حساب.",
+      "en": "1 account selected."
+    },
+    {
+      "key": "students.selectedCount",
+      "values": {
+        "count": 2
+      },
+      "ar": "تم تحديد 2 حسابات.",
+      "en": "2 accounts selected."
+    },
+    {
+      "key": "students.selectedCount",
+      "values": {
+        "count": 5
+      },
+      "ar": "تم تحديد 5 حسابات.",
+      "en": "5 accounts selected."
+    },
+    {
+      "key": "students.selectStudent",
+      "values": {
+        "name": "O'Brien {raw} طالب"
+      },
+      "ar": "تحديد حساب O'Brien {raw} طالب",
+      "en": "Select O'Brien {raw} طالب"
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Approve selected accounts",
+        "succeeded": 0,
+        "failed": 0
+      },
+      "arValues": {
+        "action": "تأكيد الحسابات المحددة",
+        "succeeded": 0,
+        "failed": 0
+      },
+      "ar": "تأكيد الحسابات المحددة: نجح 0 حساب.",
+      "en": "Approve selected accounts: 0 accounts updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Approve selected accounts",
+        "succeeded": 0,
+        "failed": 1
+      },
+      "arValues": {
+        "action": "تأكيد الحسابات المحددة",
+        "succeeded": 0,
+        "failed": 1
+      },
+      "ar": "تأكيد الحسابات المحددة: نجح 0 حساب، وتعذر تنفيذ الإجراء على 1 حساب.",
+      "en": "Approve selected accounts: 0 accounts updated; 1 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Approve selected accounts",
+        "succeeded": 0,
+        "failed": 2
+      },
+      "arValues": {
+        "action": "تأكيد الحسابات المحددة",
+        "succeeded": 0,
+        "failed": 2
+      },
+      "ar": "تأكيد الحسابات المحددة: نجح 0 حساب، وتعذر تنفيذ الإجراء على 2 حساب.",
+      "en": "Approve selected accounts: 0 accounts updated; 2 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Approve selected accounts",
+        "succeeded": 1,
+        "failed": 0
+      },
+      "arValues": {
+        "action": "تأكيد الحسابات المحددة",
+        "succeeded": 1,
+        "failed": 0
+      },
+      "ar": "تأكيد الحسابات المحددة: نجح 1 حساب.",
+      "en": "Approve selected accounts: 1 account updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Approve selected accounts",
+        "succeeded": 1,
+        "failed": 1
+      },
+      "arValues": {
+        "action": "تأكيد الحسابات المحددة",
+        "succeeded": 1,
+        "failed": 1
+      },
+      "ar": "تأكيد الحسابات المحددة: نجح 1 حساب، وتعذر تنفيذ الإجراء على 1 حساب.",
+      "en": "Approve selected accounts: 1 account updated; 1 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Approve selected accounts",
+        "succeeded": 1,
+        "failed": 2
+      },
+      "arValues": {
+        "action": "تأكيد الحسابات المحددة",
+        "succeeded": 1,
+        "failed": 2
+      },
+      "ar": "تأكيد الحسابات المحددة: نجح 1 حساب، وتعذر تنفيذ الإجراء على 2 حساب.",
+      "en": "Approve selected accounts: 1 account updated; 2 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Approve selected accounts",
+        "succeeded": 2,
+        "failed": 0
+      },
+      "arValues": {
+        "action": "تأكيد الحسابات المحددة",
+        "succeeded": 2,
+        "failed": 0
+      },
+      "ar": "تأكيد الحسابات المحددة: نجح 2 حساب.",
+      "en": "Approve selected accounts: 2 accounts updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Approve selected accounts",
+        "succeeded": 2,
+        "failed": 1
+      },
+      "arValues": {
+        "action": "تأكيد الحسابات المحددة",
+        "succeeded": 2,
+        "failed": 1
+      },
+      "ar": "تأكيد الحسابات المحددة: نجح 2 حساب، وتعذر تنفيذ الإجراء على 1 حساب.",
+      "en": "Approve selected accounts: 2 accounts updated; 1 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Approve selected accounts",
+        "succeeded": 2,
+        "failed": 2
+      },
+      "arValues": {
+        "action": "تأكيد الحسابات المحددة",
+        "succeeded": 2,
+        "failed": 2
+      },
+      "ar": "تأكيد الحسابات المحددة: نجح 2 حساب، وتعذر تنفيذ الإجراء على 2 حساب.",
+      "en": "Approve selected accounts: 2 accounts updated; 2 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Freeze selected accounts",
+        "succeeded": 0,
+        "failed": 0
+      },
+      "arValues": {
+        "action": "تجميد الحسابات المحددة",
+        "succeeded": 0,
+        "failed": 0
+      },
+      "ar": "تجميد الحسابات المحددة: نجح 0 حساب.",
+      "en": "Freeze selected accounts: 0 accounts updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Freeze selected accounts",
+        "succeeded": 0,
+        "failed": 1
+      },
+      "arValues": {
+        "action": "تجميد الحسابات المحددة",
+        "succeeded": 0,
+        "failed": 1
+      },
+      "ar": "تجميد الحسابات المحددة: نجح 0 حساب، وتعذر تنفيذ الإجراء على 1 حساب.",
+      "en": "Freeze selected accounts: 0 accounts updated; 1 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Freeze selected accounts",
+        "succeeded": 0,
+        "failed": 2
+      },
+      "arValues": {
+        "action": "تجميد الحسابات المحددة",
+        "succeeded": 0,
+        "failed": 2
+      },
+      "ar": "تجميد الحسابات المحددة: نجح 0 حساب، وتعذر تنفيذ الإجراء على 2 حساب.",
+      "en": "Freeze selected accounts: 0 accounts updated; 2 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Freeze selected accounts",
+        "succeeded": 1,
+        "failed": 0
+      },
+      "arValues": {
+        "action": "تجميد الحسابات المحددة",
+        "succeeded": 1,
+        "failed": 0
+      },
+      "ar": "تجميد الحسابات المحددة: نجح 1 حساب.",
+      "en": "Freeze selected accounts: 1 account updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Freeze selected accounts",
+        "succeeded": 1,
+        "failed": 1
+      },
+      "arValues": {
+        "action": "تجميد الحسابات المحددة",
+        "succeeded": 1,
+        "failed": 1
+      },
+      "ar": "تجميد الحسابات المحددة: نجح 1 حساب، وتعذر تنفيذ الإجراء على 1 حساب.",
+      "en": "Freeze selected accounts: 1 account updated; 1 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Freeze selected accounts",
+        "succeeded": 1,
+        "failed": 2
+      },
+      "arValues": {
+        "action": "تجميد الحسابات المحددة",
+        "succeeded": 1,
+        "failed": 2
+      },
+      "ar": "تجميد الحسابات المحددة: نجح 1 حساب، وتعذر تنفيذ الإجراء على 2 حساب.",
+      "en": "Freeze selected accounts: 1 account updated; 2 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Freeze selected accounts",
+        "succeeded": 2,
+        "failed": 0
+      },
+      "arValues": {
+        "action": "تجميد الحسابات المحددة",
+        "succeeded": 2,
+        "failed": 0
+      },
+      "ar": "تجميد الحسابات المحددة: نجح 2 حساب.",
+      "en": "Freeze selected accounts: 2 accounts updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Freeze selected accounts",
+        "succeeded": 2,
+        "failed": 1
+      },
+      "arValues": {
+        "action": "تجميد الحسابات المحددة",
+        "succeeded": 2,
+        "failed": 1
+      },
+      "ar": "تجميد الحسابات المحددة: نجح 2 حساب، وتعذر تنفيذ الإجراء على 1 حساب.",
+      "en": "Freeze selected accounts: 2 accounts updated; 1 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Freeze selected accounts",
+        "succeeded": 2,
+        "failed": 2
+      },
+      "arValues": {
+        "action": "تجميد الحسابات المحددة",
+        "succeeded": 2,
+        "failed": 2
+      },
+      "ar": "تجميد الحسابات المحددة: نجح 2 حساب، وتعذر تنفيذ الإجراء على 2 حساب.",
+      "en": "Freeze selected accounts: 2 accounts updated; 2 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Unfreeze selected accounts",
+        "succeeded": 0,
+        "failed": 0
+      },
+      "arValues": {
+        "action": "إلغاء تجميد الحسابات المحددة",
+        "succeeded": 0,
+        "failed": 0
+      },
+      "ar": "إلغاء تجميد الحسابات المحددة: نجح 0 حساب.",
+      "en": "Unfreeze selected accounts: 0 accounts updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Unfreeze selected accounts",
+        "succeeded": 0,
+        "failed": 1
+      },
+      "arValues": {
+        "action": "إلغاء تجميد الحسابات المحددة",
+        "succeeded": 0,
+        "failed": 1
+      },
+      "ar": "إلغاء تجميد الحسابات المحددة: نجح 0 حساب، وتعذر تنفيذ الإجراء على 1 حساب.",
+      "en": "Unfreeze selected accounts: 0 accounts updated; 1 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Unfreeze selected accounts",
+        "succeeded": 0,
+        "failed": 2
+      },
+      "arValues": {
+        "action": "إلغاء تجميد الحسابات المحددة",
+        "succeeded": 0,
+        "failed": 2
+      },
+      "ar": "إلغاء تجميد الحسابات المحددة: نجح 0 حساب، وتعذر تنفيذ الإجراء على 2 حساب.",
+      "en": "Unfreeze selected accounts: 0 accounts updated; 2 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Unfreeze selected accounts",
+        "succeeded": 1,
+        "failed": 0
+      },
+      "arValues": {
+        "action": "إلغاء تجميد الحسابات المحددة",
+        "succeeded": 1,
+        "failed": 0
+      },
+      "ar": "إلغاء تجميد الحسابات المحددة: نجح 1 حساب.",
+      "en": "Unfreeze selected accounts: 1 account updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Unfreeze selected accounts",
+        "succeeded": 1,
+        "failed": 1
+      },
+      "arValues": {
+        "action": "إلغاء تجميد الحسابات المحددة",
+        "succeeded": 1,
+        "failed": 1
+      },
+      "ar": "إلغاء تجميد الحسابات المحددة: نجح 1 حساب، وتعذر تنفيذ الإجراء على 1 حساب.",
+      "en": "Unfreeze selected accounts: 1 account updated; 1 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Unfreeze selected accounts",
+        "succeeded": 1,
+        "failed": 2
+      },
+      "arValues": {
+        "action": "إلغاء تجميد الحسابات المحددة",
+        "succeeded": 1,
+        "failed": 2
+      },
+      "ar": "إلغاء تجميد الحسابات المحددة: نجح 1 حساب، وتعذر تنفيذ الإجراء على 2 حساب.",
+      "en": "Unfreeze selected accounts: 1 account updated; 2 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Unfreeze selected accounts",
+        "succeeded": 2,
+        "failed": 0
+      },
+      "arValues": {
+        "action": "إلغاء تجميد الحسابات المحددة",
+        "succeeded": 2,
+        "failed": 0
+      },
+      "ar": "إلغاء تجميد الحسابات المحددة: نجح 2 حساب.",
+      "en": "Unfreeze selected accounts: 2 accounts updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Unfreeze selected accounts",
+        "succeeded": 2,
+        "failed": 1
+      },
+      "arValues": {
+        "action": "إلغاء تجميد الحسابات المحددة",
+        "succeeded": 2,
+        "failed": 1
+      },
+      "ar": "إلغاء تجميد الحسابات المحددة: نجح 2 حساب، وتعذر تنفيذ الإجراء على 1 حساب.",
+      "en": "Unfreeze selected accounts: 2 accounts updated; 1 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Unfreeze selected accounts",
+        "succeeded": 2,
+        "failed": 2
+      },
+      "arValues": {
+        "action": "إلغاء تجميد الحسابات المحددة",
+        "succeeded": 2,
+        "failed": 2
+      },
+      "ar": "إلغاء تجميد الحسابات المحددة: نجح 2 حساب، وتعذر تنفيذ الإجراء على 2 حساب.",
+      "en": "Unfreeze selected accounts: 2 accounts updated; 2 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Delete selected accounts",
+        "succeeded": 0,
+        "failed": 0
+      },
+      "arValues": {
+        "action": "حذف الحسابات المحددة",
+        "succeeded": 0,
+        "failed": 0
+      },
+      "ar": "حذف الحسابات المحددة: نجح 0 حساب.",
+      "en": "Delete selected accounts: 0 accounts updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Delete selected accounts",
+        "succeeded": 0,
+        "failed": 1
+      },
+      "arValues": {
+        "action": "حذف الحسابات المحددة",
+        "succeeded": 0,
+        "failed": 1
+      },
+      "ar": "حذف الحسابات المحددة: نجح 0 حساب، وتعذر تنفيذ الإجراء على 1 حساب.",
+      "en": "Delete selected accounts: 0 accounts updated; 1 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Delete selected accounts",
+        "succeeded": 0,
+        "failed": 2
+      },
+      "arValues": {
+        "action": "حذف الحسابات المحددة",
+        "succeeded": 0,
+        "failed": 2
+      },
+      "ar": "حذف الحسابات المحددة: نجح 0 حساب، وتعذر تنفيذ الإجراء على 2 حساب.",
+      "en": "Delete selected accounts: 0 accounts updated; 2 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Delete selected accounts",
+        "succeeded": 1,
+        "failed": 0
+      },
+      "arValues": {
+        "action": "حذف الحسابات المحددة",
+        "succeeded": 1,
+        "failed": 0
+      },
+      "ar": "حذف الحسابات المحددة: نجح 1 حساب.",
+      "en": "Delete selected accounts: 1 account updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Delete selected accounts",
+        "succeeded": 1,
+        "failed": 1
+      },
+      "arValues": {
+        "action": "حذف الحسابات المحددة",
+        "succeeded": 1,
+        "failed": 1
+      },
+      "ar": "حذف الحسابات المحددة: نجح 1 حساب، وتعذر تنفيذ الإجراء على 1 حساب.",
+      "en": "Delete selected accounts: 1 account updated; 1 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Delete selected accounts",
+        "succeeded": 1,
+        "failed": 2
+      },
+      "arValues": {
+        "action": "حذف الحسابات المحددة",
+        "succeeded": 1,
+        "failed": 2
+      },
+      "ar": "حذف الحسابات المحددة: نجح 1 حساب، وتعذر تنفيذ الإجراء على 2 حساب.",
+      "en": "Delete selected accounts: 1 account updated; 2 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Delete selected accounts",
+        "succeeded": 2,
+        "failed": 0
+      },
+      "arValues": {
+        "action": "حذف الحسابات المحددة",
+        "succeeded": 2,
+        "failed": 0
+      },
+      "ar": "حذف الحسابات المحددة: نجح 2 حساب.",
+      "en": "Delete selected accounts: 2 accounts updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Delete selected accounts",
+        "succeeded": 2,
+        "failed": 1
+      },
+      "arValues": {
+        "action": "حذف الحسابات المحددة",
+        "succeeded": 2,
+        "failed": 1
+      },
+      "ar": "حذف الحسابات المحددة: نجح 2 حساب، وتعذر تنفيذ الإجراء على 1 حساب.",
+      "en": "Delete selected accounts: 2 accounts updated; 1 could not be updated."
+    },
+    {
+      "key": "students.bulkResult",
+      "values": {
+        "action": "Delete selected accounts",
+        "succeeded": 2,
+        "failed": 2
+      },
+      "arValues": {
+        "action": "حذف الحسابات المحددة",
+        "succeeded": 2,
+        "failed": 2
+      },
+      "ar": "حذف الحسابات المحددة: نجح 2 حساب، وتعذر تنفيذ الإجراء على 2 حساب.",
+      "en": "Delete selected accounts: 2 accounts updated; 2 could not be updated."
+    },
+    {
+      "key": "students.bulkDeleteWarning",
+      "values": {
+        "count": 1
+      },
+      "ar": "سيُحذف 1 حساب محدد نهائيًا ولن يستطيع أصحابها تسجيل الدخول. لا يمكن التراجع عن الحذف، بينما تبقى سجلات الدفع والتدقيق اللازمة للمراجعة محفوظة.",
+      "en": "1 selected account will be permanently deleted and unable to sign in. This cannot be undone; required payment and audit records remain available for review."
+    },
+    {
+      "key": "students.bulkDeleteWarning",
+      "values": {
+        "count": 2
+      },
+      "ar": "سيُحذف 2 حسابات محدد نهائيًا ولن يستطيع أصحابها تسجيل الدخول. لا يمكن التراجع عن الحذف، بينما تبقى سجلات الدفع والتدقيق اللازمة للمراجعة محفوظة.",
+      "en": "2 selected accounts will be permanently deleted and unable to sign in. This cannot be undone; required payment and audit records remain available for review."
+    },
+    {
+      "key": "students.bulkDeleteWarning",
+      "values": {
+        "count": 5
+      },
+      "ar": "سيُحذف 5 حسابات محدد نهائيًا ولن يستطيع أصحابها تسجيل الدخول. لا يمكن التراجع عن الحذف، بينما تبقى سجلات الدفع والتدقيق اللازمة للمراجعة محفوظة.",
+      "en": "5 selected accounts will be permanently deleted and unable to sign in. This cannot be undone; required payment and audit records remain available for review."
+    },
+    {
+      "key": "students.bulkActionWarning",
+      "values": {
+        "count": 1
+      },
+      "ar": "سيُنفَّذ هذا الإجراء على 1 حساب محدد فقط. يسجل النظام كل تغيير في سجل التدقيق، ولا يشمل الحذف أو إعادة ضبط الأجهزة.",
+      "en": "This action will affect only the 1 selected account. Each change is recorded in the audit log; deletion and device resets are excluded."
+    },
+    {
+      "key": "students.bulkActionWarning",
+      "values": {
+        "count": 2
+      },
+      "ar": "سيُنفَّذ هذا الإجراء على 2 حسابات محدد فقط. يسجل النظام كل تغيير في سجل التدقيق، ولا يشمل الحذف أو إعادة ضبط الأجهزة.",
+      "en": "This action will affect only the 2 selected accounts. Each change is recorded in the audit log; deletion and device resets are excluded."
+    },
+    {
+      "key": "students.bulkActionWarning",
+      "values": {
+        "count": 5
+      },
+      "ar": "سيُنفَّذ هذا الإجراء على 5 حسابات محدد فقط. يسجل النظام كل تغيير في سجل التدقيق، ولا يشمل الحذف أو إعادة ضبط الأجهزة.",
+      "en": "This action will affect only the 5 selected accounts. Each change is recorded in the audit log; deletion and device resets are excluded."
+    },
+    {
+      "key": "students.resetWarning",
+      "values": {
+        "name": "O'Brien {raw} طالب"
+      },
+      "ar": "سيُسمح لـ O'Brien {raw} طالب بتسجيل الدخول من جهاز جديد. اكتب سبب الإجراء ليُحفظ في سجل التدقيق.",
+      "en": "O'Brien {raw} طالب will be able to sign in from a new device. Record a reason for the audit log."
+    },
+    {
+      "key": "students.deleteWarning",
+      "values": {
+        "name": "O'Brien {raw} طالب"
+      },
+      "ar": "سيُحذف حساب O'Brien {raw} طالب نهائيًا ولن يتمكن من تسجيل الدخول. تبقى سجلات الدفع والتدقيق اللازمة للمراجعة محفوظة.",
+      "en": "O'Brien {raw} طالب's account will be permanently deleted and they will no longer be able to sign in. Required payment and audit records remain for review."
+    },
+    {
+      "key": "teacherInvites.invitationCount",
+      "values": {
+        "count": 0
+      },
+      "ar": "0 دعوة",
+      "en": "0 invitation(s)"
+    },
+    {
+      "key": "teacherInvites.invitationCount",
+      "values": {
+        "count": 1
+      },
+      "ar": "1 دعوة",
+      "en": "1 invitation(s)"
+    },
+    {
+      "key": "teacherInvites.invitationCount",
+      "values": {
+        "count": 2
+      },
+      "ar": "2 دعوة",
+      "en": "2 invitation(s)"
+    },
+    {
+      "key": "teacherInvites.invitationCount",
+      "values": {
+        "count": 5
+      },
+      "ar": "5 دعوة",
+      "en": "5 invitation(s)"
+    },
+    {
+      "key": "accountIdentities.revokeConfirmation",
+      "values": {
+        "name": "O'Brien {raw} طالب"
+      },
+      "ar": "سحب صلاحيات مساعد الإدارة من O'Brien {raw} طالب؟ سيُحتفظ بالحساب وتنتهي جميع جلساته.",
+      "en": "Revoke support access for O'Brien {raw} طالب? The account will remain, and all sessions will end."
+    },
+    {
+      "key": "students.bulkActions.approve",
+      "values": {},
+      "ar": "تأكيد الحسابات المحددة",
+      "en": "Approve selected accounts"
+    },
+    {
+      "key": "students.bulkActions.freeze",
+      "values": {},
+      "ar": "تجميد الحسابات المحددة",
+      "en": "Freeze selected accounts"
+    },
+    {
+      "key": "students.bulkActions.unfreeze",
+      "values": {},
+      "ar": "إلغاء تجميد الحسابات المحددة",
+      "en": "Unfreeze selected accounts"
+    },
+    {
+      "key": "students.bulkActions.delete",
+      "values": {},
+      "ar": "حذف الحسابات المحددة",
+      "en": "Delete selected accounts"
+    },
+    {
+      "key": "students.title",
+      "values": {},
+      "ar": "إدارة الطلاب",
+      "en": "Student management"
+    },
+    {
+      "key": "students.description",
+      "values": {},
+      "ar": "ابحث عن الطالب، ثم أعد ضبط ربط الجهاز عند الحاجة مع تسجيل سبب الإجراء.",
+      "en": "Find a student and reset a device binding when needed, with a recorded reason."
+    },
+    {
+      "key": "students.searchPlaceholder",
+      "values": {},
+      "ar": "ابحث بالاسم أو البريد الإلكتروني",
+      "en": "Search by name or email"
+    },
+    {
+      "key": "students.searchLabel",
+      "values": {},
+      "ar": "بحث عن طالب",
+      "en": "Search students"
+    },
+    {
+      "key": "students.loadError",
+      "values": {},
+      "ar": "تعذر تحميل قائمة الطلاب.",
+      "en": "Unable to load students."
+    },
+    {
+      "key": "students.selectAll",
+      "values": {},
+      "ar": "تحديد جميع الطلاب الظاهرين",
+      "en": "Select all visible students"
+    },
+    {
+      "key": "students.approveSelected",
+      "values": {},
+      "ar": "تأكيد المحددين",
+      "en": "Approve selected"
+    },
+    {
+      "key": "students.freezeSelected",
+      "values": {},
+      "ar": "تجميد المحددين",
+      "en": "Freeze selected"
+    },
+    {
+      "key": "students.unfreezeSelected",
+      "values": {},
+      "ar": "إلغاء تجميد المحددين",
+      "en": "Unfreeze selected"
+    },
+    {
+      "key": "students.deleteSelected",
+      "values": {},
+      "ar": "حذف المحددين",
+      "en": "Delete selected"
+    },
+    {
+      "key": "students.clearSelection",
+      "values": {},
+      "ar": "إلغاء التحديد",
+      "en": "Clear selection"
+    },
+    {
+      "key": "students.emailVerified",
+      "values": {},
+      "ar": "البريد مؤكّد",
+      "en": "Email verified"
+    },
+    {
+      "key": "students.emailUnverified",
+      "values": {},
+      "ar": "البريد غير مؤكّد",
+      "en": "Email unverified"
+    },
+    {
+      "key": "students.accountFrozen",
+      "values": {},
+      "ar": "الحساب مجمّد",
+      "en": "Account frozen"
+    },
+    {
+      "key": "students.accountApproved",
+      "values": {},
+      "ar": "الحساب مؤكّد",
+      "en": "Account approved"
+    },
+    {
+      "key": "students.approve",
+      "values": {},
+      "ar": "تأكيد الحساب",
+      "en": "Approve account"
+    },
+    {
+      "key": "students.unfreeze",
+      "values": {},
+      "ar": "إلغاء التجميد",
+      "en": "Unfreeze"
+    },
+    {
+      "key": "students.freeze",
+      "values": {},
+      "ar": "تجميد الحساب",
+      "en": "Freeze account"
+    },
+    {
+      "key": "students.resetDevice",
+      "values": {},
+      "ar": "إعادة ضبط الجهاز",
+      "en": "Reset device"
+    },
+    {
+      "key": "students.delete",
+      "values": {},
+      "ar": "حذف الحساب",
+      "en": "Delete account"
+    },
+    {
+      "key": "students.empty",
+      "values": {},
+      "ar": "لا يوجد طلاب مطابقون للبحث.",
+      "en": "No matching students found."
+    },
+    {
+      "key": "students.actionError",
+      "values": {},
+      "ar": "تعذر تنفيذ الإجراء على حساب الطالب.",
+      "en": "Unable to update the student account."
+    },
+    {
+      "key": "shared.cancel",
+      "values": {},
+      "ar": "إلغاء",
+      "en": "Cancel"
+    },
+    {
+      "key": "students.confirmAction",
+      "values": {},
+      "ar": "تأكيد الإجراء",
+      "en": "Confirm action"
+    },
+    {
+      "key": "students.resetTitle",
+      "values": {},
+      "ar": "إعادة ضبط جهاز الطالب",
+      "en": "Reset student device"
+    },
+    {
+      "key": "students.resetReason",
+      "values": {},
+      "ar": "سبب إعادة الضبط",
+      "en": "Reset reason"
+    },
+    {
+      "key": "students.resetError",
+      "values": {},
+      "ar": "تعذر إعادة ضبط الجهاز.",
+      "en": "Unable to reset the device."
+    },
+    {
+      "key": "students.confirmReset",
+      "values": {},
+      "ar": "تأكيد إعادة الضبط",
+      "en": "Confirm reset"
+    },
+    {
+      "key": "students.deleteDialogLabel",
+      "values": {},
+      "ar": "حذف حساب طالب",
+      "en": "Delete student account"
+    },
+    {
+      "key": "students.deleteTitle",
+      "values": {},
+      "ar": "حذف حساب الطالب",
+      "en": "Delete student account"
+    },
+    {
+      "key": "students.deleteError",
+      "values": {},
+      "ar": "تعذر حذف الحساب.",
+      "en": "Unable to delete the account."
+    },
+    {
+      "key": "students.confirmDelete",
+      "values": {},
+      "ar": "حذف نهائي",
+      "en": "Delete permanently"
+    },
+    {
+      "key": "teacherInvites.statuses.Issued",
+      "values": {},
+      "ar": "صادرة",
+      "en": "Issued"
+    },
+    {
+      "key": "teacherInvites.statuses.Accepted",
+      "values": {},
+      "ar": "مقبولة",
+      "en": "Accepted"
+    },
+    {
+      "key": "teacherInvites.statuses.Expired",
+      "values": {},
+      "ar": "منتهية",
+      "en": "Expired"
+    },
+    {
+      "key": "teacherInvites.statuses.Revoked",
+      "values": {},
+      "ar": "ملغاة",
+      "en": "Revoked"
+    },
+    {
+      "key": "teacherInvites.title",
+      "values": {},
+      "ar": "إدارة المعلمين",
+      "en": "Teacher management"
+    },
+    {
+      "key": "teacherInvites.description",
+      "values": {},
+      "ar": "شاهد عدد المعلمين، أرسل الدعوات، وجمّد أو فعّل حساب المعلم عند الحاجة.",
+      "en": "See your teacher count, send invitations, and freeze or reactivate a teacher account when needed."
+    },
+    {
+      "key": "teacherInvites.inviteTitle",
+      "values": {},
+      "ar": "دعوة معلم جديد",
+      "en": "Invite a new teacher"
+    },
+    {
+      "key": "teacherInvites.inviteDescription",
+      "values": {},
+      "ar": "لا يوجد تسجيل ذاتي للمعلم. ترسل الدعوة رابط تعيين كلمة مرور آمن.",
+      "en": "Teachers cannot self-register. The invitation sends a secure password-setting link."
+    },
+    {
+      "key": "teacherInvites.namePlaceholder",
+      "values": {},
+      "ar": "اسم المعلم",
+      "en": "Teacher name"
+    },
+    {
+      "key": "teacherInvites.emailPlaceholder",
+      "values": {},
+      "ar": "Email",
+      "en": "Email"
+    },
+    {
+      "key": "teacherInvites.send",
+      "values": {},
+      "ar": "إرسال الدعوة",
+      "en": "Send invitation"
+    },
+    {
+      "key": "teacherInvites.sent",
+      "values": {},
+      "ar": "أرسلت الدعوة.",
+      "en": "Invitation sent."
+    },
+    {
+      "key": "teacherInvites.requestError",
+      "values": {},
+      "ar": "Request failed.",
+      "en": "Request failed."
+    },
+    {
+      "key": "teacherInvites.totalTeachers",
+      "values": {},
+      "ar": "إجمالي المعلمين",
+      "en": "Total teachers"
+    },
+    {
+      "key": "teacherInvites.pendingCount",
+      "values": {},
+      "ar": "—",
+      "en": "—"
+    },
+    {
+      "key": "teacherInvites.activeTeachers",
+      "values": {},
+      "ar": "معلمون نشطون",
+      "en": "Active teachers"
+    },
+    {
+      "key": "teacherInvites.accountsTitle",
+      "values": {},
+      "ar": "حسابات المعلمين",
+      "en": "Teacher accounts"
+    },
+    {
+      "key": "teacherInvites.loadError",
+      "values": {},
+      "ar": "تعذر تحميل قائمة المعلمين.",
+      "en": "Unable to load teachers."
+    },
+    {
+      "key": "teacherInvites.accountFrozen",
+      "values": {},
+      "ar": "الحساب مجمّد",
+      "en": "Account frozen"
+    },
+    {
+      "key": "teacherInvites.accountActive",
+      "values": {},
+      "ar": "الحساب نشط",
+      "en": "Account active"
+    },
+    {
+      "key": "teacherInvites.activate",
+      "values": {},
+      "ar": "تفعيل الحساب",
+      "en": "Activate account"
+    },
+    {
+      "key": "teacherInvites.freeze",
+      "values": {},
+      "ar": "تجميد الحساب",
+      "en": "Freeze account"
+    },
+    {
+      "key": "teacherInvites.empty",
+      "values": {},
+      "ar": "لا يوجد معلمون بعد.",
+      "en": "No teachers yet."
+    },
+    {
+      "key": "teacherInvites.freezeError",
+      "values": {},
+      "ar": "تعذر تحديث حالة حساب المعلم.",
+      "en": "Unable to update the teacher account."
+    },
+    {
+      "key": "teacherInvites.historyTitle",
+      "values": {},
+      "ar": "سجل دعوات المعلمين",
+      "en": "Teacher invitation history"
+    },
+    {
+      "key": "teacherInvites.historyDescription",
+      "values": {},
+      "ar": "تنتهي الدعوات غير المقبولة تلقائيًا بعد سبعة أيام.",
+      "en": "Unaccepted invitations expire automatically after seven days."
+    },
+    {
+      "key": "teacherInvites.historyError",
+      "values": {},
+      "ar": "تعذر تحميل سجل الدعوات.",
+      "en": "Unable to load invitation history."
+    },
+    {
+      "key": "teacherInvites.issuedAt",
+      "values": {},
+      "ar": "أُرسلت: ",
+      "en": "Issued: "
+    },
+    {
+      "key": "teacherInvites.expiresAt",
+      "values": {},
+      "ar": "تنتهي: ",
+      "en": "Expires: "
+    },
+    {
+      "key": "teacherInvites.acceptedAt",
+      "values": {},
+      "ar": "قُبلت: ",
+      "en": "Accepted: "
+    },
+    {
+      "key": "teacherInvites.revokedAt",
+      "values": {},
+      "ar": "أُلغيت: ",
+      "en": "Revoked: "
+    },
+    {
+      "key": "teacherInvites.reasonPlaceholder",
+      "values": {},
+      "ar": "سبب الإلغاء",
+      "en": "Revocation reason"
+    },
+    {
+      "key": "teacherInvites.revoke",
+      "values": {},
+      "ar": "إلغاء الدعوة",
+      "en": "Revoke invitation"
+    },
+    {
+      "key": "teacherInvites.historyEmpty",
+      "values": {},
+      "ar": "لا توجد دعوات بعد.",
+      "en": "No invitations yet."
+    },
+    {
+      "key": "teacherInvites.revokeError",
+      "values": {},
+      "ar": "تعذر إلغاء الدعوة.",
+      "en": "Unable to revoke the invitation."
+    },
+    {
+      "key": "accountIdentities.inviteSuccess",
+      "values": {},
+      "ar": "أُرسلت دعوة التفعيل.",
+      "en": "Activation invitation sent."
+    },
+    {
+      "key": "accountIdentities.emailSuccess",
+      "values": {},
+      "ar": "أُرسل رابط التحقق إلى البريد الجديد.",
+      "en": "Confirmation link sent to the new address."
+    },
+    {
+      "key": "accountIdentities.resendSuccess",
+      "values": {},
+      "ar": "أُعيد إرسال رابط التفعيل.",
+      "en": "Activation link resent."
+    },
+    {
+      "key": "accountIdentities.revokeSuccess",
+      "values": {},
+      "ar": "سُحبت صلاحيات مساعد الإدارة وانتهت جلساته، مع الاحتفاظ بالحساب.",
+      "en": "Support access revoked and sessions ended. The account remains available."
+    },
+    {
+      "key": "accountIdentities.title",
+      "values": {},
+      "ar": "هويات المعلمين ومساعدي الإدارة",
+      "en": "Teacher and support identities"
+    },
+    {
+      "key": "accountIdentities.description",
+      "values": {},
+      "ar": "يؤكد صاحب الحساب البريد الجديد بنفسه. كلمة المرور خاصة به.",
+      "en": "Account owners confirm new addresses themselves and keep their passwords private."
+    },
+    {
+      "key": "accountIdentities.teachers",
+      "values": {},
+      "ar": "المعلمون",
+      "en": "Teachers"
+    },
+    {
+      "key": "accountIdentities.supportAdmins",
+      "values": {},
+      "ar": "مساعدو الإدارة",
+      "en": "Support administrators"
+    },
+    {
+      "key": "accountIdentities.name",
+      "values": {},
+      "ar": "الاسم",
+      "en": "Name"
+    },
+    {
+      "key": "accountIdentities.email",
+      "values": {},
+      "ar": "بريد العمل",
+      "en": "Work email"
+    },
+    {
+      "key": "accountIdentities.send",
+      "values": {},
+      "ar": "إرسال الدعوة",
+      "en": "Send invitation"
+    },
+    {
+      "key": "accountIdentities.inviteError",
+      "values": {},
+      "ar": "تعذر إرسال الدعوة.",
+      "en": "Unable to send invitation."
+    },
+    {
+      "key": "accountIdentities.loading",
+      "values": {},
+      "ar": "جارٍ التحميل…",
+      "en": "Loading…"
+    },
+    {
+      "key": "accountIdentities.loadError",
+      "values": {},
+      "ar": "تعذر تحميل الحسابات.",
+      "en": "Unable to load accounts."
+    },
+    {
+      "key": "accountIdentities.frozen",
+      "values": {},
+      "ar": "مجمّد",
+      "en": "Frozen"
+    },
+    {
+      "key": "accountIdentities.awaitingActivation",
+      "values": {},
+      "ar": "بانتظار التفعيل",
+      "en": "Awaiting activation"
+    },
+    {
+      "key": "accountIdentities.active",
+      "values": {},
+      "ar": "نشط",
+      "en": "Active"
+    },
+    {
+      "key": "accountIdentities.resend",
+      "values": {},
+      "ar": "إعادة الدعوة",
+      "en": "Resend invitation"
+    },
+    {
+      "key": "accountIdentities.reactivateConfirmation",
+      "values": {},
+      "ar": "إعادة تفعيل الحساب؟",
+      "en": "Reactivate account?"
+    },
+    {
+      "key": "accountIdentities.freezeConfirmation",
+      "values": {},
+      "ar": "تجميد الحساب وإنهاء جلساته؟",
+      "en": "Freeze account and end sessions?"
+    },
+    {
+      "key": "accountIdentities.reactivate",
+      "values": {},
+      "ar": "إعادة تفعيل",
+      "en": "Reactivate"
+    },
+    {
+      "key": "accountIdentities.freeze",
+      "values": {},
+      "ar": "تجميد",
+      "en": "Freeze"
+    },
+    {
+      "key": "accountIdentities.revoke",
+      "values": {},
+      "ar": "سحب صلاحيات مساعد الإدارة",
+      "en": "Revoke support access"
+    },
+    {
+      "key": "accountIdentities.newEmail",
+      "values": {},
+      "ar": "البريد الجديد",
+      "en": "New email"
+    },
+    {
+      "key": "accountIdentities.changeEmail",
+      "values": {},
+      "ar": "طلب تغيير البريد",
+      "en": "Request email change"
+    },
+    {
+      "key": "accountIdentities.activationRequired",
+      "values": {},
+      "ar": "أكمل تفعيل الحساب قبل طلب تغيير بريده.",
+      "en": "Activate the account before requesting an email change."
+    },
+    {
+      "key": "accountIdentities.empty",
+      "values": {},
+      "ar": "لا توجد حسابات.",
+      "en": "No accounts yet."
+    },
+    {
+      "key": "accountIdentities.actionError",
+      "values": {},
+      "ar": "تعذر إكمال الإجراء.",
+      "en": "Unable to complete the action."
+    },
+    {
+      "key": "accountIdentities.previous",
+      "values": {},
+      "ar": "السابق",
+      "en": "Previous"
+    },
+    {
+      "key": "accountIdentities.next",
+      "values": {},
+      "ar": "التالي",
+      "en": "Next"
+    }
+  ]
+}

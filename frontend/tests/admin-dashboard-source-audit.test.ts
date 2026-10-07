@@ -34,7 +34,7 @@ describe("scoped Admin Dashboard translation and contract AST audit", () => {
       staticCopyFindings(source.replace(before, after)).length,
     ).toBeGreaterThan(0);
   });
-  it("uses all 75 new catalogue leaves and preserves existing academic/delivery namespaces", () => {
+  it("uses all 75 dashboard catalogue leaves and preserves existing academic/delivery namespaces", () => {
     const { file, functions } = scopedFunctions(source);
     const used: string[] = [];
     for (const fn of functions) {
@@ -51,10 +51,16 @@ describe("scoped Admin Dashboard translation and contract AST audit", () => {
       }
       visit(fn);
     }
-    expect(leaves(messages.adminWorkspace)).toHaveLength(75);
-    expect([...new Set(used)].sort()).toEqual(
-      leaves(messages.adminWorkspace).sort(),
+    const dashboardLeaves = leaves(messages.adminWorkspace).filter(
+      (key) =>
+        key.startsWith("dashboard.") ||
+        key.startsWith("analytics.") ||
+        key.startsWith("navigation.") ||
+        key === "shared.open" ||
+        key === "shared.loadingIndicator",
     );
+    expect(dashboardLeaves).toHaveLength(75);
+    expect([...new Set(used)].sort()).toEqual(dashboardLeaves.sort());
     for (const expression of [
       'academicT("title")',
       'academicT("description")',
