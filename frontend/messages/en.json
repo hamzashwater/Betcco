@@ -2355,5 +2355,126 @@
       "oversizedFile": "“{fileName}” exceeds the {limit} limit per file.",
       "genericFile": "File"
     }
+  },
+  "adminWorkspace": {
+    "shared": {
+      "loadingIndicator": "…",
+      "open": "Open"
+    },
+    "dashboard": {
+      "signIn": "Sign in as an administrator to access this dashboard.",
+      "eyebrow": "BETCCO Control Center",
+      "title": "Admin dashboard",
+      "description": "Monitor real platform signals, approve courses, and assign evaluations with server-side authorization preserved.",
+      "periodLabel": "Time period",
+      "periods": {
+        "today": "Today",
+        "sevenDays": "7 days",
+        "thirtyDays": "30 days",
+        "threeMonths": "3 months",
+        "year": "Year",
+        "custom": "Custom range",
+        "all": "All time"
+      },
+      "from": "From",
+      "to": "To",
+      "invalidRange": "Choose a valid date range.",
+      "periodExplanation": "Orders, revenue, and learning activity follow the selected period; current-state metrics remain live.",
+      "metrics": {
+        "students": "Students",
+        "activeStudents": "Active students",
+        "teachers": "Teachers",
+        "activeTeachers": "Active teachers",
+        "courses": "Courses",
+        "publishedCourses": "Published courses",
+        "units": "Units",
+        "enrollments": "Enrollments",
+        "assignments": "Assignments",
+        "pendingReviews": "Pending reviews",
+        "enrollmentCompletion": "Enrollment completion",
+        "pendingApprovals": "Pending approvals",
+        "resultsAwaitingApproval": "Results awaiting approval",
+        "evaluationsAwaitingAssignment": "Evaluations awaiting assignment",
+        "confirmedRevenue": "Confirmed revenue",
+        "orders": "Orders",
+        "activeSubscriptions": "Active subscriptions",
+        "refunds": "Refunds"
+      }
+    },
+    "navigation": {
+      "students": {
+        "title": "Students",
+        "description": "Find a student account and reset its device when needed."
+      },
+      "teachers": {
+        "title": "Manage teachers",
+        "description": "See the count, send invitations, and freeze or activate accounts."
+      },
+      "accountIdentities": {
+        "title": "Account identities",
+        "description": "Manage Teacher and SupportAdmin email and support invitations."
+      },
+      "courseApprovals": {
+        "title": "Course approvals",
+        "description": "Review publishing requirements before availability."
+      },
+      "evaluations": {
+        "title": "Evaluations",
+        "description": "Assign evaluation work, then review the calculated result before final approval."
+      },
+      "internalVerification": {
+        "title": "IV sampling",
+        "description": "Select independent review samples with a documented rationale, not a fixed rate."
+      },
+      "evaluationAppeals": {
+        "title": "Academic appeals",
+        "description": "Review appeals independently and record a reasoned decision."
+      },
+      "qualificationRegistry": {
+        "title": "Qualification registry",
+        "description": "Register sourced qualification versions and bind them to new assessment rubrics."
+      },
+      "gradebook": {
+        "title": "Gradebook",
+        "description": "Review coursework results by course, unit, teacher, student, status, and grade."
+      },
+      "ratings": {
+        "title": "Platform reviews",
+        "description": "Review learner feedback and publish only reviews whose authors opted in."
+      },
+      "wallet": {
+        "title": "Wallet and payouts",
+        "description": "Review the platform's 30% commission and approve teacher withdrawals."
+      },
+      "content": {
+        "title": "Content and experiences",
+        "description": "Create articles, packages, live sessions, and public teacher profiles."
+      },
+      "commerce": {
+        "title": "Memberships and discounts",
+        "description": "Manage memberships, course subscriptions, and coupons in one place."
+      },
+      "auditLogs": {
+        "title": "Audit logs",
+        "description": "Search sensitive operations, their actor, and recorded context."
+      },
+      "privacy": {
+        "title": "Privacy requests",
+        "description": "Review rights requests and identity checks before taking action on data."
+      },
+      "integrations": {
+        "title": "School integrations",
+        "description": "Check OneRoster connectivity without importing data automatically."
+      }
+    },
+    "analytics": {
+      "revenue": "Confirmed revenue",
+      "paidOrders": "Paid orders",
+      "lessonActivity": "Learning activity",
+      "title": "Selected period trends",
+      "description": "Based on actual paid orders and lesson-progress updates in the selected period.",
+      "hint": "Hover over bars for details.",
+      "empty": "There are no paid orders or learning updates in the selected period yet."
+    }
   }
 }

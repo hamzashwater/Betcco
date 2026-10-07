@@ -1,0 +1,37 @@
+{
+  "period": "30d",
+  "fromUtc": "2026-09-01T00:00:00Z",
+  "toUtc": "2026-10-01T23:59:59Z",
+  "students": 101,
+  "activeStudents": 92,
+  "teachers": 13,
+  "activeTeachers": 12,
+  "courses": 24,
+  "publishedCourses": 21,
+  "units": 37,
+  "enrollments": 150,
+  "assignments": 48,
+  "pendingReviews": 9,
+  "pendingApprovals": 3,
+  "pendingEvaluations": 4,
+  "evaluationsAwaitingVerification": 5,
+  "completionRate": 36.5,
+  "orders": 17,
+  "activeSubscriptions": 16,
+  "refunds": 2,
+  "revenue": 1234.125,
+  "trend": [
+    {
+      "dateUtc": "2026-09-29T12:00:00Z",
+      "paidOrders": 2,
+      "revenue": 25.125,
+      "lessonActivity": 8
+    },
+    {
+      "dateUtc": "2026-09-30T12:00:00Z",
+      "paidOrders": 0,
+      "revenue": 0,
+      "lessonActivity": 0
+    }
+  ]
+}

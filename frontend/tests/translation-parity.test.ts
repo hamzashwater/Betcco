@@ -17,6 +17,7 @@ const parityNamespaces = [
   "teacherWorkspace",
   "teacherCoursesManagement",
   "teacherStudentFollowUp",
+  "adminWorkspace",
 ] as const;
 
 function namespaceValue(value: unknown, namespace: string): unknown {
