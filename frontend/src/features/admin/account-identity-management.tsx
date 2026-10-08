@@ -2,7 +2,7 @@
 
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 type ManagedUser = {
@@ -15,7 +15,7 @@ type ManagedUser = {
 };
 
 export function AccountIdentityManagement() {
-  const locale = useLocale();
+  const t = useTranslations("adminWorkspace");
   const client = useQueryClient();
   const [role, setRole] = useState<"Teacher" | "SupportAdmin">("Teacher");
   const [displayName, setDisplayName] = useState("");
@@ -41,11 +41,7 @@ export function AccountIdentityManagement() {
     onSuccess: () => {
       setDisplayName("");
       setEmail("");
-      setNotice(
-        locale === "ar"
-          ? "أُرسلت دعوة التفعيل."
-          : "Activation invitation sent.",
-      );
+      setNotice(t("accountIdentities.inviteSuccess"));
       refresh();
     },
   });
@@ -57,11 +53,7 @@ export function AccountIdentityManagement() {
       }),
     onSuccess: (_, id) => {
       setNewEmails((value) => ({ ...value, [id]: "" }));
-      setNotice(
-        locale === "ar"
-          ? "أُرسل رابط التحقق إلى البريد الجديد."
-          : "Confirmation link sent to the new address.",
-      );
+      setNotice(t("accountIdentities.emailSuccess"));
     },
   });
   const resend = useMutation({
@@ -69,12 +61,7 @@ export function AccountIdentityManagement() {
       api<void>(`/admin/users/support-admins/${id}/resend-activation`, {
         method: "POST",
       }),
-    onSuccess: () =>
-      setNotice(
-        locale === "ar"
-          ? "أُعيد إرسال رابط التفعيل."
-          : "Activation link resent.",
-      ),
+    onSuccess: () => setNotice(t("accountIdentities.resendSuccess")),
   });
   const freeze = useMutation({
     mutationFn: ({ id, frozen }: { id: string; frozen: boolean }) =>
@@ -90,26 +77,16 @@ export function AccountIdentityManagement() {
         method: "POST",
       }),
     onSuccess: () => {
-      setNotice(
-        locale === "ar"
-          ? "سُحبت صلاحيات مساعد الإدارة وانتهت جلساته، مع الاحتفاظ بالحساب."
-          : "Support access revoked and sessions ended. The account remains available.",
-      );
+      setNotice(t("accountIdentities.revokeSuccess"));
       refresh();
     },
   });
 
   return (
     <section className="shell min-w-0 py-8">
-      <h1 className="text-3xl font-black">
-        {locale === "ar"
-          ? "هويات المعلمين ومساعدي الإدارة"
-          : "Teacher and support identities"}
-      </h1>
+      <h1 className="text-3xl font-black">{t("accountIdentities.title")}</h1>
       <p className="mt-2 text-sm text-muted">
-        {locale === "ar"
-          ? "يؤكد صاحب الحساب البريد الجديد بنفسه. كلمة المرور خاصة به."
-          : "Account owners confirm new addresses themselves and keep their passwords private."}
+        {t("accountIdentities.description")}
       </p>
       {notice && (
         <p
@@ -132,12 +109,8 @@ export function AccountIdentityManagement() {
             className="focus-ring rounded-xl border border-border px-4 py-2 text-sm font-bold aria-pressed:bg-primary aria-pressed:text-slate-950"
           >
             {value === "Teacher"
-              ? locale === "ar"
-                ? "المعلمون"
-                : "Teachers"
-              : locale === "ar"
-                ? "مساعدو الإدارة"
-                : "Support administrators"}
+              ? t("accountIdentities.teachers")
+              : t("accountIdentities.supportAdmins")}
           </button>
         ))}
       </div>
@@ -151,7 +124,7 @@ export function AccountIdentityManagement() {
           }}
         >
           <label className="grid gap-1 text-sm font-bold">
-            <span>{locale === "ar" ? "الاسم" : "Name"}</span>
+            <span>{t("accountIdentities.name")}</span>
             <input
               required
               minLength={2}
@@ -162,7 +135,7 @@ export function AccountIdentityManagement() {
             />
           </label>
           <label className="grid gap-1 text-sm font-bold">
-            <span>{locale === "ar" ? "بريد العمل" : "Work email"}</span>
+            <span>{t("accountIdentities.email")}</span>
             <input
               type="email"
               required
@@ -176,27 +149,21 @@ export function AccountIdentityManagement() {
             disabled={invite.isPending}
             className="focus-ring self-end rounded-xl bg-primary px-4 py-2 text-sm font-bold text-slate-950 disabled:opacity-60"
           >
-            {locale === "ar" ? "إرسال الدعوة" : "Send invitation"}
+            {t("accountIdentities.send")}
           </button>
           {invite.isError && (
             <p role="alert" className="text-sm text-red-600 sm:col-span-3">
-              {locale === "ar"
-                ? "تعذر إرسال الدعوة."
-                : "Unable to send invitation."}
+              {t("accountIdentities.inviteError")}
             </p>
           )}
         </form>
       )}
       <div className="mt-5 grid gap-3">
         {users.isPending ? (
-          <p aria-busy="true">
-            {locale === "ar" ? "جارٍ التحميل…" : "Loading…"}
-          </p>
+          <p aria-busy="true">{t("accountIdentities.loading")}</p>
         ) : users.isError ? (
           <p role="alert" className="text-red-600">
-            {locale === "ar"
-              ? "تعذر تحميل الحسابات."
-              : "Unable to load accounts."}
+            {t("accountIdentities.loadError")}
           </p>
         ) : users.data?.items.length ? (
           users.data.items.map((user) => (
@@ -209,16 +176,10 @@ export function AccountIdentityManagement() {
                   </p>
                   <p className="text-xs text-muted">
                     {user.isFrozen
-                      ? locale === "ar"
-                        ? "مجمّد"
-                        : "Frozen"
+                      ? t("accountIdentities.frozen")
                       : !user.emailConfirmed
-                        ? locale === "ar"
-                          ? "بانتظار التفعيل"
-                          : "Awaiting activation"
-                        : locale === "ar"
-                          ? "نشط"
-                          : "Active"}
+                        ? t("accountIdentities.awaitingActivation")
+                        : t("accountIdentities.active")}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -231,7 +192,7 @@ export function AccountIdentityManagement() {
                         onClick={() => resend.mutate(user.id)}
                         className="focus-ring rounded-xl border border-border px-3 py-2 text-sm font-bold"
                       >
-                        {locale === "ar" ? "إعادة الدعوة" : "Resend invitation"}
+                        {t("accountIdentities.resend")}
                       </button>
                     )}
                   <button
@@ -241,12 +202,8 @@ export function AccountIdentityManagement() {
                       if (
                         window.confirm(
                           user.isFrozen
-                            ? locale === "ar"
-                              ? "إعادة تفعيل الحساب؟"
-                              : "Reactivate account?"
-                            : locale === "ar"
-                              ? "تجميد الحساب وإنهاء جلساته؟"
-                              : "Freeze account and end sessions?",
+                            ? t("accountIdentities.reactivateConfirmation")
+                            : t("accountIdentities.freezeConfirmation"),
                         )
                       )
                         freeze.mutate({ id: user.id, frozen: !user.isFrozen });
@@ -254,12 +211,8 @@ export function AccountIdentityManagement() {
                     className="focus-ring rounded-xl border border-border px-3 py-2 text-sm font-bold"
                   >
                     {user.isFrozen
-                      ? locale === "ar"
-                        ? "إعادة تفعيل"
-                        : "Reactivate"
-                      : locale === "ar"
-                        ? "تجميد"
-                        : "Freeze"}
+                      ? t("accountIdentities.reactivate")
+                      : t("accountIdentities.freeze")}
                   </button>
                 </div>
               </div>
@@ -271,18 +224,16 @@ export function AccountIdentityManagement() {
                     onClick={() => {
                       if (
                         window.confirm(
-                          locale === "ar"
-                            ? `سحب صلاحيات مساعد الإدارة من ${user.displayName}؟ سيُحتفظ بالحساب وتنتهي جميع جلساته.`
-                            : `Revoke support access for ${user.displayName}? The account will remain, and all sessions will end.`,
+                          t("accountIdentities.revokeConfirmation", {
+                            name: user.displayName,
+                          }),
                         )
                       )
                         revokeSupportAccess.mutate(user.id);
                     }}
                     className="focus-ring rounded-xl border border-red-500/50 px-3 py-2 text-sm font-bold text-red-700 disabled:opacity-60"
                   >
-                    {locale === "ar"
-                      ? "سحب صلاحيات مساعد الإدارة"
-                      : "Revoke support access"}
+                    {t("accountIdentities.revoke")}
                   </button>
                 </div>
               )}
@@ -296,7 +247,7 @@ export function AccountIdentityManagement() {
               >
                 <label className="min-w-0 flex-1 text-sm font-bold">
                   <span className="sr-only">
-                    {locale === "ar" ? "البريد الجديد" : "New email"}
+                    {t("accountIdentities.newEmail")}
                   </span>
                   <input
                     type="email"
@@ -310,9 +261,7 @@ export function AccountIdentityManagement() {
                         [user.id]: event.target.value,
                       }))
                     }
-                    placeholder={
-                      locale === "ar" ? "البريد الجديد" : "New email"
-                    }
+                    placeholder={t("accountIdentities.newEmail")}
                     className="focus-ring w-full min-w-0 rounded-xl border border-border bg-transparent px-3 py-2"
                   />
                 </label>
@@ -324,33 +273,25 @@ export function AccountIdentityManagement() {
                   }
                   className="focus-ring rounded-xl bg-primary px-4 py-2 text-sm font-bold text-slate-950 disabled:opacity-60"
                 >
-                  {locale === "ar"
-                    ? "طلب تغيير البريد"
-                    : "Request email change"}
+                  {t("accountIdentities.changeEmail")}
                 </button>
               </form>
               {(user.mustChangePassword || !user.emailConfirmed) && (
                 <p className="text-xs text-muted">
-                  {locale === "ar"
-                    ? "أكمل تفعيل الحساب قبل طلب تغيير بريده."
-                    : "Activate the account before requesting an email change."}
+                  {t("accountIdentities.activationRequired")}
                 </p>
               )}
             </article>
           ))
         ) : (
-          <p className="text-sm text-muted">
-            {locale === "ar" ? "لا توجد حسابات." : "No accounts yet."}
-          </p>
+          <p className="text-sm text-muted">{t("accountIdentities.empty")}</p>
         )}
         {(changeEmail.isError ||
           freeze.isError ||
           resend.isError ||
           revokeSupportAccess.isError) && (
           <p role="alert" className="text-sm text-red-600">
-            {locale === "ar"
-              ? "تعذر إكمال الإجراء."
-              : "Unable to complete the action."}
+            {t("accountIdentities.actionError")}
           </p>
         )}
       </div>
@@ -362,7 +303,7 @@ export function AccountIdentityManagement() {
             onClick={() => setPage(page - 1)}
             className="focus-ring disabled:opacity-50"
           >
-            {locale === "ar" ? "السابق" : "Previous"}
+            {t("accountIdentities.previous")}
           </button>
           <span>{page}</span>
           <button
@@ -371,7 +312,7 @@ export function AccountIdentityManagement() {
             onClick={() => setPage(page + 1)}
             className="focus-ring disabled:opacity-50"
           >
-            {locale === "ar" ? "التالي" : "Next"}
+            {t("accountIdentities.next")}
           </button>
         </div>
       )}
