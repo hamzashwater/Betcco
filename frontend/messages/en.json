@@ -2360,7 +2360,8 @@
     "shared": {
       "loadingIndicator": "…",
       "open": "Open",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "unavailable": "—"
     },
     "dashboard": {
       "signIn": "Sign in as an administrator to access this dashboard.",
@@ -2596,6 +2597,69 @@
       "actionError": "Unable to complete the action.",
       "previous": "Previous",
       "next": "Next"
+    },
+    "evaluations": {
+      "loadError": "Unable to load evaluation requests.",
+      "eyebrow": "BETCCO Evaluation",
+      "title": "Assign evaluations",
+      "description": "Choose an evaluator eligible for the request's Unit. The server rechecks eligibility on assignment.",
+      "assigned": "Evaluation assigned.",
+      "emptyPending": "No paid evaluations are waiting for assignment.",
+      "verificationEyebrow": "Internal verification",
+      "verificationTitle": "Results awaiting approval",
+      "verificationDescription": "Review the assessor decision and evidence before approval, or request a resubmission with clear feedback.",
+      "calculatedResult": "Calculated result",
+      "section": "Section {section}",
+      "criterionOutcomes": "Criterion outcomes",
+      "studentEvidence": "Student evidence",
+      "emptyEvidence": "The student did not add written evidence.",
+      "notesPlaceholder": "Internal note or resubmission instructions (required for resubmission)",
+      "deadline": "Authorised resubmission deadline",
+      "deadlineHelp": "Used only when requesting resubmission and remains subject to the assessment rule-set limits.",
+      "approve": "Approve result",
+      "requestResubmission": "Request resubmission",
+      "emptyVerification": "There are no results awaiting internal verification.",
+      "verifyError": "Unable to verify this result."
+    },
+    "courseApprovals": {
+      "accessDenied": "Access denied.",
+      "title": "Course approvals",
+      "description": "Open the course content to review its cover, modules, lessons, and files before approving it. Publishing remains a separate step.",
+      "modules": "modules",
+      "lessons": "lessons",
+      "files": "files",
+      "coverUploaded": "Cover uploaded",
+      "noCover": "No cover",
+      "subjectPendingReview": "The new subject will be approved with this course.",
+      "approved": "Approved",
+      "awaitingReview": "Awaiting review",
+      "hideContent": "Hide content",
+      "reviewContent": "Review content",
+      "reasonPlaceholder": "Reason if returning",
+      "returnForRevision": "Return for revision",
+      "approveAfterReview": "Approve after review",
+      "publish": "Publish course",
+      "requestError": "Request failed.",
+      "empty": "No courses await review."
+    },
+    "courseApprovalPreview": {
+      "loadError": "Unable to load course content.",
+      "coverAlt": "{title} cover",
+      "noCover": "No cover.",
+      "free": "Free",
+      "learningOutcomes": "Learning outcomes",
+      "modulesAndLessons": "Modules and lessons",
+      "minutes": "min",
+      "emptyResources": "No files for this lesson.",
+      "courseworkAndCriteria": "Coursework and criteria",
+      "published": "Published",
+      "draft": "Draft",
+      "submissionSettings": "Submission settings: ",
+      "attempts": "attempts",
+      "megabytes": "MB",
+      "resubmissionAllowed": " · resubmission allowed",
+      "noResubmission": " · no resubmission",
+      "emptyCoursework": "No coursework has been added to this course."
     }
   }
 }

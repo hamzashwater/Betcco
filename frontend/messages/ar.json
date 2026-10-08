@@ -2360,7 +2360,8 @@
     "shared": {
       "loadingIndicator": "…",
       "open": "فتح",
-      "cancel": "إلغاء"
+      "cancel": "إلغاء",
+      "unavailable": "—"
     },
     "dashboard": {
       "signIn": "سجّل الدخول كأدمن للوصول إلى لوحة التحكم.",
@@ -2596,6 +2597,69 @@
       "actionError": "تعذر إكمال الإجراء.",
       "previous": "السابق",
       "next": "التالي"
+    },
+    "evaluations": {
+      "loadError": "تعذر تحميل طلبات التقييم.",
+      "eyebrow": "تقييم BETCCO",
+      "title": "إسناد التقييمات",
+      "description": "اختر مقيّمًا مؤهلاً لوحدة الطلب. يتحقق الخادم من الأهلية عند الإسناد.",
+      "assigned": "تم إسناد التقييم.",
+      "emptyPending": "لا توجد تقييمات مدفوعة بانتظار الإسناد.",
+      "verificationEyebrow": "المراجعة الداخلية",
+      "verificationTitle": "نتائج بانتظار الاعتماد",
+      "verificationDescription": "راجع حكم المعلم والأدلة قبل الاعتماد أو طلب إعادة التسليم مع ملاحظات واضحة.",
+      "calculatedResult": "النتيجة المحسوبة",
+      "section": "القسم {section}",
+      "criterionOutcomes": "نتائج المعايير",
+      "studentEvidence": "أدلة الطالب",
+      "emptyEvidence": "لم يضف الطالب أدلة نصية.",
+      "notesPlaceholder": "ملاحظة داخلية أو تعليمات لإعادة التسليم (مطلوبة عند طلب إعادة التسليم)",
+      "deadline": "آخر موعد مصرح لإعادة التسليم",
+      "deadlineHelp": "يُستخدم فقط عند طلب إعادة التسليم؛ يظل خاضعًا للحدود المحددة في نسخة قواعد التقييم.",
+      "approve": "اعتماد النتيجة",
+      "requestResubmission": "طلب إعادة تسليم",
+      "emptyVerification": "لا توجد نتائج بانتظار المراجعة الداخلية.",
+      "verifyError": "تعذر التحقق من هذه النتيجة."
+    },
+    "courseApprovals": {
+      "accessDenied": "الوصول مرفوض.",
+      "title": "مراجعة الدورات",
+      "description": "افتح محتوى الدورة أولًا لمراجعة الغلاف والوحدات والدروس والملفات، ثم اعتمدها. النشر خطوة مستقلة بعد الاعتماد.",
+      "modules": "وحدات",
+      "lessons": "دروس",
+      "files": "ملفات",
+      "coverUploaded": "غلاف مرفوع",
+      "noCover": "بدون غلاف",
+      "subjectPendingReview": "المادة الجديدة ستُعتمد مع اعتماد الدورة.",
+      "approved": "معتمدة",
+      "awaitingReview": "بانتظار المراجعة",
+      "hideContent": "إخفاء المحتوى",
+      "reviewContent": "مراجعة المحتوى",
+      "reasonPlaceholder": "سبب الإرجاع عند الحاجة",
+      "returnForRevision": "إرجاع للتعديل",
+      "approveAfterReview": "اعتماد بعد المراجعة",
+      "publish": "نشر الدورة",
+      "requestError": "فشل الطلب.",
+      "empty": "لا توجد دورات بانتظار المراجعة."
+    },
+    "courseApprovalPreview": {
+      "loadError": "تعذر تحميل محتوى الدورة.",
+      "coverAlt": "غلاف {title}",
+      "noCover": "لا يوجد غلاف.",
+      "free": "مجانية",
+      "learningOutcomes": "نواتج التعلم",
+      "modulesAndLessons": "الوحدات والدروس",
+      "minutes": "دقيقة",
+      "emptyResources": "لا توجد ملفات لهذا الدرس.",
+      "courseworkAndCriteria": "المهام ومعاييرها",
+      "published": "منشورة",
+      "draft": "مسودة",
+      "submissionSettings": "إعداد التسليم: ",
+      "attempts": "محاولات",
+      "megabytes": "MB",
+      "resubmissionAllowed": " · إعادة التسليم مسموحة",
+      "noResubmission": " · لا إعادة تسليم",
+      "emptyCoursework": "لا توجد مهام مضافة لهذه الدورة."
     }
   }
 }

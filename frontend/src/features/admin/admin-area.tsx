@@ -1628,7 +1628,7 @@ type TeacherInvitation = {
 };
 
 function AdminEvaluations() {
-  const locale = useLocale();
+  const t = useTranslations("adminWorkspace");
   const client = useQueryClient();
   const [lastAssigned, setLastAssigned] = useState(false);
   const currentUser = useQuery({
@@ -1689,7 +1689,7 @@ function AdminEvaluations() {
     return (
       <section className="shell py-10">
         <div className="card p-6" aria-busy>
-          …
+          {t("shared.loadingIndicator")}
         </div>
       </section>
     );
@@ -1701,28 +1701,22 @@ function AdminEvaluations() {
     return (
       <section className="shell py-10">
         <p className="card p-6" role="alert">
-          {locale === "ar"
-            ? "تعذر تحميل طلبات التقييم."
-            : "Unable to load evaluation requests."}
+          {t("evaluations.loadError")}
         </p>
       </section>
     );
   return (
     <section className="shell py-10">
       <DashboardHeader
-        eyebrow="BETCCO Evaluation"
-        title={locale === "ar" ? "إسناد التقييمات" : "Assign evaluations"}
-        description={
-          locale === "ar"
-            ? "اختر مقيّمًا مؤهلاً لوحدة الطلب. يتحقق الخادم من الأهلية عند الإسناد."
-            : "Choose an evaluator eligible for the request's Unit. The server rechecks eligibility on assignment."
-        }
+        eyebrow={t("evaluations.eyebrow")}
+        title={t("evaluations.title")}
+        description={t("evaluations.description")}
       />
       <AssessmentCoordinationQueue />
       <ResitCoordinationPanel />
       {lastAssigned && (
         <p className="mt-4 text-sm text-green-700" role="status">
-          {locale === "ar" ? "تم إسناد التقييم." : "Evaluation assigned."}
+          {t("evaluations.assigned")}
         </p>
       )}
       <div className="mt-5 grid gap-4">
@@ -1742,26 +1736,20 @@ function AdminEvaluations() {
         ))}
         {!pending.data?.length && (
           <div className="card p-6 text-sm leading-6 text-muted">
-            {locale === "ar"
-              ? "لا توجد تقييمات مدفوعة بانتظار الإسناد."
-              : "No paid evaluations are waiting for assignment."}
+            {t("evaluations.emptyPending")}
           </div>
         )}
       </div>
       <section className="mt-10" hidden={!canVerify}>
         <div className="mb-4">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">
-            {locale === "ar" ? "المراجعة الداخلية" : "Internal verification"}
+            {t("evaluations.verificationEyebrow")}
           </p>
           <h2 className="mt-1 text-2xl font-black">
-            {locale === "ar"
-              ? "نتائج بانتظار الاعتماد"
-              : "Results awaiting approval"}
+            {t("evaluations.verificationTitle")}
           </h2>
           <p className="mt-2 text-sm text-muted">
-            {locale === "ar"
-              ? "راجع حكم المعلم والأدلة قبل الاعتماد أو طلب إعادة التسليم مع ملاحظات واضحة."
-              : "Review the assessor decision and evidence before approval, or request a resubmission with clear feedback."}
+            {t("evaluations.verificationDescription")}
           </p>
         </div>
         <div className="grid gap-4">
@@ -1771,12 +1759,10 @@ function AdminEvaluations() {
                 <div>
                   <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
                     <p className="text-xs font-black uppercase tracking-wide text-primary">
-                      {locale === "ar"
-                        ? "النتيجة المحسوبة"
-                        : "Calculated result"}
+                      {t("evaluations.calculatedResult")}
                     </p>
                     <p className="mt-1 text-xl font-black text-foreground">
-                      {evaluation.calculatedGrade ?? "—"}
+                      {evaluation.calculatedGrade ?? t("shared.unavailable")}
                     </p>
                     <div className="mt-3 grid gap-2 sm:grid-cols-3">
                       {evaluation.sectionResults.map((section) => (
@@ -1785,9 +1771,9 @@ function AdminEvaluations() {
                           className="rounded-lg border border-border/70 bg-surface-solid/70 px-3 py-2 text-xs text-muted"
                         >
                           <strong className="text-foreground">
-                            {locale === "ar"
-                              ? `القسم ${section.section}`
-                              : `Section ${section.section}`}
+                            {t("evaluations.section", {
+                              section: section.section,
+                            })}
                             :{" "}
                           </strong>
                           {section.grade}
@@ -1796,7 +1782,7 @@ function AdminEvaluations() {
                     </div>
                   </div>
                   <h3 className="font-black">
-                    {locale === "ar" ? "نتائج المعايير" : "Criterion outcomes"}
+                    {t("evaluations.criterionOutcomes")}
                   </h3>
                   <ul className="mt-3 grid gap-2 text-sm">
                     {evaluation.results.map((result) => (
@@ -1815,7 +1801,7 @@ function AdminEvaluations() {
                 </div>
                 <div>
                   <h3 className="font-black">
-                    {locale === "ar" ? "أدلة الطالب" : "Student evidence"}
+                    {t("evaluations.studentEvidence")}
                   </h3>
                   <ul className="mt-3 grid gap-2 text-sm text-muted">
                     {evaluation.evidence.map((evidence) => (
@@ -1827,11 +1813,7 @@ function AdminEvaluations() {
                       </li>
                     ))}
                     {!evaluation.evidence.length ? (
-                      <li>
-                        {locale === "ar"
-                          ? "لم يضف الطالب أدلة نصية."
-                          : "The student did not add written evidence."}
-                      </li>
+                      <li>{t("evaluations.emptyEvidence")}</li>
                     ) : null}
                   </ul>
                 </div>
@@ -1846,16 +1828,10 @@ function AdminEvaluations() {
                 }
                 maxLength={4000}
                 className="mt-5 min-h-24 w-full rounded-xl border border-border bg-transparent p-3 text-sm"
-                placeholder={
-                  locale === "ar"
-                    ? "ملاحظة داخلية أو تعليمات لإعادة التسليم (مطلوبة عند طلب إعادة التسليم)"
-                    : "Internal note or resubmission instructions (required for resubmission)"
-                }
+                placeholder={t("evaluations.notesPlaceholder")}
               />
               <label className="mt-3 grid gap-1 text-sm font-semibold">
-                {locale === "ar"
-                  ? "آخر موعد مصرح لإعادة التسليم"
-                  : "Authorised resubmission deadline"}
+                {t("evaluations.deadline")}
                 <input
                   type="datetime-local"
                   value={resubmissionDueDates[evaluation.id] ?? ""}
@@ -1868,9 +1844,7 @@ function AdminEvaluations() {
                   className="rounded-xl border border-border bg-transparent p-3 text-sm"
                 />
                 <span className="text-xs font-normal text-muted">
-                  {locale === "ar"
-                    ? "يُستخدم فقط عند طلب إعادة التسليم؛ يظل خاضعًا للحدود المحددة في نسخة قواعد التقييم."
-                    : "Used only when requesting resubmission and remains subject to the assessment rule-set limits."}
+                  {t("evaluations.deadlineHelp")}
                 </span>
               </label>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -1882,7 +1856,7 @@ function AdminEvaluations() {
                   disabled={verify.isPending}
                   className="focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950"
                 >
-                  {locale === "ar" ? "اعتماد النتيجة" : "Approve result"}
+                  {t("evaluations.approve")}
                 </button>
                 <button
                   type="button"
@@ -1899,16 +1873,14 @@ function AdminEvaluations() {
                   }
                   className="focus-ring rounded-xl border border-amber-400/50 px-4 py-2.5 text-sm font-black text-amber-300 disabled:opacity-50"
                 >
-                  {locale === "ar" ? "طلب إعادة تسليم" : "Request resubmission"}
+                  {t("evaluations.requestResubmission")}
                 </button>
               </div>
             </article>
           ))}
           {!underReview.data?.length ? (
             <p className="card p-5 text-sm text-muted">
-              {locale === "ar"
-                ? "لا توجد نتائج بانتظار المراجعة الداخلية."
-                : "There are no results awaiting internal verification."}
+              {t("evaluations.emptyVerification")}
             </p>
           ) : null}
         </div>
@@ -1917,7 +1889,7 @@ function AdminEvaluations() {
         <p role="alert" className="mt-4 text-sm text-red-500">
           {verify.error instanceof Error
             ? verify.error.message
-            : "Unable to verify this result."}
+            : t("evaluations.verifyError")}
         </p>
       )}
     </section>
@@ -2269,6 +2241,7 @@ function TeacherInvites() {
 }
 function CourseApprovals() {
   const locale = useLocale();
+  const t = useTranslations("adminWorkspace");
   const client = useQueryClient();
   const [selectedCourseId, setSelectedCourseId] = useState<string>();
   const [reasons, setReasons] = useState<Record<string, string>>({});
@@ -2304,25 +2277,21 @@ function CourseApprovals() {
     return (
       <section className="shell py-10">
         <div className="card p-6" aria-busy>
-          …
+          {t("shared.loadingIndicator")}
         </div>
       </section>
     );
   if (approvals.isError)
     return (
       <section className="shell py-10">
-        <p className="card p-6">Access denied.</p>
+        <p className="card p-6">{t("courseApprovals.accessDenied")}</p>
       </section>
     );
   return (
     <section className="shell py-10">
-      <h1 className="text-3xl font-black">
-        {locale === "ar" ? "مراجعة الدورات" : "Course approvals"}
-      </h1>
+      <h1 className="text-3xl font-black">{t("courseApprovals.title")}</h1>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
-        {locale === "ar"
-          ? "افتح محتوى الدورة أولًا لمراجعة الغلاف والوحدات والدروس والملفات، ثم اعتمدها. النشر خطوة مستقلة بعد الاعتماد."
-          : "Open the course content to review its cover, modules, lessons, and files before approving it. Publishing remains a separate step."}
+        {t("courseApprovals.description")}
       </p>
       <div className="mt-6 space-y-3">
         {approvals.data.map((course) => (
@@ -2336,33 +2305,23 @@ function CourseApprovals() {
                   {course.subjectArabicName
                     ? `${locale === "ar" ? course.subjectArabicName : course.subjectEnglishName} · `
                     : ""}
-                  {course.moduleCount} {locale === "ar" ? "وحدات" : "modules"} ·{" "}
-                  {course.lessonCount} {locale === "ar" ? "دروس" : "lessons"} ·{" "}
-                  {course.resourceCount} {locale === "ar" ? "ملفات" : "files"} ·{" "}
+                  {course.moduleCount} {t("courseApprovals.modules")} ·{" "}
+                  {course.lessonCount} {t("courseApprovals.lessons")} ·{" "}
+                  {course.resourceCount} {t("courseApprovals.files")} ·{" "}
                   {course.hasCover
-                    ? locale === "ar"
-                      ? "غلاف مرفوع"
-                      : "Cover uploaded"
-                    : locale === "ar"
-                      ? "بدون غلاف"
-                      : "No cover"}
+                    ? t("courseApprovals.coverUploaded")
+                    : t("courseApprovals.noCover")}
                 </p>
                 {course.subjectPendingReview ? (
                   <p className="mt-1 text-xs font-bold text-amber-500">
-                    {locale === "ar"
-                      ? "المادة الجديدة ستُعتمد مع اعتماد الدورة."
-                      : "The new subject will be approved with this course."}
+                    {t("courseApprovals.subjectPendingReview")}
                   </p>
                 ) : null}
               </div>
               <span className="rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-black text-primary">
                 {course.status === "Approved"
-                  ? locale === "ar"
-                    ? "معتمدة"
-                    : "Approved"
-                  : locale === "ar"
-                    ? "بانتظار المراجعة"
-                    : "Awaiting review"}
+                  ? t("courseApprovals.approved")
+                  : t("courseApprovals.awaitingReview")}
               </span>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
@@ -2376,12 +2335,8 @@ function CourseApprovals() {
                 className="focus-ring rounded-lg border border-primary/40 px-3 py-2 text-sm font-bold text-primary"
               >
                 {selectedCourseId === course.id
-                  ? locale === "ar"
-                    ? "إخفاء المحتوى"
-                    : "Hide content"
-                  : locale === "ar"
-                    ? "مراجعة المحتوى"
-                    : "Review content"}
+                  ? t("courseApprovals.hideContent")
+                  : t("courseApprovals.reviewContent")}
               </button>
               {course.status === "SubmittedForReview" ? (
                 <>
@@ -2393,11 +2348,7 @@ function CourseApprovals() {
                         [course.id]: event.target.value,
                       }))
                     }
-                    placeholder={
-                      locale === "ar"
-                        ? "سبب الإرجاع عند الحاجة"
-                        : "Reason if returning"
-                    }
+                    placeholder={t("courseApprovals.reasonPlaceholder")}
                     className="min-w-52 flex-1 rounded-lg border border-border bg-transparent px-3 text-sm"
                   />
                   <button
@@ -2407,7 +2358,7 @@ function CourseApprovals() {
                       review.mutate({ id: course.id, approved: false })
                     }
                   >
-                    {locale === "ar" ? "إرجاع للتعديل" : "Return for revision"}
+                    {t("courseApprovals.returnForRevision")}
                   </button>
                   <button
                     type="button"
@@ -2419,9 +2370,7 @@ function CourseApprovals() {
                       selectedCourseId !== course.id || review.isPending
                     }
                   >
-                    {locale === "ar"
-                      ? "اعتماد بعد المراجعة"
-                      : "Approve after review"}
+                    {t("courseApprovals.approveAfterReview")}
                   </button>
                 </>
               ) : (
@@ -2431,7 +2380,7 @@ function CourseApprovals() {
                   onClick={() => publish.mutate(course.id)}
                   disabled={publish.isPending}
                 >
-                  {locale === "ar" ? "نشر الدورة" : "Publish course"}
+                  {t("courseApprovals.publish")}
                 </button>
               )}
             </div>
@@ -2442,17 +2391,13 @@ function CourseApprovals() {
               <p role="alert" className="mt-3 text-sm text-red-400">
                 {actionError instanceof Error
                   ? actionError.message
-                  : "Request failed."}
+                  : t("courseApprovals.requestError")}
               </p>
             ) : null}
           </article>
         ))}
         {!approvals.data.length && (
-          <p className="card p-5 text-muted">
-            {locale === "ar"
-              ? "لا توجد دورات بانتظار المراجعة."
-              : "No courses await review."}
-          </p>
+          <p className="card p-5 text-muted">{t("courseApprovals.empty")}</p>
         )}
       </div>
     </section>
@@ -2461,6 +2406,7 @@ function CourseApprovals() {
 
 function CourseApprovalPreview({ courseId }: { courseId: string }) {
   const locale = useLocale();
+  const t = useTranslations("adminWorkspace");
   const detail = useQuery({
     queryKey: ["approval-course", courseId],
     queryFn: () => api<ApprovalDetail>(`/admin/courses/${courseId}`),
@@ -2471,15 +2417,13 @@ function CourseApprovalPreview({ courseId }: { courseId: string }) {
         className="mt-5 rounded-xl border border-border p-4 text-sm text-muted"
         aria-busy
       >
-        …
+        {t("shared.loadingIndicator")}
       </div>
     );
   if (detail.isError || !detail.data)
     return (
       <p className="mt-5 rounded-xl border border-red-500/30 p-4 text-sm text-red-400">
-        {locale === "ar"
-          ? "تعذر تحميل محتوى الدورة."
-          : "Unable to load course content."}
+        {t("courseApprovalPreview.loadError")}
       </p>
     );
   const course = detail.data;
@@ -2489,24 +2433,20 @@ function CourseApprovalPreview({ courseId }: { courseId: string }) {
         {course.hasCover ? (
           <img
             src={`/api/v1/admin/courses/${course.id}/cover`}
-            alt={
-              locale === "ar"
-                ? `غلاف ${course.arabicTitle}`
-                : `${course.englishTitle} cover`
-            }
+            alt={t("courseApprovalPreview.coverAlt", {
+              title: locale === "ar" ? course.arabicTitle : course.englishTitle,
+            })}
             className="aspect-video w-full rounded-xl border border-border object-cover"
           />
         ) : (
           <div className="grid aspect-video place-items-center rounded-xl border border-dashed border-border text-sm text-muted">
-            {locale === "ar" ? "لا يوجد غلاف." : "No cover."}
+            {t("courseApprovalPreview.noCover")}
           </div>
         )}
         <div className="mt-4 rounded-xl border border-border p-3 text-sm">
           <strong>
             {course.isFree
-              ? locale === "ar"
-                ? "مجانية"
-                : "Free"
+              ? t("courseApprovalPreview.free")
               : formatLocalizedCurrency(course.price, "JOD", locale)}
           </strong>
           <p className="mt-2 text-muted">
@@ -2519,7 +2459,7 @@ function CourseApprovalPreview({ courseId }: { courseId: string }) {
       <div className="grid gap-4">
         <div>
           <h3 className="font-black">
-            {locale === "ar" ? "نواتج التعلم" : "Learning outcomes"}
+            {t("courseApprovalPreview.learningOutcomes")}
           </h3>
           <ul className="mt-2 grid gap-2 text-sm text-muted">
             {course.outcomes.map((outcome) => (
@@ -2537,7 +2477,7 @@ function CourseApprovalPreview({ courseId }: { courseId: string }) {
         </div>
         <div>
           <h3 className="font-black">
-            {locale === "ar" ? "الوحدات والدروس" : "Modules and lessons"}
+            {t("courseApprovalPreview.modulesAndLessons")}
           </h3>
           <div className="mt-2 grid gap-3">
             {course.modules.map((module) => (
@@ -2563,7 +2503,7 @@ function CourseApprovalPreview({ courseId }: { courseId: string }) {
                         <span className="text-xs text-muted">
                           {lesson.type} ·{" "}
                           {Math.round(lesson.durationSeconds / 60)}{" "}
-                          {locale === "ar" ? "دقيقة" : "min"}
+                          {t("courseApprovalPreview.minutes")}
                         </span>
                       </div>
                       <p className="mt-2 whitespace-pre-wrap text-sm text-muted">
@@ -2585,9 +2525,7 @@ function CourseApprovalPreview({ courseId }: { courseId: string }) {
                         </div>
                       ) : (
                         <p className="mt-3 text-xs text-muted">
-                          {locale === "ar"
-                            ? "لا توجد ملفات لهذا الدرس."
-                            : "No files for this lesson."}
+                          {t("courseApprovalPreview.emptyResources")}
                         </p>
                       )}
                     </div>
@@ -2599,7 +2537,7 @@ function CourseApprovalPreview({ courseId }: { courseId: string }) {
         </div>
         <div>
           <h3 className="font-black">
-            {locale === "ar" ? "المهام ومعاييرها" : "Coursework and criteria"}
+            {t("courseApprovalPreview.courseworkAndCriteria")}
           </h3>
           {course.assignments.length ? (
             <div className="mt-2 grid gap-3">
@@ -2616,12 +2554,8 @@ function CourseApprovalPreview({ courseId }: { courseId: string }) {
                     </h4>
                     <span className="text-xs font-bold text-muted">
                       {assignment.isPublished
-                        ? locale === "ar"
-                          ? "منشورة"
-                          : "Published"
-                        : locale === "ar"
-                          ? "مسودة"
-                          : "Draft"}
+                        ? t("courseApprovalPreview.published")
+                        : t("courseApprovalPreview.draft")}
                     </span>
                   </div>
                   <p className="mt-2 whitespace-pre-wrap text-sm text-muted">
@@ -2630,20 +2564,15 @@ function CourseApprovalPreview({ courseId }: { courseId: string }) {
                       : assignment.englishInstructions}
                   </p>
                   <p className="mt-2 text-xs text-muted">
-                    {locale === "ar"
-                      ? "إعداد التسليم: "
-                      : "Submission settings: "}
+                    {t("courseApprovalPreview.submissionSettings")}
                     {assignment.maxSubmissionAttempts}{" "}
-                    {locale === "ar" ? "محاولات" : "attempts"} ·{" "}
-                    {Math.round(assignment.maxFileSizeBytes / 1024 / 1024)}MB ·{" "}
+                    {t("courseApprovalPreview.attempts")} ·{" "}
+                    {Math.round(assignment.maxFileSizeBytes / 1024 / 1024)}
+                    {t("courseApprovalPreview.megabytes")} ·{" "}
                     {assignment.allowedFileExtensions.join(", ").toUpperCase()}
                     {assignment.allowResubmission
-                      ? locale === "ar"
-                        ? " · إعادة التسليم مسموحة"
-                        : " · resubmission allowed"
-                      : locale === "ar"
-                        ? " · لا إعادة تسليم"
-                        : " · no resubmission"}
+                      ? t("courseApprovalPreview.resubmissionAllowed")
+                      : t("courseApprovalPreview.noResubmission")}
                   </p>
                   <ul className="mt-3 grid gap-2 text-sm">
                     {assignment.criteria.map((criterion) => (
@@ -2666,9 +2595,7 @@ function CourseApprovalPreview({ courseId }: { courseId: string }) {
             </div>
           ) : (
             <p className="mt-2 text-sm text-muted">
-              {locale === "ar"
-                ? "لا توجد مهام مضافة لهذه الدورة."
-                : "No coursework has been added to this course."}
+              {t("courseApprovalPreview.emptyCoursework")}
             </p>
           )}
         </div>
