@@ -1,0 +1,390 @@
+{
+  "baseMain": "20e613c19b69c0e690a94d3221a466dd8414cd10",
+  "before": {
+    "AdminEvaluations": {
+      "total": 19,
+      "static": 19,
+      "data": 0,
+      "arabic": 19,
+      "english": 21
+    },
+    "CourseApprovals": {
+      "total": 19,
+      "static": 17,
+      "data": 2,
+      "arabic": 17,
+      "english": 19
+    },
+    "CourseApprovalPreview": {
+      "total": 23,
+      "static": 16,
+      "data": 7,
+      "arabic": 16,
+      "english": 17
+    }
+  },
+  "existingCatalogueHashes": {
+    "ar": "4cf9529addf3928fb31abd39a03eccc95be193f8a62582684390460494d738aa",
+    "en": "a798e1a1d45a6a3793d2db5fad08fb409722a58b613e66f85d37d85c5956c8ec"
+  },
+  "cases": [
+    {
+      "key": "evaluations.loadError",
+      "ar": "تعذر تحميل طلبات التقييم.",
+      "en": "Unable to load evaluation requests.",
+      "values": {}
+    },
+    {
+      "key": "evaluations.eyebrow",
+      "ar": "تقييم BETCCO",
+      "en": "BETCCO Evaluation",
+      "values": {}
+    },
+    {
+      "key": "evaluations.title",
+      "ar": "إسناد التقييمات",
+      "en": "Assign evaluations",
+      "values": {}
+    },
+    {
+      "key": "evaluations.description",
+      "ar": "اختر مقيّمًا مؤهلاً لوحدة الطلب. يتحقق الخادم من الأهلية عند الإسناد.",
+      "en": "Choose an evaluator eligible for the request's Unit. The server rechecks eligibility on assignment.",
+      "values": {}
+    },
+    {
+      "key": "evaluations.assigned",
+      "ar": "تم إسناد التقييم.",
+      "en": "Evaluation assigned.",
+      "values": {}
+    },
+    {
+      "key": "evaluations.emptyPending",
+      "ar": "لا توجد تقييمات مدفوعة بانتظار الإسناد.",
+      "en": "No paid evaluations are waiting for assignment.",
+      "values": {}
+    },
+    {
+      "key": "evaluations.verificationEyebrow",
+      "ar": "المراجعة الداخلية",
+      "en": "Internal verification",
+      "values": {}
+    },
+    {
+      "key": "evaluations.verificationTitle",
+      "ar": "نتائج بانتظار الاعتماد",
+      "en": "Results awaiting approval",
+      "values": {}
+    },
+    {
+      "key": "evaluations.verificationDescription",
+      "ar": "راجع حكم المعلم والأدلة قبل الاعتماد أو طلب إعادة التسليم مع ملاحظات واضحة.",
+      "en": "Review the assessor decision and evidence before approval, or request a resubmission with clear feedback.",
+      "values": {}
+    },
+    {
+      "key": "evaluations.calculatedResult",
+      "ar": "النتيجة المحسوبة",
+      "en": "Calculated result",
+      "values": {}
+    },
+    {
+      "key": "shared.unavailable",
+      "ar": "—",
+      "en": "—",
+      "values": {}
+    },
+    {
+      "key": "evaluations.section",
+      "ar": "القسم A'B {raw}",
+      "en": "Section A'B {raw}",
+      "values": {
+        "section": "A'B {raw}"
+      }
+    },
+    {
+      "key": "evaluations.criterionOutcomes",
+      "ar": "نتائج المعايير",
+      "en": "Criterion outcomes",
+      "values": {}
+    },
+    {
+      "key": "evaluations.studentEvidence",
+      "ar": "أدلة الطالب",
+      "en": "Student evidence",
+      "values": {}
+    },
+    {
+      "key": "evaluations.emptyEvidence",
+      "ar": "لم يضف الطالب أدلة نصية.",
+      "en": "The student did not add written evidence.",
+      "values": {}
+    },
+    {
+      "key": "evaluations.notesPlaceholder",
+      "ar": "ملاحظة داخلية أو تعليمات لإعادة التسليم (مطلوبة عند طلب إعادة التسليم)",
+      "en": "Internal note or resubmission instructions (required for resubmission)",
+      "values": {}
+    },
+    {
+      "key": "evaluations.deadline",
+      "ar": "آخر موعد مصرح لإعادة التسليم",
+      "en": "Authorised resubmission deadline",
+      "values": {}
+    },
+    {
+      "key": "evaluations.deadlineHelp",
+      "ar": "يُستخدم فقط عند طلب إعادة التسليم؛ يظل خاضعًا للحدود المحددة في نسخة قواعد التقييم.",
+      "en": "Used only when requesting resubmission and remains subject to the assessment rule-set limits.",
+      "values": {}
+    },
+    {
+      "key": "evaluations.approve",
+      "ar": "اعتماد النتيجة",
+      "en": "Approve result",
+      "values": {}
+    },
+    {
+      "key": "evaluations.requestResubmission",
+      "ar": "طلب إعادة تسليم",
+      "en": "Request resubmission",
+      "values": {}
+    },
+    {
+      "key": "evaluations.emptyVerification",
+      "ar": "لا توجد نتائج بانتظار المراجعة الداخلية.",
+      "en": "There are no results awaiting internal verification.",
+      "values": {}
+    },
+    {
+      "key": "evaluations.verifyError",
+      "ar": "تعذر التحقق من هذه النتيجة.",
+      "en": "Unable to verify this result.",
+      "values": {}
+    },
+    {
+      "key": "courseApprovals.accessDenied",
+      "ar": "الوصول مرفوض.",
+      "en": "Access denied.",
+      "values": {}
+    },
+    {
+      "key": "courseApprovals.title",
+      "ar": "مراجعة الدورات",
+      "en": "Course approvals",
+      "values": {}
+    },
+    {
+      "key": "courseApprovals.description",
+      "ar": "افتح محتوى الدورة أولًا لمراجعة الغلاف والوحدات والدروس والملفات، ثم اعتمدها. النشر خطوة مستقلة بعد الاعتماد.",
+      "en": "Open the course content to review its cover, modules, lessons, and files before approving it. Publishing remains a separate step.",
+      "values": {}
+    },
+    {
+      "key": "courseApprovals.modules",
+      "ar": "وحدات",
+      "en": "modules",
+      "values": {}
+    },
+    {
+      "key": "courseApprovals.lessons",
+      "ar": "دروس",
+      "en": "lessons",
+      "values": {}
+    },
+    {
+      "key": "courseApprovals.files",
+      "ar": "ملفات",
+      "en": "files",
+      "values": {}
+    },
+    {
+      "key": "courseApprovals.coverUploaded",
+      "ar": "غلاف مرفوع",
+      "en": "Cover uploaded",
+      "values": {}
+    },
+    {
+      "key": "courseApprovals.noCover",
+      "ar": "بدون غلاف",
+      "en": "No cover",
+      "values": {}
+    },
+    {
+      "key": "courseApprovals.subjectPendingReview",
+      "ar": "المادة الجديدة ستُعتمد مع اعتماد الدورة.",
+      "en": "The new subject will be approved with this course.",
+      "values": {}
+    },
+    {
+      "key": "courseApprovals.approved",
+      "ar": "معتمدة",
+      "en": "Approved",
+      "values": {}
+    },
+    {
+      "key": "courseApprovals.awaitingReview",
+      "ar": "بانتظار المراجعة",
+      "en": "Awaiting review",
+      "values": {}
+    },
+    {
+      "key": "courseApprovals.hideContent",
+      "ar": "إخفاء المحتوى",
+      "en": "Hide content",
+      "values": {}
+    },
+    {
+      "key": "courseApprovals.reviewContent",
+      "ar": "مراجعة المحتوى",
+      "en": "Review content",
+      "values": {}
+    },
+    {
+      "key": "courseApprovals.reasonPlaceholder",
+      "ar": "سبب الإرجاع عند الحاجة",
+      "en": "Reason if returning",
+      "values": {}
+    },
+    {
+      "key": "courseApprovals.returnForRevision",
+      "ar": "إرجاع للتعديل",
+      "en": "Return for revision",
+      "values": {}
+    },
+    {
+      "key": "courseApprovals.approveAfterReview",
+      "ar": "اعتماد بعد المراجعة",
+      "en": "Approve after review",
+      "values": {}
+    },
+    {
+      "key": "courseApprovals.publish",
+      "ar": "نشر الدورة",
+      "en": "Publish course",
+      "values": {}
+    },
+    {
+      "key": "courseApprovals.requestError",
+      "ar": "فشل الطلب.",
+      "en": "Request failed.",
+      "values": {}
+    },
+    {
+      "key": "courseApprovals.empty",
+      "ar": "لا توجد دورات بانتظار المراجعة.",
+      "en": "No courses await review.",
+      "values": {}
+    },
+    {
+      "key": "courseApprovalPreview.loadError",
+      "ar": "تعذر تحميل محتوى الدورة.",
+      "en": "Unable to load course content.",
+      "values": {}
+    },
+    {
+      "key": "courseApprovalPreview.coverAlt",
+      "ar": "غلاف Title' {raw} عنوان",
+      "en": "Title' {raw} عنوان cover",
+      "values": {
+        "title": "Title' {raw} عنوان"
+      }
+    },
+    {
+      "key": "courseApprovalPreview.noCover",
+      "ar": "لا يوجد غلاف.",
+      "en": "No cover.",
+      "values": {}
+    },
+    {
+      "key": "courseApprovalPreview.free",
+      "ar": "مجانية",
+      "en": "Free",
+      "values": {}
+    },
+    {
+      "key": "courseApprovalPreview.learningOutcomes",
+      "ar": "نواتج التعلم",
+      "en": "Learning outcomes",
+      "values": {}
+    },
+    {
+      "key": "courseApprovalPreview.modulesAndLessons",
+      "ar": "الوحدات والدروس",
+      "en": "Modules and lessons",
+      "values": {}
+    },
+    {
+      "key": "courseApprovalPreview.minutes",
+      "ar": "دقيقة",
+      "en": "min",
+      "values": {}
+    },
+    {
+      "key": "courseApprovalPreview.emptyResources",
+      "ar": "لا توجد ملفات لهذا الدرس.",
+      "en": "No files for this lesson.",
+      "values": {}
+    },
+    {
+      "key": "courseApprovalPreview.courseworkAndCriteria",
+      "ar": "المهام ومعاييرها",
+      "en": "Coursework and criteria",
+      "values": {}
+    },
+    {
+      "key": "courseApprovalPreview.published",
+      "ar": "منشورة",
+      "en": "Published",
+      "values": {}
+    },
+    {
+      "key": "courseApprovalPreview.draft",
+      "ar": "مسودة",
+      "en": "Draft",
+      "values": {}
+    },
+    {
+      "key": "courseApprovalPreview.submissionSettings",
+      "ar": "إعداد التسليم: ",
+      "en": "Submission settings: ",
+      "values": {}
+    },
+    {
+      "key": "courseApprovalPreview.attempts",
+      "ar": "محاولات",
+      "en": "attempts",
+      "values": {}
+    },
+    {
+      "key": "courseApprovalPreview.megabytes",
+      "ar": "MB",
+      "en": "MB",
+      "values": {}
+    },
+    {
+      "key": "courseApprovalPreview.resubmissionAllowed",
+      "ar": " · إعادة التسليم مسموحة",
+      "en": " · resubmission allowed",
+      "values": {}
+    },
+    {
+      "key": "courseApprovalPreview.noResubmission",
+      "ar": " · لا إعادة تسليم",
+      "en": " · no resubmission",
+      "values": {}
+    },
+    {
+      "key": "courseApprovalPreview.emptyCoursework",
+      "ar": "لا توجد مهام مضافة لهذه الدورة.",
+      "en": "No coursework has been added to this course.",
+      "values": {}
+    }
+  ],
+  "contractHashes": [
+    "eda959e616c5cdcfe4aaed62092b1149f75818d185db947365b7bb54db8aee08",
+    "e42f633897cd9ca4e10c27bb3db1e8f3f6ee0c9caea8590fdb570fc511cc0294",
+    "22c1150e1bd40c0b79b5d030a63f814f9ecbeb83ffe1d90fc558e40173bb7682"
+  ],
+  "outsideScopeHash": "3314c191b2191557e6c3888b6d633d548815c740191d4296186531f0efbc30be"
+}

@@ -55,13 +55,18 @@ describe("scoped Admin user/identity source and contract audit", () => {
       ["ar", arabicMessages],
       ["en", messages],
     ] as const) {
-      const original: Record<string, unknown> = JSON.parse(
-        JSON.stringify(catalogue.adminWorkspace),
+      const workspace = catalogue.adminWorkspace;
+      // Select the original slice explicitly as later scoped slices extend it.
+      const original: Record<string, unknown> = Object.fromEntries(
+        Object.entries(workspace).filter(([key]) =>
+          ["shared", "dashboard", "analytics", "navigation"].includes(key),
+        ),
       );
-      delete original.students;
-      delete original.teacherInvites;
-      delete original.accountIdentities;
-      delete (original.shared as Record<string, unknown>).cancel;
+      original.shared = Object.fromEntries(
+        Object.entries(workspace.shared).filter(([key]) =>
+          ["open", "loadingIndicator"].includes(key),
+        ),
+      );
       expect(
         createHash("sha256").update(JSON.stringify(original)).digest("hex"),
       ).toBe(EXISTING_CATALOGUE_HASHES[locale]);
