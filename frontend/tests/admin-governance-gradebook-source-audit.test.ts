@@ -18,6 +18,7 @@ import {
 const completed: File[] = [
   "internal-verification-plan-management",
   "evaluation-appeal-management",
+  "qualification-registry-management",
 ];
 const sources = Object.fromEntries(
   files.map((name) => [

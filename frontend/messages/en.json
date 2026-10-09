@@ -2826,6 +2826,35 @@
       "rationaleHint": "At least 10 characters. Any reassessment must be recorded as a separate action.",
       "recording": "Recording…",
       "record": "Record decision"
+    },
+    "qualificationRegistry": {
+      "eyebrow": "specification control",
+      "title": "Qualification version registry",
+      "description": "Register the qualification, its source version, and the centre-approved reference before binding it to an assessment rubric. BETCCO never inserts a Pearson specification or claims approval on its own.",
+      "addQualification": "Add qualification",
+      "code": "Qualification code",
+      "arabicName": "Arabic name",
+      "englishName": "English name",
+      "saveQualification": "Save qualification",
+      "saving": "Saving…",
+      "addVersion": "Add sourced version",
+      "qualification": "Qualification",
+      "chooseQualification": "Choose a qualification",
+      "versionCode": "Version code",
+      "sourceReference": "Approved source reference",
+      "sourcePlaceholder": "Official specification URL or reference",
+      "effectiveFrom": "Effective from",
+      "effectiveUntil": "Ends on (optional)",
+      "saveVersion": "Save version",
+      "saveError": "Unable to save the change.",
+      "registered": "Registered qualifications",
+      "noVersion": "No sourced version yet.",
+      "empty": "No qualifications are registered yet.",
+      "bindTitle": "Bind a version to an assessment rubric",
+      "bindingPolicy": "This binding affects new evaluations only; existing evaluation requests retain their source snapshot.",
+      "unbound": "No qualification version bound",
+      "chooseVersion": "Choose a sourced version",
+      "bind": "Bind"
     }
   }
 }

@@ -2826,6 +2826,35 @@
       "rationaleHint": "10 أحرف على الأقل. يجب تسجيل أي إعادة تقييم لاحقة كإجراء مستقل.",
       "recording": "جارٍ التسجيل…",
       "record": "تسجيل القرار"
+    },
+    "qualificationRegistry": {
+      "eyebrow": "ضبط المواصفات",
+      "title": "سجل المؤهلات وإصداراتها",
+      "description": "سجّل المؤهل وإصداره ومصدره الذي اعتمده المركز قبل ربطه بروبرك التقييم. لا يضيف BETCCO أي مواصفة Pearson أو اعتماد من تلقاء نفسه.",
+      "addQualification": "إضافة مؤهل",
+      "code": "رمز المؤهل",
+      "arabicName": "الاسم بالعربية",
+      "englishName": "الاسم بالإنجليزية",
+      "saveQualification": "حفظ المؤهل",
+      "saving": "جارٍ الحفظ…",
+      "addVersion": "إضافة إصدار موثق",
+      "qualification": "المؤهل",
+      "chooseQualification": "اختر المؤهل",
+      "versionCode": "رمز الإصدار",
+      "sourceReference": "مرجع المصدر المعتمد",
+      "sourcePlaceholder": "رابط أو معرّف المواصفة الموثقة",
+      "effectiveFrom": "يسري من",
+      "effectiveUntil": "ينتهي في (اختياري)",
+      "saveVersion": "حفظ الإصدار",
+      "saveError": "تعذر حفظ التغيير.",
+      "registered": "المؤهلات المسجلة",
+      "noVersion": "لا يوجد إصدار موثق بعد.",
+      "empty": "لا توجد مؤهلات مسجلة بعد.",
+      "bindTitle": "ربط الإصدار بروبرك التقييم",
+      "bindingPolicy": "يؤثر الربط في التقييمات الجديدة فقط؛ طلبات التقييم السابقة تحتفظ بنسخة مصدرها.",
+      "unbound": "غير مربوط بإصدار مؤهل",
+      "chooseVersion": "اختر إصدارًا موثقًا",
+      "bind": "ربط"
     }
   }
 }
