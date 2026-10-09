@@ -154,8 +154,11 @@ for (const scenario of [
         () => document.documentElement.scrollWidth <= window.innerWidth,
       ),
     ).toBe(true);
-    if (scenario.locale === "ar")
-      await expect(page.locator('div[dir="rtl"]').first()).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute(
+      "dir",
+      scenario.locale === "ar" ? "rtl" : "ltr",
+    );
+    await expect(page.locator("html")).toHaveAttribute("lang", scenario.locale);
     expect(pageErrors).toEqual([]);
   });
 }
