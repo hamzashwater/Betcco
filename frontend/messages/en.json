@@ -2855,6 +2855,29 @@
       "unbound": "No qualification version bound",
       "chooseVersion": "Choose a sourced version",
       "bind": "Bind"
+    },
+    "gradebook": {
+      "title": "Central gradebook",
+      "description": "Coursework results are calculated on the server from criteria. Use filters for review only; grades cannot be edited here.",
+      "course": "Course",
+      "unit": "Unit",
+      "teacher": "Teacher",
+      "student": "Student",
+      "submissionStatus": "Submission status",
+      "grade": "Grade",
+      "fromDate": "From date",
+      "toDate": "To date",
+      "search": "Search student, teacher, or coursework",
+      "apply": "Apply filters",
+      "clear": "Clear",
+      "loadError": "Unable to load the gradebook.",
+      "empty": "No results match these filters.",
+      "courseUnit": "Course / unit",
+      "coursework": "Coursework",
+      "status": "Status",
+      "date": "Date",
+      "pagination": "Pagination",
+      "results": "results"
     }
   }
 }

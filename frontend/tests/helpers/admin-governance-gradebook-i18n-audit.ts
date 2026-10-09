@@ -107,7 +107,10 @@ export function literalSignature(n: ts.Node) {
 export function technicalLiterals(source: string) {
   const result: string[] = [];
   function visit(n: ts.Node) {
-    if (staticBranch(n)) return;
+    if (ts.isConditionalExpression(n) && staticBranch(n)) {
+      visit(n.condition);
+      return;
+    }
     if (ts.isVariableDeclaration(n) && n.name.getText() === "labels") return;
     if (ts.isStringLiteralLike(n) || ts.isTemplateLiteralToken(n))
       result.push(literalSignature(n));
@@ -115,6 +118,52 @@ export function technicalLiterals(source: string) {
   }
   visit(parse(source));
   return [...new Set(result)].sort();
+}
+export function presentationKeys(
+  source: string,
+  name: File,
+  cases: { key: string; ar: string; en: string }[],
+) {
+  const keys: string[] = [];
+  function visit(n: ts.Node) {
+    if (ts.isVariableDeclaration(n) && n.name.getText() === "labels") return;
+    if (ts.isConditionalExpression(n) && staticBranch(n)) {
+      keys.push(
+        cases.find(
+          (c) =>
+            c.ar === (n.whenTrue as ts.StringLiteral).text &&
+            c.en === (n.whenFalse as ts.StringLiteral).text,
+        )!.key,
+      );
+      return;
+    }
+    if (outcome(n)) {
+      keys.push(
+        ...["Pass", "Merit", "Distinction"].map(
+          (v) => `internalVerificationPlans.outcomeLabels.${v}`,
+        ),
+      );
+      return;
+    }
+    if (
+      ts.isPropertyAccessExpression(n) &&
+      n.expression.getText() === "labels"
+    ) {
+      keys.push(`${sections[name]}.${n.name.text}`);
+      return;
+    }
+    if (
+      ts.isCallExpression(n) &&
+      n.expression.getText() === "t" &&
+      ts.isStringLiteral(n.arguments[0])
+    ) {
+      keys.push(n.arguments[0].text);
+      return;
+    }
+    ts.forEachChild(n, visit);
+  }
+  visit(parse(source));
+  return keys;
 }
 export function audit(source: string, name: File, allowed: string[]) {
   const findings: string[] = [],
@@ -177,7 +226,7 @@ export function audit(source: string, name: File, allowed: string[]) {
     if (
       ts.isJsxText(n) &&
       n.text.trim() &&
-      !/^(BETCCO\s*·|[·—…:\s]+)$/.test(n.text.trim())
+      !/^(BETCCO\s*·|[·—…:/\s]+)$/.test(n.text.trim())
     )
       findings.push(`STATIC_UI: ${n.text.trim()}`);
     if (ts.isCallExpression(n) && n.expression.getText() === "t") {

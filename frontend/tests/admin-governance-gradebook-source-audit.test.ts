@@ -12,14 +12,11 @@ import {
   hash,
   parse,
   sections,
+  presentationKeys,
   type File,
 } from "./helpers/admin-governance-gradebook-i18n-audit";
 
-const completed: File[] = [
-  "internal-verification-plan-management",
-  "evaluation-appeal-management",
-  "qualification-registry-management",
-];
+const completed: File[] = files;
 const sources = Object.fromEntries(
   files.map((name) => [
     name,
@@ -34,6 +31,14 @@ function leaves(value: unknown, prefix = ""): string[] {
       );
 }
 describe("Governance/gradebook per-file copy audit and pre-batch freeze", () => {
+  it.each(files)(
+    "preserves the exact translation key at every original UI location in %s",
+    (name) => {
+      expect(
+        presentationKeys(sources[name], name, baseline.files[name].cases),
+      ).toEqual(baseline.files[name].presentationKeys);
+    },
+  );
   it.each(completed)(
     "has zero static or unclassified UI independently in %s",
     (name) => {

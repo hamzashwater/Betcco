@@ -1,4 +1,46 @@
 // Synthetic data only. These fixtures prove UI contracts, not backend policy.
+export const gradebookFilters = {
+  courses: [
+    { id: "course", title: "Raw course" },
+    { id: "course2", title: "Raw second course" },
+  ],
+  units: [
+    { id: "unit", courseId: "course", title: "Raw unit" },
+    { id: "unit2", courseId: "course2", title: "Raw other unit" },
+  ],
+  teachers: [{ id: "teacher", displayName: "Raw gradebook teacher" }],
+  students: [{ id: "student", displayName: "Raw gradebook student" }],
+};
+export const gradebookRow = {
+  submissionId: "submission",
+  courseId: "course",
+  courseTitle: "Raw row course",
+  unitId: "unit",
+  unitTitle: "Raw row unit",
+  teacherUserId: "teacher",
+  teacherName: "Raw row teacher",
+  studentUserId: "student",
+  studentName: "Raw row student",
+  assignmentTitle: "Raw coursework title",
+  status: "NeedsRevision",
+  grade: "NotYetAchieved",
+  submittedAtUtc: "2026-09-24T10:00:00Z",
+  gradedAtUtc: "2026-09-25T13:30:00Z",
+};
+export function gradebookPage(page = 1) {
+  return {
+    total: 5,
+    page,
+    pageSize: 2,
+    rows: [
+      {
+        ...gradebookRow,
+        submissionId: `submission-${page}`,
+        studentName: `Raw row student ${page}`,
+      },
+    ],
+  };
+}
 export const version = {
   id: "version",
   versionCode: "Raw V1",
