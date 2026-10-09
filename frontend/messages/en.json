@@ -2751,6 +2751,27 @@
       "privateReason": "Private staff reason:",
       "privateRevocationReason": "Private revocation reason:",
       "page": "Page"
+    },
+    "evaluatorSpecialisms": {
+      "title": "Evaluator Unit specialisms",
+      "description": "Grant evaluation eligibility for a canonical academic Unit and keep its history.",
+      "evaluator": "Evaluator",
+      "selectEvaluator": "Select an evaluator",
+      "academicUnit": "Academic Unit",
+      "selectUnit": "Select a Unit",
+      "granting": "Granting…",
+      "grant": "Grant specialism",
+      "loading": "Loading…",
+      "operationError": "Unable to complete the operation. Refresh and try again.",
+      "grantSuccess": "Specialism granted.",
+      "revokeSuccess": "Specialism revoked; history preserved.",
+      "history": "Specialism history",
+      "emptyHistory": "No grants yet.",
+      "grantedAt": "Granted",
+      "revokedAt": "Revoked",
+      "revokedStatus": "Revoked",
+      "revoking": "Revoking…",
+      "revoke": "Revoke"
     }
   }
 }

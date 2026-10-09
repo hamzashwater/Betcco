@@ -1,0 +1,140 @@
+{
+  "baseMain": "dbf471717db4753b8e3a556313262e25ed140e9a",
+  "before": {
+    "localeUses": [
+      {
+        "kind": "SERVER_BILINGUAL_DATA",
+        "text": "ar ? item.arabicTitle : item.englishTitle"
+      },
+      {
+        "kind": "ACADEMIC_LOCALIZATION",
+        "text": "academicText( locale, item.unitArabicTitle, item.unitEnglishTitle, )"
+      },
+      {
+        "kind": "FORMATTER",
+        "text": "formatLocalizedDateTime(item.grantedAtUtc, locale)"
+      },
+      {
+        "kind": "FORMATTER",
+        "text": "formatLocalizedDateTime(item.revokedAtUtc, locale)"
+      }
+    ],
+    "staticBilingual": 21,
+    "staticArabic": 21,
+    "staticEnglish": 21,
+    "inlineBilingual": 0,
+    "dataBranches": 1
+  },
+  "cases": [
+    {
+      "key": "evaluatorSpecialisms.title",
+      "ar": "اختصاصات المقيمين حسب الوحدة",
+      "en": "Evaluator Unit specialisms"
+    },
+    {
+      "key": "evaluatorSpecialisms.description",
+      "ar": "امنح أهلية التقييم لوحدة أكاديمية محددة، واحتفظ بسجل المنح والإلغاءات.",
+      "en": "Grant evaluation eligibility for a canonical academic Unit and keep its history."
+    },
+    {
+      "key": "evaluatorSpecialisms.evaluator",
+      "ar": "المقيم",
+      "en": "Evaluator"
+    },
+    {
+      "key": "evaluatorSpecialisms.selectEvaluator",
+      "ar": "اختر مقيّمًا",
+      "en": "Select an evaluator"
+    },
+    {
+      "key": "evaluatorSpecialisms.academicUnit",
+      "ar": "الوحدة الأكاديمية",
+      "en": "Academic Unit"
+    },
+    {
+      "key": "evaluatorSpecialisms.selectUnit",
+      "ar": "اختر وحدة",
+      "en": "Select a Unit"
+    },
+    {
+      "key": "evaluatorSpecialisms.granting",
+      "ar": "جارٍ منح الاختصاص…",
+      "en": "Granting…"
+    },
+    {
+      "key": "evaluatorSpecialisms.grant",
+      "ar": "منح الاختصاص",
+      "en": "Grant specialism"
+    },
+    {
+      "key": "evaluatorSpecialisms.loading",
+      "ar": "جارٍ التحميل…",
+      "en": "Loading…"
+    },
+    {
+      "key": "evaluatorSpecialisms.operationError",
+      "ar": "تعذر إكمال العملية. حدّث الصفحة وحاول مجددًا.",
+      "en": "Unable to complete the operation. Refresh and try again."
+    },
+    {
+      "key": "evaluatorSpecialisms.grantSuccess",
+      "ar": "تم منح الاختصاص.",
+      "en": "Specialism granted."
+    },
+    {
+      "key": "evaluatorSpecialisms.revokeSuccess",
+      "ar": "تم إلغاء الاختصاص مع حفظ السجل.",
+      "en": "Specialism revoked; history preserved."
+    },
+    {
+      "key": "evaluatorSpecialisms.history",
+      "ar": "سجل الاختصاصات",
+      "en": "Specialism history"
+    },
+    {
+      "key": "evaluatorSpecialisms.emptyHistory",
+      "ar": "لا توجد منح بعد.",
+      "en": "No grants yet."
+    },
+    {
+      "key": "evaluatorSpecialisms.grantedAt",
+      "ar": "مُنح في",
+      "en": "Granted"
+    },
+    {
+      "key": "evaluatorSpecialisms.revokedAt",
+      "ar": "أُلغي في",
+      "en": "Revoked"
+    },
+    {
+      "key": "evaluatorSpecialisms.revokedStatus",
+      "ar": "ملغى",
+      "en": "Revoked"
+    },
+    {
+      "key": "evaluatorSpecialisms.revoking",
+      "ar": "جارٍ الإلغاء…",
+      "en": "Revoking…"
+    },
+    {
+      "key": "evaluatorSpecialisms.revoke",
+      "ar": "إلغاء الاختصاص",
+      "en": "Revoke"
+    },
+    {
+      "key": "shared.previous",
+      "ar": "السابق",
+      "en": "Previous"
+    },
+    {
+      "key": "shared.next",
+      "ar": "التالي",
+      "en": "Next"
+    }
+  ],
+  "contractHash": "218895b3f795a18b52054053bc89907cefc46e8ced6dd0080c29630601ce6cd9",
+  "catalogueHashes": {
+    "ar": "9d1ccb3e7141aae68a9029e53cd9461926c8dc0e12090d5d523465d5ba4348aa",
+    "en": "3067a557c5de9be17f79f2d6144408942b340f9a226dad6eac8f7a90ceafbc22"
+  }
+}

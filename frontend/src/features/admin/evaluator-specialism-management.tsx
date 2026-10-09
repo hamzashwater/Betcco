@@ -4,7 +4,7 @@ import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { academicText } from "@/lib/academic-localization";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 type Staff = { id: string; displayName: string };
@@ -39,6 +39,7 @@ type GrantPage = {
 export function EvaluatorSpecialismManagement() {
   const locale = useLocale();
   const ar = locale === "ar";
+  const t = useTranslations("adminWorkspace");
   const client = useQueryClient();
   const [evaluatorUserId, setEvaluatorUserId] = useState("");
   const [unitDefinitionId, setUnitDefinitionId] = useState("");
@@ -88,17 +89,13 @@ export function EvaluatorSpecialismManagement() {
 
   return (
     <section className="shell py-10">
-      <h1 className="text-3xl font-black">
-        {ar ? "اختصاصات المقيمين حسب الوحدة" : "Evaluator Unit specialisms"}
-      </h1>
+      <h1 className="text-3xl font-black">{t("evaluatorSpecialisms.title")}</h1>
       <p className="mt-2 text-sm text-muted">
-        {ar
-          ? "امنح أهلية التقييم لوحدة أكاديمية محددة، واحتفظ بسجل المنح والإلغاءات."
-          : "Grant evaluation eligibility for a canonical academic Unit and keep its history."}
+        {t("evaluatorSpecialisms.description")}
       </p>
       <div className="card mt-6 grid gap-4 p-5 md:grid-cols-2">
         <label className="grid gap-2 text-sm font-bold">
-          {ar ? "المقيم" : "Evaluator"}
+          {t("evaluatorSpecialisms.evaluator")}
           <select
             className="focus-ring min-w-0 rounded-xl border border-border bg-transparent p-3"
             value={evaluatorUserId}
@@ -106,7 +103,7 @@ export function EvaluatorSpecialismManagement() {
             disabled={staff.isPending || staff.isError}
           >
             <option value="">
-              {ar ? "اختر مقيّمًا" : "Select an evaluator"}
+              {t("evaluatorSpecialisms.selectEvaluator")}
             </option>
             {staff.data?.map((item) => (
               <option key={item.id} value={item.id}>
@@ -116,14 +113,14 @@ export function EvaluatorSpecialismManagement() {
           </select>
         </label>
         <label className="grid gap-2 text-sm font-bold">
-          {ar ? "الوحدة الأكاديمية" : "Academic Unit"}
+          {t("evaluatorSpecialisms.academicUnit")}
           <select
             className="focus-ring min-w-0 rounded-xl border border-border bg-transparent p-3"
             value={unitDefinitionId}
             onChange={(event) => setUnitDefinitionId(event.target.value)}
             disabled={units.isPending || units.isError}
           >
-            <option value="">{ar ? "اختر وحدة" : "Select a Unit"}</option>
+            <option value="">{t("evaluatorSpecialisms.selectUnit")}</option>
             {units.data?.map((item) => (
               <option key={item.id} value={item.id}>
                 {item.qualificationCode} {item.qualificationVersionCode} ·{" "}
@@ -139,17 +136,13 @@ export function EvaluatorSpecialismManagement() {
           onClick={() => grant.mutate()}
         >
           {grant.isPending
-            ? ar
-              ? "جارٍ منح الاختصاص…"
-              : "Granting…"
-            : ar
-              ? "منح الاختصاص"
-              : "Grant specialism"}
+            ? t("evaluatorSpecialisms.granting")
+            : t("evaluatorSpecialisms.grant")}
         </button>
       </div>
       {(staff.isPending || units.isPending || history.isPending) && (
         <p className="mt-4 text-sm text-muted" aria-busy>
-          {ar ? "جارٍ التحميل…" : "Loading…"}
+          {t("evaluatorSpecialisms.loading")}
         </p>
       )}
       {(staff.isError ||
@@ -158,28 +151,22 @@ export function EvaluatorSpecialismManagement() {
         grant.isError ||
         revoke.isError) && (
         <p className="mt-4 text-sm text-red-600" role="alert">
-          {ar
-            ? "تعذر إكمال العملية. حدّث الصفحة وحاول مجددًا."
-            : "Unable to complete the operation. Refresh and try again."}
+          {t("evaluatorSpecialisms.operationError")}
         </p>
       )}
       {success && (
         <p className="mt-4 text-sm text-green-700" role="status">
           {success === "grant"
-            ? ar
-              ? "تم منح الاختصاص."
-              : "Specialism granted."
-            : ar
-              ? "تم إلغاء الاختصاص مع حفظ السجل."
-              : "Specialism revoked; history preserved."}
+            ? t("evaluatorSpecialisms.grantSuccess")
+            : t("evaluatorSpecialisms.revokeSuccess")}
         </p>
       )}
       <h2 className="mt-10 text-2xl font-black">
-        {ar ? "سجل الاختصاصات" : "Specialism history"}
+        {t("evaluatorSpecialisms.history")}
       </h2>
       {!history.isPending && history.data?.items.length === 0 && (
         <p className="card mt-4 p-5 text-sm text-muted">
-          {ar ? "لا توجد منح بعد." : "No grants yet."}
+          {t("evaluatorSpecialisms.emptyHistory")}
         </p>
       )}
       <div className="mt-4 grid gap-3">
@@ -197,19 +184,19 @@ export function EvaluatorSpecialismManagement() {
                   )}
                 </p>
                 <p className="mt-2 text-xs text-muted">
-                  {ar ? "مُنح في" : "Granted"}{" "}
+                  {t("evaluatorSpecialisms.grantedAt")}{" "}
                   {formatLocalizedDateTime(item.grantedAtUtc, locale)}
                 </p>
                 {item.revokedAtUtc && (
                   <p className="text-xs text-muted">
-                    {ar ? "أُلغي في" : "Revoked"}{" "}
+                    {t("evaluatorSpecialisms.revokedAt")}{" "}
                     {formatLocalizedDateTime(item.revokedAtUtc, locale)}
                   </p>
                 )}
               </div>
               {item.revokedAtUtc ? (
                 <span className="text-sm text-muted">
-                  {ar ? "ملغى" : "Revoked"}
+                  {t("evaluatorSpecialisms.revokedStatus")}
                 </span>
               ) : (
                 <button
@@ -219,12 +206,8 @@ export function EvaluatorSpecialismManagement() {
                   onClick={() => revoke.mutate(item.id)}
                 >
                   {revoke.isPending && revoke.variables === item.id
-                    ? ar
-                      ? "جارٍ الإلغاء…"
-                      : "Revoking…"
-                    : ar
-                      ? "إلغاء الاختصاص"
-                      : "Revoke"}
+                    ? t("evaluatorSpecialisms.revoking")
+                    : t("evaluatorSpecialisms.revoke")}
                 </button>
               )}
             </div>
@@ -239,7 +222,7 @@ export function EvaluatorSpecialismManagement() {
             onClick={() => setPage(page - 1)}
             className="focus-ring rounded-xl border border-border px-4 py-2 disabled:opacity-50"
           >
-            {ar ? "السابق" : "Previous"}
+            {t("shared.previous")}
           </button>
           <button
             type="button"
@@ -247,7 +230,7 @@ export function EvaluatorSpecialismManagement() {
             onClick={() => setPage(page + 1)}
             className="focus-ring rounded-xl border border-border px-4 py-2 disabled:opacity-50"
           >
-            {ar ? "التالي" : "Next"}
+            {t("shared.next")}
           </button>
         </div>
       )}
