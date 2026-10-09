@@ -4,7 +4,7 @@ import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { academicText } from "@/lib/academic-localization";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 type CoordinationStatus =
@@ -62,20 +62,28 @@ type CoordinationPage = {
 };
 
 const pageSize = 10;
-const statuses: { value: CoordinationStatus; en: string; ar: string }[] = [
+const statuses: {
+  value: CoordinationStatus;
+  label: `assessmentCoordination.statuses.${CoordinationStatus}`;
+}[] = [
   {
     value: "PendingAssignment",
-    en: "Awaiting assignment",
-    ar: "بانتظار الإسناد",
+    label: "assessmentCoordination.statuses.PendingAssignment",
   },
-  { value: "Assigned", en: "Assigned", ar: "مسند" },
-  { value: "UnderReview", en: "Under review", ar: "قيد المراجعة" },
-  { value: "NeedsRevision", en: "Needs revision", ar: "بحاجة لتعديل" },
+  { value: "Assigned", label: "assessmentCoordination.statuses.Assigned" },
+  {
+    value: "UnderReview",
+    label: "assessmentCoordination.statuses.UnderReview",
+  },
+  {
+    value: "NeedsRevision",
+    label: "assessmentCoordination.statuses.NeedsRevision",
+  },
 ];
 
 export function AssessmentCoordinationQueue() {
   const locale = useLocale();
-  const ar = locale === "ar";
+  const t = useTranslations("adminWorkspace");
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<CoordinationStatus | "">("");
   const [expectedState, setExpectedState] = useState<
@@ -241,22 +249,20 @@ export function AssessmentCoordinationQueue() {
   return (
     <section
       className="mt-6 min-w-0 rounded-[1.25rem] border border-border p-4 sm:p-5"
-      aria-label={ar ? "متابعة التقييمات" : "Assessment coordination"}
+      aria-label={t("assessmentCoordination.title")}
     >
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="text-xl font-black">
-            {ar ? "متابعة التقييمات" : "Assessment coordination"}
+            {t("assessmentCoordination.title")}
           </h2>
           <p className="mt-1 text-sm text-muted">
-            {ar
-              ? "حالات الطلبات النشطة وسياقها الأكاديمي والإسناد الحالي."
-              : "Active request states, recorded academic context, and current assignments."}
+            {t("assessmentCoordination.description")}
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
           <label className="grid gap-1 text-sm font-bold">
-            <span>{ar ? "تصفية حسب الحالة" : "Filter by status"}</span>
+            <span>{t("assessmentCoordination.statusFilter")}</span>
             <select
               className="focus-ring min-w-0 rounded-xl border border-border bg-surface-solid px-3 py-2 text-foreground"
               value={status}
@@ -265,20 +271,16 @@ export function AssessmentCoordinationQueue() {
                 setPage(1);
               }}
             >
-              <option value="">
-                {ar ? "كل الحالات النشطة" : "All active states"}
-              </option>
+              <option value="">{t("assessmentCoordination.allStates")}</option>
               {statuses.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {ar ? option.ar : option.en}
+                  {t(option.label)}
                 </option>
               ))}
             </select>
           </label>
           <label className="grid gap-1 text-sm font-bold">
-            <span>
-              {ar ? "تصفية حسب موعد الإنجاز" : "Filter by completion target"}
-            </span>
+            <span>{t("assessmentCoordination.completionFilter")}</span>
             <select
               className="focus-ring min-w-0 rounded-xl border border-border bg-surface-solid px-3 py-2 text-foreground"
               value={expectedState}
@@ -287,12 +289,16 @@ export function AssessmentCoordinationQueue() {
                 setPage(1);
               }}
             >
-              <option value="">
-                {ar ? "كل مواعيد الإنجاز" : "All completion targets"}
+              <option value="">{t("assessmentCoordination.allTargets")}</option>
+              <option value="NotSet">
+                {t("assessmentCoordination.notSet")}
               </option>
-              <option value="NotSet">{ar ? "غير محدد" : "Not set"}</option>
-              <option value="OnTrack">{ar ? "ضمن الموعد" : "On track"}</option>
-              <option value="Overdue">{ar ? "متأخر" : "Overdue"}</option>
+              <option value="OnTrack">
+                {t("assessmentCoordination.onTrack")}
+              </option>
+              <option value="Overdue">
+                {t("assessmentCoordination.overdue")}
+              </option>
             </select>
           </label>
         </div>
@@ -300,19 +306,15 @@ export function AssessmentCoordinationQueue() {
 
       {queue.isPending ? (
         <p className="mt-5 text-sm text-muted" aria-busy="true">
-          {ar ? "جارٍ تحميل قائمة التقييمات…" : "Loading assessment queue…"}
+          {t("assessmentCoordination.loading")}
         </p>
       ) : queue.isError ? (
         <p className="mt-5 text-sm text-red-600" role="alert">
-          {ar
-            ? "تعذر تحميل قائمة التقييمات."
-            : "Unable to load the assessment queue."}
+          {t("assessmentCoordination.loadError")}
         </p>
       ) : queue.data.items.length === 0 ? (
         <p className="mt-5 text-sm text-muted">
-          {ar
-            ? "لا توجد طلبات في هذه الحالة."
-            : "No requests match this status."}
+          {t("assessmentCoordination.empty")}
         </p>
       ) : (
         <>
@@ -328,17 +330,11 @@ export function AssessmentCoordinationQueue() {
               );
               const blocker =
                 item.blockerCode === "AcademicMappingRequired"
-                  ? ar
-                    ? "يلزم ربط أكاديمي معتمد قبل الإسناد."
-                    : "Canonical academic mapping is required before assignment."
+                  ? t("assessmentCoordination.mappingBlocker")
                   : item.blockerCode === "NoEligibleEvaluator"
-                    ? ar
-                      ? "لا يوجد مقيّم مؤهل لهذه الوحدة حاليًا."
-                      : "No evaluator is currently eligible for this Unit."
+                    ? t("assessmentCoordination.noEvaluatorBlocker")
                     : item.blockerCode === "StateChanged"
-                      ? ar
-                        ? "تغيرت حالة الطلب؛ حدّث القائمة."
-                        : "Request state changed; refresh the queue."
+                      ? t("assessmentCoordination.stateChangedBlocker")
                       : null;
               return (
                 <article
@@ -348,49 +344,46 @@ export function AssessmentCoordinationQueue() {
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="min-w-0">
                       <h3 className="font-black">
-                        {ar ? "طلب" : "Request"} {item.id.slice(0, 8)}
+                        {t("assessmentCoordination.request")}{" "}
+                        {item.id.slice(0, 8)}
                       </h3>
                       <p className="mt-1 text-sm text-muted">
                         {item.qualificationCode && item.unitCode
                           ? `${item.qualificationCode} ${item.qualificationVersionCode ?? ""} · ${item.unitCode} ${unitTitle ?? ""}`
-                          : ar
-                            ? "السياق الأكاديمي المعتمد غير متاح"
-                            : "Canonical academic context unavailable"}
+                          : t("assessmentCoordination.academicUnavailable")}
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2 text-xs font-bold">
                       <span className="rounded-full border border-border px-3 py-1">
-                        {ar ? label?.ar : label?.en}
+                        {label ? t(label.label) : undefined}
                       </span>
                       {item.isRetake && (
                         <span className="rounded-full border border-border px-3 py-1">
-                          {ar ? "إعادة تقييم" : "Retake"}
+                          {t("assessmentCoordination.retake")}
                         </span>
                       )}
                       {item.isResit && (
                         <span className="rounded-full border border-border px-3 py-1">
-                          {ar ? "إعادة تقييم استثنائية" : "Resit"}
+                          {t("shared.resit")}
                         </span>
                       )}
                     </div>
                   </div>
                   {item.isResit && item.resitOfEvaluationRequestId && (
                     <p className="mt-2 text-xs text-muted">
-                      {ar ? "الطلب الأصلي:" : "Original request:"}{" "}
+                      {t("shared.originalRequest")}{" "}
                       {item.resitOfEvaluationRequestId.slice(0, 8)}
                     </p>
                   )}
                   <p className="mt-3 text-sm text-muted">
                     {item.evaluatorDisplayName
-                      ? ar
-                        ? `المقيّم: ${item.evaluatorDisplayName}`
-                        : `Evaluator: ${item.evaluatorDisplayName}`
-                      : ar
-                        ? "لم يُسند مقيّم بعد."
-                        : "No evaluator assigned yet."}
+                      ? t("assessmentCoordination.evaluator", {
+                          name: item.evaluatorDisplayName,
+                        })
+                      : t("assessmentCoordination.noEvaluator")}
                   </p>
                   <p className="mt-1 text-xs text-muted">
-                    {ar ? "آخر تحديث:" : "Updated:"}{" "}
+                    {t("assessmentCoordination.updated")}{" "}
                     {formatLocalizedDateTime(item.updatedAtUtc, locale)}
                   </p>
                   <p
@@ -402,16 +395,10 @@ export function AssessmentCoordinationQueue() {
                     }
                   >
                     {item.expectedCompletionState === "Overdue"
-                      ? ar
-                        ? "متأخر"
-                        : "Overdue"
+                      ? t("assessmentCoordination.overdue")
                       : item.expectedCompletionState === "OnTrack"
-                        ? ar
-                          ? "ضمن الموعد"
-                          : "On track"
-                        : ar
-                          ? "موعد الإنجاز غير محدد"
-                          : "Completion target not set"}
+                        ? t("assessmentCoordination.onTrack")
+                        : t("assessmentCoordination.targetNotSet")}
                     {item.expectedCompletionAtUtc
                       ? ` · ${formatLocalizedDateTime(item.expectedCompletionAtUtc, locale)}`
                       : ""}
@@ -427,16 +414,12 @@ export function AssessmentCoordinationQueue() {
                     }}
                   >
                     {item.expectedCompletionAtUtc
-                      ? ar
-                        ? "تعديل موعد الإنجاز"
-                        : "Revise completion target"
-                      : ar
-                        ? "تحديد موعد الإنجاز"
-                        : "Set completion target"}
+                      ? t("assessmentCoordination.reviseTarget")
+                      : t("assessmentCoordination.setTarget")}
                   </button>
                   {savedId === item.id && (
                     <p className="mt-2 text-sm text-green-700" role="status">
-                      {ar ? "تم حفظ موعد الإنجاز." : "Completion target saved."}
+                      {t("assessmentCoordination.savedTarget")}
                     </p>
                   )}
                   {editingId === item.id && (
@@ -449,7 +432,7 @@ export function AssessmentCoordinationQueue() {
                     >
                       <label className="grid gap-1 text-sm font-bold">
                         <span>
-                          {ar ? "موعد الإنجاز المتوقع" : "Expected completion"}
+                          {t("assessmentCoordination.expectedCompletion")}
                         </span>
                         <input
                           className="focus-ring min-w-0 rounded-xl border border-border bg-surface-solid px-3 py-2"
@@ -462,7 +445,9 @@ export function AssessmentCoordinationQueue() {
                         />
                       </label>
                       <label className="grid gap-1 text-sm font-bold">
-                        <span>{ar ? "سبب داخلي" : "Internal reason"}</span>
+                        <span>
+                          {t("assessmentCoordination.internalReason")}
+                        </span>
                         <textarea
                           className="focus-ring min-w-0 rounded-xl border border-border bg-surface-solid px-3 py-2"
                           required
@@ -474,9 +459,7 @@ export function AssessmentCoordinationQueue() {
                       </label>
                       {saveError && (
                         <p className="text-sm text-red-700" role="alert">
-                          {ar
-                            ? "تعذر حفظ الموعد. تحقق من الوقت والسبب ثم حاول مجددًا."
-                            : "Could not save the target. Check the time and reason, then try again."}
+                          {t("assessmentCoordination.saveError")}
                         </p>
                       )}
                       <button
@@ -485,12 +468,8 @@ export function AssessmentCoordinationQueue() {
                         className="focus-ring w-fit rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
                       >
                         {saving
-                          ? ar
-                            ? "جارٍ الحفظ…"
-                            : "Saving…"
-                          : ar
-                            ? "حفظ الموعد"
-                            : "Save target"}
+                          ? t("assessmentCoordination.saving")
+                          : t("assessmentCoordination.saveTarget")}
                       </button>
                     </form>
                   )}
@@ -499,9 +478,7 @@ export function AssessmentCoordinationQueue() {
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <div>
                           <p className="text-sm font-black">
-                            {ar
-                              ? "موعد المراجعة الثانية"
-                              : "One revision check deadline"}
+                            {t("assessmentCoordination.revisionDeadline")}
                           </p>
                           <p className="mt-1 text-sm text-muted">
                             {formatLocalizedDateTime(
@@ -515,9 +492,7 @@ export function AssessmentCoordinationQueue() {
                               className="mt-1 text-xs font-bold text-green-700"
                               role="status"
                             >
-                              {ar
-                                ? "تعديل معقول فعّال"
-                                : "Reasonable adjustment active"}
+                              {t("assessmentCoordination.activeAdjustment")}
                             </p>
                           )}
                         </div>
@@ -528,16 +503,14 @@ export function AssessmentCoordinationQueue() {
                             void toggleReasonableAdjustment(item.id)
                           }
                         >
-                          {ar
-                            ? "إدارة التعديل المعقول"
-                            : "Manage reasonable adjustment"}
+                          {t("assessmentCoordination.manageAdjustment")}
                         </button>
                       </div>
                       {adjustingId === item.id && (
                         <div className="mt-3 grid gap-3">
                           {adjustmentLoading ? (
                             <p className="text-sm text-muted" aria-busy="true">
-                              {ar ? "جارٍ تحميل السجل…" : "Loading history…"}
+                              {t("assessmentCoordination.loadingHistory")}
                             </p>
                           ) : adjustmentSummary ? (
                             <>
@@ -554,9 +527,9 @@ export function AssessmentCoordinationQueue() {
                                 >
                                   <label className="grid gap-1 text-sm font-bold">
                                     <span>
-                                      {ar
-                                        ? "سبب الإلغاء الداخلي (اختياري)"
-                                        : "Internal revocation reason (optional)"}
+                                      {t(
+                                        "assessmentCoordination.revocationReason",
+                                      )}
                                     </span>
                                     <textarea
                                       className="focus-ring min-w-0 rounded-xl border border-border bg-surface-solid px-3 py-2"
@@ -574,12 +547,10 @@ export function AssessmentCoordinationQueue() {
                                     className="focus-ring w-fit rounded-xl border border-border px-4 py-2 text-sm font-bold disabled:opacity-50"
                                   >
                                     {adjustmentSaving
-                                      ? ar
-                                        ? "جارٍ الإلغاء…"
-                                        : "Revoking…"
-                                      : ar
-                                        ? "إلغاء التعديل"
-                                        : "Revoke adjustment"}
+                                      ? t("assessmentCoordination.revoking")
+                                      : t(
+                                          "assessmentCoordination.revokeAdjustment",
+                                        )}
                                   </button>
                                 </form>
                               ) : (
@@ -592,9 +563,9 @@ export function AssessmentCoordinationQueue() {
                                 >
                                   <label className="grid gap-1 text-sm font-bold">
                                     <span>
-                                      {ar
-                                        ? "الموعد المعدّل"
-                                        : "Adjusted deadline"}
+                                      {t(
+                                        "assessmentCoordination.adjustedDeadline",
+                                      )}
                                     </span>
                                     <input
                                       className="focus-ring min-w-0 rounded-xl border border-border bg-surface-solid px-3 py-2"
@@ -608,9 +579,9 @@ export function AssessmentCoordinationQueue() {
                                   </label>
                                   <label className="grid gap-1 text-sm font-bold">
                                     <span>
-                                      {ar
-                                        ? "سبب داخلي خاص بالموظفين"
-                                        : "Private staff reason"}
+                                      {t(
+                                        "assessmentCoordination.privateReason",
+                                      )}
                                     </span>
                                     <textarea
                                       className="focus-ring min-w-0 rounded-xl border border-border bg-surface-solid px-3 py-2"
@@ -629,12 +600,10 @@ export function AssessmentCoordinationQueue() {
                                     className="focus-ring w-fit rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
                                   >
                                     {adjustmentSaving
-                                      ? ar
-                                        ? "جارٍ الحفظ…"
-                                        : "Saving…"
-                                      : ar
-                                        ? "منح تمديد"
-                                        : "Grant extension"}
+                                      ? t("assessmentCoordination.saving")
+                                      : t(
+                                          "assessmentCoordination.grantExtension",
+                                        )}
                                   </button>
                                 </form>
                               )}
@@ -643,20 +612,18 @@ export function AssessmentCoordinationQueue() {
                                   className="text-sm text-red-700"
                                   role="alert"
                                 >
-                                  {ar
-                                    ? "تعذر حفظ التعديل. تحقق من الموعد والسبب ثم حاول مجددًا."
-                                    : "Could not save the adjustment. Check the deadline and reason, then try again."}
+                                  {t(
+                                    "assessmentCoordination.adjustmentSaveError",
+                                  )}
                                 </p>
                               )}
                               <div>
                                 <p className="text-sm font-black">
-                                  {ar ? "السجل" : "History"}
+                                  {t("assessmentCoordination.history")}
                                 </p>
                                 {adjustmentSummary.history.length === 0 ? (
                                   <p className="mt-1 text-sm text-muted">
-                                    {ar
-                                      ? "لا توجد تعديلات سابقة."
-                                      : "No previous adjustments."}
+                                    {t("assessmentCoordination.emptyHistory")}
                                   </p>
                                 ) : (
                                   <ul className="mt-2 grid gap-2 text-sm">
@@ -677,7 +644,9 @@ export function AssessmentCoordinationQueue() {
                                           </p>
                                           {adjustment.revokedAtUtc && (
                                             <p className="mt-1 text-xs text-muted">
-                                              {ar ? "ملغى" : "Revoked"}
+                                              {t(
+                                                "assessmentCoordination.revoked",
+                                              )}
                                               {adjustment.revocationReason
                                                 ? ` · ${adjustment.revocationReason}`
                                                 : ""}
@@ -692,9 +661,7 @@ export function AssessmentCoordinationQueue() {
                             </>
                           ) : adjustmentError ? (
                             <p className="text-sm text-red-700" role="alert">
-                              {ar
-                                ? "تعذر تحميل سجل التعديلات."
-                                : "Unable to load adjustment history."}
+                              {t("assessmentCoordination.historyError")}
                             </p>
                           ) : null}
                         </div>
@@ -704,9 +671,7 @@ export function AssessmentCoordinationQueue() {
                   {item.hasEligibleEvaluator &&
                     item.status === "PendingAssignment" && (
                       <p className="mt-3 text-sm text-green-700" role="status">
-                        {ar
-                          ? "يوجد مقيّم مؤهل متاح للإسناد."
-                          : "An eligible evaluator is available for assignment."}
+                        {t("assessmentCoordination.evaluatorAvailable")}
                       </p>
                     )}
                   {blocker && (
@@ -720,9 +685,10 @@ export function AssessmentCoordinationQueue() {
           </div>
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm">
             <p className="text-muted" aria-live="polite">
-              {ar
-                ? `الصفحة ${queue.data.page} · ${queue.data.totalCount} طلب`
-                : `Page ${queue.data.page} · ${queue.data.totalCount} requests`}
+              {t("assessmentCoordination.pageSummary", {
+                page: queue.data.page,
+                count: queue.data.totalCount,
+              })}
             </p>
             <div className="flex gap-2">
               <button
@@ -731,7 +697,7 @@ export function AssessmentCoordinationQueue() {
                 disabled={page <= 1}
                 onClick={() => setPage((value) => value - 1)}
               >
-                {ar ? "السابق" : "Previous"}
+                {t("shared.previous")}
               </button>
               <button
                 type="button"
@@ -739,7 +705,7 @@ export function AssessmentCoordinationQueue() {
                 disabled={page * queue.data.pageSize >= queue.data.totalCount}
                 onClick={() => setPage((value) => value + 1)}
               >
-                {ar ? "التالي" : "Next"}
+                {t("shared.next")}
               </button>
             </div>
           </div>

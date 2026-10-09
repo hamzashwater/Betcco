@@ -1,0 +1,569 @@
+{
+  "baseMain": "67b6095b5f1e18511b99fd99f61ca9f2e6da20b2",
+  "before": {
+    "assessment-coordination-queue": {
+      "arabic": 59,
+      "english": 59,
+      "branches": 57,
+      "mappings": 4,
+      "presentationSelectors": 2,
+      "localeUses": [
+        {
+          "kind": "ACADEMIC_LOCALIZATION",
+          "text": "academicText( locale, item.unitArabicTitle, item.unitEnglishTitle, )"
+        },
+        {
+          "kind": "FORMATTER",
+          "text": "formatLocalizedDateTime(item.updatedAtUtc, locale)"
+        },
+        {
+          "kind": "FORMATTER",
+          "text": "formatLocalizedDateTime(item.expectedCompletionAtUtc, locale)"
+        },
+        {
+          "kind": "FORMATTER",
+          "text": "formatLocalizedDateTime( item.effectiveRevisionDueAtUtc ?? item.revisionDueAtUtc, locale, )"
+        },
+        {
+          "kind": "FORMATTER",
+          "text": "formatLocalizedDateTime( adjustment.extendedDueAtUtc, locale, )"
+        }
+      ]
+    },
+    "eligible-evaluator-assignment": {
+      "arabic": 16,
+      "english": 16,
+      "branches": 16,
+      "mappings": 0,
+      "presentationSelectors": 0,
+      "localeUses": []
+    },
+    "resit-coordination-panel": {
+      "arabic": 18,
+      "english": 18,
+      "branches": 18,
+      "mappings": 0,
+      "presentationSelectors": 0,
+      "localeUses": [
+        {
+          "kind": "FORMATTER",
+          "text": "formatLocalizedDateTime(value, locale)"
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "key": "assessmentCoordination.title",
+      "ar": "متابعة التقييمات",
+      "en": "Assessment coordination",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.description",
+      "ar": "حالات الطلبات النشطة وسياقها الأكاديمي والإسناد الحالي.",
+      "en": "Active request states, recorded academic context, and current assignments.",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.statusFilter",
+      "ar": "تصفية حسب الحالة",
+      "en": "Filter by status",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.allStates",
+      "ar": "كل الحالات النشطة",
+      "en": "All active states",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.completionFilter",
+      "ar": "تصفية حسب موعد الإنجاز",
+      "en": "Filter by completion target",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.allTargets",
+      "ar": "كل مواعيد الإنجاز",
+      "en": "All completion targets",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.notSet",
+      "ar": "غير محدد",
+      "en": "Not set",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.onTrack",
+      "ar": "ضمن الموعد",
+      "en": "On track",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.overdue",
+      "ar": "متأخر",
+      "en": "Overdue",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.loading",
+      "ar": "جارٍ تحميل قائمة التقييمات…",
+      "en": "Loading assessment queue…",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.loadError",
+      "ar": "تعذر تحميل قائمة التقييمات.",
+      "en": "Unable to load the assessment queue.",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.empty",
+      "ar": "لا توجد طلبات في هذه الحالة.",
+      "en": "No requests match this status.",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.mappingBlocker",
+      "ar": "يلزم ربط أكاديمي معتمد قبل الإسناد.",
+      "en": "Canonical academic mapping is required before assignment.",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.noEvaluatorBlocker",
+      "ar": "لا يوجد مقيّم مؤهل لهذه الوحدة حاليًا.",
+      "en": "No evaluator is currently eligible for this Unit.",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.stateChangedBlocker",
+      "ar": "تغيرت حالة الطلب؛ حدّث القائمة.",
+      "en": "Request state changed; refresh the queue.",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.request",
+      "ar": "طلب",
+      "en": "Request",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.academicUnavailable",
+      "ar": "السياق الأكاديمي المعتمد غير متاح",
+      "en": "Canonical academic context unavailable",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.retake",
+      "ar": "إعادة تقييم",
+      "en": "Retake",
+      "values": {}
+    },
+    {
+      "key": "shared.resit",
+      "ar": "إعادة تقييم استثنائية",
+      "en": "Resit",
+      "values": {}
+    },
+    {
+      "key": "shared.originalRequest",
+      "ar": "الطلب الأصلي:",
+      "en": "Original request:",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.evaluator",
+      "ar": "المقيّم: A' {raw} طالب",
+      "en": "Evaluator: A' {raw} طالب",
+      "values": {
+        "name": "A' {raw} طالب"
+      }
+    },
+    {
+      "key": "assessmentCoordination.noEvaluator",
+      "ar": "لم يُسند مقيّم بعد.",
+      "en": "No evaluator assigned yet.",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.updated",
+      "ar": "آخر تحديث:",
+      "en": "Updated:",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.targetNotSet",
+      "ar": "موعد الإنجاز غير محدد",
+      "en": "Completion target not set",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.reviseTarget",
+      "ar": "تعديل موعد الإنجاز",
+      "en": "Revise completion target",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.setTarget",
+      "ar": "تحديد موعد الإنجاز",
+      "en": "Set completion target",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.savedTarget",
+      "ar": "تم حفظ موعد الإنجاز.",
+      "en": "Completion target saved.",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.expectedCompletion",
+      "ar": "موعد الإنجاز المتوقع",
+      "en": "Expected completion",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.internalReason",
+      "ar": "سبب داخلي",
+      "en": "Internal reason",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.saveError",
+      "ar": "تعذر حفظ الموعد. تحقق من الوقت والسبب ثم حاول مجددًا.",
+      "en": "Could not save the target. Check the time and reason, then try again.",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.saving",
+      "ar": "جارٍ الحفظ…",
+      "en": "Saving…",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.saveTarget",
+      "ar": "حفظ الموعد",
+      "en": "Save target",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.revisionDeadline",
+      "ar": "موعد المراجعة الثانية",
+      "en": "One revision check deadline",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.activeAdjustment",
+      "ar": "تعديل معقول فعّال",
+      "en": "Reasonable adjustment active",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.manageAdjustment",
+      "ar": "إدارة التعديل المعقول",
+      "en": "Manage reasonable adjustment",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.loadingHistory",
+      "ar": "جارٍ تحميل السجل…",
+      "en": "Loading history…",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.revocationReason",
+      "ar": "سبب الإلغاء الداخلي (اختياري)",
+      "en": "Internal revocation reason (optional)",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.revoking",
+      "ar": "جارٍ الإلغاء…",
+      "en": "Revoking…",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.revokeAdjustment",
+      "ar": "إلغاء التعديل",
+      "en": "Revoke adjustment",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.adjustedDeadline",
+      "ar": "الموعد المعدّل",
+      "en": "Adjusted deadline",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.privateReason",
+      "ar": "سبب داخلي خاص بالموظفين",
+      "en": "Private staff reason",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.grantExtension",
+      "ar": "منح تمديد",
+      "en": "Grant extension",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.adjustmentSaveError",
+      "ar": "تعذر حفظ التعديل. تحقق من الموعد والسبب ثم حاول مجددًا.",
+      "en": "Could not save the adjustment. Check the deadline and reason, then try again.",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.history",
+      "ar": "السجل",
+      "en": "History",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.emptyHistory",
+      "ar": "لا توجد تعديلات سابقة.",
+      "en": "No previous adjustments.",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.revoked",
+      "ar": "ملغى",
+      "en": "Revoked",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.historyError",
+      "ar": "تعذر تحميل سجل التعديلات.",
+      "en": "Unable to load adjustment history.",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.evaluatorAvailable",
+      "ar": "يوجد مقيّم مؤهل متاح للإسناد.",
+      "en": "An eligible evaluator is available for assignment.",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.pageSummary",
+      "ar": "الصفحة 11 · 21 طلب",
+      "en": "Page 11 · 21 requests",
+      "values": {
+        "page": 11,
+        "count": 21
+      }
+    },
+    {
+      "key": "shared.previous",
+      "ar": "السابق",
+      "en": "Previous",
+      "values": {}
+    },
+    {
+      "key": "shared.next",
+      "ar": "التالي",
+      "en": "Next",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.statuses.PendingAssignment",
+      "ar": "بانتظار الإسناد",
+      "en": "Awaiting assignment",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.statuses.Assigned",
+      "ar": "مسند",
+      "en": "Assigned",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.statuses.UnderReview",
+      "ar": "قيد المراجعة",
+      "en": "Under review",
+      "values": {}
+    },
+    {
+      "key": "assessmentCoordination.statuses.NeedsRevision",
+      "ar": "بحاجة لتعديل",
+      "en": "Needs revision",
+      "values": {}
+    },
+    {
+      "key": "evaluatorAssignment.title",
+      "ar": "طلب بانتظار الإسناد",
+      "en": "Request awaiting assignment",
+      "values": {}
+    },
+    {
+      "key": "evaluatorAssignment.noStudentNote",
+      "ar": "لا توجد ملاحظة من الطالب.",
+      "en": "No student note was provided.",
+      "values": {}
+    },
+    {
+      "key": "evaluatorAssignment.files",
+      "ar": "ملفات",
+      "en": "files",
+      "values": {}
+    },
+    {
+      "key": "evaluatorAssignment.criteria",
+      "ar": "معايير",
+      "en": "criteria",
+      "values": {}
+    },
+    {
+      "key": "evaluatorAssignment.loading",
+      "ar": "جارٍ تحميل المقيمين المؤهلين…",
+      "en": "Loading eligible evaluators…",
+      "values": {}
+    },
+    {
+      "key": "evaluatorAssignment.mappingBlocker",
+      "ar": "لا يمكن إسناد هذا الطلب التاريخي حتى تُحدد وحدته الأكاديمية صراحةً.",
+      "en": "This historical request needs explicit academic Unit mapping before assignment.",
+      "values": {}
+    },
+    {
+      "key": "evaluatorAssignment.loadError",
+      "ar": "تعذر تحميل المقيمين المؤهلين.",
+      "en": "Unable to load eligible evaluators.",
+      "values": {}
+    },
+    {
+      "key": "evaluatorAssignment.empty",
+      "ar": "لا يوجد مقيمون مؤهلون لهذه الوحدة.",
+      "en": "No eligible evaluators for this Unit.",
+      "values": {}
+    },
+    {
+      "key": "evaluatorAssignment.selectEvaluator",
+      "ar": "اختر مقيّمًا مؤهلاً",
+      "en": "Select eligible evaluator",
+      "values": {}
+    },
+    {
+      "key": "evaluatorAssignment.assigning",
+      "ar": "جارٍ الإسناد…",
+      "en": "Assigning…",
+      "values": {}
+    },
+    {
+      "key": "evaluatorAssignment.assign",
+      "ar": "إسناد",
+      "en": "Assign",
+      "values": {}
+    },
+    {
+      "key": "evaluatorAssignment.staleError",
+      "ar": "تغيرت أهلية هذا المقيم. حدّث القائمة واختر مقيّمًا مؤهلاً.",
+      "en": "This evaluator is no longer eligible. Refresh the list and choose an eligible evaluator.",
+      "values": {}
+    },
+    {
+      "key": "evaluatorAssignment.assignError",
+      "ar": "تعذر إسناد الطلب. حدّث القائمة وحاول مجددًا.",
+      "en": "Unable to assign this request. Refresh the list and try again.",
+      "values": {}
+    },
+    {
+      "key": "resitCoordination.region",
+      "ar": "متابعة Resit",
+      "en": "Resit coordination",
+      "values": {}
+    },
+    {
+      "key": "resitCoordination.title",
+      "ar": "متابعة إعادة التقييم الاستثنائية",
+      "en": "Resit authorization lifecycle",
+      "values": {}
+    },
+    {
+      "key": "resitCoordination.description",
+      "ar": "سجل داخلي للعرض فقط.",
+      "en": "Read-only staff authorization history.",
+      "values": {}
+    },
+    {
+      "key": "resitCoordination.loading",
+      "ar": "جارٍ تحميل السجل…",
+      "en": "Loading authorizations…",
+      "values": {}
+    },
+    {
+      "key": "resitCoordination.loadError",
+      "ar": "تعذر تحميل سجل Resit.",
+      "en": "Unable to load Resit history.",
+      "values": {}
+    },
+    {
+      "key": "resitCoordination.empty",
+      "ar": "لا توجد تصاريح Resit في هذه الصفحة.",
+      "en": "No Resit authorizations on this page.",
+      "values": {}
+    },
+    {
+      "key": "resitCoordination.revoked",
+      "ar": "ملغى",
+      "en": "Revoked",
+      "values": {}
+    },
+    {
+      "key": "resitCoordination.activated",
+      "ar": "مفعّل",
+      "en": "Activated",
+      "values": {}
+    },
+    {
+      "key": "resitCoordination.authorized",
+      "ar": "مصرّح به",
+      "en": "Authorized",
+      "values": {}
+    },
+    {
+      "key": "resitCoordination.resitRequest",
+      "ar": "طلب Resit:",
+      "en": "Resit request:",
+      "values": {}
+    },
+    {
+      "key": "resitCoordination.activatedAt",
+      "ar": "تاريخ التفعيل:",
+      "en": "Activated:",
+      "values": {}
+    },
+    {
+      "key": "resitCoordination.revokedAt",
+      "ar": "تاريخ الإلغاء:",
+      "en": "Revoked:",
+      "values": {}
+    },
+    {
+      "key": "resitCoordination.privateReason",
+      "ar": "سبب داخلي للموظفين:",
+      "en": "Private staff reason:",
+      "values": {}
+    },
+    {
+      "key": "resitCoordination.privateRevocationReason",
+      "ar": "سبب الإلغاء الداخلي:",
+      "en": "Private revocation reason:",
+      "values": {}
+    },
+    {
+      "key": "resitCoordination.page",
+      "ar": "صفحة",
+      "en": "Page",
+      "values": {}
+    }
+  ],
+  "contractHashes": {
+    "assessment-coordination-queue": "a805247a1ca084f5b121c4c647022191c5bf5cace9b64b9e55a3d16f258b2533",
+    "eligible-evaluator-assignment": "7e99fa7e08d8842ea7e5b171d12b806ce861fe389ac3452ad98fe5ac73109078",
+    "resit-coordination-panel": "9e08098a6c41d31d05e70cbaf91e894e13fdf24a15ce41968ce56dda2e07e0c3"
+  },
+  "catalogueHashes": {
+    "ar": "00d007cdf42823c4c696cbace61da0de76391a3329fd6e468791457f3447f25d",
+    "en": "be416af96788850126a13aedee85074a693201406393d3fed082286291650628"
+  }
+}

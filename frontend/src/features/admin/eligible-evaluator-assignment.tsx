@@ -3,7 +3,7 @@
 import { ApiError, api } from "@/lib/api";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ClipboardCheck, UserRoundCheck } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 type PendingEvaluation = {
@@ -24,7 +24,7 @@ export function EligibleEvaluatorAssignment({
   evaluation: PendingEvaluation;
   onAssigned: () => void;
 }) {
-  const ar = useLocale() === "ar";
+  const t = useTranslations("adminWorkspace");
   const [selected, setSelected] = useState("");
   const candidates = useQuery({
     queryKey: ["eligible-evaluators", evaluation.id],
@@ -57,30 +57,28 @@ export function EligibleEvaluatorAssignment({
         <div className="min-w-0">
           <p className="flex items-center gap-2 text-sm font-black text-primary">
             <ClipboardCheck size={18} aria-hidden="true" />
-            {ar ? "طلب بانتظار الإسناد" : "Request awaiting assignment"}
+            {t("evaluatorAssignment.title")}
           </p>
           <p className="mt-3 max-w-2xl break-words text-sm leading-6 text-muted">
             {evaluation.studentComment ||
-              (ar
-                ? "لا توجد ملاحظة من الطالب."
-                : "No student note was provided.")}
+              t("evaluatorAssignment.noStudentNote")}
           </p>
           {evaluation.isResit && (
             <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
               <span className="rounded-full border border-border px-3 py-1 font-bold">
-                {ar ? "إعادة تقييم استثنائية" : "Resit"}
+                {t("shared.resit")}
               </span>
               {evaluation.resitOfEvaluationRequestId && (
                 <span className="text-muted">
-                  {ar ? "الطلب الأصلي:" : "Original request:"}{" "}
+                  {t("shared.originalRequest")}{" "}
                   {evaluation.resitOfEvaluationRequestId.slice(0, 8)}
                 </span>
               )}
             </div>
           )}
           <p className="mt-3 text-xs text-muted">
-            {evaluation.filesCount} {ar ? "ملفات" : "files"} ·{" "}
-            {evaluation.criteria.length} {ar ? "معايير" : "criteria"}
+            {evaluation.filesCount} {t("evaluatorAssignment.files")} ·{" "}
+            {evaluation.criteria.length} {t("evaluatorAssignment.criteria")}
           </p>
         </div>
         <span className="rounded-full border border-border bg-white/5 px-3 py-1 text-xs font-bold text-muted">
@@ -89,27 +87,19 @@ export function EligibleEvaluatorAssignment({
       </div>
       {candidates.isPending ? (
         <p className="mt-5 text-sm text-muted" aria-busy>
-          {ar
-            ? "جارٍ تحميل المقيمين المؤهلين…"
-            : "Loading eligible evaluators…"}
+          {t("evaluatorAssignment.loading")}
         </p>
       ) : blocked ? (
         <p className="mt-5 text-sm text-amber-600" role="alert">
-          {ar
-            ? "لا يمكن إسناد هذا الطلب التاريخي حتى تُحدد وحدته الأكاديمية صراحةً."
-            : "This historical request needs explicit academic Unit mapping before assignment."}
+          {t("evaluatorAssignment.mappingBlocker")}
         </p>
       ) : candidates.isError ? (
         <p className="mt-5 text-sm text-red-600" role="alert">
-          {ar
-            ? "تعذر تحميل المقيمين المؤهلين."
-            : "Unable to load eligible evaluators."}
+          {t("evaluatorAssignment.loadError")}
         </p>
       ) : candidates.data?.length === 0 ? (
         <p className="mt-5 text-sm text-muted">
-          {ar
-            ? "لا يوجد مقيمون مؤهلون لهذه الوحدة."
-            : "No eligible evaluators for this Unit."}
+          {t("evaluatorAssignment.empty")}
         </p>
       ) : (
         <div className="mt-5 flex flex-wrap gap-2">
@@ -117,13 +107,9 @@ export function EligibleEvaluatorAssignment({
             value={selected}
             onChange={(event) => setSelected(event.target.value)}
             className="focus-ring min-w-0 flex-1 rounded-xl border border-border bg-transparent px-3 py-2.5 text-sm text-foreground"
-            aria-label={
-              ar ? "اختر مقيّمًا مؤهلاً" : "Select eligible evaluator"
-            }
+            aria-label={t("evaluatorAssignment.selectEvaluator")}
           >
-            <option value="">
-              {ar ? "اختر مقيّمًا مؤهلاً" : "Select eligible evaluator"}
-            </option>
+            <option value="">{t("evaluatorAssignment.selectEvaluator")}</option>
             {candidates.data?.map((candidate) => (
               <option key={candidate.id} value={candidate.id}>
                 {candidate.displayName}
@@ -138,24 +124,16 @@ export function EligibleEvaluatorAssignment({
           >
             <UserRoundCheck size={17} aria-hidden="true" />
             {assign.isPending
-              ? ar
-                ? "جارٍ الإسناد…"
-                : "Assigning…"
-              : ar
-                ? "إسناد"
-                : "Assign"}
+              ? t("evaluatorAssignment.assigning")
+              : t("evaluatorAssignment.assign")}
           </button>
         </div>
       )}
       {assign.isError && (
         <p className="mt-3 text-sm text-red-600" role="alert">
           {stale
-            ? ar
-              ? "تغيرت أهلية هذا المقيم. حدّث القائمة واختر مقيّمًا مؤهلاً."
-              : "This evaluator is no longer eligible. Refresh the list and choose an eligible evaluator."
-            : ar
-              ? "تعذر إسناد الطلب. حدّث القائمة وحاول مجددًا."
-              : "Unable to assign this request. Refresh the list and try again."}
+            ? t("evaluatorAssignment.staleError")
+            : t("evaluatorAssignment.assignError")}
         </p>
       )}
     </article>

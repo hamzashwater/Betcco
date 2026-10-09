@@ -99,10 +99,26 @@ describe("Admin evaluation/approval static copy and frozen contracts", () => {
         JSON.stringify(locale === "ar" ? ar : en),
       );
       const workspace = catalogue.adminWorkspace as Record<string, unknown>;
-      delete workspace.evaluations;
-      delete workspace.courseApprovals;
-      delete workspace.courseApprovalPreview;
-      delete (workspace.shared as Record<string, unknown>).unavailable;
+      // Freeze the original pre-A5.5.3 partition as later slices extend it.
+      const original = Object.fromEntries(
+        Object.entries(workspace).filter(([key]) =>
+          [
+            "shared",
+            "dashboard",
+            "navigation",
+            "analytics",
+            "students",
+            "teacherInvites",
+            "accountIdentities",
+          ].includes(key),
+        ),
+      );
+      original.shared = Object.fromEntries(
+        Object.entries(workspace.shared as Record<string, unknown>).filter(
+          ([key]) => ["open", "loadingIndicator", "cancel"].includes(key),
+        ),
+      );
+      catalogue.adminWorkspace = original;
       expect(hash(catalogue)).toBe(baseline.existingCatalogueHashes[locale]);
     },
   );
