@@ -74,6 +74,8 @@ describe("Admin assessment coordination static-copy and technical contract audit
         JSON.stringify(locale === "ar" ? ar : en),
       );
       const workspace = catalogue.adminWorkspace as Record<string, unknown>;
+      // A5.5.5 independently freezes the added section and this full catalogue.
+      delete workspace.evaluatorSpecialisms;
       delete workspace.assessmentCoordination;
       delete workspace.evaluatorAssignment;
       delete workspace.resitCoordination;

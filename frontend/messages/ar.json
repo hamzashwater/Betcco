@@ -2751,6 +2751,27 @@
       "privateReason": "سبب داخلي للموظفين:",
       "privateRevocationReason": "سبب الإلغاء الداخلي:",
       "page": "صفحة"
+    },
+    "evaluatorSpecialisms": {
+      "title": "اختصاصات المقيمين حسب الوحدة",
+      "description": "امنح أهلية التقييم لوحدة أكاديمية محددة، واحتفظ بسجل المنح والإلغاءات.",
+      "evaluator": "المقيم",
+      "selectEvaluator": "اختر مقيّمًا",
+      "academicUnit": "الوحدة الأكاديمية",
+      "selectUnit": "اختر وحدة",
+      "granting": "جارٍ منح الاختصاص…",
+      "grant": "منح الاختصاص",
+      "loading": "جارٍ التحميل…",
+      "operationError": "تعذر إكمال العملية. حدّث الصفحة وحاول مجددًا.",
+      "grantSuccess": "تم منح الاختصاص.",
+      "revokeSuccess": "تم إلغاء الاختصاص مع حفظ السجل.",
+      "history": "سجل الاختصاصات",
+      "emptyHistory": "لا توجد منح بعد.",
+      "grantedAt": "مُنح في",
+      "revokedAt": "أُلغي في",
+      "revokedStatus": "ملغى",
+      "revoking": "جارٍ الإلغاء…",
+      "revoke": "إلغاء الاختصاص"
     }
   }
 }
