@@ -2772,6 +2772,43 @@
       "revokedStatus": "Revoked",
       "revoking": "Revoking…",
       "revoke": "Revoke"
+    },
+    "internalVerificationPlans": {
+      "eyebrow": "BETCCO · academic integrity",
+      "title": "Internal verification sampling plans",
+      "description": "Select review samples through a documented scope and rationale. BETCCO does not apply a fixed percentage or replace the approved qualification policy with an automatic decision.",
+      "create": "Create sampling plan",
+      "hide": "Hide form",
+      "planScope": "Plan scope",
+      "assessor": "Target assessor",
+      "grade": "Grade",
+      "specialization": "Specialization",
+      "taskType": "Assessment type",
+      "outcome": "Target outcome",
+      "all": "All in scope",
+      "rationale": "Sampling rationale",
+      "activeUntil": "Plan ends at (optional)",
+      "save": "Save sampling plan",
+      "saving": "Saving…",
+      "plans": "Current plans",
+      "selectPlan": "Select a plan to view candidates.",
+      "noPlans": "No sampling plans yet.",
+      "candidates": "Assessments eligible for sampling",
+      "noCandidates": "No under-review assessments match this scope, or they have already been sampled.",
+      "assignVerifier": "Assign an independent verifier",
+      "select": "Select sample",
+      "selecting": "Selecting…",
+      "sampleReason": "Reason for selecting this assessment",
+      "sampleHint": "The assigned assessor cannot review their own decision, and the server prevents duplicate sampling of an attempt.",
+      "attempt": "Attempt",
+      "submitted": "Submitted for review",
+      "samples": "Samples",
+      "scopeRequired": "Choose at least one scope before saving the plan.",
+      "outcomeLabels": {
+        "Pass": "Pass",
+        "Merit": "Merit",
+        "Distinction": "Distinction"
+      }
     }
   }
 }
