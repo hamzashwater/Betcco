@@ -3,7 +3,7 @@
 import { formatLocalizedDate } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 type QualificationVersion = {
@@ -35,6 +35,7 @@ type Rubric = {
 
 export function QualificationRegistryManagement() {
   const locale = useLocale();
+  const t = useTranslations("adminWorkspace");
   const ar = locale === "ar";
   const client = useQueryClient();
   const [qualificationForm, setQualificationForm] = useState({
@@ -152,15 +153,13 @@ export function QualificationRegistryManagement() {
     <section className="shell py-8 sm:py-10">
       <div className="max-w-4xl">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-          BETCCO · {ar ? "ضبط المواصفات" : "specification control"}
+          BETCCO · {t("qualificationRegistry.eyebrow")}
         </p>
         <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
-          {ar ? "سجل المؤهلات وإصداراتها" : "Qualification version registry"}
+          {t("qualificationRegistry.title")}
         </h1>
         <p className="mt-3 leading-7 text-muted">
-          {ar
-            ? "سجّل المؤهل وإصداره ومصدره الذي اعتمده المركز قبل ربطه بروبرك التقييم. لا يضيف BETCCO أي مواصفة Pearson أو اعتماد من تلقاء نفسه."
-            : "Register the qualification, its source version, and the centre-approved reference before binding it to an assessment rubric. BETCCO never inserts a Pearson specification or claims approval on its own."}
+          {t("qualificationRegistry.description")}
         </p>
       </div>
 
@@ -173,10 +172,10 @@ export function QualificationRegistryManagement() {
           }}
         >
           <h2 className="text-lg font-black">
-            {ar ? "إضافة مؤهل" : "Add qualification"}
+            {t("qualificationRegistry.addQualification")}
           </h2>
           <RegistryInput
-            label={ar ? "رمز المؤهل" : "Qualification code"}
+            label={t("qualificationRegistry.code")}
             value={qualificationForm.code}
             onChange={(value) =>
               setQualificationForm((current) => ({ ...current, code: value }))
@@ -184,7 +183,7 @@ export function QualificationRegistryManagement() {
             placeholder="BTEC-L3-IT"
           />
           <RegistryInput
-            label={ar ? "الاسم بالعربية" : "Arabic name"}
+            label={t("qualificationRegistry.arabicName")}
             value={qualificationForm.arabicName}
             onChange={(value) =>
               setQualificationForm((current) => ({
@@ -194,7 +193,7 @@ export function QualificationRegistryManagement() {
             }
           />
           <RegistryInput
-            label={ar ? "الاسم بالإنجليزية" : "English name"}
+            label={t("qualificationRegistry.englishName")}
             value={qualificationForm.englishName}
             onChange={(value) =>
               setQualificationForm((current) => ({
@@ -206,8 +205,8 @@ export function QualificationRegistryManagement() {
           <SubmitButton
             pending={createQualification.isPending}
             disabled={!canCreateQualification}
-            label={ar ? "حفظ المؤهل" : "Save qualification"}
-            pendingLabel={ar ? "جارٍ الحفظ…" : "Saving…"}
+            label={t("qualificationRegistry.saveQualification")}
+            pendingLabel={t("qualificationRegistry.saving")}
           />
         </form>
 
@@ -219,10 +218,10 @@ export function QualificationRegistryManagement() {
           }}
         >
           <h2 className="text-lg font-black">
-            {ar ? "إضافة إصدار موثق" : "Add sourced version"}
+            {t("qualificationRegistry.addVersion")}
           </h2>
           <label className="grid gap-2 text-sm font-black">
-            {ar ? "المؤهل" : "Qualification"}
+            {t("qualificationRegistry.qualification")}
             <select
               className="focus-ring rounded-xl border border-border bg-background px-3 py-3 text-foreground"
               value={versionForm.qualificationId}
@@ -235,7 +234,7 @@ export function QualificationRegistryManagement() {
               required
             >
               <option value="">
-                {ar ? "اختر المؤهل" : "Choose a qualification"}
+                {t("qualificationRegistry.chooseQualification")}
               </option>
               {qualifications.data?.map((qualification) => (
                 <option key={qualification.id} value={qualification.id}>
@@ -246,7 +245,7 @@ export function QualificationRegistryManagement() {
             </select>
           </label>
           <RegistryInput
-            label={ar ? "رمز الإصدار" : "Version code"}
+            label={t("qualificationRegistry.versionCode")}
             value={versionForm.versionCode}
             onChange={(value) =>
               setVersionForm((current) => ({ ...current, versionCode: value }))
@@ -254,7 +253,7 @@ export function QualificationRegistryManagement() {
             placeholder="2026"
           />
           <RegistryInput
-            label={ar ? "مرجع المصدر المعتمد" : "Approved source reference"}
+            label={t("qualificationRegistry.sourceReference")}
             value={versionForm.sourceReference}
             onChange={(value) =>
               setVersionForm((current) => ({
@@ -262,15 +261,11 @@ export function QualificationRegistryManagement() {
                 sourceReference: value,
               }))
             }
-            placeholder={
-              ar
-                ? "رابط أو معرّف المواصفة الموثقة"
-                : "Official specification URL or reference"
-            }
+            placeholder={t("qualificationRegistry.sourcePlaceholder")}
           />
           <div className="grid gap-3 sm:grid-cols-2">
             <DateInput
-              label={ar ? "يسري من" : "Effective from"}
+              label={t("qualificationRegistry.effectiveFrom")}
               value={versionForm.effectiveFromUtc}
               onChange={(value) =>
                 setVersionForm((current) => ({
@@ -281,7 +276,7 @@ export function QualificationRegistryManagement() {
               required
             />
             <DateInput
-              label={ar ? "ينتهي في (اختياري)" : "Ends on (optional)"}
+              label={t("qualificationRegistry.effectiveUntil")}
               value={versionForm.effectiveUntilUtc}
               onChange={(value) =>
                 setVersionForm((current) => ({
@@ -294,8 +289,8 @@ export function QualificationRegistryManagement() {
           <SubmitButton
             pending={createVersion.isPending}
             disabled={!canCreateVersion}
-            label={ar ? "حفظ الإصدار" : "Save version"}
-            pendingLabel={ar ? "جارٍ الحفظ…" : "Saving…"}
+            label={t("qualificationRegistry.saveVersion")}
+            pendingLabel={t("qualificationRegistry.saving")}
           />
         </form>
       </div>
@@ -304,16 +299,14 @@ export function QualificationRegistryManagement() {
         <p role="alert" className="mt-4 text-sm text-red-500">
           {error instanceof Error
             ? error.message
-            : ar
-              ? "تعذر حفظ التغيير."
-              : "Unable to save the change."}
+            : t("qualificationRegistry.saveError")}
         </p>
       ) : null}
 
       <div className="mt-8 grid gap-5 xl:grid-cols-[1fr_1.1fr]">
         <div>
           <h2 className="text-xl font-black">
-            {ar ? "المؤهلات المسجلة" : "Registered qualifications"}
+            {t("qualificationRegistry.registered")}
           </h2>
           <div className="mt-4 grid gap-3">
             {qualifications.data?.map((qualification) => (
@@ -324,7 +317,7 @@ export function QualificationRegistryManagement() {
                 </h3>
                 {qualification.versions.length === 0 ? (
                   <p className="mt-2 text-sm text-muted">
-                    {ar ? "لا يوجد إصدار موثق بعد." : "No sourced version yet."}
+                    {t("qualificationRegistry.noVersion")}
                   </p>
                 ) : (
                   <ul className="mt-3 grid gap-2 text-sm">
@@ -346,9 +339,7 @@ export function QualificationRegistryManagement() {
             ))}
             {qualifications.isSuccess && qualifications.data.length === 0 ? (
               <p className="card p-4 text-muted">
-                {ar
-                  ? "لا توجد مؤهلات مسجلة بعد."
-                  : "No qualifications are registered yet."}
+                {t("qualificationRegistry.empty")}
               </p>
             ) : null}
           </div>
@@ -356,14 +347,10 @@ export function QualificationRegistryManagement() {
 
         <div>
           <h2 className="text-xl font-black">
-            {ar
-              ? "ربط الإصدار بروبرك التقييم"
-              : "Bind a version to an assessment rubric"}
+            {t("qualificationRegistry.bindTitle")}
           </h2>
           <p className="mt-2 text-sm leading-6 text-muted">
-            {ar
-              ? "يؤثر الربط في التقييمات الجديدة فقط؛ طلبات التقييم السابقة تحتفظ بنسخة مصدرها."
-              : "This binding affects new evaluations only; existing evaluation requests retain their source snapshot."}
+            {t("qualificationRegistry.bindingPolicy")}
           </p>
           <div className="mt-4 grid gap-3">
             {rubrics.data?.map((rubric) => {
@@ -384,9 +371,7 @@ export function QualificationRegistryManagement() {
                       {rubric.qualificationCode &&
                       rubric.qualificationVersionCode
                         ? `${rubric.qualificationCode} · ${rubric.qualificationVersionCode}`
-                        : ar
-                          ? "غير مربوط بإصدار مؤهل"
-                          : "No qualification version bound"}
+                        : t("qualificationRegistry.unbound")}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -401,9 +386,7 @@ export function QualificationRegistryManagement() {
                       }
                     >
                       <option value="">
-                        {ar
-                          ? "اختر إصدارًا موثقًا"
-                          : "Choose a sourced version"}
+                        {t("qualificationRegistry.chooseVersion")}
                       </option>
                       {versions.map((version) => (
                         <option key={version.id} value={version.id}>
@@ -426,7 +409,7 @@ export function QualificationRegistryManagement() {
                       }
                       className="focus-ring rounded-xl bg-primary px-4 py-2 text-sm font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      {ar ? "ربط" : "Bind"}
+                      {t("qualificationRegistry.bind")}
                     </button>
                   </div>
                 </article>

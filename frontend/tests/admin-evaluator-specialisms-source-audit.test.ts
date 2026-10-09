@@ -63,6 +63,14 @@ describe("Evaluator specialism static copy and frozen base-main contracts", () =
       );
       delete (catalogue.adminWorkspace as Record<string, unknown>)
         .evaluatorSpecialisms;
+      // The batch audit independently freezes these additions and the entire pre-batch catalogue.
+      for (const section of [
+        "internalVerificationPlans",
+        "evaluationAppeals",
+        "qualificationRegistry",
+        "gradebook",
+      ])
+        delete (catalogue.adminWorkspace as Record<string, unknown>)[section];
       expect(hash(catalogue)).toBe(baseline.catalogueHashes[locale]);
     },
   );

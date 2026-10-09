@@ -81,6 +81,14 @@ describe("Admin assessment coordination static-copy and technical contract audit
       delete workspace.resitCoordination;
       for (const key of ["previous", "next", "resit", "originalRequest"])
         delete (workspace.shared as Record<string, unknown>)[key];
+      // The batch audit independently freezes these additions and the entire pre-batch catalogue.
+      for (const section of [
+        "internalVerificationPlans",
+        "evaluationAppeals",
+        "qualificationRegistry",
+        "gradebook",
+      ])
+        delete (catalogue.adminWorkspace as Record<string, unknown>)[section];
       expect(hash(catalogue)).toBe(baseline.catalogueHashes[locale]);
     },
   );

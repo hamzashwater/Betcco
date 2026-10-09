@@ -4,7 +4,7 @@ import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { BookOpenCheck, ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 type GradebookFilters = {
@@ -62,6 +62,7 @@ const emptyFilters: FilterState = {
 
 export function AdminGradebook() {
   const locale = useLocale();
+  const t = useTranslations("adminWorkspace");
   const [filters, setFilters] = useState<FilterState>(emptyFilters);
   const [applied, setApplied] = useState<FilterState>(emptyFilters);
   const [page, setPage] = useState(1);
@@ -111,12 +112,10 @@ export function AdminGradebook() {
           <BookOpenCheck size={21} aria-hidden="true" />
         </span>
         <h1 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl">
-          {locale === "ar" ? "دفتر الدرجات المركزي" : "Central gradebook"}
+          {t("gradebook.title")}
         </h1>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
-          {locale === "ar"
-            ? "نتائج الواجبات محسوبة على الخادم من المعايير؛ استخدم الفلاتر للمراجعة فقط ولا يمكن تعديل الدرجة من هذه الصفحة."
-            : "Coursework results are calculated on the server from criteria. Use filters for review only; grades cannot be edited here."}
+          {t("gradebook.description")}
         </p>
       </header>
       <form
@@ -128,20 +127,20 @@ export function AdminGradebook() {
         }}
       >
         <FilterSelect
-          label={locale === "ar" ? "الدورة" : "Course"}
+          label={t("gradebook.course")}
           value={filters.courseId}
           onChange={(value) => update("courseId", value)}
           options={options.data?.courses ?? []}
         />
         <FilterSelect
-          label={locale === "ar" ? "الوحدة" : "Unit"}
+          label={t("gradebook.unit")}
           value={filters.unitId}
           onChange={(value) => update("unitId", value)}
           options={filteredUnits}
           disabled={options.isPending}
         />
         <FilterSelect
-          label={locale === "ar" ? "المعلم" : "Teacher"}
+          label={t("gradebook.teacher")}
           value={filters.teacherUserId}
           onChange={(value) => update("teacherUserId", value)}
           options={(options.data?.teachers ?? []).map((item) => ({
@@ -150,7 +149,7 @@ export function AdminGradebook() {
           }))}
         />
         <FilterSelect
-          label={locale === "ar" ? "الطالب" : "Student"}
+          label={t("gradebook.student")}
           value={filters.studentUserId}
           onChange={(value) => update("studentUserId", value)}
           options={(options.data?.students ?? []).map((item) => ({
@@ -159,7 +158,7 @@ export function AdminGradebook() {
           }))}
         />
         <FilterSelect
-          label={locale === "ar" ? "حالة التسليم" : "Submission status"}
+          label={t("gradebook.submissionStatus")}
           value={filters.status}
           onChange={(value) => update("status", value)}
           options={[
@@ -171,7 +170,7 @@ export function AdminGradebook() {
           ].map((id) => ({ id, title: id }))}
         />
         <FilterSelect
-          label={locale === "ar" ? "النتيجة" : "Grade"}
+          label={t("gradebook.grade")}
           value={filters.grade}
           onChange={(value) => update("grade", value)}
           options={["NotYetAchieved", "Pass", "Merit", "Distinction"].map(
@@ -179,7 +178,7 @@ export function AdminGradebook() {
           )}
         />
         <label className="grid gap-1 text-xs font-bold text-muted">
-          {locale === "ar" ? "من تاريخ" : "From date"}
+          {t("gradebook.fromDate")}
           <input
             type="datetime-local"
             value={filters.fromUtc}
@@ -188,7 +187,7 @@ export function AdminGradebook() {
           />
         </label>
         <label className="grid gap-1 text-xs font-bold text-muted">
-          {locale === "ar" ? "إلى تاريخ" : "To date"}
+          {t("gradebook.toDate")}
           <input
             type="datetime-local"
             value={filters.toUtc}
@@ -201,11 +200,7 @@ export function AdminGradebook() {
           <input
             value={filters.search}
             onChange={(event) => update("search", event.target.value)}
-            placeholder={
-              locale === "ar"
-                ? "ابحث باسم الطالب أو المعلم أو الواجب"
-                : "Search student, teacher, or coursework"
-            }
+            placeholder={t("gradebook.search")}
             className="min-w-0 flex-1 border-0 bg-transparent py-3 text-sm text-foreground outline-none"
           />
         </label>
@@ -214,7 +209,7 @@ export function AdminGradebook() {
             type="submit"
             className="focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950"
           >
-            {locale === "ar" ? "تطبيق الفلاتر" : "Apply filters"}
+            {t("gradebook.apply")}
           </button>
           <button
             type="button"
@@ -225,7 +220,7 @@ export function AdminGradebook() {
             }}
             className="focus-ring rounded-xl border border-border px-3 py-2.5 text-sm font-bold text-muted"
           >
-            {locale === "ar" ? "مسح" : "Clear"}
+            {t("gradebook.clear")}
           </button>
         </div>
       </form>
@@ -235,15 +230,11 @@ export function AdminGradebook() {
         </div>
       ) : result.isError ? (
         <p className="card mt-6 p-6 text-sm text-red-400" role="alert">
-          {locale === "ar"
-            ? "تعذر تحميل دفتر الدرجات."
-            : "Unable to load the gradebook."}
+          {t("gradebook.loadError")}
         </p>
       ) : !result.data?.rows.length ? (
         <p className="card mt-6 p-6 text-sm text-muted">
-          {locale === "ar"
-            ? "لا توجد نتائج مطابقة للفلاتر."
-            : "No results match these filters."}
+          {t("gradebook.empty")}
         </p>
       ) : (
         <>
@@ -252,13 +243,13 @@ export function AdminGradebook() {
               <thead className="bg-page/55 text-start text-xs text-muted">
                 <tr>
                   {[
-                    locale === "ar" ? "الطالب" : "Student",
-                    locale === "ar" ? "المعلم" : "Teacher",
-                    locale === "ar" ? "الدورة / الوحدة" : "Course / unit",
-                    locale === "ar" ? "المهمة" : "Coursework",
-                    locale === "ar" ? "الحالة" : "Status",
-                    locale === "ar" ? "النتيجة" : "Grade",
-                    locale === "ar" ? "التاريخ" : "Date",
+                    t("gradebook.student"),
+                    t("gradebook.teacher"),
+                    t("gradebook.courseUnit"),
+                    t("gradebook.coursework"),
+                    t("gradebook.status"),
+                    t("gradebook.grade"),
+                    t("gradebook.date"),
                   ].map((label) => (
                     <th
                       key={label}
@@ -306,10 +297,10 @@ export function AdminGradebook() {
           </div>
           <nav
             className="mt-5 flex items-center justify-between gap-3"
-            aria-label={locale === "ar" ? "ترقيم الصفحات" : "Pagination"}
+            aria-label={t("gradebook.pagination")}
           >
             <p className="text-sm text-muted">
-              {result.data.total} {locale === "ar" ? "نتيجة" : "results"}
+              {result.data.total} {t("gradebook.results")}
             </p>
             <div className="flex items-center gap-2">
               <button
@@ -319,7 +310,7 @@ export function AdminGradebook() {
                 className="focus-ring inline-flex items-center gap-1 rounded-xl border border-border px-3 py-2 text-sm font-bold disabled:opacity-50"
               >
                 <ChevronLeft size={16} aria-hidden="true" />
-                {locale === "ar" ? "السابق" : "Previous"}
+                {t("shared.previous")}
               </button>
               <span className="text-sm font-bold text-muted">
                 {page} / {pageCount}
@@ -332,7 +323,7 @@ export function AdminGradebook() {
                 }
                 className="focus-ring inline-flex items-center gap-1 rounded-xl border border-border px-3 py-2 text-sm font-bold disabled:opacity-50"
               >
-                {locale === "ar" ? "التالي" : "Next"}
+                {t("shared.next")}
                 <ChevronRight size={16} aria-hidden="true" />
               </button>
             </div>

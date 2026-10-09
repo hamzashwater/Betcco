@@ -1,0 +1,1311 @@
+{
+  "base": "a6d8bbbcaa7f03d2f3ff4f43f047c4d076623d78",
+  "catalogueHashes": {
+    "ar": "942f33ec5637cf15dec32883dcc02588bf50e9e96a5ec780577c81ca923d3d45",
+    "en": "948701625da8198883f4133eb17bcffafd60d6c5e01a151ce91e7f9cc81157f0"
+  },
+  "catalogueLeaves": {
+    "ar": 346,
+    "en": 346
+  },
+  "files": {
+    "internal-verification-plan-management": {
+      "contractHash": "b744580e7605fb2b7350ea4089492334c95fb8a8b9d3b667c5f118d4e9d9bfed",
+      "sourceHash": "2957db1397da65e3ed9e0cce42a84b0301ed076ab186901173d3006a88151f5b",
+      "allowed": [
+        "11:202:Distinction",
+        "11:202:Merit",
+        "11:202:Pass",
+        "11:210:Admin",
+        "11:210:Assessor",
+        "11:210:Distinction",
+        "11:210:InternalVerifier",
+        "11:210:LeadInternalVerifier",
+        "11:210:Merit",
+        "11:210:Pass",
+        "11:210:Teacher",
+        "11:210:internal-verification-candidates",
+        "11:210:internal-verification-eligible-staff",
+        "11:210:internal-verification-plans",
+        "11:210:taxonomy",
+        "11:214:/internal-verification/plans",
+        "11:214:/internal-verification/plans/eligible-staff",
+        "11:227:",
+        "11:227:ar",
+        "11:228:",
+        "11:228:border-border bg-surface-solid/45 hover:bg-surface",
+        "11:228:border-primary bg-primary/10",
+        "11:228:—",
+        "11:245:use client",
+        "11:273:@/i18n/date-time",
+        "11:273:@/lib/api",
+        "11:273:@tanstack/react-query",
+        "11:273:next-intl",
+        "11:273:react",
+        "11:292:",
+        "11:292:alert",
+        "11:292:button",
+        "11:292:card mt-6 grid gap-4 p-5 sm:grid-cols-2 sm:p-6",
+        "11:292:card p-5 sm:p-6",
+        "11:292:datetime-local",
+        "11:292:flex flex-wrap items-end justify-between gap-4",
+        "11:292:flex flex-wrap justify-between gap-2",
+        "11:292:flex flex-wrap justify-between gap-3 text-sm",
+        "11:292:focus-ring min-h-20 rounded-xl border border-border bg-background p-3 text-foreground",
+        "11:292:focus-ring min-h-28 rounded-xl border border-border bg-background p-3 text-foreground",
+        "11:292:focus-ring mt-4 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60",
+        "11:292:focus-ring rounded-xl bg-primary px-4 py-3 font-black text-slate-950",
+        "11:292:focus-ring rounded-xl bg-primary px-4 py-3 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60",
+        "11:292:focus-ring rounded-xl border border-border bg-background px-3 py-2 text-foreground",
+        "11:292:font-black",
+        "11:292:grid gap-2 text-sm font-black",
+        "11:292:grid gap-2 text-sm font-black sm:col-span-2",
+        "11:292:max-w-3xl",
+        "11:292:mt-2 line-clamp-3 text-sm text-muted",
+        "11:292:mt-2 text-xs text-muted",
+        "11:292:mt-3 grid gap-2 text-sm font-black",
+        "11:292:mt-3 leading-7 text-muted",
+        "11:292:mt-3 text-3xl font-black tracking-tight sm:text-4xl",
+        "11:292:mt-4 grid gap-2 text-sm font-black",
+        "11:292:mt-4 text-sm text-danger",
+        "11:292:mt-5 grid gap-3",
+        "11:292:mt-5 grid gap-4",
+        "11:292:mt-5 h-44 animate-pulse rounded-2xl bg-surface-solid",
+        "11:292:mt-5 rounded-xl border border-primary/25 bg-primary/10 p-3 text-sm leading-6 text-muted",
+        "11:292:mt-5 text-sm text-danger",
+        "11:292:mt-5 text-sm text-muted",
+        "11:292:mt-7 grid gap-6 xl:grid-cols-[minmax(0,.78fr)_minmax(0,1.22fr)]",
+        "11:292:rounded-2xl border border-border bg-surface-solid/45 p-4",
+        "11:292:self-end",
+        "11:292:shell py-8 sm:py-10",
+        "11:292:submit",
+        "11:292:text-lg font-black",
+        "11:292:text-lg font-black sm:col-span-2",
+        "11:292:text-primary",
+        "11:292:text-sm text-danger sm:col-span-2",
+        "11:292:text-xs font-black uppercase tracking-[0.18em] text-primary",
+        "11:292:text-xs font-bold text-primary",
+        "11:295: ",
+        "11:304:",
+        "11:304:POST",
+        "16:229:",
+        "16:229: — ",
+        "16:229:/internal-verification/plans/",
+        "16:229:/taxonomy?locale=",
+        "16:229:focus-ring w-full rounded-2xl border p-4 text-start ",
+        "17:240:",
+        "18:240:",
+        "18:240:/candidates?take=100",
+        "18:240:/samples"
+      ],
+      "before": {
+        "findings": [
+          "STATIC_UI labels object",
+          "unclassified literal: BETCCO · النزاهة الأكاديمية",
+          "unclassified literal: خطط عينات التحقق الداخلي",
+          "unclassified literal: اختر عيّنات التدقيق بحسب نطاق ومبرر موثقين. لا تستخدم BETCCO نسبة ثابتة أو قرارًا تلقائيًا بدل سياسة المؤهل المعتمدة.",
+          "unclassified literal: إنشاء خطة عيّنة",
+          "unclassified literal: إخفاء النموذج",
+          "unclassified literal: نطاق الخطة",
+          "unclassified literal: المقيّم المستهدف",
+          "unclassified literal: الصف",
+          "unclassified literal: التخصص",
+          "unclassified literal: نوع التقييم",
+          "unclassified literal: النتيجة المستهدفة",
+          "unclassified literal: الكل ضمن النطاق",
+          "unclassified literal: مبرر اختيار العيّنة",
+          "unclassified literal: تنتهي الخطة في (اختياري)",
+          "unclassified literal: حفظ خطة العينة",
+          "unclassified literal: جارٍ الحفظ…",
+          "unclassified literal: الخطط الحالية",
+          "unclassified literal: اختر خطة لعرض المرشحين.",
+          "unclassified literal: لا توجد خطط عيّنة بعد.",
+          "unclassified literal: تقييمات مرشحة للتحقق",
+          "unclassified literal: لا توجد تقييمات تحت المراجعة تطابق نطاق الخطة أو أنها اختيرت سابقًا.",
+          "unclassified literal: عيّن مراجعًا مستقلاً",
+          "unclassified literal: اختيار العينة",
+          "unclassified literal: جارٍ الاختيار…",
+          "unclassified literal: سبب اختيار هذا التقييم",
+          "unclassified literal: لا يمكن للمقيّم المعيّن مراجعة قراره، والخادم يمنع تكرار العينة للمحاولة نفسها.",
+          "unclassified literal: المحاولة",
+          "unclassified literal: أُحيل للمراجعة",
+          "unclassified literal: عيّنات",
+          "unclassified literal: اختر نطاقًا واحدًا على الأقل قبل حفظ الخطة.",
+          "unclassified literal: نجاح",
+          "unclassified literal: تفوق",
+          "unclassified literal: امتياز",
+          "unclassified literal: BETCCO · academic integrity",
+          "unclassified literal: Internal verification sampling plans",
+          "unclassified literal: Select review samples through a documented scope and rationale. BETCCO does not apply a fixed percentage or replace the approved qualification policy with an automatic decision.",
+          "unclassified literal: Create sampling plan",
+          "unclassified literal: Hide form",
+          "unclassified literal: Plan scope",
+          "unclassified literal: Target assessor",
+          "unclassified literal: Grade",
+          "unclassified literal: Specialization",
+          "unclassified literal: Assessment type",
+          "unclassified literal: Target outcome",
+          "unclassified literal: All in scope",
+          "unclassified literal: Sampling rationale",
+          "unclassified literal: Plan ends at (optional)",
+          "unclassified literal: Save sampling plan",
+          "unclassified literal: Saving…",
+          "unclassified literal: Current plans",
+          "unclassified literal: Select a plan to view candidates.",
+          "unclassified literal: No sampling plans yet.",
+          "unclassified literal: Assessments eligible for sampling",
+          "unclassified literal: No under-review assessments match this scope, or they have already been sampled.",
+          "unclassified literal: Assign an independent verifier",
+          "unclassified literal: Select sample",
+          "unclassified literal: Selecting…",
+          "unclassified literal: Reason for selecting this assessment",
+          "unclassified literal: The assigned assessor cannot review their own decision, and the server prevents duplicate sampling of an attempt.",
+          "unclassified literal: Attempt",
+          "unclassified literal: Submitted for review",
+          "unclassified literal: Samples",
+          "unclassified literal: Choose at least one scope before saving the plan.",
+          "unclassified literal: Pass",
+          "unclassified literal: Merit",
+          "unclassified literal: Distinction"
+        ],
+        "keys": [],
+        "localeUses": [
+          {
+            "kind": "LOCALE_API_PARAMETER",
+            "text": "[\"taxonomy\", locale]"
+          },
+          {
+            "kind": "LOCALE_API_PARAMETER",
+            "text": "locale}`"
+          },
+          {
+            "kind": "FORMATTER",
+            "text": "formatLocalizedDateTime(value, locale)"
+          }
+        ],
+        "staticBilingual": 0,
+        "staticArabic": 33,
+        "staticEnglish": 33,
+        "inlineBilingual": 1,
+        "dataBranches": 0
+      },
+      "cases": [
+        {
+          "key": "internalVerificationPlans.eyebrow",
+          "en": "BETCCO · academic integrity",
+          "ar": "BETCCO · النزاهة الأكاديمية"
+        },
+        {
+          "key": "internalVerificationPlans.title",
+          "en": "Internal verification sampling plans",
+          "ar": "خطط عينات التحقق الداخلي"
+        },
+        {
+          "key": "internalVerificationPlans.description",
+          "en": "Select review samples through a documented scope and rationale. BETCCO does not apply a fixed percentage or replace the approved qualification policy with an automatic decision.",
+          "ar": "اختر عيّنات التدقيق بحسب نطاق ومبرر موثقين. لا تستخدم BETCCO نسبة ثابتة أو قرارًا تلقائيًا بدل سياسة المؤهل المعتمدة."
+        },
+        {
+          "key": "internalVerificationPlans.create",
+          "en": "Create sampling plan",
+          "ar": "إنشاء خطة عيّنة"
+        },
+        {
+          "key": "internalVerificationPlans.hide",
+          "en": "Hide form",
+          "ar": "إخفاء النموذج"
+        },
+        {
+          "key": "internalVerificationPlans.planScope",
+          "en": "Plan scope",
+          "ar": "نطاق الخطة"
+        },
+        {
+          "key": "internalVerificationPlans.assessor",
+          "en": "Target assessor",
+          "ar": "المقيّم المستهدف"
+        },
+        {
+          "key": "internalVerificationPlans.grade",
+          "en": "Grade",
+          "ar": "الصف"
+        },
+        {
+          "key": "internalVerificationPlans.specialization",
+          "en": "Specialization",
+          "ar": "التخصص"
+        },
+        {
+          "key": "internalVerificationPlans.taskType",
+          "en": "Assessment type",
+          "ar": "نوع التقييم"
+        },
+        {
+          "key": "internalVerificationPlans.outcome",
+          "en": "Target outcome",
+          "ar": "النتيجة المستهدفة"
+        },
+        {
+          "key": "internalVerificationPlans.all",
+          "en": "All in scope",
+          "ar": "الكل ضمن النطاق"
+        },
+        {
+          "key": "internalVerificationPlans.rationale",
+          "en": "Sampling rationale",
+          "ar": "مبرر اختيار العيّنة"
+        },
+        {
+          "key": "internalVerificationPlans.activeUntil",
+          "en": "Plan ends at (optional)",
+          "ar": "تنتهي الخطة في (اختياري)"
+        },
+        {
+          "key": "internalVerificationPlans.save",
+          "en": "Save sampling plan",
+          "ar": "حفظ خطة العينة"
+        },
+        {
+          "key": "internalVerificationPlans.saving",
+          "en": "Saving…",
+          "ar": "جارٍ الحفظ…"
+        },
+        {
+          "key": "internalVerificationPlans.plans",
+          "en": "Current plans",
+          "ar": "الخطط الحالية"
+        },
+        {
+          "key": "internalVerificationPlans.selectPlan",
+          "en": "Select a plan to view candidates.",
+          "ar": "اختر خطة لعرض المرشحين."
+        },
+        {
+          "key": "internalVerificationPlans.noPlans",
+          "en": "No sampling plans yet.",
+          "ar": "لا توجد خطط عيّنة بعد."
+        },
+        {
+          "key": "internalVerificationPlans.candidates",
+          "en": "Assessments eligible for sampling",
+          "ar": "تقييمات مرشحة للتحقق"
+        },
+        {
+          "key": "internalVerificationPlans.noCandidates",
+          "en": "No under-review assessments match this scope, or they have already been sampled.",
+          "ar": "لا توجد تقييمات تحت المراجعة تطابق نطاق الخطة أو أنها اختيرت سابقًا."
+        },
+        {
+          "key": "internalVerificationPlans.assignVerifier",
+          "en": "Assign an independent verifier",
+          "ar": "عيّن مراجعًا مستقلاً"
+        },
+        {
+          "key": "internalVerificationPlans.select",
+          "en": "Select sample",
+          "ar": "اختيار العينة"
+        },
+        {
+          "key": "internalVerificationPlans.selecting",
+          "en": "Selecting…",
+          "ar": "جارٍ الاختيار…"
+        },
+        {
+          "key": "internalVerificationPlans.sampleReason",
+          "en": "Reason for selecting this assessment",
+          "ar": "سبب اختيار هذا التقييم"
+        },
+        {
+          "key": "internalVerificationPlans.sampleHint",
+          "en": "The assigned assessor cannot review their own decision, and the server prevents duplicate sampling of an attempt.",
+          "ar": "لا يمكن للمقيّم المعيّن مراجعة قراره، والخادم يمنع تكرار العينة للمحاولة نفسها."
+        },
+        {
+          "key": "internalVerificationPlans.attempt",
+          "en": "Attempt",
+          "ar": "المحاولة"
+        },
+        {
+          "key": "internalVerificationPlans.submitted",
+          "en": "Submitted for review",
+          "ar": "أُحيل للمراجعة"
+        },
+        {
+          "key": "internalVerificationPlans.samples",
+          "en": "Samples",
+          "ar": "عيّنات"
+        },
+        {
+          "key": "internalVerificationPlans.scopeRequired",
+          "en": "Choose at least one scope before saving the plan.",
+          "ar": "اختر نطاقًا واحدًا على الأقل قبل حفظ الخطة."
+        },
+        {
+          "key": "internalVerificationPlans.outcomeLabels.Pass",
+          "en": "Pass",
+          "ar": "نجاح"
+        },
+        {
+          "key": "internalVerificationPlans.outcomeLabels.Merit",
+          "en": "Merit",
+          "ar": "تفوق"
+        },
+        {
+          "key": "internalVerificationPlans.outcomeLabels.Distinction",
+          "en": "Distinction",
+          "ar": "امتياز"
+        }
+      ],
+      "presentationKeys": [
+        "internalVerificationPlans.eyebrow",
+        "internalVerificationPlans.title",
+        "internalVerificationPlans.description",
+        "internalVerificationPlans.hide",
+        "internalVerificationPlans.create",
+        "internalVerificationPlans.planScope",
+        "internalVerificationPlans.assessor",
+        "internalVerificationPlans.all",
+        "internalVerificationPlans.grade",
+        "internalVerificationPlans.all",
+        "internalVerificationPlans.specialization",
+        "internalVerificationPlans.all",
+        "internalVerificationPlans.taskType",
+        "internalVerificationPlans.all",
+        "internalVerificationPlans.outcome",
+        "internalVerificationPlans.all",
+        "internalVerificationPlans.outcomeLabels.Pass",
+        "internalVerificationPlans.outcomeLabels.Merit",
+        "internalVerificationPlans.outcomeLabels.Distinction",
+        "internalVerificationPlans.rationale",
+        "internalVerificationPlans.activeUntil",
+        "internalVerificationPlans.saving",
+        "internalVerificationPlans.save",
+        "internalVerificationPlans.scopeRequired",
+        "internalVerificationPlans.plans",
+        "internalVerificationPlans.outcomeLabels.Pass",
+        "internalVerificationPlans.outcomeLabels.Merit",
+        "internalVerificationPlans.outcomeLabels.Distinction",
+        "internalVerificationPlans.all",
+        "internalVerificationPlans.samples",
+        "internalVerificationPlans.noPlans",
+        "internalVerificationPlans.candidates",
+        "internalVerificationPlans.selectPlan",
+        "internalVerificationPlans.attempt",
+        "internalVerificationPlans.outcomeLabels.Pass",
+        "internalVerificationPlans.outcomeLabels.Merit",
+        "internalVerificationPlans.outcomeLabels.Distinction",
+        "internalVerificationPlans.submitted",
+        "internalVerificationPlans.assignVerifier",
+        "internalVerificationPlans.assignVerifier",
+        "internalVerificationPlans.sampleReason",
+        "internalVerificationPlans.selecting",
+        "internalVerificationPlans.select",
+        "internalVerificationPlans.noCandidates",
+        "internalVerificationPlans.sampleHint"
+      ]
+    },
+    "evaluation-appeal-management": {
+      "contractHash": "d4e5f988340a38f0d34408bc41a1a23297975e36aec447fe93ee1900e2bbf13b",
+      "sourceHash": "22b18adffae6a595256a2261dfcc11334056e3f5afebb2b12a67014c3e8b8886",
+      "allowed": [
+        "11:202:Rejected",
+        "11:202:Upheld",
+        "11:210:assessment-pdf-reports",
+        "11:210:evaluation-appeals",
+        "11:210:review-queue",
+        "11:210:status",
+        "11:214:/assessment-pdf-reports/status",
+        "11:214:/evaluation-appeals/review-queue",
+        "11:227:ar",
+        "11:235:Rejected",
+        "11:245:use client",
+        "11:273:@/i18n/date-time",
+        "11:273:@/lib/api",
+        "11:273:@tanstack/react-query",
+        "11:273:next-intl",
+        "11:273:react",
+        "11:292:Rejected",
+        "11:292:Upheld",
+        "11:292:alert",
+        "11:292:button",
+        "11:292:card grid gap-4 p-5 sm:p-6",
+        "11:292:card mt-6 p-4 text-red-500",
+        "11:292:card mt-6 p-5 text-muted",
+        "11:292:flex flex-wrap items-center justify-between gap-3",
+        "11:292:focus-ring justify-self-start rounded-xl bg-primary px-5 py-3 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60",
+        "11:292:focus-ring justify-self-start rounded-xl border border-border px-4 py-2 text-sm font-black hover:border-primary",
+        "11:292:focus-ring min-h-28 rounded-xl border border-border bg-background px-3 py-3 text-foreground",
+        "11:292:focus-ring rounded-xl border border-border bg-background px-3 py-3 text-foreground",
+        "11:292:grid gap-2 text-sm font-black",
+        "11:292:grid gap-3 sm:grid-cols-[12rem_1fr]",
+        "11:292:max-w-3xl",
+        "11:292:mt-2 whitespace-pre-wrap leading-7",
+        "11:292:mt-3 leading-7 text-muted",
+        "11:292:mt-3 text-3xl font-black tracking-tight sm:text-4xl",
+        "11:292:mt-6 grid gap-4",
+        "11:292:mt-6 text-muted",
+        "11:292:rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-black text-primary",
+        "11:292:rounded-xl border border-border bg-page/40 p-4",
+        "11:292:shell py-8 sm:py-10",
+        "11:292:text-sm text-muted",
+        "11:292:text-xs font-black uppercase tracking-[0.18em] text-primary",
+        "11:292:text-xs font-black uppercase tracking-wide text-muted",
+        "11:292:text-xs font-normal text-muted",
+        "11:304:",
+        "11:304:POST",
+        "16:229:/api/v1/assessment-audit-exports/",
+        "16:229:/api/v1/assessment-pdf-reports/",
+        "16:229:/evaluation-appeals/",
+        "16:229:appeal-rationale-",
+        "17:240:?locale=",
+        "18:240:",
+        "18:240:/review"
+      ],
+      "before": {
+        "findings": [
+          "STATIC_UI branch",
+          "unclassified literal: النزاهة الأكاديمية",
+          "unclassified literal: academic integrity",
+          "STATIC_UI branch",
+          "unclassified literal: مراجعة الاستئنافات الأكاديمية",
+          "unclassified literal: Academic appeal review",
+          "STATIC_UI branch",
+          "unclassified literal: لا تظهر هذه القائمة إلا للمراجع المؤهل المستقل عن التقييم الأصلي. القرار يوثق النتيجة ولا يغير الدرجة تلقائيًا.",
+          "unclassified literal: Only a qualified reviewer independent from the original assessment can access this queue. A decision is recorded without changing the grade automatically.",
+          "STATIC_UI branch",
+          "unclassified literal: تعذر تحميل قائمة الاستئنافات.",
+          "unclassified literal: Unable to load the appeal queue.",
+          "STATIC_UI branch",
+          "unclassified literal: لا توجد استئنافات معلقة للمراجعة.",
+          "unclassified literal: There are no appeals awaiting review.",
+          "STATIC_UI branch",
+          "unclassified literal: سبب الطالب",
+          "unclassified literal: Student reason",
+          "STATIC_UI branch",
+          "unclassified literal: تنزيل سجل التدقيق المنظم",
+          "unclassified literal: Download structured audit record",
+          "STATIC_UI branch",
+          "unclassified literal: تنزيل تقرير PDF",
+          "unclassified literal: Download PDF report",
+          "STATIC_UI branch",
+          "unclassified literal: القرار",
+          "unclassified literal: Decision",
+          "STATIC_UI branch",
+          "unclassified literal: قبول الاستئناف",
+          "unclassified literal: Uphold appeal",
+          "STATIC_UI branch",
+          "unclassified literal: رفض الاستئناف",
+          "unclassified literal: Reject appeal",
+          "STATIC_UI branch",
+          "unclassified literal: تعليل القرار",
+          "unclassified literal: Decision rationale",
+          "STATIC_UI branch",
+          "unclassified literal: 10 أحرف على الأقل. يجب تسجيل أي إعادة تقييم لاحقة كإجراء مستقل.",
+          "unclassified literal: At least 10 characters. Any reassessment must be recorded as a separate action.",
+          "STATIC_UI branch",
+          "unclassified literal: جارٍ التسجيل…",
+          "unclassified literal: Recording…",
+          "STATIC_UI branch",
+          "unclassified literal: تسجيل القرار",
+          "unclassified literal: Record decision"
+        ],
+        "keys": [],
+        "localeUses": [
+          {
+            "kind": "FORMATTER",
+            "text": "formatLocalizedDateTime(value, locale)"
+          },
+          {
+            "kind": "LOCALE_API_PARAMETER",
+            "text": "locale}`"
+          }
+        ],
+        "staticBilingual": 15,
+        "staticArabic": 15,
+        "staticEnglish": 15,
+        "inlineBilingual": 0,
+        "dataBranches": 0
+      },
+      "cases": [
+        {
+          "key": "evaluationAppeals.eyebrow",
+          "en": "academic integrity",
+          "ar": "النزاهة الأكاديمية"
+        },
+        {
+          "key": "evaluationAppeals.title",
+          "en": "Academic appeal review",
+          "ar": "مراجعة الاستئنافات الأكاديمية"
+        },
+        {
+          "key": "evaluationAppeals.description",
+          "en": "Only a qualified reviewer independent from the original assessment can access this queue. A decision is recorded without changing the grade automatically.",
+          "ar": "لا تظهر هذه القائمة إلا للمراجع المؤهل المستقل عن التقييم الأصلي. القرار يوثق النتيجة ولا يغير الدرجة تلقائيًا."
+        },
+        {
+          "key": "evaluationAppeals.loadError",
+          "en": "Unable to load the appeal queue.",
+          "ar": "تعذر تحميل قائمة الاستئنافات."
+        },
+        {
+          "key": "evaluationAppeals.empty",
+          "en": "There are no appeals awaiting review.",
+          "ar": "لا توجد استئنافات معلقة للمراجعة."
+        },
+        {
+          "key": "evaluationAppeals.studentReason",
+          "en": "Student reason",
+          "ar": "سبب الطالب"
+        },
+        {
+          "key": "evaluationAppeals.auditExport",
+          "en": "Download structured audit record",
+          "ar": "تنزيل سجل التدقيق المنظم"
+        },
+        {
+          "key": "evaluationAppeals.pdfReport",
+          "en": "Download PDF report",
+          "ar": "تنزيل تقرير PDF"
+        },
+        {
+          "key": "evaluationAppeals.decision",
+          "en": "Decision",
+          "ar": "القرار"
+        },
+        {
+          "key": "evaluationAppeals.upheld",
+          "en": "Uphold appeal",
+          "ar": "قبول الاستئناف"
+        },
+        {
+          "key": "evaluationAppeals.rejected",
+          "en": "Reject appeal",
+          "ar": "رفض الاستئناف"
+        },
+        {
+          "key": "evaluationAppeals.rationale",
+          "en": "Decision rationale",
+          "ar": "تعليل القرار"
+        },
+        {
+          "key": "evaluationAppeals.rationaleHint",
+          "en": "At least 10 characters. Any reassessment must be recorded as a separate action.",
+          "ar": "10 أحرف على الأقل. يجب تسجيل أي إعادة تقييم لاحقة كإجراء مستقل."
+        },
+        {
+          "key": "evaluationAppeals.recording",
+          "en": "Recording…",
+          "ar": "جارٍ التسجيل…"
+        },
+        {
+          "key": "evaluationAppeals.record",
+          "en": "Record decision",
+          "ar": "تسجيل القرار"
+        }
+      ],
+      "presentationKeys": [
+        "evaluationAppeals.eyebrow",
+        "evaluationAppeals.title",
+        "evaluationAppeals.description",
+        "evaluationAppeals.loadError",
+        "evaluationAppeals.empty",
+        "evaluationAppeals.studentReason",
+        "evaluationAppeals.auditExport",
+        "evaluationAppeals.pdfReport",
+        "evaluationAppeals.decision",
+        "evaluationAppeals.upheld",
+        "evaluationAppeals.rejected",
+        "evaluationAppeals.rationale",
+        "evaluationAppeals.rationaleHint",
+        "evaluationAppeals.recording",
+        "evaluationAppeals.record"
+      ]
+    },
+    "qualification-registry-management": {
+      "contractHash": "a9a4ab156f58fa0c3c9f5dd94595aa1291d33fd8f5db3cbebaabfcb0c100937f",
+      "sourceHash": "2944b371c94cfadb09a4f4accbee0de1f34f98f5308c30f0901d2202037a0c96",
+      "allowed": [
+        "11:210:qualification-registry",
+        "11:210:rubrics",
+        "11:214:/qualification-registry",
+        "11:214:/qualification-registry/qualifications",
+        "11:214:/qualification-registry/rubrics",
+        "11:214:/qualification-registry/versions",
+        "11:227:",
+        "11:227:ar",
+        "11:245:use client",
+        "11:273:@/i18n/date-time",
+        "11:273:@/lib/api",
+        "11:273:@tanstack/react-query",
+        "11:273:next-intl",
+        "11:273:react",
+        "11:292:",
+        "11:292:2026",
+        "11:292:BTEC-L3-IT",
+        "11:292:alert",
+        "11:292:button",
+        "11:292:card grid gap-3 p-4",
+        "11:292:card grid gap-4 p-5",
+        "11:292:card p-4",
+        "11:292:card p-4 text-muted",
+        "11:292:date",
+        "11:292:flex flex-wrap gap-2",
+        "11:292:focus-ring justify-self-start rounded-xl bg-primary px-5 py-3 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60",
+        "11:292:focus-ring min-w-56 flex-1 rounded-xl border border-border bg-background px-3 py-2 text-foreground",
+        "11:292:focus-ring rounded-xl bg-primary px-4 py-2 text-sm font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60",
+        "11:292:focus-ring rounded-xl border border-border bg-background px-3 py-3 text-foreground",
+        "11:292:font-black",
+        "11:292:grid gap-2 text-sm font-black",
+        "11:292:grid gap-3 sm:grid-cols-2",
+        "11:292:max-w-4xl",
+        "11:292:mt-1 block break-words text-muted",
+        "11:292:mt-1 text-sm text-muted",
+        "11:292:mt-2 text-sm leading-6 text-muted",
+        "11:292:mt-2 text-sm text-muted",
+        "11:292:mt-3 grid gap-2 text-sm",
+        "11:292:mt-3 leading-7 text-muted",
+        "11:292:mt-3 text-3xl font-black tracking-tight sm:text-4xl",
+        "11:292:mt-4 grid gap-3",
+        "11:292:mt-4 text-sm text-red-500",
+        "11:292:mt-6 grid gap-5 xl:grid-cols-2",
+        "11:292:mt-8 grid gap-5 xl:grid-cols-[1fr_1.1fr]",
+        "11:292:rounded-lg border border-border bg-page/40 p-3",
+        "11:292:shell py-8 sm:py-10",
+        "11:292:submit",
+        "11:292:text-lg font-black",
+        "11:292:text-xl font-black",
+        "11:292:text-xs font-black uppercase tracking-[0.18em] text-primary",
+        "11:295: ",
+        "11:304:",
+        "11:304:POST",
+        "11:304:UTC",
+        "11:304:medium",
+        "16:229:",
+        "16:229:/qualification-registry/rubrics/",
+        "17:240: · ",
+        "17:240:/qualification-version/",
+        "18:240:",
+        "18:240:T00:00:00.000Z"
+      ],
+      "before": {
+        "findings": [
+          "STATIC_UI branch",
+          "unclassified literal: ضبط المواصفات",
+          "unclassified literal: specification control",
+          "STATIC_UI branch",
+          "unclassified literal: سجل المؤهلات وإصداراتها",
+          "unclassified literal: Qualification version registry",
+          "STATIC_UI branch",
+          "unclassified literal: سجّل المؤهل وإصداره ومصدره الذي اعتمده المركز قبل ربطه بروبرك التقييم. لا يضيف BETCCO أي مواصفة Pearson أو اعتماد من تلقاء نفسه.",
+          "unclassified literal: Register the qualification, its source version, and the centre-approved reference before binding it to an assessment rubric. BETCCO never inserts a Pearson specification or claims approval on its own.",
+          "STATIC_UI branch",
+          "unclassified literal: إضافة مؤهل",
+          "unclassified literal: Add qualification",
+          "STATIC_UI branch",
+          "unclassified literal: رمز المؤهل",
+          "unclassified literal: Qualification code",
+          "STATIC_UI branch",
+          "unclassified literal: الاسم بالعربية",
+          "unclassified literal: Arabic name",
+          "STATIC_UI branch",
+          "unclassified literal: الاسم بالإنجليزية",
+          "unclassified literal: English name",
+          "STATIC_UI branch",
+          "unclassified literal: حفظ المؤهل",
+          "unclassified literal: Save qualification",
+          "STATIC_UI branch",
+          "unclassified literal: جارٍ الحفظ…",
+          "unclassified literal: Saving…",
+          "STATIC_UI branch",
+          "unclassified literal: إضافة إصدار موثق",
+          "unclassified literal: Add sourced version",
+          "STATIC_UI branch",
+          "unclassified literal: المؤهل",
+          "unclassified literal: Qualification",
+          "STATIC_UI branch",
+          "unclassified literal: اختر المؤهل",
+          "unclassified literal: Choose a qualification",
+          "STATIC_UI branch",
+          "unclassified literal: رمز الإصدار",
+          "unclassified literal: Version code",
+          "STATIC_UI branch",
+          "unclassified literal: مرجع المصدر المعتمد",
+          "unclassified literal: Approved source reference",
+          "STATIC_UI branch",
+          "unclassified literal: رابط أو معرّف المواصفة الموثقة",
+          "unclassified literal: Official specification URL or reference",
+          "STATIC_UI branch",
+          "unclassified literal: يسري من",
+          "unclassified literal: Effective from",
+          "STATIC_UI branch",
+          "unclassified literal: ينتهي في (اختياري)",
+          "unclassified literal: Ends on (optional)",
+          "STATIC_UI branch",
+          "unclassified literal: حفظ الإصدار",
+          "unclassified literal: Save version",
+          "STATIC_UI branch",
+          "unclassified literal: جارٍ الحفظ…",
+          "unclassified literal: Saving…",
+          "STATIC_UI branch",
+          "unclassified literal: تعذر حفظ التغيير.",
+          "unclassified literal: Unable to save the change.",
+          "STATIC_UI branch",
+          "unclassified literal: المؤهلات المسجلة",
+          "unclassified literal: Registered qualifications",
+          "STATIC_UI branch",
+          "unclassified literal: لا يوجد إصدار موثق بعد.",
+          "unclassified literal: No sourced version yet.",
+          "STATIC_UI branch",
+          "unclassified literal: لا توجد مؤهلات مسجلة بعد.",
+          "unclassified literal: No qualifications are registered yet.",
+          "STATIC_UI branch",
+          "unclassified literal: ربط الإصدار بروبرك التقييم",
+          "unclassified literal: Bind a version to an assessment rubric",
+          "STATIC_UI branch",
+          "unclassified literal: يؤثر الربط في التقييمات الجديدة فقط؛ طلبات التقييم السابقة تحتفظ بنسخة مصدرها.",
+          "unclassified literal: This binding affects new evaluations only; existing evaluation requests retain their source snapshot.",
+          "STATIC_UI branch",
+          "unclassified literal: غير مربوط بإصدار مؤهل",
+          "unclassified literal: No qualification version bound",
+          "STATIC_UI branch",
+          "unclassified literal: اختر إصدارًا موثقًا",
+          "unclassified literal: Choose a sourced version",
+          "STATIC_UI branch",
+          "unclassified literal: ربط",
+          "unclassified literal: Bind"
+        ],
+        "keys": [],
+        "localeUses": [
+          {
+            "kind": "FORMATTER",
+            "text": "formatLocalizedDate(value, locale, { dateStyle: \"medium\", timeZone: \"UTC\", })"
+          },
+          {
+            "kind": "SERVER_BILINGUAL_DATA",
+            "text": "ar ? qualification.arabicName : qualification.englishName"
+          },
+          {
+            "kind": "SERVER_BILINGUAL_DATA",
+            "text": "ar ? qualification.arabicName : qualification.englishName"
+          },
+          {
+            "kind": "SERVER_BILINGUAL_DATA",
+            "text": "ar ? rubric.arabicTitle : rubric.englishTitle"
+          }
+        ],
+        "staticBilingual": 28,
+        "staticArabic": 28,
+        "staticEnglish": 28,
+        "inlineBilingual": 0,
+        "dataBranches": 3
+      },
+      "cases": [
+        {
+          "key": "qualificationRegistry.eyebrow",
+          "en": "specification control",
+          "ar": "ضبط المواصفات"
+        },
+        {
+          "key": "qualificationRegistry.title",
+          "en": "Qualification version registry",
+          "ar": "سجل المؤهلات وإصداراتها"
+        },
+        {
+          "key": "qualificationRegistry.description",
+          "en": "Register the qualification, its source version, and the centre-approved reference before binding it to an assessment rubric. BETCCO never inserts a Pearson specification or claims approval on its own.",
+          "ar": "سجّل المؤهل وإصداره ومصدره الذي اعتمده المركز قبل ربطه بروبرك التقييم. لا يضيف BETCCO أي مواصفة Pearson أو اعتماد من تلقاء نفسه."
+        },
+        {
+          "key": "qualificationRegistry.addQualification",
+          "en": "Add qualification",
+          "ar": "إضافة مؤهل"
+        },
+        {
+          "key": "qualificationRegistry.code",
+          "en": "Qualification code",
+          "ar": "رمز المؤهل"
+        },
+        {
+          "key": "qualificationRegistry.arabicName",
+          "en": "Arabic name",
+          "ar": "الاسم بالعربية"
+        },
+        {
+          "key": "qualificationRegistry.englishName",
+          "en": "English name",
+          "ar": "الاسم بالإنجليزية"
+        },
+        {
+          "key": "qualificationRegistry.saveQualification",
+          "en": "Save qualification",
+          "ar": "حفظ المؤهل"
+        },
+        {
+          "key": "qualificationRegistry.saving",
+          "en": "Saving…",
+          "ar": "جارٍ الحفظ…"
+        },
+        {
+          "key": "qualificationRegistry.addVersion",
+          "en": "Add sourced version",
+          "ar": "إضافة إصدار موثق"
+        },
+        {
+          "key": "qualificationRegistry.qualification",
+          "en": "Qualification",
+          "ar": "المؤهل"
+        },
+        {
+          "key": "qualificationRegistry.chooseQualification",
+          "en": "Choose a qualification",
+          "ar": "اختر المؤهل"
+        },
+        {
+          "key": "qualificationRegistry.versionCode",
+          "en": "Version code",
+          "ar": "رمز الإصدار"
+        },
+        {
+          "key": "qualificationRegistry.sourceReference",
+          "en": "Approved source reference",
+          "ar": "مرجع المصدر المعتمد"
+        },
+        {
+          "key": "qualificationRegistry.sourcePlaceholder",
+          "en": "Official specification URL or reference",
+          "ar": "رابط أو معرّف المواصفة الموثقة"
+        },
+        {
+          "key": "qualificationRegistry.effectiveFrom",
+          "en": "Effective from",
+          "ar": "يسري من"
+        },
+        {
+          "key": "qualificationRegistry.effectiveUntil",
+          "en": "Ends on (optional)",
+          "ar": "ينتهي في (اختياري)"
+        },
+        {
+          "key": "qualificationRegistry.saveVersion",
+          "en": "Save version",
+          "ar": "حفظ الإصدار"
+        },
+        {
+          "key": "qualificationRegistry.saveError",
+          "en": "Unable to save the change.",
+          "ar": "تعذر حفظ التغيير."
+        },
+        {
+          "key": "qualificationRegistry.registered",
+          "en": "Registered qualifications",
+          "ar": "المؤهلات المسجلة"
+        },
+        {
+          "key": "qualificationRegistry.noVersion",
+          "en": "No sourced version yet.",
+          "ar": "لا يوجد إصدار موثق بعد."
+        },
+        {
+          "key": "qualificationRegistry.empty",
+          "en": "No qualifications are registered yet.",
+          "ar": "لا توجد مؤهلات مسجلة بعد."
+        },
+        {
+          "key": "qualificationRegistry.bindTitle",
+          "en": "Bind a version to an assessment rubric",
+          "ar": "ربط الإصدار بروبرك التقييم"
+        },
+        {
+          "key": "qualificationRegistry.bindingPolicy",
+          "en": "This binding affects new evaluations only; existing evaluation requests retain their source snapshot.",
+          "ar": "يؤثر الربط في التقييمات الجديدة فقط؛ طلبات التقييم السابقة تحتفظ بنسخة مصدرها."
+        },
+        {
+          "key": "qualificationRegistry.unbound",
+          "en": "No qualification version bound",
+          "ar": "غير مربوط بإصدار مؤهل"
+        },
+        {
+          "key": "qualificationRegistry.chooseVersion",
+          "en": "Choose a sourced version",
+          "ar": "اختر إصدارًا موثقًا"
+        },
+        {
+          "key": "qualificationRegistry.bind",
+          "en": "Bind",
+          "ar": "ربط"
+        }
+      ],
+      "presentationKeys": [
+        "qualificationRegistry.eyebrow",
+        "qualificationRegistry.title",
+        "qualificationRegistry.description",
+        "qualificationRegistry.addQualification",
+        "qualificationRegistry.code",
+        "qualificationRegistry.arabicName",
+        "qualificationRegistry.englishName",
+        "qualificationRegistry.saveQualification",
+        "qualificationRegistry.saving",
+        "qualificationRegistry.addVersion",
+        "qualificationRegistry.qualification",
+        "qualificationRegistry.chooseQualification",
+        "qualificationRegistry.versionCode",
+        "qualificationRegistry.sourceReference",
+        "qualificationRegistry.sourcePlaceholder",
+        "qualificationRegistry.effectiveFrom",
+        "qualificationRegistry.effectiveUntil",
+        "qualificationRegistry.saveVersion",
+        "qualificationRegistry.saving",
+        "qualificationRegistry.saveError",
+        "qualificationRegistry.registered",
+        "qualificationRegistry.noVersion",
+        "qualificationRegistry.empty",
+        "qualificationRegistry.bindTitle",
+        "qualificationRegistry.bindingPolicy",
+        "qualificationRegistry.unbound",
+        "qualificationRegistry.chooseVersion",
+        "qualificationRegistry.bind"
+      ]
+    },
+    "gradebook": {
+      "contractHash": "1a49609f855780c0c55c0e5ff475fa866c02559f1f4cb585c444e40992b2058c",
+      "sourceHash": "28b68c0b2cbc0836245dc2ceab517b0c1eb18b00fd0474791fef4bb6bd23c526",
+      "allowed": [
+        "11:210:Distinction",
+        "11:210:Draft",
+        "11:210:Finalized",
+        "11:210:Graded",
+        "11:210:Merit",
+        "11:210:NeedsRevision",
+        "11:210:NotYetAchieved",
+        "11:210:Pass",
+        "11:210:Submitted",
+        "11:210:admin-gradebook",
+        "11:210:admin-gradebook-filters",
+        "11:214:courseId",
+        "11:214:fromUtc",
+        "11:214:grade",
+        "11:214:search",
+        "11:214:status",
+        "11:214:studentUserId",
+        "11:214:teacherUserId",
+        "11:214:toUtc",
+        "11:214:unitId",
+        "11:227:ar",
+        "11:227:courseId",
+        "11:227:fromUtc",
+        "11:227:toUtc",
+        "11:227:—",
+        "11:228:—",
+        "11:245:use client",
+        "11:273:@/i18n/date-time",
+        "11:273:@/lib/api",
+        "11:273:@tanstack/react-query",
+        "11:273:lucide-react",
+        "11:273:next-intl",
+        "11:273:react",
+        "11:292:",
+        "11:292:alert",
+        "11:292:bg-page/55 text-start text-xs text-muted",
+        "11:292:border-t border-border/65",
+        "11:292:button",
+        "11:292:card mt-6 grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-4",
+        "11:292:card mt-6 overflow-x-auto",
+        "11:292:card mt-6 p-6",
+        "11:292:card mt-6 p-6 text-sm text-muted",
+        "11:292:card mt-6 p-6 text-sm text-red-400",
+        "11:292:card p-6 sm:p-8",
+        "11:292:datetime-local",
+        "11:292:flex flex-wrap items-center gap-2",
+        "11:292:flex items-center gap-2",
+        "11:292:flex items-center gap-2 rounded-xl border border-border px-3 md:col-span-2 xl:col-span-3",
+        "11:292:focus-ring inline-flex items-center gap-1 rounded-xl border border-border px-3 py-2 text-sm font-bold disabled:opacity-50",
+        "11:292:focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950",
+        "11:292:focus-ring rounded-xl border border-border px-3 py-2.5 text-sm font-bold text-muted",
+        "11:292:grid gap-1 text-xs font-bold text-muted",
+        "11:292:grid size-11 place-items-center rounded-2xl bg-secondary/15 text-secondary",
+        "11:292:min-w-0 flex-1 border-0 bg-transparent py-3 text-sm text-foreground outline-none",
+        "11:292:min-w-full text-sm",
+        "11:292:mt-1 text-xs text-muted",
+        "11:292:mt-3 max-w-3xl text-sm leading-7 text-muted",
+        "11:292:mt-4 text-3xl font-black tracking-tight sm:text-4xl",
+        "11:292:mt-5 flex items-center justify-between gap-3",
+        "11:292:px-3 py-3",
+        "11:292:px-3 py-3 font-black text-secondary",
+        "11:292:px-3 py-3 font-bold",
+        "11:292:px-3 py-3 text-muted",
+        "11:292:rounded-full bg-page px-2.5 py-1 text-xs font-bold",
+        "11:292:rounded-xl border border-border bg-transparent p-2.5 text-sm text-foreground",
+        "11:292:rounded-xl border border-border bg-transparent p-2.5 text-sm text-foreground disabled:opacity-50",
+        "11:292:shell py-10",
+        "11:292:submit",
+        "11:292:text-muted",
+        "11:292:text-sm font-bold text-muted",
+        "11:292:text-sm text-muted",
+        "11:292:true",
+        "11:292:whitespace-nowrap px-3 py-3 font-black",
+        "11:292:whitespace-nowrap px-3 py-3 text-xs text-muted",
+        "11:304:",
+        "11:304:25",
+        "16:229:/admin/gradebook/filters?locale=",
+        "16:229:/admin/gradebook?",
+        "18:240:"
+      ],
+      "before": {
+        "findings": [
+          "STATIC_UI branch",
+          "unclassified literal: دفتر الدرجات المركزي",
+          "unclassified literal: Central gradebook",
+          "STATIC_UI branch",
+          "unclassified literal: نتائج الواجبات محسوبة على الخادم من المعايير؛ استخدم الفلاتر للمراجعة فقط ولا يمكن تعديل الدرجة من هذه الصفحة.",
+          "unclassified literal: Coursework results are calculated on the server from criteria. Use filters for review only; grades cannot be edited here.",
+          "STATIC_UI branch",
+          "unclassified literal: الدورة",
+          "unclassified literal: Course",
+          "STATIC_UI branch",
+          "unclassified literal: الوحدة",
+          "unclassified literal: Unit",
+          "STATIC_UI branch",
+          "unclassified literal: المعلم",
+          "unclassified literal: Teacher",
+          "STATIC_UI branch",
+          "unclassified literal: الطالب",
+          "unclassified literal: Student",
+          "STATIC_UI branch",
+          "unclassified literal: حالة التسليم",
+          "unclassified literal: Submission status",
+          "STATIC_UI branch",
+          "unclassified literal: النتيجة",
+          "unclassified literal: Grade",
+          "STATIC_UI branch",
+          "unclassified literal: من تاريخ",
+          "unclassified literal: From date",
+          "STATIC_UI branch",
+          "unclassified literal: إلى تاريخ",
+          "unclassified literal: To date",
+          "STATIC_UI branch",
+          "unclassified literal: ابحث باسم الطالب أو المعلم أو الواجب",
+          "unclassified literal: Search student, teacher, or coursework",
+          "STATIC_UI branch",
+          "unclassified literal: تطبيق الفلاتر",
+          "unclassified literal: Apply filters",
+          "STATIC_UI branch",
+          "unclassified literal: مسح",
+          "unclassified literal: Clear",
+          "STATIC_UI branch",
+          "unclassified literal: تعذر تحميل دفتر الدرجات.",
+          "unclassified literal: Unable to load the gradebook.",
+          "STATIC_UI branch",
+          "unclassified literal: لا توجد نتائج مطابقة للفلاتر.",
+          "unclassified literal: No results match these filters.",
+          "STATIC_UI branch",
+          "unclassified literal: الطالب",
+          "unclassified literal: Student",
+          "STATIC_UI branch",
+          "unclassified literal: المعلم",
+          "unclassified literal: Teacher",
+          "STATIC_UI branch",
+          "unclassified literal: الدورة / الوحدة",
+          "unclassified literal: Course / unit",
+          "STATIC_UI branch",
+          "unclassified literal: المهمة",
+          "unclassified literal: Coursework",
+          "STATIC_UI branch",
+          "unclassified literal: الحالة",
+          "unclassified literal: Status",
+          "STATIC_UI branch",
+          "unclassified literal: النتيجة",
+          "unclassified literal: Grade",
+          "STATIC_UI branch",
+          "unclassified literal: التاريخ",
+          "unclassified literal: Date",
+          "STATIC_UI branch",
+          "unclassified literal: ترقيم الصفحات",
+          "unclassified literal: Pagination",
+          "STATIC_UI branch",
+          "unclassified literal: نتيجة",
+          "unclassified literal: results",
+          "STATIC_UI branch",
+          "unclassified literal: السابق",
+          "unclassified literal: Previous",
+          "STATIC_UI branch",
+          "unclassified literal: التالي",
+          "unclassified literal: Next"
+        ],
+        "keys": [],
+        "localeUses": [
+          {
+            "kind": "LOCALE_API_PARAMETER",
+            "text": "[\"admin-gradebook-filters\", locale]"
+          },
+          {
+            "kind": "LOCALE_API_PARAMETER",
+            "text": "locale}`"
+          },
+          {
+            "kind": "LOCALE_API_PARAMETER",
+            "text": "locale"
+          },
+          {
+            "kind": "LOCALE_API_PARAMETER",
+            "text": "[applied, locale, page]"
+          },
+          {
+            "kind": "FORMATTER",
+            "text": "formatLocalizedDateTime(value, locale)"
+          }
+        ],
+        "staticBilingual": 26,
+        "staticArabic": 26,
+        "staticEnglish": 26,
+        "inlineBilingual": 0,
+        "dataBranches": 0
+      },
+      "cases": [
+        {
+          "key": "gradebook.title",
+          "en": "Central gradebook",
+          "ar": "دفتر الدرجات المركزي"
+        },
+        {
+          "key": "gradebook.description",
+          "en": "Coursework results are calculated on the server from criteria. Use filters for review only; grades cannot be edited here.",
+          "ar": "نتائج الواجبات محسوبة على الخادم من المعايير؛ استخدم الفلاتر للمراجعة فقط ولا يمكن تعديل الدرجة من هذه الصفحة."
+        },
+        {
+          "key": "gradebook.course",
+          "en": "Course",
+          "ar": "الدورة"
+        },
+        {
+          "key": "gradebook.unit",
+          "en": "Unit",
+          "ar": "الوحدة"
+        },
+        {
+          "key": "gradebook.teacher",
+          "en": "Teacher",
+          "ar": "المعلم"
+        },
+        {
+          "key": "gradebook.student",
+          "en": "Student",
+          "ar": "الطالب"
+        },
+        {
+          "key": "gradebook.submissionStatus",
+          "en": "Submission status",
+          "ar": "حالة التسليم"
+        },
+        {
+          "key": "gradebook.grade",
+          "en": "Grade",
+          "ar": "النتيجة"
+        },
+        {
+          "key": "gradebook.fromDate",
+          "en": "From date",
+          "ar": "من تاريخ"
+        },
+        {
+          "key": "gradebook.toDate",
+          "en": "To date",
+          "ar": "إلى تاريخ"
+        },
+        {
+          "key": "gradebook.search",
+          "en": "Search student, teacher, or coursework",
+          "ar": "ابحث باسم الطالب أو المعلم أو الواجب"
+        },
+        {
+          "key": "gradebook.apply",
+          "en": "Apply filters",
+          "ar": "تطبيق الفلاتر"
+        },
+        {
+          "key": "gradebook.clear",
+          "en": "Clear",
+          "ar": "مسح"
+        },
+        {
+          "key": "gradebook.loadError",
+          "en": "Unable to load the gradebook.",
+          "ar": "تعذر تحميل دفتر الدرجات."
+        },
+        {
+          "key": "gradebook.empty",
+          "en": "No results match these filters.",
+          "ar": "لا توجد نتائج مطابقة للفلاتر."
+        },
+        {
+          "key": "gradebook.courseUnit",
+          "en": "Course / unit",
+          "ar": "الدورة / الوحدة"
+        },
+        {
+          "key": "gradebook.coursework",
+          "en": "Coursework",
+          "ar": "المهمة"
+        },
+        {
+          "key": "gradebook.status",
+          "en": "Status",
+          "ar": "الحالة"
+        },
+        {
+          "key": "gradebook.date",
+          "en": "Date",
+          "ar": "التاريخ"
+        },
+        {
+          "key": "gradebook.pagination",
+          "en": "Pagination",
+          "ar": "ترقيم الصفحات"
+        },
+        {
+          "key": "gradebook.results",
+          "en": "results",
+          "ar": "نتيجة"
+        },
+        {
+          "key": "shared.previous",
+          "en": "Previous",
+          "ar": "السابق"
+        },
+        {
+          "key": "shared.next",
+          "en": "Next",
+          "ar": "التالي"
+        }
+      ],
+      "presentationKeys": [
+        "gradebook.title",
+        "gradebook.description",
+        "gradebook.course",
+        "gradebook.unit",
+        "gradebook.teacher",
+        "gradebook.student",
+        "gradebook.submissionStatus",
+        "gradebook.grade",
+        "gradebook.fromDate",
+        "gradebook.toDate",
+        "gradebook.search",
+        "gradebook.apply",
+        "gradebook.clear",
+        "gradebook.loadError",
+        "gradebook.empty",
+        "gradebook.student",
+        "gradebook.teacher",
+        "gradebook.courseUnit",
+        "gradebook.coursework",
+        "gradebook.status",
+        "gradebook.grade",
+        "gradebook.date",
+        "gradebook.pagination",
+        "gradebook.results",
+        "shared.previous",
+        "shared.next"
+      ]
+    }
+  }
+}
