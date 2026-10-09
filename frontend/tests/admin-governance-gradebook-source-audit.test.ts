@@ -15,7 +15,10 @@ import {
   type File,
 } from "./helpers/admin-governance-gradebook-i18n-audit";
 
-const completed: File[] = ["internal-verification-plan-management"];
+const completed: File[] = [
+  "internal-verification-plan-management",
+  "evaluation-appeal-management",
+];
 const sources = Object.fromEntries(
   files.map((name) => [
     name,

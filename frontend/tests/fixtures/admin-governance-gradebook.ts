@@ -1,4 +1,12 @@
 // Synthetic data only. These fixtures prove UI contracts, not backend policy.
+export const appeal = {
+  id: "appeal",
+  evaluationRequestId: "evaluation",
+  status: "RawAppealStatus",
+  reason: "Raw student appeal reason — سبب كتبه الطالب",
+  decisionRationale: null,
+  createdAtUtc: "2026-09-25T10:30:00Z",
+};
 export const staff = [
   {
     id: "assessor",

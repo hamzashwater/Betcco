@@ -2809,6 +2809,23 @@
         "Merit": "Merit",
         "Distinction": "Distinction"
       }
+    },
+    "evaluationAppeals": {
+      "eyebrow": "academic integrity",
+      "title": "Academic appeal review",
+      "description": "Only a qualified reviewer independent from the original assessment can access this queue. A decision is recorded without changing the grade automatically.",
+      "loadError": "Unable to load the appeal queue.",
+      "empty": "There are no appeals awaiting review.",
+      "studentReason": "Student reason",
+      "auditExport": "Download structured audit record",
+      "pdfReport": "Download PDF report",
+      "decision": "Decision",
+      "upheld": "Uphold appeal",
+      "rejected": "Reject appeal",
+      "rationale": "Decision rationale",
+      "rationaleHint": "At least 10 characters. Any reassessment must be recorded as a separate action.",
+      "recording": "Recording…",
+      "record": "Record decision"
     }
   }
 }
