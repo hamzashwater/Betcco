@@ -1,3 +1,4 @@
+import { withoutFinalAdminAdditions } from "./helpers/admin-final-catalogue-projection";
 import { readFileSync } from "node:fs";
 import { createTranslator } from "next-intl";
 import { describe, expect, it } from "vitest";
@@ -89,7 +90,9 @@ describe("Admin assessment coordination static-copy and technical contract audit
         "gradebook",
       ])
         delete (catalogue.adminWorkspace as Record<string, unknown>)[section];
-      expect(hash(catalogue)).toBe(baseline.catalogueHashes[locale]);
+      expect(hash(withoutFinalAdminAdditions(catalogue))).toBe(
+        baseline.catalogueHashes[locale],
+      );
     },
   );
   it("uses all new keys without dead keys or raw en/ar presentation mappings", () => {

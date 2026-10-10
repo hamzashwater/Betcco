@@ -121,7 +121,13 @@ for (const scenario of [
             : "Unit 6 — Website Development",
       }),
     ).toBeVisible();
-    await expect(page.getByText("English: Website Development")).toBeVisible();
+    await expect(
+      page.getByText(
+        scenario.locale === "ar"
+          ? "الإنجليزية: Website Development"
+          : "English: Website Development",
+      ),
+    ).toBeVisible();
     await expect(
       page.getByText("العربية: تطوير المواقع الإلكترونية"),
     ).toBeVisible();
@@ -137,13 +143,28 @@ for (const scenario of [
         .toBe("تطوير مواقع الويب");
     }
     await page
-      .getByRole("textbox", { name: "Specialization slug" })
+      .getByRole("textbox", {
+        name:
+          scenario.locale === "ar"
+            ? "المعرّف النصي للتخصص"
+            : "Specialization slug",
+      })
       .fill("engineering");
     await page
-      .getByRole("textbox", { name: "Specialization Arabic name" })
+      .getByRole("textbox", {
+        name:
+          scenario.locale === "ar"
+            ? "اسم التخصص بالعربية"
+            : "Specialization Arabic name",
+      })
       .fill("الهندسة");
     await page
-      .getByRole("textbox", { name: "Specialization English name" })
+      .getByRole("textbox", {
+        name:
+          scenario.locale === "ar"
+            ? "اسم التخصص بالإنجليزية"
+            : "Specialization English name",
+      })
       .fill("Engineering");
     await page
       .getByRole("button", {

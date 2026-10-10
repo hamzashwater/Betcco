@@ -1,3 +1,4 @@
+import { withoutFinalAdminAdditions } from "./helpers/admin-final-catalogue-projection";
 import { readFileSync } from "node:fs";
 import ts from "typescript";
 import { createTranslator } from "next-intl";
@@ -99,7 +100,9 @@ describe("Governance/gradebook per-file copy audit and pre-batch freeze", () => 
       const catalogue = JSON.parse(JSON.stringify(locale === "ar" ? ar : en));
       for (const section of Object.values(sections))
         delete catalogue.adminWorkspace[section];
-      expect(hash(catalogue)).toBe(baseline.catalogueHashes[locale]);
+      expect(hash(withoutFinalAdminAdditions(catalogue))).toBe(
+        baseline.catalogueHashes[locale],
+      );
     },
   );
   it("has exact AR/EN structural parity and no duplicate JSON keys", () => {

@@ -3,7 +3,7 @@
 import { api } from "@/lib/api";
 import { academicText } from "@/lib/academic-localization";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 type Track = { id: string; name: string; isBtecFocused: boolean };
@@ -37,6 +37,7 @@ type Qualification = {
 
 export function AcademicCatalogManagement() {
   const locale = useLocale();
+  const t = useTranslations("adminWorkspace");
   const ar = locale === "ar";
   const client = useQueryClient();
   const [message, setMessage] = useState("");
@@ -130,11 +131,11 @@ export function AcademicCatalogManagement() {
       body: object;
     }) => api(path, { method, body: JSON.stringify(body) }),
     onSuccess: async () => {
-      setMessage(ar ? "حُفظت التغييرات." : "Changes saved.");
+      setMessage(t("academicCatalogManagement.changesSaved"));
       await refresh();
     },
     onError: () =>
-      setMessage(ar ? "تعذر حفظ التغييرات." : "Could not save changes."),
+      setMessage(t("academicCatalogManagement.couldNotSaveChanges")),
   });
   const save = (path: string, method: "POST" | "PUT", body: object) => {
     setMessage("");
@@ -146,17 +147,17 @@ export function AcademicCatalogManagement() {
   return (
     <section
       className="card mt-7 min-w-0 p-5"
-      aria-label={ar ? "إدارة الكتالوج الأكاديمي" : "Manage academic catalogue"}
+      aria-label={t("academicCatalogManagement.manageAcademicCatalogue")}
     >
       <h2 className="text-xl font-bold">
-        {ar ? "إدارة التصنيف والكتالوج" : "Manage taxonomy and catalogue"}
+        {t("academicCatalogManagement.manageTaxonomyAndCatalogue")}
       </h2>
       {(taxonomy.isPending ||
         specializations.isPending ||
         grades.isPending ||
         qualifications.isPending) && (
         <p aria-busy="true" role="status">
-          {ar ? "جارٍ التحميل…" : "Loading…"}
+          {t("academicCatalogManagement.loading")}
         </p>
       )}
       {(taxonomy.isError ||
@@ -164,7 +165,7 @@ export function AcademicCatalogManagement() {
         grades.isError ||
         qualifications.isError) && (
         <p role="alert" className="text-red-500">
-          {ar ? "تعذر تحميل الكتالوج." : "Could not load the catalogue."}
+          {t("academicCatalogManagement.couldNotLoadTheCatalogue")}
         </p>
       )}
       <div className="mt-4 grid gap-5 lg:grid-cols-2">
@@ -180,13 +181,13 @@ export function AcademicCatalogManagement() {
           }}
         >
           <h3 className="font-bold">
-            {ar ? "تخصص مخصص جديد" : "New custom specialization"}
+            {t("academicCatalogManagement.newCustomSpecialization")}
           </h3>
           <input
             className={inputClass}
             required
             placeholder="slug"
-            aria-label="Specialization slug"
+            aria-label={t("academicCatalogManagement.specializationSlug")}
             value={specialization.slug}
             onChange={(event) =>
               setSpecialization({ ...specialization, slug: event.target.value })
@@ -195,8 +196,8 @@ export function AcademicCatalogManagement() {
           <input
             className={inputClass}
             required
-            placeholder={ar ? "الاسم العربي" : "Arabic name"}
-            aria-label="Specialization Arabic name"
+            placeholder={t("academicCatalogManagement.arabicName")}
+            aria-label={t("academicCatalogManagement.specializationArabicName")}
             value={specialization.arabicName}
             onChange={(event) =>
               setSpecialization({
@@ -208,8 +209,10 @@ export function AcademicCatalogManagement() {
           <input
             className={inputClass}
             required
-            placeholder={ar ? "الاسم الإنجليزي" : "English name"}
-            aria-label="Specialization English name"
+            placeholder={t("academicCatalogManagement.englishName")}
+            aria-label={t(
+              "academicCatalogManagement.specializationEnglishName",
+            )}
             value={specialization.englishName}
             onChange={(event) =>
               setSpecialization({
@@ -222,7 +225,7 @@ export function AcademicCatalogManagement() {
             className="rounded-lg bg-primary px-3 py-2 font-bold disabled:opacity-50"
             disabled={write.isPending || !trackId}
           >
-            {ar ? "إضافة تخصص" : "Add specialization"}
+            {t("academicCatalogManagement.addSpecialization")}
           </button>
         </form>
         <form
@@ -236,12 +239,14 @@ export function AcademicCatalogManagement() {
             });
           }}
         >
-          <h3 className="font-bold">{ar ? "صف جديد" : "New grade"}</h3>
+          <h3 className="font-bold">
+            {t("academicCatalogManagement.newGrade")}
+          </h3>
           <input
             className={inputClass}
             required
             placeholder="slug"
-            aria-label="Grade slug"
+            aria-label={t("academicCatalogManagement.gradeSlug")}
             value={grade.slug}
             onChange={(event) =>
               setGrade({ ...grade, slug: event.target.value })
@@ -250,8 +255,8 @@ export function AcademicCatalogManagement() {
           <input
             className={inputClass}
             required
-            placeholder={ar ? "الاسم العربي" : "Arabic name"}
-            aria-label="Grade Arabic name"
+            placeholder={t("academicCatalogManagement.arabicName")}
+            aria-label={t("academicCatalogManagement.gradeArabicName")}
             value={grade.arabicName}
             onChange={(event) =>
               setGrade({ ...grade, arabicName: event.target.value })
@@ -260,8 +265,8 @@ export function AcademicCatalogManagement() {
           <input
             className={inputClass}
             required
-            placeholder={ar ? "الاسم الإنجليزي" : "English name"}
-            aria-label="Grade English name"
+            placeholder={t("academicCatalogManagement.englishName")}
+            aria-label={t("academicCatalogManagement.gradeEnglishName")}
             value={grade.englishName}
             onChange={(event) =>
               setGrade({ ...grade, englishName: event.target.value })
@@ -271,13 +276,15 @@ export function AcademicCatalogManagement() {
             className="rounded-lg bg-primary px-3 py-2 font-bold disabled:opacity-50"
             disabled={write.isPending || !trackId}
           >
-            {ar ? "إضافة صف" : "Add grade"}
+            {t("academicCatalogManagement.addGrade")}
           </button>
         </form>
       </div>
       <div className="mt-5 grid gap-5 lg:grid-cols-2">
         <div>
-          <h3 className="font-bold">{ar ? "التخصصات" : "Specializations"}</h3>
+          <h3 className="font-bold">
+            {t("academicCatalogManagement.specializations")}
+          </h3>
           <ul className="mt-2 grid gap-2 text-sm">
             {specializations.data
               ?.filter((item) => item.learningTrackId === trackId)
@@ -302,19 +309,15 @@ export function AcademicCatalogManagement() {
                     }
                   >
                     {item.isVisible
-                      ? ar
-                        ? "أرشفة"
-                        : "Archive"
-                      : ar
-                        ? "تفعيل"
-                        : "Activate"}
+                      ? t("academicCatalogManagement.archive")
+                      : t("academicCatalogManagement.activate")}
                   </button>
                 </li>
               ))}
           </ul>
         </div>
         <div>
-          <h3 className="font-bold">{ar ? "الصفوف" : "Grades"}</h3>
+          <h3 className="font-bold">{t("academicCatalogManagement.grades")}</h3>
           <ul className="mt-2 grid gap-2 text-sm">
             {grades.data
               ?.filter((item) => item.learningTrackId === trackId)
@@ -339,12 +342,8 @@ export function AcademicCatalogManagement() {
                     }
                   >
                     {item.isVisible
-                      ? ar
-                        ? "أرشفة"
-                        : "Archive"
-                      : ar
-                        ? "تفعيل"
-                        : "Activate"}
+                      ? t("academicCatalogManagement.archive")
+                      : t("academicCatalogManagement.activate")}
                   </button>
                 </li>
               ))}
@@ -364,12 +363,14 @@ export function AcademicCatalogManagement() {
           }}
         >
           <h3 className="font-bold">
-            {ar ? "مؤهل مخصص" : "Custom qualification"}
+            {t("academicCatalogManagement.customQualification")}
           </h3>
           <select
             className={inputClass}
             required
-            aria-label="Qualification specialization"
+            aria-label={t(
+              "academicCatalogManagement.qualificationSpecialization",
+            )}
             value={qualification.specializationId}
             onChange={(event) =>
               setQualification({
@@ -379,7 +380,7 @@ export function AcademicCatalogManagement() {
             }
           >
             <option value="">
-              {ar ? "اختر تخصصًا" : "Choose specialization"}
+              {t("academicCatalogManagement.chooseSpecialization")}
             </option>
             {specializations.data
               ?.filter(
@@ -394,8 +395,8 @@ export function AcademicCatalogManagement() {
           <input
             className={inputClass}
             required
-            placeholder={ar ? "رمز المؤهل" : "Qualification code"}
-            aria-label="Qualification code"
+            placeholder={t("academicCatalogManagement.qualificationCode")}
+            aria-label={t("academicCatalogManagement.qualificationCode")}
             value={qualification.code}
             onChange={(event) =>
               setQualification({ ...qualification, code: event.target.value })
@@ -404,8 +405,8 @@ export function AcademicCatalogManagement() {
           <input
             className={inputClass}
             required
-            placeholder={ar ? "الاسم العربي المحلي" : "Local Arabic name"}
-            aria-label="Qualification Arabic name"
+            placeholder={t("academicCatalogManagement.localArabicName")}
+            aria-label={t("academicCatalogManagement.qualificationArabicName")}
             value={qualification.arabicName}
             onChange={(event) =>
               setQualification({
@@ -417,8 +418,8 @@ export function AcademicCatalogManagement() {
           <input
             className={inputClass}
             required
-            placeholder={ar ? "الاسم الإنجليزي" : "English name"}
-            aria-label="Qualification English name"
+            placeholder={t("academicCatalogManagement.englishName")}
+            aria-label={t("academicCatalogManagement.qualificationEnglishName")}
             value={qualification.englishName}
             onChange={(event) =>
               setQualification({
@@ -431,7 +432,7 @@ export function AcademicCatalogManagement() {
             className="rounded-lg bg-primary px-3 py-2 font-bold disabled:opacity-50"
             disabled={write.isPending}
           >
-            {ar ? "إضافة مؤهل" : "Add qualification"}
+            {t("academicCatalogManagement.addQualification")}
           </button>
         </form>
         <form
@@ -447,18 +448,20 @@ export function AcademicCatalogManagement() {
             });
           }}
         >
-          <h3 className="font-bold">{ar ? "إصدار مخصص" : "Custom version"}</h3>
+          <h3 className="font-bold">
+            {t("academicCatalogManagement.customVersion")}
+          </h3>
           <select
             className={inputClass}
             required
-            aria-label="Qualification"
+            aria-label={t("academicCatalogManagement.qualification")}
             value={version.qualificationId}
             onChange={(event) =>
               setVersion({ ...version, qualificationId: event.target.value })
             }
           >
             <option value="">
-              {ar ? "اختر مؤهلًا" : "Choose qualification"}
+              {t("academicCatalogManagement.chooseQualification")}
             </option>
             {qualifications.data
               ?.filter((item) => item.isActive && item.source === "AdminCustom")
@@ -472,8 +475,8 @@ export function AcademicCatalogManagement() {
           <input
             className={inputClass}
             required
-            placeholder={ar ? "رمز الإصدار" : "Version code"}
-            aria-label="Version code"
+            placeholder={t("academicCatalogManagement.versionCode")}
+            aria-label={t("academicCatalogManagement.versionCode")}
             value={version.versionCode}
             onChange={(event) =>
               setVersion({ ...version, versionCode: event.target.value })
@@ -483,8 +486,8 @@ export function AcademicCatalogManagement() {
             className={inputClass}
             required
             minLength={10}
-            placeholder={ar ? "مرجع المصدر" : "Source reference"}
-            aria-label="Version source reference"
+            placeholder={t("academicCatalogManagement.sourceReference")}
+            aria-label={t("academicCatalogManagement.versionSourceReference")}
             value={version.sourceReference}
             onChange={(event) =>
               setVersion({ ...version, sourceReference: event.target.value })
@@ -494,7 +497,7 @@ export function AcademicCatalogManagement() {
             className={inputClass}
             required
             type="date"
-            aria-label="Effective date"
+            aria-label={t("academicCatalogManagement.effectiveDate")}
             value={version.effectiveFromUtc}
             onChange={(event) =>
               setVersion({ ...version, effectiveFromUtc: event.target.value })
@@ -504,7 +507,7 @@ export function AcademicCatalogManagement() {
             className="rounded-lg bg-primary px-3 py-2 font-bold disabled:opacity-50"
             disabled={write.isPending}
           >
-            {ar ? "إضافة إصدار" : "Add version"}
+            {t("academicCatalogManagement.addVersion")}
           </button>
         </form>
         <form
@@ -517,22 +520,26 @@ export function AcademicCatalogManagement() {
             });
           }}
         >
-          <h3 className="font-bold">{ar ? "وحدة مخصصة" : "Custom unit"}</h3>
+          <h3 className="font-bold">
+            {t("academicCatalogManagement.customUnit")}
+          </h3>
           <p className="text-xs text-muted">
-            {ar
-              ? "تُنشأ كمسودة. تفعيلها ينشر هويتها ويمنع تعديلها لاحقًا."
-              : "Created as a draft. Activation publishes and locks its academic identity."}
+            {t(
+              "academicCatalogManagement.createdAsADraftActivationPublishesAndLocksItsAcademicIdentity",
+            )}
           </p>
           <select
             className={inputClass}
             required
-            aria-label={ar ? "إصدار الوحدة المخصصة" : "Custom unit version"}
+            aria-label={t("academicCatalogManagement.customUnitVersion")}
             value={unit.qualificationVersionId}
             onChange={(event) =>
               setUnit({ ...unit, qualificationVersionId: event.target.value })
             }
           >
-            <option value="">{ar ? "اختر إصدارًا" : "Choose version"}</option>
+            <option value="">
+              {t("academicCatalogManagement.chooseVersion")}
+            </option>
             {versionChoices.map((item) => (
               <option key={item.id} value={item.id}>
                 {item.name}
@@ -542,16 +549,16 @@ export function AcademicCatalogManagement() {
           <input
             className={inputClass}
             required
-            placeholder={ar ? "رقم الوحدة" : "Unit number"}
-            aria-label="Unit code"
+            placeholder={t("academicCatalogManagement.unitNumber")}
+            aria-label={t("academicCatalogManagement.unitCode")}
             value={unit.code}
             onChange={(event) => setUnit({ ...unit, code: event.target.value })}
           />
           <input
             className={inputClass}
             required
-            placeholder={ar ? "العنوان الإنجليزي" : "English title"}
-            aria-label="Unit English title"
+            placeholder={t("academicCatalogManagement.englishTitle")}
+            aria-label={t("academicCatalogManagement.unitEnglishTitle")}
             value={unit.englishTitle}
             onChange={(event) =>
               setUnit({ ...unit, englishTitle: event.target.value })
@@ -559,10 +566,10 @@ export function AcademicCatalogManagement() {
           />
           <input
             className={inputClass}
-            placeholder={
-              ar ? "عرض عربي محلي (اختياري)" : "Local Arabic display (optional)"
-            }
-            aria-label="Unit local Arabic display"
+            placeholder={t(
+              "academicCatalogManagement.localArabicDisplayOptional",
+            )}
+            aria-label={t("academicCatalogManagement.unitLocalArabicDisplay")}
             value={unit.arabicTitle}
             onChange={(event) =>
               setUnit({ ...unit, arabicTitle: event.target.value })
@@ -570,8 +577,8 @@ export function AcademicCatalogManagement() {
           />
           <input
             className={inputClass}
-            placeholder={ar ? "مرجع المصدر" : "Source reference"}
-            aria-label="Unit source reference"
+            placeholder={t("academicCatalogManagement.sourceReference")}
+            aria-label={t("academicCatalogManagement.unitSourceReference")}
             value={unit.sourceReference}
             onChange={(event) =>
               setUnit({ ...unit, sourceReference: event.target.value })
@@ -581,13 +588,13 @@ export function AcademicCatalogManagement() {
             className="rounded-lg bg-primary px-3 py-2 font-bold disabled:opacity-50"
             disabled={write.isPending}
           >
-            {ar ? "إضافة وحدة" : "Add unit"}
+            {t("academicCatalogManagement.addUnit")}
           </button>
         </form>
       </div>
       <div className="mt-6">
         <h3 className="font-bold">
-          {ar ? "المؤهلات والإصدارات" : "Qualifications and versions"}
+          {t("academicCatalogManagement.qualificationsAndVersions")}
         </h3>
         <ul className="mt-2 grid gap-2 text-sm">
           {qualifications.data?.map((item) => (
@@ -620,12 +627,8 @@ export function AcademicCatalogManagement() {
                   }
                 >
                   {item.isActive
-                    ? ar
-                      ? "أرشفة"
-                      : "Archive"
-                    : ar
-                      ? "تفعيل"
-                      : "Activate"}
+                    ? t("academicCatalogManagement.archive")
+                    : t("academicCatalogManagement.activate")}
                 </button>
               </div>
               <ul className="mt-2 grid gap-1">
@@ -650,12 +653,8 @@ export function AcademicCatalogManagement() {
                       }
                     >
                       {v.isActive
-                        ? ar
-                          ? "أرشفة"
-                          : "Archive"
-                        : ar
-                          ? "تفعيل"
-                          : "Activate"}
+                        ? t("academicCatalogManagement.archive")
+                        : t("academicCatalogManagement.activate")}
                     </button>
                   </li>
                 ))}

@@ -153,7 +153,11 @@ describe("AcademicCatalogue", () => {
               : "Unit U1 — Test unit",
         }),
       ).toBeVisible();
-      expect(screen.getByText("English: Test unit")).toBeVisible();
+      expect(
+        screen.getByText(
+          locale === "ar" ? "الإنجليزية: Test unit" : "English: Test unit",
+        ),
+      ).toBeVisible();
       expect(screen.getByText("العربية: وحدة الاختبار")).toBeVisible();
       expect(screen.getByText("A.P1")).toBeVisible();
       expect(
