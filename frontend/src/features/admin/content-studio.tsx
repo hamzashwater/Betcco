@@ -212,7 +212,7 @@ export function ContentStudio() {
       refresh("admin-content-blog");
     },
     onError: (error) =>
-      setNotice(error instanceof Error ? error.message : "Request failed."),
+      setNotice(error instanceof Error ? error.message : t("requestFailed")),
   });
   const saveProfile = useMutation({
     mutationFn: () =>
@@ -231,7 +231,7 @@ export function ContentStudio() {
       refresh("admin-content-teachers");
     },
     onError: (error) =>
-      setNotice(error instanceof Error ? error.message : "Request failed."),
+      setNotice(error instanceof Error ? error.message : t("requestFailed")),
   });
   const savePackage = useMutation({
     mutationFn: () =>
@@ -260,7 +260,7 @@ export function ContentStudio() {
       refresh("admin-content-packages");
     },
     onError: (error) =>
-      setNotice(error instanceof Error ? error.message : "Request failed."),
+      setNotice(error instanceof Error ? error.message : t("requestFailed")),
   });
   const createSession = useMutation({
     mutationFn: () =>
@@ -284,7 +284,7 @@ export function ContentStudio() {
       refresh("admin-content-sessions");
     },
     onError: (error) =>
-      setNotice(error instanceof Error ? error.message : "Request failed."),
+      setNotice(error instanceof Error ? error.message : t("requestFailed")),
   });
   const markAttendance = useMutation({
     mutationFn: ({
@@ -306,7 +306,7 @@ export function ContentStudio() {
       setNotice(t("saved"));
     },
     onError: (error) =>
-      setNotice(error instanceof Error ? error.message : "Request failed."),
+      setNotice(error instanceof Error ? error.message : t("requestFailed")),
   });
   function selectTeacher(teacherId: string) {
     const selected = teachers.data?.find((teacher) => teacher.id === teacherId);

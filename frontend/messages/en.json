@@ -509,6 +509,7 @@
     }
   },
   "adminContent": {
+    "requestFailed": "Request failed.",
     "eyebrow": "BETCCO Content Studio",
     "title": "Public content and experiences",
     "description": "Publish articles, introduce teachers, create packages, and schedule live sessions from one place.",

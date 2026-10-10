@@ -509,6 +509,7 @@
     }
   },
   "adminContent": {
+    "requestFailed": "تعذر إتمام الطلب.",
     "eyebrow": "BETCCO Content Studio",
     "title": "المحتوى والتجارب العامة",
     "description": "انشر مقالات، عرّف بالمعلمين، أنشئ باقات، وجدول جلسات مباشرة من مكان واحد.",
