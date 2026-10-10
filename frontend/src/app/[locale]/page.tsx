@@ -22,6 +22,7 @@ import { useRef } from "react";
 
 export default function HomePage() {
   const locale = useLocale();
+  const copy = useTranslations("publicDiscovery.home");
   const t = useTranslations();
   const root = useRef<HTMLDivElement>(null);
   const summary = useQuery({
@@ -56,7 +57,8 @@ export default function HomePage() {
               data-hero
               className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-black tracking-wide text-primary"
             >
-              <GraduationCap size={15} aria-hidden="true" /> BETCCO · BTEC-first
+              <GraduationCap size={15} aria-hidden="true" />{" "}
+              {copy("betccoBtecFirst")}
             </p>
             <h1
               data-hero
@@ -104,17 +106,13 @@ export default function HomePage() {
             ))
           ) : summary.isError ? (
             <div className="card col-span-full flex flex-wrap items-center justify-between gap-3 p-4 text-sm text-muted">
-              <span>
-                {locale === "ar"
-                  ? "تعذر تحميل إحصاءات المنصة الآن."
-                  : "Platform statistics could not be loaded right now."}
-              </span>
+              <span>{copy("platformStatisticsCouldNotBeLoadedRight")}</span>
               <button
                 type="button"
                 className="focus-ring rounded-lg border border-primary/40 px-3 py-2 font-bold text-primary"
                 onClick={() => void summary.refetch()}
               >
-                {locale === "ar" ? "إعادة المحاولة" : "Try again"}
+                {copy("tryAgain")}
               </button>
             </div>
           ) : (
@@ -122,22 +120,22 @@ export default function HomePage() {
               <Stat
                 icon={BookOpenCheck}
                 value={summary.data?.publishedCourses}
-                label={locale === "ar" ? "دورات منشورة" : "Published courses"}
+                label={copy("publishedCourses")}
               />
               <Stat
                 icon={ClipboardCheck}
                 value={summary.data?.publishedLessons}
-                label={locale === "ar" ? "دروس متاحة" : "Available lessons"}
+                label={copy("availableLessons")}
               />
               <Stat
                 icon={GraduationCap}
                 value={summary.data?.activeTeachers}
-                label={locale === "ar" ? "معلمون نشطون" : "Active teachers"}
+                label={copy("activeTeachers")}
               />
               <Stat
                 icon={UsersRound}
                 value={summary.data?.enrolledStudents}
-                label={locale === "ar" ? "طلاب مسجلون" : "Enrolled students"}
+                label={copy("enrolledStudents")}
               />
             </>
           )}
@@ -148,16 +146,14 @@ export default function HomePage() {
           <div>
             <p className="text-sm font-bold text-primary">{t("tracks")}</p>
             <h2 className="mt-2 text-3xl font-black">
-              {locale === "ar"
-                ? "تعلّم في المسار المناسب لك"
-                : "Learn in the track that fits you"}
+              {copy("learnInTheTrackThatFitsYou")}
             </h2>
           </div>
           <Link
             className="focus-ring text-sm font-semibold text-primary"
             href={`/${locale}/tracks`}
           >
-            {locale === "ar" ? "كل المسارات" : "All tracks"}
+            {t("navigation.allTracks")}
           </Link>
         </div>
         <div className="mt-6">
@@ -167,9 +163,7 @@ export default function HomePage() {
       <Reveal className="shell pb-16">
         <p className="text-sm font-bold text-primary">{t("courses")}</p>
         <h2 className="mt-2 text-3xl font-black">
-          {locale === "ar"
-            ? "أحدث الدورات المنشورة"
-            : "Latest published courses"}
+          {copy("latestPublishedCourses")}
         </h2>
         <div className="mt-6">
           <CatalogGrid />

@@ -5,12 +5,13 @@ import { getTrackVisual } from "@/lib/course-visuals";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 type Track = { id: string; slug: string; name: string; isBtecFocused: boolean };
 
 export function TrackCards() {
   const locale = useLocale();
+  const copy = useTranslations("publicDiscovery.tracks");
   const result = useQuery({
     queryKey: ["taxonomy", locale],
     queryFn: () => api<{ tracks: Track[] }>(`/taxonomy?locale=${locale}`),
@@ -29,9 +30,7 @@ export function TrackCards() {
   if (result.isError || !result.data?.tracks.length)
     return (
       <p className="card p-5 text-sm text-muted">
-        {locale === "ar"
-          ? "ستظهر المسارات المنشورة هنا."
-          : "Published learning tracks will appear here."}
+        {copy("publishedLearningTracksWillAppearHere")}
       </p>
     );
   return (
@@ -54,12 +53,8 @@ export function TrackCards() {
             <p className="font-black text-primary">{track.name}</p>
             <p className="mt-2 text-sm text-slate-200">
               {track.isBtecFocused
-                ? locale === "ar"
-                  ? "مسار BETCCO الأساسي لطلاب BTEC."
-                  : "BETCCO's primary BTEC-focused track."
-                : locale === "ar"
-                  ? "مسار أكاديمي قابل للإدارة."
-                  : "An administrator-managed academic track."}
+                ? copy("betccoSPrimaryBtecFocusedTrack")
+                : copy("anAdministratorManagedAcademicTrack")}
             </p>
           </div>
         </Link>

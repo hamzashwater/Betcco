@@ -1,0 +1,1917 @@
+{
+  "base": "9d39defe25a5182ce5e24ef802bb1da7f6697ce6",
+  "sources": {
+    "src/app/[locale]/page.tsx": "\"use client\";\n\nimport { Reveal, StaggerReveal } from \"@/components/animation/reveal\";\nimport { HomeHeroCarousel } from \"@/components/home-hero-carousel\";\nimport { HomeImageSections } from \"@/components/home-image-sections\";\nimport { CatalogGrid } from \"@/features/courses/catalog-grid\";\nimport { TrackCards } from \"@/features/courses/track-cards\";\nimport { api } from \"@/lib/api\";\nimport { useGSAP } from \"@gsap/react\";\nimport { useQuery } from \"@tanstack/react-query\";\nimport gsap from \"gsap\";\nimport {\n  ArrowLeft,\n  BookOpenCheck,\n  ClipboardCheck,\n  GraduationCap,\n  UsersRound,\n} from \"lucide-react\";\nimport Link from \"next/link\";\nimport { useLocale, useTranslations } from \"next-intl\";\nimport { useRef } from \"react\";\n\nexport default function HomePage() {\n  const locale = useLocale();\n  const t = useTranslations();\n  const root = useRef<HTMLDivElement>(null);\n  const summary = useQuery({\n    queryKey: [\"platform-summary\"],\n    queryFn: () =>\n      api<{\n        publishedCourses: number;\n        publishedLessons: number;\n        activeTeachers: number;\n        enrolledStudents: number;\n      }>(\"/platform/summary\"),\n    staleTime: 60_000,\n  });\n  useGSAP(\n    () => {\n      if (window.matchMedia(\"(prefers-reduced-motion: reduce)\").matches) return;\n      gsap.from(\"[data-hero]\", {\n        y: 18,\n        duration: 0.55,\n        stagger: 0.1,\n        ease: \"power2.out\",\n      });\n    },\n    { scope: root },\n  );\n  return (\n    <div ref={root}>\n      <section className=\"overflow-hidden py-16 md:py-24\">\n        <div className=\"shell grid items-center gap-10 lg:grid-cols-[1.15fr_.85fr]\">\n          <div>\n            <p\n              data-hero\n              className=\"inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-black tracking-wide text-primary\"\n            >\n              <GraduationCap size={15} aria-hidden=\"true\" /> BETCCO · BTEC-first\n            </p>\n            <h1\n              data-hero\n              className=\"mt-5 max-w-3xl text-4xl font-black leading-[1.14] tracking-tight md:text-6xl\"\n            >\n              {t(\"tagline\")}\n            </h1>\n            <p\n              data-hero\n              className=\"mt-6 max-w-2xl text-lg leading-8 text-muted\"\n            >\n              {t(\"hero\")}\n            </p>\n            <div data-hero className=\"mt-8 flex flex-wrap gap-3\">\n              <Link\n                className=\"premium-button focus-ring inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-bold text-slate-950\"\n                href={`/${locale}/courses`}\n              >\n                {t(\"browseCourses\")}{\" \"}\n                <ArrowLeft size={18} className=\"rtl:rotate-180\" />\n              </Link>\n              <Link\n                className=\"premium-button focus-ring rounded-xl border border-border bg-white/5 px-5 py-3 font-bold text-foreground\"\n                href={`/${locale}/student/evaluations/new`}\n              >\n                {t(\"evaluate\")}\n              </Link>\n            </div>\n          </div>\n          <aside data-hero>\n            <HomeHeroCarousel />\n          </aside>\n        </div>\n        <StaggerReveal\n          className=\"shell mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4\"\n          aria-busy={summary.isPending}\n          aria-live=\"polite\"\n        >\n          {summary.isPending ? (\n            Array.from({ length: 4 }, (_, index) => (\n              <div\n                key={index}\n                className=\"h-24 animate-pulse rounded-2xl bg-white/10\"\n              />\n            ))\n          ) : summary.isError ? (\n            <div className=\"card col-span-full flex flex-wrap items-center justify-between gap-3 p-4 text-sm text-muted\">\n              <span>\n                {locale === \"ar\"\n                  ? \"تعذر تحميل إحصاءات المنصة الآن.\"\n                  : \"Platform statistics could not be loaded right now.\"}\n              </span>\n              <button\n                type=\"button\"\n                className=\"focus-ring rounded-lg border border-primary/40 px-3 py-2 font-bold text-primary\"\n                onClick={() => void summary.refetch()}\n              >\n                {locale === \"ar\" ? \"إعادة المحاولة\" : \"Try again\"}\n              </button>\n            </div>\n          ) : (\n            <>\n              <Stat\n                icon={BookOpenCheck}\n                value={summary.data?.publishedCourses}\n                label={locale === \"ar\" ? \"دورات منشورة\" : \"Published courses\"}\n              />\n              <Stat\n                icon={ClipboardCheck}\n                value={summary.data?.publishedLessons}\n                label={locale === \"ar\" ? \"دروس متاحة\" : \"Available lessons\"}\n              />\n              <Stat\n                icon={GraduationCap}\n                value={summary.data?.activeTeachers}\n                label={locale === \"ar\" ? \"معلمون نشطون\" : \"Active teachers\"}\n              />\n              <Stat\n                icon={UsersRound}\n                value={summary.data?.enrolledStudents}\n                label={locale === \"ar\" ? \"طلاب مسجلون\" : \"Enrolled students\"}\n              />\n            </>\n          )}\n        </StaggerReveal>\n      </section>\n      <Reveal className=\"shell py-14\">\n        <div className=\"flex items-end justify-between gap-6\">\n          <div>\n            <p className=\"text-sm font-bold text-primary\">{t(\"tracks\")}</p>\n            <h2 className=\"mt-2 text-3xl font-black\">\n              {locale === \"ar\"\n                ? \"تعلّم في المسار المناسب لك\"\n                : \"Learn in the track that fits you\"}\n            </h2>\n          </div>\n          <Link\n            className=\"focus-ring text-sm font-semibold text-primary\"\n            href={`/${locale}/tracks`}\n          >\n            {locale === \"ar\" ? \"كل المسارات\" : \"All tracks\"}\n          </Link>\n        </div>\n        <div className=\"mt-6\">\n          <TrackCards />\n        </div>\n      </Reveal>\n      <Reveal className=\"shell pb-16\">\n        <p className=\"text-sm font-bold text-primary\">{t(\"courses\")}</p>\n        <h2 className=\"mt-2 text-3xl font-black\">\n          {locale === \"ar\"\n            ? \"أحدث الدورات المنشورة\"\n            : \"Latest published courses\"}\n        </h2>\n        <div className=\"mt-6\">\n          <CatalogGrid />\n        </div>\n      </Reveal>\n      <HomeImageSections />\n    </div>\n  );\n}\n\nfunction Stat({\n  icon: Icon,\n  value,\n  label,\n}: {\n  icon: typeof BookOpenCheck;\n  value?: number;\n  label: string;\n}) {\n  return (\n    <div className=\"glass-panel rounded-2xl p-4\">\n      <Icon size={19} className=\"text-primary\" aria-hidden=\"true\" />\n      <p className=\"mt-3 text-2xl font-black\">{value ?? \"—\"}</p>\n      <p className=\"mt-1 text-xs text-muted\">{label}</p>\n    </div>\n  );\n}\n",
+    "src/components/home-image-sections.tsx": "\"use client\";\n\nimport Image from \"next/image\";\nimport Link from \"next/link\";\nimport { ArrowLeft, ArrowUpRight } from \"lucide-react\";\nimport { useLocale } from \"next-intl\";\n\ntype LocalizedText = { ar: string; en: string };\n\ntype PlatformVisual = {\n  image: string;\n  title: LocalizedText;\n  description: LocalizedText;\n};\n\nconst platformVisuals: PlatformVisual[] = [\n  {\n    image: \"/images/betcco/pack/platform/it-specialization.webp\",\n    title: { ar: \"تخصصات رقمية واضحة\", en: \"Clear digital specializations\" },\n    description: {\n      ar: \"اختر المسار والتخصص الذي يطابق دراستك وطموحك.\",\n      en: \"Choose the track and specialization that match your studies and goals.\",\n    },\n  },\n  {\n    image: \"/images/betcco/pack/platform/online-courses.webp\",\n    title: { ar: \"دورات منظمة\", en: \"Structured courses\" },\n    description: {\n      ar: \"تعلم من محتوى مرتب يبدأ بالدرس وينتهي بالتطبيق.\",\n      en: \"Learn from structured content that moves from lessons to application.\",\n    },\n  },\n  {\n    image: \"/images/betcco/pack/platform/expert-teacher.webp\",\n    title: { ar: \"معلمون متخصصون\", en: \"Specialist teachers\" },\n    description: {\n      ar: \"تواصل تعليمي واضح ومتابعة مرتبطة بدوراتك.\",\n      en: \"Clear learning communication and follow-up connected to your courses.\",\n    },\n  },\n  {\n    image: \"/images/betcco/pack/platform/btec-projects.webp\",\n    title: { ar: \"مشاريع BTEC\", en: \"BTEC projects\" },\n    description: {\n      ar: \"حوّل المعرفة إلى مهام عملية مرتبطة بالمعايير.\",\n      en: \"Turn knowledge into practical assignments linked to criteria.\",\n    },\n  },\n  {\n    image: \"/images/betcco/pack/platform/assessment-feedback.webp\",\n    title: { ar: \"تغذية راجعة مفيدة\", en: \"Useful feedback\" },\n    description: {\n      ar: \"افهم ما حققته وما تحتاج إلى تطويره في كل مهمة.\",\n      en: \"See what you achieved and what to improve in every assignment.\",\n    },\n  },\n  {\n    image: \"/images/betcco/pack/platform/student-progress.webp\",\n    title: { ar: \"تقدم مرئي\", en: \"Visible progress\" },\n    description: {\n      ar: \"تابع دروسك وإنجازاتك من مكان واحد.\",\n      en: \"Track your lessons and achievements in one place.\",\n    },\n  },\n  {\n    image: \"/images/betcco/pack/platform/certificate-success.webp\",\n    title: { ar: \"إنجازات موثقة\", en: \"Documented achievements\" },\n    description: {\n      ar: \"احتفظ بسجل واضح لتعلمك وشهادات إكمالك.\",\n      en: \"Keep a clear record of your learning and completion certificates.\",\n    },\n  },\n  {\n    image: \"/images/betcco/pack/platform/about-betcco.webp\",\n    title: { ar: \"BETCCO في مكان واحد\", en: \"BETCCO in one place\" },\n    description: {\n      ar: \"دروس ومهام ومعايير وتقييم في تجربة تعليمية واحدة.\",\n      en: \"Lessons, assignments, criteria, and evaluation in one learning experience.\",\n    },\n  },\n];\n\nconst roleVisuals = [\n  {\n    image: \"/images/betcco/pack/dashboards/student-dashboard.webp\",\n    title: { ar: \"للطالب\", en: \"For students\" },\n    description: {\n      ar: \"تعلم، تقدّم، وقدّم مهامك بثقة.\",\n      en: \"Learn, progress, and submit assignments with confidence.\",\n    },\n  },\n  {\n    image: \"/images/betcco/pack/dashboards/teacher-dashboard.webp\",\n    title: { ar: \"للمعلم\", en: \"For teachers\" },\n    description: {\n      ar: \"أنشئ محتوى منظّمًا وتابع طلابك وتقييماتهم.\",\n      en: \"Create structured content and follow your students and evaluations.\",\n    },\n  },\n  {\n    image: \"/images/betcco/pack/dashboards/admin-dashboard.webp\",\n    title: { ar: \"للإدارة\", en: \"For administrators\" },\n    description: {\n      ar: \"إدارة المنصة والدورات والمستخدمين من لوحة واحدة.\",\n      en: \"Manage the platform, courses, and users from one dashboard.\",\n    },\n  },\n] as const;\n\nexport function HomeImageSections() {\n  const locale = useLocale();\n  const isArabic = locale === \"ar\";\n  const text = (value: LocalizedText) => value[isArabic ? \"ar\" : \"en\"];\n\n  return (\n    <>\n      <section className=\"shell py-14 md:py-20\">\n        <div className=\"max-w-3xl\">\n          <p className=\"text-sm font-bold text-primary\">\n            {isArabic ? \"تجربة BETCCO\" : \"The BETCCO experience\"}\n          </p>\n          <h2 className=\"mt-2 text-3xl font-black tracking-tight sm:text-4xl\">\n            {isArabic\n              ? \"كل ما تحتاجه لتتعلم وتطبّق وتحقق المعايير\"\n              : \"Everything you need to learn, apply, and achieve\"}\n          </h2>\n          <p className=\"mt-3 leading-7 text-muted\">\n            {isArabic\n              ? \"من اختيار التخصص إلى التقييم والمتابعة، صُممت الأدوات لتخدم رحلة الطالب التعليمية كاملة.\"\n              : \"From choosing a specialization to assessment and follow-up, every tool supports the complete learner journey.\"}\n          </p>\n        </div>\n        <div className=\"mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4\">\n          {platformVisuals.map((visual) => (\n            <article\n              key={visual.image}\n              className=\"card group relative min-h-72 overflow-hidden p-5\"\n            >\n              <Image\n                src={visual.image}\n                alt={text(visual.title)}\n                fill\n                sizes=\"(max-width: 640px) calc(100vw - 2rem), (max-width: 1280px) calc(50vw - 2rem), 25vw\"\n                className=\"object-cover transition-transform duration-500 motion-safe:group-hover:scale-105\"\n              />\n              <div className=\"absolute inset-0 bg-[linear-gradient(180deg,rgba(5,10,25,.08),rgba(5,10,25,.9))]\" />\n              <div className=\"relative flex min-h-60 flex-col justify-end\">\n                <h3 className=\"text-lg font-black text-white\">\n                  {text(visual.title)}\n                </h3>\n                <p className=\"mt-2 text-sm leading-6 text-slate-200\">\n                  {text(visual.description)}\n                </p>\n              </div>\n            </article>\n          ))}\n        </div>\n      </section>\n\n      <section className=\"shell py-14 md:py-20\">\n        <div className=\"flex flex-wrap items-end justify-between gap-5\">\n          <div className=\"max-w-2xl\">\n            <p className=\"text-sm font-bold text-primary\">\n              {isArabic ? \"مساحة مناسبة لكل دور\" : \"A space for every role\"}\n            </p>\n            <h2 className=\"mt-2 text-3xl font-black tracking-tight sm:text-4xl\">\n              {isArabic\n                ? \"منصة واحدة، وتجربة مخصصة لكل مستخدم\"\n                : \"One platform, tailored to every user\"}\n            </h2>\n          </div>\n          <Link\n            href={`/${locale}/register`}\n            className=\"focus-ring inline-flex items-center gap-2 text-sm font-bold text-primary\"\n          >\n            {isArabic ? \"ابدأ كطالب\" : \"Start as a student\"}\n            <ArrowUpRight size={17} aria-hidden=\"true\" />\n          </Link>\n        </div>\n        <div className=\"mt-8 grid gap-5 lg:grid-cols-3\">\n          {roleVisuals.map((visual) => (\n            <article key={visual.image} className=\"card overflow-hidden\">\n              <div className=\"relative aspect-[16/9] overflow-hidden border-b border-border\">\n                <Image\n                  src={visual.image}\n                  alt={text(visual.title)}\n                  fill\n                  sizes=\"(max-width: 1024px) calc(100vw - 2rem), 33vw\"\n                  className=\"object-cover\"\n                />\n              </div>\n              <div className=\"p-5\">\n                <h3 className=\"font-black text-foreground\">\n                  {text(visual.title)}\n                </h3>\n                <p className=\"mt-2 text-sm leading-6 text-muted\">\n                  {text(visual.description)}\n                </p>\n              </div>\n            </article>\n          ))}\n        </div>\n      </section>\n\n      <section className=\"shell pb-20 pt-8 md:pb-28\">\n        <div className=\"relative overflow-hidden rounded-3xl border border-primary/25 bg-[var(--surface-solid)] px-6 py-10 shadow-[var(--shadow)] sm:px-10 md:py-14\">\n          <Image\n            src=\"/images/betcco/pack/cta/join-betcco-cta.webp\"\n            alt=\"\"\n            fill\n            sizes=\"(max-width: 1180px) calc(100vw - 2rem), 1180px\"\n            className=\"object-cover opacity-45\"\n          />\n          <div className=\"absolute inset-0 bg-[linear-gradient(100deg,rgba(5,10,25,.94),rgba(5,10,25,.52))]\" />\n          <Image\n            src=\"/images/betcco/pack/transparent-elements/digital-book.png\"\n            alt=\"\"\n            width={300}\n            height={300}\n            className=\"absolute -bottom-24 -end-12 hidden size-72 object-contain opacity-80 lg:block\"\n          />\n          <div className=\"relative max-w-2xl\">\n            <p className=\"text-sm font-black text-secondary\">BETCCO</p>\n            <h2 className=\"mt-3 text-3xl font-black leading-tight text-white sm:text-4xl\">\n              {isArabic\n                ? \"ابدأ رحلتك التعليمية بطريقة أكثر وضوحًا\"\n                : \"Start your learning journey with more clarity\"}\n            </h2>\n            <p className=\"mt-4 max-w-xl leading-7 text-slate-200\">\n              {isArabic\n                ? \"استكشف الدورات أو أنشئ حساب طالب لتتابع التعلم والمهام والتقييم من مكان واحد.\"\n                : \"Explore courses or create a student account to manage learning, assignments, and assessment in one place.\"}\n            </p>\n            <div className=\"mt-7 flex flex-wrap gap-3\">\n              <Link\n                href={`/${locale}/courses`}\n                className=\"premium-button focus-ring inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-bold text-white\"\n              >\n                {isArabic ? \"تصفح الدورات\" : \"Browse courses\"}\n                <ArrowLeft size={18} className=\"rtl:rotate-180\" />\n              </Link>\n              <Link\n                href={`/${locale}/register`}\n                className=\"focus-ring rounded-xl border border-white/35 bg-white/10 px-5 py-3 font-bold text-white hover:bg-white/15\"\n              >\n                {isArabic ? \"إنشاء حساب\" : \"Create an account\"}\n              </Link>\n            </div>\n          </div>\n        </div>\n      </section>\n    </>\n  );\n}\n",
+    "src/app/[locale]/courses/page.tsx": "\"use client\";\n\nimport { CatalogGrid } from \"@/features/courses/catalog-grid\";\nimport { api } from \"@/lib/api\";\nimport { useQuery } from \"@tanstack/react-query\";\nimport { Search, SlidersHorizontal, X } from \"lucide-react\";\nimport Image from \"next/image\";\nimport { useLocale } from \"next-intl\";\nimport { useDeferredValue, useState } from \"react\";\n\ntype Taxonomy = {\n  tracks: { id: string; slug: string; name: string }[];\n  grades: { id: string; learningTrackId: string; slug: string; name: string }[];\n  specializations: {\n    id: string;\n    learningTrackId: string;\n    slug: string;\n    name: string;\n  }[];\n  subjects: {\n    id: string;\n    specializationId?: string;\n    slug: string;\n    name: string;\n  }[];\n};\n\nexport default function CoursesPage() {\n  const locale = useLocale();\n  const [search, setSearch] = useState(\"\");\n  const [filters, setFilters] = useState({\n    track: \"\",\n    grade: \"\",\n    specialization: \"\",\n    subject: \"\",\n    sort: \"newest\" as \"newest\" | \"price-asc\" | \"price-desc\",\n  });\n  const deferredSearch = useDeferredValue(search);\n  const taxonomy = useQuery({\n    queryKey: [\"catalog-taxonomy\", locale],\n    queryFn: () => api<Taxonomy>(`/taxonomy?locale=${locale}`),\n    staleTime: 60_000,\n  });\n  const activeTrack = taxonomy.data?.tracks.find(\n    (track) => track.slug === filters.track,\n  );\n  const update = (changes: Partial<typeof filters>) =>\n    setFilters((current) => ({ ...current, ...changes }));\n  const hasFilters = Object.entries(filters).some(\n    ([key, value]) => key !== \"sort\" && Boolean(value),\n  );\n  return (\n    <section className=\"shell py-12\">\n      <div className=\"relative overflow-hidden rounded-3xl border border-border bg-[radial-gradient(circle_at_85%_15%,color-mix(in_srgb,var(--secondary)_30%,transparent),transparent_35%),linear-gradient(135deg,color-mix(in_srgb,var(--surface)_94%,transparent),color-mix(in_srgb,var(--surface-solid)_75%,transparent))] p-6 shadow-[var(--shadow)] sm:p-9\">\n        <Image\n          src=\"/images/betcco/course-business.png\"\n          alt=\"\"\n          fill\n          sizes=\"(max-width: 1180px) calc(100vw - 2rem), 1180px\"\n          className=\"object-cover opacity-25\"\n        />\n        <div className=\"absolute inset-0 bg-[linear-gradient(100deg,rgba(5,10,25,.92),rgba(5,10,25,.36))]\" />\n        <span className=\"absolute -end-14 -top-14 size-64 rounded-full border border-primary/20\" />\n        <div className=\"relative max-w-3xl\">\n          <p className=\"text-xs font-black uppercase tracking-[0.18em] text-primary\">\n            BETCCO Catalog\n          </p>\n          <h1 className=\"mt-3 text-4xl font-black tracking-tight sm:text-5xl\">\n            {locale === \"ar\" ? \"اكتشف الدورات\" : \"Discover courses\"}\n          </h1>\n          <p className=\"mt-3 max-w-2xl leading-7 text-muted\">\n            {locale === \"ar\"\n              ? \"ابحث في الدورات المنشورة، واختر المسار والتخصص المناسبين.\"\n              : \"Search published courses and select the track and specialization that fit you.\"}\n          </p>\n        </div>\n      </div>\n      <div className=\"card mt-6 p-4 sm:p-5\">\n        <div className=\"flex flex-wrap items-center justify-between gap-3\">\n          <label className=\"flex min-w-[min(100%,22rem)] flex-1 items-center gap-3 rounded-xl border border-border bg-black/10 px-3 py-3\">\n            <Search\n              size={18}\n              className=\"shrink-0 text-primary\"\n              aria-hidden=\"true\"\n            />\n            <input\n              value={search}\n              onChange={(event) => setSearch(event.target.value)}\n              placeholder={locale === \"ar\" ? \"ابحث عن دورة\" : \"Search courses\"}\n              className=\"w-full bg-transparent text-sm outline-none placeholder:text-muted\"\n            />\n          </label>\n          <div className=\"flex items-center gap-2 text-xs font-bold text-muted\">\n            <SlidersHorizontal\n              size={16}\n              className=\"text-primary\"\n              aria-hidden=\"true\"\n            />\n            {locale === \"ar\"\n              ? \"فلترة من بيانات المنصة\"\n              : \"Filter from platform data\"}\n          </div>\n        </div>\n        <div className=\"mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5\">\n          <FilterSelect\n            label={locale === \"ar\" ? \"المسار\" : \"Track\"}\n            value={filters.track}\n            onChange={(track) =>\n              update({ track, grade: \"\", specialization: \"\", subject: \"\" })\n            }\n            options={uniqueOptions(\n              (taxonomy.data?.tracks ?? []).map((item) => ({\n                value: item.slug,\n                label: item.name,\n              })),\n            )}\n          />\n          <FilterSelect\n            label={locale === \"ar\" ? \"الصف\" : \"Grade\"}\n            value={filters.grade}\n            onChange={(grade) => update({ grade })}\n            options={uniqueOptions(\n              (taxonomy.data?.grades ?? [])\n                .filter(\n                  (item) =>\n                    !activeTrack || item.learningTrackId === activeTrack.id,\n                )\n                .map((item) => ({ value: item.slug, label: item.name })),\n            )}\n          />\n          <FilterSelect\n            label={locale === \"ar\" ? \"التخصص\" : \"Specialization\"}\n            value={filters.specialization}\n            onChange={(specialization) =>\n              update({ specialization, subject: \"\" })\n            }\n            options={uniqueOptions(\n              (taxonomy.data?.specializations ?? [])\n                .filter(\n                  (item) =>\n                    !activeTrack || item.learningTrackId === activeTrack.id,\n                )\n                .map((item) => ({ value: item.slug, label: item.name })),\n            )}\n          />\n          <FilterSelect\n            label={locale === \"ar\" ? \"المادة\" : \"Subject\"}\n            value={filters.subject}\n            onChange={(subject) => update({ subject })}\n            options={uniqueOptions(\n              (taxonomy.data?.subjects ?? [])\n                .filter(\n                  (item) =>\n                    !filters.specialization ||\n                    taxonomy.data?.specializations.find(\n                      (specialization) =>\n                        specialization.slug === filters.specialization,\n                    )?.id === item.specializationId,\n                )\n                .map((item) => ({ value: item.slug, label: item.name })),\n            )}\n          />\n          <FilterSelect\n            label={locale === \"ar\" ? \"الترتيب\" : \"Sort\"}\n            value={filters.sort}\n            onChange={(sort) => update({ sort: sort as typeof filters.sort })}\n            options={[\n              { value: \"newest\", label: locale === \"ar\" ? \"الأحدث\" : \"Newest\" },\n              {\n                value: \"price-asc\",\n                label:\n                  locale === \"ar\" ? \"السعر: الأقل أولًا\" : \"Price: low first\",\n              },\n              {\n                value: \"price-desc\",\n                label:\n                  locale === \"ar\" ? \"السعر: الأعلى أولًا\" : \"Price: high first\",\n              },\n            ]}\n          />\n        </div>\n        {hasFilters && (\n          <button\n            type=\"button\"\n            onClick={() =>\n              update({ track: \"\", grade: \"\", specialization: \"\", subject: \"\" })\n            }\n            className=\"focus-ring mt-3 inline-flex items-center gap-1 text-sm font-bold text-primary\"\n          >\n            <X size={16} aria-hidden=\"true\" />\n            {locale === \"ar\" ? \"مسح الفلاتر\" : \"Clear filters\"}\n          </button>\n        )}\n      </div>\n      <div className=\"mt-7\">\n        <CatalogGrid\n          search={deferredSearch}\n          track={filters.track}\n          grade={filters.grade}\n          specialization={filters.specialization}\n          subject={filters.subject}\n          sort={filters.sort}\n        />\n      </div>\n    </section>\n  );\n}\n\nfunction FilterSelect({\n  label,\n  value,\n  onChange,\n  options,\n}: {\n  label: string;\n  value: string;\n  onChange: (value: string) => void;\n  options: { value: string; label: string }[];\n}) {\n  return (\n    <label className=\"grid gap-1.5 text-xs font-bold text-muted\">\n      {label}\n      <select\n        value={value}\n        onChange={(event) => onChange(event.target.value)}\n        className=\"focus-ring min-h-11 rounded-xl border border-border bg-transparent px-3 text-sm text-foreground\"\n      >\n        <option value=\"\">—</option>\n        {options.map((option) => (\n          <option key={option.value} value={option.value}>\n            {option.label}\n          </option>\n        ))}\n      </select>\n    </label>\n  );\n}\n\nfunction uniqueOptions(options: { value: string; label: string }[]) {\n  return Array.from(\n    new Map(options.map((option) => [option.value, option])).values(),\n  );\n}\n",
+    "src/features/courses/catalog-grid.tsx": "\"use client\";\n\nimport { api } from \"@/lib/api\";\nimport type { CourseSummary, PagedResult } from \"@/types/api\";\nimport { useQuery } from \"@tanstack/react-query\";\nimport { useLocale } from \"next-intl\";\nimport { CourseCard } from \"./course-card\";\n\nexport function CatalogGrid({\n  search,\n  track,\n  grade,\n  specialization,\n  subject,\n  sort,\n}: {\n  search?: string;\n  track?: string;\n  grade?: string;\n  specialization?: string;\n  subject?: string;\n  sort?: \"newest\" | \"price-asc\" | \"price-desc\";\n}) {\n  const locale = useLocale();\n  const query = new URLSearchParams({ locale, pageSize: \"12\" });\n  if (search) query.set(\"search\", search);\n  if (track) query.set(\"track\", track);\n  if (grade) query.set(\"grade\", grade);\n  if (specialization) query.set(\"specialization\", specialization);\n  if (subject) query.set(\"subject\", subject);\n  if (sort) query.set(\"sort\", sort);\n  const result = useQuery({\n    queryKey: [\n      \"courses\",\n      locale,\n      search,\n      track,\n      grade,\n      specialization,\n      subject,\n      sort,\n    ],\n    queryFn: () => api<PagedResult<CourseSummary>>(`/catalog/courses?${query}`),\n  });\n  if (result.isPending)\n    return (\n      <div className=\"grid gap-4 md:grid-cols-3\" aria-busy>\n        {Array.from({ length: 3 }, (_, index) => (\n          <div\n            key={index}\n            className=\"h-80 animate-pulse rounded-2xl bg-white/5\"\n          />\n        ))}\n      </div>\n    );\n  if (result.isError)\n    return (\n      <p role=\"alert\" className=\"card p-5 text-sm text-muted\">\n        {locale === \"ar\"\n          ? \"تعذر تحميل الدورات. حاول مجددًا.\"\n          : \"Courses could not be loaded. Try again.\"}\n      </p>\n    );\n  if (!result.data.items.length)\n    return (\n      <p className=\"card p-5 text-muted\">\n        {locale === \"ar\"\n          ? \"لا توجد دورات مطابقة حاليًا.\"\n          : \"No courses match your filters yet.\"}\n      </p>\n    );\n  return (\n    <div className=\"grid gap-4 md:grid-cols-2 lg:grid-cols-3\">\n      {result.data.items.map((course) => (\n        <CourseCard key={course.id} course={course} />\n      ))}\n    </div>\n  );\n}\n",
+    "src/features/courses/course-card.tsx": "\"use client\";\n\nimport { api } from \"@/lib/api\";\nimport {\n  formatLocalizedCurrency,\n  formatLocalizedNumber,\n} from \"@/i18n/number-format\";\nimport type { CourseSummary } from \"@/types/api\";\nimport { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\nimport {\n  ArrowLeft,\n  BookOpen,\n  Clock3,\n  GraduationCap,\n  ListVideo,\n  ShoppingCart,\n} from \"lucide-react\";\nimport Image from \"next/image\";\nimport Link from \"next/link\";\nimport { useLocale } from \"next-intl\";\nimport { useRouter } from \"next/navigation\";\nimport { useState } from \"react\";\nimport { getCourseVisual } from \"@/lib/course-visuals\";\n\nexport function CourseCard({ course }: { course: CourseSummary }) {\n  const locale = useLocale();\n  const router = useRouter();\n  const client = useQueryClient();\n  const [notice, setNotice] = useState<string>();\n  const user = useQuery({\n    queryKey: [\"current-user\"],\n    queryFn: () => api<{ roles: string[] }>(\"/auth/me\"),\n    retry: false,\n    staleTime: 60_000,\n  });\n  const isStudent = user.data?.roles.includes(\"Student\") ?? false;\n  const visual = getCourseVisual(course);\n  const add = useMutation({\n    mutationFn: () =>\n      api<{ items: unknown[] }>(`/cart/courses/${course.id}?locale=${locale}`, {\n        method: \"POST\",\n      }),\n    onSuccess: (cart) => {\n      setNotice(\n        locale === \"ar\" ? \"أضيفت الدورة إلى السلة.\" : \"Course added to cart.\",\n      );\n      client.setQueryData([\"cart\", locale], cart);\n      client.invalidateQueries({ queryKey: [\"cart\", locale] });\n    },\n    onError: (error) =>\n      setNotice(\n        error instanceof Error ? error.message : \"Unable to add course.\",\n      ),\n  });\n  function addToCart() {\n    if (user.isPending) return;\n    if (!isStudent) {\n      if (!user.data) {\n        router.push(`/${locale}/login`);\n        return;\n      }\n      setNotice(\n        locale === \"ar\"\n          ? \"الشراء متاح من حساب الطالب فقط.\"\n          : \"Purchasing is available to student accounts only.\",\n      );\n      return;\n    }\n    add.mutate();\n  }\n  return (\n    <article\n      data-interactive=\"true\"\n      className=\"card group flex min-h-80 flex-col overflow-hidden p-0 transition-transform duration-200\"\n    >\n      <div className=\"relative min-h-36 overflow-hidden border-b border-border p-5\">\n        <Image\n          src={visual.src}\n          alt=\"\"\n          fill\n          sizes=\"(max-width: 768px) calc(100vw - 2rem), (max-width: 1024px) calc(50vw - 2rem), 380px\"\n          className=\"object-cover transition-transform duration-500 motion-safe:group-hover:scale-105\"\n          style={{ objectPosition: visual.objectPosition }}\n        />\n        <div className=\"absolute inset-0 bg-[linear-gradient(120deg,rgba(5,10,25,.94),rgba(5,10,25,.2))]\" />\n        <span className=\"relative grid size-10 place-items-center rounded-xl border border-white/15 bg-white/10 text-primary\">\n          <BookOpen size={20} aria-hidden=\"true\" />\n        </span>\n        <p className=\"relative mt-4 text-xs font-black text-primary\">\n          {course.track}\n        </p>\n      </div>\n      <div className=\"flex flex-1 flex-col p-5\">\n        <h2 className=\"text-xl font-bold\">\n          <Link\n            className=\"focus-ring hover:text-primary\"\n            href={`/${locale}/courses/${course.slug}`}\n          >\n            {course.title}\n          </Link>\n        </h2>\n        <p className=\"mt-2 line-clamp-3 text-sm leading-6 text-muted\">\n          {course.description}\n        </p>\n        <div className=\"mt-4 flex flex-wrap gap-3 text-xs text-muted\">\n          <span className=\"inline-flex items-center gap-1\">\n            <ListVideo size={14} />\n            {formatLocalizedNumber(course.lessonCount, locale)}{\" \"}\n            {locale === \"ar\" ? \"دروس\" : \"lessons\"}\n          </span>\n          <span className=\"inline-flex items-center gap-1\">\n            <Clock3 size={14} />\n            {course.durationMinutes > 0\n              ? `${formatLocalizedNumber(course.durationMinutes, locale)} ${locale === \"ar\" ? \"دقيقة\" : \"min\"}`\n              : \"—\"}\n          </span>\n          {course.teacherName ? (\n            <span className=\"inline-flex items-center gap-1\">\n              <GraduationCap size={14} />\n              {course.teacherName}\n            </span>\n          ) : null}\n        </div>\n        {course.grade || course.specialization || course.subject ? (\n          <div className=\"mt-3 flex flex-wrap gap-1.5\">\n            {[course.grade, course.specialization, course.subject]\n              .filter(Boolean)\n              .map((item) => (\n                <span\n                  key={item}\n                  className=\"rounded-full border border-primary/20 bg-primary/10 px-2 py-1 text-[11px] font-bold text-primary\"\n                >\n                  {item}\n                </span>\n              ))}\n          </div>\n        ) : null}\n        <div className=\"mt-auto flex items-center justify-between gap-3 pt-5\">\n          <strong>\n            {course.isFree\n              ? locale === \"ar\"\n                ? \"مجاني\"\n                : \"Free\"\n              : formatLocalizedCurrency(course.price, course.currency, locale)}\n          </strong>\n          <button\n            type=\"button\"\n            disabled={add.isPending || user.isPending}\n            onClick={addToCart}\n            className=\"premium-button focus-ring inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-60\"\n          >\n            <ShoppingCart size={16} />\n            {user.isPending\n              ? \"…\"\n              : isStudent\n                ? locale === \"ar\"\n                  ? \"أضف للسلة\"\n                  : \"Add\"\n                : user.data\n                  ? locale === \"ar\"\n                    ? \"حساب طالب فقط\"\n                    : \"Student account only\"\n                  : locale === \"ar\"\n                    ? \"سجّل الدخول للشراء\"\n                    : \"Sign in to purchase\"}\n          </button>\n        </div>\n        <Link\n          href={`/${locale}/courses/${course.slug}`}\n          className=\"focus-ring mt-4 inline-flex items-center gap-1 text-sm font-bold text-primary\"\n        >\n          {locale === \"ar\" ? \"عرض الدورة\" : \"View course\"}\n          <ArrowLeft\n            size={16}\n            className=\"rtl:rotate-180 transition-transform group-hover:-translate-x-1\"\n          />\n        </Link>\n        {notice && (\n          <div className=\"mt-3 flex items-center justify-between gap-2 text-xs\">\n            <p role=\"status\" className=\"text-muted\">\n              {notice}\n            </p>\n            {add.isSuccess && (\n              <Link\n                className=\"focus-ring shrink-0 font-bold text-primary underline\"\n                href={`/${locale}/cart`}\n              >\n                {locale === \"ar\" ? \"عرض السلة\" : \"View cart\"}\n              </Link>\n            )}\n          </div>\n        )}\n      </div>\n    </article>\n  );\n}\n",
+    "src/features/courses/course-detail.tsx": "\"use client\";\n\nimport { api } from \"@/lib/api\";\nimport { formatLocalizedCurrency } from \"@/i18n/number-format\";\nimport type { CourseDetail } from \"@/types/api\";\nimport { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\nimport {\n  CheckCircle2,\n  Clock3,\n  GraduationCap,\n  ListVideo,\n  ShoppingCart,\n  Sparkles,\n} from \"lucide-react\";\nimport Image from \"next/image\";\nimport Link from \"next/link\";\nimport { useLocale } from \"next-intl\";\nimport { useRouter } from \"next/navigation\";\nimport { useState } from \"react\";\nimport { getCourseVisual } from \"@/lib/course-visuals\";\n\nexport function CourseDetailView({ slug }: { slug: string }) {\n  const locale = useLocale();\n  const router = useRouter();\n  const client = useQueryClient();\n  const [notice, setNotice] = useState<string>();\n  const [previewLessonId, setPreviewLessonId] = useState<string>();\n  const user = useQuery({\n    queryKey: [\"current-user\"],\n    queryFn: () => api<{ roles: string[] }>(\"/auth/me\"),\n    retry: false,\n    staleTime: 60_000,\n  });\n  const isStudent = user.data?.roles.includes(\"Student\") ?? false;\n  const result = useQuery({\n    queryKey: [\"course\", slug, locale],\n    queryFn: () =>\n      api<CourseDetail>(`/catalog/courses/${slug}?locale=${locale}`),\n  });\n  const preview = useQuery({\n    queryKey: [\"course-preview\", slug, previewLessonId, locale],\n    queryFn: () =>\n      api<{\n        id: string;\n        title: string;\n        body: string;\n        type: string;\n        durationSeconds: number;\n        resources: {\n          id: string;\n          displayName: string;\n          contentType: string;\n          externalUrl?: string;\n        }[];\n      }>(\n        `/catalog/courses/${slug}/preview/${previewLessonId}?locale=${locale}`,\n      ),\n    enabled: Boolean(previewLessonId),\n  });\n  const add = useMutation({\n    mutationFn: (id: string) =>\n      api<{ items: unknown[] }>(`/cart/courses/${id}?locale=${locale}`, {\n        method: \"POST\",\n      }),\n    onSuccess: (cart) => {\n      setNotice(\n        locale === \"ar\" ? \"أضيفت الدورة إلى السلة.\" : \"Course added to cart.\",\n      );\n      client.setQueryData([\"cart\", locale], cart);\n      client.invalidateQueries({ queryKey: [\"cart\", locale] });\n    },\n    onError: (error) =>\n      setNotice(\n        error instanceof Error ? error.message : \"Unable to add course.\",\n      ),\n  });\n  function addToCart(courseId: string) {\n    if (user.isPending) return;\n    if (!isStudent) {\n      if (!user.data) {\n        router.push(`/${locale}/login`);\n        return;\n      }\n      setNotice(\n        locale === \"ar\"\n          ? \"الشراء متاح من حساب الطالب فقط.\"\n          : \"Purchasing is available to student accounts only.\",\n      );\n      return;\n    }\n    add.mutate(courseId);\n  }\n  if (result.isPending)\n    return (\n      <section className=\"shell py-12\">\n        <div className=\"h-80 animate-pulse rounded-3xl bg-slate-200\" />\n      </section>\n    );\n  if (result.isError || !result.data)\n    return (\n      <section className=\"shell py-12\">\n        <p role=\"alert\" className=\"card p-6\">\n          {locale === \"ar\"\n            ? \"الدورة غير متاحة.\"\n            : \"This course is unavailable.\"}\n        </p>\n      </section>\n    );\n  const { course, outcomes, skills, modules } = result.data;\n  const visual = getCourseVisual(course);\n  return (\n    <section className=\"shell py-10 md:py-14\">\n      <nav\n        aria-label={locale === \"ar\" ? \"مسار التنقل\" : \"Breadcrumb\"}\n        className=\"mb-6 text-sm text-muted\"\n      >\n        <Link className=\"focus-ring hover:text-primary\" href={`/${locale}`}>\n          {locale === \"ar\" ? \"الرئيسية\" : \"Home\"}\n        </Link>\n        <span className=\"px-2\" aria-hidden=\"true\">\n          /\n        </span>\n        <Link\n          className=\"focus-ring hover:text-primary\"\n          href={`/${locale}/courses`}\n        >\n          {locale === \"ar\" ? \"الدورات\" : \"Courses\"}\n        </Link>\n        <span className=\"px-2\" aria-hidden=\"true\">\n          /\n        </span>\n        <span className=\"text-foreground\">{course.title}</span>\n      </nav>\n      <div className=\"grid gap-8 lg:grid-cols-[1fr_340px]\">\n        <div>\n          <p className=\"inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-sm font-bold text-primary\">\n            <Sparkles size={15} />\n            {course.track}\n          </p>\n          <h1 className=\"mt-4 max-w-4xl text-4xl font-black leading-tight md:text-5xl\">\n            {course.title}\n          </h1>\n          <p className=\"mt-4 max-w-3xl text-lg leading-8 text-muted\">\n            {course.description}\n          </p>\n          <div className=\"relative mt-7 h-56 overflow-hidden rounded-2xl border border-border sm:h-72\">\n            <Image\n              src={visual.src}\n              alt=\"\"\n              fill\n              sizes=\"(max-width: 1024px) calc(100vw - 2rem), 720px\"\n              className=\"object-cover\"\n              style={{ objectPosition: visual.objectPosition }}\n            />\n            <div className=\"absolute inset-0 bg-[linear-gradient(90deg,rgba(5,10,25,.46),transparent_62%)]\" />\n          </div>\n          <div className=\"glass-panel mt-7 flex flex-wrap gap-x-6 gap-y-3 rounded-2xl p-4 text-sm text-muted\">\n            <span className=\"inline-flex items-center gap-2\">\n              <ListVideo size={17} />\n              {course.lessonCount} {locale === \"ar\" ? \"دروس\" : \"lessons\"}\n            </span>\n            <span className=\"inline-flex items-center gap-2\">\n              <Clock3 size={17} />\n              {course.durationMinutes || \"—\"}{\" \"}\n              {locale === \"ar\" ? \"دقيقة\" : \"min\"}\n            </span>\n            {course.teacherName ? (\n              <span className=\"inline-flex items-center gap-2\">\n                <GraduationCap size={17} />\n                {locale === \"ar\" ? \"المعلم:\" : \"Teacher:\"} {course.teacherName}\n              </span>\n            ) : null}\n          </div>\n          <nav\n            aria-label={locale === \"ar\" ? \"أقسام الدورة\" : \"Course sections\"}\n            className=\"sticky top-[4.5rem] z-20 mt-10 flex gap-2 overflow-x-auto border-y border-border bg-[color:var(--background)]/85 py-3 backdrop-blur\"\n          >\n            <a\n              className=\"focus-ring whitespace-nowrap rounded-lg px-3 py-2 text-sm font-bold text-primary hover:bg-primary/10\"\n              href=\"#overview\"\n            >\n              {locale === \"ar\" ? \"نظرة عامة\" : \"Overview\"}\n            </a>\n            <a\n              className=\"focus-ring whitespace-nowrap rounded-lg px-3 py-2 text-sm font-bold text-muted hover:text-foreground\"\n              href=\"#curriculum\"\n            >\n              {locale === \"ar\" ? \"المحتوى\" : \"Curriculum\"}\n            </a>\n            <a\n              className=\"focus-ring whitespace-nowrap rounded-lg px-3 py-2 text-sm font-bold text-muted hover:text-foreground\"\n              href=\"#skills\"\n            >\n              {locale === \"ar\" ? \"المهارات\" : \"Skills\"}\n            </a>\n          </nav>\n          <div\n            id=\"overview\"\n            className=\"mt-10 grid scroll-mt-28 gap-7 md:grid-cols-2\"\n          >\n            <div className=\"glass-panel rounded-2xl p-5\">\n              <h2 className=\"text-xl font-black\">\n                {locale === \"ar\" ? \"ماذا ستتعلم؟\" : \"What you will learn\"}\n              </h2>\n              <ul className=\"mt-3 space-y-3\">\n                {outcomes.map((item) => (\n                  <li key={item.english} className=\"flex gap-2 text-sm\">\n                    <CheckCircle2 size={17} className=\"shrink-0 text-primary\" />\n                    {locale === \"ar\" ? item.arabic : item.english}\n                  </li>\n                ))}\n              </ul>\n            </div>\n            <div\n              id=\"skills\"\n              className=\"glass-panel scroll-mt-28 rounded-2xl p-5\"\n            >\n              <h2 className=\"text-xl font-black\">\n                {locale === \"ar\" ? \"المهارات\" : \"Skills\"}\n              </h2>\n              <div className=\"mt-3 flex flex-wrap gap-2\">\n                {skills.map((item) => (\n                  <span\n                    key={item.english}\n                    className=\"rounded-full bg-blue-100 px-3 py-1 text-sm text-primary\"\n                  >\n                    {locale === \"ar\" ? item.arabic : item.english}\n                  </span>\n                ))}\n              </div>\n            </div>\n          </div>\n          <div id=\"curriculum\" className=\"mt-10 scroll-mt-28\">\n            <h2 className=\"text-xl font-black\">\n              {locale === \"ar\" ? \"المحتوى\" : \"Curriculum\"}\n            </h2>\n            <div className=\"mt-3 space-y-3\">\n              {modules.map((module) => (\n                <div key={module.id} className=\"card p-5\">\n                  <h3 className=\"font-bold\">{module.title}</h3>\n                  <ul className=\"mt-3 divide-y text-sm text-muted\">\n                    {module.lessons.map((lesson) => (\n                      <li\n                        key={lesson.id}\n                        className=\"flex items-center justify-between gap-3 py-2\"\n                      >\n                        <span>\n                          {lesson.title}\n                          {lesson.isPreview\n                            ? locale === \"ar\"\n                              ? \" · معاينة\"\n                              : \" · Preview\"\n                            : \"\"}\n                        </span>\n                        <span className=\"flex shrink-0 items-center gap-3\">\n                          <span>\n                            {Math.round(lesson.durationSeconds / 60)} min\n                          </span>\n                          {lesson.isPreview ? (\n                            <button\n                              type=\"button\"\n                              onClick={() => setPreviewLessonId(lesson.id)}\n                              className=\"focus-ring rounded-lg border border-primary/35 px-2.5 py-1 text-xs font-bold text-primary hover:bg-primary/10\"\n                            >\n                              {locale === \"ar\" ? \"فتح\" : \"Open\"}\n                            </button>\n                          ) : null}\n                        </span>\n                      </li>\n                    ))}\n                  </ul>\n                </div>\n              ))}\n            </div>\n            {previewLessonId ? (\n              <section\n                className=\"glass-panel mt-5 rounded-2xl p-5\"\n                aria-live=\"polite\"\n              >\n                {preview.isPending ? (\n                  <p className=\"text-sm text-muted\">\n                    {locale === \"ar\"\n                      ? \"جارٍ تحميل المعاينة…\"\n                      : \"Loading preview…\"}\n                  </p>\n                ) : preview.isError || !preview.data ? (\n                  <p className=\"text-sm text-red-500\">\n                    {locale === \"ar\"\n                      ? \"تعذر فتح هذه المعاينة الآن.\"\n                      : \"This preview could not be opened now.\"}\n                  </p>\n                ) : (\n                  <>\n                    <div className=\"flex flex-wrap items-center justify-between gap-3\">\n                      <div>\n                        <p className=\"text-xs font-black uppercase tracking-[0.16em] text-primary\">\n                          {locale === \"ar\" ? \"درس تجريبي\" : \"Preview lesson\"}\n                        </p>\n                        <h3 className=\"mt-1 text-xl font-black\">\n                          {preview.data.title}\n                        </h3>\n                      </div>\n                      <button\n                        type=\"button\"\n                        onClick={() => setPreviewLessonId(undefined)}\n                        className=\"focus-ring rounded-lg px-3 py-2 text-sm font-bold text-muted hover:bg-white/5\"\n                      >\n                        {locale === \"ar\" ? \"إغلاق\" : \"Close\"}\n                      </button>\n                    </div>\n                    <p className=\"mt-4 whitespace-pre-wrap text-sm leading-7 text-muted\">\n                      {preview.data.body ||\n                        (locale === \"ar\"\n                          ? \"لا يوجد نص متاح لهذه المعاينة.\"\n                          : \"No text is available for this preview.\")}\n                    </p>\n                    {preview.data.resources.length ? (\n                      <div className=\"mt-4 flex flex-wrap gap-2\">\n                        {preview.data.resources.map((resource) => (\n                          <a\n                            key={resource.id}\n                            href={\n                              resource.externalUrl ||\n                              `/api/v1/catalog/courses/${slug}/preview/${preview.data.id}/resources/${resource.id}`\n                            }\n                            target={resource.externalUrl ? \"_blank\" : undefined}\n                            rel={\n                              resource.externalUrl ? \"noreferrer\" : undefined\n                            }\n                            className=\"focus-ring rounded-xl border border-primary/35 px-3 py-2 text-sm font-bold text-primary hover:bg-primary/10\"\n                          >\n                            {resource.displayName}\n                          </a>\n                        ))}\n                      </div>\n                    ) : null}\n                  </>\n                )}\n              </section>\n            ) : null}\n          </div>\n        </div>\n        <aside className=\"glass-panel h-fit rounded-2xl p-5 lg:sticky lg:top-24\">\n          <p className=\"text-2xl font-black\">\n            {course.isFree\n              ? locale === \"ar\"\n                ? \"مجاني\"\n                : \"Free\"\n              : formatLocalizedCurrency(course.price, course.currency, locale)}\n          </p>\n          <p className=\"mt-2 text-sm text-muted\">\n            {locale === \"ar\"\n              ? \"السعر يتحقق منه الخادم عند الدفع.\"\n              : \"The server verifies the price at checkout.\"}\n          </p>\n          <button\n            type=\"button\"\n            disabled={add.isPending || user.isPending}\n            onClick={() => addToCart(course.id)}\n            className=\"premium-button focus-ring mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 font-bold text-slate-950 disabled:opacity-60\"\n          >\n            <ShoppingCart size={18} />\n            {user.isPending\n              ? \"…\"\n              : isStudent\n                ? locale === \"ar\"\n                  ? \"أضف إلى السلة\"\n                  : \"Add to cart\"\n                : user.data\n                  ? locale === \"ar\"\n                    ? \"حساب طالب فقط\"\n                    : \"Student account only\"\n                  : locale === \"ar\"\n                    ? \"سجّل الدخول للشراء\"\n                    : \"Sign in to purchase\"}\n          </button>\n          {notice && (\n            <div className=\"mt-3 flex items-center justify-between gap-2 text-xs\">\n              <p role=\"status\" className=\"text-muted\">\n                {notice}\n              </p>\n              {add.isSuccess && (\n                <Link\n                  className=\"focus-ring shrink-0 font-bold text-primary underline\"\n                  href={`/${locale}/cart`}\n                >\n                  {locale === \"ar\" ? \"عرض السلة\" : \"View cart\"}\n                </Link>\n              )}\n            </div>\n          )}\n        </aside>\n      </div>\n    </section>\n  );\n}\n",
+    "src/features/courses/track-cards.tsx": "\"use client\";\n\nimport { api } from \"@/lib/api\";\nimport { getTrackVisual } from \"@/lib/course-visuals\";\nimport { useQuery } from \"@tanstack/react-query\";\nimport Image from \"next/image\";\nimport Link from \"next/link\";\nimport { useLocale } from \"next-intl\";\n\ntype Track = { id: string; slug: string; name: string; isBtecFocused: boolean };\n\nexport function TrackCards() {\n  const locale = useLocale();\n  const result = useQuery({\n    queryKey: [\"taxonomy\", locale],\n    queryFn: () => api<{ tracks: Track[] }>(`/taxonomy?locale=${locale}`),\n  });\n  if (result.isPending)\n    return (\n      <div className=\"grid gap-4 md:grid-cols-2\" aria-busy>\n        {[0, 1].map((index) => (\n          <div\n            key={index}\n            className=\"h-32 animate-pulse rounded-2xl bg-slate-200\"\n          />\n        ))}\n      </div>\n    );\n  if (result.isError || !result.data?.tracks.length)\n    return (\n      <p className=\"card p-5 text-sm text-muted\">\n        {locale === \"ar\"\n          ? \"ستظهر المسارات المنشورة هنا.\"\n          : \"Published learning tracks will appear here.\"}\n      </p>\n    );\n  return (\n    <div className=\"grid gap-4 md:grid-cols-2\">\n      {result.data.tracks.map((track) => (\n        <Link\n          key={track.id}\n          href={`/${locale}/tracks/${track.slug}`}\n          className=\"card focus-ring group relative block overflow-hidden p-6 hover:border-primary\"\n        >\n          <Image\n            src={getTrackVisual(track.slug, track.isBtecFocused).src}\n            alt=\"\"\n            fill\n            sizes=\"(max-width: 768px) calc(100vw - 2rem), 50vw\"\n            className=\"object-cover opacity-60 transition-transform duration-500 motion-safe:group-hover:scale-105\"\n          />\n          <div className=\"absolute inset-0 bg-[linear-gradient(120deg,rgba(5,10,25,.93),rgba(5,10,25,.42))]\" />\n          <div className=\"relative\">\n            <p className=\"font-black text-primary\">{track.name}</p>\n            <p className=\"mt-2 text-sm text-slate-200\">\n              {track.isBtecFocused\n                ? locale === \"ar\"\n                  ? \"مسار BETCCO الأساسي لطلاب BTEC.\"\n                  : \"BETCCO's primary BTEC-focused track.\"\n                : locale === \"ar\"\n                  ? \"مسار أكاديمي قابل للإدارة.\"\n                  : \"An administrator-managed academic track.\"}\n            </p>\n          </div>\n        </Link>\n      ))}\n    </div>\n  );\n}\n"
+  },
+  "records": {
+    "src/app/[locale]/page.tsx": [
+      {
+        "line": 108,
+        "owner": "HomePage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تعذر تحميل إحصاءات المنصة الآن.\" : \"Platform statistics could not be loaded right now.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تعذر تحميل إحصاءات المنصة الآن.",
+        "en": "Platform statistics could not be loaded right now."
+      },
+      {
+        "line": 117,
+        "owner": "HomePage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"إعادة المحاولة\" : \"Try again\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "إعادة المحاولة",
+        "en": "Try again"
+      },
+      {
+        "line": 125,
+        "owner": "HomePage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"دورات منشورة\" : \"Published courses\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "دورات منشورة",
+        "en": "Published courses"
+      },
+      {
+        "line": 130,
+        "owner": "HomePage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"دروس متاحة\" : \"Available lessons\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "دروس متاحة",
+        "en": "Available lessons"
+      },
+      {
+        "line": 135,
+        "owner": "HomePage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"معلمون نشطون\" : \"Active teachers\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "معلمون نشطون",
+        "en": "Active teachers"
+      },
+      {
+        "line": 140,
+        "owner": "HomePage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"طلاب مسجلون\" : \"Enrolled students\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "طلاب مسجلون",
+        "en": "Enrolled students"
+      },
+      {
+        "line": 151,
+        "owner": "HomePage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تعلّم في المسار المناسب لك\" : \"Learn in the track that fits you\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تعلّم في المسار المناسب لك",
+        "en": "Learn in the track that fits you"
+      },
+      {
+        "line": 160,
+        "owner": "HomePage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"كل المسارات\" : \"All tracks\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "كل المسارات",
+        "en": "All tracks"
+      },
+      {
+        "line": 170,
+        "owner": "HomePage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"أحدث الدورات المنشورة\" : \"Latest published courses\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "أحدث الدورات المنشورة",
+        "en": "Latest published courses"
+      },
+      {
+        "line": 59,
+        "owner": "HomePage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "BETCCO · BTEC-first ",
+        "reason": "Hardcoded JSX child",
+        "en": "BETCCO · BTEC-first"
+      }
+    ],
+    "src/components/home-image-sections.tsx": [
+      {
+        "line": 19,
+        "owner": "platformVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"تخصصات رقمية واضحة\", en: \"Clear digital specializations\" }",
+        "reason": "Static AR/EN display map",
+        "ar": "تخصصات رقمية واضحة",
+        "en": "Clear digital specializations"
+      },
+      {
+        "line": 20,
+        "owner": "platformVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"اختر المسار والتخصص الذي يطابق دراستك وطموحك.\", en: \"Choose the track and specialization that match your studies and goals.\", }",
+        "reason": "Static AR/EN display map",
+        "ar": "اختر المسار والتخصص الذي يطابق دراستك وطموحك.",
+        "en": "Choose the track and specialization that match your studies and goals."
+      },
+      {
+        "line": 27,
+        "owner": "platformVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"دورات منظمة\", en: \"Structured courses\" }",
+        "reason": "Static AR/EN display map",
+        "ar": "دورات منظمة",
+        "en": "Structured courses"
+      },
+      {
+        "line": 28,
+        "owner": "platformVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"تعلم من محتوى مرتب يبدأ بالدرس وينتهي بالتطبيق.\", en: \"Learn from structured content that moves from lessons to application.\", }",
+        "reason": "Static AR/EN display map",
+        "ar": "تعلم من محتوى مرتب يبدأ بالدرس وينتهي بالتطبيق.",
+        "en": "Learn from structured content that moves from lessons to application."
+      },
+      {
+        "line": 35,
+        "owner": "platformVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"معلمون متخصصون\", en: \"Specialist teachers\" }",
+        "reason": "Static AR/EN display map",
+        "ar": "معلمون متخصصون",
+        "en": "Specialist teachers"
+      },
+      {
+        "line": 36,
+        "owner": "platformVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"تواصل تعليمي واضح ومتابعة مرتبطة بدوراتك.\", en: \"Clear learning communication and follow-up connected to your courses.\", }",
+        "reason": "Static AR/EN display map",
+        "ar": "تواصل تعليمي واضح ومتابعة مرتبطة بدوراتك.",
+        "en": "Clear learning communication and follow-up connected to your courses."
+      },
+      {
+        "line": 43,
+        "owner": "platformVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"مشاريع BTEC\", en: \"BTEC projects\" }",
+        "reason": "Static AR/EN display map",
+        "ar": "مشاريع BTEC",
+        "en": "BTEC projects"
+      },
+      {
+        "line": 44,
+        "owner": "platformVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"حوّل المعرفة إلى مهام عملية مرتبطة بالمعايير.\", en: \"Turn knowledge into practical assignments linked to criteria.\", }",
+        "reason": "Static AR/EN display map",
+        "ar": "حوّل المعرفة إلى مهام عملية مرتبطة بالمعايير.",
+        "en": "Turn knowledge into practical assignments linked to criteria."
+      },
+      {
+        "line": 51,
+        "owner": "platformVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"تغذية راجعة مفيدة\", en: \"Useful feedback\" }",
+        "reason": "Static AR/EN display map",
+        "ar": "تغذية راجعة مفيدة",
+        "en": "Useful feedback"
+      },
+      {
+        "line": 52,
+        "owner": "platformVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"افهم ما حققته وما تحتاج إلى تطويره في كل مهمة.\", en: \"See what you achieved and what to improve in every assignment.\", }",
+        "reason": "Static AR/EN display map",
+        "ar": "افهم ما حققته وما تحتاج إلى تطويره في كل مهمة.",
+        "en": "See what you achieved and what to improve in every assignment."
+      },
+      {
+        "line": 59,
+        "owner": "platformVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"تقدم مرئي\", en: \"Visible progress\" }",
+        "reason": "Static AR/EN display map",
+        "ar": "تقدم مرئي",
+        "en": "Visible progress"
+      },
+      {
+        "line": 60,
+        "owner": "platformVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"تابع دروسك وإنجازاتك من مكان واحد.\", en: \"Track your lessons and achievements in one place.\", }",
+        "reason": "Static AR/EN display map",
+        "ar": "تابع دروسك وإنجازاتك من مكان واحد.",
+        "en": "Track your lessons and achievements in one place."
+      },
+      {
+        "line": 67,
+        "owner": "platformVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"إنجازات موثقة\", en: \"Documented achievements\" }",
+        "reason": "Static AR/EN display map",
+        "ar": "إنجازات موثقة",
+        "en": "Documented achievements"
+      },
+      {
+        "line": 68,
+        "owner": "platformVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"احتفظ بسجل واضح لتعلمك وشهادات إكمالك.\", en: \"Keep a clear record of your learning and completion certificates.\", }",
+        "reason": "Static AR/EN display map",
+        "ar": "احتفظ بسجل واضح لتعلمك وشهادات إكمالك.",
+        "en": "Keep a clear record of your learning and completion certificates."
+      },
+      {
+        "line": 75,
+        "owner": "platformVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"BETCCO في مكان واحد\", en: \"BETCCO in one place\" }",
+        "reason": "Static AR/EN display map",
+        "ar": "BETCCO في مكان واحد",
+        "en": "BETCCO in one place"
+      },
+      {
+        "line": 76,
+        "owner": "platformVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"دروس ومهام ومعايير وتقييم في تجربة تعليمية واحدة.\", en: \"Lessons, assignments, criteria, and evaluation in one learning experience.\", }",
+        "reason": "Static AR/EN display map",
+        "ar": "دروس ومهام ومعايير وتقييم في تجربة تعليمية واحدة.",
+        "en": "Lessons, assignments, criteria, and evaluation in one learning experience."
+      },
+      {
+        "line": 86,
+        "owner": "roleVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"للطالب\", en: \"For students\" }",
+        "reason": "Static AR/EN display map",
+        "ar": "للطالب",
+        "en": "For students"
+      },
+      {
+        "line": 87,
+        "owner": "roleVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"تعلم، تقدّم، وقدّم مهامك بثقة.\", en: \"Learn, progress, and submit assignments with confidence.\", }",
+        "reason": "Static AR/EN display map",
+        "ar": "تعلم، تقدّم، وقدّم مهامك بثقة.",
+        "en": "Learn, progress, and submit assignments with confidence."
+      },
+      {
+        "line": 94,
+        "owner": "roleVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"للمعلم\", en: \"For teachers\" }",
+        "reason": "Static AR/EN display map",
+        "ar": "للمعلم",
+        "en": "For teachers"
+      },
+      {
+        "line": 95,
+        "owner": "roleVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"أنشئ محتوى منظّمًا وتابع طلابك وتقييماتهم.\", en: \"Create structured content and follow your students and evaluations.\", }",
+        "reason": "Static AR/EN display map",
+        "ar": "أنشئ محتوى منظّمًا وتابع طلابك وتقييماتهم.",
+        "en": "Create structured content and follow your students and evaluations."
+      },
+      {
+        "line": 102,
+        "owner": "roleVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"للإدارة\", en: \"For administrators\" }",
+        "reason": "Static AR/EN display map",
+        "ar": "للإدارة",
+        "en": "For administrators"
+      },
+      {
+        "line": 103,
+        "owner": "roleVisuals",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ ar: \"إدارة المنصة والدورات والمستخدمين من لوحة واحدة.\", en: \"Manage the platform, courses, and users from one dashboard.\", }",
+        "reason": "Static AR/EN display map",
+        "ar": "إدارة المنصة والدورات والمستخدمين من لوحة واحدة.",
+        "en": "Manage the platform, courses, and users from one dashboard."
+      },
+      {
+        "line": 120,
+        "owner": "HomeImageSections",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "isArabic ? \"تجربة BETCCO\" : \"The BETCCO experience\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تجربة BETCCO",
+        "en": "The BETCCO experience"
+      },
+      {
+        "line": 123,
+        "owner": "HomeImageSections",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "isArabic ? \"كل ما تحتاجه لتتعلم وتطبّق وتحقق المعايير\" : \"Everything you need to learn, apply, and achieve\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "كل ما تحتاجه لتتعلم وتطبّق وتحقق المعايير",
+        "en": "Everything you need to learn, apply, and achieve"
+      },
+      {
+        "line": 128,
+        "owner": "HomeImageSections",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "isArabic ? \"من اختيار التخصص إلى التقييم والمتابعة، صُممت الأدوات لتخدم رحلة الطالب التعليمية كاملة.\" : \"From choosing a specialization to assessment and follow-up, every tool supports the complete learner journey.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "من اختيار التخصص إلى التقييم والمتابعة، صُممت الأدوات لتخدم رحلة الطالب التعليمية كاملة.",
+        "en": "From choosing a specialization to assessment and follow-up, every tool supports the complete learner journey."
+      },
+      {
+        "line": 164,
+        "owner": "HomeImageSections",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "isArabic ? \"مساحة مناسبة لكل دور\" : \"A space for every role\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "مساحة مناسبة لكل دور",
+        "en": "A space for every role"
+      },
+      {
+        "line": 167,
+        "owner": "HomeImageSections",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "isArabic ? \"منصة واحدة، وتجربة مخصصة لكل مستخدم\" : \"One platform, tailored to every user\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "منصة واحدة، وتجربة مخصصة لكل مستخدم",
+        "en": "One platform, tailored to every user"
+      },
+      {
+        "line": 176,
+        "owner": "HomeImageSections",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "isArabic ? \"ابدأ كطالب\" : \"Start as a student\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "ابدأ كطالب",
+        "en": "Start as a student"
+      },
+      {
+        "line": 225,
+        "owner": "HomeImageSections",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "isArabic ? \"ابدأ رحلتك التعليمية بطريقة أكثر وضوحًا\" : \"Start your learning journey with more clarity\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "ابدأ رحلتك التعليمية بطريقة أكثر وضوحًا",
+        "en": "Start your learning journey with more clarity"
+      },
+      {
+        "line": 230,
+        "owner": "HomeImageSections",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "isArabic ? \"استكشف الدورات أو أنشئ حساب طالب لتتابع التعلم والمهام والتقييم من مكان واحد.\" : \"Explore courses or create a student account to manage learning, assignments, and assessment in one place.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "استكشف الدورات أو أنشئ حساب طالب لتتابع التعلم والمهام والتقييم من مكان واحد.",
+        "en": "Explore courses or create a student account to manage learning, assignments, and assessment in one place."
+      },
+      {
+        "line": 239,
+        "owner": "HomeImageSections",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "isArabic ? \"تصفح الدورات\" : \"Browse courses\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تصفح الدورات",
+        "en": "Browse courses"
+      },
+      {
+        "line": 246,
+        "owner": "HomeImageSections",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "isArabic ? \"إنشاء حساب\" : \"Create an account\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "إنشاء حساب",
+        "en": "Create an account"
+      }
+    ],
+    "src/app/[locale]/courses/page.tsx": [
+      {
+        "line": 69,
+        "owner": "CoursesPage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"اكتشف الدورات\" : \"Discover courses\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "اكتشف الدورات",
+        "en": "Discover courses"
+      },
+      {
+        "line": 72,
+        "owner": "CoursesPage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"ابحث في الدورات المنشورة، واختر المسار والتخصص المناسبين.\" : \"Search published courses and select the track and specialization that fit you.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "ابحث في الدورات المنشورة، واختر المسار والتخصص المناسبين.",
+        "en": "Search published courses and select the track and specialization that fit you."
+      },
+      {
+        "line": 89,
+        "owner": "CoursesPage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"ابحث عن دورة\" : \"Search courses\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "ابحث عن دورة",
+        "en": "Search courses"
+      },
+      {
+        "line": 99,
+        "owner": "CoursesPage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"فلترة من بيانات المنصة\" : \"Filter from platform data\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "فلترة من بيانات المنصة",
+        "en": "Filter from platform data"
+      },
+      {
+        "line": 106,
+        "owner": "CoursesPage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"المسار\" : \"Track\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "المسار",
+        "en": "Track"
+      },
+      {
+        "line": 119,
+        "owner": "CoursesPage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"الصف\" : \"Grade\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "الصف",
+        "en": "Grade"
+      },
+      {
+        "line": 132,
+        "owner": "CoursesPage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"التخصص\" : \"Specialization\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "التخصص",
+        "en": "Specialization"
+      },
+      {
+        "line": 147,
+        "owner": "CoursesPage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"المادة\" : \"Subject\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "المادة",
+        "en": "Subject"
+      },
+      {
+        "line": 164,
+        "owner": "CoursesPage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"الترتيب\" : \"Sort\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "الترتيب",
+        "en": "Sort"
+      },
+      {
+        "line": 168,
+        "owner": "CoursesPage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"الأحدث\" : \"Newest\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "الأحدث",
+        "en": "Newest"
+      },
+      {
+        "line": 172,
+        "owner": "CoursesPage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"السعر: الأقل أولًا\" : \"Price: low first\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "السعر: الأقل أولًا",
+        "en": "Price: low first"
+      },
+      {
+        "line": 177,
+        "owner": "CoursesPage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"السعر: الأعلى أولًا\" : \"Price: high first\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "السعر: الأعلى أولًا",
+        "en": "Price: high first"
+      },
+      {
+        "line": 191,
+        "owner": "CoursesPage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"مسح الفلاتر\" : \"Clear filters\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "مسح الفلاتر",
+        "en": "Clear filters"
+      },
+      {
+        "line": 66,
+        "owner": "CoursesPage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "BETCCO Catalog ",
+        "reason": "Hardcoded JSX child",
+        "en": "BETCCO Catalog"
+      }
+    ],
+    "src/features/courses/catalog-grid.tsx": [
+      {
+        "line": 59,
+        "owner": "CatalogGrid",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تعذر تحميل الدورات. حاول مجددًا.\" : \"Courses could not be loaded. Try again.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تعذر تحميل الدورات. حاول مجددًا.",
+        "en": "Courses could not be loaded. Try again."
+      },
+      {
+        "line": 67,
+        "owner": "CatalogGrid",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"لا توجد دورات مطابقة حاليًا.\" : \"No courses match your filters yet.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "لا توجد دورات مطابقة حاليًا.",
+        "en": "No courses match your filters yet."
+      }
+    ],
+    "src/features/courses/course-card.tsx": [
+      {
+        "line": 45,
+        "owner": "add",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"أضيفت الدورة إلى السلة.\" : \"Course added to cart.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "أضيفت الدورة إلى السلة.",
+        "en": "Course added to cart."
+      },
+      {
+        "line": 63,
+        "owner": "addToCart",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"الشراء متاح من حساب الطالب فقط.\" : \"Purchasing is available to student accounts only.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "الشراء متاح من حساب الطالب فقط.",
+        "en": "Purchasing is available to student accounts only."
+      },
+      {
+        "line": 109,
+        "owner": "CourseCard",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"دروس\" : \"lessons\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "دروس",
+        "en": "lessons"
+      },
+      {
+        "line": 114,
+        "owner": "CourseCard",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"دقيقة\" : \"min\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "دقيقة",
+        "en": "min"
+      },
+      {
+        "line": 141,
+        "owner": "CourseCard",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"مجاني\" : \"Free\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "مجاني",
+        "en": "Free"
+      },
+      {
+        "line": 156,
+        "owner": "CourseCard",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"أضف للسلة\" : \"Add\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "أضف للسلة",
+        "en": "Add"
+      },
+      {
+        "line": 160,
+        "owner": "CourseCard",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"حساب طالب فقط\" : \"Student account only\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "حساب طالب فقط",
+        "en": "Student account only"
+      },
+      {
+        "line": 163,
+        "owner": "CourseCard",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"سجّل الدخول للشراء\" : \"Sign in to purchase\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "سجّل الدخول للشراء",
+        "en": "Sign in to purchase"
+      },
+      {
+        "line": 172,
+        "owner": "CourseCard",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"عرض الدورة\" : \"View course\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "عرض الدورة",
+        "en": "View course"
+      },
+      {
+        "line": 188,
+        "owner": "CourseCard",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"عرض السلة\" : \"View cart\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "عرض السلة",
+        "en": "View cart"
+      },
+      {
+        "line": 52,
+        "category": "STATIC_UI",
+        "context": "error instanceof Error ? error.message : \"Unable to add course.\"",
+        "reason": "Locally authored non-Error fallback rendered to user; raw Error.message precedence retained",
+        "reviewed": true
+      }
+    ],
+    "src/features/courses/course-detail.tsx": [
+      {
+        "line": 67,
+        "owner": "add",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"أضيفت الدورة إلى السلة.\" : \"Course added to cart.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "أضيفت الدورة إلى السلة.",
+        "en": "Course added to cart."
+      },
+      {
+        "line": 85,
+        "owner": "addToCart",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"الشراء متاح من حساب الطالب فقط.\" : \"Purchasing is available to student accounts only.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "الشراء متاح من حساب الطالب فقط.",
+        "en": "Purchasing is available to student accounts only."
+      },
+      {
+        "line": 103,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"الدورة غير متاحة.\" : \"This course is unavailable.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "الدورة غير متاحة.",
+        "en": "This course is unavailable."
+      },
+      {
+        "line": 114,
+        "owner": "CourseDetailView",
+        "category": "ACCESSIBILITY_STATIC_UI",
+        "originalCategory": "ACCESSIBILITY_STATIC_UI",
+        "context": "locale === \"ar\" ? \"مسار التنقل\" : \"Breadcrumb\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "مسار التنقل",
+        "en": "Breadcrumb"
+      },
+      {
+        "line": 118,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"الرئيسية\" : \"Home\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "الرئيسية",
+        "en": "Home"
+      },
+      {
+        "line": 127,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"الدورات\" : \"Courses\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "الدورات",
+        "en": "Courses"
+      },
+      {
+        "line": 160,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"دروس\" : \"lessons\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "دروس",
+        "en": "lessons"
+      },
+      {
+        "line": 165,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"دقيقة\" : \"min\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "دقيقة",
+        "en": "min"
+      },
+      {
+        "line": 170,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"المعلم:\" : \"Teacher:\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "المعلم:",
+        "en": "Teacher:"
+      },
+      {
+        "line": 175,
+        "owner": "CourseDetailView",
+        "category": "ACCESSIBILITY_STATIC_UI",
+        "originalCategory": "ACCESSIBILITY_STATIC_UI",
+        "context": "locale === \"ar\" ? \"أقسام الدورة\" : \"Course sections\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "أقسام الدورة",
+        "en": "Course sections"
+      },
+      {
+        "line": 182,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"نظرة عامة\" : \"Overview\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "نظرة عامة",
+        "en": "Overview"
+      },
+      {
+        "line": 188,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"المحتوى\" : \"Curriculum\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "المحتوى",
+        "en": "Curriculum"
+      },
+      {
+        "line": 194,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"المهارات\" : \"Skills\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "المهارات",
+        "en": "Skills"
+      },
+      {
+        "line": 203,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"ماذا ستتعلم؟\" : \"What you will learn\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "ماذا ستتعلم؟",
+        "en": "What you will learn"
+      },
+      {
+        "line": 219,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"المهارات\" : \"Skills\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "المهارات",
+        "en": "Skills"
+      },
+      {
+        "line": 235,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"المحتوى\" : \"Curriculum\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "المحتوى",
+        "en": "Curriculum"
+      },
+      {
+        "line": 250,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \" · معاينة\" : \" · Preview\"",
+        "reason": "Static locale-selected display copy",
+        "ar": " · معاينة",
+        "en": " · Preview"
+      },
+      {
+        "line": 265,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"فتح\" : \"Open\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "فتح",
+        "en": "Open"
+      },
+      {
+        "line": 282,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"جارٍ تحميل المعاينة…\" : \"Loading preview…\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "جارٍ تحميل المعاينة…",
+        "en": "Loading preview…"
+      },
+      {
+        "line": 288,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تعذر فتح هذه المعاينة الآن.\" : \"This preview could not be opened now.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تعذر فتح هذه المعاينة الآن.",
+        "en": "This preview could not be opened now."
+      },
+      {
+        "line": 297,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"درس تجريبي\" : \"Preview lesson\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "درس تجريبي",
+        "en": "Preview lesson"
+      },
+      {
+        "line": 308,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"إغلاق\" : \"Close\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "إغلاق",
+        "en": "Close"
+      },
+      {
+        "line": 313,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"لا يوجد نص متاح لهذه المعاينة.\" : \"No text is available for this preview.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "لا يوجد نص متاح لهذه المعاينة.",
+        "en": "No text is available for this preview."
+      },
+      {
+        "line": 346,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"مجاني\" : \"Free\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "مجاني",
+        "en": "Free"
+      },
+      {
+        "line": 352,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"السعر يتحقق منه الخادم عند الدفع.\" : \"The server verifies the price at checkout.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "السعر يتحقق منه الخادم عند الدفع.",
+        "en": "The server verifies the price at checkout."
+      },
+      {
+        "line": 366,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"أضف إلى السلة\" : \"Add to cart\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "أضف إلى السلة",
+        "en": "Add to cart"
+      },
+      {
+        "line": 370,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"حساب طالب فقط\" : \"Student account only\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "حساب طالب فقط",
+        "en": "Student account only"
+      },
+      {
+        "line": 373,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"سجّل الدخول للشراء\" : \"Sign in to purchase\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "سجّل الدخول للشراء",
+        "en": "Sign in to purchase"
+      },
+      {
+        "line": 387,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"عرض السلة\" : \"View cart\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "عرض السلة",
+        "en": "View cart"
+      },
+      {
+        "line": 257,
+        "owner": "CourseDetailView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "min ",
+        "reason": "Hardcoded JSX child",
+        "en": "min"
+      },
+      {
+        "line": 74,
+        "category": "STATIC_UI",
+        "context": "error instanceof Error ? error.message : \"Unable to add course.\"",
+        "reason": "Locally authored non-Error fallback rendered to user; raw Error.message precedence retained",
+        "reviewed": true
+      }
+    ],
+    "src/features/courses/track-cards.tsx": [
+      {
+        "line": 32,
+        "owner": "TrackCards",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"ستظهر المسارات المنشورة هنا.\" : \"Published learning tracks will appear here.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "ستظهر المسارات المنشورة هنا.",
+        "en": "Published learning tracks will appear here."
+      },
+      {
+        "line": 57,
+        "owner": "TrackCards",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"مسار BETCCO الأساسي لطلاب BTEC.\" : \"BETCCO's primary BTEC-focused track.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "مسار BETCCO الأساسي لطلاب BTEC.",
+        "en": "BETCCO's primary BTEC-focused track."
+      },
+      {
+        "line": 60,
+        "owner": "TrackCards",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"مسار أكاديمي قابل للإدارة.\" : \"An administrator-managed academic track.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "مسار أكاديمي قابل للإدارة.",
+        "en": "An administrator-managed academic track."
+      }
+    ]
+  },
+  "replacements": {
+    "src/app/[locale]/page.tsx": [
+      {
+        "start": 1900,
+        "end": 1932,
+        "text": " {copy(\"betccoBtecFirst\")} ",
+        "original": "BETCCO · BTEC-first\n            "
+      },
+      {
+        "start": 3748,
+        "end": 3890,
+        "text": "copy(\"platformStatisticsCouldNotBeLoadedRight\")",
+        "original": "locale === \"ar\"\n                  ? \"تعذر تحميل إحصاءات المنصة الآن.\"\n                  : \"Platform statistics could not be loaded right now.\""
+      },
+      {
+        "start": 4162,
+        "end": 4210,
+        "text": "copy(\"tryAgain\")",
+        "original": "locale === \"ar\" ? \"إعادة المحاولة\" : \"Try again\""
+      },
+      {
+        "start": 4421,
+        "end": 4475,
+        "text": "copy(\"publishedCourses\")",
+        "original": "locale === \"ar\" ? \"دورات منشورة\" : \"Published courses\""
+      },
+      {
+        "start": 4630,
+        "end": 4682,
+        "text": "copy(\"availableLessons\")",
+        "original": "locale === \"ar\" ? \"دروس متاحة\" : \"Available lessons\""
+      },
+      {
+        "start": 4834,
+        "end": 4886,
+        "text": "copy(\"activeTeachers\")",
+        "original": "locale === \"ar\" ? \"معلمون نشطون\" : \"Active teachers\""
+      },
+      {
+        "start": 5037,
+        "end": 5090,
+        "text": "copy(\"enrolledStudents\")",
+        "original": "locale === \"ar\" ? \"طلاب مسجلون\" : \"Enrolled students\""
+      },
+      {
+        "start": 5443,
+        "end": 5558,
+        "text": "copy(\"learnInTheTrackThatFitsYou\")",
+        "original": "locale === \"ar\"\n                ? \"تعلّم في المسار المناسب لك\"\n                : \"Learn in the track that fits you\""
+      },
+      {
+        "start": 5745,
+        "end": 5791,
+        "text": "t(\"navigation.allTracks\")",
+        "original": "locale === \"ar\" ? \"كل المسارات\" : \"All tracks\""
+      },
+      {
+        "start": 6086,
+        "end": 6180,
+        "text": "copy(\"latestPublishedCourses\")",
+        "original": "locale === \"ar\"\n            ? \"أحدث الدورات المنشورة\"\n            : \"Latest published courses\""
+      }
+    ],
+    "src/components/home-image-sections.tsx": [
+      {
+        "start": 447,
+        "end": 512,
+        "text": "copy(\"clearDigitalSpecializations\")",
+        "original": "{ ar: \"تخصصات رقمية واضحة\", en: \"Clear digital specializations\" }"
+      },
+      {
+        "start": 531,
+        "end": 681,
+        "text": "copy(\"chooseTheTrackAndSpecializationThatMatch\")",
+        "original": "{\n      ar: \"اختر المسار والتخصص الذي يطابق دراستك وطموحك.\",\n      en: \"Choose the track and specialization that match your studies and goals.\",\n    }"
+      },
+      {
+        "start": 766,
+        "end": 813,
+        "text": "copy(\"structuredCourses\")",
+        "original": "{ ar: \"دورات منظمة\", en: \"Structured courses\" }"
+      },
+      {
+        "start": 832,
+        "end": 983,
+        "text": "copy(\"learnFromStructuredContentThatMovesFrom\")",
+        "original": "{\n      ar: \"تعلم من محتوى مرتب يبدأ بالدرس وينتهي بالتطبيق.\",\n      en: \"Learn from structured content that moves from lessons to application.\",\n    }"
+      },
+      {
+        "start": 1068,
+        "end": 1119,
+        "text": "copy(\"specialistTeachers\")",
+        "original": "{ ar: \"معلمون متخصصون\", en: \"Specialist teachers\" }"
+      },
+      {
+        "start": 1138,
+        "end": 1283,
+        "text": "copy(\"clearLearningCommunicationAndFollowUpConnected\")",
+        "original": "{\n      ar: \"تواصل تعليمي واضح ومتابعة مرتبطة بدوراتك.\",\n      en: \"Clear learning communication and follow-up connected to your courses.\",\n    }"
+      },
+      {
+        "start": 1367,
+        "end": 1409,
+        "text": "copy(\"btecProjects\")",
+        "original": "{ ar: \"مشاريع BTEC\", en: \"BTEC projects\" }"
+      },
+      {
+        "start": 1428,
+        "end": 1569,
+        "text": "copy(\"turnKnowledgeIntoPracticalAssignmentsLinkedTo\")",
+        "original": "{\n      ar: \"حوّل المعرفة إلى مهام عملية مرتبطة بالمعايير.\",\n      en: \"Turn knowledge into practical assignments linked to criteria.\",\n    }"
+      },
+      {
+        "start": 1659,
+        "end": 1709,
+        "text": "copy(\"usefulFeedback\")",
+        "original": "{ ar: \"تغذية راجعة مفيدة\", en: \"Useful feedback\" }"
+      },
+      {
+        "start": 1728,
+        "end": 1871,
+        "text": "copy(\"seeWhatYouAchievedAndWhatTo\")",
+        "original": "{\n      ar: \"افهم ما حققته وما تحتاج إلى تطويره في كل مهمة.\",\n      en: \"See what you achieved and what to improve in every assignment.\",\n    }"
+      },
+      {
+        "start": 1958,
+        "end": 2001,
+        "text": "copy(\"visibleProgress\")",
+        "original": "{ ar: \"تقدم مرئي\", en: \"Visible progress\" }"
+      },
+      {
+        "start": 2020,
+        "end": 2138,
+        "text": "copy(\"trackYourLessonsAndAchievementsInOne\")",
+        "original": "{\n      ar: \"تابع دروسك وإنجازاتك من مكان واحد.\",\n      en: \"Track your lessons and achievements in one place.\",\n    }"
+      },
+      {
+        "start": 2228,
+        "end": 2282,
+        "text": "copy(\"documentedAchievements\")",
+        "original": "{ ar: \"إنجازات موثقة\", en: \"Documented achievements\" }"
+      },
+      {
+        "start": 2301,
+        "end": 2439,
+        "text": "copy(\"keepAClearRecordOfYourLearning\")",
+        "original": "{\n      ar: \"احتفظ بسجل واضح لتعلمك وشهادات إكمالك.\",\n      en: \"Keep a clear record of your learning and completion certificates.\",\n    }"
+      },
+      {
+        "start": 2522,
+        "end": 2578,
+        "text": "copy(\"betccoInOnePlace\")",
+        "original": "{ ar: \"BETCCO في مكان واحد\", en: \"BETCCO in one place\" }"
+      },
+      {
+        "start": 2597,
+        "end": 2755,
+        "text": "copy(\"lessonsAssignmentsCriteriaAndEvaluationInOne\")",
+        "original": "{\n      ar: \"دروس ومهام ومعايير وتقييم في تجربة تعليمية واحدة.\",\n      en: \"Lessons, assignments, criteria, and evaluation in one learning experience.\",\n    }"
+      },
+      {
+        "start": 2871,
+        "end": 2907,
+        "text": "copy(\"forStudents\")",
+        "original": "{ ar: \"للطالب\", en: \"For students\" }"
+      },
+      {
+        "start": 2926,
+        "end": 3047,
+        "text": "copy(\"learnProgressAndSubmitAssignmentsWithConfidence\")",
+        "original": "{\n      ar: \"تعلم، تقدّم، وقدّم مهامك بثقة.\",\n      en: \"Learn, progress, and submit assignments with confidence.\",\n    }"
+      },
+      {
+        "start": 3137,
+        "end": 3173,
+        "text": "copy(\"forTeachers\")",
+        "original": "{ ar: \"للمعلم\", en: \"For teachers\" }"
+      },
+      {
+        "start": 3192,
+        "end": 3336,
+        "text": "copy(\"createStructuredContentAndFollowYourStudents\")",
+        "original": "{\n      ar: \"أنشئ محتوى منظّمًا وتابع طلابك وتقييماتهم.\",\n      en: \"Create structured content and follow your students and evaluations.\",\n    }"
+      },
+      {
+        "start": 3424,
+        "end": 3467,
+        "text": "copy(\"forAdministrators\")",
+        "original": "{ ar: \"للإدارة\", en: \"For administrators\" }"
+      },
+      {
+        "start": 3486,
+        "end": 3628,
+        "text": "copy(\"manageThePlatformCoursesAndUsersFrom\")",
+        "original": "{\n      ar: \"إدارة المنصة والدورات والمستخدمين من لوحة واحدة.\",\n      en: \"Manage the platform, courses, and users from one dashboard.\",\n    }"
+      },
+      {
+        "start": 3998,
+        "end": 4049,
+        "text": "copy(\"theBetccoExperience\")",
+        "original": "isArabic ? \"تجربة BETCCO\" : \"The BETCCO experience\""
+      },
+      {
+        "start": 4158,
+        "end": 4293,
+        "text": "copy(\"everythingYouNeedToLearnApplyAnd\")",
+        "original": "isArabic\n              ? \"كل ما تحتاجه لتتعلم وتطبّق وتحقق المعايير\"\n              : \"Everything you need to learn, apply, and achieve\""
+      },
+      {
+        "start": 4376,
+        "end": 4619,
+        "text": "copy(\"fromChoosingASpecializationToAssessmentAnd\")",
+        "original": "isArabic\n              ? \"من اختيار التخصص إلى التقييم والمتابعة، صُممت الأدوات لتخدم رحلة الطالب التعليمية كاملة.\"\n              : \"From choosing a specialization to assessment and follow-up, every tool supports the complete learner journey.\""
+      },
+      {
+        "start": 6038,
+        "end": 6098,
+        "text": "copy(\"aSpaceForEveryRole\")",
+        "original": "isArabic ? \"مساحة مناسبة لكل دور\" : \"A space for every role\""
+      },
+      {
+        "start": 6213,
+        "end": 6334,
+        "text": "copy(\"onePlatformTailoredToEveryUser\")",
+        "original": "isArabic\n                ? \"منصة واحدة، وتجربة مخصصة لكل مستخدم\"\n                : \"One platform, tailored to every user\""
+      },
+      {
+        "start": 6550,
+        "end": 6596,
+        "text": "copy(\"startAsAStudent\")",
+        "original": "isArabic ? \"ابدأ كطالب\" : \"Start as a student\""
+      },
+      {
+        "start": 8692,
+        "end": 8826,
+        "text": "copy(\"startYourLearningJourneyWithMoreClarity\")",
+        "original": "isArabic\n                ? \"ابدأ رحلتك التعليمية بطريقة أكثر وضوحًا\"\n                : \"Start your learning journey with more clarity\""
+      },
+      {
+        "start": 8928,
+        "end": 9160,
+        "text": "copy(\"exploreCoursesOrCreateAStudentAccount\")",
+        "original": "isArabic\n                ? \"استكشف الدورات أو أنشئ حساب طالب لتتابع التعلم والمهام والتقييم من مكان واحد.\"\n                : \"Explore courses or create a student account to manage learning, assignments, and assessment in one place.\""
+      },
+      {
+        "start": 9470,
+        "end": 9514,
+        "text": "copy(\"browseCourses\")",
+        "original": "isArabic ? \"تصفح الدورات\" : \"Browse courses\""
+      },
+      {
+        "start": 9837,
+        "end": 9882,
+        "text": "copy(\"createAnAccount\")",
+        "original": "isArabic ? \"إنشاء حساب\" : \"Create an account\""
+      }
+    ],
+    "src/app/[locale]/courses/page.tsx": [
+      {
+        "start": 2533,
+        "end": 2558,
+        "text": " {copy(\"betccoCatalog\")} ",
+        "original": "BETCCO Catalog\n          "
+      },
+      {
+        "start": 2655,
+        "end": 2709,
+        "text": "copy(\"discoverCourses\")",
+        "original": "locale === \"ar\" ? \"اكتشف الدورات\" : \"Discover courses\""
+      },
+      {
+        "start": 2802,
+        "end": 2990,
+        "text": "copy(\"searchPublishedCoursesAndSelectTheTrack\")",
+        "original": "locale === \"ar\"\n              ? \"ابحث في الدورات المنشورة، واختر المسار والتخصص المناسبين.\"\n              : \"Search published courses and select the track and specialization that fit you.\""
+      },
+      {
+        "start": 3576,
+        "end": 3627,
+        "text": "copy(\"searchCourses\")",
+        "original": "locale === \"ar\" ? \"ابحث عن دورة\" : \"Search courses\""
+      },
+      {
+        "start": 3991,
+        "end": 4091,
+        "text": "copy(\"filterFromPlatformData\")",
+        "original": "locale === \"ar\"\n              ? \"فلترة من بيانات المنصة\"\n              : \"Filter from platform data\""
+      },
+      {
+        "start": 4240,
+        "end": 4276,
+        "text": "copy(\"track\")",
+        "original": "locale === \"ar\" ? \"المسار\" : \"Track\""
+      },
+      {
+        "start": 4690,
+        "end": 4724,
+        "text": "copy(\"grade\")",
+        "original": "locale === \"ar\" ? \"الصف\" : \"Grade\""
+      },
+      {
+        "start": 5185,
+        "end": 5230,
+        "text": "copy(\"specialization\")",
+        "original": "locale === \"ar\" ? \"التخصص\" : \"Specialization\""
+      },
+      {
+        "start": 5767,
+        "end": 5805,
+        "text": "copy(\"subject\")",
+        "original": "locale === \"ar\" ? \"المادة\" : \"Subject\""
+      },
+      {
+        "start": 6468,
+        "end": 6504,
+        "text": "copy(\"sort\")",
+        "original": "locale === \"ar\" ? \"الترتيب\" : \"Sort\""
+      },
+      {
+        "start": 6681,
+        "end": 6718,
+        "text": "copy(\"newest\")",
+        "original": "locale === \"ar\" ? \"الأحدث\" : \"Newest\""
+      },
+      {
+        "start": 6815,
+        "end": 6874,
+        "text": "copy(\"priceLowFirst\")",
+        "original": "locale === \"ar\" ? \"السعر: الأقل أولًا\" : \"Price: low first\""
+      },
+      {
+        "start": 6987,
+        "end": 7048,
+        "text": "copy(\"priceHighFirst\")",
+        "original": "locale === \"ar\" ? \"السعر: الأعلى أولًا\" : \"Price: high first\""
+      },
+      {
+        "start": 7474,
+        "end": 7523,
+        "text": "copy(\"clearFilters\")",
+        "original": "locale === \"ar\" ? \"مسح الفلاتر\" : \"Clear filters\""
+      }
+    ],
+    "src/features/courses/catalog-grid.tsx": [
+      {
+        "start": 1531,
+        "end": 1647,
+        "text": "copy(\"coursesCouldNotBeLoadedTryAgain\")",
+        "original": "locale === \"ar\"\n          ? \"تعذر تحميل الدورات. حاول مجددًا.\"\n          : \"Courses could not be loaded. Try again.\""
+      },
+      {
+        "start": 1764,
+        "end": 1871,
+        "text": "copy(\"noCoursesMatchYourFiltersYet\")",
+        "original": "locale === \"ar\"\n          ? \"لا توجد دورات مطابقة حاليًا.\"\n          : \"No courses match your filters yet.\""
+      }
+    ],
+    "src/features/courses/course-card.tsx": [
+      {
+        "start": 1320,
+        "end": 1389,
+        "text": "copy(\"courseAddedToCart\")",
+        "original": "locale === \"ar\" ? \"أضيفت الدورة إلى السلة.\" : \"Course added to cart.\""
+      },
+      {
+        "start": 1612,
+        "end": 1635,
+        "text": "copy(\"unableToAddCourse\")",
+        "original": "\"Unable to add course.\""
+      },
+      {
+        "start": 1845,
+        "end": 1970,
+        "text": "copy(\"purchasingIsAvailableToStudentAccountsOnly\")",
+        "original": "locale === \"ar\"\n          ? \"الشراء متاح من حساب الطالب فقط.\"\n          : \"Purchasing is available to student accounts only.\""
+      },
+      {
+        "start": 3701,
+        "end": 3737,
+        "text": "copy(\"lessons\")",
+        "original": "locale === \"ar\" ? \"دروس\" : \"lessons\""
+      },
+      {
+        "start": 3966,
+        "end": 3999,
+        "text": "copy(\"min\")",
+        "original": "locale === \"ar\" ? \"دقيقة\" : \"min\""
+      },
+      {
+        "start": 4962,
+        "end": 5028,
+        "text": "copy(\"free\")",
+        "original": "locale === \"ar\"\n                ? \"مجاني\"\n                : \"Free\""
+      },
+      {
+        "start": 5573,
+        "end": 5646,
+        "text": "copy(\"add\")",
+        "original": "locale === \"ar\"\n                  ? \"أضف للسلة\"\n                  : \"Add\""
+      },
+      {
+        "start": 5695,
+        "end": 5793,
+        "text": "copy(\"studentAccountOnly\")",
+        "original": "locale === \"ar\"\n                    ? \"حساب طالب فقط\"\n                    : \"Student account only\""
+      },
+      {
+        "start": 5814,
+        "end": 5916,
+        "text": "copy(\"signInToPurchase\")",
+        "original": "locale === \"ar\"\n                    ? \"سجّل الدخول للشراء\"\n                    : \"Sign in to purchase\""
+      },
+      {
+        "start": 6141,
+        "end": 6187,
+        "text": "copy(\"viewCourse\")",
+        "original": "locale === \"ar\" ? \"عرض الدورة\" : \"View course\""
+      },
+      {
+        "start": 6750,
+        "end": 6793,
+        "text": "copy(\"viewCart\")",
+        "original": "locale === \"ar\" ? \"عرض السلة\" : \"View cart\""
+      }
+    ],
+    "src/features/courses/course-detail.tsx": [
+      {
+        "start": 2020,
+        "end": 2089,
+        "text": "copy(\"courseAddedToCart\")",
+        "original": "locale === \"ar\" ? \"أضيفت الدورة إلى السلة.\" : \"Course added to cart.\""
+      },
+      {
+        "start": 2312,
+        "end": 2335,
+        "text": "copy(\"unableToAddCourse\")",
+        "original": "\"Unable to add course.\""
+      },
+      {
+        "start": 2561,
+        "end": 2686,
+        "text": "copy(\"purchasingIsAvailableToStudentAccountsOnly\")",
+        "original": "locale === \"ar\"\n          ? \"الشراء متاح من حساب الطالب فقط.\"\n          : \"Purchasing is available to student accounts only.\""
+      },
+      {
+        "start": 3068,
+        "end": 3161,
+        "text": "copy(\"thisCourseIsUnavailable\")",
+        "original": "locale === \"ar\"\n            ? \"الدورة غير متاحة.\"\n            : \"This course is unavailable.\""
+      },
+      {
+        "start": 3392,
+        "end": 3438,
+        "text": "copy(\"breadcrumb\")",
+        "original": "locale === \"ar\" ? \"مسار التنقل\" : \"Breadcrumb\""
+      },
+      {
+        "start": 3580,
+        "end": 3617,
+        "text": "navigation(\"home\")",
+        "original": "locale === \"ar\" ? \"الرئيسية\" : \"Home\""
+      },
+      {
+        "start": 3839,
+        "end": 3878,
+        "text": "rootCopy(\"courses\")",
+        "original": "locale === \"ar\" ? \"الدورات\" : \"Courses\""
+      },
+      {
+        "start": 5357,
+        "end": 5393,
+        "text": "copy(\"lessons\")",
+        "original": "locale === \"ar\" ? \"دروس\" : \"lessons\""
+      },
+      {
+        "start": 5578,
+        "end": 5611,
+        "text": "copy(\"min\")",
+        "original": "locale === \"ar\" ? \"دقيقة\" : \"min\""
+      },
+      {
+        "start": 5794,
+        "end": 5834,
+        "text": "copy(\"teacher\")",
+        "original": "locale === \"ar\" ? \"المعلم:\" : \"Teacher:\""
+      },
+      {
+        "start": 5957,
+        "end": 6009,
+        "text": "copy(\"courseSections\")",
+        "original": "locale === \"ar\" ? \"أقسام الدورة\" : \"Course sections\""
+      },
+      {
+        "start": 6381,
+        "end": 6423,
+        "text": "copy(\"overview\")",
+        "original": "locale === \"ar\" ? \"نظرة عامة\" : \"Overview\""
+      },
+      {
+        "start": 6646,
+        "end": 6688,
+        "text": "copy(\"curriculum\")",
+        "original": "locale === \"ar\" ? \"المحتوى\" : \"Curriculum\""
+      },
+      {
+        "start": 6907,
+        "end": 6946,
+        "text": "copy(\"skills\")",
+        "original": "locale === \"ar\" ? \"المهارات\" : \"Skills\""
+      },
+      {
+        "start": 7229,
+        "end": 7285,
+        "text": "copy(\"whatYouWillLearn\")",
+        "original": "locale === \"ar\" ? \"ماذا ستتعلم؟\" : \"What you will learn\""
+      },
+      {
+        "start": 7890,
+        "end": 7929,
+        "text": "copy(\"skills\")",
+        "original": "locale === \"ar\" ? \"المهارات\" : \"Skills\""
+      },
+      {
+        "start": 8516,
+        "end": 8558,
+        "text": "copy(\"curriculum\")",
+        "original": "locale === \"ar\" ? \"المحتوى\" : \"Curriculum\""
+      },
+      {
+        "start": 9226,
+        "end": 9330,
+        "text": "copy(\"preview\")",
+        "original": "locale === \"ar\"\n                              ? \" · معاينة\"\n                              : \" · Preview\""
+      },
+      {
+        "start": 9576,
+        "end": 9606,
+        "text": " {copy(\"min\")} ",
+        "original": "min\n                          "
+      },
+      {
+        "start": 10031,
+        "end": 10063,
+        "text": "copy(\"open\")",
+        "original": "locale === \"ar\" ? \"فتح\" : \"Open\""
+      },
+      {
+        "start": 10588,
+        "end": 10693,
+        "text": "copy(\"loadingPreview\")",
+        "original": "locale === \"ar\"\n                      ? \"جارٍ تحميل المعاينة…\"\n                      : \"Loading preview…\""
+      },
+      {
+        "start": 10851,
+        "end": 10984,
+        "text": "copy(\"thisPreviewCouldNotBeOpenedNow\")",
+        "original": "locale === \"ar\"\n                      ? \"تعذر فتح هذه المعاينة الآن.\"\n                      : \"This preview could not be opened now.\""
+      },
+      {
+        "start": 11295,
+        "end": 11344,
+        "text": "copy(\"previewLesson\")",
+        "original": "locale === \"ar\" ? \"درس تجريبي\" : \"Preview lesson\""
+      },
+      {
+        "start": 11847,
+        "end": 11882,
+        "text": "copy(\"close\")",
+        "original": "locale === \"ar\" ? \"إغلاق\" : \"Close\""
+      },
+      {
+        "start": 12102,
+        "end": 12247,
+        "text": "copy(\"noTextIsAvailableForThisPreview\")",
+        "original": "locale === \"ar\"\n                          ? \"لا يوجد نص متاح لهذه المعاينة.\"\n                          : \"No text is available for this preview.\""
+      },
+      {
+        "start": 13633,
+        "end": 13699,
+        "text": "copy(\"free\")",
+        "original": "locale === \"ar\"\n                ? \"مجاني\"\n                : \"Free\""
+      },
+      {
+        "start": 13858,
+        "end": 13986,
+        "text": "copy(\"theServerVerifiesThePriceAtCheckout\")",
+        "original": "locale === \"ar\"\n              ? \"السعر يتحقق منه الخادم عند الدفع.\"\n              : \"The server verifies the price at checkout.\""
+      },
+      {
+        "start": 14472,
+        "end": 14557,
+        "text": "copy(\"addToCart\")",
+        "original": "locale === \"ar\"\n                  ? \"أضف إلى السلة\"\n                  : \"Add to cart\""
+      },
+      {
+        "start": 14606,
+        "end": 14704,
+        "text": "copy(\"studentAccountOnly\")",
+        "original": "locale === \"ar\"\n                    ? \"حساب طالب فقط\"\n                    : \"Student account only\""
+      },
+      {
+        "start": 14725,
+        "end": 14827,
+        "text": "copy(\"signInToPurchase\")",
+        "original": "locale === \"ar\"\n                    ? \"سجّل الدخول للشراء\"\n                    : \"Sign in to purchase\""
+      },
+      {
+        "start": 15273,
+        "end": 15316,
+        "text": "copy(\"viewCart\")",
+        "original": "locale === \"ar\" ? \"عرض السلة\" : \"View cart\""
+      }
+    ],
+    "src/features/courses/track-cards.tsx": [
+      {
+        "start": 950,
+        "end": 1066,
+        "text": "copy(\"publishedLearningTracksWillAppearHere\")",
+        "original": "locale === \"ar\"\n          ? \"ستظهر المسارات المنشورة هنا.\"\n          : \"Published learning tracks will appear here.\""
+      },
+      {
+        "start": 2030,
+        "end": 2158,
+        "text": "copy(\"betccoSPrimaryBtecFocusedTrack\")",
+        "original": "locale === \"ar\"\n                  ? \"مسار BETCCO الأساسي لطلاب BTEC.\"\n                  : \"BETCCO's primary BTEC-focused track.\""
+      },
+      {
+        "start": 2177,
+        "end": 2304,
+        "text": "copy(\"anAdministratorManagedAcademicTrack\")",
+        "original": "locale === \"ar\"\n                  ? \"مسار أكاديمي قابل للإدارة.\"\n                  : \"An administrator-managed academic track.\""
+      }
+    ]
+  },
+  "catalogues": {
+    "ar": {
+      "baseCatalogueHash": "7b28f50b3cd5a0a6fcfeb236d1e4005ea905999a07fa510e7c090290e86a07d9",
+      "additions": {
+        "home": {
+          "betccoBtecFirst": "BETCCO · BTEC أولًا",
+          "platformStatisticsCouldNotBeLoadedRight": "تعذر تحميل إحصاءات المنصة الآن.",
+          "tryAgain": "إعادة المحاولة",
+          "publishedCourses": "دورات منشورة",
+          "availableLessons": "دروس متاحة",
+          "activeTeachers": "معلمون نشطون",
+          "enrolledStudents": "طلاب مسجلون",
+          "learnInTheTrackThatFitsYou": "تعلّم في المسار المناسب لك",
+          "latestPublishedCourses": "أحدث الدورات المنشورة"
+        },
+        "images": {
+          "clearDigitalSpecializations": "تخصصات رقمية واضحة",
+          "chooseTheTrackAndSpecializationThatMatch": "اختر المسار والتخصص الذي يطابق دراستك وطموحك.",
+          "structuredCourses": "دورات منظمة",
+          "learnFromStructuredContentThatMovesFrom": "تعلم من محتوى مرتب يبدأ بالدرس وينتهي بالتطبيق.",
+          "specialistTeachers": "معلمون متخصصون",
+          "clearLearningCommunicationAndFollowUpConnected": "تواصل تعليمي واضح ومتابعة مرتبطة بدوراتك.",
+          "btecProjects": "مشاريع BTEC",
+          "turnKnowledgeIntoPracticalAssignmentsLinkedTo": "حوّل المعرفة إلى مهام عملية مرتبطة بالمعايير.",
+          "usefulFeedback": "تغذية راجعة مفيدة",
+          "seeWhatYouAchievedAndWhatTo": "افهم ما حققته وما تحتاج إلى تطويره في كل مهمة.",
+          "visibleProgress": "تقدم مرئي",
+          "trackYourLessonsAndAchievementsInOne": "تابع دروسك وإنجازاتك من مكان واحد.",
+          "documentedAchievements": "إنجازات موثقة",
+          "keepAClearRecordOfYourLearning": "احتفظ بسجل واضح لتعلمك وشهادات إكمالك.",
+          "betccoInOnePlace": "BETCCO في مكان واحد",
+          "lessonsAssignmentsCriteriaAndEvaluationInOne": "دروس ومهام ومعايير وتقييم في تجربة تعليمية واحدة.",
+          "forStudents": "للطالب",
+          "learnProgressAndSubmitAssignmentsWithConfidence": "تعلم، تقدّم، وقدّم مهامك بثقة.",
+          "forTeachers": "للمعلم",
+          "createStructuredContentAndFollowYourStudents": "أنشئ محتوى منظّمًا وتابع طلابك وتقييماتهم.",
+          "forAdministrators": "للإدارة",
+          "manageThePlatformCoursesAndUsersFrom": "إدارة المنصة والدورات والمستخدمين من لوحة واحدة.",
+          "theBetccoExperience": "تجربة BETCCO",
+          "everythingYouNeedToLearnApplyAnd": "كل ما تحتاجه لتتعلم وتطبّق وتحقق المعايير",
+          "fromChoosingASpecializationToAssessmentAnd": "من اختيار التخصص إلى التقييم والمتابعة، صُممت الأدوات لتخدم رحلة الطالب التعليمية كاملة.",
+          "aSpaceForEveryRole": "مساحة مناسبة لكل دور",
+          "onePlatformTailoredToEveryUser": "منصة واحدة، وتجربة مخصصة لكل مستخدم",
+          "startAsAStudent": "ابدأ كطالب",
+          "startYourLearningJourneyWithMoreClarity": "ابدأ رحلتك التعليمية بطريقة أكثر وضوحًا",
+          "exploreCoursesOrCreateAStudentAccount": "استكشف الدورات أو أنشئ حساب طالب لتتابع التعلم والمهام والتقييم من مكان واحد.",
+          "browseCourses": "تصفح الدورات",
+          "createAnAccount": "إنشاء حساب"
+        },
+        "catalog": {
+          "betccoCatalog": "كتالوج BETCCO",
+          "discoverCourses": "اكتشف الدورات",
+          "searchPublishedCoursesAndSelectTheTrack": "ابحث في الدورات المنشورة، واختر المسار والتخصص المناسبين.",
+          "searchCourses": "ابحث عن دورة",
+          "filterFromPlatformData": "فلترة من بيانات المنصة",
+          "track": "المسار",
+          "grade": "الصف",
+          "specialization": "التخصص",
+          "subject": "المادة",
+          "sort": "الترتيب",
+          "newest": "الأحدث",
+          "priceLowFirst": "السعر: الأقل أولًا",
+          "priceHighFirst": "السعر: الأعلى أولًا",
+          "clearFilters": "مسح الفلاتر"
+        },
+        "grid": {
+          "coursesCouldNotBeLoadedTryAgain": "تعذر تحميل الدورات. حاول مجددًا.",
+          "noCoursesMatchYourFiltersYet": "لا توجد دورات مطابقة حاليًا."
+        },
+        "card": {
+          "courseAddedToCart": "أضيفت الدورة إلى السلة.",
+          "unableToAddCourse": "تعذر إضافة الدورة.",
+          "purchasingIsAvailableToStudentAccountsOnly": "الشراء متاح من حساب الطالب فقط.",
+          "lessons": "دروس",
+          "min": "دقيقة",
+          "free": "مجاني",
+          "add": "أضف للسلة",
+          "studentAccountOnly": "حساب طالب فقط",
+          "signInToPurchase": "سجّل الدخول للشراء",
+          "viewCourse": "عرض الدورة",
+          "viewCart": "عرض السلة"
+        },
+        "detail": {
+          "courseAddedToCart": "أضيفت الدورة إلى السلة.",
+          "unableToAddCourse": "تعذر إضافة الدورة.",
+          "purchasingIsAvailableToStudentAccountsOnly": "الشراء متاح من حساب الطالب فقط.",
+          "thisCourseIsUnavailable": "الدورة غير متاحة.",
+          "breadcrumb": "مسار التنقل",
+          "lessons": "دروس",
+          "min": "دقيقة",
+          "teacher": "المعلم:",
+          "courseSections": "أقسام الدورة",
+          "overview": "نظرة عامة",
+          "curriculum": "المحتوى",
+          "skills": "المهارات",
+          "whatYouWillLearn": "ماذا ستتعلم؟",
+          "preview": " · معاينة",
+          "open": "فتح",
+          "loadingPreview": "جارٍ تحميل المعاينة…",
+          "thisPreviewCouldNotBeOpenedNow": "تعذر فتح هذه المعاينة الآن.",
+          "previewLesson": "درس تجريبي",
+          "close": "إغلاق",
+          "noTextIsAvailableForThisPreview": "لا يوجد نص متاح لهذه المعاينة.",
+          "free": "مجاني",
+          "theServerVerifiesThePriceAtCheckout": "السعر يتحقق منه الخادم عند الدفع.",
+          "addToCart": "أضف إلى السلة",
+          "studentAccountOnly": "حساب طالب فقط",
+          "signInToPurchase": "سجّل الدخول للشراء",
+          "viewCart": "عرض السلة"
+        },
+        "tracks": {
+          "publishedLearningTracksWillAppearHere": "ستظهر المسارات المنشورة هنا.",
+          "betccoSPrimaryBtecFocusedTrack": "مسار BETCCO الأساسي لطلاب BTEC.",
+          "anAdministratorManagedAcademicTrack": "مسار أكاديمي قابل للإدارة."
+        }
+      }
+    },
+    "en": {
+      "baseCatalogueHash": "c5306bf7ffbe57f531a87f9211e482c74fb885b6e0ef3a28a0c91d9bcf2988ac",
+      "additions": {
+        "home": {
+          "betccoBtecFirst": "BETCCO · BTEC-first",
+          "platformStatisticsCouldNotBeLoadedRight": "Platform statistics could not be loaded right now.",
+          "tryAgain": "Try again",
+          "publishedCourses": "Published courses",
+          "availableLessons": "Available lessons",
+          "activeTeachers": "Active teachers",
+          "enrolledStudents": "Enrolled students",
+          "learnInTheTrackThatFitsYou": "Learn in the track that fits you",
+          "latestPublishedCourses": "Latest published courses"
+        },
+        "images": {
+          "clearDigitalSpecializations": "Clear digital specializations",
+          "chooseTheTrackAndSpecializationThatMatch": "Choose the track and specialization that match your studies and goals.",
+          "structuredCourses": "Structured courses",
+          "learnFromStructuredContentThatMovesFrom": "Learn from structured content that moves from lessons to application.",
+          "specialistTeachers": "Specialist teachers",
+          "clearLearningCommunicationAndFollowUpConnected": "Clear learning communication and follow-up connected to your courses.",
+          "btecProjects": "BTEC projects",
+          "turnKnowledgeIntoPracticalAssignmentsLinkedTo": "Turn knowledge into practical assignments linked to criteria.",
+          "usefulFeedback": "Useful feedback",
+          "seeWhatYouAchievedAndWhatTo": "See what you achieved and what to improve in every assignment.",
+          "visibleProgress": "Visible progress",
+          "trackYourLessonsAndAchievementsInOne": "Track your lessons and achievements in one place.",
+          "documentedAchievements": "Documented achievements",
+          "keepAClearRecordOfYourLearning": "Keep a clear record of your learning and completion certificates.",
+          "betccoInOnePlace": "BETCCO in one place",
+          "lessonsAssignmentsCriteriaAndEvaluationInOne": "Lessons, assignments, criteria, and evaluation in one learning experience.",
+          "forStudents": "For students",
+          "learnProgressAndSubmitAssignmentsWithConfidence": "Learn, progress, and submit assignments with confidence.",
+          "forTeachers": "For teachers",
+          "createStructuredContentAndFollowYourStudents": "Create structured content and follow your students and evaluations.",
+          "forAdministrators": "For administrators",
+          "manageThePlatformCoursesAndUsersFrom": "Manage the platform, courses, and users from one dashboard.",
+          "theBetccoExperience": "The BETCCO experience",
+          "everythingYouNeedToLearnApplyAnd": "Everything you need to learn, apply, and achieve",
+          "fromChoosingASpecializationToAssessmentAnd": "From choosing a specialization to assessment and follow-up, every tool supports the complete learner journey.",
+          "aSpaceForEveryRole": "A space for every role",
+          "onePlatformTailoredToEveryUser": "One platform, tailored to every user",
+          "startAsAStudent": "Start as a student",
+          "startYourLearningJourneyWithMoreClarity": "Start your learning journey with more clarity",
+          "exploreCoursesOrCreateAStudentAccount": "Explore courses or create a student account to manage learning, assignments, and assessment in one place.",
+          "browseCourses": "Browse courses",
+          "createAnAccount": "Create an account"
+        },
+        "catalog": {
+          "betccoCatalog": "BETCCO Catalog",
+          "discoverCourses": "Discover courses",
+          "searchPublishedCoursesAndSelectTheTrack": "Search published courses and select the track and specialization that fit you.",
+          "searchCourses": "Search courses",
+          "filterFromPlatformData": "Filter from platform data",
+          "track": "Track",
+          "grade": "Grade",
+          "specialization": "Specialization",
+          "subject": "Subject",
+          "sort": "Sort",
+          "newest": "Newest",
+          "priceLowFirst": "Price: low first",
+          "priceHighFirst": "Price: high first",
+          "clearFilters": "Clear filters"
+        },
+        "grid": {
+          "coursesCouldNotBeLoadedTryAgain": "Courses could not be loaded. Try again.",
+          "noCoursesMatchYourFiltersYet": "No courses match your filters yet."
+        },
+        "card": {
+          "courseAddedToCart": "Course added to cart.",
+          "unableToAddCourse": "Unable to add course.",
+          "purchasingIsAvailableToStudentAccountsOnly": "Purchasing is available to student accounts only.",
+          "lessons": "lessons",
+          "min": "min",
+          "free": "Free",
+          "add": "Add",
+          "studentAccountOnly": "Student account only",
+          "signInToPurchase": "Sign in to purchase",
+          "viewCourse": "View course",
+          "viewCart": "View cart"
+        },
+        "detail": {
+          "courseAddedToCart": "Course added to cart.",
+          "unableToAddCourse": "Unable to add course.",
+          "purchasingIsAvailableToStudentAccountsOnly": "Purchasing is available to student accounts only.",
+          "thisCourseIsUnavailable": "This course is unavailable.",
+          "breadcrumb": "Breadcrumb",
+          "lessons": "lessons",
+          "min": "min",
+          "teacher": "Teacher:",
+          "courseSections": "Course sections",
+          "overview": "Overview",
+          "curriculum": "Curriculum",
+          "skills": "Skills",
+          "whatYouWillLearn": "What you will learn",
+          "preview": " · Preview",
+          "open": "Open",
+          "loadingPreview": "Loading preview…",
+          "thisPreviewCouldNotBeOpenedNow": "This preview could not be opened now.",
+          "previewLesson": "Preview lesson",
+          "close": "Close",
+          "noTextIsAvailableForThisPreview": "No text is available for this preview.",
+          "free": "Free",
+          "theServerVerifiesThePriceAtCheckout": "The server verifies the price at checkout.",
+          "addToCart": "Add to cart",
+          "studentAccountOnly": "Student account only",
+          "signInToPurchase": "Sign in to purchase",
+          "viewCart": "View cart"
+        },
+        "tracks": {
+          "publishedLearningTracksWillAppearHere": "Published learning tracks will appear here.",
+          "betccoSPrimaryBtecFocusedTrack": "BETCCO's primary BTEC-focused track.",
+          "anAdministratorManagedAcademicTrack": "An administrator-managed academic track."
+        }
+      }
+    }
+  }
+}

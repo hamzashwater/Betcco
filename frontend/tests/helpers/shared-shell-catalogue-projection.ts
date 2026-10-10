@@ -1,9 +1,11 @@
 import baseline from "../fixtures/shared-shell-i18n-baseline.json";
 import { leaves } from "./admin-final-i18n-audit";
+import { withoutPublicDiscoveryAdditions } from "./public-discovery-catalogue-projection";
 
 // Remove only the exact, independently frozen additions from T7-A6.1 so older
 // catalogue hash tests continue detecting every old-value/unrelated-key drift.
 export function withoutSharedShellAdditions(value: Record<string, unknown>) {
+  withoutPublicDiscoveryAdditions(value);
   for (const [path, expected] of Object.entries(
     baseline.catalogues.en.additions,
   )) {

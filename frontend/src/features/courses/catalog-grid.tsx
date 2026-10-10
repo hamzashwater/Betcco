@@ -3,7 +3,7 @@
 import { api } from "@/lib/api";
 import type { CourseSummary, PagedResult } from "@/types/api";
 import { useQuery } from "@tanstack/react-query";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { CourseCard } from "./course-card";
 
 export function CatalogGrid({
@@ -22,6 +22,7 @@ export function CatalogGrid({
   sort?: "newest" | "price-asc" | "price-desc";
 }) {
   const locale = useLocale();
+  const copy = useTranslations("publicDiscovery.grid");
   const query = new URLSearchParams({ locale, pageSize: "12" });
   if (search) query.set("search", search);
   if (track) query.set("track", track);
@@ -56,17 +57,13 @@ export function CatalogGrid({
   if (result.isError)
     return (
       <p role="alert" className="card p-5 text-sm text-muted">
-        {locale === "ar"
-          ? "تعذر تحميل الدورات. حاول مجددًا."
-          : "Courses could not be loaded. Try again."}
+        {copy("coursesCouldNotBeLoadedTryAgain")}
       </p>
     );
   if (!result.data.items.length)
     return (
       <p className="card p-5 text-muted">
-        {locale === "ar"
-          ? "لا توجد دورات مطابقة حاليًا."
-          : "No courses match your filters yet."}
+        {copy("noCoursesMatchYourFiltersYet")}
       </p>
     );
   return (
