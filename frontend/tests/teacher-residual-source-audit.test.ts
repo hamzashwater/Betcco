@@ -145,9 +145,13 @@ describe("whole Teacher residual i18n source audit", () => {
       "src/features/learning/comprehensive-practice.tsx: TeacherComprehensiveResources",
     ]);
     const picker = currentAudit("src/components/forms/file-picker.tsx");
-    expect(picker.compatibilityDefaultArabic).toBe(11);
-    expect(picker.compatibilityDefaultEnglish).toBe(12);
-    expect(picker.compatibilityDefaultLocaleBranches).toBe(8);
+    // T7-A6.1 migrates the shared defaults; all five Teacher injections above
+    // retain priority and the Student caller source remains untouched.
+    expect(picker.compatibilityDefaultArabic).toBe(0);
+    // The sole remaining compatibility literal is the frozen raw fileType
+    // metadata fallback "File", already overridden by Teacher typeLabel.
+    expect(picker.compatibilityDefaultEnglish).toBe(1);
+    expect(picker.compatibilityDefaultLocaleBranches).toBe(0);
     // The raw fileType helper is retained; Teacher presentation also overrides its generic fallback.
     expect(
       readFileSync("src/components/forms/file-picker.tsx", "utf8"),

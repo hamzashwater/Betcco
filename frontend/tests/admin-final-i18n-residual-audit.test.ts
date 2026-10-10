@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join, basename } from "node:path";
 import baseline from "./fixtures/admin-final-i18n-baseline.json";
 import { withoutFinalAdminAdditions } from "./helpers/admin-final-catalogue-projection";
+import { withoutSharedShellAdditions } from "./helpers/shared-shell-catalogue-projection";
 import {
   auditFile,
   catalogue,
@@ -142,6 +143,7 @@ describe("final whole-Admin i18n gate", () => {
         locale === "ar" ? "تعذر إتمام الطلب." : "Request failed.",
       );
       delete projected.adminContent.requestFailed;
+      withoutSharedShellAdditions(projected);
       expect(digest(JSON.stringify(projected))).toBe(
         baseline.messages[locale].canonicalHash,
       );

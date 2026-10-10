@@ -1,6 +1,14 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render as renderRaw,
+  screen,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useState } from "react";
+import { useState, type ReactElement } from "react";
+import { NextIntlClientProvider } from "next-intl";
+import ar from "../messages/ar.json";
+import en from "../messages/en.json";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   FilePicker,
@@ -8,6 +16,20 @@ import {
 } from "@/components/forms/file-picker";
 
 afterEach(cleanup);
+
+function render(node: ReactElement<{ locale?: string }>) {
+  const locale = node.props.locale ?? "ar";
+  return renderRaw(node, {
+    wrapper: ({ children }) => (
+      <NextIntlClientProvider
+        locale={locale}
+        messages={locale === "ar" ? ar : en}
+      >
+        {children}
+      </NextIntlClientProvider>
+    ),
+  });
+}
 
 function FilePickerHarness() {
   const [files, setFiles] = useState<File[]>([]);

@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, CheckCheck, Inbox } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
 type Notification = {
@@ -24,6 +25,7 @@ export function NotificationCenter({
   locale: string;
   enabled: boolean;
 }) {
+  const t = useTranslations("navigation.notifications");
   const [open, setOpen] = useState(false);
   const popover = useRef<HTMLDivElement>(null);
   const client = useQueryClient();
@@ -67,11 +69,7 @@ export function NotificationCenter({
         type="button"
         onClick={() => setOpen((value) => !value)}
         className={actionClassName("quiet", "relative min-w-11 px-3!")}
-        aria-label={
-          locale === "ar"
-            ? `الإشعارات، ${unread} غير مقروءة`
-            : `Notifications, ${unread} unread`
-        }
+        aria-label={t("unreadLabel", { count: unread })}
         aria-expanded={open}
         aria-controls="notification-center"
       >
@@ -84,22 +82,14 @@ export function NotificationCenter({
         <div
           id="notification-center"
           role="dialog"
-          aria-label={locale === "ar" ? "الإشعارات" : "Notifications"}
+          aria-label={t("title")}
           className="navigation-popover fixed inset-x-4 top-20 z-[80] overflow-hidden border border-border-default! bg-surface-overlay shadow-overlay sm:absolute sm:inset-x-auto sm:end-0 sm:top-[calc(100%+0.6rem)] sm:w-[min(23rem,calc(100vw-2rem))]"
         >
           <div className="flex items-center justify-between gap-3 border-b border-border p-4">
             <div>
-              <p className="font-black text-foreground">
-                {locale === "ar" ? "الإشعارات" : "Notifications"}
-              </p>
+              <p className="font-black text-foreground">{t("title")}</p>
               <p className="mt-0.5 text-xs text-muted">
-                {unread
-                  ? locale === "ar"
-                    ? `${unread} غير مقروءة`
-                    : `${unread} unread`
-                  : locale === "ar"
-                    ? "أنت على اطلاع"
-                    : "You are up to date"}
+                {unread ? t("unread", { count: unread }) : t("upToDate")}
               </p>
             </div>
             {unread > 0 && (
@@ -110,7 +100,7 @@ export function NotificationCenter({
                 className="focus-ring inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-bold text-primary hover:bg-primary/10 disabled:opacity-50"
               >
                 <CheckCheck size={15} aria-hidden="true" />
-                {locale === "ar" ? "قراءة الكل" : "Read all"}
+                {t("readAll")}
               </button>
             )}
           </div>
@@ -174,11 +164,7 @@ export function NotificationCenter({
                   size={25}
                   aria-hidden="true"
                 />
-                <p className="mt-3 text-sm text-muted">
-                  {locale === "ar"
-                    ? "لا توجد إشعارات حتى الآن."
-                    : "There are no notifications yet."}
-                </p>
+                <p className="mt-3 text-sm text-muted">{t("empty")}</p>
               </div>
             )}
           </div>

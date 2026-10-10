@@ -2,15 +2,19 @@ import { NotificationCenter } from "@/components/navigation/notification-center"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { NextIntlClientProvider } from "next-intl";
+import ar from "../messages/ar.json";
 
 function renderNotifications() {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   return render(
-    <QueryClientProvider client={client}>
-      <NotificationCenter locale="ar" enabled />
-    </QueryClientProvider>,
+    <NextIntlClientProvider locale="ar" messages={ar}>
+      <QueryClientProvider client={client}>
+        <NotificationCenter locale="ar" enabled />
+      </QueryClientProvider>
+    </NextIntlClientProvider>,
   );
 }
 

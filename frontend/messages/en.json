@@ -81,7 +81,8 @@
       "menuLinks": "Menu links",
       "availableSpecializations": "Available specializations",
       "grades": "Grades",
-      "specializations": "Specializations"
+      "specializations": "Specializations",
+      "skipToMainContent": "Skip to main content"
     },
     "search": "Search",
     "signingOut": "Signing out…",
@@ -89,7 +90,29 @@
     "explorePath": "Explore your path",
     "exploreDescription": "Choose your grade and specialization, then explore the published courses that fit.",
     "allTracks": "All tracks",
-    "dashboard": "My dashboard"
+    "dashboard": "My dashboard",
+    "commandPalette": {
+      "browseCourses": "Browse courses",
+      "tracks": "Tracks and specializations",
+      "label": "Quick search",
+      "placeholder": "Search courses or jump to a page…",
+      "close": "Close search",
+      "searching": "Searching…",
+      "empty": "No matching courses found.",
+      "keyboardHelp": "↑↓ to navigate · Enter to open · Esc to close"
+    },
+    "notifications": {
+      "unreadLabel": "Notifications, {count} unread",
+      "title": "Notifications",
+      "unread": "{count} unread",
+      "upToDate": "You are up to date",
+      "readAll": "Read all",
+      "empty": "There are no notifications yet."
+    },
+    "theme": {
+      "toggle": "Toggle theme",
+      "label": "Theme"
+    }
   },
   "footer": {
     "description": "An independent educational platform focused on BTEC students.",
@@ -3086,6 +3109,27 @@
       "legacyRetakes": "Legacy Retakes",
       "bETCCONoLongerCreatesNewRetakeRequestsAssignmentReviewNowIncludes": "BETCCO no longer creates new Retake requests. Assignment review now includes an initial review, teacher feedback, and one revised-work check in the same request.",
       "historicalRetakeRecordsRemainAvailableForReadingAndAuditButNoNewR": "Historical Retake records remain available for reading and audit, but no new Retake can be created from this page or the API."
+    }
+  },
+  "appShell": {
+    "error": {
+      "title": "This page could not be loaded",
+      "description": "A temporary problem occurred while loading this content. You can safely try again.",
+      "retry": "Try again"
+    },
+    "loading": "Loading BETCCO"
+  },
+  "forms": {
+    "filePicker": {
+      "noFilesSelected": "No files selected yet",
+      "oneFileSelected": "{count} file selected",
+      "filesSelected": "{count} files selected",
+      "chooseFile": "Choose file",
+      "chooseFiles": "Choose files",
+      "selectedFiles": "Selected files",
+      "chooseInput": "Choose {label}",
+      "removeFile": "Remove {fileName}",
+      "oversizedFile": "“{fileName}” exceeds the {limit} limit per file."
     }
   }
 }

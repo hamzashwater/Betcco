@@ -29,6 +29,7 @@ export function CommandPalette({
   const locale = useLocale();
   const router = useRouter();
   const t = useTranslations();
+  const palette = useTranslations("navigation.commandPalette");
   const dialog = useRef<HTMLElement>(null);
   const input = useRef<HTMLInputElement>(null);
   useDialogFocus(open, dialog, onClose, input);
@@ -48,25 +49,24 @@ export function CommandPalette({
     () => [
       {
         id: "home",
-        label: locale === "ar" ? "الرئيسية" : "Home",
+        label: t("navigation.home"),
         href: `/${locale}`,
         icon: Home,
       },
       {
         id: "courses",
-        label: locale === "ar" ? "استكشف الدورات" : "Browse courses",
+        label: palette("browseCourses"),
         href: `/${locale}/courses`,
         icon: BookOpen,
       },
       {
         id: "tracks",
-        label:
-          locale === "ar" ? "المسارات والتخصصات" : "Tracks and specializations",
+        label: palette("tracks"),
         href: `/${locale}/tracks`,
         icon: Compass,
       },
     ],
-    [locale],
+    [locale, t, palette],
   );
   const courseItems = (result.data?.items ?? []).map<PaletteItem>((course) => ({
     id: course.id,
@@ -100,7 +100,7 @@ export function CommandPalette({
         tabIndex={-1}
         role="dialog"
         aria-modal="true"
-        aria-label={locale === "ar" ? "البحث السريع" : "Quick search"}
+        aria-label={palette("label")}
         className="w-full max-w-2xl overflow-hidden rounded-region border border-border-default! bg-surface-overlay text-text-primary shadow-overlay"
         onKeyDown={(event) => {
           if (event.target !== input.current) return;
@@ -130,28 +130,21 @@ export function CommandPalette({
               setTerm(event.target.value);
               setActiveIndex(0);
             }}
-            placeholder={
-              locale === "ar"
-                ? "ابحث عن دورة أو انتقل إلى صفحة…"
-                : "Search courses or jump to a page…"
-            }
+            placeholder={palette("placeholder")}
             className="focus-ring min-w-0 flex-1 bg-transparent text-sm placeholder:text-muted"
           />
           <Action
             variant="quiet"
             onClick={onClose}
             className="px-3!"
-            aria-label={locale === "ar" ? "إغلاق البحث" : "Close search"}
+            aria-label={palette("close")}
           >
             <X size={18} aria-hidden="true" />
           </Action>
         </div>
         <div className="max-h-[52vh] overflow-y-auto p-2">
           {searching && (
-            <QueryState
-              kind="loading"
-              title={locale === "ar" ? "جارٍ البحث…" : "Searching…"}
-            />
+            <QueryState kind="loading" title={palette("searching")} />
           )}
           {failed && (
             <QueryState
@@ -162,7 +155,7 @@ export function CommandPalette({
                   variant="secondary"
                   onClick={() => void result.refetch()}
                   pending={result.isFetching}
-                  pendingLabel={locale === "ar" ? "جارٍ البحث…" : "Searching…"}
+                  pendingLabel={palette("searching")}
                 >
                   {t("auth.accountProfile.retry")}
                 </Action>
@@ -207,17 +200,11 @@ export function CommandPalette({
             searchRequested &&
             result.isSuccess &&
             !items.length && (
-              <p className="px-3 py-5 text-sm text-muted">
-                {locale === "ar"
-                  ? "لم نجد دورات مطابقة."
-                  : "No matching courses found."}
-              </p>
+              <p className="px-3 py-5 text-sm text-muted">{palette("empty")}</p>
             )}
         </div>
         <p className="border-t border-border px-4 py-2 text-xs text-muted">
-          {locale === "ar"
-            ? "↑↓ للتنقل · Enter للفتح · Esc للإغلاق"
-            : "↑↓ to navigate · Enter to open · Esc to close"}
+          {palette("keyboardHelp")}
         </p>
         <p className="sr-only" role="status">
           {!searching && !failed ? items[activeIndex]?.label : null}
