@@ -3066,6 +3066,17 @@
       "platform30": "المنصة 30٪",
       "teacher70": "المعلم 70٪",
       "noVerifiedSalesYet": "لا توجد مبيعات مؤكدة بعد."
+    },
+    "schoolIntegrations": {
+      "bETCCOIntegrations": "تكاملات BETCCO",
+      "schoolIntegrations": "تكاملات المدارس",
+      "oneRosterIsOptionalBETCCONeverImportsRostersOrStudentDataAutomati": "موصل OneRoster اختياري. لا تستورد BETCCO أي قوائم أو بيانات طلاب تلقائيًا.",
+      "loadingIntegrationStatus": "جارٍ تحميل حالة التكامل…",
+      "connected": "متصل",
+      "configured": "مُعدّ",
+      "disabled": "غير مفعّل",
+      "testConnection": "اختبار الاتصال",
+      "requestFailed": "فشل الطلب."
     }
   }
 }

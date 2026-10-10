@@ -110,6 +110,14 @@ export function contractTree(
     }
     if (translation(n, cases)) {
       const call = n as ts.CallExpression;
+      // The original non-Error integration fallback was a single literal,
+      // inventoried before migration; retain its original AST slot in the hash.
+      if (
+        scope === "schoolIntegrations" &&
+        (call.arguments[0] as ts.StringLiteral).text ===
+          "schoolIntegrations.requestFailed"
+      )
+        return [ts.SyntaxKind.StringLiteral, "Request failed."];
       if (call.arguments[1] && ts.isObjectLiteralExpression(call.arguments[1]))
         return [
           "COPY",

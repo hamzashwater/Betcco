@@ -3066,6 +3066,17 @@
       "platform30": "Platform 30%",
       "teacher70": "Teacher 70%",
       "noVerifiedSalesYet": "No verified sales yet."
+    },
+    "schoolIntegrations": {
+      "bETCCOIntegrations": "BETCCO Integrations",
+      "schoolIntegrations": "School integrations",
+      "oneRosterIsOptionalBETCCONeverImportsRostersOrStudentDataAutomati": "OneRoster is optional. BETCCO never imports rosters or student data automatically.",
+      "loadingIntegrationStatus": "Loading integration status…",
+      "connected": "Connected",
+      "configured": "Configured",
+      "disabled": "Disabled",
+      "testConnection": "Test connection",
+      "requestFailed": "Request failed."
     }
   }
 }

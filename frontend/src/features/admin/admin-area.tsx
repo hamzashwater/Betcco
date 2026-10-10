@@ -614,7 +614,8 @@ type SchoolIntegrationStatus = {
 };
 
 function SchoolIntegrations() {
-  const locale = useLocale();
+  const t = useTranslations("adminWorkspace");
+
   const status = useQuery({
     queryKey: ["school-integration-status"],
     queryFn: () =>
@@ -631,13 +632,11 @@ function SchoolIntegrations() {
   return (
     <section className="shell py-10">
       <DashboardHeader
-        eyebrow="BETCCO Integrations"
-        title={locale === "ar" ? "تكاملات المدارس" : "School integrations"}
-        description={
-          locale === "ar"
-            ? "موصل OneRoster اختياري. لا تستورد BETCCO أي قوائم أو بيانات طلاب تلقائيًا."
-            : "OneRoster is optional. BETCCO never imports rosters or student data automatically."
-        }
+        eyebrow={t("schoolIntegrations.bETCCOIntegrations")}
+        title={t("schoolIntegrations.schoolIntegrations")}
+        description={t(
+          "schoolIntegrations.oneRosterIsOptionalBETCCONeverImportsRostersOrStudentDataAutomati",
+        )}
       />
       <article className="card mt-6 max-w-3xl p-6">
         <div className="flex items-start justify-between gap-4">
@@ -648,25 +647,17 @@ function SchoolIntegrations() {
             </h2>
             <p className="mt-3 text-sm leading-6 text-muted">
               {current?.message ??
-                (locale === "ar"
-                  ? "جارٍ تحميل حالة التكامل…"
-                  : "Loading integration status…")}
+                t("schoolIntegrations.loadingIntegrationStatus")}
             </p>
           </div>
           <span
             className={`rounded-full px-3 py-1 text-xs font-black ${current?.isReachable ? "bg-primary/15 text-primary" : "bg-white/5 text-muted"}`}
           >
             {current?.isReachable
-              ? locale === "ar"
-                ? "متصل"
-                : "Connected"
+              ? t("schoolIntegrations.connected")
               : current?.isConfigured
-                ? locale === "ar"
-                  ? "مُعدّ"
-                  : "Configured"
-                : locale === "ar"
-                  ? "غير مفعّل"
-                  : "Disabled"}
+                ? t("schoolIntegrations.configured")
+                : t("schoolIntegrations.disabled")}
           </span>
         </div>
         <button
@@ -675,13 +666,13 @@ function SchoolIntegrations() {
           disabled={!current?.isConfigured || test.isPending}
           className="focus-ring mt-5 rounded-xl bg-primary px-4 py-3 text-sm font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {locale === "ar" ? "اختبار الاتصال" : "Test connection"}
+          {t("schoolIntegrations.testConnection")}
         </button>
         {test.isError ? (
           <p role="alert" className="mt-3 text-sm text-red-400">
             {test.error instanceof Error
               ? test.error.message
-              : "Request failed."}
+              : t("schoolIntegrations.requestFailed")}
           </p>
         ) : null}
       </article>
