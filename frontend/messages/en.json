@@ -1091,7 +1091,10 @@
     "addUnit": "Add Unit",
     "moveUp": "Move {unit} up",
     "moveDown": "Move {unit} down",
-    "remove": "Remove"
+    "remove": "Remove",
+    "residualgrade": "Grade",
+    "residualchooseGrade": "Choose grade",
+    "residualspecialization": "Specialization: "
   },
   "auditLog": {
     "title": "Audit logs",
@@ -3077,6 +3080,11 @@
       "disabled": "Disabled",
       "testConnection": "Test connection",
       "requestFailed": "Request failed."
+    },
+    "legacyRetakes": {
+      "legacyRetakes": "Legacy Retakes",
+      "bETCCONoLongerCreatesNewRetakeRequestsAssignmentReviewNowIncludes": "BETCCO no longer creates new Retake requests. Assignment review now includes an initial review, teacher feedback, and one revised-work check in the same request.",
+      "historicalRetakeRecordsRemainAvailableForReadingAndAuditButNoNewR": "Historical Retake records remain available for reading and audit, but no new Retake can be created from this page or the API."
     }
   }
 }

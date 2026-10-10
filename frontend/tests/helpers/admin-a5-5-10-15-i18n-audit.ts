@@ -77,13 +77,13 @@ export function contractTree(
   function tree(n: ts.Node): unknown {
     if (ts.isParenthesizedExpression(n)) return tree(n.expression);
     if (ts.isImportSpecifier(n) && n.name.text === "useTranslations")
-      return null;
+      return scope === "legacyRetakes"
+        ? [n.kind, [[ts.SyntaxKind.Identifier, "useLocale"]]]
+        : null;
     if (
       ts.isVariableStatement(n) &&
       n.declarationList.declarations.length === 1 &&
-      ["t", "ar", "locale"].includes(
-        n.declarationList.declarations[0].name.getText(),
-      )
+      permittedCopyBinding(n.declarationList.declarations[0])
     )
       return null;
     if (
@@ -157,6 +157,18 @@ export function contractTree(
   }
   return tree(root(source, scope));
 }
+function permittedCopyBinding(d: ts.VariableDeclaration) {
+  const name = d.name.getText(),
+    init = d.initializer?.getText().replace(/\s+/g, " ");
+  return (
+    (name === "ar" && init === 'locale === "ar"') ||
+    (name === "locale" && init === "useLocale()") ||
+    (name === "t" &&
+      d.initializer &&
+      ts.isCallExpression(d.initializer) &&
+      d.initializer.expression.getText() === "useTranslations")
+  );
+}
 export const contractHash = (source: string, scope: Scope, cases: CopyCase[]) =>
   hash(contractTree(source, scope, cases));
 export function outsideAdminArea(source: string) {
@@ -172,6 +184,38 @@ export function outsideAdminArea(source: string) {
   return hash(
     parse(source).statements.map((n) => n.getText().replace(/\s+/g, " ")),
   );
+}
+export function outsideAdminAreaAST(source: string) {
+  function tree(n: ts.Node): unknown {
+    if (
+      ts.isFunctionDeclaration(n) &&
+      ["AdminWallet", "SchoolIntegrations"].includes(n.name?.text ?? "")
+    ) {
+      const children: unknown[] = [];
+      ts.forEachChild(n, (child) => {
+        if (child !== n.body) children.push(tree(child));
+      });
+      return [n.kind, children, "AUTHORIZED_BODY"];
+    }
+    if (ts.isJsxText(n))
+      return n.text.trim()
+        ? [n.kind, n.text.replace(/\s+/g, " ").trim()]
+        : null;
+    if (
+      ts.isIdentifier(n) ||
+      ts.isStringLiteralLike(n) ||
+      ts.isTemplateLiteralToken(n) ||
+      ts.isNumericLiteral(n)
+    )
+      return [n.kind, n.text];
+    const children: unknown[] = [];
+    ts.forEachChild(n, (child) => {
+      const value = tree(child);
+      if (value !== null) children.push(value);
+    });
+    return [n.kind, children];
+  }
+  return hash(tree(parse(source)));
 }
 export function audit(source: string, scope: Scope, cases: CopyCase[]) {
   const findings: string[] = [],
@@ -200,7 +244,7 @@ export function audit(source: string, scope: Scope, cases: CopyCase[]) {
         ((n as ts.CallExpression).arguments[0] as ts.StringLiteral).text,
       );
       classifications.push({ text: n.getText(), kind: "STATIC_UI" });
-      ts.forEachChild(n, visit);
+      (n as ts.CallExpression).arguments.slice(1).forEach(visit);
       return;
     }
     if (
@@ -226,8 +270,36 @@ export function audit(source: string, scope: Scope, cases: CopyCase[]) {
         text: n.text,
         kind: n.text.startsWith("/")
           ? "API_CONTRACT"
-          : "TECHNICAL_INTERNAL_VALUE",
+          : n.text === "BETCCO REVIEW"
+            ? "NEUTRAL_BRAND_TEXT"
+            : ["PearsonOfficial", "AdminCustom", "Unknown"].includes(n.text)
+              ? "TECHNICAL_SOURCE_VALUE"
+              : [
+                    "Submitted",
+                    "IdentityVerificationRequired",
+                    "InReview",
+                    "Completed",
+                    "Rejected",
+                    "Cancelled",
+                    "Open",
+                    "Assessing",
+                    "Contained",
+                    "Closed",
+                    "Low",
+                    "Medium",
+                    "High",
+                    "Critical",
+                    "Requested",
+                    "Approved",
+                    "Paid",
+                    "Settled",
+                    "ProviderResultUnknown",
+                  ].includes(n.text)
+                ? "TECHNICAL_STATUS_VALUE"
+                : "TECHNICAL_INTERNAL_VALUE",
       });
+    if (ts.isJsxText(n) && n.text.trim() === "BETCCO ·")
+      classifications.push({ text: n.text.trim(), kind: "NEUTRAL_BRAND_TEXT" });
     if (
       ts.isCallExpression(n) &&
       /^(academicText|academicUnitLabel|formatLocalized)/.test(
@@ -248,15 +320,16 @@ export function audit(source: string, scope: Scope, cases: CopyCase[]) {
     )
       classifications.push({
         text: n.getText(),
-        kind: /message/.test(n.name.text)
-          ? "RAW_SERVER_ERROR"
-          : /description|comment|Summary/.test(n.name.text)
-            ? "RAW_USER_CONTENT"
-            : /source/.test(n.name.text)
-              ? "TECHNICAL_SOURCE_VALUE"
-              : /status|severity/.test(n.name.text)
-                ? "TECHNICAL_STATUS_VALUE"
-                : "RAW_SERVER_CONTENT",
+        kind:
+          /message/.test(n.name.text) && /error/i.test(n.expression.getText())
+            ? "RAW_SERVER_ERROR"
+            : /description|comment|Summary/.test(n.name.text)
+              ? "RAW_USER_CONTENT"
+              : /source/.test(n.name.text)
+                ? "TECHNICAL_SOURCE_VALUE"
+                : /status|severity/.test(n.name.text)
+                  ? "TECHNICAL_STATUS_VALUE"
+                  : "RAW_SERVER_CONTENT",
       });
     ts.forEachChild(n, visit);
   }

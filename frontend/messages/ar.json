@@ -1091,7 +1091,10 @@
     "addUnit": "إضافة الوحدة",
     "moveUp": "نقل {unit} إلى أعلى",
     "moveDown": "نقل {unit} إلى أسفل",
-    "remove": "إزالة"
+    "remove": "إزالة",
+    "residualgrade": "الصف",
+    "residualchooseGrade": "اختر الصف",
+    "residualspecialization": "التخصص: "
   },
   "auditLog": {
     "title": "سجل التدقيق",
@@ -3077,6 +3080,11 @@
       "disabled": "غير مفعّل",
       "testConnection": "اختبار الاتصال",
       "requestFailed": "فشل الطلب."
+    },
+    "legacyRetakes": {
+      "legacyRetakes": "إعادة التقييم القديمة",
+      "bETCCONoLongerCreatesNewRetakeRequestsAssignmentReviewNowIncludes": "لم يعد BETCCO ينشئ طلبات Retake جديدة. خدمة تقييم المهمة تشمل مراجعة أولى، ملاحظات المعلم، ثم فحص نسخة معدلة واحدة ضمن نفس الطلب.",
+      "historicalRetakeRecordsRemainAvailableForReadingAndAuditButNoNewR": "تظل طلبات Retake التاريخية محفوظة للقراءة والتدقيق، لكن لا يمكن إنشاء Retake جديد من هذه الصفحة أو من واجهة البرمجة."
     }
   }
 }

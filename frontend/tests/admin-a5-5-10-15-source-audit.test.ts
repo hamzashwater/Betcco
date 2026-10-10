@@ -10,21 +10,14 @@ import {
   contractHash,
   hash,
   outsideAdminArea,
+  outsideAdminAreaAST,
   root,
   scopes,
   type Scope,
 } from "./helpers/admin-a5-5-10-15-i18n-audit";
 import { withoutFinalAdminAdditions } from "./helpers/admin-final-catalogue-projection";
 
-const completed: Scope[] = [
-  "academicCatalogManagement",
-  "academicCatalogue",
-  "privacyRequests",
-  "securityIncidents",
-  "platformRatingModeration",
-  "wallet",
-  "schoolIntegrations",
-];
+const completed = Object.keys(scopes) as Scope[];
 const names = Object.keys(scopes) as Scope[];
 const source = (name: Scope) =>
   readFileSync(`src/features/admin/${scopes[name][0]}.tsx`, "utf8");
@@ -43,14 +36,9 @@ describe("Final Admin batch: independently frozen nine scopes", () => {
   });
   it("freezes every admin-area function/import outside the two authorized bodies", () => {
     expect(outsideAdminArea(source("wallet"))).toBe(baseline.outsideAdminArea);
-    expect(
-      outsideAdminArea(
-        source("wallet").replace(
-          "function CommissionSettings",
-          "function ChangedCommissionSettings",
-        ),
-      ),
-    ).toBe(baseline.outsideAdminArea);
+    expect(outsideAdminAreaAST(source("wallet"))).toBe(
+      baseline.outsideAdminAreaAST,
+    );
     expect(
       outsideAdminArea(
         source("wallet").replace(
@@ -61,6 +49,12 @@ describe("Final Admin batch: independently frozen nine scopes", () => {
     ).not.toBe(baseline.outsideAdminArea);
   });
   it.each(completed)("has zero static or unclassified UI in %s", (name) => {
+    expect(audit(source(name), name, baseline.scopes[name].cases).keys).toEqual(
+      baseline.scopes[name].presentationKeys,
+    );
+    expect(root(source(name), name).getText()).toContain(
+      `useTranslations("${scopes[name][1]}")`,
+    );
     expect(
       audit(source(name), name, baseline.scopes[name].cases),
     ).toMatchObject({
