@@ -1,0 +1,963 @@
+{
+  "base": "08c43e346123924581319f120a832d3e81cdada9",
+  "hashes": {
+    "academic-catalog-management.tsx": "7b798f2c3a9d6ca819b13af7a97d436f0124cf33b8a1d5862c763641dff603d4",
+    "academic-catalogue.tsx": "18548cd5a6568b46916ebebbcef29401427054fb95b1e983690f33206b4b6334",
+    "account-identity-management.tsx": "4d7d27a300d80f421a61816cca72cda07d2d02bb8e958e9e8b447f368094ef18",
+    "admin-area.tsx": "8f85c33f8f8714db05d6e280f3beeca944cbc496a4ef491112de4050fd64e421",
+    "assessment-coordination-queue.tsx": "efb320d844fa5008992acad776304efe75f13f84963fcd78213b5f45cd13e112",
+    "audit-log.tsx": "0c980febc4a513ad944f38bdb5e38a0ad143630eaa0d5860bb476a3b81664f96",
+    "commerce-catalog.tsx": "d3ef466d2714720d45d9e5ebbd507be64a3352d298c3489ea56c4fa1901a3f3a",
+    "commission-settings.tsx": "0438d0e301a2f8cd775286e5baacc618b0cce5a6c90e308b3dac2c95da5d5f45",
+    "content-studio.tsx": "16df737df12cf62a44b745073173571f28cbb0b64e65d1bbf01dd23dc6da86fd",
+    "delivery-planning.tsx": "0460f2f7e2fc7d0dd7b395c7ec4b0d9d7c4d7af82e3da07daa5448491c191d0c",
+    "eligible-evaluator-assignment.tsx": "c03f04956e88facf15edcda41e62d3a7cba45eb8f3466eebe934dbb52c59f2b3",
+    "evaluation-appeal-management.tsx": "1d27c3f8b6c34bc05718372c36e1f153d5f797803e4743318997c1e1593f7046",
+    "evaluator-specialism-management.tsx": "30454b862e60574a0203a04e2e9f8d0d7711c4946287f773b90ae99911d94699",
+    "gradebook.tsx": "f70921c116ffa0880ce27803bc1911410c28ec56f008016b930846a4ed0e84e9",
+    "internal-verification-plan-management.tsx": "094bbdc8cf0ca4ab239cdb85997810b3d44a221bfddbffdfb219b8ace7a5e89b",
+    "platform-rating-moderation.tsx": "3f9243790c04ee03ba309c6676b4404095b124b471eea5471e9e7c333d8557c1",
+    "privacy-request-management.tsx": "45fdbf0ff5ee245d5eb1391b413455c4b72026d351bbe4e9812a4a55a0c90a4d",
+    "qualification-registry-management.tsx": "80b3ad41dd106f8ad139e8d528a2cdc678de1f8aef096cfa42514accf1e29366",
+    "resit-coordination-panel.tsx": "70252ccd51a1b39197922d20f7728744500b35105513ac619c2bed4eb36f8d61",
+    "retake-management.tsx": "0bb81eb909d3f8d58ed81440cc33e1bc74f7e826f6f1de705a7a8a2d96456c84",
+    "security-incident-management.tsx": "79c8597d99c75a70285182840791225dde66c516420ce3353a2414cbff4da31c"
+  },
+  "messages": {
+    "ar": {
+      "canonicalHash": "9bd4a12323c27411d624408fd80c43307f7ab4ee4270928c8e34c78deb596137",
+      "byteHash": "5e25862754d707e1c7ac872afea4cc5dbd82f2dd9e707540835eab986b0a31c0"
+    },
+    "en": {
+      "canonicalHash": "6026e7217d2d6bb007dc1662450c444f3189d4b8576314df6e7db4e463ec6bab",
+      "byteHash": "0e13bcd2e914d2fbdf7953d2fdfe706c131d2d65b2460e488ad4e2597170868c"
+    }
+  },
+  "contentContract": {
+    "slots": 5,
+    "hash": "713cefdfad5f5b9479c0914114bef0f28e6002d6a19f732ec82a918eda4268e9"
+  },
+  "exceptions": {
+    "academic-catalog-management.tsx": [
+      {
+        "context": "inputClass:VariableDeclaration/VariableDeclarationList/FirstStatement/Block:inputClass = \"min-w-0 rounded-lg border border-border bg-background px-3 py-2\"",
+        "text": "min-w-0 rounded-lg border border-border bg-background px-3 py-2",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "CSS class binding/color used by existing component styling"
+      },
+      {
+        "context": "AcademicCatalogManagement:CallExpression/ExpressionStatement/Block/ArrowFunction:save(\"/admin/academic-taxonomy/specializations\", \"POST\", { ...specialization, learningTrackId: trackId, sortOrder: 100, })",
+        "text": "POST",
+        "category": "API_CONTRACT",
+        "reason": "HTTP verb passed to the existing save wrapper"
+      },
+      {
+        "context": "AcademicCatalogManagement:JsxAttribute/JsxAttributes/JsxSelfClosingElement/JsxElement:placeholder=\"slug\"",
+        "text": "slug",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Technical identifier/example in the corresponding slug/qualification-code field"
+      },
+      {
+        "context": "AcademicCatalogManagement:CallExpression/ExpressionStatement/Block/ArrowFunction:save(\"/admin/academic-taxonomy/grades\", \"POST\", { ...grade, learningTrackId: trackId, sortOrder: 100, })",
+        "text": "POST",
+        "category": "API_CONTRACT",
+        "reason": "HTTP verb passed to the existing save wrapper"
+      },
+      {
+        "context": "AcademicCatalogManagement:CallExpression/ArrowFunction/JsxExpression/JsxAttribute:save( `/admin/academic-taxonomy/specializations/${item.id}`, \"PUT\", { ...item, isVisible: !item.isVisible }, )",
+        "text": "PUT",
+        "category": "API_CONTRACT",
+        "reason": "HTTP verb passed to the existing save wrapper"
+      },
+      {
+        "context": "AcademicCatalogManagement:CallExpression/ArrowFunction/JsxExpression/JsxAttribute:save( `/admin/academic-taxonomy/grades/${item.id}`, \"PUT\", { ...item, isVisible: !item.isVisible }, )",
+        "text": "PUT",
+        "category": "API_CONTRACT",
+        "reason": "HTTP verb passed to the existing save wrapper"
+      },
+      {
+        "context": "AcademicCatalogManagement:CallExpression/ExpressionStatement/Block/ArrowFunction:save( \"/qualification-registry/qualifications\", \"POST\", qualification, )",
+        "text": "POST",
+        "category": "API_CONTRACT",
+        "reason": "HTTP verb passed to the existing save wrapper"
+      },
+      {
+        "context": "AcademicCatalogManagement:CallExpression/ExpressionStatement/Block/ArrowFunction:save(\"/qualification-registry/versions\", \"POST\", { ...version, effectiveFromUtc: new Date( version.effectiveFromUtc, ).toISOString(), effectiveUntilUtc: null, })",
+        "text": "POST",
+        "category": "API_CONTRACT",
+        "reason": "HTTP verb passed to the existing save wrapper"
+      },
+      {
+        "context": "AcademicCatalogManagement:CallExpression/ExpressionStatement/Block/ArrowFunction:save(\"/admin/academic-catalogue/units\", \"POST\", { ...unit, arabicTitle: unit.arabicTitle || unit.englishTitle, })",
+        "text": "POST",
+        "category": "API_CONTRACT",
+        "reason": "HTTP verb passed to the existing save wrapper"
+      },
+      {
+        "context": "AcademicCatalogManagement:CallExpression/ArrowFunction/JsxExpression/JsxAttribute:save( `/admin/academic-records/qualifications/${item.id}/status`, \"PUT\", { isActive: !item.isActive }, )",
+        "text": "PUT",
+        "category": "API_CONTRACT",
+        "reason": "HTTP verb passed to the existing save wrapper"
+      },
+      {
+        "context": "AcademicCatalogManagement:CallExpression/ArrowFunction/JsxExpression/JsxAttribute:save( `/admin/academic-records/versions/${v.id}/status`, \"PUT\", { isActive: !v.isActive }, )",
+        "text": "PUT",
+        "category": "API_CONTRACT",
+        "reason": "HTTP verb passed to the existing save wrapper"
+      }
+    ],
+    "academic-catalogue.tsx": [
+      {
+        "context": "AcademicCatalogue:JsxElement/JsxElement/JsxElement/ParenthesizedExpression:<p className=\"text-xs font-black uppercase tracking-[0.18em] text-primary\"> BETCCO · {t(\"eyebrow\")} </p>",
+        "text": "BETCCO ·",
+        "category": "NEUTRAL_BRAND_TEXT",
+        "reason": "Existing language-neutral platform/provider identity"
+      },
+      {
+        "context": "AcademicCatalogue:CallExpression/JsxExpression/JsxElement/JsxElement:academicText( \"ar\", unit.arabicTitle, unit.englishTitle, )",
+        "text": "ar",
+        "category": "ACADEMIC_LOCALIZATION",
+        "reason": "Fixed Arabic secondary academic-title locale; primary locale selection unchanged"
+      },
+      {
+        "context": "AcademicCatalogue:ConditionalExpression/JsxExpression/JsxElement/JsxElement:unit.source === \"PearsonOfficial\" ? \"PearsonOfficial\" : unit.source === \"AdminCustom\" ? \"AdminCustom\" : \"Unknown\"",
+        "text": "PearsonOfficial",
+        "category": "TECHNICAL_SOURCE_VALUE",
+        "reason": "Frozen raw academic provenance discriminator"
+      },
+      {
+        "context": "AcademicCatalogue:ConditionalExpression/ConditionalExpression/JsxExpression/JsxElement:unit.source === \"AdminCustom\" ? \"AdminCustom\" : \"Unknown\"",
+        "text": "AdminCustom",
+        "category": "TECHNICAL_SOURCE_VALUE",
+        "reason": "Frozen raw academic provenance discriminator"
+      },
+      {
+        "context": "AcademicCatalogue:ConditionalExpression/ConditionalExpression/JsxExpression/JsxElement:unit.source === \"AdminCustom\" ? \"AdminCustom\" : \"Unknown\"",
+        "text": "Unknown",
+        "category": "TECHNICAL_SOURCE_VALUE",
+        "reason": "Frozen raw academic provenance discriminator"
+      }
+    ],
+    "account-identity-management.tsx": [
+      {
+        "context": "[role, setRole]:CallExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:useState<\"Teacher\" | \"SupportAdmin\">(\"Teacher\")",
+        "text": "Teacher",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "AccountIdentityManagement:ArrayLiteralExpression/AsExpression/ParenthesizedExpression/PropertyAccessExpression:[\"Teacher\", \"SupportAdmin\"]",
+        "text": "Teacher",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "AccountIdentityManagement:ArrayLiteralExpression/AsExpression/ParenthesizedExpression/PropertyAccessExpression:[\"Teacher\", \"SupportAdmin\"]",
+        "text": "SupportAdmin",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      }
+    ],
+    "admin-area.tsx": [
+      {
+        "context": "current:BinaryExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:segment.join(\"/\") || \"dashboard\"",
+        "text": "dashboard",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "[period, setPeriod]:CallExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:useState(\"30d\")",
+        "text": "30d",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "AdminDashboard:ArrayLiteralExpression/ArrayLiteralExpression/PropertyAccessExpression/CallExpression:[\"today\", t(\"dashboard.periods.today\")]",
+        "text": "today",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "AdminDashboard:ArrayLiteralExpression/ArrayLiteralExpression/PropertyAccessExpression/CallExpression:[\"7d\", t(\"dashboard.periods.sevenDays\")]",
+        "text": "7d",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "AdminDashboard:ArrayLiteralExpression/ArrayLiteralExpression/PropertyAccessExpression/CallExpression:[\"30d\", t(\"dashboard.periods.thirtyDays\")]",
+        "text": "30d",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "AdminDashboard:ArrayLiteralExpression/ArrayLiteralExpression/PropertyAccessExpression/CallExpression:[\"3m\", t(\"dashboard.periods.threeMonths\")]",
+        "text": "3m",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "AdminDashboard:ArrayLiteralExpression/ArrayLiteralExpression/PropertyAccessExpression/CallExpression:[\"year\", t(\"dashboard.periods.year\")]",
+        "text": "year",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "AdminDashboard:ArrayLiteralExpression/ArrayLiteralExpression/PropertyAccessExpression/CallExpression:[\"custom\", t(\"dashboard.periods.custom\")]",
+        "text": "custom",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "AdminDashboard:ArrayLiteralExpression/ArrayLiteralExpression/PropertyAccessExpression/CallExpression:[\"all\", t(\"dashboard.periods.all\")]",
+        "text": "all",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "definitions:AsExpression/PropertyAssignment/ObjectLiteralExpression/ArrayLiteralExpression:\"revenue\" as const",
+        "text": "revenue",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "definitions:PropertyAssignment/ObjectLiteralExpression/ArrayLiteralExpression/VariableDeclaration:color: \"bg-primary\"",
+        "text": "bg-primary",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "CSS class binding/color used by existing component styling"
+      },
+      {
+        "context": "definitions:CallExpression/ArrowFunction/PropertyAssignment/ObjectLiteralExpression:formatLocalizedCurrency(value, \"JOD\", locale)",
+        "text": "JOD",
+        "category": "LOCALE_FORMATTER",
+        "reason": "ISO currency passed to formatLocalizedCurrency"
+      },
+      {
+        "context": "definitions:AsExpression/PropertyAssignment/ObjectLiteralExpression/ArrayLiteralExpression:\"paidOrders\" as const",
+        "text": "paidOrders",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "definitions:PropertyAssignment/ObjectLiteralExpression/ArrayLiteralExpression/VariableDeclaration:color: \"bg-secondary\"",
+        "text": "bg-secondary",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "CSS class binding/color used by existing component styling"
+      },
+      {
+        "context": "definitions:AsExpression/PropertyAssignment/ObjectLiteralExpression/ArrayLiteralExpression:\"lessonActivity\" as const",
+        "text": "lessonActivity",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "definitions:PropertyAssignment/ObjectLiteralExpression/ArrayLiteralExpression/VariableDeclaration:color: \"bg-amber-400\"",
+        "text": "bg-amber-400",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "CSS class binding/color used by existing component styling"
+      },
+      {
+        "context": "SchoolIntegrations:BinaryExpression/JsxExpression/JsxElement/JsxElement:current?.provider ?? \"OneRoster\"",
+        "text": "OneRoster",
+        "category": "NEUTRAL_BRAND_TEXT",
+        "reason": "Existing language-neutral platform/provider identity"
+      },
+      {
+        "context": "StudentManagement:CallExpression/ArrowFunction/JsxExpression/JsxAttribute:setPendingBulkAction(\"approve\")",
+        "text": "approve",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "StudentManagement:CallExpression/ArrowFunction/JsxExpression/JsxAttribute:setPendingBulkAction(\"freeze\")",
+        "text": "freeze",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "StudentManagement:CallExpression/ArrowFunction/JsxExpression/JsxAttribute:setPendingBulkAction(\"unfreeze\")",
+        "text": "unfreeze",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "StudentManagement:CallExpression/ArrowFunction/JsxExpression/JsxAttribute:setPendingBulkAction(\"delete\")",
+        "text": "delete",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "canVerify:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/ArrowFunction:[\"Admin\", \"InternalVerifier\", \"LeadInternalVerifier\"]",
+        "text": "Admin",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "canVerify:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/ArrowFunction:[\"Admin\", \"InternalVerifier\", \"LeadInternalVerifier\"]",
+        "text": "InternalVerifier",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "canVerify:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/ArrowFunction:[\"Admin\", \"InternalVerifier\", \"LeadInternalVerifier\"]",
+        "text": "LeadInternalVerifier",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "review:BinaryExpression/ConditionalExpression/PropertyAssignment/ObjectLiteralExpression:reasons[id] || \"Needs revision\"",
+        "text": "Needs revision",
+        "category": "API_CONTRACT",
+        "reason": "Frozen CourseApprovals reviewNotes payload fallback, not localized presentation"
+      },
+      {
+        "context": "CourseApprovalPreview:CallExpression/ConditionalExpression/JsxExpression/JsxElement:formatLocalizedCurrency(course.price, \"JOD\", locale)",
+        "text": "JOD",
+        "category": "LOCALE_FORMATTER",
+        "reason": "ISO currency passed to formatLocalizedCurrency"
+      }
+    ],
+    "assessment-coordination-queue.tsx": [
+      {
+        "context": "statuses:PropertyAssignment/ObjectLiteralExpression/ArrayLiteralExpression/VariableDeclaration:value: \"PendingAssignment\"",
+        "text": "PendingAssignment",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "statuses:PropertyAssignment/ObjectLiteralExpression/ArrayLiteralExpression/VariableDeclaration:value: \"Assigned\"",
+        "text": "Assigned",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "statuses:PropertyAssignment/ObjectLiteralExpression/ArrayLiteralExpression/VariableDeclaration:value: \"UnderReview\"",
+        "text": "UnderReview",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "statuses:PropertyAssignment/ObjectLiteralExpression/ArrayLiteralExpression/VariableDeclaration:value: \"NeedsRevision\"",
+        "text": "NeedsRevision",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      }
+    ],
+    "audit-log.tsx": [
+      {
+        "context": "result:CallExpression/ExpressionStatement/IfStatement/Block:params.set(\"search\", filters.search)",
+        "text": "search",
+        "category": "API_CONTRACT",
+        "reason": "Existing URLSearchParams/header/download filename or DOM tag identifier"
+      },
+      {
+        "context": "result:CallExpression/ExpressionStatement/IfStatement/Block:params.set(\"action\", filters.action)",
+        "text": "action",
+        "category": "API_CONTRACT",
+        "reason": "Existing URLSearchParams/header/download filename or DOM tag identifier"
+      },
+      {
+        "context": "result:CallExpression/ExpressionStatement/IfStatement/Block:params.set(\"entityType\", filters.entityType)",
+        "text": "entityType",
+        "category": "API_CONTRACT",
+        "reason": "Existing URLSearchParams/header/download filename or DOM tag identifier"
+      },
+      {
+        "context": "result:CallExpression/ExpressionStatement/IfStatement/Block:params.set(\"outcome\", filters.outcome)",
+        "text": "outcome",
+        "category": "API_CONTRACT",
+        "reason": "Existing URLSearchParams/header/download filename or DOM tag identifier"
+      },
+      {
+        "context": "result:CallExpression/ExpressionStatement/IfStatement/Block:params.set(\"fromUtc\", `${filters.fromDate}T00:00:00Z`)",
+        "text": "fromUtc",
+        "category": "API_CONTRACT",
+        "reason": "Existing URLSearchParams/header/download filename or DOM tag identifier"
+      },
+      {
+        "context": "result:CallExpression/ExpressionStatement/IfStatement/Block:params.set(\"toUtc\", `${filters.toDate}T23:59:59.999Z`)",
+        "text": "toUtc",
+        "category": "API_CONTRACT",
+        "reason": "Existing URLSearchParams/header/download filename or DOM tag identifier"
+      },
+      {
+        "context": "exportCurrent:CallExpression/ExpressionStatement/IfStatement/Block:params.set(\"search\", filters.search)",
+        "text": "search",
+        "category": "API_CONTRACT",
+        "reason": "Existing URLSearchParams/header/download filename or DOM tag identifier"
+      },
+      {
+        "context": "exportCurrent:CallExpression/ExpressionStatement/IfStatement/Block:params.set(\"action\", filters.action)",
+        "text": "action",
+        "category": "API_CONTRACT",
+        "reason": "Existing URLSearchParams/header/download filename or DOM tag identifier"
+      },
+      {
+        "context": "exportCurrent:CallExpression/ExpressionStatement/IfStatement/Block:params.set(\"entityType\", filters.entityType)",
+        "text": "entityType",
+        "category": "API_CONTRACT",
+        "reason": "Existing URLSearchParams/header/download filename or DOM tag identifier"
+      },
+      {
+        "context": "exportCurrent:CallExpression/ExpressionStatement/IfStatement/Block:params.set(\"outcome\", filters.outcome)",
+        "text": "outcome",
+        "category": "API_CONTRACT",
+        "reason": "Existing URLSearchParams/header/download filename or DOM tag identifier"
+      },
+      {
+        "context": "exportCurrent:CallExpression/ExpressionStatement/IfStatement/Block:params.set(\"fromUtc\", `${filters.fromDate}T00:00:00Z`)",
+        "text": "fromUtc",
+        "category": "API_CONTRACT",
+        "reason": "Existing URLSearchParams/header/download filename or DOM tag identifier"
+      },
+      {
+        "context": "exportCurrent:CallExpression/ExpressionStatement/IfStatement/Block:params.set(\"toUtc\", `${filters.toDate}T23:59:59.999Z`)",
+        "text": "toUtc",
+        "category": "API_CONTRACT",
+        "reason": "Existing URLSearchParams/header/download filename or DOM tag identifier"
+      },
+      {
+        "context": "fileName:CallExpression/PropertyAccessExpression/CallExpression/ElementAccessExpression:response.headers .get(\"content-disposition\")",
+        "text": "content-disposition",
+        "category": "API_CONTRACT",
+        "reason": "Existing URLSearchParams/header/download filename or DOM tag identifier"
+      },
+      {
+        "context": "fileName:BinaryExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:response.headers .get(\"content-disposition\") ?.match(/filename=\"?([^\";]+)\"?/i)?.[1] ?? \"betcco-audit-log.csv\"",
+        "text": "betcco-audit-log.csv",
+        "category": "API_CONTRACT",
+        "reason": "Existing URLSearchParams/header/download filename or DOM tag identifier"
+      },
+      {
+        "context": "anchor:CallExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:document.createElement(\"a\")",
+        "text": "a",
+        "category": "API_CONTRACT",
+        "reason": "Existing URLSearchParams/header/download filename or DOM tag identifier"
+      }
+    ],
+    "commerce-catalog.tsx": [
+      {
+        "context": "inputClass:VariableDeclaration/VariableDeclarationList/FirstStatement/SourceFile:inputClass = \"focus-ring w-full rounded-xl border border-border bg-transparent px-3 py-2.5 text-sm text-foreground\"",
+        "text": "focus-ring w-full rounded-xl border border-border bg-transparent px-3 py-2.5 text-sm text-foreground",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "CSS class binding/color used by existing component styling"
+      },
+      {
+        "context": "emptyMembership:PropertyAssignment/ObjectLiteralExpression/ParenthesizedExpression/ArrowFunction:interval: \"Monthly\"",
+        "text": "Monthly",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "emptySubscription:PropertyAssignment/ObjectLiteralExpression/ParenthesizedExpression/ArrowFunction:interval: \"Monthly\"",
+        "text": "Monthly",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "CommerceCatalogManager:CallExpression/TemplateSpan/TemplateExpression/PropertyAssignment:formatLocalizedCurrency(item.price, \"JOD\", locale)",
+        "text": "JOD",
+        "category": "LOCALE_FORMATTER",
+        "reason": "ISO currency passed to formatLocalizedCurrency"
+      }
+    ],
+    "commission-settings.tsx": [],
+    "content-studio.tsx": [
+      {
+        "context": "initialSession:PropertyAssignment/ObjectLiteralExpression/VariableDeclaration/VariableDeclarationList:provider: \"Manual\"",
+        "text": "Manual",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "inputClass:VariableDeclaration/VariableDeclarationList/FirstStatement/SourceFile:inputClass = \"focus-ring w-full rounded-xl border border-border bg-transparent px-3 py-2.5 text-sm text-foreground\"",
+        "text": "focus-ring w-full rounded-xl border border-border bg-transparent px-3 py-2.5 text-sm text-foreground",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "CSS class binding/color used by existing component styling"
+      },
+      {
+        "context": "[attendanceStatus, setAttendanceStatus]:CallExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:useState<AttendanceItem[\"status\"]>(\"Present\")",
+        "text": "Present",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "createArticle:CallExpression/ExpressionStatement/Block/ArrowFunction:refresh(\"admin-content-blog\")",
+        "text": "admin-content-blog",
+        "category": "API_CONTRACT",
+        "reason": "Existing refresh query-key identifier"
+      },
+      {
+        "context": "saveProfile:CallExpression/ExpressionStatement/Block/ArrowFunction:refresh(\"admin-content-teachers\")",
+        "text": "admin-content-teachers",
+        "category": "API_CONTRACT",
+        "reason": "Existing refresh query-key identifier"
+      },
+      {
+        "context": "savePackage:CallExpression/ExpressionStatement/Block/ArrowFunction:refresh(\"admin-content-packages\")",
+        "text": "admin-content-packages",
+        "category": "API_CONTRACT",
+        "reason": "Existing refresh query-key identifier"
+      },
+      {
+        "context": "createSession:CallExpression/ExpressionStatement/Block/ArrowFunction:refresh(\"admin-content-sessions\")",
+        "text": "admin-content-sessions",
+        "category": "API_CONTRACT",
+        "reason": "Existing refresh query-key identifier"
+      }
+    ],
+    "delivery-planning.tsx": [
+      {
+        "context": "errorMessage:CallExpression/ConditionalExpression/ConditionalExpression/ConditionalExpression:errorCode?.startsWith(\"Duplicate\")",
+        "text": "Duplicate",
+        "category": "API_CONTRACT",
+        "reason": "API error-code matching; user-facing error copy is translated"
+      },
+      {
+        "context": "errorMessage:CallExpression/BinaryExpression/ConditionalExpression/ConditionalExpression:errorCode?.includes(\"Outside\")",
+        "text": "Outside",
+        "category": "API_CONTRACT",
+        "reason": "API error-code matching; user-facing error copy is translated"
+      },
+      {
+        "context": "errorMessage:CallExpression/BinaryExpression/ConditionalExpression/ConditionalExpression:errorCode?.includes(\"Immutable\")",
+        "text": "Immutable",
+        "category": "API_CONTRACT",
+        "reason": "API error-code matching; user-facing error copy is translated"
+      },
+      {
+        "context": "errorMessage:CallExpression/ConditionalExpression/ConditionalExpression/ConditionalExpression:errorCode?.includes(\"HasActive\")",
+        "text": "HasActive",
+        "category": "API_CONTRACT",
+        "reason": "API error-code matching; user-facing error copy is translated"
+      }
+    ],
+    "eligible-evaluator-assignment.tsx": [
+      {
+        "context": "stale:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/BinaryExpression:[ \"UNIT_SPECIALISM_REQUIRED\", \"EVALUATOR_NOT_ELIGIBLE\", \"ASSIGNMENT_CONFLICT\", ]",
+        "text": "UNIT_SPECIALISM_REQUIRED",
+        "category": "API_CONTRACT",
+        "reason": "API error-code matching; user-facing error copy is translated"
+      },
+      {
+        "context": "stale:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/BinaryExpression:[ \"UNIT_SPECIALISM_REQUIRED\", \"EVALUATOR_NOT_ELIGIBLE\", \"ASSIGNMENT_CONFLICT\", ]",
+        "text": "EVALUATOR_NOT_ELIGIBLE",
+        "category": "API_CONTRACT",
+        "reason": "API error-code matching; user-facing error copy is translated"
+      },
+      {
+        "context": "stale:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/BinaryExpression:[ \"UNIT_SPECIALISM_REQUIRED\", \"EVALUATOR_NOT_ELIGIBLE\", \"ASSIGNMENT_CONFLICT\", ]",
+        "text": "ASSIGNMENT_CONFLICT",
+        "category": "API_CONTRACT",
+        "reason": "API error-code matching; user-facing error copy is translated"
+      }
+    ],
+    "evaluation-appeal-management.tsx": [
+      {
+        "context": "currentDraft:AsExpression/PropertyAssignment/ObjectLiteralExpression/BinaryExpression:\"Rejected\" as Decision",
+        "text": "Rejected",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "EvaluationAppealManagement:JsxElement/JsxElement/JsxElement/ParenthesizedExpression:<p className=\"text-xs font-black uppercase tracking-[0.18em] text-primary\"> BETCCO · {t(\"evaluationAppeals.eyebrow\")} </p>",
+        "text": "BETCCO ·",
+        "category": "NEUTRAL_BRAND_TEXT",
+        "reason": "Existing language-neutral platform/provider identity"
+      },
+      {
+        "context": "draft:AsExpression/PropertyAssignment/ObjectLiteralExpression/BinaryExpression:\"Rejected\" as Decision",
+        "text": "Rejected",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      }
+    ],
+    "evaluator-specialism-management.tsx": [
+      {
+        "context": "grant:CallExpression/ExpressionStatement/Block/ArrowFunction:setSuccess(\"grant\")",
+        "text": "grant",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "revoke:CallExpression/ExpressionStatement/Block/ArrowFunction:setSuccess(\"revoke\")",
+        "text": "revoke",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      }
+    ],
+    "gradebook.tsx": [
+      {
+        "context": "AdminGradebook:CallExpression/ArrowFunction/JsxExpression/JsxAttribute:update(\"courseId\", value)",
+        "text": "courseId",
+        "category": "API_CONTRACT",
+        "reason": "Existing filter parameter identifier passed to setFilters"
+      },
+      {
+        "context": "AdminGradebook:CallExpression/ArrowFunction/JsxExpression/JsxAttribute:update(\"unitId\", value)",
+        "text": "unitId",
+        "category": "API_CONTRACT",
+        "reason": "Existing filter parameter identifier passed to setFilters"
+      },
+      {
+        "context": "AdminGradebook:CallExpression/ArrowFunction/JsxExpression/JsxAttribute:update(\"teacherUserId\", value)",
+        "text": "teacherUserId",
+        "category": "API_CONTRACT",
+        "reason": "Existing filter parameter identifier passed to setFilters"
+      },
+      {
+        "context": "AdminGradebook:CallExpression/ArrowFunction/JsxExpression/JsxAttribute:update(\"studentUserId\", value)",
+        "text": "studentUserId",
+        "category": "API_CONTRACT",
+        "reason": "Existing filter parameter identifier passed to setFilters"
+      },
+      {
+        "context": "AdminGradebook:CallExpression/ArrowFunction/JsxExpression/JsxAttribute:update(\"status\", value)",
+        "text": "status",
+        "category": "API_CONTRACT",
+        "reason": "Existing filter parameter identifier passed to setFilters"
+      },
+      {
+        "context": "AdminGradebook:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/JsxExpression:[ \"Draft\", \"Submitted\", \"NeedsRevision\", \"Graded\", \"Finalized\", ]",
+        "text": "Draft",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "AdminGradebook:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/JsxExpression:[ \"Draft\", \"Submitted\", \"NeedsRevision\", \"Graded\", \"Finalized\", ]",
+        "text": "Submitted",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "AdminGradebook:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/JsxExpression:[ \"Draft\", \"Submitted\", \"NeedsRevision\", \"Graded\", \"Finalized\", ]",
+        "text": "NeedsRevision",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "AdminGradebook:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/JsxExpression:[ \"Draft\", \"Submitted\", \"NeedsRevision\", \"Graded\", \"Finalized\", ]",
+        "text": "Graded",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "AdminGradebook:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/JsxExpression:[ \"Draft\", \"Submitted\", \"NeedsRevision\", \"Graded\", \"Finalized\", ]",
+        "text": "Finalized",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "AdminGradebook:CallExpression/ArrowFunction/JsxExpression/JsxAttribute:update(\"grade\", value)",
+        "text": "grade",
+        "category": "API_CONTRACT",
+        "reason": "Existing filter parameter identifier passed to setFilters"
+      },
+      {
+        "context": "AdminGradebook:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/JsxExpression:[\"NotYetAchieved\", \"Pass\", \"Merit\", \"Distinction\"]",
+        "text": "NotYetAchieved",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "AdminGradebook:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/JsxExpression:[\"NotYetAchieved\", \"Pass\", \"Merit\", \"Distinction\"]",
+        "text": "Pass",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "AdminGradebook:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/JsxExpression:[\"NotYetAchieved\", \"Pass\", \"Merit\", \"Distinction\"]",
+        "text": "Merit",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "AdminGradebook:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/JsxExpression:[\"NotYetAchieved\", \"Pass\", \"Merit\", \"Distinction\"]",
+        "text": "Distinction",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "AdminGradebook:CallExpression/ArrowFunction/JsxExpression/JsxAttribute:update(\"fromUtc\", event.target.value)",
+        "text": "fromUtc",
+        "category": "API_CONTRACT",
+        "reason": "Existing filter parameter identifier passed to setFilters"
+      },
+      {
+        "context": "AdminGradebook:CallExpression/ArrowFunction/JsxExpression/JsxAttribute:update(\"toUtc\", event.target.value)",
+        "text": "toUtc",
+        "category": "API_CONTRACT",
+        "reason": "Existing filter parameter identifier passed to setFilters"
+      },
+      {
+        "context": "AdminGradebook:CallExpression/ArrowFunction/JsxExpression/JsxAttribute:update(\"search\", event.target.value)",
+        "text": "search",
+        "category": "API_CONTRACT",
+        "reason": "Existing filter parameter identifier passed to setFilters"
+      }
+    ],
+    "internal-verification-plan-management.tsx": [
+      {
+        "context": "outcomes:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[\"Pass\", \"Merit\", \"Distinction\"]",
+        "text": "Pass",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "outcomes:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[\"Pass\", \"Merit\", \"Distinction\"]",
+        "text": "Merit",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "outcomes:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[\"Pass\", \"Merit\", \"Distinction\"]",
+        "text": "Distinction",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "verifierStaff:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/ArrowFunction:[\"InternalVerifier\", \"LeadInternalVerifier\", \"Admin\"]",
+        "text": "InternalVerifier",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "verifierStaff:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/ArrowFunction:[\"InternalVerifier\", \"LeadInternalVerifier\", \"Admin\"]",
+        "text": "LeadInternalVerifier",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "verifierStaff:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/ArrowFunction:[\"InternalVerifier\", \"LeadInternalVerifier\", \"Admin\"]",
+        "text": "Admin",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "assessorStaff:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/ArrowFunction:[\"Teacher\", \"Assessor\"]",
+        "text": "Teacher",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "assessorStaff:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/ArrowFunction:[\"Teacher\", \"Assessor\"]",
+        "text": "Assessor",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      }
+    ],
+    "platform-rating-moderation.tsx": [],
+    "privacy-request-management.tsx": [
+      {
+        "context": "statuses:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[ \"Submitted\", \"IdentityVerificationRequired\", \"InReview\", \"Completed\", \"Rejected\", \"Cancelled\", ]",
+        "text": "Submitted",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "statuses:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[ \"Submitted\", \"IdentityVerificationRequired\", \"InReview\", \"Completed\", \"Rejected\", \"Cancelled\", ]",
+        "text": "IdentityVerificationRequired",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "statuses:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[ \"Submitted\", \"IdentityVerificationRequired\", \"InReview\", \"Completed\", \"Rejected\", \"Cancelled\", ]",
+        "text": "InReview",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "statuses:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[ \"Submitted\", \"IdentityVerificationRequired\", \"InReview\", \"Completed\", \"Rejected\", \"Cancelled\", ]",
+        "text": "Completed",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "statuses:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[ \"Submitted\", \"IdentityVerificationRequired\", \"InReview\", \"Completed\", \"Rejected\", \"Cancelled\", ]",
+        "text": "Rejected",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "statuses:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[ \"Submitted\", \"IdentityVerificationRequired\", \"InReview\", \"Completed\", \"Rejected\", \"Cancelled\", ]",
+        "text": "Cancelled",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "reviewStatuses:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[ \"IdentityVerificationRequired\", \"InReview\", \"Completed\", \"Rejected\", ]",
+        "text": "IdentityVerificationRequired",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "reviewStatuses:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[ \"IdentityVerificationRequired\", \"InReview\", \"Completed\", \"Rejected\", ]",
+        "text": "InReview",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "reviewStatuses:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[ \"IdentityVerificationRequired\", \"InReview\", \"Completed\", \"Rejected\", ]",
+        "text": "Completed",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "reviewStatuses:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[ \"IdentityVerificationRequired\", \"InReview\", \"Completed\", \"Rejected\", ]",
+        "text": "Rejected",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "[nextStatus, setNextStatus]:CallExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:useState<PrivacyRequestStatus>(\"InReview\")",
+        "text": "InReview",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "review:NewExpression/ThrowStatement/IfStatement/Block:new Error(\"No privacy request selected.\")",
+        "text": "No privacy request selected.",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Internal mutation invariant guard; selected-item UI guard prevents normal invocation without a selected record"
+      },
+      {
+        "context": "selectRequest:ConditionalExpression/CallExpression/ExpressionStatement/Block:item.status === \"Submitted\" ? \"InReview\" : item.status",
+        "text": "InReview",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "isFinal:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/ConditionalExpression:[\"Completed\", \"Rejected\", \"Cancelled\"]",
+        "text": "Completed",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "isFinal:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/ConditionalExpression:[\"Completed\", \"Rejected\", \"Cancelled\"]",
+        "text": "Rejected",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "isFinal:ArrayLiteralExpression/PropertyAccessExpression/CallExpression/ConditionalExpression:[\"Completed\", \"Rejected\", \"Cancelled\"]",
+        "text": "Cancelled",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      }
+    ],
+    "qualification-registry-management.tsx": [
+      {
+        "context": "QualificationRegistryManagement:JsxElement/JsxElement/JsxElement/ParenthesizedExpression:<p className=\"text-xs font-black uppercase tracking-[0.18em] text-primary\"> BETCCO · {t(\"qualificationRegistry.eyebrow\")} </p>",
+        "text": "BETCCO ·",
+        "category": "NEUTRAL_BRAND_TEXT",
+        "reason": "Existing language-neutral platform/provider identity"
+      },
+      {
+        "context": "QualificationRegistryManagement:JsxAttribute/JsxAttributes/JsxSelfClosingElement/JsxElement:placeholder=\"BTEC-L3-IT\"",
+        "text": "BTEC-L3-IT",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Technical identifier/example in the corresponding slug/qualification-code field"
+      }
+    ],
+    "resit-coordination-panel.tsx": [],
+    "retake-management.tsx": [
+      {
+        "context": "RetakeManagement:JsxAttribute/JsxAttributes/JsxSelfClosingElement/JsxElement:eyebrow=\"BETCCO REVIEW\"",
+        "text": "BETCCO REVIEW",
+        "category": "NEUTRAL_BRAND_TEXT",
+        "reason": "Existing language-neutral platform/provider identity"
+      }
+    ],
+    "security-incident-management.tsx": [
+      {
+        "context": "severities:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[\"Low\", \"Medium\", \"High\", \"Critical\"]",
+        "text": "Low",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "severities:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[\"Low\", \"Medium\", \"High\", \"Critical\"]",
+        "text": "Medium",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "severities:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[\"Low\", \"Medium\", \"High\", \"Critical\"]",
+        "text": "High",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "severities:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[\"Low\", \"Medium\", \"High\", \"Critical\"]",
+        "text": "Critical",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "statuses:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[\"Open\", \"Assessing\", \"Contained\", \"Closed\"]",
+        "text": "Open",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "statuses:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[\"Open\", \"Assessing\", \"Contained\", \"Closed\"]",
+        "text": "Assessing",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "statuses:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[\"Open\", \"Assessing\", \"Contained\", \"Closed\"]",
+        "text": "Contained",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "statuses:ArrayLiteralExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:[\"Open\", \"Assessing\", \"Contained\", \"Closed\"]",
+        "text": "Closed",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "[reasonCode, setReasonCode]:CallExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:useState(\"SECURITY_REVIEW\")",
+        "text": "SECURITY_REVIEW",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "[severity, setSeverity]:CallExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:useState<Severity>(\"Medium\")",
+        "text": "Medium",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "[reviewStatus, setReviewStatus]:CallExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:useState<Status>(\"Assessing\")",
+        "text": "Assessing",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "[reviewReasonCode, setReviewReasonCode]:CallExpression/VariableDeclaration/VariableDeclarationList/FirstStatement:useState(\"SECURITY_REVIEW\")",
+        "text": "SECURITY_REVIEW",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "selectIncident:ConditionalExpression/CallExpression/ExpressionStatement/Block:incident.status === \"Open\" ? \"Assessing\" : incident.status",
+        "text": "Assessing",
+        "category": "TECHNICAL_STATUS_VALUE",
+        "reason": "Existing API enum/default or intentionally raw status/outcome, not a static label"
+      },
+      {
+        "context": "create:CallExpression/ExpressionStatement/Block/ArrowFunction:setReasonCode(\"SECURITY_REVIEW\")",
+        "text": "SECURITY_REVIEW",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Existing role/action/route/series identifier or internal selector; rendered copy uses translations"
+      },
+      {
+        "context": "review:NewExpression/ThrowStatement/IfStatement/Block:new Error(\"No incident selected.\")",
+        "text": "No incident selected.",
+        "category": "TECHNICAL_INTERNAL_VALUE",
+        "reason": "Internal mutation invariant guard; selected-item UI guard prevents normal invocation without a selected record"
+      }
+    ]
+  }
+}

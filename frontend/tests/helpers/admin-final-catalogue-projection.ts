@@ -23,6 +23,19 @@ export function restorePrebatchAdminFunctions(source: string) {
 // Historical audits project away only the independently frozen final-batch
 // additions. Existing values and every earlier slice remain in their hashes.
 export function withoutFinalAdminAdditions(catalogue: Record<string, unknown>) {
+  // T7-A5.5-R adds exactly one independently tested Content Studio fallback.
+  // Keep every historical hash and source freeze intact. Do not project away
+  // its namespace, existing values, unrelated new keys, or production source.
+  const content = catalogue.adminContent as Record<string, unknown>;
+  if (Object.hasOwn(content, "requestFailed")) {
+    if (
+      !["تعذر إتمام الطلب.", "Request failed."].includes(
+        String(content.requestFailed),
+      )
+    )
+      throw new Error("Unverified final Admin fallback value");
+    delete content.requestFailed;
+  }
   const workspace = catalogue.adminWorkspace as Record<string, unknown>;
   for (const section of [
     "academicCatalogManagement",
