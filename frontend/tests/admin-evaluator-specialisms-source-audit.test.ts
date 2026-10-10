@@ -1,3 +1,4 @@
+import { withoutFinalAdminAdditions } from "./helpers/admin-final-catalogue-projection";
 import { readFileSync } from "node:fs";
 import { createTranslator } from "next-intl";
 import { describe, expect, it } from "vitest";
@@ -71,7 +72,9 @@ describe("Evaluator specialism static copy and frozen base-main contracts", () =
         "gradebook",
       ])
         delete (catalogue.adminWorkspace as Record<string, unknown>)[section];
-      expect(hash(catalogue)).toBe(baseline.catalogueHashes[locale]);
+      expect(hash(withoutFinalAdminAdditions(catalogue))).toBe(
+        baseline.catalogueHashes[locale],
+      );
     },
   );
   it.each([

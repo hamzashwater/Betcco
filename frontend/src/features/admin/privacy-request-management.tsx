@@ -3,7 +3,7 @@
 import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 type PrivacyRequestType =
@@ -55,7 +55,8 @@ const reviewStatuses: PrivacyRequestStatus[] = [
 
 export function PrivacyRequestManagement() {
   const locale = useLocale();
-  const ar = locale === "ar";
+  const t = useTranslations("adminWorkspace");
+
   const [status, setStatus] = useState<PrivacyRequestStatus | "">("");
   const [selected, setSelected] = useState<PrivacyRequest | null>(null);
   const [nextStatus, setNextStatus] =
@@ -92,26 +93,22 @@ export function PrivacyRequestManagement() {
   const date = (value: string) => formatLocalizedDateTime(value, locale);
   const typeLabel = (type: PrivacyRequestType) =>
     ({
-      Access: ar ? "الوصول إلى البيانات" : "Data access",
-      Rectification: ar ? "تصحيح البيانات" : "Data correction",
-      Restriction: ar ? "تقييد المعالجة" : "Restrict processing",
-      ErasureOrConcealment: ar ? "المحو أو الإخفاء" : "Erase or conceal",
-      ObjectionToProfiling: ar ? "الاعتراض على التنميط" : "Object to profiling",
-      Portability: ar ? "نسخة قابلة للنقل" : "Portable copy",
-      WithdrawMarketingConsent: ar
-        ? "سحب موافقة التسويق"
-        : "Withdraw marketing consent",
+      Access: t("privacyRequests.dataAccess"),
+      Rectification: t("privacyRequests.dataCorrection"),
+      Restriction: t("privacyRequests.restrictProcessing"),
+      ErasureOrConcealment: t("privacyRequests.eraseOrConceal"),
+      ObjectionToProfiling: t("privacyRequests.objectToProfiling"),
+      Portability: t("privacyRequests.portableCopy"),
+      WithdrawMarketingConsent: t("privacyRequests.withdrawMarketingConsent"),
     })[type];
   const statusLabel = (value: PrivacyRequestStatus) =>
     ({
-      Submitted: ar ? "تم الإرسال" : "Submitted",
-      IdentityVerificationRequired: ar
-        ? "مطلوب تحقق من الهوية"
-        : "Identity check required",
-      InReview: ar ? "قيد المراجعة" : "In review",
-      Completed: ar ? "مكتمل" : "Completed",
-      Rejected: ar ? "مرفوض" : "Rejected",
-      Cancelled: ar ? "ملغى" : "Cancelled",
+      Submitted: t("privacyRequests.submitted"),
+      IdentityVerificationRequired: t("privacyRequests.identityCheckRequired"),
+      InReview: t("privacyRequests.inReview"),
+      Completed: t("privacyRequests.completed"),
+      Rejected: t("privacyRequests.rejected"),
+      Cancelled: t("privacyRequests.cancelled"),
     })[value];
   const selectRequest = (item: PrivacyRequest) => {
     setSelected(item);
@@ -128,26 +125,26 @@ export function PrivacyRequestManagement() {
     <section className="shell py-8 sm:py-10">
       <div className="max-w-6xl">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-          BETCCO · Privacy operations
+          {t("privacyRequests.bETCCOPrivacyOperations")}
         </p>
         <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
-          {ar ? "طلبات الخصوصية" : "Privacy requests"}
+          {t("privacyRequests.privacyRequests")}
         </h1>
         <p className="mt-3 max-w-3xl leading-7 text-muted">
-          {ar
-            ? "سجل تشغيلي للمراجعة البشرية. لا تنفّذ الحذف أو التصدير من هذه الشاشة قبل التحقق من الهوية والالتزام بالسياسة القانونية المعتمدة."
-            : "A human-review queue. Do not erase or export data from this screen before identity verification and the approved legal policy checks."}
+          {t(
+            "privacyRequests.aHumanreviewQueueDoNotEraseOrExportDataFromThisScreenBeforeIdenti",
+          )}
         </p>
       </div>
       <div className="mt-7 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,.7fr)]">
         <div className="card p-5 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-lg font-black">
-              {ar ? "قائمة المراجعة" : "Review queue"}
+              {t("privacyRequests.reviewQueue")}
               {query.data ? ` (${query.data.totalCount})` : ""}
             </h2>
             <label className="text-sm font-black">
-              <span className="sr-only">{ar ? "الحالة" : "Status"}</span>
+              <span className="sr-only">{t("privacyRequests.status")}</span>
               <select
                 className="focus-ring rounded-xl border border-border bg-background px-3 py-2 text-foreground"
                 value={status}
@@ -155,7 +152,7 @@ export function PrivacyRequestManagement() {
                   setStatus(event.target.value as PrivacyRequestStatus | "")
                 }
               >
-                <option value="">{ar ? "كل الحالات" : "All statuses"}</option>
+                <option value="">{t("privacyRequests.allStatuses")}</option>
                 {statuses.map((item) => (
                   <option key={item} value={item}>
                     {statusLabel(item)}
@@ -202,18 +199,14 @@ export function PrivacyRequestManagement() {
             </ul>
           ) : (
             <p className="mt-5 rounded-xl border border-dashed border-border p-4 text-sm text-muted">
-              {ar
-                ? "لا توجد طلبات بهذه الحالة."
-                : "There are no requests with this status."}
+              {t("privacyRequests.thereAreNoRequestsWithThisStatus")}
             </p>
           )}
         </div>
         <aside className="card h-fit p-5 sm:p-6" aria-live="polite">
           {!selected ? (
             <p className="text-muted">
-              {ar
-                ? "اختر طلبًا من القائمة لمراجعته."
-                : "Select a request from the queue to review it."}
+              {t("privacyRequests.selectARequestFromTheQueueToReviewIt")}
             </p>
           ) : (
             <form
@@ -235,7 +228,7 @@ export function PrivacyRequestManagement() {
                 </div>
               )}
               <label className="grid gap-2 text-sm font-black">
-                {ar ? "حالة المراجعة" : "Review status"}
+                {t("privacyRequests.reviewStatus")}
                 <select
                   className="focus-ring min-h-11 rounded-xl border border-border bg-background px-3 text-foreground"
                   value={nextStatus}
@@ -252,18 +245,16 @@ export function PrivacyRequestManagement() {
                 </select>
               </label>
               <label className="grid gap-2 text-sm font-black">
-                {ar ? "ملاحظة للمستخدم" : "User-facing review note"}
+                {t("privacyRequests.userfacingReviewNote")}
                 <textarea
                   className="focus-ring min-h-28 rounded-xl border border-border bg-background p-3 text-foreground"
                   value={resolutionSummary}
                   maxLength={2000}
                   disabled={isFinal}
                   onChange={(event) => setResolutionSummary(event.target.value)}
-                  placeholder={
-                    ar
-                      ? "مطلوبة عند الإكمال أو الرفض. لا تضع ملاحظات داخلية حساسة هنا."
-                      : "Required for completion or rejection. Do not put sensitive internal notes here."
-                  }
+                  placeholder={t(
+                    "privacyRequests.requiredForCompletionOrRejectionDoNotPutSensitiveInternalNotesHer",
+                  )}
                 />
               </label>
               <label className="flex items-start gap-3 text-sm leading-6 text-muted">
@@ -277,14 +268,14 @@ export function PrivacyRequestManagement() {
                   }
                 />
                 <span>
-                  {ar
-                    ? "تم التحقق من هوية صاحب الطلب وفق الإجراء التشغيلي المعتمد."
-                    : "The requester's identity was verified under the approved operational procedure."}
+                  {t(
+                    "privacyRequests.theRequestersIdentityWasVerifiedUnderTheApprovedOperationalProced",
+                  )}
                 </span>
               </label>
               {selected.identityVerifiedAtUtc && (
                 <p className="text-sm text-muted">
-                  {ar ? "تم توثيق التحقق:" : "Verification recorded:"}{" "}
+                  {t("privacyRequests.verificationRecorded")}{" "}
                   {date(selected.identityVerifiedAtUtc)}
                 </p>
               )}
@@ -295,12 +286,8 @@ export function PrivacyRequestManagement() {
                   disabled={review.isPending}
                 >
                   {review.isPending
-                    ? ar
-                      ? "جارٍ الحفظ…"
-                      : "Saving…"
-                    : ar
-                      ? "حفظ قرار المراجعة"
-                      : "Save review decision"}
+                    ? t("privacyRequests.saving")
+                    : t("privacyRequests.saveReviewDecision")}
                 </button>
               )}
               {review.isError && (
@@ -310,7 +297,7 @@ export function PrivacyRequestManagement() {
               )}
               {review.isSuccess && (
                 <p className="text-sm text-emerald-600" role="status">
-                  {ar ? "تم حفظ قرار المراجعة." : "Review decision saved."}
+                  {t("privacyRequests.reviewDecisionSaved")}
                 </p>
               )}
             </form>

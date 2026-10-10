@@ -5,7 +5,7 @@ import { formatLocalizedNumber } from "@/i18n/number-format";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Eye, EyeOff, MessageSquareQuote, Star } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 type AdminPlatformRating = {
@@ -35,7 +35,8 @@ type AdminPlatformRatingSummary = {
 
 export function PlatformRatingModeration() {
   const locale = useLocale();
-  const ar = locale === "ar";
+  const t = useTranslations("adminWorkspace");
+
   const client = useQueryClient();
   const [reasons, setReasons] = useState<Record<string, string>>({});
   const ratings = useQuery({
@@ -73,9 +74,7 @@ export function PlatformRatingModeration() {
     return (
       <section className="shell py-10">
         <p className="card p-6" role="alert">
-          {ar
-            ? "تعذر تحميل مراجعات المنصة."
-            : "Platform reviews could not be loaded."}
+          {t("platformRatingModeration.platformReviewsCouldNotBeLoaded")}
         </p>
       </section>
     );
@@ -85,52 +84,52 @@ export function PlatformRatingModeration() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-            {ar ? "تقييم BETCCO" : "BETCCO feedback"}
+            {t("platformRatingModeration.bETCCOFeedback")}
           </p>
           <h1 className="mt-2 text-3xl font-black">
-            {ar ? "إدارة تقييمات المنصة" : "Platform review moderation"}
+            {t("platformRatingModeration.platformReviewModeration")}
           </h1>
           <p className="mt-2 max-w-3xl leading-7 text-muted">
-            {ar
-              ? "لا تُنشر أي مراجعة إلا إذا اختار الطالب العرض العام. راجع النص والنتيجة قبل النشر، وسجّل سبب الحجب عند الحاجة."
-              : "A review can be published only when the learner opted in. Review its text and score before publishing, and record a reason when keeping it private."}
+            {t(
+              "platformRatingModeration.aReviewCanBePublishedOnlyWhenTheLearnerOptedInReviewItsTextAndSco",
+            )}
           </p>
         </div>
         <span className="rounded-full border border-border bg-surface/80 px-4 py-2 text-sm font-black text-primary">
-          {ar
-            ? `${pending.length} بانتظار المراجعة`
-            : `${pending.length} awaiting review`}
+          {t("platformRatingModeration.countAwaitingReview", {
+            count: pending.length,
+          })}
         </span>
       </div>
       {summary.data ? (
         <section
           className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
-          aria-label={ar ? "ملخص تجربة الطلاب" : "Learner experience summary"}
+          aria-label={t("platformRatingModeration.learnerExperienceSummary")}
         >
           {[
             [
-              ar ? "جميع التقييمات" : "All feedback",
+              t("platformRatingModeration.allFeedback"),
               summary.data.totalCount,
-              ar ? "إشارات فعلية من الطلاب" : "Real learner signals",
+              t("platformRatingModeration.realLearnerSignals"),
             ],
             [
-              ar ? "متوسط التجربة" : "Experience average",
+              t("platformRatingModeration.experienceAverage"),
               summary.data.averageScore
                 ? `${summary.data.averageScore} / 5`
                 : "—",
-              ar
-                ? "دورات واستخدام ودعم وتوصية"
-                : "Courses, usability, support, recommendation",
+              t(
+                "platformRatingModeration.coursesUsabilitySupportRecommendation",
+              ),
             ],
             [
-              ar ? "بانتظار المراجعة" : "Awaiting moderation",
+              t("platformRatingModeration.awaitingModeration"),
               summary.data.awaitingModerationCount,
-              ar ? "بموافقة الطالب على العرض" : "With learner display consent",
+              t("platformRatingModeration.withLearnerDisplayConsent"),
             ],
             [
-              ar ? "خاص دون موافقة" : "Private without consent",
+              t("platformRatingModeration.privateWithoutConsent"),
               summary.data.privateWithoutConsentCount,
-              ar ? "لا يمكن نشره" : "Cannot be published",
+              t("platformRatingModeration.cannotBePublished"),
             ],
           ].map(([label, value, detail]) => (
             <article key={String(label)} className="card p-4">
@@ -158,7 +157,7 @@ export function PlatformRatingModeration() {
                   </span>
                   <div>
                     <p className="font-black">
-                      {ar ? "مراجعة طالب" : "Learner review"}
+                      {t("platformRatingModeration.learnerReview")}
                     </p>
                     <p className="mt-1 text-xs text-muted">
                       {formatLocalizedDateTime(rating.updatedAtUtc, locale)}
@@ -176,10 +175,19 @@ export function PlatformRatingModeration() {
               </div>
               <div className="mt-5 grid gap-3 sm:grid-cols-4">
                 {[
-                  [ar ? "الدورات" : "Courses", rating.courseQualityScore],
-                  [ar ? "الاستخدام" : "Usability", rating.easeOfUseScore],
-                  [ar ? "الدعم" : "Support", rating.supportScore],
-                  [ar ? "التوصية" : "Recommend", rating.recommendationScore],
+                  [
+                    t("platformRatingModeration.courses"),
+                    rating.courseQualityScore,
+                  ],
+                  [
+                    t("platformRatingModeration.usability"),
+                    rating.easeOfUseScore,
+                  ],
+                  [t("platformRatingModeration.support"), rating.supportScore],
+                  [
+                    t("platformRatingModeration.recommend"),
+                    rating.recommendationScore,
+                  ],
                 ].map(([label, score]) => (
                   <div
                     key={String(label)}
@@ -196,17 +204,17 @@ export function PlatformRatingModeration() {
                 </p>
               ) : (
                 <p className="mt-5 text-sm text-muted">
-                  {ar
-                    ? "لم يضف الطالب تعليقًا نصيًا."
-                    : "The learner did not add a written comment."}
+                  {t(
+                    "platformRatingModeration.theLearnerDidNotAddAWrittenComment",
+                  )}
                 </p>
               )}
               <div className="mt-5 grid gap-3 border-t border-border pt-5 lg:grid-cols-[minmax(0,1fr)_auto_auto]">
                 <label className="grid gap-1 text-sm font-bold">
                   <span>
-                    {ar
-                      ? "سبب الحجب أو الملاحظة الداخلية"
-                      : "Reason for keeping private / internal note"}
+                    {t(
+                      "platformRatingModeration.reasonForKeepingPrivateInternalNote",
+                    )}
                   </span>
                   <input
                     value={reasons[rating.id] ?? rating.moderationReason ?? ""}
@@ -229,7 +237,7 @@ export function PlatformRatingModeration() {
                   className="focus-ring inline-flex items-center justify-center gap-2 self-end rounded-xl border border-border px-4 py-2.5 text-sm font-black text-muted disabled:opacity-60"
                 >
                   <EyeOff size={16} aria-hidden="true" />
-                  {ar ? "إبقاء خاصًا" : "Keep private"}
+                  {t("platformRatingModeration.keepPrivate")}
                 </button>
                 <button
                   type="button"
@@ -241,12 +249,8 @@ export function PlatformRatingModeration() {
                 >
                   <Eye size={16} aria-hidden="true" />
                   {rating.allowPublicDisplay
-                    ? ar
-                      ? "نشر المراجعة"
-                      : "Publish review"
-                    : ar
-                      ? "لا توجد موافقة للعرض"
-                      : "No display consent"}
+                    ? t("platformRatingModeration.publishReview")
+                    : t("platformRatingModeration.noDisplayConsent")}
                 </button>
               </div>
             </article>
@@ -254,9 +258,7 @@ export function PlatformRatingModeration() {
         })}
         {!ratings.data.length ? (
           <p className="card p-6 text-muted">
-            {ar
-              ? "لا توجد مراجعات مرسلة حتى الآن."
-              : "No reviews have been submitted yet."}
+            {t("platformRatingModeration.noReviewsHaveBeenSubmittedYet")}
           </p>
         ) : null}
       </div>
@@ -264,9 +266,7 @@ export function PlatformRatingModeration() {
         <p role="alert" className="mt-5 text-sm text-red-500">
           {moderate.error instanceof Error
             ? moderate.error.message
-            : ar
-              ? "تعذر تحديث حالة المراجعة."
-              : "Review status could not be updated."}
+            : t("platformRatingModeration.reviewStatusCouldNotBeUpdated")}
         </p>
       ) : null}
     </section>

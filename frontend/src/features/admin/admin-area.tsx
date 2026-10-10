@@ -614,7 +614,8 @@ type SchoolIntegrationStatus = {
 };
 
 function SchoolIntegrations() {
-  const locale = useLocale();
+  const t = useTranslations("adminWorkspace");
+
   const status = useQuery({
     queryKey: ["school-integration-status"],
     queryFn: () =>
@@ -631,13 +632,11 @@ function SchoolIntegrations() {
   return (
     <section className="shell py-10">
       <DashboardHeader
-        eyebrow="BETCCO Integrations"
-        title={locale === "ar" ? "تكاملات المدارس" : "School integrations"}
-        description={
-          locale === "ar"
-            ? "موصل OneRoster اختياري. لا تستورد BETCCO أي قوائم أو بيانات طلاب تلقائيًا."
-            : "OneRoster is optional. BETCCO never imports rosters or student data automatically."
-        }
+        eyebrow={t("schoolIntegrations.bETCCOIntegrations")}
+        title={t("schoolIntegrations.schoolIntegrations")}
+        description={t(
+          "schoolIntegrations.oneRosterIsOptionalBETCCONeverImportsRostersOrStudentDataAutomati",
+        )}
       />
       <article className="card mt-6 max-w-3xl p-6">
         <div className="flex items-start justify-between gap-4">
@@ -648,25 +647,17 @@ function SchoolIntegrations() {
             </h2>
             <p className="mt-3 text-sm leading-6 text-muted">
               {current?.message ??
-                (locale === "ar"
-                  ? "جارٍ تحميل حالة التكامل…"
-                  : "Loading integration status…")}
+                t("schoolIntegrations.loadingIntegrationStatus")}
             </p>
           </div>
           <span
             className={`rounded-full px-3 py-1 text-xs font-black ${current?.isReachable ? "bg-primary/15 text-primary" : "bg-white/5 text-muted"}`}
           >
             {current?.isReachable
-              ? locale === "ar"
-                ? "متصل"
-                : "Connected"
+              ? t("schoolIntegrations.connected")
               : current?.isConfigured
-                ? locale === "ar"
-                  ? "مُعدّ"
-                  : "Configured"
-                : locale === "ar"
-                  ? "غير مفعّل"
-                  : "Disabled"}
+                ? t("schoolIntegrations.configured")
+                : t("schoolIntegrations.disabled")}
           </span>
         </div>
         <button
@@ -675,13 +666,13 @@ function SchoolIntegrations() {
           disabled={!current?.isConfigured || test.isPending}
           className="focus-ring mt-5 rounded-xl bg-primary px-4 py-3 text-sm font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {locale === "ar" ? "اختبار الاتصال" : "Test connection"}
+          {t("schoolIntegrations.testConnection")}
         </button>
         {test.isError ? (
           <p role="alert" className="mt-3 text-sm text-red-400">
             {test.error instanceof Error
               ? test.error.message
-              : "Request failed."}
+              : t("schoolIntegrations.requestFailed")}
           </p>
         ) : null}
       </article>
@@ -726,6 +717,7 @@ type AdminWalletView = {
 };
 
 function AdminWallet() {
+  const t = useTranslations("adminWorkspace");
   const locale = useLocale();
   const client = useQueryClient();
   const [notes, setNotes] = useState<Record<string, string>>({});
@@ -772,13 +764,11 @@ function AdminWallet() {
   return (
     <section className="shell py-10">
       <DashboardHeader
-        eyebrow="BETCCO Platform Wallet"
-        title={locale === "ar" ? "المحفظة والمستحقات" : "Wallet and payouts"}
-        description={
-          locale === "ar"
-            ? "تُحتسب عمولة المنصة 30٪ وحصة المعلم 70٪ على الخادم بعد تأكيد الدفع. بيانات السحب مشفّرة ولا تظهر هنا إلا بصورة مخفية."
-            : "The 30% platform commission and 70% teacher share are calculated server-side after verified payment. Withdrawal destinations are encrypted and only masked here."
-        }
+        eyebrow={t("wallet.bETCCOPlatformWallet")}
+        title={t("wallet.walletAndPayouts")}
+        description={t(
+          "wallet.the30PlatformCommissionAnd70TeacherShareAreCalculatedServersideAf",
+        )}
       />
       <CommissionSettings />
       {wallet.isPending ? (
@@ -787,42 +777,32 @@ function AdminWallet() {
         </div>
       ) : wallet.isError || !values ? (
         <p className="card mt-6 p-6" role="alert">
-          {locale === "ar"
-            ? "تعذّر تحميل المحفظة. تأكد من تسجيل الدخول كأدمن."
-            : "Unable to load the wallet. Confirm that you are signed in as an administrator."}
+          {t(
+            "wallet.unableToLoadTheWalletConfirmThatYouAreSignedInAsAnAdministrator",
+          )}
         </p>
       ) : (
         <>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             <MetricCard
-              label={locale === "ar" ? "رصيد المنصة" : "Platform balance"}
+              label={t("wallet.platformBalance")}
               value={formatLocalizedCurrency(
                 values.platformBalance,
                 values.currency,
                 locale,
               )}
-              detail={
-                locale === "ar"
-                  ? "عمولة المنصة وإيراد الدورات غير المسندة"
-                  : "Platform commissions and unassigned-course revenue"
-              }
+              detail={t("wallet.platformCommissionsAndUnassignedcourseRevenue")}
               icon={WalletCards}
               tone="secondary"
             />
             <MetricCard
-              label={
-                locale === "ar"
-                  ? "عمولة مؤكدة (30٪)"
-                  : "Confirmed commission (30%)"
-              }
+              label={t("wallet.confirmedCommission30")}
               value={formatLocalizedCurrency(
                 values.confirmedPlatformCommission,
                 values.currency,
                 locale,
               )}
-              detail={
-                locale === "ar" ? "من المبيعات المؤكدة" : "From verified sales"
-              }
+              detail={t("wallet.fromVerifiedSales")}
               icon={BadgeCheck}
               tone="warm"
             />
@@ -830,14 +810,12 @@ function AdminWallet() {
           <section className="card mt-6 p-5">
             <div>
               <h2 className="text-lg font-black">
-                {locale === "ar"
-                  ? "طلبات سحب المعلمين"
-                  : "Teacher withdrawal requests"}
+                {t("wallet.teacherWithdrawalRequests")}
               </h2>
               <p className="mt-1 text-sm text-muted">
-                {locale === "ar"
-                  ? "اعتمد الطلب ثم نفّذ الدفع. في التطوير، التنفيذ محاكاة آمنة ولا يحوّل أي أموال حقيقية."
-                  : "Approve a request before executing payment. In development, execution is a safe simulation and never transfers real money."}
+                {t(
+                  "wallet.approveARequestBeforeExecutingPaymentInDevelopmentExecutionIsASaf",
+                )}
               </p>
             </div>
             <div className="mt-4 grid gap-3">
@@ -854,12 +832,8 @@ function AdminWallet() {
                       </p>
                       <p className="mt-2 text-sm">
                         {payout.method === "BankTransfer"
-                          ? locale === "ar"
-                            ? "تحويل بنكي"
-                            : "Bank transfer"
-                          : locale === "ar"
-                            ? "محفظة إلكترونية"
-                            : "E-wallet"}{" "}
+                          ? t("wallet.bankTransfer")
+                          : t("wallet.ewallet")}{" "}
                         — {payout.destinationMasked}
                       </p>
                     </div>
@@ -877,7 +851,7 @@ function AdminWallet() {
                     </div>
                   </div>
                   <label className="mt-3 grid gap-1 text-sm font-bold">
-                    {locale === "ar" ? "ملاحظة الإدارة" : "Admin note"}
+                    {t("wallet.adminNote")}
                     <input
                       value={notes[payout.id] ?? payout.reviewNote ?? ""}
                       onChange={(event) =>
@@ -899,7 +873,7 @@ function AdminWallet() {
                           onClick={() => approve.mutate(payout.id)}
                           className="focus-ring rounded-lg bg-emerald-400 px-3 py-2 text-sm font-black text-slate-950 disabled:opacity-50"
                         >
-                          {locale === "ar" ? "اعتماد" : "Approve"}
+                          {t("wallet.approve")}
                         </button>
                         <button
                           type="button"
@@ -907,9 +881,7 @@ function AdminWallet() {
                           onClick={() => reject.mutate(payout.id)}
                           className="focus-ring rounded-lg border border-red-400/50 px-3 py-2 text-sm font-black text-red-300 disabled:opacity-50"
                         >
-                          {locale === "ar"
-                            ? "رفض وإعادة الرصيد"
-                            : "Reject and restore balance"}
+                          {t("wallet.rejectAndRestoreBalance")}
                         </button>
                       </>
                     )}
@@ -920,7 +892,7 @@ function AdminWallet() {
                         onClick={() => execute.mutate(payout.id)}
                         className="focus-ring rounded-lg bg-primary px-3 py-2 text-sm font-black text-slate-950 disabled:opacity-50"
                       >
-                        {locale === "ar" ? "تنفيذ الدفع" : "Execute payout"}
+                        {t("wallet.executePayout")}
                       </button>
                     )}
                     {payout.status === "Paid" && (
@@ -930,7 +902,7 @@ function AdminWallet() {
                         onClick={() => settle.mutate(payout.id)}
                         className="focus-ring rounded-lg border border-primary px-3 py-2 text-sm font-black text-primary disabled:opacity-50"
                       >
-                        {locale === "ar" ? "تسوية الدفعة" : "Settle payout"}
+                        {t("wallet.settlePayout")}
                       </button>
                     )}
                   </div>
@@ -938,9 +910,7 @@ function AdminWallet() {
               ))}
               {!values.payouts.length && (
                 <p className="text-sm text-muted">
-                  {locale === "ar"
-                    ? "لا توجد طلبات سحب بعد."
-                    : "No withdrawal requests yet."}
+                  {t("wallet.noWithdrawalRequestsYet")}
                 </p>
               )}
               {(approve.isError ||
@@ -948,18 +918,16 @@ function AdminWallet() {
                 execute.isError ||
                 settle.isError) && (
                 <p role="alert" className="text-sm text-red-400">
-                  {locale === "ar"
-                    ? "تعذّر تنفيذ إجراء المحفظة. راجع حالة الطلب ثم حاول مجددًا."
-                    : "The wallet action could not be completed. Review the request status and try again."}
+                  {t(
+                    "wallet.theWalletActionCouldNotBeCompletedReviewTheRequestStatusAndTryAga",
+                  )}
                 </p>
               )}
             </div>
           </section>
           <section className="card mt-6 p-5">
             <h2 className="text-lg font-black">
-              {locale === "ar"
-                ? "آخر توزيعات المبيعات"
-                : "Recent sales allocations"}
+              {t("wallet.recentSalesAllocations")}
             </h2>
             <div className="mt-4 grid gap-2">
               {values.recentSales.map((sale) => (
@@ -972,7 +940,7 @@ function AdminWallet() {
                     <p className="text-xs text-muted">{sale.teacherName}</p>
                   </div>
                   <p className="text-sm">
-                    {locale === "ar" ? "الصافي" : "Net"}:{" "}
+                    {t("wallet.net")}:{" "}
                     {formatLocalizedCurrency(
                       sale.netAmount,
                       sale.currency,
@@ -980,7 +948,7 @@ function AdminWallet() {
                     )}
                   </p>
                   <p className="text-sm text-primary">
-                    {locale === "ar" ? "المنصة 30٪" : "Platform 30%"}:{" "}
+                    {t("wallet.platform30")}:{" "}
                     {formatLocalizedCurrency(
                       sale.platformCommission,
                       sale.currency,
@@ -988,7 +956,7 @@ function AdminWallet() {
                     )}
                   </p>
                   <p className="text-sm text-emerald-300">
-                    {locale === "ar" ? "المعلم 70٪" : "Teacher 70%"}:{" "}
+                    {t("wallet.teacher70")}:{" "}
                     {formatLocalizedCurrency(
                       sale.teacherEarning,
                       sale.currency,
@@ -999,9 +967,7 @@ function AdminWallet() {
               ))}
               {!values.recentSales.length && (
                 <p className="text-sm text-muted">
-                  {locale === "ar"
-                    ? "لا توجد مبيعات مؤكدة بعد."
-                    : "No verified sales yet."}
+                  {t("wallet.noVerifiedSalesYet")}
                 </p>
               )}
             </div>

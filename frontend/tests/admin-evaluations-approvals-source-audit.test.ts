@@ -1,3 +1,7 @@
+import {
+  restorePrebatchAdminFunctions,
+  withoutFinalAdminAdditions,
+} from "./helpers/admin-final-catalogue-projection";
 import { readFileSync } from "node:fs";
 import { createTranslator } from "next-intl";
 import { describe, expect, it } from "vitest";
@@ -19,7 +23,11 @@ describe("Admin evaluation/approval static copy and frozen contracts", () => {
     expect(functionsIn(source).functions.map((fn) => fn.name!.text)).toEqual(
       owners,
     );
-    expect(outsideScopeHash(source)).toBe(baseline.outsideScopeHash);
+    // The final-batch audit separately freezes both newly authorized bodies and
+    // their entire outside AST. Reconstruct their original bytes for this audit.
+    expect(outsideScopeHash(restorePrebatchAdminFunctions(source))).toBe(
+      baseline.outsideScopeHash,
+    );
   });
   it("has zero Arabic/English static UI literals or unclassified locale uses", () => {
     expect(result.findings).toEqual([]);
@@ -119,7 +127,9 @@ describe("Admin evaluation/approval static copy and frozen contracts", () => {
         ),
       );
       catalogue.adminWorkspace = original;
-      expect(hash(catalogue)).toBe(baseline.existingCatalogueHashes[locale]);
+      expect(hash(withoutFinalAdminAdditions(catalogue))).toBe(
+        baseline.existingCatalogueHashes[locale],
+      );
     },
   );
   it("uses every added key and shared loading indicator without dead keys", () => {

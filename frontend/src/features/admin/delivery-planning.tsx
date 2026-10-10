@@ -682,15 +682,13 @@ export function DeliveryPlanning() {
                   ))}
               </select>
             </Field>
-            <Field label={locale === "ar" ? "الصف" : "Grade"}>
+            <Field label={t("residualgrade")}>
               <select
                 className="input"
                 value={gradeId}
                 onChange={(event) => setGradeId(event.target.value)}
               >
-                <option value="">
-                  {locale === "ar" ? "اختر الصف" : "Choose grade"}
-                </option>
+                <option value="">{t("residualchooseGrade")}</option>
                 {grades.data
                   ?.filter(
                     (item) =>
@@ -706,7 +704,7 @@ export function DeliveryPlanning() {
               </select>
             </Field>
             <p className="text-sm text-muted">
-              {locale === "ar" ? "التخصص: " : "Specialization: "}
+              {t("residualspecialization")}
               {academicText(
                 locale,
                 selectedVersion?.specializationArabicName,

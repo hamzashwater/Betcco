@@ -82,7 +82,6 @@ const issueKeys: Record<string, string> = {
 export function AcademicCatalogue() {
   const t = useTranslations("academicCatalogue");
   const locale = useLocale();
-  const ar = locale === "ar";
   const client = useQueryClient();
   const [chosenVersionId, setChosenVersionId] = useState("");
   const [arabicDrafts, setArabicDrafts] = useState<Record<string, string>>({});
@@ -266,14 +265,14 @@ export function AcademicCatalogue() {
                           className="mt-1 break-words text-sm text-muted"
                           lang="en"
                         >
-                          English: {unit.englishTitle}
+                          {t("residualenglish")} {unit.englishTitle}
                         </p>
                         <p
                           className="mt-1 break-words text-sm text-muted"
                           lang="ar"
                           dir="rtl"
                         >
-                          العربية:{" "}
+                          {t("residualarabicLabel")}{" "}
                           {academicText(
                             "ar",
                             unit.arabicTitle,
@@ -290,14 +289,12 @@ export function AcademicCatalogue() {
                         {unit.source === "PearsonOfficial" ? (
                           <div className="mt-3 grid max-w-xl gap-2">
                             <p className="text-xs text-muted">
-                              {ar
-                                ? "العنوان الإنجليزي هو هوية بيرسون الرسمية. العنوان العربي ترجمة عرض محلية من BETCCO."
-                                : "The English title is Pearson's official identity. The Arabic display title is BETCCO localization."}
+                              {t(
+                                "residualtheEnglishTitleIsPearsonsOfficialIdentityTheArabicDisplayTitleIsB",
+                              )}
                             </p>
                             <label className="grid gap-1 text-sm font-semibold">
-                              {ar
-                                ? "العنوان العربي المحلي"
-                                : "BETCCO Arabic display title"}
+                              {t("residualbETCCOArabicDisplayTitle")}
                               <input
                                 dir="rtl"
                                 lang="ar"
@@ -329,9 +326,7 @@ export function AcademicCatalogue() {
                                 })
                               }
                             >
-                              {ar
-                                ? "حفظ العنوان العربي"
-                                : "Save Arabic display title"}
+                              {t("residualsaveArabicDisplayTitle")}
                             </button>
                           </div>
                         ) : null}
@@ -348,12 +343,8 @@ export function AcademicCatalogue() {
                           onClick={() => unitStatus.mutate(unit)}
                         >
                           {unit.isActive
-                            ? ar
-                              ? "أرشفة"
-                              : "Archive"
-                            : ar
-                              ? "تفعيل"
-                              : "Activate"}
+                            ? t("residualarchive")
+                            : t("residualactivate")}
                         </button>
                       </div>
                     </div>
