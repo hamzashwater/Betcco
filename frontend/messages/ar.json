@@ -3012,6 +3012,34 @@
       "record": "تسجيل",
       "saving": "جارٍ الحفظ…",
       "saveReview": "حفظ المراجعة"
+    },
+    "platformRatingModeration": {
+      "platformReviewsCouldNotBeLoaded": "تعذر تحميل مراجعات المنصة.",
+      "bETCCOFeedback": "تقييم BETCCO",
+      "platformReviewModeration": "إدارة تقييمات المنصة",
+      "aReviewCanBePublishedOnlyWhenTheLearnerOptedInReviewItsTextAndSco": "لا تُنشر أي مراجعة إلا إذا اختار الطالب العرض العام. راجع النص والنتيجة قبل النشر، وسجّل سبب الحجب عند الحاجة.",
+      "countAwaitingReview": "{count} بانتظار المراجعة",
+      "learnerExperienceSummary": "ملخص تجربة الطلاب",
+      "allFeedback": "جميع التقييمات",
+      "realLearnerSignals": "إشارات فعلية من الطلاب",
+      "experienceAverage": "متوسط التجربة",
+      "coursesUsabilitySupportRecommendation": "دورات واستخدام ودعم وتوصية",
+      "awaitingModeration": "بانتظار المراجعة",
+      "withLearnerDisplayConsent": "بموافقة الطالب على العرض",
+      "privateWithoutConsent": "خاص دون موافقة",
+      "cannotBePublished": "لا يمكن نشره",
+      "learnerReview": "مراجعة طالب",
+      "courses": "الدورات",
+      "usability": "الاستخدام",
+      "support": "الدعم",
+      "recommend": "التوصية",
+      "theLearnerDidNotAddAWrittenComment": "لم يضف الطالب تعليقًا نصيًا.",
+      "reasonForKeepingPrivateInternalNote": "سبب الحجب أو الملاحظة الداخلية",
+      "keepPrivate": "إبقاء خاصًا",
+      "publishReview": "نشر المراجعة",
+      "noDisplayConsent": "لا توجد موافقة للعرض",
+      "noReviewsHaveBeenSubmittedYet": "لا توجد مراجعات مرسلة حتى الآن.",
+      "reviewStatusCouldNotBeUpdated": "تعذر تحديث حالة المراجعة."
     }
   }
 }

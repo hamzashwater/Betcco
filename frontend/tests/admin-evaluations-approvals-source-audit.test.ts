@@ -1,3 +1,4 @@
+import { withoutFinalAdminAdditions } from "./helpers/admin-final-catalogue-projection";
 import { readFileSync } from "node:fs";
 import { createTranslator } from "next-intl";
 import { describe, expect, it } from "vitest";
@@ -119,7 +120,9 @@ describe("Admin evaluation/approval static copy and frozen contracts", () => {
         ),
       );
       catalogue.adminWorkspace = original;
-      expect(hash(catalogue)).toBe(baseline.existingCatalogueHashes[locale]);
+      expect(hash(withoutFinalAdminAdditions(catalogue))).toBe(
+        baseline.existingCatalogueHashes[locale],
+      );
     },
   );
   it("uses every added key and shared loading indicator without dead keys", () => {

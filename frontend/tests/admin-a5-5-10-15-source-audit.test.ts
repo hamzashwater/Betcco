@@ -20,6 +20,7 @@ const completed: Scope[] = [
   "academicCatalogue",
   "privacyRequests",
   "securityIncidents",
+  "platformRatingModeration",
 ];
 const names = Object.keys(scopes) as Scope[];
 const source = (name: Scope) =>

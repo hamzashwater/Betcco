@@ -3012,6 +3012,34 @@
       "record": "Record",
       "saving": "Saving…",
       "saveReview": "Save review"
+    },
+    "platformRatingModeration": {
+      "platformReviewsCouldNotBeLoaded": "Platform reviews could not be loaded.",
+      "bETCCOFeedback": "BETCCO feedback",
+      "platformReviewModeration": "Platform review moderation",
+      "aReviewCanBePublishedOnlyWhenTheLearnerOptedInReviewItsTextAndSco": "A review can be published only when the learner opted in. Review its text and score before publishing, and record a reason when keeping it private.",
+      "countAwaitingReview": "{count} awaiting review",
+      "learnerExperienceSummary": "Learner experience summary",
+      "allFeedback": "All feedback",
+      "realLearnerSignals": "Real learner signals",
+      "experienceAverage": "Experience average",
+      "coursesUsabilitySupportRecommendation": "Courses, usability, support, recommendation",
+      "awaitingModeration": "Awaiting moderation",
+      "withLearnerDisplayConsent": "With learner display consent",
+      "privateWithoutConsent": "Private without consent",
+      "cannotBePublished": "Cannot be published",
+      "learnerReview": "Learner review",
+      "courses": "Courses",
+      "usability": "Usability",
+      "support": "Support",
+      "recommend": "Recommend",
+      "theLearnerDidNotAddAWrittenComment": "The learner did not add a written comment.",
+      "reasonForKeepingPrivateInternalNote": "Reason for keeping private / internal note",
+      "keepPrivate": "Keep private",
+      "publishReview": "Publish review",
+      "noDisplayConsent": "No display consent",
+      "noReviewsHaveBeenSubmittedYet": "No reviews have been submitted yet.",
+      "reviewStatusCouldNotBeUpdated": "Review status could not be updated."
     }
   }
 }
