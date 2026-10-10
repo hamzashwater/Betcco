@@ -10,6 +10,7 @@ import {
   contractHash,
   hash,
   outsideAdminArea,
+  root,
   scopes,
   type Scope,
 } from "./helpers/admin-a5-5-10-15-i18n-audit";
@@ -21,6 +22,7 @@ const completed: Scope[] = [
   "privacyRequests",
   "securityIncidents",
   "platformRatingModeration",
+  "wallet",
 ];
 const names = Object.keys(scopes) as Scope[];
 const source = (name: Scope) =>
@@ -139,7 +141,10 @@ describe("Final Admin batch: independently frozen nine scopes", () => {
       }
       expect(
         contractHash(
-          s.replace('className="', 'className="drift '),
+          s.replace(
+            root(s, name).getText(),
+            root(s, name).getText().replace('className="', 'className="drift '),
+          ),
           name,
           baseline.scopes[name].cases,
         ),

@@ -3040,6 +3040,32 @@
       "noDisplayConsent": "No display consent",
       "noReviewsHaveBeenSubmittedYet": "No reviews have been submitted yet.",
       "reviewStatusCouldNotBeUpdated": "Review status could not be updated."
+    },
+    "wallet": {
+      "bETCCOPlatformWallet": "BETCCO Platform Wallet",
+      "walletAndPayouts": "Wallet and payouts",
+      "the30PlatformCommissionAnd70TeacherShareAreCalculatedServersideAf": "The 30% platform commission and 70% teacher share are calculated server-side after verified payment. Withdrawal destinations are encrypted and only masked here.",
+      "unableToLoadTheWalletConfirmThatYouAreSignedInAsAnAdministrator": "Unable to load the wallet. Confirm that you are signed in as an administrator.",
+      "platformBalance": "Platform balance",
+      "platformCommissionsAndUnassignedcourseRevenue": "Platform commissions and unassigned-course revenue",
+      "confirmedCommission30": "Confirmed commission (30%)",
+      "fromVerifiedSales": "From verified sales",
+      "teacherWithdrawalRequests": "Teacher withdrawal requests",
+      "approveARequestBeforeExecutingPaymentInDevelopmentExecutionIsASaf": "Approve a request before executing payment. In development, execution is a safe simulation and never transfers real money.",
+      "bankTransfer": "Bank transfer",
+      "ewallet": "E-wallet",
+      "adminNote": "Admin note",
+      "approve": "Approve",
+      "rejectAndRestoreBalance": "Reject and restore balance",
+      "executePayout": "Execute payout",
+      "settlePayout": "Settle payout",
+      "noWithdrawalRequestsYet": "No withdrawal requests yet.",
+      "theWalletActionCouldNotBeCompletedReviewTheRequestStatusAndTryAga": "The wallet action could not be completed. Review the request status and try again.",
+      "recentSalesAllocations": "Recent sales allocations",
+      "net": "Net",
+      "platform30": "Platform 30%",
+      "teacher70": "Teacher 70%",
+      "noVerifiedSalesYet": "No verified sales yet."
     }
   }
 }
