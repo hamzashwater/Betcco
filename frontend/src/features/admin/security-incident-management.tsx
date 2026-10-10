@@ -3,7 +3,7 @@
 import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 type Severity = "Low" | "Medium" | "High" | "Critical";
@@ -49,7 +49,8 @@ const statuses: Status[] = ["Open", "Assessing", "Contained", "Closed"];
 
 export function SecurityIncidentManagement() {
   const locale = useLocale();
-  const ar = locale === "ar";
+  const t = useTranslations("adminWorkspace");
+
   const [selected, setSelected] = useState<Incident | null>(null);
   const [status, setStatus] = useState<Status | "">("");
   const [showCreate, setShowCreate] = useState(false);
@@ -163,26 +164,22 @@ export function SecurityIncidentManagement() {
   const date = (value: string) => formatLocalizedDateTime(value, locale);
   const severityLabel = (value: Severity) =>
     ({
-      Low: ar ? "منخفض" : "Low",
-      Medium: ar ? "متوسط" : "Medium",
-      High: ar ? "مرتفع" : "High",
-      Critical: ar ? "حرج" : "Critical",
+      Low: t("securityIncidents.low"),
+      Medium: t("securityIncidents.medium"),
+      High: t("securityIncidents.high"),
+      Critical: t("securityIncidents.critical"),
     })[value];
   const statusLabel = (value: Status) =>
     ({
-      Open: ar ? "مفتوح" : "Open",
-      Assessing: ar ? "قيد التقييم" : "Assessing",
-      Contained: ar ? "تم الاحتواء" : "Contained",
-      Closed: ar ? "مغلق" : "Closed",
+      Open: t("securityIncidents.open"),
+      Assessing: t("securityIncidents.assessing"),
+      Contained: t("securityIncidents.contained"),
+      Closed: t("securityIncidents.closed"),
     })[value];
   const audienceLabel = (value: Audience) =>
     value === "AffectedIndividuals"
-      ? ar
-        ? "الأشخاص المتأثرون"
-        : "Affected individuals"
-      : ar
-        ? "الجهة الرقابية"
-        : "Regulatory authority";
+      ? t("securityIncidents.affectedIndividuals")
+      : t("securityIncidents.regulatoryAuthority");
   const isClosed = selected?.status === "Closed";
   const legalDecisionRecorded = Boolean(
     selected?.breachAssessment?.legalConfirmedAtUtc,
@@ -193,15 +190,15 @@ export function SecurityIncidentManagement() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="max-w-3xl">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-            BETCCO · Security operations
+            {t("securityIncidents.bETCCOSecurityOperations")}
           </p>
           <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
-            {ar ? "سجل الحوادث الأمنية" : "Security incident register"}
+            {t("securityIncidents.securityIncidentRegister")}
           </h1>
           <p className="mt-3 leading-7 text-muted">
-            {ar
-              ? "سجل داخلي محدود الصلاحية. المهل تذكير تشغيلي فقط؛ لا يرسل النظام إشعارات قانونية ولا يتخذ قرارًا قانونيًا تلقائيًا."
-              : "A restricted internal register. Article 20 deadlines are tracked only after an authorised legal trigger decision; the system never sends legal notices or makes that determination automatically."}
+            {t(
+              "securityIncidents.aRestrictedInternalRegisterArticle20DeadlinesAreTrackedOnlyAfterA",
+            )}
           </p>
         </div>
         <button
@@ -210,12 +207,8 @@ export function SecurityIncidentManagement() {
           className="focus-ring rounded-xl bg-primary px-4 py-3 font-black text-slate-950"
         >
           {showCreate
-            ? ar
-              ? "إخفاء النموذج"
-              : "Hide form"
-            : ar
-              ? "تسجيل حادث"
-              : "Log incident"}
+            ? t("securityIncidents.hideForm")
+            : t("securityIncidents.logIncident")}
         </button>
       </div>
 
@@ -228,7 +221,7 @@ export function SecurityIncidentManagement() {
           }}
         >
           <label className="grid gap-2 text-sm font-black">
-            {ar ? "عنوان الحادث" : "Incident title"}
+            {t("securityIncidents.incidentTitle")}
             <input
               className="focus-ring rounded-xl border border-border bg-background px-3 py-2 text-foreground"
               value={title}
@@ -238,7 +231,7 @@ export function SecurityIncidentManagement() {
             />
           </label>
           <label className="grid gap-2 text-sm font-black">
-            {ar ? "رمز السبب" : "Reason code"}
+            {t("securityIncidents.reasonCode")}
             <input
               className="focus-ring rounded-xl border border-border bg-background px-3 py-2 text-foreground"
               value={reasonCode}
@@ -248,7 +241,7 @@ export function SecurityIncidentManagement() {
             />
           </label>
           <label className="grid gap-2 text-sm font-black">
-            {ar ? "الخطورة" : "Severity"}
+            {t("securityIncidents.severity")}
             <select
               className="focus-ring rounded-xl border border-border bg-background px-3 py-2 text-foreground"
               value={severity}
@@ -268,12 +261,10 @@ export function SecurityIncidentManagement() {
               checked={potentialDataImpact}
               onChange={(event) => setPotentialDataImpact(event.target.checked)}
             />
-            {ar
-              ? "قد تكون للواقعة آثار على بيانات شخصية"
-              : "The incident may affect personal data"}
+            {t("securityIncidents.theIncidentMayAffectPersonalData")}
           </label>
           <label className="grid gap-2 text-sm font-black sm:col-span-2">
-            {ar ? "ملخص تشغيلي مختصر" : "Concise operational summary"}
+            {t("securityIncidents.conciseOperationalSummary")}
             <textarea
               className="focus-ring min-h-28 rounded-xl border border-border bg-background p-3 text-foreground"
               value={summary}
@@ -289,12 +280,8 @@ export function SecurityIncidentManagement() {
               disabled={create.isPending}
             >
               {create.isPending
-                ? ar
-                  ? "جارٍ التسجيل…"
-                  : "Recording…"
-                : ar
-                  ? "تسجيل الحادث"
-                  : "Record incident"}
+                ? t("securityIncidents.recording")
+                : t("securityIncidents.recordIncident")}
             </button>
             {create.isError && (
               <p className="mt-3 text-sm text-danger" role="alert">
@@ -309,7 +296,7 @@ export function SecurityIncidentManagement() {
         <div className="card p-5 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-lg font-black">
-              {ar ? "الحوادث" : "Incidents"}
+              {t("securityIncidents.incidents")}
               {query.data ? ` (${query.data.totalCount})` : ""}
             </h2>
             <select
@@ -317,7 +304,7 @@ export function SecurityIncidentManagement() {
               value={status}
               onChange={(event) => setStatus(event.target.value as Status | "")}
             >
-              <option value="">{ar ? "كل الحالات" : "All statuses"}</option>
+              <option value="">{t("securityIncidents.allStatuses")}</option>
               {statuses.map((item) => (
                 <option key={item} value={item}>
                   {statusLabel(item)}
@@ -359,9 +346,7 @@ export function SecurityIncidentManagement() {
             </ul>
           ) : (
             <p className="mt-5 rounded-xl border border-dashed border-border p-4 text-sm text-muted">
-              {ar
-                ? "لا توجد حوادث بهذه الحالة."
-                : "There are no incidents in this status."}
+              {t("securityIncidents.thereAreNoIncidentsInThisStatus")}
             </p>
           )}
         </div>
@@ -369,9 +354,7 @@ export function SecurityIncidentManagement() {
         <aside className="card h-fit p-5 sm:p-6" aria-live="polite">
           {!selected ? (
             <p className="text-muted">
-              {ar
-                ? "اختر حادثًا من القائمة لمراجعته."
-                : "Select an incident to review it."}
+              {t("securityIncidents.selectAnIncidentToReviewIt")}
             </p>
           ) : (
             <form
@@ -392,7 +375,7 @@ export function SecurityIncidentManagement() {
                 {selected.summary}
               </p>
               <label className="grid gap-2 text-sm font-black">
-                {ar ? "الحالة" : "Status"}
+                {t("securityIncidents.status")}
                 <select
                   className="focus-ring rounded-xl border border-border bg-background px-3 py-2 text-foreground"
                   value={reviewStatus}
@@ -409,7 +392,7 @@ export function SecurityIncidentManagement() {
                 </select>
               </label>
               <label className="grid gap-2 text-sm font-black">
-                {ar ? "رمز سبب المراجعة" : "Review reason code"}
+                {t("securityIncidents.reviewReasonCode")}
                 <input
                   className="focus-ring rounded-xl border border-border bg-background px-3 py-2 text-foreground"
                   value={reviewReasonCode}
@@ -429,9 +412,7 @@ export function SecurityIncidentManagement() {
                     setPotentialDataImpact(event.target.checked)
                   }
                 />
-                {ar
-                  ? "توجد احتمالية تأثير على بيانات شخصية"
-                  : "There may be personal-data impact"}
+                {t("securityIncidents.thereMayBePersonaldataImpact")}
               </label>
               <label className="flex items-start gap-3 text-sm leading-6 text-muted">
                 <input
@@ -445,14 +426,12 @@ export function SecurityIncidentManagement() {
                     setLegalNotificationRequired(event.target.checked)
                   }
                 />
-                {ar
-                  ? "قرر المراجع القانوني المخول انطباق محفز الإشعار بموجب المادة 20"
-                  : "The authorised legal reviewer determined that the Article 20 notification trigger applies"}
+                {t(
+                  "securityIncidents.theAuthorisedLegalReviewerDeterminedThatTheArticle20NotificationT",
+                )}
               </label>
               <label className="grid gap-2 text-sm font-black">
-                {ar
-                  ? "سبب تقييم محفز المادة 20"
-                  : "Article 20 trigger-assessment reason"}
+                {t("securityIncidents.article20TriggerassessmentReason")}
                 <textarea
                   className="focus-ring min-h-24 rounded-xl border border-border bg-background p-3 text-foreground"
                   value={legalDecisionSummary}
@@ -473,20 +452,28 @@ export function SecurityIncidentManagement() {
                     setMarkLegalConfirmation(event.target.checked)
                   }
                 />
-                {ar
-                  ? "أوثّق قرار المراجع القانوني المخول بشأن محفز المادة 20 وفق الإجراء المعتمد"
-                  : "I record the authorised legal review decision on the Article 20 notification trigger under the approved process"}
+                {t(
+                  "securityIncidents.iRecordTheAuthorisedLegalReviewDecisionOnTheArticle20Notification",
+                )}
               </label>
               {legalDecisionRecorded && selected.breachAssessment ? (
                 <p className="rounded-xl border border-border bg-surface-solid/50 p-3 text-sm leading-6 text-muted">
-                  {ar
-                    ? `تم تسجيل قرار المادة 20 في ${date(selected.breachAssessment.legalConfirmedAtUtc!)} بواسطة ${selected.breachAssessment.legalConfirmedByUserId ?? "مستخدم مخول"}.`
-                    : `The Article 20 decision was recorded ${date(selected.breachAssessment.legalConfirmedAtUtc!)} by ${selected.breachAssessment.legalConfirmedByUserId ?? "an authorised user"}.`}
+                  {t(
+                    "securityIncidents.theArticle20DecisionWasRecordedDateByUser",
+                    {
+                      date: date(
+                        selected.breachAssessment.legalConfirmedAtUtc!,
+                      ),
+                      user:
+                        selected.breachAssessment.legalConfirmedByUserId ??
+                        t("securityIncidents.authorizedUser"),
+                    },
+                  )}
                 </p>
               ) : null}
               {reviewStatus === "Closed" && (
                 <label className="grid gap-2 text-sm font-black">
-                  {ar ? "ملخص الإغلاق" : "Closure summary"}
+                  {t("securityIncidents.closureSummary")}
                   <textarea
                     className="focus-ring min-h-24 rounded-xl border border-border bg-background p-3 text-foreground"
                     value={closureSummary}
@@ -499,7 +486,7 @@ export function SecurityIncidentManagement() {
               {selected.breachAssessment?.notificationDeadlines.length ? (
                 <div className="grid gap-3 rounded-xl border border-border bg-surface-solid/50 p-3">
                   <p className="font-black">
-                    {ar ? "مهل التذكير" : "Reminder deadlines"}
+                    {t("securityIncidents.reminderDeadlines")}
                   </p>
                   {selected.breachAssessment.notificationDeadlines.map(
                     (deadline) => (
@@ -515,7 +502,7 @@ export function SecurityIncidentManagement() {
                         </p>
                         {deadline.recordedAtUtc ? (
                           <p className="mt-2 text-emerald-600">
-                            {ar ? "تم تسجيل الإجراء" : "Action recorded"} ·{" "}
+                            {t("securityIncidents.actionRecorded")} ·{" "}
                             {date(deadline.recordedAtUtc)}
                           </p>
                         ) : (
@@ -524,11 +511,9 @@ export function SecurityIncidentManagement() {
                               className="focus-ring min-w-0 flex-1 rounded-lg border border-border bg-background px-2 py-1.5 text-foreground"
                               value={deadlineNotes[deadline.id] ?? ""}
                               maxLength={1000}
-                              placeholder={
-                                ar
-                                  ? "ملاحظة الإجراء الخارجي"
-                                  : "External action note"
-                              }
+                              placeholder={t(
+                                "securityIncidents.externalActionNote",
+                              )}
                               onChange={(event) =>
                                 setDeadlineNotes((notes) => ({
                                   ...notes,
@@ -551,7 +536,7 @@ export function SecurityIncidentManagement() {
                                 })
                               }
                             >
-                              {ar ? "تسجيل" : "Record"}
+                              {t("securityIncidents.record")}
                             </button>
                           </div>
                         )}
@@ -567,12 +552,8 @@ export function SecurityIncidentManagement() {
                   disabled={review.isPending}
                 >
                   {review.isPending
-                    ? ar
-                      ? "جارٍ الحفظ…"
-                      : "Saving…"
-                    : ar
-                      ? "حفظ المراجعة"
-                      : "Save review"}
+                    ? t("securityIncidents.saving")
+                    : t("securityIncidents.saveReview")}
                 </button>
               )}
               {review.isError && (

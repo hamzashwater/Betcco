@@ -15,7 +15,12 @@ import {
 } from "./helpers/admin-a5-5-10-15-i18n-audit";
 import { withoutFinalAdminAdditions } from "./helpers/admin-final-catalogue-projection";
 
-const completed: Scope[] = ["academicCatalogManagement", "academicCatalogue"];
+const completed: Scope[] = [
+  "academicCatalogManagement",
+  "academicCatalogue",
+  "privacyRequests",
+  "securityIncidents",
+];
 const names = Object.keys(scopes) as Scope[];
 const source = (name: Scope) =>
   readFileSync(`src/features/admin/${scopes[name][0]}.tsx`, "utf8");

@@ -192,6 +192,7 @@ export function audit(source: string, scope: Scope, cases: CopyCase[]) {
         ((n as ts.CallExpression).arguments[0] as ts.StringLiteral).text,
       );
       classifications.push({ text: n.getText(), kind: "STATIC_UI" });
+      ts.forEachChild(n, visit);
       return;
     }
     if (
