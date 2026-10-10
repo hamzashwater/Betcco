@@ -13,7 +13,11 @@ import { getPublicBrandSettings } from "@/lib/public-brand-settings.server";
 import { QueryClient, dehydrate } from "@tanstack/react-query";
 import type { Metadata } from "next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
-import { getMessages, setRequestLocale } from "next-intl/server";
+import {
+  getMessages,
+  getTranslations,
+  setRequestLocale,
+} from "next-intl/server";
 import { notFound } from "next/navigation";
 import { baseMetadata } from "@/lib/site-metadata";
 import "../globals.css";
@@ -63,6 +67,7 @@ export default async function LocaleLayout({ children, params }: Props) {
     getMessages(),
     getPublicBrandSettings(locale),
   ]);
+  const t = await getTranslations("navigation.accessibility");
   const queryClient = new QueryClient();
   queryClient.setQueryData(publicBrandSettingsQueryKey(locale), brandSettings);
   const publicBase =
@@ -98,9 +103,7 @@ export default async function LocaleLayout({ children, params }: Props) {
                 navigation={
                   <>
                     <a className="skip-link" href="#main-content">
-                      {locale === "ar"
-                        ? "الانتقال إلى المحتوى الرئيسي"
-                        : "Skip to main content"}
+                      {t("skipToMainContent")}
                     </a>
                     <SiteNavigation />
                   </>

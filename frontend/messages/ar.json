@@ -81,7 +81,8 @@
       "menuLinks": "روابط القائمة",
       "availableSpecializations": "التخصصات المتاحة",
       "grades": "الصفوف",
-      "specializations": "التخصصات"
+      "specializations": "التخصصات",
+      "skipToMainContent": "الانتقال إلى المحتوى الرئيسي"
     },
     "search": "بحث",
     "signingOut": "جارٍ الخروج…",
@@ -89,7 +90,29 @@
     "explorePath": "استكشف مسارك",
     "exploreDescription": "اختر صفك وتخصصك، ثم استكشف الدورات المنشورة المناسبة.",
     "allTracks": "كل المسارات",
-    "dashboard": "لوحتي"
+    "dashboard": "لوحتي",
+    "commandPalette": {
+      "browseCourses": "استكشف الدورات",
+      "tracks": "المسارات والتخصصات",
+      "label": "البحث السريع",
+      "placeholder": "ابحث عن دورة أو انتقل إلى صفحة…",
+      "close": "إغلاق البحث",
+      "searching": "جارٍ البحث…",
+      "empty": "لم نجد دورات مطابقة.",
+      "keyboardHelp": "↑↓ للتنقل · Enter للفتح · Esc للإغلاق"
+    },
+    "notifications": {
+      "unreadLabel": "الإشعارات، {count} غير مقروءة",
+      "title": "الإشعارات",
+      "unread": "{count} غير مقروءة",
+      "upToDate": "أنت على اطلاع",
+      "readAll": "قراءة الكل",
+      "empty": "لا توجد إشعارات حتى الآن."
+    },
+    "theme": {
+      "toggle": "تبديل المظهر",
+      "label": "المظهر"
+    }
   },
   "footer": {
     "description": "منصة تعليمية مستقلة متخصصة في طلاب BTEC.",
@@ -3086,6 +3109,27 @@
       "legacyRetakes": "إعادة التقييم القديمة",
       "bETCCONoLongerCreatesNewRetakeRequestsAssignmentReviewNowIncludes": "لم يعد BETCCO ينشئ طلبات Retake جديدة. خدمة تقييم المهمة تشمل مراجعة أولى، ملاحظات المعلم، ثم فحص نسخة معدلة واحدة ضمن نفس الطلب.",
       "historicalRetakeRecordsRemainAvailableForReadingAndAuditButNoNewR": "تظل طلبات Retake التاريخية محفوظة للقراءة والتدقيق، لكن لا يمكن إنشاء Retake جديد من هذه الصفحة أو من واجهة البرمجة."
+    }
+  },
+  "appShell": {
+    "error": {
+      "title": "تعذر تحميل هذه الصفحة",
+      "description": "حدثت مشكلة مؤقتة أثناء تحميل المحتوى. يمكنك المحاولة مرة أخرى بأمان.",
+      "retry": "إعادة المحاولة"
+    },
+    "loading": "جارٍ تحميل BETCCO"
+  },
+  "forms": {
+    "filePicker": {
+      "noFilesSelected": "لم يتم اختيار ملفات بعد",
+      "oneFileSelected": "ملف واحد مختار",
+      "filesSelected": "{count} ملفات مختارة",
+      "chooseFile": "اختيار ملف",
+      "chooseFiles": "اختيار ملفات",
+      "selectedFiles": "الملفات المختارة",
+      "chooseInput": "اختيار {label}",
+      "removeFile": "إزالة الملف {fileName}",
+      "oversizedFile": "الملف «{fileName}» أكبر من الحد المسموح: {limit} لكل ملف."
     }
   }
 }

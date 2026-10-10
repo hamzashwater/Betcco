@@ -1,10 +1,16 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { NextIntlClientProvider } from "next-intl";
+import en from "../messages/en.json";
 
 describe("ThemeToggle", () => {
   it("persists the selected theme without a hydration-dependent default", () => {
-    render(<ThemeToggle />);
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <ThemeToggle />
+      </NextIntlClientProvider>,
+    );
     fireEvent.click(screen.getByRole("button", { name: "Toggle theme" }));
     expect(document.documentElement.dataset.theme).toBe("dark");
     expect(localStorage.getItem("betcco-theme")).toBe("dark");

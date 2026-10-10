@@ -1,4 +1,9 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
 export default function LocaleLoading() {
+  const t = useTranslations("appShell");
   return (
     <main className="shell py-10" aria-busy aria-live="polite">
       <div className="h-44 animate-pulse rounded-3xl border border-border bg-white/5" />
@@ -10,7 +15,7 @@ export default function LocaleLoading() {
           />
         ))}
       </div>
-      <span className="sr-only">Loading BETCCO</span>
+      <span className="sr-only">{t("loading")}</span>
     </main>
   );
 }

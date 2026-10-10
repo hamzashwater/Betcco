@@ -1549,7 +1549,6 @@
     "FilePicker: -help",
     "FilePicker: -label",
     "FilePicker: alert",
-    "FilePicker: ar",
     "FilePicker: block break-words text-sm font-bold text-text-primary",
     "FilePicker: button",
     "FilePicker: file",
@@ -1570,7 +1569,6 @@
     "FilePicker: sr-only",
     "FilePicker: text-sm font-black text-text-primary",
     "FilePicker: true",
-    "FilePicker: “",
     "fileKey: ",
     "fileKey: :",
     "fileType: .",
@@ -1578,6 +1576,7 @@
     "formatBytes:  MB",
     "module: @/components/ui/action",
     "module: lucide-react",
+    "module: next-intl",
     "module: react",
     "module: use client"
   ]

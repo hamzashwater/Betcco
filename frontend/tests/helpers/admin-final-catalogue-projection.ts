@@ -1,5 +1,6 @@
 import baseline from "../fixtures/admin-a5-5-10-15-copy-baseline.json";
 import ts from "typescript";
+import { withoutSharedShellAdditions } from "./shared-shell-catalogue-projection";
 
 export function restorePrebatchAdminFunctions(source: string) {
   const file = ts.createSourceFile(
@@ -23,6 +24,7 @@ export function restorePrebatchAdminFunctions(source: string) {
 // Historical audits project away only the independently frozen final-batch
 // additions. Existing values and every earlier slice remain in their hashes.
 export function withoutFinalAdminAdditions(catalogue: Record<string, unknown>) {
+  withoutSharedShellAdditions(catalogue);
   // T7-A5.5-R adds exactly one independently tested Content Studio fallback.
   // Keep every historical hash and source freeze intact. Do not project away
   // its namespace, existing values, unrelated new keys, or production source.
