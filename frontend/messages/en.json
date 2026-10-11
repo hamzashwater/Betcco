@@ -3414,5 +3414,62 @@
       "thisIsABetccoCompletionCertificateNotA": "This is a BETCCO completion certificate, not a Pearson certificate or official Pearson BTEC accreditation.",
       "backToBetcco": "Back to BETCCO"
     }
+  },
+  "publicPurchase": {
+    "cart": {
+      "studentRequired": "A student account is required",
+      "studentDescription": "You can keep exploring as a guest, but the cart, payment, and course learning require a signed-in student account.",
+      "signIn": "Sign in",
+      "continueGuest": "Continue as guest",
+      "loadError": "Unable to load cart.",
+      "title": "Learning cart",
+      "description": "Review the courses you selected before creating a secure checkout session. Prices are calculated on the server.",
+      "removeItem": "Remove item",
+      "empty": "Your cart is empty.",
+      "explore": "Explore courses",
+      "summary": "Order summary",
+      "subtotal": "Subtotal",
+      "total": "Total",
+      "checkout": "Proceed to checkout",
+      "eyebrow": "BETCCO Checkout"
+    },
+    "checkout": {
+      "title": "Checkout",
+      "description": "Returning to this page does not change payment status. In production, enrollment happens only after server-side provider confirmation.",
+      "coupon": "Coupon code",
+      "method": "Payment method",
+      "card": "Bank card",
+      "bankTransfer": "Bank transfer",
+      "wallet": "E-wallet",
+      "create": "Create checkout session",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "tax": "Tax",
+      "total": "Total: ",
+      "developmentNotice": "Development only: complete the test payment for your own account. This is not an external payment-provider confirmation.",
+      "confirmTest": "Complete test payment",
+      "requestFailed": "Request failed."
+    },
+    "result": {
+      "title": "Payment verification in progress",
+      "description": "Returning from the payment page does not confirm success. Access is activated only after the server securely verifies the transaction with the payment provider."
+    },
+    "memberships": {
+      "title": "BETCCO memberships & subscriptions",
+      "description": "Choose monthly, quarterly, or yearly access. Learning access begins only after server-side payment confirmation.",
+      "coupon": "Optional coupon code",
+      "plans": "Membership plans",
+      "start": "Start checkout",
+      "signIn": "Sign in to checkout",
+      "empty": "No memberships are published yet.",
+      "subscriptions": "Course subscriptions",
+      "subscriptionStart": "Start checkout",
+      "developmentNotice": "Local test only: complete the test payment for your account. Production needs confirmation from a real payment provider.",
+      "confirmTest": "Complete test payment",
+      "requestFailed": "Request failed."
+    },
+    "packages": {
+      "browseCourses": "Browse available courses"
+    }
   }
 }

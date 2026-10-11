@@ -5,6 +5,8 @@ import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CartView } from "@/features/cart/cart-view";
 import { Checkout } from "@/features/cart/checkout";
+import ar from "../messages/ar.json";
+import en from "../messages/en.json";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
@@ -16,7 +18,10 @@ vi.mock("@/lib/api", async (importOriginal) => ({
 
 function renderCart(locale: "ar" | "en") {
   return render(
-    <NextIntlClientProvider locale={locale} messages={{}}>
+    <NextIntlClientProvider
+      locale={locale}
+      messages={locale === "ar" ? ar : en}
+    >
       <QueryClientProvider
         client={
           new QueryClient({ defaultOptions: { queries: { retry: false } } })
@@ -30,7 +35,7 @@ function renderCart(locale: "ar" | "en") {
 
 function renderCheckout() {
   return render(
-    <NextIntlClientProvider locale="en" messages={{}}>
+    <NextIntlClientProvider locale="en" messages={en}>
       <QueryClientProvider
         client={
           new QueryClient({ defaultOptions: { queries: { retry: false } } })

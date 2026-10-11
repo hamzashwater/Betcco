@@ -5,7 +5,7 @@ import { formatLocalizedCurrency } from "@/i18n/number-format";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, ShoppingBag, Trash2, WalletCards } from "lucide-react";
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 type Cart = {
   id: string;
@@ -25,30 +25,25 @@ type Cart = {
 type CurrentUser = { roles: string[] };
 
 export function StudentPurchaseAccess({ locale }: { locale: string }) {
+  const copy = useTranslations("publicPurchase.cart");
   return (
     <div className="card mx-auto max-w-2xl p-6 text-center sm:p-8">
-      <h1 className="text-2xl font-black">
-        {locale === "ar"
-          ? "يلزم حساب طالب للشراء"
-          : "A student account is required"}
-      </h1>
+      <h1 className="text-2xl font-black">{copy("studentRequired")}</h1>
       <p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-muted">
-        {locale === "ar"
-          ? "يمكنك متابعة استكشاف الموقع كضيف، لكن السلة والدفع ومتابعة الدورات تتطلب تسجيل الدخول بحساب طالب."
-          : "You can keep exploring as a guest, but the cart, payment, and course learning require a signed-in student account."}
+        {copy("studentDescription")}
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         <Link
           href={`/${locale}/login`}
           className="focus-ring rounded-xl bg-primary px-4 py-3 font-black text-slate-950"
         >
-          {locale === "ar" ? "تسجيل الدخول" : "Sign in"}
+          {copy("signIn")}
         </Link>
         <Link
           href={`/${locale}/courses`}
           className="focus-ring rounded-xl border border-border px-4 py-3 font-black"
         >
-          {locale === "ar" ? "المتابعة كضيف" : "Continue as guest"}
+          {copy("continueGuest")}
         </Link>
       </div>
     </div>
@@ -56,6 +51,7 @@ export function StudentPurchaseAccess({ locale }: { locale: string }) {
 }
 
 export function CartView() {
+  const copy = useTranslations("publicPurchase.cart");
   const locale = useLocale();
   const client = useQueryClient();
   const user = useQuery({
@@ -90,22 +86,20 @@ export function CartView() {
   if (cart.isError)
     return (
       <p role="alert" className="card p-6">
-        {locale === "ar" ? "تعذر تحميل السلة." : "Unable to load cart."}
+        {copy("loadError")}
       </p>
     );
   return (
     <div>
       <header className="relative overflow-hidden rounded-3xl border border-border bg-[radial-gradient(circle_at_85%_15%,color-mix(in_srgb,var(--primary)_26%,transparent),transparent_35%),linear-gradient(135deg,color-mix(in_srgb,var(--surface)_94%,transparent),color-mix(in_srgb,var(--surface-solid)_75%,transparent))] p-6 shadow-[var(--shadow)] sm:p-8">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-          BETCCO Checkout
+          {copy("eyebrow")}
         </p>
         <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
-          {locale === "ar" ? "سلة التعلّم" : "Learning cart"}
+          {copy("title")}
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
-          {locale === "ar"
-            ? "راجع الدورات التي اخترتها قبل إنشاء جلسة الدفع الآمنة. الأسعار تحسب من الخادم."
-            : "Review the courses you selected before creating a secure checkout session. Prices are calculated on the server."}
+          {copy("description")}
         </p>
       </header>
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
@@ -130,7 +124,7 @@ export function CartView() {
                   </strong>
                   <button
                     className="focus-ring rounded-lg p-2 text-red-400 hover:bg-red-400/10"
-                    aria-label={locale === "ar" ? "حذف العنصر" : "Remove item"}
+                    aria-label={copy("removeItem")}
                     onClick={() => remove.mutate(item.id)}
                   >
                     <Trash2 size={18} />
@@ -145,14 +139,12 @@ export function CartView() {
                 size={28}
                 aria-hidden="true"
               />
-              <p className="mt-4 text-muted">
-                {locale === "ar" ? "سلتك فارغة." : "Your cart is empty."}
-              </p>
+              <p className="mt-4 text-muted">{copy("empty")}</p>
               <Link
                 href={`/${locale}/courses`}
                 className="focus-ring mt-4 inline-flex items-center gap-1 text-sm font-black text-primary"
               >
-                {locale === "ar" ? "استكشف الدورات" : "Explore courses"}
+                {copy("explore")}
                 <ArrowLeft
                   size={16}
                   className="rtl:rotate-180"
@@ -167,12 +159,10 @@ export function CartView() {
             <span className="grid size-9 place-items-center rounded-xl bg-primary/15 text-primary">
               <WalletCards size={18} aria-hidden="true" />
             </span>
-            <h2 className="text-xl font-black">
-              {locale === "ar" ? "ملخص الطلب" : "Order summary"}
-            </h2>
+            <h2 className="text-xl font-black">{copy("summary")}</h2>
           </div>
           <div className="mt-5 flex justify-between text-sm">
-            <span>{locale === "ar" ? "الإجمالي" : "Subtotal"}</span>
+            <span>{copy("subtotal")}</span>
             <span>
               {formatLocalizedCurrency(
                 cart.data.subtotal,
@@ -182,7 +172,7 @@ export function CartView() {
             </span>
           </div>
           <div className="mt-3 flex justify-between border-t pt-3 text-lg font-black">
-            <span>{locale === "ar" ? "المجموع" : "Total"}</span>
+            <span>{copy("total")}</span>
             <span>
               {formatLocalizedCurrency(
                 cart.data.total,
@@ -195,7 +185,7 @@ export function CartView() {
             className={`focus-ring mt-5 block rounded-xl bg-primary px-4 py-3 text-center font-black text-slate-950 ${cart.data.items.length ? "" : "pointer-events-none opacity-50"}`}
             href={`/${locale}/checkout`}
           >
-            {locale === "ar" ? "الانتقال للدفع" : "Proceed to checkout"}
+            {copy("checkout")}
           </Link>
         </aside>
       </div>

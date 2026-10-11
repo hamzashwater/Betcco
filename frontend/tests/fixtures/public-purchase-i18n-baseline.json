@@ -1,0 +1,1038 @@
+{
+  "base": "fa4d3281376b9ec57c1030159fe44b5c9d0a868f",
+  "sources": {
+    "src/features/cart/cart-view.tsx": "\"use client\";\n\nimport { api } from \"@/lib/api\";\nimport { formatLocalizedCurrency } from \"@/i18n/number-format\";\nimport { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\nimport { ArrowLeft, ShoppingBag, Trash2, WalletCards } from \"lucide-react\";\nimport Link from \"next/link\";\nimport { useLocale } from \"next-intl\";\n\ntype Cart = {\n  id: string;\n  items: {\n    id: string;\n    referenceId: string;\n    itemType: string;\n    title: string;\n    price: number;\n  }[];\n  subtotal: number;\n  discount: number;\n  total: number;\n  currency: string;\n};\n\ntype CurrentUser = { roles: string[] };\n\nexport function StudentPurchaseAccess({ locale }: { locale: string }) {\n  return (\n    <div className=\"card mx-auto max-w-2xl p-6 text-center sm:p-8\">\n      <h1 className=\"text-2xl font-black\">\n        {locale === \"ar\"\n          ? \"يلزم حساب طالب للشراء\"\n          : \"A student account is required\"}\n      </h1>\n      <p className=\"mx-auto mt-3 max-w-lg text-sm leading-7 text-muted\">\n        {locale === \"ar\"\n          ? \"يمكنك متابعة استكشاف الموقع كضيف، لكن السلة والدفع ومتابعة الدورات تتطلب تسجيل الدخول بحساب طالب.\"\n          : \"You can keep exploring as a guest, but the cart, payment, and course learning require a signed-in student account.\"}\n      </p>\n      <div className=\"mt-6 flex flex-wrap justify-center gap-3\">\n        <Link\n          href={`/${locale}/login`}\n          className=\"focus-ring rounded-xl bg-primary px-4 py-3 font-black text-slate-950\"\n        >\n          {locale === \"ar\" ? \"تسجيل الدخول\" : \"Sign in\"}\n        </Link>\n        <Link\n          href={`/${locale}/courses`}\n          className=\"focus-ring rounded-xl border border-border px-4 py-3 font-black\"\n        >\n          {locale === \"ar\" ? \"المتابعة كضيف\" : \"Continue as guest\"}\n        </Link>\n      </div>\n    </div>\n  );\n}\n\nexport function CartView() {\n  const locale = useLocale();\n  const client = useQueryClient();\n  const user = useQuery({\n    queryKey: [\"current-user\"],\n    queryFn: () => api<CurrentUser>(\"/auth/me\"),\n    retry: false,\n    staleTime: 60_000,\n  });\n  const isStudent = user.data?.roles.includes(\"Student\") ?? false;\n  const cart = useQuery({\n    queryKey: [\"cart\", locale],\n    queryFn: () => api<Cart>(`/cart?locale=${locale}`),\n    enabled: isStudent,\n  });\n  const remove = useMutation({\n    mutationFn: (id: string) => api(`/cart/items/${id}`, { method: \"DELETE\" }),\n    onSuccess: () => client.invalidateQueries({ queryKey: [\"cart\"] }),\n  });\n  if (user.isPending)\n    return (\n      <div className=\"card p-6\" aria-busy>\n        …\n      </div>\n    );\n  if (!isStudent) return <StudentPurchaseAccess locale={locale} />;\n  if (cart.isPending)\n    return (\n      <div className=\"card p-6\" aria-busy>\n        …\n      </div>\n    );\n  if (cart.isError)\n    return (\n      <p role=\"alert\" className=\"card p-6\">\n        {locale === \"ar\" ? \"تعذر تحميل السلة.\" : \"Unable to load cart.\"}\n      </p>\n    );\n  return (\n    <div>\n      <header className=\"relative overflow-hidden rounded-3xl border border-border bg-[radial-gradient(circle_at_85%_15%,color-mix(in_srgb,var(--primary)_26%,transparent),transparent_35%),linear-gradient(135deg,color-mix(in_srgb,var(--surface)_94%,transparent),color-mix(in_srgb,var(--surface-solid)_75%,transparent))] p-6 shadow-[var(--shadow)] sm:p-8\">\n        <p className=\"text-xs font-black uppercase tracking-[0.18em] text-primary\">\n          BETCCO Checkout\n        </p>\n        <h1 className=\"mt-3 text-3xl font-black tracking-tight sm:text-4xl\">\n          {locale === \"ar\" ? \"سلة التعلّم\" : \"Learning cart\"}\n        </h1>\n        <p className=\"mt-3 max-w-2xl text-sm leading-7 text-muted\">\n          {locale === \"ar\"\n            ? \"راجع الدورات التي اخترتها قبل إنشاء جلسة الدفع الآمنة. الأسعار تحسب من الخادم.\"\n            : \"Review the courses you selected before creating a secure checkout session. Prices are calculated on the server.\"}\n        </p>\n      </header>\n      <div className=\"mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]\">\n        <div className=\"card divide-y divide-border overflow-hidden\">\n          {cart.data.items.length ? (\n            cart.data.items.map((item) => (\n              <div\n                key={item.id}\n                className=\"flex items-center justify-between gap-4 p-5\"\n              >\n                <div className=\"min-w-0\">\n                  <p className=\"font-bold\">{item.title}</p>\n                  <p className=\"mt-1 text-xs text-muted\">{item.itemType}</p>\n                </div>\n                <div className=\"flex items-center gap-4\">\n                  <strong>\n                    {formatLocalizedCurrency(\n                      item.price,\n                      cart.data.currency,\n                      locale,\n                    )}\n                  </strong>\n                  <button\n                    className=\"focus-ring rounded-lg p-2 text-red-400 hover:bg-red-400/10\"\n                    aria-label={locale === \"ar\" ? \"حذف العنصر\" : \"Remove item\"}\n                    onClick={() => remove.mutate(item.id)}\n                  >\n                    <Trash2 size={18} />\n                  </button>\n                </div>\n              </div>\n            ))\n          ) : (\n            <div className=\"p-8 text-center\">\n              <ShoppingBag\n                className=\"mx-auto text-primary\"\n                size={28}\n                aria-hidden=\"true\"\n              />\n              <p className=\"mt-4 text-muted\">\n                {locale === \"ar\" ? \"سلتك فارغة.\" : \"Your cart is empty.\"}\n              </p>\n              <Link\n                href={`/${locale}/courses`}\n                className=\"focus-ring mt-4 inline-flex items-center gap-1 text-sm font-black text-primary\"\n              >\n                {locale === \"ar\" ? \"استكشف الدورات\" : \"Explore courses\"}\n                <ArrowLeft\n                  size={16}\n                  className=\"rtl:rotate-180\"\n                  aria-hidden=\"true\"\n                />\n              </Link>\n            </div>\n          )}\n        </div>\n        <aside className=\"card h-fit p-5 lg:sticky lg:top-24\">\n          <div className=\"flex items-center gap-2\">\n            <span className=\"grid size-9 place-items-center rounded-xl bg-primary/15 text-primary\">\n              <WalletCards size={18} aria-hidden=\"true\" />\n            </span>\n            <h2 className=\"text-xl font-black\">\n              {locale === \"ar\" ? \"ملخص الطلب\" : \"Order summary\"}\n            </h2>\n          </div>\n          <div className=\"mt-5 flex justify-between text-sm\">\n            <span>{locale === \"ar\" ? \"الإجمالي\" : \"Subtotal\"}</span>\n            <span>\n              {formatLocalizedCurrency(\n                cart.data.subtotal,\n                cart.data.currency,\n                locale,\n              )}\n            </span>\n          </div>\n          <div className=\"mt-3 flex justify-between border-t pt-3 text-lg font-black\">\n            <span>{locale === \"ar\" ? \"المجموع\" : \"Total\"}</span>\n            <span>\n              {formatLocalizedCurrency(\n                cart.data.total,\n                cart.data.currency,\n                locale,\n              )}\n            </span>\n          </div>\n          <Link\n            className={`focus-ring mt-5 block rounded-xl bg-primary px-4 py-3 text-center font-black text-slate-950 ${cart.data.items.length ? \"\" : \"pointer-events-none opacity-50\"}`}\n            href={`/${locale}/checkout`}\n          >\n            {locale === \"ar\" ? \"الانتقال للدفع\" : \"Proceed to checkout\"}\n          </Link>\n        </aside>\n      </div>\n    </div>\n  );\n}\n",
+    "src/features/cart/checkout.tsx": "\"use client\";\n\nimport { api } from \"@/lib/api\";\nimport { formatLocalizedCurrency } from \"@/i18n/number-format\";\nimport { StudentPurchaseAccess } from \"@/features/cart/cart-view\";\nimport { useMutation, useQuery } from \"@tanstack/react-query\";\nimport {\n  BadgeCheck,\n  LockKeyhole,\n  TicketPercent,\n  WalletCards,\n} from \"lucide-react\";\nimport { useLocale } from \"next-intl\";\nimport { useRouter } from \"next/navigation\";\nimport { useState } from \"react\";\n\ntype CheckoutResult = {\n  paymentId: string;\n  status: string;\n  provider: string;\n  checkoutReference: string;\n  redirectUrl: string | null;\n  subtotal: number;\n  discount: number;\n  tax: number;\n  total: number;\n  currency: string;\n  paymentMethod: string;\n};\n\nexport function Checkout() {\n  const locale = useLocale();\n  const router = useRouter();\n  const [coupon, setCoupon] = useState(\"\");\n  const [paymentMethod, setPaymentMethod] = useState(\"Card\");\n  const user = useQuery({\n    queryKey: [\"current-user\"],\n    queryFn: () => api<{ roles: string[] }>(\"/auth/me\"),\n    retry: false,\n    staleTime: 60_000,\n  });\n  const isStudent = user.data?.roles.includes(\"Student\") ?? false;\n  const checkout = useMutation({\n    mutationFn: () =>\n      api<CheckoutResult>(\"/cart/checkout\", {\n        method: \"POST\",\n        headers: { \"Idempotency-Key\": crypto.randomUUID() },\n        body: JSON.stringify({\n          couponCode: coupon || null,\n          paymentMethod,\n        }),\n      }),\n    onSuccess: (payment) => {\n      if (payment.redirectUrl) window.location.assign(payment.redirectUrl);\n    },\n  });\n  const confirm = useMutation({\n    mutationFn: (payment: CheckoutResult) =>\n      api(\"/payments/fake/confirm\", {\n        method: \"POST\",\n        body: JSON.stringify({\n          paymentId: payment.paymentId,\n          providerEventId: `test_${crypto.randomUUID()}`,\n        }),\n      }),\n    onSuccess: () => router.push(`/${locale}/student/courses`),\n  });\n  const activeError = checkout.error ?? confirm.error;\n  function confirmPayment() {\n    if (checkout.data) confirm.mutate(checkout.data);\n  }\n  if (user.isPending)\n    return (\n      <div className=\"card p-6\" aria-busy>\n        …\n      </div>\n    );\n  if (!isStudent) return <StudentPurchaseAccess locale={locale} />;\n  return (\n    <div className=\"card mx-auto max-w-2xl overflow-hidden p-0\">\n      <div className=\"border-b border-border bg-[radial-gradient(circle_at_85%_15%,color-mix(in_srgb,var(--primary)_25%,transparent),transparent_36%),linear-gradient(135deg,color-mix(in_srgb,var(--surface)_94%,transparent),color-mix(in_srgb,var(--surface-solid)_78%,transparent))] p-6 sm:p-8\">\n        <span className=\"grid size-11 place-items-center rounded-2xl bg-primary/15 text-primary\">\n          <WalletCards size={22} aria-hidden=\"true\" />\n        </span>\n        <h1 className=\"mt-5 text-3xl font-black tracking-tight\">\n          {locale === \"ar\" ? \"الدفع\" : \"Checkout\"}\n        </h1>\n        <p className=\"mt-3 text-sm leading-7 text-muted\">\n          {locale === \"ar\"\n            ? \"لا يغيّر الرجوع إلى هذه الصفحة حالة الدفع. في الإنتاج يتم التسجيل فقط بعد تأكيد مزود الدفع من الخادم.\"\n            : \"Returning to this page does not change payment status. In production, enrollment happens only after server-side provider confirmation.\"}\n        </p>\n      </div>\n      <div className=\"p-6 sm:p-8\">\n        <label className=\"mt-5 grid gap-1 text-sm font-semibold\">\n          <span className=\"inline-flex items-center gap-2 text-muted\">\n            <TicketPercent\n              size={16}\n              className=\"text-primary\"\n              aria-hidden=\"true\"\n            />\n            {locale === \"ar\" ? \"كود الخصم\" : \"Coupon code\"}\n          </span>\n          <input\n            value={coupon}\n            onChange={(event) => setCoupon(event.target.value)}\n            className=\"focus-ring rounded-xl border border-border bg-transparent px-3 py-3\"\n          />\n        </label>\n        <fieldset className=\"mt-6 grid gap-3\">\n          <legend className=\"text-sm font-semibold\">\n            {locale === \"ar\" ? \"طريقة الدفع\" : \"Payment method\"}\n          </legend>\n          <div className=\"grid gap-2 sm:grid-cols-3\">\n            {[\n              {\n                value: \"Card\",\n                ar: \"بطاقة بنكية\",\n                en: \"Bank card\",\n              },\n              {\n                value: \"BankTransfer\",\n                ar: \"تحويل بنكي\",\n                en: \"Bank transfer\",\n              },\n              {\n                value: \"EWallet\",\n                ar: \"محفظة إلكترونية\",\n                en: \"E-wallet\",\n              },\n            ].map((method) => (\n              <label\n                key={method.value}\n                className={`focus-within:ring-2 focus-within:ring-primary flex cursor-pointer items-center gap-2 rounded-xl border p-3 text-sm font-bold ${paymentMethod === method.value ? \"border-primary bg-primary/10\" : \"border-border bg-white/5\"}`}\n              >\n                <input\n                  type=\"radio\"\n                  name=\"payment-method\"\n                  value={method.value}\n                  checked={paymentMethod === method.value}\n                  onChange={() => setPaymentMethod(method.value)}\n                />\n                {locale === \"ar\" ? method.ar : method.en}\n              </label>\n            ))}\n          </div>\n        </fieldset>\n        <button\n          disabled={checkout.isPending}\n          onClick={() => checkout.mutate()}\n          className=\"focus-ring mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-black text-slate-950 disabled:opacity-60\"\n        >\n          <LockKeyhole size={18} aria-hidden=\"true\" />\n          {locale === \"ar\" ? \"إنشاء جلسة الدفع\" : \"Create checkout session\"}\n        </button>\n        {checkout.data?.provider.startsWith(\"Fake\") && (\n          <div className=\"mt-6 rounded-2xl border border-primary/30 bg-primary/10 p-5\">\n            <dl className=\"grid gap-2 text-sm text-muted\">\n              <div className=\"flex items-center justify-between gap-4\">\n                <dt>{locale === \"ar\" ? \"المبلغ قبل الخصم\" : \"Subtotal\"}</dt>\n                <dd>\n                  {formatLocalizedCurrency(\n                    checkout.data.subtotal,\n                    checkout.data.currency,\n                    locale,\n                  )}\n                </dd>\n              </div>\n              {checkout.data.discount > 0 ? (\n                <div className=\"flex items-center justify-between gap-4\">\n                  <dt>{locale === \"ar\" ? \"الخصم\" : \"Discount\"}</dt>\n                  <dd>\n                    {formatLocalizedCurrency(\n                      -checkout.data.discount,\n                      checkout.data.currency,\n                      locale,\n                    )}\n                  </dd>\n                </div>\n              ) : null}\n              <div className=\"flex items-center justify-between gap-4\">\n                <dt>{locale === \"ar\" ? \"الضريبة\" : \"Tax\"}</dt>\n                <dd>\n                  {formatLocalizedCurrency(\n                    checkout.data.tax,\n                    checkout.data.currency,\n                    locale,\n                  )}\n                </dd>\n              </div>\n            </dl>\n            <p className=\"mt-3 border-t border-primary/25 pt-3 text-lg font-black text-foreground\">\n              {locale === \"ar\" ? \"المجموع: \" : \"Total: \"}\n              {formatLocalizedCurrency(\n                checkout.data.total,\n                checkout.data.currency,\n                locale,\n              )}\n            </p>\n            <p className=\"mt-2 text-sm leading-6 text-muted\">\n              {locale === \"ar\"\n                ? \"بيئة التطوير فقط: أكمل الدفع الاختباري لحسابك. لا يمثل هذا تأكيدًا من مزود دفع خارجي.\"\n                : \"Development only: complete the test payment for your own account. This is not an external payment-provider confirmation.\"}\n            </p>\n            <button\n              disabled={confirm.isPending}\n              onClick={confirmPayment}\n              className=\"focus-ring mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950\"\n            >\n              <BadgeCheck size={17} aria-hidden=\"true\" />\n              {locale === \"ar\"\n                ? \"إتمام الدفع الاختباري\"\n                : \"Complete test payment\"}\n            </button>\n          </div>\n        )}\n        {(checkout.isError || confirm.isError) && (\n          <p role=\"alert\" className=\"mt-4 text-sm text-red-600\">\n            {activeError instanceof Error\n              ? activeError.message\n              : \"Request failed.\"}\n          </p>\n        )}\n      </div>\n    </div>\n  );\n}\n",
+    "src/app/[locale]/checkout/paytabs-result/page.tsx": "\"use client\";\n\nimport { useLocale } from \"next-intl\";\n\nexport default function PayTabsResultPage() {\n  const locale = useLocale();\n  return (\n    <main className=\"mx-auto max-w-2xl px-4 py-16 sm:px-6\">\n      <section className=\"card p-6 sm:p-8\">\n        <h1 className=\"text-2xl font-black tracking-tight\">\n          {locale === \"ar\"\n            ? \"جارٍ التحقق من الدفع\"\n            : \"Payment verification in progress\"}\n        </h1>\n        <p className=\"mt-3 text-sm leading-7 text-muted\">\n          {locale === \"ar\"\n            ? \"العودة من صفحة الدفع لا تؤكد نجاح العملية. سيتم تفعيل الوصول فقط بعد التحقق الآمن من العملية لدى مزود الدفع.\"\n            : \"Returning from the payment page does not confirm success. Access is activated only after the server securely verifies the transaction with the payment provider.\"}\n        </p>\n      </section>\n    </main>\n  );\n}\n",
+    "src/features/public/public-content.tsx": "\"use client\";\n\nimport { formatLocalizedDate } from \"@/i18n/date-time\";\nimport { formatLocalizedCurrency } from \"@/i18n/number-format\";\nimport { api } from \"@/lib/api\";\nimport { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\nimport {\n  ArrowLeft,\n  BookOpenCheck,\n  CalendarClock,\n  Clock3,\n  GraduationCap,\n  Newspaper,\n  PackageCheck,\n  ShoppingCart,\n  UsersRound,\n  Video,\n} from \"lucide-react\";\nimport Link from \"next/link\";\nimport { useLocale, useTranslations } from \"next-intl\";\nimport { useRouter } from \"next/navigation\";\nimport { useState } from \"react\";\n\ntype BlogSummary = {\n  slug: string;\n  title: string;\n  excerpt: string;\n  publishedAtUtc: string;\n};\ntype BlogPost = BlogSummary & { body: string };\ntype Teacher = {\n  id: string;\n  displayName: string;\n  bio?: string;\n  specializations?: string;\n  courses: { slug: string; title: string }[];\n};\ntype LearningPackage = {\n  id: string;\n  slug: string;\n  title: string;\n  description: string;\n  price: number;\n  currency: string;\n  originalPrice: number;\n  discountAmount: number;\n  courses: { slug: string; title: string }[];\n};\ntype LiveSession = {\n  id: string;\n  title: string;\n  description?: string;\n  provider: string;\n  startsAtUtc: string;\n  endsAtUtc: string;\n  capacity?: number;\n  course?: { slug: string; title: string };\n};\ntype CurrentUser = { roles: string[] };\ntype CheckoutResult = {\n  paymentId: string;\n  provider: string;\n  total: number;\n  currency: string;\n};\n\nfunction PublicHeader({\n  icon: Icon,\n  eyebrow,\n  title,\n  description,\n}: {\n  icon: typeof Newspaper;\n  eyebrow: string;\n  title: string;\n  description: string;\n}) {\n  return (\n    <header className=\"relative overflow-hidden rounded-3xl border border-border bg-[radial-gradient(circle_at_86%_16%,color-mix(in_srgb,var(--primary)_28%,transparent),transparent_35%),linear-gradient(135deg,color-mix(in_srgb,var(--surface)_94%,transparent),color-mix(in_srgb,var(--surface-solid)_75%,transparent))] p-7 shadow-[var(--shadow)] sm:p-10\">\n      <span className=\"grid size-12 place-items-center rounded-2xl bg-primary/15 text-primary\">\n        <Icon size={23} aria-hidden=\"true\" />\n      </span>\n      <p className=\"mt-5 text-xs font-black uppercase tracking-[0.18em] text-primary\">\n        {eyebrow}\n      </p>\n      <h1 className=\"mt-3 text-3xl font-black tracking-tight sm:text-5xl\">\n        {title}\n      </h1>\n      <p className=\"mt-4 max-w-2xl leading-7 text-muted\">{description}</p>\n    </header>\n  );\n}\n\nfunction EmptyState({ text }: { text: string }) {\n  return <p className=\"card mt-7 p-6 text-center text-muted\">{text}</p>;\n}\n\nexport function MembershipDirectory() {\n  const locale = useLocale();\n  const router = useRouter();\n  const [coupon, setCoupon] = useState(\"\");\n  const memberships = useQuery({\n    queryKey: [\"public-memberships\", locale],\n    queryFn: () =>\n      api<\n        {\n          id: string;\n          title: string;\n          description: string;\n          features: string[];\n          price: number;\n          currency: string;\n          interval: string;\n          courses: { title: string }[];\n        }[]\n      >(`/memberships?locale=${locale}`),\n  });\n  const subscriptions = useQuery({\n    queryKey: [\"public-course-subscriptions\", locale],\n    queryFn: () =>\n      api<\n        {\n          id: string;\n          title: string;\n          courseTitle: string;\n          price: number;\n          currency: string;\n          interval: string;\n        }[]\n      >(`/course-subscriptions?locale=${locale}`),\n  });\n  const user = useQuery({\n    queryKey: [\"current-user\"],\n    queryFn: () => api<CurrentUser>(\"/auth/me\"),\n    retry: false,\n    staleTime: 60_000,\n  });\n  const checkout = useMutation({\n    mutationFn: ({\n      kind,\n      id,\n    }: {\n      kind: \"membership\" | \"subscription\";\n      id: string;\n    }) =>\n      api<CheckoutResult>(\n        `/${kind === \"membership\" ? \"memberships\" : \"course-subscriptions\"}/${id}/checkout`,\n        {\n          method: \"POST\",\n          headers: { \"Idempotency-Key\": crypto.randomUUID() },\n          body: JSON.stringify({\n            couponCode: coupon || null,\n            paymentMethod: \"Card\",\n          }),\n        },\n      ),\n  });\n  const confirm = useMutation({\n    mutationFn: (payment: CheckoutResult) =>\n      api(\"/payments/fake/confirm\", {\n        method: \"POST\",\n        body: JSON.stringify({\n          paymentId: payment.paymentId,\n          providerEventId: `membership_test_${crypto.randomUUID()}`,\n        }),\n      }),\n    onSuccess: () => router.push(`/${locale}/student/courses`),\n  });\n  const isStudent = user.data?.roles.includes(\"Student\") ?? false;\n  const start = (kind: \"membership\" | \"subscription\", id: string) => {\n    if (!isStudent) {\n      router.push(`/${locale}/login`);\n      return;\n    }\n    checkout.mutate({ kind, id });\n  };\n  const heading =\n    locale === \"ar\"\n      ? \"عضويات BETCCO والاشتراكات\"\n      : \"BETCCO memberships & subscriptions\";\n  return (\n    <section className=\"shell py-12\">\n      <PublicHeader\n        icon={UsersRound}\n        eyebrow=\"BETCCO\"\n        title={heading}\n        description={\n          locale === \"ar\"\n            ? \"اختر وصولًا شهريًا أو ربع سنويًا أو سنويًا. لا يبدأ الوصول إلا بعد تأكيد الدفع من الخادم.\"\n            : \"Choose monthly, quarterly, or yearly access. Learning access begins only after server-side payment confirmation.\"\n        }\n      />\n      <label className=\"mt-6 grid max-w-sm gap-1 text-sm font-bold text-muted\">\n        {locale === \"ar\" ? \"كود خصم اختياري\" : \"Optional coupon code\"}\n        <input\n          value={coupon}\n          onChange={(event) => setCoupon(event.target.value)}\n          className=\"rounded-xl border border-border bg-transparent px-3 py-2.5 text-foreground\"\n        />\n      </label>\n      <h2 className=\"mt-8 text-2xl font-black\">\n        {locale === \"ar\" ? \"العضويات\" : \"Membership plans\"}\n      </h2>\n      <div className=\"mt-4 grid gap-4 md:grid-cols-3\">\n        {memberships.data?.map((plan) => (\n          <article key={plan.id} className=\"card flex flex-col p-6\">\n            <p className=\"text-xs font-black text-primary\">{plan.interval}</p>\n            <h3 className=\"mt-2 text-xl font-black\">{plan.title}</h3>\n            <p className=\"mt-3 text-sm leading-6 text-muted\">\n              {plan.description}\n            </p>\n            <ul className=\"mt-4 grid gap-1 text-sm text-muted\">\n              {plan.features.map((feature) => (\n                <li key={feature}>• {feature}</li>\n              ))}\n            </ul>\n            <p className=\"mt-5 text-xl font-black\">\n              {formatLocalizedCurrency(plan.price, plan.currency, locale)}\n            </p>\n            <button\n              type=\"button\"\n              onClick={() => start(\"membership\", plan.id)}\n              disabled={checkout.isPending}\n              className=\"focus-ring mt-5 rounded-xl bg-primary px-4 py-3 text-sm font-black text-slate-950 disabled:opacity-50\"\n            >\n              {isStudent\n                ? locale === \"ar\"\n                  ? \"بدء الدفع\"\n                  : \"Start checkout\"\n                : locale === \"ar\"\n                  ? \"سجّل للدفع\"\n                  : \"Sign in to checkout\"}\n            </button>\n          </article>\n        ))}\n      </div>\n      {!memberships.isPending && !memberships.data?.length ? (\n        <EmptyState\n          text={\n            locale === \"ar\"\n              ? \"لا توجد عضويات منشورة الآن.\"\n              : \"No memberships are published yet.\"\n          }\n        />\n      ) : null}\n      <h2 className=\"mt-10 text-2xl font-black\">\n        {locale === \"ar\" ? \"اشتراكات الدورات\" : \"Course subscriptions\"}\n      </h2>\n      <div className=\"mt-4 grid gap-4 md:grid-cols-3\">\n        {subscriptions.data?.map((plan) => (\n          <article key={plan.id} className=\"card p-6\">\n            <p className=\"text-xs font-black text-primary\">{plan.interval}</p>\n            <h3 className=\"mt-2 text-xl font-black\">{plan.title}</h3>\n            <p className=\"mt-2 text-sm text-muted\">{plan.courseTitle}</p>\n            <p className=\"mt-5 text-xl font-black\">\n              {formatLocalizedCurrency(plan.price, plan.currency, locale)}\n            </p>\n            <button\n              type=\"button\"\n              onClick={() => start(\"subscription\", plan.id)}\n              disabled={checkout.isPending}\n              className=\"focus-ring mt-5 rounded-xl border border-primary/50 px-4 py-3 text-sm font-black text-primary disabled:opacity-50\"\n            >\n              {locale === \"ar\" ? \"بدء الدفع\" : \"Start checkout\"}\n            </button>\n          </article>\n        ))}\n      </div>\n      {checkout.data?.provider.startsWith(\"Fake\") ? (\n        <div className=\"card mt-7 max-w-xl p-5\">\n          <p className=\"font-black\">\n            {formatLocalizedCurrency(\n              checkout.data.total,\n              checkout.data.currency,\n              locale,\n            )}\n          </p>\n          <p className=\"mt-2 text-sm text-muted\">\n            {locale === \"ar\"\n              ? \"اختبار محلي فقط: أتمم الدفع الاختباري لحسابك. الإنتاج يحتاج تأكيدًا من مزود دفع فعلي.\"\n              : \"Local test only: complete the test payment for your account. Production needs confirmation from a real payment provider.\"}\n          </p>\n          <button\n            type=\"button\"\n            onClick={() => confirm.mutate(checkout.data!)}\n            disabled={confirm.isPending}\n            className=\"focus-ring mt-4 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950\"\n          >\n            {locale === \"ar\"\n              ? \"إتمام الدفع الاختباري\"\n              : \"Complete test payment\"}\n          </button>\n        </div>\n      ) : null}\n      {checkout.error || confirm.error ? (\n        <p role=\"alert\" className=\"mt-4 text-sm text-red-400\">\n          {(checkout.error ?? confirm.error) instanceof Error\n            ? (checkout.error ?? (confirm.error as Error)).message\n            : \"Request failed.\"}\n        </p>\n      ) : null}\n    </section>\n  );\n}\n\nfunction FormatDate({ value }: { value: string }) {\n  const locale = useLocale();\n  return <time dateTime={value}>{formatLocalizedDate(value, locale)}</time>;\n}\n\nexport function PublicBlog({ slug }: { slug?: string }) {\n  const locale = useLocale();\n  const t = useTranslations(\"publicContent.blog\");\n  const article = useQuery({\n    queryKey: [\"public-blog-post\", slug, locale],\n    queryFn: () => api<BlogPost>(`/public/blog/${slug}?locale=${locale}`),\n    enabled: Boolean(slug),\n  });\n  const listing = useQuery({\n    queryKey: [\"public-blog\", locale],\n    queryFn: () =>\n      api<{ items: BlogSummary[] }>(`/public/blog?locale=${locale}`),\n    enabled: !slug,\n  });\n  if (slug) {\n    if (article.isPending) return <section className=\"shell py-12\" aria-busy />;\n    if (article.isError || !article.data)\n      return (\n        <section className=\"shell py-12\">\n          <EmptyState text={t(\"empty\")} />\n        </section>\n      );\n    return (\n      <article className=\"shell max-w-4xl py-12\">\n        <Link\n          href={`/${locale}/blog`}\n          className=\"focus-ring inline-flex items-center gap-2 text-sm font-black text-primary\"\n        >\n          <ArrowLeft size={16} className=\"rtl:rotate-180\" aria-hidden=\"true\" />\n          {t(\"back\")}\n        </Link>\n        <p className=\"mt-8 text-xs font-black uppercase tracking-[0.18em] text-primary\">\n          {t(\"label\")}\n        </p>\n        <h1 className=\"mt-3 text-4xl font-black tracking-tight sm:text-5xl\">\n          {article.data.title}\n        </h1>\n        <p className=\"mt-4 text-sm text-muted\">\n          {t(\"published\")} <FormatDate value={article.data.publishedAtUtc} />\n        </p>\n        <p className=\"mt-7 text-lg leading-8 text-muted\">\n          {article.data.excerpt}\n        </p>\n        <div className=\"card mt-8 whitespace-pre-line p-6 leading-8 text-foreground sm:p-9\">\n          {article.data.body}\n        </div>\n      </article>\n    );\n  }\n  return (\n    <section className=\"shell py-12\">\n      <PublicHeader\n        icon={Newspaper}\n        eyebrow={t(\"label\")}\n        title={t(\"title\")}\n        description={t(\"description\")}\n      />\n      {listing.isPending ? (\n        <div\n          className=\"mt-7 h-64 animate-pulse rounded-3xl bg-white/5\"\n          aria-busy\n        />\n      ) : null}\n      {!listing.isPending && !listing.data?.items.length ? (\n        <EmptyState text={t(\"empty\")} />\n      ) : null}\n      <div className=\"mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-3\">\n        {listing.data?.items.map((post) => (\n          <article key={post.slug} className=\"card flex flex-col p-6\">\n            <p className=\"text-xs text-muted\">\n              <FormatDate value={post.publishedAtUtc} />\n            </p>\n            <h2 className=\"mt-3 text-xl font-black leading-7\">{post.title}</h2>\n            <p className=\"mt-3 flex-1 text-sm leading-6 text-muted\">\n              {post.excerpt}\n            </p>\n            <Link\n              className=\"focus-ring mt-5 inline-flex items-center gap-1 self-start text-sm font-black text-primary\"\n              href={`/${locale}/blog/${post.slug}`}\n            >\n              {t(\"readMore\")}\n              <ArrowLeft\n                size={16}\n                className=\"rtl:rotate-180\"\n                aria-hidden=\"true\"\n              />\n            </Link>\n          </article>\n        ))}\n      </div>\n    </section>\n  );\n}\n\nexport function TeacherDirectory() {\n  const locale = useLocale();\n  const t = useTranslations(\"publicContent.teachers\");\n  const teachers = useQuery({\n    queryKey: [\"public-teachers\", locale],\n    queryFn: () => api<Teacher[]>(`/public/teachers?locale=${locale}`),\n  });\n  return (\n    <section className=\"shell py-12\">\n      <PublicHeader\n        icon={UsersRound}\n        eyebrow={t(\"label\")}\n        title={t(\"title\")}\n        description={t(\"description\")}\n      />\n      {teachers.isPending ? (\n        <div\n          className=\"mt-7 h-64 animate-pulse rounded-3xl bg-white/5\"\n          aria-busy\n        />\n      ) : null}\n      {!teachers.isPending && !teachers.data?.length ? (\n        <EmptyState text={t(\"empty\")} />\n      ) : null}\n      <div className=\"mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-3\">\n        {teachers.data?.map((teacher) => (\n          <article key={teacher.id} className=\"card p-6\">\n            <span className=\"grid size-12 place-items-center rounded-2xl bg-secondary/15 text-secondary\">\n              <GraduationCap size={23} aria-hidden=\"true\" />\n            </span>\n            <h2 className=\"mt-5 text-xl font-black\">{teacher.displayName}</h2>\n            {teacher.specializations ? (\n              <p className=\"mt-2 text-sm font-bold text-primary\">\n                {teacher.specializations}\n              </p>\n            ) : null}\n            {teacher.bio ? (\n              <p className=\"mt-3 text-sm leading-6 text-muted\">{teacher.bio}</p>\n            ) : null}\n            <div className=\"mt-5 border-t border-border pt-4\">\n              <p className=\"text-xs font-black uppercase tracking-wide text-muted\">\n                {t(\"courses\")}\n              </p>\n              <div className=\"mt-3 grid gap-2\">\n                {teacher.courses.map((course) => (\n                  <Link\n                    key={course.slug}\n                    href={`/${locale}/courses/${course.slug}`}\n                    className=\"focus-ring text-sm font-bold text-primary hover:underline\"\n                  >\n                    {course.title}\n                  </Link>\n                ))}\n              </div>\n            </div>\n          </article>\n        ))}\n      </div>\n    </section>\n  );\n}\n\nexport function PackageDirectory() {\n  const locale = useLocale();\n  const router = useRouter();\n  const client = useQueryClient();\n  const t = useTranslations(\"publicContent.packages\");\n  const [notice, setNotice] = useState<string>();\n  const packages = useQuery({\n    queryKey: [\"public-packages\", locale],\n    queryFn: () => api<LearningPackage[]>(`/public/packages?locale=${locale}`),\n  });\n  const user = useQuery({\n    queryKey: [\"current-user\"],\n    queryFn: () => api<CurrentUser>(\"/auth/me\"),\n    retry: false,\n    staleTime: 60_000,\n  });\n  const add = useMutation({\n    mutationFn: (slug: string) =>\n      api(`/cart/packages/${slug}?locale=${locale}`, { method: \"POST\" }),\n    onSuccess: () => {\n      setNotice(t(\"added\"));\n      client.invalidateQueries({ queryKey: [\"cart\"] });\n    },\n    onError: (error) =>\n      setNotice(error instanceof Error ? error.message : t(\"studentOnly\")),\n  });\n  function addToCart(packageItem: LearningPackage) {\n    if (!user.data) return router.push(`/${locale}/login`);\n    if (!user.data.roles.includes(\"Student\"))\n      return setNotice(t(\"studentOnly\"));\n    add.mutate(packageItem.id);\n  }\n  return (\n    <section className=\"shell py-12\">\n      <PublicHeader\n        icon={PackageCheck}\n        eyebrow={t(\"label\")}\n        title={t(\"title\")}\n        description={t(\"description\")}\n      />\n      {packages.isPending ? (\n        <div\n          className=\"mt-7 h-64 animate-pulse rounded-3xl bg-white/5\"\n          aria-busy\n        />\n      ) : null}\n      {!packages.isPending && !packages.data?.length ? (\n        <div className=\"card mt-7 p-6 text-center\">\n          <p className=\"text-muted\">{t(\"empty\")}</p>\n          <Link\n            href={`/${locale}/courses`}\n            className=\"focus-ring mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950\"\n          >\n            <BookOpenCheck size={17} aria-hidden=\"true\" />\n            {locale === \"ar\"\n              ? \"استكشف الدورات المتاحة\"\n              : \"Browse available courses\"}\n          </Link>\n        </div>\n      ) : null}\n      <div className=\"mt-7 grid gap-4 lg:grid-cols-3\">\n        {packages.data?.map((packageItem) => (\n          <article key={packageItem.slug} className=\"card flex flex-col p-6\">\n            <span className=\"grid size-11 place-items-center rounded-2xl bg-primary/15 text-primary\">\n              <PackageCheck size={21} aria-hidden=\"true\" />\n            </span>\n            <h2 className=\"mt-5 text-2xl font-black\">{packageItem.title}</h2>\n            <p className=\"mt-3 flex-1 text-sm leading-6 text-muted\">\n              {packageItem.description}\n            </p>\n            <p className=\"mt-5 text-sm font-black text-muted\">{t(\"courses\")}</p>\n            <ul className=\"mt-3 grid gap-2 text-sm\">\n              {packageItem.courses.map((course) => (\n                <li key={course.slug} className=\"flex gap-2\">\n                  <BookOpenCheck\n                    size={16}\n                    className=\"mt-0.5 shrink-0 text-primary\"\n                    aria-hidden=\"true\"\n                  />\n                  {course.title}\n                </li>\n              ))}\n            </ul>\n            <div className=\"mt-6 flex items-center justify-between gap-4 border-t border-border pt-5\">\n              <div className=\"grid gap-0.5\">\n                {packageItem.discountAmount > 0 ? (\n                  <span className=\"text-xs text-muted line-through\">\n                    {formatLocalizedCurrency(\n                      packageItem.originalPrice,\n                      packageItem.currency,\n                      locale,\n                    )}\n                  </span>\n                ) : null}\n                <strong>\n                  {formatLocalizedCurrency(\n                    packageItem.price,\n                    packageItem.currency,\n                    locale,\n                  )}\n                </strong>\n                {packageItem.discountAmount > 0 ? (\n                  <span className=\"text-xs font-bold text-primary\">\n                    {t(\"saving\", {\n                      amount: formatLocalizedCurrency(\n                        packageItem.discountAmount,\n                        packageItem.currency,\n                        locale,\n                      ),\n                    })}\n                  </span>\n                ) : null}\n              </div>\n              <button\n                type=\"button\"\n                onClick={() => addToCart(packageItem)}\n                disabled={add.isPending || user.isPending}\n                className=\"focus-ring inline-flex items-center gap-2 rounded-xl bg-primary px-3 py-2.5 text-sm font-black text-slate-950 disabled:opacity-60\"\n              >\n                <ShoppingCart size={16} aria-hidden=\"true\" />\n                {user.data ? t(\"add\") : t(\"login\")}\n              </button>\n            </div>\n          </article>\n        ))}\n      </div>\n      {notice ? (\n        <p role=\"status\" className=\"mt-5 text-sm text-primary\">\n          {notice}{\" \"}\n          {add.isSuccess ? (\n            <Link\n              href={`/${locale}/cart`}\n              className=\"focus-ring font-black underline\"\n            >\n              {t(\"viewCart\")}\n            </Link>\n          ) : null}\n        </p>\n      ) : null}\n    </section>\n  );\n}\n\nexport function LiveSessionDirectory() {\n  const locale = useLocale();\n  const router = useRouter();\n  const t = useTranslations(\"publicContent.live\");\n  const [notice, setNotice] = useState<string>();\n  const sessions = useQuery({\n    queryKey: [\"public-live-sessions\", locale],\n    queryFn: () => api<LiveSession[]>(`/public/live-sessions?locale=${locale}`),\n  });\n  const user = useQuery({\n    queryKey: [\"current-user\"],\n    queryFn: () => api<CurrentUser>(\"/auth/me\"),\n    retry: false,\n    staleTime: 60_000,\n  });\n  const join = useMutation({\n    mutationFn: (id: string) =>\n      api<{ joinUrl: string }>(`/public/live-sessions/${id}/join`),\n    onSuccess: ({ joinUrl }) =>\n      window.open(joinUrl, \"_blank\", \"noopener,noreferrer\"),\n    onError: () => setNotice(t(\"unavailable\")),\n  });\n  function requestJoin(session: LiveSession) {\n    if (!user.data) return router.push(`/${locale}/login`);\n    if (!user.data.roles.includes(\"Student\"))\n      return setNotice(t(\"studentOnly\"));\n    join.mutate(session.id);\n  }\n  return (\n    <section className=\"shell py-12\">\n      <PublicHeader\n        icon={Video}\n        eyebrow={t(\"label\")}\n        title={t(\"title\")}\n        description={t(\"description\")}\n      />\n      {sessions.isPending ? (\n        <div\n          className=\"mt-7 h-64 animate-pulse rounded-3xl bg-white/5\"\n          aria-busy\n        />\n      ) : null}\n      {!sessions.isPending && !sessions.data?.length ? (\n        <EmptyState text={t(\"empty\")} />\n      ) : null}\n      <div className=\"mt-7 grid gap-4 md:grid-cols-2\">\n        {sessions.data?.map((session) => (\n          <article key={session.id} className=\"card p-6\">\n            <div className=\"flex items-start justify-between gap-4\">\n              <span className=\"grid size-11 place-items-center rounded-2xl bg-secondary/15 text-secondary\">\n                <CalendarClock size={21} aria-hidden=\"true\" />\n              </span>\n              <span className=\"rounded-full bg-white/5 px-3 py-1 text-xs font-bold text-muted\">\n                {session.provider}\n              </span>\n            </div>\n            <h2 className=\"mt-5 text-2xl font-black\">{session.title}</h2>\n            {session.description ? (\n              <p className=\"mt-3 text-sm leading-6 text-muted\">\n                {session.description}\n              </p>\n            ) : null}\n            {session.course ? (\n              <Link\n                href={`/${locale}/courses/${session.course.slug}`}\n                className=\"focus-ring mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary\"\n              >\n                <BookOpenCheck size={16} aria-hidden=\"true\" />\n                {t(\"course\")}: {session.course.title}\n              </Link>\n            ) : null}\n            <div className=\"mt-5 grid gap-2 border-y border-border py-4 text-sm text-muted\">\n              <p className=\"flex items-center gap-2\">\n                <Clock3 size={16} aria-hidden=\"true\" />\n                {t(\"starts\")}: <FormatDate value={session.startsAtUtc} />\n              </p>\n              <p>\n                {t(\"ends\")}: <FormatDate value={session.endsAtUtc} />\n              </p>\n            </div>\n            <button\n              type=\"button\"\n              onClick={() => requestJoin(session)}\n              disabled={join.isPending || user.isPending}\n              className=\"focus-ring mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 font-black text-slate-950 disabled:opacity-60\"\n            >\n              <Video size={17} aria-hidden=\"true\" />\n              {user.data ? t(\"join\") : t(\"login\")}\n            </button>\n          </article>\n        ))}\n      </div>\n      {notice ? (\n        <p role=\"status\" className=\"mt-5 text-sm text-amber-400\">\n          {notice}\n        </p>\n      ) : null}\n    </section>\n  );\n}\n"
+  },
+  "records": {
+    "src/features/cart/cart-view.tsx": [
+      {
+        "line": 31,
+        "owner": "StudentPurchaseAccess",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"يلزم حساب طالب للشراء\" : \"A student account is required\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "يلزم حساب طالب للشراء",
+        "en": "A student account is required"
+      },
+      {
+        "line": 36,
+        "owner": "StudentPurchaseAccess",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"يمكنك متابعة استكشاف الموقع كضيف، لكن السلة والدفع ومتابعة الدورات تتطلب تسجيل الدخول بحساب طالب.\" : \"You can keep exploring as a guest, but the cart, payment, and course learning require a signed-in student account.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "يمكنك متابعة استكشاف الموقع كضيف، لكن السلة والدفع ومتابعة الدورات تتطلب تسجيل الدخول بحساب طالب.",
+        "en": "You can keep exploring as a guest, but the cart, payment, and course learning require a signed-in student account."
+      },
+      {
+        "line": 45,
+        "owner": "StudentPurchaseAccess",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تسجيل الدخول\" : \"Sign in\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تسجيل الدخول",
+        "en": "Sign in"
+      },
+      {
+        "line": 51,
+        "owner": "StudentPurchaseAccess",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"المتابعة كضيف\" : \"Continue as guest\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "المتابعة كضيف",
+        "en": "Continue as guest"
+      },
+      {
+        "line": 93,
+        "owner": "CartView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تعذر تحميل السلة.\" : \"Unable to load cart.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تعذر تحميل السلة.",
+        "en": "Unable to load cart."
+      },
+      {
+        "line": 103,
+        "owner": "CartView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"سلة التعلّم\" : \"Learning cart\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "سلة التعلّم",
+        "en": "Learning cart"
+      },
+      {
+        "line": 106,
+        "owner": "CartView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"راجع الدورات التي اخترتها قبل إنشاء جلسة الدفع الآمنة. الأسعار تحسب من الخادم.\" : \"Review the courses you selected before creating a secure checkout session. Prices are calculated on the server.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "راجع الدورات التي اخترتها قبل إنشاء جلسة الدفع الآمنة. الأسعار تحسب من الخادم.",
+        "en": "Review the courses you selected before creating a secure checkout session. Prices are calculated on the server."
+      },
+      {
+        "line": 133,
+        "owner": "CartView",
+        "category": "ACCESSIBILITY_STATIC_UI",
+        "originalCategory": "ACCESSIBILITY_STATIC_UI",
+        "context": "locale === \"ar\" ? \"حذف العنصر\" : \"Remove item\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "حذف العنصر",
+        "en": "Remove item"
+      },
+      {
+        "line": 149,
+        "owner": "CartView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"سلتك فارغة.\" : \"Your cart is empty.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "سلتك فارغة.",
+        "en": "Your cart is empty."
+      },
+      {
+        "line": 155,
+        "owner": "CartView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"استكشف الدورات\" : \"Explore courses\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "استكشف الدورات",
+        "en": "Explore courses"
+      },
+      {
+        "line": 171,
+        "owner": "CartView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"ملخص الطلب\" : \"Order summary\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "ملخص الطلب",
+        "en": "Order summary"
+      },
+      {
+        "line": 175,
+        "owner": "CartView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"الإجمالي\" : \"Subtotal\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "الإجمالي",
+        "en": "Subtotal"
+      },
+      {
+        "line": 185,
+        "owner": "CartView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"المجموع\" : \"Total\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "المجموع",
+        "en": "Total"
+      },
+      {
+        "line": 198,
+        "owner": "CartView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"الانتقال للدفع\" : \"Proceed to checkout\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "الانتقال للدفع",
+        "en": "Proceed to checkout"
+      },
+      {
+        "line": 100,
+        "owner": "CartView",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "BETCCO Checkout ",
+        "reason": "Hardcoded JSX child",
+        "en": "BETCCO Checkout"
+      }
+    ],
+    "src/features/cart/checkout.tsx": [
+      {
+        "line": 86,
+        "owner": "Checkout",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"الدفع\" : \"Checkout\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "الدفع",
+        "en": "Checkout"
+      },
+      {
+        "line": 89,
+        "owner": "Checkout",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"لا يغيّر الرجوع إلى هذه الصفحة حالة الدفع. في الإنتاج يتم التسجيل فقط بعد تأكيد مزود الدفع من الخادم.\" : \"Returning to this page does not change payment status. In production, enrollment happens only after server-side provider confirmation.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "لا يغيّر الرجوع إلى هذه الصفحة حالة الدفع. في الإنتاج يتم التسجيل فقط بعد تأكيد مزود الدفع من الخادم.",
+        "en": "Returning to this page does not change payment status. In production, enrollment happens only after server-side provider confirmation."
+      },
+      {
+        "line": 102,
+        "owner": "Checkout",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"كود الخصم\" : \"Coupon code\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "كود الخصم",
+        "en": "Coupon code"
+      },
+      {
+        "line": 112,
+        "owner": "Checkout",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"طريقة الدفع\" : \"Payment method\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "طريقة الدفع",
+        "en": "Payment method"
+      },
+      {
+        "line": 116,
+        "owner": "Checkout",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ value: \"Card\", ar: \"بطاقة بنكية\", en: \"Bank card\", }",
+        "reason": "Static AR/EN display map",
+        "ar": "بطاقة بنكية",
+        "en": "Bank card"
+      },
+      {
+        "line": 121,
+        "owner": "Checkout",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ value: \"BankTransfer\", ar: \"تحويل بنكي\", en: \"Bank transfer\", }",
+        "reason": "Static AR/EN display map",
+        "ar": "تحويل بنكي",
+        "en": "Bank transfer"
+      },
+      {
+        "line": 126,
+        "owner": "Checkout",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "{ value: \"EWallet\", ar: \"محفظة إلكترونية\", en: \"E-wallet\", }",
+        "reason": "Static AR/EN display map",
+        "ar": "محفظة إلكترونية",
+        "en": "E-wallet"
+      },
+      {
+        "line": 154,
+        "owner": "Checkout",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"إنشاء جلسة الدفع\" : \"Create checkout session\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "إنشاء جلسة الدفع",
+        "en": "Create checkout session"
+      },
+      {
+        "line": 160,
+        "owner": "Checkout",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"المبلغ قبل الخصم\" : \"Subtotal\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "المبلغ قبل الخصم",
+        "en": "Subtotal"
+      },
+      {
+        "line": 171,
+        "owner": "Checkout",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"الخصم\" : \"Discount\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "الخصم",
+        "en": "Discount"
+      },
+      {
+        "line": 182,
+        "owner": "Checkout",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"الضريبة\" : \"Tax\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "الضريبة",
+        "en": "Tax"
+      },
+      {
+        "line": 193,
+        "owner": "Checkout",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"المجموع: \" : \"Total: \"",
+        "reason": "Static locale-selected display copy",
+        "ar": "المجموع: ",
+        "en": "Total: "
+      },
+      {
+        "line": 201,
+        "owner": "Checkout",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"بيئة التطوير فقط: أكمل الدفع الاختباري لحسابك. لا يمثل هذا تأكيدًا من مزود دفع خارجي.\" : \"Development only: complete the test payment for your own account. This is not an external payment-provider confirmation.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "بيئة التطوير فقط: أكمل الدفع الاختباري لحسابك. لا يمثل هذا تأكيدًا من مزود دفع خارجي.",
+        "en": "Development only: complete the test payment for your own account. This is not an external payment-provider confirmation."
+      },
+      {
+        "line": 211,
+        "owner": "Checkout",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"إتمام الدفع الاختباري\" : \"Complete test payment\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "إتمام الدفع الاختباري",
+        "en": "Complete test payment"
+      },
+      {
+        "line": 221,
+        "category": "STATIC_UI",
+        "context": "activeError instanceof Error ? activeError.message : \"Request failed.\"",
+        "reason": "Locally authored non-Error fallback rendered to user; raw Error.message precedence retained",
+        "reviewed": true
+      }
+    ],
+    "src/app/[locale]/checkout/paytabs-result/page.tsx": [
+      {
+        "line": 11,
+        "owner": "PayTabsResultPage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"جارٍ التحقق من الدفع\" : \"Payment verification in progress\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "جارٍ التحقق من الدفع",
+        "en": "Payment verification in progress"
+      },
+      {
+        "line": 16,
+        "owner": "PayTabsResultPage",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"العودة من صفحة الدفع لا تؤكد نجاح العملية. سيتم تفعيل الوصول فقط بعد التحقق الآمن من العملية لدى مزود الدفع.\" : \"Returning from the payment page does not confirm success. Access is activated only after the server securely verifies the transaction with the payment provider.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "العودة من صفحة الدفع لا تؤكد نجاح العملية. سيتم تفعيل الوصول فقط بعد التحقق الآمن من العملية لدى مزود الدفع.",
+        "en": "Returning from the payment page does not confirm success. Access is activated only after the server securely verifies the transaction with the payment provider."
+      }
+    ],
+    "src/features/public/public-content.tsx": [
+      {
+        "line": 178,
+        "owner": "heading",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"عضويات BETCCO والاشتراكات\" : \"BETCCO memberships & subscriptions\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "عضويات BETCCO والاشتراكات",
+        "en": "BETCCO memberships & subscriptions"
+      },
+      {
+        "line": 188,
+        "owner": "MembershipDirectory",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"اختر وصولًا شهريًا أو ربع سنويًا أو سنويًا. لا يبدأ الوصول إلا بعد تأكيد الدفع من الخادم.\" : \"Choose monthly, quarterly, or yearly access. Learning access begins only after server-side payment confirmation.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "اختر وصولًا شهريًا أو ربع سنويًا أو سنويًا. لا يبدأ الوصول إلا بعد تأكيد الدفع من الخادم.",
+        "en": "Choose monthly, quarterly, or yearly access. Learning access begins only after server-side payment confirmation."
+      },
+      {
+        "line": 194,
+        "owner": "MembershipDirectory",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"كود خصم اختياري\" : \"Optional coupon code\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "كود خصم اختياري",
+        "en": "Optional coupon code"
+      },
+      {
+        "line": 202,
+        "owner": "MembershipDirectory",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"العضويات\" : \"Membership plans\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "العضويات",
+        "en": "Membership plans"
+      },
+      {
+        "line": 227,
+        "owner": "MembershipDirectory",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"بدء الدفع\" : \"Start checkout\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "بدء الدفع",
+        "en": "Start checkout"
+      },
+      {
+        "line": 230,
+        "owner": "MembershipDirectory",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"سجّل للدفع\" : \"Sign in to checkout\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "سجّل للدفع",
+        "en": "Sign in to checkout"
+      },
+      {
+        "line": 240,
+        "owner": "MembershipDirectory",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"لا توجد عضويات منشورة الآن.\" : \"No memberships are published yet.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "لا توجد عضويات منشورة الآن.",
+        "en": "No memberships are published yet."
+      },
+      {
+        "line": 247,
+        "owner": "MembershipDirectory",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"اشتراكات الدورات\" : \"Course subscriptions\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "اشتراكات الدورات",
+        "en": "Course subscriptions"
+      },
+      {
+        "line": 264,
+        "owner": "MembershipDirectory",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"بدء الدفع\" : \"Start checkout\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "بدء الدفع",
+        "en": "Start checkout"
+      },
+      {
+        "line": 279,
+        "owner": "MembershipDirectory",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"اختبار محلي فقط: أتمم الدفع الاختباري لحسابك. الإنتاج يحتاج تأكيدًا من مزود دفع فعلي.\" : \"Local test only: complete the test payment for your account. Production needs confirmation from a real payment provider.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "اختبار محلي فقط: أتمم الدفع الاختباري لحسابك. الإنتاج يحتاج تأكيدًا من مزود دفع فعلي.",
+        "en": "Local test only: complete the test payment for your account. Production needs confirmation from a real payment provider."
+      },
+      {
+        "line": 289,
+        "owner": "MembershipDirectory",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"إتمام الدفع الاختباري\" : \"Complete test payment\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "إتمام الدفع الاختباري",
+        "en": "Complete test payment"
+      },
+      {
+        "line": 521,
+        "owner": "PackageDirectory",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"استكشف الدورات المتاحة\" : \"Browse available courses\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "استكشف الدورات المتاحة",
+        "en": "Browse available courses"
+      },
+      {
+        "line": 299,
+        "category": "STATIC_UI",
+        "context": "(checkout.error ?? confirm.error) instanceof Error ? (checkout.error ?? (confirm.error as Error)).message : \"Request failed.\"",
+        "reason": "Locally authored non-Error fallback rendered to user; raw Error.message precedence retained",
+        "reviewed": true
+      }
+    ]
+  },
+  "replacements": {
+    "src/features/cart/cart-view.tsx": [
+      {
+        "start": 809,
+        "end": 904,
+        "original": "locale === \"ar\"\n          ? \"يلزم حساب طالب للشراء\"\n          : \"A student account is required\"",
+        "text": "copy(\"studentRequired\")",
+        "recordLine": 31,
+        "key": "cart.studentRequired"
+      },
+      {
+        "start": 1000,
+        "end": 1256,
+        "original": "locale === \"ar\"\n          ? \"يمكنك متابعة استكشاف الموقع كضيف، لكن السلة والدفع ومتابعة الدورات تتطلب تسجيل الدخول بحساب طالب.\"\n          : \"You can keep exploring as a guest, but the cart, payment, and course learning require a signed-in student account.\"",
+        "text": "copy(\"studentDescription\")",
+        "recordLine": 36,
+        "key": "cart.studentDescription"
+      },
+      {
+        "start": 1496,
+        "end": 1540,
+        "original": "locale === \"ar\" ? \"تسجيل الدخول\" : \"Sign in\"",
+        "text": "copy(\"signIn\")",
+        "recordLine": 45,
+        "key": "cart.signIn"
+      },
+      {
+        "start": 1717,
+        "end": 1772,
+        "original": "locale === \"ar\" ? \"المتابعة كضيف\" : \"Continue as guest\"",
+        "text": "copy(\"continueGuest\")",
+        "recordLine": 51,
+        "key": "cart.continueGuest"
+      },
+      {
+        "start": 2839,
+        "end": 2901,
+        "original": "locale === \"ar\" ? \"تعذر تحميل السلة.\" : \"Unable to load cart.\"",
+        "text": "copy(\"loadError\")",
+        "recordLine": 93,
+        "key": "cart.loadError"
+      },
+      {
+        "start": 3508,
+        "end": 3557,
+        "original": "locale === \"ar\" ? \"سلة التعلّم\" : \"Learning cart\"",
+        "text": "copy(\"title\")",
+        "recordLine": 103,
+        "key": "cart.title"
+      },
+      {
+        "start": 3652,
+        "end": 3890,
+        "original": "locale === \"ar\"\n            ? \"راجع الدورات التي اخترتها قبل إنشاء جلسة الدفع الآمنة. الأسعار تحسب من الخادم.\"\n            : \"Review the courses you selected before creating a secure checkout session. Prices are calculated on the server.\"",
+        "text": "copy(\"description\")",
+        "recordLine": 106,
+        "key": "cart.description"
+      },
+      {
+        "start": 4924,
+        "end": 4970,
+        "original": "locale === \"ar\" ? \"حذف العنصر\" : \"Remove item\"",
+        "text": "copy(\"removeItem\")",
+        "recordLine": 133,
+        "key": "cart.removeItem"
+      },
+      {
+        "start": 5458,
+        "end": 5513,
+        "original": "locale === \"ar\" ? \"سلتك فارغة.\" : \"Your cart is empty.\"",
+        "text": "copy(\"empty\")",
+        "recordLine": 149,
+        "key": "cart.empty"
+      },
+      {
+        "start": 5738,
+        "end": 5792,
+        "original": "locale === \"ar\" ? \"استكشف الدورات\" : \"Explore courses\"",
+        "text": "copy(\"explore\")",
+        "recordLine": 155,
+        "key": "cart.explore"
+      },
+      {
+        "start": 6376,
+        "end": 6424,
+        "original": "locale === \"ar\" ? \"ملخص الطلب\" : \"Order summary\"",
+        "text": "copy(\"summary\")",
+        "recordLine": 171,
+        "key": "cart.summary"
+      },
+      {
+        "start": 6542,
+        "end": 6583,
+        "original": "locale === \"ar\" ? \"الإجمالي\" : \"Subtotal\"",
+        "text": "copy(\"subtotal\")",
+        "recordLine": 175,
+        "key": "cart.subtotal"
+      },
+      {
+        "start": 6907,
+        "end": 6944,
+        "original": "locale === \"ar\" ? \"المجموع\" : \"Total\"",
+        "text": "copy(\"total\")",
+        "recordLine": 185,
+        "key": "cart.total"
+      },
+      {
+        "start": 7425,
+        "end": 7483,
+        "original": "locale === \"ar\" ? \"الانتقال للدفع\" : \"Proceed to checkout\"",
+        "text": "copy(\"checkout\")",
+        "recordLine": 198,
+        "key": "cart.checkout"
+      },
+      {
+        "start": 3391,
+        "end": 3415,
+        "original": "BETCCO Checkout\n        ",
+        "text": "{copy(\"eyebrow\")}",
+        "recordLine": 100,
+        "key": "cart.eyebrow"
+      }
+    ],
+    "src/features/cart/checkout.tsx": [
+      {
+        "start": 2856,
+        "end": 2894,
+        "original": "locale === \"ar\" ? \"الدفع\" : \"Checkout\"",
+        "text": "copy(\"title\")",
+        "recordLine": 86,
+        "key": "checkout.title"
+      },
+      {
+        "start": 2979,
+        "end": 3263,
+        "original": "locale === \"ar\"\n            ? \"لا يغيّر الرجوع إلى هذه الصفحة حالة الدفع. في الإنتاج يتم التسجيل فقط بعد تأكيد مزود الدفع من الخادم.\"\n            : \"Returning to this page does not change payment status. In production, enrollment happens only after server-side provider confirmation.\"",
+        "text": "copy(\"description\")",
+        "recordLine": 89,
+        "key": "checkout.description"
+      },
+      {
+        "start": 3614,
+        "end": 3659,
+        "original": "locale === \"ar\" ? \"كود الخصم\" : \"Coupon code\"",
+        "text": "copy(\"coupon\")",
+        "recordLine": 102,
+        "key": "checkout.coupon"
+      },
+      {
+        "start": 4022,
+        "end": 4072,
+        "original": "locale === \"ar\" ? \"طريقة الدفع\" : \"Payment method\"",
+        "text": "copy(\"method\")",
+        "recordLine": 112,
+        "key": "checkout.method"
+      },
+      {
+        "start": 4230,
+        "end": 4243,
+        "original": "\"بطاقة بنكية\"",
+        "text": "copy(\"card\")",
+        "recordLine": 116,
+        "key": "checkout.card"
+      },
+      {
+        "start": 4265,
+        "end": 4276,
+        "original": "\"Bank card\"",
+        "text": "copy(\"card\")",
+        "recordLine": 116,
+        "key": "checkout.card"
+      },
+      {
+        "start": 4370,
+        "end": 4382,
+        "original": "\"تحويل بنكي\"",
+        "text": "copy(\"bankTransfer\")",
+        "recordLine": 121,
+        "key": "checkout.bankTransfer"
+      },
+      {
+        "start": 4404,
+        "end": 4419,
+        "original": "\"Bank transfer\"",
+        "text": "copy(\"bankTransfer\")",
+        "recordLine": 121,
+        "key": "checkout.bankTransfer"
+      },
+      {
+        "start": 4508,
+        "end": 4525,
+        "original": "\"محفظة إلكترونية\"",
+        "text": "copy(\"wallet\")",
+        "recordLine": 126,
+        "key": "checkout.wallet"
+      },
+      {
+        "start": 4547,
+        "end": 4557,
+        "original": "\"E-wallet\"",
+        "text": "copy(\"wallet\")",
+        "recordLine": 126,
+        "key": "checkout.wallet"
+      },
+      {
+        "start": 5665,
+        "end": 5729,
+        "original": "locale === \"ar\" ? \"إنشاء جلسة الدفع\" : \"Create checkout session\"",
+        "text": "copy(\"create\")",
+        "recordLine": 154,
+        "key": "checkout.create"
+      },
+      {
+        "start": 6046,
+        "end": 6095,
+        "original": "locale === \"ar\" ? \"المبلغ قبل الخصم\" : \"Subtotal\"",
+        "text": "copy(\"subtotal\")",
+        "recordLine": 160,
+        "key": "checkout.subtotal"
+      },
+      {
+        "start": 6490,
+        "end": 6528,
+        "original": "locale === \"ar\" ? \"الخصم\" : \"Discount\"",
+        "text": "copy(\"discount\")",
+        "recordLine": 171,
+        "key": "checkout.discount"
+      },
+      {
+        "start": 6914,
+        "end": 6949,
+        "original": "locale === \"ar\" ? \"الضريبة\" : \"Tax\"",
+        "text": "copy(\"tax\")",
+        "recordLine": 182,
+        "key": "checkout.tax"
+      },
+      {
+        "start": 7329,
+        "end": 7370,
+        "original": "locale === \"ar\" ? \"المجموع: \" : \"Total: \"",
+        "text": "copy(\"total\")",
+        "recordLine": 193,
+        "key": "checkout.total"
+      },
+      {
+        "start": 7624,
+        "end": 7886,
+        "original": "locale === \"ar\"\n                ? \"بيئة التطوير فقط: أكمل الدفع الاختباري لحسابك. لا يمثل هذا تأكيدًا من مزود دفع خارجي.\"\n                : \"Development only: complete the test payment for your own account. This is not an external payment-provider confirmation.\"",
+        "text": "copy(\"developmentNotice\")",
+        "recordLine": 201,
+        "key": "checkout.developmentNotice"
+      },
+      {
+        "start": 8235,
+        "end": 8334,
+        "original": "locale === \"ar\"\n                ? \"إتمام الدفع الاختباري\"\n                : \"Complete test payment\"",
+        "text": "copy(\"confirmTest\")",
+        "recordLine": 211,
+        "key": "checkout.confirmTest"
+      },
+      {
+        "start": 8597,
+        "end": 8614,
+        "original": "\"Request failed.\"",
+        "text": "copy(\"requestFailed\")",
+        "recordLine": 221,
+        "key": "checkout.requestFailed"
+      }
+    ],
+    "src/app/[locale]/checkout/paytabs-result/page.tsx": [
+      {
+        "start": 317,
+        "end": 418,
+        "original": "locale === \"ar\"\n            ? \"جارٍ التحقق من الدفع\"\n            : \"Payment verification in progress\"",
+        "text": "copy(\"title\")",
+        "recordLine": 11,
+        "key": "result.title"
+      },
+      {
+        "start": 503,
+        "end": 820,
+        "original": "locale === \"ar\"\n            ? \"العودة من صفحة الدفع لا تؤكد نجاح العملية. سيتم تفعيل الوصول فقط بعد التحقق الآمن من العملية لدى مزود الدفع.\"\n            : \"Returning from the payment page does not confirm success. Access is activated only after the server securely verifies the transaction with the payment provider.\"",
+        "text": "copy(\"description\")",
+        "recordLine": 16,
+        "key": "result.description"
+      }
+    ],
+    "src/features/public/public-content.tsx": [
+      {
+        "start": 4838,
+        "end": 4934,
+        "original": "locale === \"ar\"\n      ? \"عضويات BETCCO والاشتراكات\"\n      : \"BETCCO memberships & subscriptions\"",
+        "text": "copy(\"title\")",
+        "recordLine": 178,
+        "key": "memberships.title"
+      },
+      {
+        "start": 5112,
+        "end": 5362,
+        "original": "locale === \"ar\"\n            ? \"اختر وصولًا شهريًا أو ربع سنويًا أو سنويًا. لا يبدأ الوصول إلا بعد تأكيد الدفع من الخادم.\"\n            : \"Choose monthly, quarterly, or yearly access. Learning access begins only after server-side payment confirmation.\"",
+        "text": "copy(\"description\")",
+        "recordLine": 188,
+        "key": "memberships.description"
+      },
+      {
+        "start": 5471,
+        "end": 5531,
+        "original": "locale === \"ar\" ? \"كود خصم اختياري\" : \"Optional coupon code\"",
+        "text": "copy(\"coupon\")",
+        "recordLine": 194,
+        "key": "memberships.coupon"
+      },
+      {
+        "start": 5815,
+        "end": 5864,
+        "original": "locale === \"ar\" ? \"العضويات\" : \"Membership plans\"",
+        "text": "copy(\"plans\")",
+        "recordLine": 202,
+        "key": "memberships.plans"
+      },
+      {
+        "start": 6985,
+        "end": 7069,
+        "original": "locale === \"ar\"\n                  ? \"بدء الدفع\"\n                  : \"Start checkout\"",
+        "text": "copy(\"start\")",
+        "recordLine": 227,
+        "key": "memberships.start"
+      },
+      {
+        "start": 7088,
+        "end": 7178,
+        "original": "locale === \"ar\"\n                  ? \"سجّل للدفع\"\n                  : \"Sign in to checkout\"",
+        "text": "copy(\"signIn\")",
+        "recordLine": 230,
+        "key": "memberships.signIn"
+      },
+      {
+        "start": 7360,
+        "end": 7473,
+        "original": "locale === \"ar\"\n              ? \"لا توجد عضويات منشورة الآن.\"\n              : \"No memberships are published yet.\"",
+        "text": "copy(\"empty\")",
+        "recordLine": 240,
+        "key": "memberships.empty"
+      },
+      {
+        "start": 7571,
+        "end": 7632,
+        "original": "locale === \"ar\" ? \"اشتراكات الدورات\" : \"Course subscriptions\"",
+        "text": "copy(\"subscriptions\")",
+        "recordLine": 247,
+        "key": "memberships.subscriptions"
+      },
+      {
+        "start": 8490,
+        "end": 8538,
+        "original": "locale === \"ar\" ? \"بدء الدفع\" : \"Start checkout\"",
+        "text": "copy(\"subscriptionStart\")",
+        "recordLine": 264,
+        "key": "memberships.subscriptionStart"
+      },
+      {
+        "start": 8974,
+        "end": 9232,
+        "original": "locale === \"ar\"\n              ? \"اختبار محلي فقط: أتمم الدفع الاختباري لحسابك. الإنتاج يحتاج تأكيدًا من مزود دفع فعلي.\"\n              : \"Local test only: complete the test payment for your account. Production needs confirmation from a real payment provider.\"",
+        "text": "copy(\"developmentNotice\")",
+        "recordLine": 279,
+        "key": "memberships.developmentNotice"
+      },
+      {
+        "start": 9526,
+        "end": 9621,
+        "original": "locale === \"ar\"\n              ? \"إتمام الدفع الاختباري\"\n              : \"Complete test payment\"",
+        "text": "copy(\"confirmTest\")",
+        "recordLine": 289,
+        "key": "memberships.confirmTest"
+      },
+      {
+        "start": 17534,
+        "end": 17633,
+        "original": "locale === \"ar\"\n              ? \"استكشف الدورات المتاحة\"\n              : \"Browse available courses\"",
+        "text": "copy(\"browseCourses\")",
+        "recordLine": 521,
+        "key": "packages.browseCourses"
+      },
+      {
+        "start": 9923,
+        "end": 9940,
+        "original": "\"Request failed.\"",
+        "text": "copy(\"requestFailed\")",
+        "recordLine": 299,
+        "key": "memberships.requestFailed"
+      }
+    ]
+  },
+  "wiring": {
+    "src/features/cart/cart-view.tsx": [
+      {
+        "before": "import { useLocale } from \"next-intl\";",
+        "after": "import { useLocale, useTranslations } from \"next-intl\";"
+      },
+      {
+        "before": "export function StudentPurchaseAccess({ locale }: { locale: string }) {",
+        "after": "export function StudentPurchaseAccess({ locale }: { locale: string }) {\n  const copy = useTranslations(\"publicPurchase.cart\");"
+      },
+      {
+        "before": "export function CartView() {",
+        "after": "export function CartView() {\n  const copy = useTranslations(\"publicPurchase.cart\");"
+      }
+    ],
+    "src/features/cart/checkout.tsx": [
+      {
+        "before": "import { useLocale } from \"next-intl\";",
+        "after": "import { useLocale, useTranslations } from \"next-intl\";"
+      },
+      {
+        "before": "export function Checkout() {",
+        "after": "export function Checkout() {\n  const copy = useTranslations(\"publicPurchase.checkout\");"
+      }
+    ],
+    "src/app/[locale]/checkout/paytabs-result/page.tsx": [
+      {
+        "before": "import { useLocale } from \"next-intl\";",
+        "after": "import { useLocale, useTranslations } from \"next-intl\";"
+      },
+      {
+        "before": "export default function PayTabsResultPage() {",
+        "after": "export default function PayTabsResultPage() {\n  const copy = useTranslations(\"publicPurchase.result\");"
+      },
+      {
+        "before": "  const locale = useLocale();\n",
+        "after": ""
+      },
+      {
+        "before": "import { useLocale, useTranslations } from \"next-intl\";",
+        "after": "import { useTranslations } from \"next-intl\";"
+      }
+    ],
+    "src/features/public/public-content.tsx": [
+      {
+        "before": "export function MembershipDirectory() {",
+        "after": "export function MembershipDirectory() {\n  const copy = useTranslations(\"publicPurchase.memberships\");"
+      },
+      {
+        "before": "export function PackageDirectory() {",
+        "after": "export function PackageDirectory() {\n  const copy = useTranslations(\"publicPurchase.packages\");"
+      }
+    ]
+  },
+  "approvedSources": {
+    "src/features/cart/cart-view.tsx": "\"use client\";\n\nimport { api } from \"@/lib/api\";\nimport { formatLocalizedCurrency } from \"@/i18n/number-format\";\nimport { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\nimport { ArrowLeft, ShoppingBag, Trash2, WalletCards } from \"lucide-react\";\nimport Link from \"next/link\";\nimport { useLocale, useTranslations } from \"next-intl\";\n\ntype Cart = {\n  id: string;\n  items: {\n    id: string;\n    referenceId: string;\n    itemType: string;\n    title: string;\n    price: number;\n  }[];\n  subtotal: number;\n  discount: number;\n  total: number;\n  currency: string;\n};\n\ntype CurrentUser = { roles: string[] };\n\nexport function StudentPurchaseAccess({ locale }: { locale: string }) {\n  const copy = useTranslations(\"publicPurchase.cart\");\n  return (\n    <div className=\"card mx-auto max-w-2xl p-6 text-center sm:p-8\">\n      <h1 className=\"text-2xl font-black\">\n        {copy(\"studentRequired\")}\n      </h1>\n      <p className=\"mx-auto mt-3 max-w-lg text-sm leading-7 text-muted\">\n        {copy(\"studentDescription\")}\n      </p>\n      <div className=\"mt-6 flex flex-wrap justify-center gap-3\">\n        <Link\n          href={`/${locale}/login`}\n          className=\"focus-ring rounded-xl bg-primary px-4 py-3 font-black text-slate-950\"\n        >\n          {copy(\"signIn\")}\n        </Link>\n        <Link\n          href={`/${locale}/courses`}\n          className=\"focus-ring rounded-xl border border-border px-4 py-3 font-black\"\n        >\n          {copy(\"continueGuest\")}\n        </Link>\n      </div>\n    </div>\n  );\n}\n\nexport function CartView() {\n  const copy = useTranslations(\"publicPurchase.cart\");\n  const locale = useLocale();\n  const client = useQueryClient();\n  const user = useQuery({\n    queryKey: [\"current-user\"],\n    queryFn: () => api<CurrentUser>(\"/auth/me\"),\n    retry: false,\n    staleTime: 60_000,\n  });\n  const isStudent = user.data?.roles.includes(\"Student\") ?? false;\n  const cart = useQuery({\n    queryKey: [\"cart\", locale],\n    queryFn: () => api<Cart>(`/cart?locale=${locale}`),\n    enabled: isStudent,\n  });\n  const remove = useMutation({\n    mutationFn: (id: string) => api(`/cart/items/${id}`, { method: \"DELETE\" }),\n    onSuccess: () => client.invalidateQueries({ queryKey: [\"cart\"] }),\n  });\n  if (user.isPending)\n    return (\n      <div className=\"card p-6\" aria-busy>\n        …\n      </div>\n    );\n  if (!isStudent) return <StudentPurchaseAccess locale={locale} />;\n  if (cart.isPending)\n    return (\n      <div className=\"card p-6\" aria-busy>\n        …\n      </div>\n    );\n  if (cart.isError)\n    return (\n      <p role=\"alert\" className=\"card p-6\">\n        {copy(\"loadError\")}\n      </p>\n    );\n  return (\n    <div>\n      <header className=\"relative overflow-hidden rounded-3xl border border-border bg-[radial-gradient(circle_at_85%_15%,color-mix(in_srgb,var(--primary)_26%,transparent),transparent_35%),linear-gradient(135deg,color-mix(in_srgb,var(--surface)_94%,transparent),color-mix(in_srgb,var(--surface-solid)_75%,transparent))] p-6 shadow-[var(--shadow)] sm:p-8\">\n        <p className=\"text-xs font-black uppercase tracking-[0.18em] text-primary\">\n          {copy(\"eyebrow\")}</p>\n        <h1 className=\"mt-3 text-3xl font-black tracking-tight sm:text-4xl\">\n          {copy(\"title\")}\n        </h1>\n        <p className=\"mt-3 max-w-2xl text-sm leading-7 text-muted\">\n          {copy(\"description\")}\n        </p>\n      </header>\n      <div className=\"mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]\">\n        <div className=\"card divide-y divide-border overflow-hidden\">\n          {cart.data.items.length ? (\n            cart.data.items.map((item) => (\n              <div\n                key={item.id}\n                className=\"flex items-center justify-between gap-4 p-5\"\n              >\n                <div className=\"min-w-0\">\n                  <p className=\"font-bold\">{item.title}</p>\n                  <p className=\"mt-1 text-xs text-muted\">{item.itemType}</p>\n                </div>\n                <div className=\"flex items-center gap-4\">\n                  <strong>\n                    {formatLocalizedCurrency(\n                      item.price,\n                      cart.data.currency,\n                      locale,\n                    )}\n                  </strong>\n                  <button\n                    className=\"focus-ring rounded-lg p-2 text-red-400 hover:bg-red-400/10\"\n                    aria-label={copy(\"removeItem\")}\n                    onClick={() => remove.mutate(item.id)}\n                  >\n                    <Trash2 size={18} />\n                  </button>\n                </div>\n              </div>\n            ))\n          ) : (\n            <div className=\"p-8 text-center\">\n              <ShoppingBag\n                className=\"mx-auto text-primary\"\n                size={28}\n                aria-hidden=\"true\"\n              />\n              <p className=\"mt-4 text-muted\">\n                {copy(\"empty\")}\n              </p>\n              <Link\n                href={`/${locale}/courses`}\n                className=\"focus-ring mt-4 inline-flex items-center gap-1 text-sm font-black text-primary\"\n              >\n                {copy(\"explore\")}\n                <ArrowLeft\n                  size={16}\n                  className=\"rtl:rotate-180\"\n                  aria-hidden=\"true\"\n                />\n              </Link>\n            </div>\n          )}\n        </div>\n        <aside className=\"card h-fit p-5 lg:sticky lg:top-24\">\n          <div className=\"flex items-center gap-2\">\n            <span className=\"grid size-9 place-items-center rounded-xl bg-primary/15 text-primary\">\n              <WalletCards size={18} aria-hidden=\"true\" />\n            </span>\n            <h2 className=\"text-xl font-black\">\n              {copy(\"summary\")}\n            </h2>\n          </div>\n          <div className=\"mt-5 flex justify-between text-sm\">\n            <span>{copy(\"subtotal\")}</span>\n            <span>\n              {formatLocalizedCurrency(\n                cart.data.subtotal,\n                cart.data.currency,\n                locale,\n              )}\n            </span>\n          </div>\n          <div className=\"mt-3 flex justify-between border-t pt-3 text-lg font-black\">\n            <span>{copy(\"total\")}</span>\n            <span>\n              {formatLocalizedCurrency(\n                cart.data.total,\n                cart.data.currency,\n                locale,\n              )}\n            </span>\n          </div>\n          <Link\n            className={`focus-ring mt-5 block rounded-xl bg-primary px-4 py-3 text-center font-black text-slate-950 ${cart.data.items.length ? \"\" : \"pointer-events-none opacity-50\"}`}\n            href={`/${locale}/checkout`}\n          >\n            {copy(\"checkout\")}\n          </Link>\n        </aside>\n      </div>\n    </div>\n  );\n}\n",
+    "src/features/cart/checkout.tsx": "\"use client\";\n\nimport { api } from \"@/lib/api\";\nimport { formatLocalizedCurrency } from \"@/i18n/number-format\";\nimport { StudentPurchaseAccess } from \"@/features/cart/cart-view\";\nimport { useMutation, useQuery } from \"@tanstack/react-query\";\nimport {\n  BadgeCheck,\n  LockKeyhole,\n  TicketPercent,\n  WalletCards,\n} from \"lucide-react\";\nimport { useLocale, useTranslations } from \"next-intl\";\nimport { useRouter } from \"next/navigation\";\nimport { useState } from \"react\";\n\ntype CheckoutResult = {\n  paymentId: string;\n  status: string;\n  provider: string;\n  checkoutReference: string;\n  redirectUrl: string | null;\n  subtotal: number;\n  discount: number;\n  tax: number;\n  total: number;\n  currency: string;\n  paymentMethod: string;\n};\n\nexport function Checkout() {\n  const copy = useTranslations(\"publicPurchase.checkout\");\n  const locale = useLocale();\n  const router = useRouter();\n  const [coupon, setCoupon] = useState(\"\");\n  const [paymentMethod, setPaymentMethod] = useState(\"Card\");\n  const user = useQuery({\n    queryKey: [\"current-user\"],\n    queryFn: () => api<{ roles: string[] }>(\"/auth/me\"),\n    retry: false,\n    staleTime: 60_000,\n  });\n  const isStudent = user.data?.roles.includes(\"Student\") ?? false;\n  const checkout = useMutation({\n    mutationFn: () =>\n      api<CheckoutResult>(\"/cart/checkout\", {\n        method: \"POST\",\n        headers: { \"Idempotency-Key\": crypto.randomUUID() },\n        body: JSON.stringify({\n          couponCode: coupon || null,\n          paymentMethod,\n        }),\n      }),\n    onSuccess: (payment) => {\n      if (payment.redirectUrl) window.location.assign(payment.redirectUrl);\n    },\n  });\n  const confirm = useMutation({\n    mutationFn: (payment: CheckoutResult) =>\n      api(\"/payments/fake/confirm\", {\n        method: \"POST\",\n        body: JSON.stringify({\n          paymentId: payment.paymentId,\n          providerEventId: `test_${crypto.randomUUID()}`,\n        }),\n      }),\n    onSuccess: () => router.push(`/${locale}/student/courses`),\n  });\n  const activeError = checkout.error ?? confirm.error;\n  function confirmPayment() {\n    if (checkout.data) confirm.mutate(checkout.data);\n  }\n  if (user.isPending)\n    return (\n      <div className=\"card p-6\" aria-busy>\n        …\n      </div>\n    );\n  if (!isStudent) return <StudentPurchaseAccess locale={locale} />;\n  return (\n    <div className=\"card mx-auto max-w-2xl overflow-hidden p-0\">\n      <div className=\"border-b border-border bg-[radial-gradient(circle_at_85%_15%,color-mix(in_srgb,var(--primary)_25%,transparent),transparent_36%),linear-gradient(135deg,color-mix(in_srgb,var(--surface)_94%,transparent),color-mix(in_srgb,var(--surface-solid)_78%,transparent))] p-6 sm:p-8\">\n        <span className=\"grid size-11 place-items-center rounded-2xl bg-primary/15 text-primary\">\n          <WalletCards size={22} aria-hidden=\"true\" />\n        </span>\n        <h1 className=\"mt-5 text-3xl font-black tracking-tight\">\n          {copy(\"title\")}\n        </h1>\n        <p className=\"mt-3 text-sm leading-7 text-muted\">\n          {copy(\"description\")}\n        </p>\n      </div>\n      <div className=\"p-6 sm:p-8\">\n        <label className=\"mt-5 grid gap-1 text-sm font-semibold\">\n          <span className=\"inline-flex items-center gap-2 text-muted\">\n            <TicketPercent\n              size={16}\n              className=\"text-primary\"\n              aria-hidden=\"true\"\n            />\n            {copy(\"coupon\")}\n          </span>\n          <input\n            value={coupon}\n            onChange={(event) => setCoupon(event.target.value)}\n            className=\"focus-ring rounded-xl border border-border bg-transparent px-3 py-3\"\n          />\n        </label>\n        <fieldset className=\"mt-6 grid gap-3\">\n          <legend className=\"text-sm font-semibold\">\n            {copy(\"method\")}\n          </legend>\n          <div className=\"grid gap-2 sm:grid-cols-3\">\n            {[\n              {\n                value: \"Card\",\n                ar: copy(\"card\"),\n                en: copy(\"card\"),\n              },\n              {\n                value: \"BankTransfer\",\n                ar: copy(\"bankTransfer\"),\n                en: copy(\"bankTransfer\"),\n              },\n              {\n                value: \"EWallet\",\n                ar: copy(\"wallet\"),\n                en: copy(\"wallet\"),\n              },\n            ].map((method) => (\n              <label\n                key={method.value}\n                className={`focus-within:ring-2 focus-within:ring-primary flex cursor-pointer items-center gap-2 rounded-xl border p-3 text-sm font-bold ${paymentMethod === method.value ? \"border-primary bg-primary/10\" : \"border-border bg-white/5\"}`}\n              >\n                <input\n                  type=\"radio\"\n                  name=\"payment-method\"\n                  value={method.value}\n                  checked={paymentMethod === method.value}\n                  onChange={() => setPaymentMethod(method.value)}\n                />\n                {locale === \"ar\" ? method.ar : method.en}\n              </label>\n            ))}\n          </div>\n        </fieldset>\n        <button\n          disabled={checkout.isPending}\n          onClick={() => checkout.mutate()}\n          className=\"focus-ring mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-black text-slate-950 disabled:opacity-60\"\n        >\n          <LockKeyhole size={18} aria-hidden=\"true\" />\n          {copy(\"create\")}\n        </button>\n        {checkout.data?.provider.startsWith(\"Fake\") && (\n          <div className=\"mt-6 rounded-2xl border border-primary/30 bg-primary/10 p-5\">\n            <dl className=\"grid gap-2 text-sm text-muted\">\n              <div className=\"flex items-center justify-between gap-4\">\n                <dt>{copy(\"subtotal\")}</dt>\n                <dd>\n                  {formatLocalizedCurrency(\n                    checkout.data.subtotal,\n                    checkout.data.currency,\n                    locale,\n                  )}\n                </dd>\n              </div>\n              {checkout.data.discount > 0 ? (\n                <div className=\"flex items-center justify-between gap-4\">\n                  <dt>{copy(\"discount\")}</dt>\n                  <dd>\n                    {formatLocalizedCurrency(\n                      -checkout.data.discount,\n                      checkout.data.currency,\n                      locale,\n                    )}\n                  </dd>\n                </div>\n              ) : null}\n              <div className=\"flex items-center justify-between gap-4\">\n                <dt>{copy(\"tax\")}</dt>\n                <dd>\n                  {formatLocalizedCurrency(\n                    checkout.data.tax,\n                    checkout.data.currency,\n                    locale,\n                  )}\n                </dd>\n              </div>\n            </dl>\n            <p className=\"mt-3 border-t border-primary/25 pt-3 text-lg font-black text-foreground\">\n              {copy(\"total\")}\n              {formatLocalizedCurrency(\n                checkout.data.total,\n                checkout.data.currency,\n                locale,\n              )}\n            </p>\n            <p className=\"mt-2 text-sm leading-6 text-muted\">\n              {copy(\"developmentNotice\")}\n            </p>\n            <button\n              disabled={confirm.isPending}\n              onClick={confirmPayment}\n              className=\"focus-ring mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950\"\n            >\n              <BadgeCheck size={17} aria-hidden=\"true\" />\n              {copy(\"confirmTest\")}\n            </button>\n          </div>\n        )}\n        {(checkout.isError || confirm.isError) && (\n          <p role=\"alert\" className=\"mt-4 text-sm text-red-600\">\n            {activeError instanceof Error\n              ? activeError.message\n              : copy(\"requestFailed\")}\n          </p>\n        )}\n      </div>\n    </div>\n  );\n}\n",
+    "src/app/[locale]/checkout/paytabs-result/page.tsx": "\"use client\";\n\nimport { useTranslations } from \"next-intl\";\n\nexport default function PayTabsResultPage() {\n  const copy = useTranslations(\"publicPurchase.result\");\n  return (\n    <main className=\"mx-auto max-w-2xl px-4 py-16 sm:px-6\">\n      <section className=\"card p-6 sm:p-8\">\n        <h1 className=\"text-2xl font-black tracking-tight\">\n          {copy(\"title\")}\n        </h1>\n        <p className=\"mt-3 text-sm leading-7 text-muted\">\n          {copy(\"description\")}\n        </p>\n      </section>\n    </main>\n  );\n}\n",
+    "src/features/public/public-content.tsx": "\"use client\";\n\nimport { formatLocalizedDate } from \"@/i18n/date-time\";\nimport { formatLocalizedCurrency } from \"@/i18n/number-format\";\nimport { api } from \"@/lib/api\";\nimport { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\nimport {\n  ArrowLeft,\n  BookOpenCheck,\n  CalendarClock,\n  Clock3,\n  GraduationCap,\n  Newspaper,\n  PackageCheck,\n  ShoppingCart,\n  UsersRound,\n  Video,\n} from \"lucide-react\";\nimport Link from \"next/link\";\nimport { useLocale, useTranslations } from \"next-intl\";\nimport { useRouter } from \"next/navigation\";\nimport { useState } from \"react\";\n\ntype BlogSummary = {\n  slug: string;\n  title: string;\n  excerpt: string;\n  publishedAtUtc: string;\n};\ntype BlogPost = BlogSummary & { body: string };\ntype Teacher = {\n  id: string;\n  displayName: string;\n  bio?: string;\n  specializations?: string;\n  courses: { slug: string; title: string }[];\n};\ntype LearningPackage = {\n  id: string;\n  slug: string;\n  title: string;\n  description: string;\n  price: number;\n  currency: string;\n  originalPrice: number;\n  discountAmount: number;\n  courses: { slug: string; title: string }[];\n};\ntype LiveSession = {\n  id: string;\n  title: string;\n  description?: string;\n  provider: string;\n  startsAtUtc: string;\n  endsAtUtc: string;\n  capacity?: number;\n  course?: { slug: string; title: string };\n};\ntype CurrentUser = { roles: string[] };\ntype CheckoutResult = {\n  paymentId: string;\n  provider: string;\n  total: number;\n  currency: string;\n};\n\nfunction PublicHeader({\n  icon: Icon,\n  eyebrow,\n  title,\n  description,\n}: {\n  icon: typeof Newspaper;\n  eyebrow: string;\n  title: string;\n  description: string;\n}) {\n  return (\n    <header className=\"relative overflow-hidden rounded-3xl border border-border bg-[radial-gradient(circle_at_86%_16%,color-mix(in_srgb,var(--primary)_28%,transparent),transparent_35%),linear-gradient(135deg,color-mix(in_srgb,var(--surface)_94%,transparent),color-mix(in_srgb,var(--surface-solid)_75%,transparent))] p-7 shadow-[var(--shadow)] sm:p-10\">\n      <span className=\"grid size-12 place-items-center rounded-2xl bg-primary/15 text-primary\">\n        <Icon size={23} aria-hidden=\"true\" />\n      </span>\n      <p className=\"mt-5 text-xs font-black uppercase tracking-[0.18em] text-primary\">\n        {eyebrow}\n      </p>\n      <h1 className=\"mt-3 text-3xl font-black tracking-tight sm:text-5xl\">\n        {title}\n      </h1>\n      <p className=\"mt-4 max-w-2xl leading-7 text-muted\">{description}</p>\n    </header>\n  );\n}\n\nfunction EmptyState({ text }: { text: string }) {\n  return <p className=\"card mt-7 p-6 text-center text-muted\">{text}</p>;\n}\n\nexport function MembershipDirectory() {\n  const copy = useTranslations(\"publicPurchase.memberships\");\n  const locale = useLocale();\n  const router = useRouter();\n  const [coupon, setCoupon] = useState(\"\");\n  const memberships = useQuery({\n    queryKey: [\"public-memberships\", locale],\n    queryFn: () =>\n      api<\n        {\n          id: string;\n          title: string;\n          description: string;\n          features: string[];\n          price: number;\n          currency: string;\n          interval: string;\n          courses: { title: string }[];\n        }[]\n      >(`/memberships?locale=${locale}`),\n  });\n  const subscriptions = useQuery({\n    queryKey: [\"public-course-subscriptions\", locale],\n    queryFn: () =>\n      api<\n        {\n          id: string;\n          title: string;\n          courseTitle: string;\n          price: number;\n          currency: string;\n          interval: string;\n        }[]\n      >(`/course-subscriptions?locale=${locale}`),\n  });\n  const user = useQuery({\n    queryKey: [\"current-user\"],\n    queryFn: () => api<CurrentUser>(\"/auth/me\"),\n    retry: false,\n    staleTime: 60_000,\n  });\n  const checkout = useMutation({\n    mutationFn: ({\n      kind,\n      id,\n    }: {\n      kind: \"membership\" | \"subscription\";\n      id: string;\n    }) =>\n      api<CheckoutResult>(\n        `/${kind === \"membership\" ? \"memberships\" : \"course-subscriptions\"}/${id}/checkout`,\n        {\n          method: \"POST\",\n          headers: { \"Idempotency-Key\": crypto.randomUUID() },\n          body: JSON.stringify({\n            couponCode: coupon || null,\n            paymentMethod: \"Card\",\n          }),\n        },\n      ),\n  });\n  const confirm = useMutation({\n    mutationFn: (payment: CheckoutResult) =>\n      api(\"/payments/fake/confirm\", {\n        method: \"POST\",\n        body: JSON.stringify({\n          paymentId: payment.paymentId,\n          providerEventId: `membership_test_${crypto.randomUUID()}`,\n        }),\n      }),\n    onSuccess: () => router.push(`/${locale}/student/courses`),\n  });\n  const isStudent = user.data?.roles.includes(\"Student\") ?? false;\n  const start = (kind: \"membership\" | \"subscription\", id: string) => {\n    if (!isStudent) {\n      router.push(`/${locale}/login`);\n      return;\n    }\n    checkout.mutate({ kind, id });\n  };\n  const heading =\n    copy(\"title\");\n  return (\n    <section className=\"shell py-12\">\n      <PublicHeader\n        icon={UsersRound}\n        eyebrow=\"BETCCO\"\n        title={heading}\n        description={\n          copy(\"description\")\n        }\n      />\n      <label className=\"mt-6 grid max-w-sm gap-1 text-sm font-bold text-muted\">\n        {copy(\"coupon\")}\n        <input\n          value={coupon}\n          onChange={(event) => setCoupon(event.target.value)}\n          className=\"rounded-xl border border-border bg-transparent px-3 py-2.5 text-foreground\"\n        />\n      </label>\n      <h2 className=\"mt-8 text-2xl font-black\">\n        {copy(\"plans\")}\n      </h2>\n      <div className=\"mt-4 grid gap-4 md:grid-cols-3\">\n        {memberships.data?.map((plan) => (\n          <article key={plan.id} className=\"card flex flex-col p-6\">\n            <p className=\"text-xs font-black text-primary\">{plan.interval}</p>\n            <h3 className=\"mt-2 text-xl font-black\">{plan.title}</h3>\n            <p className=\"mt-3 text-sm leading-6 text-muted\">\n              {plan.description}\n            </p>\n            <ul className=\"mt-4 grid gap-1 text-sm text-muted\">\n              {plan.features.map((feature) => (\n                <li key={feature}>• {feature}</li>\n              ))}\n            </ul>\n            <p className=\"mt-5 text-xl font-black\">\n              {formatLocalizedCurrency(plan.price, plan.currency, locale)}\n            </p>\n            <button\n              type=\"button\"\n              onClick={() => start(\"membership\", plan.id)}\n              disabled={checkout.isPending}\n              className=\"focus-ring mt-5 rounded-xl bg-primary px-4 py-3 text-sm font-black text-slate-950 disabled:opacity-50\"\n            >\n              {isStudent\n                ? copy(\"start\")\n                : copy(\"signIn\")}\n            </button>\n          </article>\n        ))}\n      </div>\n      {!memberships.isPending && !memberships.data?.length ? (\n        <EmptyState\n          text={\n            copy(\"empty\")\n          }\n        />\n      ) : null}\n      <h2 className=\"mt-10 text-2xl font-black\">\n        {copy(\"subscriptions\")}\n      </h2>\n      <div className=\"mt-4 grid gap-4 md:grid-cols-3\">\n        {subscriptions.data?.map((plan) => (\n          <article key={plan.id} className=\"card p-6\">\n            <p className=\"text-xs font-black text-primary\">{plan.interval}</p>\n            <h3 className=\"mt-2 text-xl font-black\">{plan.title}</h3>\n            <p className=\"mt-2 text-sm text-muted\">{plan.courseTitle}</p>\n            <p className=\"mt-5 text-xl font-black\">\n              {formatLocalizedCurrency(plan.price, plan.currency, locale)}\n            </p>\n            <button\n              type=\"button\"\n              onClick={() => start(\"subscription\", plan.id)}\n              disabled={checkout.isPending}\n              className=\"focus-ring mt-5 rounded-xl border border-primary/50 px-4 py-3 text-sm font-black text-primary disabled:opacity-50\"\n            >\n              {copy(\"subscriptionStart\")}\n            </button>\n          </article>\n        ))}\n      </div>\n      {checkout.data?.provider.startsWith(\"Fake\") ? (\n        <div className=\"card mt-7 max-w-xl p-5\">\n          <p className=\"font-black\">\n            {formatLocalizedCurrency(\n              checkout.data.total,\n              checkout.data.currency,\n              locale,\n            )}\n          </p>\n          <p className=\"mt-2 text-sm text-muted\">\n            {copy(\"developmentNotice\")}\n          </p>\n          <button\n            type=\"button\"\n            onClick={() => confirm.mutate(checkout.data!)}\n            disabled={confirm.isPending}\n            className=\"focus-ring mt-4 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950\"\n          >\n            {copy(\"confirmTest\")}\n          </button>\n        </div>\n      ) : null}\n      {checkout.error || confirm.error ? (\n        <p role=\"alert\" className=\"mt-4 text-sm text-red-400\">\n          {(checkout.error ?? confirm.error) instanceof Error\n            ? (checkout.error ?? (confirm.error as Error)).message\n            : copy(\"requestFailed\")}\n        </p>\n      ) : null}\n    </section>\n  );\n}\n\nfunction FormatDate({ value }: { value: string }) {\n  const locale = useLocale();\n  return <time dateTime={value}>{formatLocalizedDate(value, locale)}</time>;\n}\n\nexport function PublicBlog({ slug }: { slug?: string }) {\n  const locale = useLocale();\n  const t = useTranslations(\"publicContent.blog\");\n  const article = useQuery({\n    queryKey: [\"public-blog-post\", slug, locale],\n    queryFn: () => api<BlogPost>(`/public/blog/${slug}?locale=${locale}`),\n    enabled: Boolean(slug),\n  });\n  const listing = useQuery({\n    queryKey: [\"public-blog\", locale],\n    queryFn: () =>\n      api<{ items: BlogSummary[] }>(`/public/blog?locale=${locale}`),\n    enabled: !slug,\n  });\n  if (slug) {\n    if (article.isPending) return <section className=\"shell py-12\" aria-busy />;\n    if (article.isError || !article.data)\n      return (\n        <section className=\"shell py-12\">\n          <EmptyState text={t(\"empty\")} />\n        </section>\n      );\n    return (\n      <article className=\"shell max-w-4xl py-12\">\n        <Link\n          href={`/${locale}/blog`}\n          className=\"focus-ring inline-flex items-center gap-2 text-sm font-black text-primary\"\n        >\n          <ArrowLeft size={16} className=\"rtl:rotate-180\" aria-hidden=\"true\" />\n          {t(\"back\")}\n        </Link>\n        <p className=\"mt-8 text-xs font-black uppercase tracking-[0.18em] text-primary\">\n          {t(\"label\")}\n        </p>\n        <h1 className=\"mt-3 text-4xl font-black tracking-tight sm:text-5xl\">\n          {article.data.title}\n        </h1>\n        <p className=\"mt-4 text-sm text-muted\">\n          {t(\"published\")} <FormatDate value={article.data.publishedAtUtc} />\n        </p>\n        <p className=\"mt-7 text-lg leading-8 text-muted\">\n          {article.data.excerpt}\n        </p>\n        <div className=\"card mt-8 whitespace-pre-line p-6 leading-8 text-foreground sm:p-9\">\n          {article.data.body}\n        </div>\n      </article>\n    );\n  }\n  return (\n    <section className=\"shell py-12\">\n      <PublicHeader\n        icon={Newspaper}\n        eyebrow={t(\"label\")}\n        title={t(\"title\")}\n        description={t(\"description\")}\n      />\n      {listing.isPending ? (\n        <div\n          className=\"mt-7 h-64 animate-pulse rounded-3xl bg-white/5\"\n          aria-busy\n        />\n      ) : null}\n      {!listing.isPending && !listing.data?.items.length ? (\n        <EmptyState text={t(\"empty\")} />\n      ) : null}\n      <div className=\"mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-3\">\n        {listing.data?.items.map((post) => (\n          <article key={post.slug} className=\"card flex flex-col p-6\">\n            <p className=\"text-xs text-muted\">\n              <FormatDate value={post.publishedAtUtc} />\n            </p>\n            <h2 className=\"mt-3 text-xl font-black leading-7\">{post.title}</h2>\n            <p className=\"mt-3 flex-1 text-sm leading-6 text-muted\">\n              {post.excerpt}\n            </p>\n            <Link\n              className=\"focus-ring mt-5 inline-flex items-center gap-1 self-start text-sm font-black text-primary\"\n              href={`/${locale}/blog/${post.slug}`}\n            >\n              {t(\"readMore\")}\n              <ArrowLeft\n                size={16}\n                className=\"rtl:rotate-180\"\n                aria-hidden=\"true\"\n              />\n            </Link>\n          </article>\n        ))}\n      </div>\n    </section>\n  );\n}\n\nexport function TeacherDirectory() {\n  const locale = useLocale();\n  const t = useTranslations(\"publicContent.teachers\");\n  const teachers = useQuery({\n    queryKey: [\"public-teachers\", locale],\n    queryFn: () => api<Teacher[]>(`/public/teachers?locale=${locale}`),\n  });\n  return (\n    <section className=\"shell py-12\">\n      <PublicHeader\n        icon={UsersRound}\n        eyebrow={t(\"label\")}\n        title={t(\"title\")}\n        description={t(\"description\")}\n      />\n      {teachers.isPending ? (\n        <div\n          className=\"mt-7 h-64 animate-pulse rounded-3xl bg-white/5\"\n          aria-busy\n        />\n      ) : null}\n      {!teachers.isPending && !teachers.data?.length ? (\n        <EmptyState text={t(\"empty\")} />\n      ) : null}\n      <div className=\"mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-3\">\n        {teachers.data?.map((teacher) => (\n          <article key={teacher.id} className=\"card p-6\">\n            <span className=\"grid size-12 place-items-center rounded-2xl bg-secondary/15 text-secondary\">\n              <GraduationCap size={23} aria-hidden=\"true\" />\n            </span>\n            <h2 className=\"mt-5 text-xl font-black\">{teacher.displayName}</h2>\n            {teacher.specializations ? (\n              <p className=\"mt-2 text-sm font-bold text-primary\">\n                {teacher.specializations}\n              </p>\n            ) : null}\n            {teacher.bio ? (\n              <p className=\"mt-3 text-sm leading-6 text-muted\">{teacher.bio}</p>\n            ) : null}\n            <div className=\"mt-5 border-t border-border pt-4\">\n              <p className=\"text-xs font-black uppercase tracking-wide text-muted\">\n                {t(\"courses\")}\n              </p>\n              <div className=\"mt-3 grid gap-2\">\n                {teacher.courses.map((course) => (\n                  <Link\n                    key={course.slug}\n                    href={`/${locale}/courses/${course.slug}`}\n                    className=\"focus-ring text-sm font-bold text-primary hover:underline\"\n                  >\n                    {course.title}\n                  </Link>\n                ))}\n              </div>\n            </div>\n          </article>\n        ))}\n      </div>\n    </section>\n  );\n}\n\nexport function PackageDirectory() {\n  const copy = useTranslations(\"publicPurchase.packages\");\n  const locale = useLocale();\n  const router = useRouter();\n  const client = useQueryClient();\n  const t = useTranslations(\"publicContent.packages\");\n  const [notice, setNotice] = useState<string>();\n  const packages = useQuery({\n    queryKey: [\"public-packages\", locale],\n    queryFn: () => api<LearningPackage[]>(`/public/packages?locale=${locale}`),\n  });\n  const user = useQuery({\n    queryKey: [\"current-user\"],\n    queryFn: () => api<CurrentUser>(\"/auth/me\"),\n    retry: false,\n    staleTime: 60_000,\n  });\n  const add = useMutation({\n    mutationFn: (slug: string) =>\n      api(`/cart/packages/${slug}?locale=${locale}`, { method: \"POST\" }),\n    onSuccess: () => {\n      setNotice(t(\"added\"));\n      client.invalidateQueries({ queryKey: [\"cart\"] });\n    },\n    onError: (error) =>\n      setNotice(error instanceof Error ? error.message : t(\"studentOnly\")),\n  });\n  function addToCart(packageItem: LearningPackage) {\n    if (!user.data) return router.push(`/${locale}/login`);\n    if (!user.data.roles.includes(\"Student\"))\n      return setNotice(t(\"studentOnly\"));\n    add.mutate(packageItem.id);\n  }\n  return (\n    <section className=\"shell py-12\">\n      <PublicHeader\n        icon={PackageCheck}\n        eyebrow={t(\"label\")}\n        title={t(\"title\")}\n        description={t(\"description\")}\n      />\n      {packages.isPending ? (\n        <div\n          className=\"mt-7 h-64 animate-pulse rounded-3xl bg-white/5\"\n          aria-busy\n        />\n      ) : null}\n      {!packages.isPending && !packages.data?.length ? (\n        <div className=\"card mt-7 p-6 text-center\">\n          <p className=\"text-muted\">{t(\"empty\")}</p>\n          <Link\n            href={`/${locale}/courses`}\n            className=\"focus-ring mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950\"\n          >\n            <BookOpenCheck size={17} aria-hidden=\"true\" />\n            {copy(\"browseCourses\")}\n          </Link>\n        </div>\n      ) : null}\n      <div className=\"mt-7 grid gap-4 lg:grid-cols-3\">\n        {packages.data?.map((packageItem) => (\n          <article key={packageItem.slug} className=\"card flex flex-col p-6\">\n            <span className=\"grid size-11 place-items-center rounded-2xl bg-primary/15 text-primary\">\n              <PackageCheck size={21} aria-hidden=\"true\" />\n            </span>\n            <h2 className=\"mt-5 text-2xl font-black\">{packageItem.title}</h2>\n            <p className=\"mt-3 flex-1 text-sm leading-6 text-muted\">\n              {packageItem.description}\n            </p>\n            <p className=\"mt-5 text-sm font-black text-muted\">{t(\"courses\")}</p>\n            <ul className=\"mt-3 grid gap-2 text-sm\">\n              {packageItem.courses.map((course) => (\n                <li key={course.slug} className=\"flex gap-2\">\n                  <BookOpenCheck\n                    size={16}\n                    className=\"mt-0.5 shrink-0 text-primary\"\n                    aria-hidden=\"true\"\n                  />\n                  {course.title}\n                </li>\n              ))}\n            </ul>\n            <div className=\"mt-6 flex items-center justify-between gap-4 border-t border-border pt-5\">\n              <div className=\"grid gap-0.5\">\n                {packageItem.discountAmount > 0 ? (\n                  <span className=\"text-xs text-muted line-through\">\n                    {formatLocalizedCurrency(\n                      packageItem.originalPrice,\n                      packageItem.currency,\n                      locale,\n                    )}\n                  </span>\n                ) : null}\n                <strong>\n                  {formatLocalizedCurrency(\n                    packageItem.price,\n                    packageItem.currency,\n                    locale,\n                  )}\n                </strong>\n                {packageItem.discountAmount > 0 ? (\n                  <span className=\"text-xs font-bold text-primary\">\n                    {t(\"saving\", {\n                      amount: formatLocalizedCurrency(\n                        packageItem.discountAmount,\n                        packageItem.currency,\n                        locale,\n                      ),\n                    })}\n                  </span>\n                ) : null}\n              </div>\n              <button\n                type=\"button\"\n                onClick={() => addToCart(packageItem)}\n                disabled={add.isPending || user.isPending}\n                className=\"focus-ring inline-flex items-center gap-2 rounded-xl bg-primary px-3 py-2.5 text-sm font-black text-slate-950 disabled:opacity-60\"\n              >\n                <ShoppingCart size={16} aria-hidden=\"true\" />\n                {user.data ? t(\"add\") : t(\"login\")}\n              </button>\n            </div>\n          </article>\n        ))}\n      </div>\n      {notice ? (\n        <p role=\"status\" className=\"mt-5 text-sm text-primary\">\n          {notice}{\" \"}\n          {add.isSuccess ? (\n            <Link\n              href={`/${locale}/cart`}\n              className=\"focus-ring font-black underline\"\n            >\n              {t(\"viewCart\")}\n            </Link>\n          ) : null}\n        </p>\n      ) : null}\n    </section>\n  );\n}\n\nexport function LiveSessionDirectory() {\n  const locale = useLocale();\n  const router = useRouter();\n  const t = useTranslations(\"publicContent.live\");\n  const [notice, setNotice] = useState<string>();\n  const sessions = useQuery({\n    queryKey: [\"public-live-sessions\", locale],\n    queryFn: () => api<LiveSession[]>(`/public/live-sessions?locale=${locale}`),\n  });\n  const user = useQuery({\n    queryKey: [\"current-user\"],\n    queryFn: () => api<CurrentUser>(\"/auth/me\"),\n    retry: false,\n    staleTime: 60_000,\n  });\n  const join = useMutation({\n    mutationFn: (id: string) =>\n      api<{ joinUrl: string }>(`/public/live-sessions/${id}/join`),\n    onSuccess: ({ joinUrl }) =>\n      window.open(joinUrl, \"_blank\", \"noopener,noreferrer\"),\n    onError: () => setNotice(t(\"unavailable\")),\n  });\n  function requestJoin(session: LiveSession) {\n    if (!user.data) return router.push(`/${locale}/login`);\n    if (!user.data.roles.includes(\"Student\"))\n      return setNotice(t(\"studentOnly\"));\n    join.mutate(session.id);\n  }\n  return (\n    <section className=\"shell py-12\">\n      <PublicHeader\n        icon={Video}\n        eyebrow={t(\"label\")}\n        title={t(\"title\")}\n        description={t(\"description\")}\n      />\n      {sessions.isPending ? (\n        <div\n          className=\"mt-7 h-64 animate-pulse rounded-3xl bg-white/5\"\n          aria-busy\n        />\n      ) : null}\n      {!sessions.isPending && !sessions.data?.length ? (\n        <EmptyState text={t(\"empty\")} />\n      ) : null}\n      <div className=\"mt-7 grid gap-4 md:grid-cols-2\">\n        {sessions.data?.map((session) => (\n          <article key={session.id} className=\"card p-6\">\n            <div className=\"flex items-start justify-between gap-4\">\n              <span className=\"grid size-11 place-items-center rounded-2xl bg-secondary/15 text-secondary\">\n                <CalendarClock size={21} aria-hidden=\"true\" />\n              </span>\n              <span className=\"rounded-full bg-white/5 px-3 py-1 text-xs font-bold text-muted\">\n                {session.provider}\n              </span>\n            </div>\n            <h2 className=\"mt-5 text-2xl font-black\">{session.title}</h2>\n            {session.description ? (\n              <p className=\"mt-3 text-sm leading-6 text-muted\">\n                {session.description}\n              </p>\n            ) : null}\n            {session.course ? (\n              <Link\n                href={`/${locale}/courses/${session.course.slug}`}\n                className=\"focus-ring mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary\"\n              >\n                <BookOpenCheck size={16} aria-hidden=\"true\" />\n                {t(\"course\")}: {session.course.title}\n              </Link>\n            ) : null}\n            <div className=\"mt-5 grid gap-2 border-y border-border py-4 text-sm text-muted\">\n              <p className=\"flex items-center gap-2\">\n                <Clock3 size={16} aria-hidden=\"true\" />\n                {t(\"starts\")}: <FormatDate value={session.startsAtUtc} />\n              </p>\n              <p>\n                {t(\"ends\")}: <FormatDate value={session.endsAtUtc} />\n              </p>\n            </div>\n            <button\n              type=\"button\"\n              onClick={() => requestJoin(session)}\n              disabled={join.isPending || user.isPending}\n              className=\"focus-ring mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 font-black text-slate-950 disabled:opacity-60\"\n            >\n              <Video size={17} aria-hidden=\"true\" />\n              {user.data ? t(\"join\") : t(\"login\")}\n            </button>\n          </article>\n        ))}\n      </div>\n      {notice ? (\n        <p role=\"status\" className=\"mt-5 text-sm text-amber-400\">\n          {notice}\n        </p>\n      ) : null}\n    </section>\n  );\n}\n"
+  },
+  "catalogues": {
+    "ar": {
+      "baseHash": "fc6951c960499e3151e948bab55e89291fb528cce706bfd51958dc41d7b497f5",
+      "additions": {
+        "cart": {
+          "studentRequired": "يلزم حساب طالب للشراء",
+          "studentDescription": "يمكنك متابعة استكشاف الموقع كضيف، لكن السلة والدفع ومتابعة الدورات تتطلب تسجيل الدخول بحساب طالب.",
+          "signIn": "تسجيل الدخول",
+          "continueGuest": "المتابعة كضيف",
+          "loadError": "تعذر تحميل السلة.",
+          "title": "سلة التعلّم",
+          "description": "راجع الدورات التي اخترتها قبل إنشاء جلسة الدفع الآمنة. الأسعار تحسب من الخادم.",
+          "removeItem": "حذف العنصر",
+          "empty": "سلتك فارغة.",
+          "explore": "استكشف الدورات",
+          "summary": "ملخص الطلب",
+          "subtotal": "الإجمالي",
+          "total": "المجموع",
+          "checkout": "الانتقال للدفع",
+          "eyebrow": "دفع BETCCO"
+        },
+        "checkout": {
+          "title": "الدفع",
+          "description": "لا يغيّر الرجوع إلى هذه الصفحة حالة الدفع. في الإنتاج يتم التسجيل فقط بعد تأكيد مزود الدفع من الخادم.",
+          "coupon": "كود الخصم",
+          "method": "طريقة الدفع",
+          "card": "بطاقة بنكية",
+          "bankTransfer": "تحويل بنكي",
+          "wallet": "محفظة إلكترونية",
+          "create": "إنشاء جلسة الدفع",
+          "subtotal": "المبلغ قبل الخصم",
+          "discount": "الخصم",
+          "tax": "الضريبة",
+          "total": "المجموع: ",
+          "developmentNotice": "بيئة التطوير فقط: أكمل الدفع الاختباري لحسابك. لا يمثل هذا تأكيدًا من مزود دفع خارجي.",
+          "confirmTest": "إتمام الدفع الاختباري",
+          "requestFailed": "تعذر إتمام الطلب."
+        },
+        "result": {
+          "title": "جارٍ التحقق من الدفع",
+          "description": "العودة من صفحة الدفع لا تؤكد نجاح العملية. سيتم تفعيل الوصول فقط بعد التحقق الآمن من العملية لدى مزود الدفع."
+        },
+        "memberships": {
+          "title": "عضويات BETCCO والاشتراكات",
+          "description": "اختر وصولًا شهريًا أو ربع سنويًا أو سنويًا. لا يبدأ الوصول إلا بعد تأكيد الدفع من الخادم.",
+          "coupon": "كود خصم اختياري",
+          "plans": "العضويات",
+          "start": "بدء الدفع",
+          "signIn": "سجّل للدفع",
+          "empty": "لا توجد عضويات منشورة الآن.",
+          "subscriptions": "اشتراكات الدورات",
+          "subscriptionStart": "بدء الدفع",
+          "developmentNotice": "اختبار محلي فقط: أتمم الدفع الاختباري لحسابك. الإنتاج يحتاج تأكيدًا من مزود دفع فعلي.",
+          "confirmTest": "إتمام الدفع الاختباري",
+          "requestFailed": "تعذر إتمام الطلب."
+        },
+        "packages": {
+          "browseCourses": "استكشف الدورات المتاحة"
+        }
+      }
+    },
+    "en": {
+      "baseHash": "a672c143ef8e6c69782b8e6e1e2cb29f1468c1a49e840916f0c5b9bcef8bbb25",
+      "additions": {
+        "cart": {
+          "studentRequired": "A student account is required",
+          "studentDescription": "You can keep exploring as a guest, but the cart, payment, and course learning require a signed-in student account.",
+          "signIn": "Sign in",
+          "continueGuest": "Continue as guest",
+          "loadError": "Unable to load cart.",
+          "title": "Learning cart",
+          "description": "Review the courses you selected before creating a secure checkout session. Prices are calculated on the server.",
+          "removeItem": "Remove item",
+          "empty": "Your cart is empty.",
+          "explore": "Explore courses",
+          "summary": "Order summary",
+          "subtotal": "Subtotal",
+          "total": "Total",
+          "checkout": "Proceed to checkout",
+          "eyebrow": "BETCCO Checkout"
+        },
+        "checkout": {
+          "title": "Checkout",
+          "description": "Returning to this page does not change payment status. In production, enrollment happens only after server-side provider confirmation.",
+          "coupon": "Coupon code",
+          "method": "Payment method",
+          "card": "Bank card",
+          "bankTransfer": "Bank transfer",
+          "wallet": "E-wallet",
+          "create": "Create checkout session",
+          "subtotal": "Subtotal",
+          "discount": "Discount",
+          "tax": "Tax",
+          "total": "Total: ",
+          "developmentNotice": "Development only: complete the test payment for your own account. This is not an external payment-provider confirmation.",
+          "confirmTest": "Complete test payment",
+          "requestFailed": "Request failed."
+        },
+        "result": {
+          "title": "Payment verification in progress",
+          "description": "Returning from the payment page does not confirm success. Access is activated only after the server securely verifies the transaction with the payment provider."
+        },
+        "memberships": {
+          "title": "BETCCO memberships & subscriptions",
+          "description": "Choose monthly, quarterly, or yearly access. Learning access begins only after server-side payment confirmation.",
+          "coupon": "Optional coupon code",
+          "plans": "Membership plans",
+          "start": "Start checkout",
+          "signIn": "Sign in to checkout",
+          "empty": "No memberships are published yet.",
+          "subscriptions": "Course subscriptions",
+          "subscriptionStart": "Start checkout",
+          "developmentNotice": "Local test only: complete the test payment for your account. Production needs confirmation from a real payment provider.",
+          "confirmTest": "Complete test payment",
+          "requestFailed": "Request failed."
+        },
+        "packages": {
+          "browseCourses": "Browse available courses"
+        }
+      }
+    }
+  }
+}

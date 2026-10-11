@@ -10,7 +10,7 @@ import {
   TicketPercent,
   WalletCards,
 } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -29,6 +29,7 @@ type CheckoutResult = {
 };
 
 export function Checkout() {
+  const copy = useTranslations("publicPurchase.checkout");
   const locale = useLocale();
   const router = useRouter();
   const [coupon, setCoupon] = useState("");
@@ -83,12 +84,10 @@ export function Checkout() {
           <WalletCards size={22} aria-hidden="true" />
         </span>
         <h1 className="mt-5 text-3xl font-black tracking-tight">
-          {locale === "ar" ? "الدفع" : "Checkout"}
+          {copy("title")}
         </h1>
         <p className="mt-3 text-sm leading-7 text-muted">
-          {locale === "ar"
-            ? "لا يغيّر الرجوع إلى هذه الصفحة حالة الدفع. في الإنتاج يتم التسجيل فقط بعد تأكيد مزود الدفع من الخادم."
-            : "Returning to this page does not change payment status. In production, enrollment happens only after server-side provider confirmation."}
+          {copy("description")}
         </p>
       </div>
       <div className="p-6 sm:p-8">
@@ -99,7 +98,7 @@ export function Checkout() {
               className="text-primary"
               aria-hidden="true"
             />
-            {locale === "ar" ? "كود الخصم" : "Coupon code"}
+            {copy("coupon")}
           </span>
           <input
             value={coupon}
@@ -108,25 +107,23 @@ export function Checkout() {
           />
         </label>
         <fieldset className="mt-6 grid gap-3">
-          <legend className="text-sm font-semibold">
-            {locale === "ar" ? "طريقة الدفع" : "Payment method"}
-          </legend>
+          <legend className="text-sm font-semibold">{copy("method")}</legend>
           <div className="grid gap-2 sm:grid-cols-3">
             {[
               {
                 value: "Card",
-                ar: "بطاقة بنكية",
-                en: "Bank card",
+                ar: copy("card"),
+                en: copy("card"),
               },
               {
                 value: "BankTransfer",
-                ar: "تحويل بنكي",
-                en: "Bank transfer",
+                ar: copy("bankTransfer"),
+                en: copy("bankTransfer"),
               },
               {
                 value: "EWallet",
-                ar: "محفظة إلكترونية",
-                en: "E-wallet",
+                ar: copy("wallet"),
+                en: copy("wallet"),
               },
             ].map((method) => (
               <label
@@ -151,13 +148,13 @@ export function Checkout() {
           className="focus-ring mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-black text-slate-950 disabled:opacity-60"
         >
           <LockKeyhole size={18} aria-hidden="true" />
-          {locale === "ar" ? "إنشاء جلسة الدفع" : "Create checkout session"}
+          {copy("create")}
         </button>
         {checkout.data?.provider.startsWith("Fake") && (
           <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/10 p-5">
             <dl className="grid gap-2 text-sm text-muted">
               <div className="flex items-center justify-between gap-4">
-                <dt>{locale === "ar" ? "المبلغ قبل الخصم" : "Subtotal"}</dt>
+                <dt>{copy("subtotal")}</dt>
                 <dd>
                   {formatLocalizedCurrency(
                     checkout.data.subtotal,
@@ -168,7 +165,7 @@ export function Checkout() {
               </div>
               {checkout.data.discount > 0 ? (
                 <div className="flex items-center justify-between gap-4">
-                  <dt>{locale === "ar" ? "الخصم" : "Discount"}</dt>
+                  <dt>{copy("discount")}</dt>
                   <dd>
                     {formatLocalizedCurrency(
                       -checkout.data.discount,
@@ -179,7 +176,7 @@ export function Checkout() {
                 </div>
               ) : null}
               <div className="flex items-center justify-between gap-4">
-                <dt>{locale === "ar" ? "الضريبة" : "Tax"}</dt>
+                <dt>{copy("tax")}</dt>
                 <dd>
                   {formatLocalizedCurrency(
                     checkout.data.tax,
@@ -190,7 +187,7 @@ export function Checkout() {
               </div>
             </dl>
             <p className="mt-3 border-t border-primary/25 pt-3 text-lg font-black text-foreground">
-              {locale === "ar" ? "المجموع: " : "Total: "}
+              {copy("total")}
               {formatLocalizedCurrency(
                 checkout.data.total,
                 checkout.data.currency,
@@ -198,9 +195,7 @@ export function Checkout() {
               )}
             </p>
             <p className="mt-2 text-sm leading-6 text-muted">
-              {locale === "ar"
-                ? "بيئة التطوير فقط: أكمل الدفع الاختباري لحسابك. لا يمثل هذا تأكيدًا من مزود دفع خارجي."
-                : "Development only: complete the test payment for your own account. This is not an external payment-provider confirmation."}
+              {copy("developmentNotice")}
             </p>
             <button
               disabled={confirm.isPending}
@@ -208,9 +203,7 @@ export function Checkout() {
               className="focus-ring mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950"
             >
               <BadgeCheck size={17} aria-hidden="true" />
-              {locale === "ar"
-                ? "إتمام الدفع الاختباري"
-                : "Complete test payment"}
+              {copy("confirmTest")}
             </button>
           </div>
         )}
@@ -218,7 +211,7 @@ export function Checkout() {
           <p role="alert" className="mt-4 text-sm text-red-600">
             {activeError instanceof Error
               ? activeError.message
-              : "Request failed."}
+              : copy("requestFailed")}
           </p>
         )}
       </div>
