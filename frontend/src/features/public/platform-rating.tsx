@@ -10,7 +10,7 @@ import {
   Star,
 } from "lucide-react";
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 type CurrentUser = { roles: string[] };
@@ -62,7 +62,7 @@ const initialForm: RatingForm = {
 
 export function PlatformRatingPage() {
   const locale = useLocale();
-  const ar = locale === "ar";
+  const copy = useTranslations("publicTrust.rating");
   const client = useQueryClient();
   const [draft, setDraft] = useState<RatingForm>();
   const user = useQuery({
@@ -124,25 +124,15 @@ export function PlatformRatingPage() {
     value: number,
   ) => setDraft({ ...form, [key]: value });
   const labels = [
-    [
-      "courseQualityScore",
-      ar ? "جودة المحتوى والدورات" : "Course and content quality",
-    ],
-    ["easeOfUseScore", ar ? "سهولة الاستخدام" : "Ease of use"],
-    ["supportScore", ar ? "الدعم والتواصل" : "Support and communication"],
-    [
-      "recommendationScore",
-      ar ? "مدى التوصية بالمنصة" : "Likelihood to recommend",
-    ],
+    ["courseQualityScore", copy("courseAndContentQuality")],
+    ["easeOfUseScore", copy("easeOfUse")],
+    ["supportScore", copy("supportAndCommunication")],
+    ["recommendationScore", copy("likelihoodToRecommend")],
   ] as const;
   const reviewState = mine.data
     ? mine.data.isPublished
-      ? ar
-        ? "تمت مراجعة تقييمك ونشره بموافقتك."
-        : "Your review was approved and published with your consent."
-      : ar
-        ? "حُفظ تقييمك وينتظر مراجعة الأدمن؛ لن يظهر للعامة قبل الموافقة."
-        : "Your review is saved and awaiting admin review; it is not public until approved."
+      ? copy("yourReviewWasApprovedAndPublishedWithYour")
+      : copy("yourReviewIsSavedAndAwaitingAdminReview")
     : null;
 
   return (
@@ -150,15 +140,13 @@ export function PlatformRatingPage() {
       <div className="grid gap-8 xl:grid-cols-[minmax(0,0.9fr)_minmax(23rem,1.1fr)]">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-            {ar ? "تقييم BETCCO" : "BETCCO feedback"}
+            {copy("betccoFeedback")}
           </p>
           <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
-            {ar ? "تقييم BETCCO" : "Rate BETCCO"}
+            {copy("rateBetcco")}
           </h1>
           <p className="mt-4 max-w-xl leading-7 text-muted">
-            {ar
-              ? "نستخدم تقييمات الطلاب الحقيقية لتحسين تجربة التعلّم. لا نعرض مراجعة باسمك، ولا تُنشر إلا باختيارك وبعد مراجعة الإدارة."
-              : "We use genuine learner feedback to improve the learning experience. Your name is never displayed, and a review is public only with your choice and an admin review."}
+            {copy("weUseGenuineLearnerFeedbackToImproveThe")}
           </p>
           <div className="card mt-7 grid gap-5 p-6 sm:grid-cols-[auto_1fr] sm:items-center">
             <div className="grid size-24 place-items-center rounded-3xl bg-primary/12 text-primary">
@@ -174,34 +162,23 @@ export function PlatformRatingPage() {
             </div>
             <div>
               <h2 className="text-xl font-black">
-                {ar ? "انطباع الطلاب المنشور" : "Published learner feedback"}
+                {copy("publishedLearnerFeedback")}
               </h2>
               <p className="mt-2 text-sm text-muted">
                 {summary.data?.ratingsCount
-                  ? ar
-                    ? `من ${summary.data.ratingsCount} مراجعة منشورة بموافقة أصحابها.`
-                    : `From ${summary.data.ratingsCount} approved, opted-in review${summary.data.ratingsCount === 1 ? "" : "s"}.`
-                  : ar
-                    ? "لا توجد مراجعات منشورة بعد. ستظهر هنا بعد موافقة أصحابها ومراجعة الإدارة."
-                    : "There are no published reviews yet. Reviews appear here only after opt-in and admin review."}
+                  ? copy("publishedReviewCount", {
+                      count: summary.data.ratingsCount,
+                    })
+                  : copy("thereAreNoPublishedReviewsYetReviewsAppear")}
               </p>
             </div>
           </div>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {[
-              [
-                summary.data?.courseQualityScore,
-                ar ? "جودة الدورات" : "Course quality",
-              ],
-              [
-                summary.data?.easeOfUseScore,
-                ar ? "سهولة الاستخدام" : "Ease of use",
-              ],
-              [summary.data?.supportScore, ar ? "الدعم" : "Support"],
-              [
-                summary.data?.recommendationScore,
-                ar ? "التوصية" : "Recommendation",
-              ],
+              [summary.data?.courseQualityScore, copy("courseQuality")],
+              [summary.data?.easeOfUseScore, copy("easeOfUse")],
+              [summary.data?.supportScore, copy("support")],
+              [summary.data?.recommendationScore, copy("recommendation")],
             ].map(([score, label]) => (
               <div
                 key={String(label)}
@@ -249,9 +226,7 @@ export function PlatformRatingPage() {
             ))}
             {summary.isError ? (
               <p role="alert" className="text-sm text-red-500">
-                {ar
-                  ? "تعذر تحميل التقييمات المنشورة."
-                  : "Published ratings could not be loaded."}
+                {copy("publishedRatingsCouldNotBeLoaded")}
               </p>
             ) : null}
           </div>
@@ -263,27 +238,21 @@ export function PlatformRatingPage() {
             </span>
             <div>
               <h2 className="text-2xl font-black">
-                {ar ? "شاركنا رأيك" : "Share your feedback"}
+                {copy("shareYourFeedback")}
               </h2>
               <p className="mt-1 text-sm leading-6 text-muted">
-                {ar
-                  ? "متاح لحسابات الطلاب المسجلة فقط."
-                  : "Available to signed-in student accounts only."}
+                {copy("availableToSignedInStudentAccountsOnly")}
               </p>
             </div>
           </div>
           {!user.isPending && !isStudent ? (
             <div className="mt-6 rounded-2xl border border-border bg-surface/70 p-5 text-sm leading-6 text-muted">
-              <p>
-                {ar
-                  ? "سجّل دخولك كطالب لإرسال تقييمك."
-                  : "Sign in as a student to submit your feedback."}
-              </p>
+              <p>{copy("signInAsAStudentToSubmitYour")}</p>
               <Link
                 href={`/${locale}/login`}
                 className="focus-ring mt-4 inline-flex rounded-xl bg-primary px-4 py-2.5 font-black text-slate-950"
               >
-                {ar ? "تسجيل الدخول" : "Sign in"}
+                {copy("signIn")}
               </Link>
             </div>
           ) : isStudent ? (
@@ -313,7 +282,7 @@ export function PlatformRatingPage() {
                 </label>
               ))}
               <label className="grid gap-2 text-sm font-bold">
-                <span>{ar ? "ملاحظة اختيارية" : "Optional comment"}</span>
+                <span>{copy("optionalComment")}</span>
                 <textarea
                   value={form.comment}
                   maxLength={1200}
@@ -321,11 +290,7 @@ export function PlatformRatingPage() {
                     setDraft({ ...form, comment: event.target.value })
                   }
                   className="focus-ring min-h-28 rounded-xl border border-border bg-surface-solid p-3 text-foreground"
-                  placeholder={
-                    ar
-                      ? "كيف يمكن أن نُحسّن تجربتك؟"
-                      : "How can we improve your experience?"
-                  }
+                  placeholder={copy("howCanWeImproveYourExperience")}
                 />
               </label>
               <label className="flex items-start gap-3 rounded-xl border border-border bg-surface/60 p-4 text-sm leading-6">
@@ -340,23 +305,13 @@ export function PlatformRatingPage() {
                   }
                   className="mt-1 size-4"
                 />
-                <span>
-                  {ar
-                    ? "أسمح بعرض مراجعتي للعامة دون اسمي بعد مراجعة الإدارة."
-                    : "I allow my review to be shown publicly without my name after an admin review."}
-                </span>
+                <span>{copy("iAllowMyReviewToBeShownPublicly")}</span>
               </label>
               <button
                 disabled={save.isPending || mine.isPending}
                 className="focus-ring rounded-xl bg-primary px-4 py-3 font-black text-slate-950 disabled:opacity-60"
               >
-                {save.isPending
-                  ? ar
-                    ? "جارٍ الحفظ…"
-                    : "Saving…"
-                  : ar
-                    ? "إرسال التقييم"
-                    : "Submit feedback"}
+                {save.isPending ? copy("saving") : copy("submitFeedback")}
               </button>
               {reviewState ? (
                 <p role="status" className="flex gap-2 text-sm text-primary">
@@ -368,9 +323,7 @@ export function PlatformRatingPage() {
                 <p role="alert" className="text-sm text-red-500">
                   {save.error instanceof Error
                     ? save.error.message
-                    : ar
-                      ? "تعذر حفظ التقييم."
-                      : "Feedback could not be saved."}
+                    : copy("feedbackCouldNotBeSaved")}
                 </p>
               ) : null}
             </form>
@@ -386,9 +339,7 @@ export function PlatformRatingPage() {
               className="shrink-0 text-secondary"
               aria-hidden="true"
             />
-            {ar
-              ? "لا نعرض اسم الطالب، ويمكن للأدمن إخفاء المراجعة أو رفض نشرها عند الحاجة."
-              : "We do not show the learner's name. An administrator can keep a review private or decline publication when needed."}
+            {copy("weDoNotShowTheLearnerSName")}
           </p>
         </aside>
       </div>
