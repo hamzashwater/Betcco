@@ -1,3 +1,7 @@
+import { createTranslator } from "next-intl";
+import ar from "../../messages/ar.json";
+import en from "../../messages/en.json";
+
 export type BrandSettings = Record<string, string>;
 
 export type BrandLocale = "ar" | "en";
@@ -43,8 +47,6 @@ const sharedDefaultBrand: BrandSettings = {
   BrandSurfaceColor: "#F5F6F8",
   SupportEmail: "support@example.test",
   LegalOwnerName: "HAMZA QAHIR ALSHWATER",
-  LegalRegistrationNumber: "Complete before publication",
-  LegalAddress: "Complete before publication",
   PrivacyEmail: "privacy@example.test",
   ComplaintsEmail: "complaints@example.test",
   CopyrightEmail: "copyright@example.test",
@@ -52,26 +54,21 @@ const sharedDefaultBrand: BrandSettings = {
   LegalPackageVersion: "1.0",
 };
 
-const localizedDefaultBrand: Record<BrandLocale, BrandSettings> = {
-  ar: {
-    BrandTagline: "BETCCO — تعلّم. طبّق. حقق المعايير.",
-    BrandSecondaryMessage:
-      "من الدرس إلى المهمة، ومن المهمة إلى تحقيق المعايير — كل ما يحتاجه طالب BTEC في مكان واحد.",
-    BtecDisclaimer:
-      "BETCCO منصة تعليمية مستقلة تقدم مواد مساندة للدارسين في برامج ومساقات BTEC. لا تمثل المنصة Pearson ولا تدّعي أنها Pearson BTEC Approved Centre أو أنها جهة مانحة لشهادات Pearson، ما لم يتم الإعلان صراحة عن اعتماد رسمي موثق.",
-    LegalLastUpdated: "25/08/2026",
-    LegalJurisdiction: "المملكة الأردنية الهاشمية",
-  },
-  en: {
-    BrandTagline: "BETCCO — Learn. Apply. Achieve.",
-    BrandSecondaryMessage:
-      "From learning to assignments and assessment criteria — everything a BTEC student needs in one place.",
-    BtecDisclaimer:
-      "BETCCO is an independent educational platform that provides supporting materials to learners in BTEC programmes and courses. It does not represent Pearson, claim to be a Pearson BTEC Approved Centre, or award Pearson certificates unless a documented official accreditation is expressly announced.",
-    LegalLastUpdated: "2026-08-25",
-    LegalJurisdiction: "Hashemite Kingdom of Jordan",
-  },
-};
+function localizedDefaultBrand(locale: BrandLocale): BrandSettings {
+  const copy = createTranslator({
+    locale,
+    messages: locale === "ar" ? ar.publicTrust.brand : en.publicTrust.brand,
+  });
+  return {
+    BrandTagline: copy("brandTagline"),
+    BrandSecondaryMessage: copy("brandSecondaryMessage"),
+    BtecDisclaimer: copy("btecDisclaimer"),
+    LegalRegistrationNumber: copy("publicationRequired"),
+    LegalAddress: copy("publicationRequired"),
+    LegalLastUpdated: locale === "ar" ? "25/08/2026" : "2026-08-25",
+    LegalJurisdiction: copy("legalJurisdiction"),
+  };
+}
 
 export function normalizeBrandLocale(locale: string): BrandLocale {
   return locale.toLowerCase().startsWith("ar") ? "ar" : "en";
@@ -80,7 +77,7 @@ export function normalizeBrandLocale(locale: string): BrandLocale {
 export function getDefaultBrand(locale: string): BrandSettings {
   return {
     ...sharedDefaultBrand,
-    ...localizedDefaultBrand[normalizeBrandLocale(locale)],
+    ...localizedDefaultBrand(normalizeBrandLocale(locale)),
   };
 }
 

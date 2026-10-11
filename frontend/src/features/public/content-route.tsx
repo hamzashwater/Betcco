@@ -18,43 +18,55 @@ import {
 } from "@/lib/brand";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
-
-const labels: Record<string, { ar: string; en: string }> = {
-  about: { ar: "عن BETCCO", en: "About BETCCO" },
-  faq: { ar: "الأسئلة الشائعة", en: "Frequently asked questions" },
-  contact: { ar: "تواصل معنا", en: "Contact us" },
-  complaints: { ar: "اقتراح أو شكوى", en: "Suggestion or complaint" },
-  privacy: { ar: "سياسة الخصوصية", en: "Privacy policy" },
-  terms: { ar: "الشروط والأحكام", en: "Terms and conditions" },
-  refunds: { ar: "الدفع والاسترداد", en: "Payment and refunds" },
-  copyright: { ar: "حقوق النشر", en: "Copyright" },
-  "student-agreement": { ar: "اتفاقية الطالب", en: "Student agreement" },
-  "teacher-agreement": { ar: "اتفاقية المعلم", en: "Teacher agreement" },
-  minors: { ar: "حماية القاصرين", en: "Minors protection" },
-  cookies: { ar: "ملفات تعريف الارتباط", en: "Cookies" },
-  "privacy-center": { ar: "مركز الخصوصية", en: "Privacy centre" },
-  security: {
-    ar: "الإبلاغ عن ثغرة أمنية",
-    en: "Report a security vulnerability",
-  },
-  tracks: { ar: "المسارات التعليمية", en: "Learning tracks" },
-  packages: { ar: "الباقات", en: "Packages" },
-  memberships: {
-    ar: "العضويات والاشتراكات",
-    en: "Memberships & subscriptions",
-  },
-  teachers: { ar: "المعلمون", en: "Teachers" },
-  search: { ar: "البحث", en: "Search" },
-  blog: { ar: "مدونة BETCCO", en: "BETCCO blog" },
-  live: { ar: "الجلسات المباشرة", en: "Live sessions" },
-  "platform-rating": { ar: "تقييم BETCCO", en: "Rate BETCCO" },
-  guide: { ar: "دليل الاستخدام", en: "User guide" },
-};
 
 export function ContentRoute({ segments }: { segments: string[] }) {
   const locale = useLocale();
+  const copy = useTranslations("publicTrust.content");
+  const labels: Record<string, { ar: string; en: string }> = {
+    about: { ar: copy("routeAbout"), en: copy("routeAbout") },
+    faq: { ar: copy("routeFaq"), en: copy("routeFaq") },
+    contact: { ar: copy("routeContact"), en: copy("routeContact") },
+    complaints: { ar: copy("routeComplaints"), en: copy("routeComplaints") },
+    privacy: { ar: copy("routePrivacy"), en: copy("routePrivacy") },
+    terms: { ar: copy("routeTerms"), en: copy("routeTerms") },
+    refunds: { ar: copy("routeRefunds"), en: copy("routeRefunds") },
+    copyright: { ar: copy("routeCopyright"), en: copy("routeCopyright") },
+    "student-agreement": {
+      ar: copy("routeStudentAgreement"),
+      en: copy("routeStudentAgreement"),
+    },
+    "teacher-agreement": {
+      ar: copy("routeTeacherAgreement"),
+      en: copy("routeTeacherAgreement"),
+    },
+    minors: { ar: copy("routeMinors"), en: copy("routeMinors") },
+    cookies: { ar: copy("routeCookies"), en: copy("routeCookies") },
+    "privacy-center": {
+      ar: copy("routePrivacyCenter"),
+      en: copy("routePrivacyCenter"),
+    },
+    security: {
+      ar: copy("routeSecurity"),
+      en: copy("routeSecurity"),
+    },
+    tracks: { ar: copy("routeTracks"), en: copy("routeTracks") },
+    packages: { ar: copy("routePackages"), en: copy("routePackages") },
+    memberships: {
+      ar: copy("routeMemberships"),
+      en: copy("routeMemberships"),
+    },
+    teachers: { ar: copy("routeTeachers"), en: copy("routeTeachers") },
+    search: { ar: copy("routeSearch"), en: copy("routeSearch") },
+    blog: { ar: copy("routeBlog"), en: copy("routeBlog") },
+    live: { ar: copy("routeLive"), en: copy("routeLive") },
+    "platform-rating": {
+      ar: copy("routePlatformRating"),
+      en: copy("routePlatformRating"),
+    },
+    guide: { ar: copy("routeGuide"), en: copy("routeGuide") },
+  };
   const language = locale === "ar" ? "ar" : "en";
   const key = segments[0] ?? "about";
   const title = labels[key]?.[language] ?? "BETCCO";
@@ -94,11 +106,7 @@ export function ContentRoute({ segments }: { segments: string[] }) {
         {key === "security" && (
           <EngagementForm
             category={"SecurityReport"}
-            title={
-              locale === "ar"
-                ? "أرسل بلاغًا أمنيًا"
-                : "Submit a security report"
-            }
+            title={copy("submitASecurityReport")}
           />
         )}
       </>
@@ -130,9 +138,7 @@ export function ContentRoute({ segments }: { segments: string[] }) {
   const content =
     key === "about"
       ? brand.BrandSecondaryMessage
-      : locale === "ar"
-        ? "يُدار هذا المحتوى من لوحة إدارة BETCCO ويمكن تحديثه بالعربية والإنجليزية دون تعديل الكود."
-        : "This content is managed from BETCCO administration and can be updated in Arabic and English without code changes.";
+      : copy("thisContentIsManagedFromBetccoAdministrationAnd");
   return (
     <section className="shell py-12">
       <div className="max-w-4xl">
@@ -152,7 +158,7 @@ export function ContentRoute({ segments }: { segments: string[] }) {
 
 function AboutBetcco({ brand }: { brand: BrandSettings }) {
   const locale = useLocale();
-  const ar = locale === "ar";
+  const copy = useTranslations("publicTrust.content");
   return (
     <section className="shell py-12">
       <div className="max-w-4xl">
@@ -160,9 +166,7 @@ function AboutBetcco({ brand }: { brand: BrandSettings }) {
           {brand.BrandName}
         </p>
         <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
-          {ar
-            ? "تعلّم واضح مبني على التطبيق"
-            : "Clear learning built around application"}
+          {copy("clearLearningBuiltAroundApplication")}
         </h1>
         <p className="mt-5 max-w-3xl text-lg leading-8 text-muted">
           {brand.BrandSecondaryMessage}
@@ -171,22 +175,16 @@ function AboutBetcco({ brand }: { brand: BrandSettings }) {
       <div className="mt-8 grid gap-4 md:grid-cols-3">
         {[
           [
-            ar ? "تعلّم منظّم" : "Structured learning",
-            ar
-              ? "انتقل من المسار والصف والتخصص إلى دورة تحتوي وحدات ودروسًا وموارد فعلية."
-              : "Move from track, grade, and specialization into courses with real units, lessons, and resources.",
+            copy("structuredLearning"),
+            copy("moveFromTrackGradeAndSpecializationIntoCourses"),
           ],
           [
-            ar ? "تطبيق وتقييم" : "Apply and assess",
-            ar
-              ? "أرسل المهام، وتابع تقييم BTEC المبني على معايير P وM وD داخل حسابك."
-              : "Submit coursework, then follow BTEC evaluation based on P, M, and D criteria in your account.",
+            copy("applyAndAssess"),
+            copy("submitCourseworkThenFollowBtecEvaluationBasedOn"),
           ],
           [
-            ar ? "متابعة مسؤولة" : "Responsible follow-through",
-            ar
-              ? "تتبّع التقدم والمواعيد والملاحظات والشهادات من مساحة طالب خاصة، مع بقاء الملفات والنتائج محمية."
-              : "Track progress, deadlines, notes, and certificates from a private learner workspace while files and results remain protected.",
+            copy("responsibleFollowThrough"),
+            copy("trackProgressDeadlinesNotesAndCertificatesFromA"),
           ],
         ].map(([heading, body]) => (
           <article key={heading} className="card p-6">
@@ -202,7 +200,7 @@ function AboutBetcco({ brand }: { brand: BrandSettings }) {
         href={`/${locale}/guide`}
         className="focus-ring mt-7 inline-flex rounded-xl bg-primary px-5 py-3 font-black text-slate-950"
       >
-        {ar ? "افتح دليل الاستخدام" : "Open the user guide"}
+        {copy("openTheUserGuide")}
       </Link>
     </section>
   );
@@ -210,53 +208,37 @@ function AboutBetcco({ brand }: { brand: BrandSettings }) {
 
 function UserGuide() {
   const locale = useLocale();
-  const ar = locale === "ar";
+  const copy = useTranslations("publicTrust.content");
   const steps = [
     [
-      ar ? "1. اختر مسارك ودورتك" : "1. Choose your track and course",
-      ar
-        ? "ابدأ من المسارات أو الكتالوج، ثم راجع تفاصيل الدورة ومحتواها قبل الإضافة إلى السلة."
-        : "Start from Tracks or the catalogue, then review the course details and content before adding it to your cart.",
+      copy("1ChooseYourTrackAndCourse"),
+      copy("startFromTracksOrTheCatalogueThenReview"),
       `/${locale}/courses`,
-      ar ? "استكشف الدورات" : "Browse courses",
+      copy("browseCourses"),
     ],
     [
-      ar
-        ? "2. سجّل كطالب وأكمل الدفع"
-        : "2. Register as a learner and check out",
-      ar
-        ? "يُحسب السعر والخصم من الخادم. لا يُمنح الوصول إلا بعد تحقق الدفع الموثوق من مزود الدفع."
-        : "The server calculates price and discounts. Access is granted only after trusted payment-provider verification.",
+      copy("2RegisterAsALearnerAndCheckOut"),
+      copy("theServerCalculatesPriceAndDiscountsAccessIs"),
       `/${locale}/register`,
-      ar ? "إنشاء حساب طالب" : "Create a student account",
+      copy("createAStudentAccount"),
     ],
     [
-      ar ? "3. تعلّم وتابع تقدمك" : "3. Learn and track progress",
-      ar
-        ? "من مساحة الطالب ستجد دوراتك، المواعيد، الملاحظات، الإشارات المرجعية والشهادات عند استحقاقها."
-        : "Your student workspace contains courses, deadlines, notes, bookmarks, and earned certificates.",
+      copy("3LearnAndTrackProgress"),
+      copy("yourStudentWorkspaceContainsCoursesDeadlinesNotesBookmarks"),
       `/${locale}/student`,
-      ar ? "مساحة الطالب" : "Student workspace",
+      copy("studentWorkspace"),
     ],
     [
-      ar
-        ? "4. أرسل مهمة أو اطلب تقييمًا"
-        : "4. Submit work or request an evaluation",
-      ar
-        ? "ارفع ملفاتك الخاصة، ثم تابع الحالة والنتيجة بعد تدقيق المعلم واعتماد الإدارة عند الحاجة."
-        : "Upload your private files, then follow status and results after teacher review and, when required, admin verification.",
+      copy("4SubmitWorkOrRequestAnEvaluation"),
+      copy("uploadYourPrivateFilesThenFollowStatusAnd"),
       `/${locale}/student/evaluations/new`,
-      ar ? "طلب تقييم" : "Request evaluation",
+      copy("requestEvaluation"),
     ],
     [
-      ar
-        ? "5. المعلمون يُدعون من الأدمن"
-        : "5. Teachers are invited by an admin",
-      ar
-        ? "لا يوجد تسجيل معلم ذاتي. ينشئ الأدمن الدعوة، ثم ينشئ المعلم الدورة ويقدمها للمراجعة قبل النشر."
-        : "There is no self-service teacher registration. An admin invites the teacher, who creates a course and submits it for review before publication.",
+      copy("5TeachersAreInvitedByAnAdmin"),
+      copy("thereIsNoSelfServiceTeacherRegistrationAn"),
       `/${locale}/teachers`,
-      ar ? "صفحة المعلمين" : "Teacher directory",
+      copy("teacherDirectory"),
     ],
   ];
   return (
@@ -266,12 +248,10 @@ function UserGuide() {
           BETCCO
         </p>
         <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
-          {ar ? "دليل استخدام BETCCO" : "Using BETCCO"}
+          {copy("usingBetcco")}
         </h1>
         <p className="mt-4 leading-7 text-muted">
-          {ar
-            ? "خطوات عملية مرتبطة بالمسارات الموجودة فعلًا في المنصة."
-            : "Practical steps linked to routes that are actually available in the platform."}
+          {copy("practicalStepsLinkedToRoutesThatAreActually")}
         </p>
       </div>
       <ol className="mt-8 grid gap-4">
@@ -299,39 +279,24 @@ function UserGuide() {
 
 function FrequentlyAskedQuestions() {
   const locale = useLocale();
-  const ar = locale === "ar";
+  const copy = useTranslations("publicTrust.content");
   const questions = [
+    [copy("howDoIBuyACourse"), copy("signInAsAStudentAddTheCourse")],
     [
-      ar ? "كيف أشتري دورة؟" : "How do I buy a course?",
-      ar
-        ? "سجّل كطالب، أضف الدورة إلى السلة، وأكمل Checkout. لا يُسجَّل الطالب في الدورة من رابط النجاح وحده؛ يحتاج النظام إلى تأكيد موثوق من مزود الدفع."
-        : "Sign in as a student, add the course to your cart, and complete checkout. A success page alone never enrolls a student; BETCCO requires trusted confirmation from the payment provider.",
+      copy("isBetccoPearsonOrABtecApprovedCentre"),
+      copy("noBetccoIsAnIndependentLearningPlatformSupporting"),
     ],
     [
-      ar
-        ? "هل BETCCO جهة Pearson أو مركز BTEC معتمد؟"
-        : "Is BETCCO Pearson or a BTEC approved centre?",
-      ar
-        ? "لا. BETCCO منصة تعليمية مستقلة تقدم مواد مساندة لدارسي BTEC ولا تدّعي تمثيل Pearson أو إصدار شهادات Pearson الرسمية دون اعتماد موثق."
-        : "No. BETCCO is an independent learning platform supporting BTEC learners. It does not claim to represent Pearson or issue official Pearson certificates without documented accreditation.",
+      copy("howDoISubmitWorkForEvaluation"),
+      copy("fromTheStudentWorkspaceOpenAnEvaluationRequest"),
     ],
     [
-      ar ? "كيف أرسل مهمة للتقييم؟" : "How do I submit work for evaluation?",
-      ar
-        ? "من مساحة الطالب افتح طلب تقييم، اختر الصف والتخصص ونوع المهمة، ثم أضف ملفاتك الخاصة واتبع حالة الطلب."
-        : "From the student workspace, open an evaluation request, choose your grade, specialization, and task type, then add your private files and follow the request status.",
+      copy("howDoIBecomeATeacher"),
+      copy("teacherAccountsAreNotSelfCreatedAnAdministrator"),
     ],
     [
-      ar ? "كيف أصبح معلّمًا؟" : "How do I become a teacher?",
-      ar
-        ? "حساب المعلم لا يُنشأ ذاتيًا. يحتاج الأدمن إلى إنشاء دعوة وتفعيل الحساب، ثم يستطيع المعلم بناء الدورة وتقديمها للمراجعة."
-        : "Teacher accounts are not self-created. An administrator must issue an invitation and activate the account; the teacher can then build and submit a course for review.",
-    ],
-    [
-      ar ? "هل ملفاتي عامة؟" : "Are my files public?",
-      ar
-        ? "لا. الملفات المرفوعة للتقييم أو للدروس تُحفظ في تخزين خاص وتخضع لصلاحيات الوصول على الخادم."
-        : "No. Files uploaded for evaluation or course delivery are stored privately and protected by server-side access checks.",
+      copy("areMyFilesPublic"),
+      copy("noFilesUploadedForEvaluationOrCourseDelivery"),
     ],
   ];
   return (
@@ -341,7 +306,7 @@ function FrequentlyAskedQuestions() {
           BETCCO
         </p>
         <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
-          {ar ? "الأسئلة الشائعة" : "Frequently asked questions"}
+          {copy("frequentlyAskedQuestions")}
         </h1>
       </div>
       <div className="mt-8 grid gap-3">
@@ -358,7 +323,7 @@ function FrequentlyAskedQuestions() {
         href={`/${locale}/contact`}
         className="focus-ring mt-7 inline-flex rounded-xl bg-primary px-5 py-3 font-black text-slate-950"
       >
-        {ar ? "تواصل مع الدعم" : "Contact support"}
+        {copy("contactSupport")}
       </Link>
     </section>
   );
@@ -374,6 +339,7 @@ type LegalDocument = {
 
 function LegalDocumentPage({ slug }: { slug: string }) {
   const locale = useLocale();
+  const copy = useTranslations("publicTrust.content");
   const settings = useQuery({
     queryKey: publicBrandSettingsQueryKey(locale),
     queryFn: () => api<BrandSettings>(`/settings/public?locale=${locale}`),
@@ -395,9 +361,7 @@ function LegalDocumentPage({ slug }: { slug: string }) {
     return (
       <section className="shell py-12">
         <p className="card max-w-3xl p-6" role="alert">
-          {locale === "ar"
-            ? "تعذر تحميل هذه الوثيقة القانونية."
-            : "This legal document could not be loaded."}
+          {copy("thisLegalDocumentCouldNotBeLoaded")}
         </p>
       </section>
     );
@@ -416,24 +380,20 @@ function LegalDocumentPage({ slug }: { slug: string }) {
           {value.title}
         </h1>
         <p className="mt-3 text-sm text-muted">
-          {locale === "ar" ? "الإصدار" : "Version"} {value.version} ·{" "}
-          {locale === "ar" ? "ساري من" : "Effective"} {effectiveDate}
+          {copy("version")} {value.version} · {copy("effective")}{" "}
+          {effectiveDate}
         </p>
       </div>
       {locale === "en" && (
         <p className="mt-6 max-w-3xl rounded-xl border border-amber-400/35 bg-amber-400/10 p-4 text-sm leading-6 text-foreground">
-          The Arabic version is the operational reference for Jordanian
-          publication until an English legal translation is reviewed and
-          approved.
+          {copy("arabicOperationalReference")}
         </p>
       )}
       <article className="card mt-7 max-w-4xl p-6 leading-8 text-muted sm:p-8">
         <MarkdownLegalContent content={content} />
       </article>
       <p className="mt-5 max-w-4xl text-xs leading-5 text-muted">
-        {locale === "ar"
-          ? "هذه وثيقة تشغيلية للمنصة ويجب مراجعتها واعتمادها قانونيًا قبل النشر العام."
-          : "This is an operational platform document and requires legal review and approval before public production publication."}
+        {copy("thisIsAnOperationalPlatformDocumentAndRequires")}
       </p>
     </section>
   );
@@ -475,6 +435,7 @@ type PrivacyCurrentUser = { id: string; displayName: string; roles: string[] };
 function PrivacyRequestPanel() {
   const locale = useLocale();
   const ar = locale === "ar";
+  const copy = useTranslations("publicTrust.content");
   const [requestType, setRequestType] = useState<PrivacyRequestType>("Access");
   const [description, setDescription] = useState("");
   const user = useQuery({
@@ -511,28 +472,36 @@ function PrivacyRequestPanel() {
     onSuccess: () => void requests.refetch(),
   });
   const options: { value: PrivacyRequestType; ar: string; en: string }[] = [
-    { value: "Access", ar: "طلب الوصول إلى بياناتي", en: "Access my data" },
-    { value: "Rectification", ar: "تصحيح بياناتي", en: "Correct my data" },
+    { value: "Access", ar: copy("accessMyData"), en: copy("accessMyData") },
+    {
+      value: "Rectification",
+      ar: copy("correctMyData"),
+      en: copy("correctMyData"),
+    },
     {
       value: "Restriction",
-      ar: "تقييد معالجة البيانات",
-      en: "Restrict processing",
+      ar: copy("restrictProcessing"),
+      en: copy("restrictProcessing"),
     },
     {
       value: "ErasureOrConcealment",
-      ar: "محو أو إخفاء البيانات حيث ينطبق",
-      en: "Erase or conceal data where applicable",
+      ar: copy("eraseOrConcealDataWhereApplicable"),
+      en: copy("eraseOrConcealDataWhereApplicable"),
     },
     {
       value: "ObjectionToProfiling",
-      ar: "الاعتراض على المعالجة أو التنميط",
-      en: "Object to processing or profiling",
+      ar: copy("objectToProcessingOrProfiling"),
+      en: copy("objectToProcessingOrProfiling"),
     },
-    { value: "Portability", ar: "نسخة قابلة للنقل", en: "Portable copy" },
+    {
+      value: "Portability",
+      ar: copy("portableCopy"),
+      en: copy("portableCopy"),
+    },
     {
       value: "WithdrawMarketingConsent",
-      ar: "سحب موافقة التسويق",
-      en: "Withdraw marketing consent",
+      ar: copy("withdrawMarketingConsent"),
+      en: copy("withdrawMarketingConsent"),
     },
   ];
   const canCancel = (status: PrivacyRequestStatus) =>
@@ -540,14 +509,12 @@ function PrivacyRequestPanel() {
   const date = (value: string) => formatLocalizedDateTime(value, locale);
   const statusLabel = (status: PrivacyRequestStatus) =>
     ({
-      Submitted: ar ? "تم الإرسال" : "Submitted",
-      IdentityVerificationRequired: ar
-        ? "مطلوب تحقق من الهوية"
-        : "Identity check required",
-      InReview: ar ? "قيد المراجعة" : "In review",
-      Completed: ar ? "مكتمل" : "Completed",
-      Rejected: ar ? "مرفوض" : "Rejected",
-      Cancelled: ar ? "ملغى" : "Cancelled",
+      Submitted: copy("submitted"),
+      IdentityVerificationRequired: copy("identityCheckRequired"),
+      InReview: copy("inReview"),
+      Completed: copy("completed"),
+      Rejected: copy("rejected"),
+      Cancelled: copy("cancelled"),
     })[status];
 
   return (
@@ -555,12 +522,10 @@ function PrivacyRequestPanel() {
       <div className="card max-w-4xl p-6 sm:p-8">
         <div className="max-w-2xl">
           <h2 id="privacy-request-heading" className="text-2xl font-black">
-            {ar ? "طلبات الخصوصية الخاصة بك" : "Your privacy requests"}
+            {copy("yourPrivacyRequests")}
           </h2>
           <p className="mt-2 leading-7 text-muted">
-            {ar
-              ? "يُسجّل الطلب للمراجعة الآمنة. لا تنشر كلمة المرور أو معلومات الدفع أو وثائق الهوية في الوصف."
-              : "Requests are recorded for a secure review. Do not include a password, payment details, or identity documents in the description."}
+            {copy("requestsAreRecordedForASecureReviewDo")}
           </p>
         </div>
         {user.isPending ? (
@@ -571,15 +536,13 @@ function PrivacyRequestPanel() {
         ) : !user.data ? (
           <div className="mt-6 rounded-2xl border border-border bg-surface-solid/70 p-5">
             <p className="leading-7 text-muted">
-              {ar
-                ? "سجّل الدخول أولًا لتأكيد هويتك ومتابعة طلبك من داخل حسابك."
-                : "Sign in first so we can verify your identity and let you track the request in your account."}
+              {copy("signInFirstSoWeCanVerifyYour")}
             </p>
             <Link
               href={`/${locale}/login?next=/${locale}/privacy-center`}
               className="focus-ring mt-4 inline-flex rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950"
             >
-              {ar ? "تسجيل الدخول" : "Sign in"}
+              {copy("signIn")}
             </Link>
           </div>
         ) : (
@@ -596,7 +559,7 @@ function PrivacyRequestPanel() {
                   className="text-sm font-black"
                   htmlFor="privacy-request-type"
                 >
-                  {ar ? "نوع الطلب" : "Request type"}
+                  {copy("requestType")}
                 </label>
                 <select
                   id="privacy-request-type"
@@ -618,7 +581,7 @@ function PrivacyRequestPanel() {
                   className="text-sm font-black"
                   htmlFor="privacy-request-details"
                 >
-                  {ar ? "تفاصيل اختيارية" : "Optional details"}
+                  {copy("optionalDetails")}
                 </label>
                 <textarea
                   id="privacy-request-details"
@@ -626,11 +589,9 @@ function PrivacyRequestPanel() {
                   value={description}
                   maxLength={2000}
                   onChange={(event) => setDescription(event.target.value)}
-                  placeholder={
-                    ar
-                      ? "اشرح الطلب دون إرسال أي أسرار أو وثائق حساسة."
-                      : "Explain the request without sending secrets or sensitive documents."
-                  }
+                  placeholder={copy(
+                    "explainTheRequestWithoutSendingSecretsOrSensitive",
+                  )}
                 />
               </div>
               <div className="flex flex-wrap items-center gap-3">
@@ -640,12 +601,8 @@ function PrivacyRequestPanel() {
                   disabled={createRequest.isPending}
                 >
                   {createRequest.isPending
-                    ? ar
-                      ? "جارٍ الإرسال…"
-                      : "Submitting…"
-                    : ar
-                      ? "إرسال طلب الخصوصية"
-                      : "Submit privacy request"}
+                    ? copy("submitting")
+                    : copy("submitPrivacyRequest")}
                 </button>
                 {createRequest.isError && (
                   <p className="text-sm text-danger" role="alert">
@@ -654,17 +611,13 @@ function PrivacyRequestPanel() {
                 )}
                 {createRequest.isSuccess && (
                   <p className="text-sm text-emerald-600" role="status">
-                    {ar
-                      ? "تم تسجيل طلبك ويمكنك متابعته أدناه."
-                      : "Your request has been recorded and can be tracked below."}
+                    {copy("yourRequestHasBeenRecordedAndCanBe")}
                   </p>
                 )}
               </div>
             </form>
             <div className="mt-7">
-              <h3 className="text-lg font-black">
-                {ar ? "سجل الطلبات" : "Request history"}
-              </h3>
+              <h3 className="text-lg font-black">{copy("requestHistory")}</h3>
               {requests.isPending ? (
                 <div
                   className="mt-3 h-24 animate-pulse rounded-2xl bg-surface-solid"
@@ -707,7 +660,7 @@ function PrivacyRequestPanel() {
                             onClick={() => cancelRequest.mutate(item.id)}
                             disabled={cancelRequest.isPending}
                           >
-                            {ar ? "إلغاء الطلب" : "Cancel request"}
+                            {copy("cancelRequest")}
                           </button>
                         )}
                       </div>
@@ -721,9 +674,7 @@ function PrivacyRequestPanel() {
                 </ul>
               ) : (
                 <p className="mt-3 rounded-xl border border-dashed border-border p-4 text-sm text-muted">
-                  {ar
-                    ? "لا توجد طلبات خصوصية مسجلة بعد."
-                    : "No privacy requests have been recorded yet."}
+                  {copy("noPrivacyRequestsHaveBeenRecordedYet")}
                 </p>
               )}
             </div>
@@ -775,6 +726,7 @@ function interpolateLegalText(content: string, settings: BrandSettings) {
 
 function Tracks({ title }: { title: string }) {
   const locale = useLocale();
+  const copy = useTranslations("publicTrust.content");
   const result = useQuery({
     queryKey: ["taxonomy", locale],
     queryFn: () =>
@@ -805,15 +757,13 @@ function Tracks({ title }: { title: string }) {
           >
             <p className="font-black text-primary">{track.name}</p>
             <p className="mt-2 text-sm text-muted">
-              {track.isBtecFocused ? "BTEC-first" : "Academic"}
+              {track.isBtecFocused ? copy("btecFirst") : copy("academic")}
             </p>
           </a>
         ))}
       </div>
       {result.isError && (
-        <p className="mt-5 text-muted">
-          {locale === "ar" ? "تعذر تحميل المسارات." : "Unable to load tracks."}
-        </p>
+        <p className="mt-5 text-muted">{copy("unableToLoadTracks")}</p>
       )}
     </section>
   );
@@ -821,6 +771,7 @@ function Tracks({ title }: { title: string }) {
 
 function TrackDetail({ slug }: { slug: string }) {
   const locale = useLocale();
+  const copy = useTranslations("publicTrust.content");
   const track = useQuery({
     queryKey: ["track-detail", slug, locale],
     queryFn: () =>
@@ -848,9 +799,7 @@ function TrackDetail({ slug }: { slug: string }) {
     return (
       <section className="shell py-12">
         <div className="card p-6 text-muted">
-          {locale === "ar"
-            ? "هذا المسار غير متاح."
-            : "This learning track is unavailable."}
+          {copy("thisLearningTrackIsUnavailable")}
         </div>
       </section>
     );
@@ -858,7 +807,9 @@ function TrackDetail({ slug }: { slug: string }) {
     <section className="shell py-12">
       <div className="relative overflow-hidden rounded-3xl border border-border bg-[radial-gradient(circle_at_85%_15%,color-mix(in_srgb,var(--primary)_28%,transparent),transparent_38%),linear-gradient(135deg,color-mix(in_srgb,var(--surface)_94%,transparent),color-mix(in_srgb,var(--surface-solid)_75%,transparent))] p-7 shadow-[var(--shadow)] sm:p-10">
         <p className="relative text-xs font-black uppercase tracking-[0.18em] text-primary">
-          {track.data.isBtecFocused ? "BETCCO · BTEC-first" : "BETCCO Learning"}
+          {track.data.isBtecFocused
+            ? copy("btecEyebrow")
+            : copy("learningEyebrow")}
         </p>
         <h1 className="relative mt-3 text-4xl font-black tracking-tight sm:text-5xl">
           {track.data.name}
@@ -866,32 +817,16 @@ function TrackDetail({ slug }: { slug: string }) {
         <p className="relative mt-4 max-w-2xl leading-7 text-muted">
           {track.data.description ||
             (track.data.isBtecFocused
-              ? locale === "ar"
-                ? "استكشف الدورات المنشورة التي تدعم التعلم والتطبيق وتحقيق المعايير ضمن مسار BTEC."
-                : "Explore published courses that support learning, application, and criteria achievement in the BTEC pathway."
-              : locale === "ar"
-                ? "استكشف الدورات المنشورة المتاحة ضمن هذا المسار الأكاديمي."
-                : "Explore published courses available in this academic pathway.")}
+              ? copy("explorePublishedCoursesThatSupportLearningApplicationAnd")
+              : copy("explorePublishedCoursesAvailableInThisAcademicPathway"))}
         </p>
       </div>
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          [
-            track.data.courseCount,
-            locale === "ar" ? "دورات منشورة" : "Published courses",
-          ],
-          [
-            track.data.moduleCount,
-            locale === "ar" ? "وحدات متاحة" : "Available units",
-          ],
-          [
-            track.data.lessonCount,
-            locale === "ar" ? "دروس متاحة" : "Available lessons",
-          ],
-          [
-            track.data.guidedLearningHours,
-            locale === "ar" ? "ساعات تعلّم موجه" : "Guided learning hours",
-          ],
+          [track.data.courseCount, copy("publishedCourses")],
+          [track.data.moduleCount, copy("availableUnits")],
+          [track.data.lessonCount, copy("availableLessons")],
+          [track.data.guidedLearningHours, copy("guidedLearningHours")],
         ].map(([value, label]) => (
           <div key={String(label)} className="card p-4">
             <p className="text-2xl font-black text-primary">{value}</p>
@@ -901,38 +836,24 @@ function TrackDetail({ slug }: { slug: string }) {
       </div>
       <div className="mt-7 grid gap-4 lg:grid-cols-3">
         <TrackTaxonomyList
-          title={locale === "ar" ? "الصفوف والمراحل" : "Grades and stages"}
+          title={copy("gradesAndStages")}
           items={track.data.grades}
-          empty={
-            locale === "ar"
-              ? "لا توجد صفوف منشورة لهذا المسار."
-              : "No grades are published for this track."
-          }
+          empty={copy("noGradesArePublishedForThisTrack")}
         />
         <TrackTaxonomyList
-          title={locale === "ar" ? "التخصصات" : "Specializations"}
+          title={copy("specializations")}
           items={track.data.specializations}
-          empty={
-            locale === "ar"
-              ? "لا توجد تخصصات منشورة لهذا المسار."
-              : "No specializations are published for this track."
-          }
+          empty={copy("noSpecializationsArePublishedForThisTrack")}
         />
         <TrackTaxonomyList
-          title={locale === "ar" ? "المواد" : "Subjects"}
+          title={copy("subjects")}
           items={track.data.subjects}
-          empty={
-            locale === "ar"
-              ? "لا توجد مواد منشورة لهذا المسار."
-              : "No subjects are published for this track."
-          }
+          empty={copy("noSubjectsArePublishedForThisTrack")}
         />
       </div>
       <div className="mt-8">
         <h2 className="text-2xl font-black">
-          {locale === "ar"
-            ? "الدورات المتاحة في هذا المسار"
-            : "Available courses in this track"}
+          {copy("availableCoursesInThisTrack")}
         </h2>
         <div className="mt-5">
           <CatalogGrid track={track.data.slug} />
@@ -979,7 +900,7 @@ function EngagementForm({
   category: string;
   title: string;
 }) {
-  const locale = useLocale();
+  const copy = useTranslations("publicTrust.content");
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [message, setMessage] = useState("");
@@ -1004,21 +925,21 @@ function EngagementForm({
         <input
           value={name}
           onChange={(event) => setName(event.target.value)}
-          placeholder={locale === "ar" ? "الاسم" : "Name"}
+          placeholder={copy("name")}
           className="rounded-lg border bg-transparent p-3"
           required
         />
         <input
           value={contact}
           onChange={(event) => setContact(event.target.value)}
-          placeholder={locale === "ar" ? "البريد أو الهاتف" : "Email or phone"}
+          placeholder={copy("emailOrPhone")}
           className="rounded-lg border bg-transparent p-3"
           required
         />
         <textarea
           value={message}
           onChange={(event) => setMessage(event.target.value)}
-          placeholder={locale === "ar" ? "الرسالة" : "Message"}
+          placeholder={copy("message")}
           className="min-h-32 rounded-lg border bg-transparent p-3"
           required
         />
@@ -1028,25 +949,19 @@ function EngagementForm({
             checked={consent}
             onChange={(event) => setConsent(event.target.checked)}
           />
-          {locale === "ar"
-            ? "أوافق على استخدام بياناتي للرد على الرسالة."
-            : "I consent to using these details to respond."}
+          {copy("iConsentToUsingTheseDetailsToRespond")}
         </label>
         <button className="focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-white">
-          {locale === "ar" ? "إرسال" : "Send"}
+          {copy("send")}
         </button>
         {send.isSuccess && (
-          <p role="status">
-            {locale === "ar"
-              ? "شكرًا، وصلت رسالتك."
-              : "Thank you, your message was received."}
-          </p>
+          <p role="status">{copy("thankYouYourMessageWasReceived")}</p>
         )}
         {send.isError && (
           <p role="alert" className="text-red-600">
             {send.error instanceof Error
               ? send.error.message
-              : "Request failed."}
+              : copy("requestFailed")}
           </p>
         )}
       </form>

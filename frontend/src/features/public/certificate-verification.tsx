@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { BadgeCheck, FileBadge } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export function CertificateVerification({
   locale,
@@ -13,6 +14,7 @@ export function CertificateVerification({
   locale: string;
   verificationCode: string;
 }) {
+  const copy = useTranslations("publicTrust.certificate");
   const certificate = useQuery({
     queryKey: ["certificate-verification", verificationCode, locale],
     queryFn: () =>
@@ -25,7 +27,6 @@ export function CertificateVerification({
         `/student-tools/certificates/${encodeURIComponent(verificationCode)}?locale=${locale}`,
       ),
   });
-  const isArabic = locale === "ar";
   return (
     <section className="shell py-12">
       <div className="mx-auto max-w-2xl card p-6 text-center sm:p-10">
@@ -36,7 +37,7 @@ export function CertificateVerification({
           BETCCO
         </p>
         <h1 className="mt-2 text-3xl font-black">
-          {isArabic ? "التحقق من الشهادة" : "Certificate verification"}
+          {copy("certificateVerification")}
         </h1>
         {certificate.isPending ? (
           <p className="mt-6 text-muted" aria-busy>
@@ -45,24 +46,24 @@ export function CertificateVerification({
         ) : certificate.data ? (
           <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/5 p-5 text-start">
             <p className="font-black text-primary">
-              {isArabic ? "شهادة صالحة" : "Certificate verified"}
+              {copy("certificateVerified")}
             </p>
             <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
               <p>
                 <span className="block text-xs text-muted">
-                  {isArabic ? "اسم المتعلم" : "Learner"}
+                  {copy("learner")}
                 </span>
                 <strong>{certificate.data.studentName}</strong>
               </p>
               <p>
                 <span className="block text-xs text-muted">
-                  {isArabic ? "الدورة" : "Course"}
+                  {copy("course")}
                 </span>
                 <strong>{certificate.data.courseTitle}</strong>
               </p>
               <p>
                 <span className="block text-xs text-muted">
-                  {isArabic ? "تاريخ الإصدار" : "Issued"}
+                  {copy("issued")}
                 </span>
                 <strong>
                   {formatLocalizedDate(certificate.data.issuedAtUtc, locale, {
@@ -72,7 +73,7 @@ export function CertificateVerification({
               </p>
               <p>
                 <span className="block text-xs text-muted">
-                  {isArabic ? "رقم التحقق" : "Verification ID"}
+                  {copy("verificationId")}
                 </span>
                 <strong dir="ltr" className="break-all font-mono text-xs">
                   {certificate.data.verificationCode}
@@ -84,22 +85,18 @@ export function CertificateVerification({
           <div className="mt-6 rounded-2xl border border-red-500/40 bg-red-500/5 p-5 text-red-400">
             <FileBadge className="mx-auto" aria-hidden="true" />
             <p className="mt-3 font-black">
-              {isArabic
-                ? "لم نعثر على شهادة صالحة بهذا الرمز."
-                : "No valid certificate was found for this code."}
+              {copy("noValidCertificateWasFoundForThisCode")}
             </p>
           </div>
         )}
         <p className="mt-7 text-xs leading-5 text-muted">
-          {isArabic
-            ? "هذه شهادة إكمال من BETCCO وليست شهادة Pearson أو اعتماد Pearson BTEC رسميًا."
-            : "This is a BETCCO completion certificate, not a Pearson certificate or official Pearson BTEC accreditation."}
+          {copy("thisIsABetccoCompletionCertificateNotA")}
         </p>
         <Link
           href={`/${locale}`}
           className="focus-ring mt-6 inline-block rounded-xl border border-primary/40 px-4 py-2.5 text-sm font-bold text-primary"
         >
-          {isArabic ? "العودة إلى BETCCO" : "Back to BETCCO"}
+          {copy("backToBetcco")}
         </Link>
       </div>
     </section>
