@@ -17,13 +17,14 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { getCourseVisual } from "@/lib/course-visuals";
 
 export function CourseCard({ course }: { course: CourseSummary }) {
   const locale = useLocale();
+  const copy = useTranslations("publicDiscovery.card");
   const router = useRouter();
   const client = useQueryClient();
   const [notice, setNotice] = useState<string>();
@@ -41,15 +42,13 @@ export function CourseCard({ course }: { course: CourseSummary }) {
         method: "POST",
       }),
     onSuccess: (cart) => {
-      setNotice(
-        locale === "ar" ? "أضيفت الدورة إلى السلة." : "Course added to cart.",
-      );
+      setNotice(copy("courseAddedToCart"));
       client.setQueryData(["cart", locale], cart);
       client.invalidateQueries({ queryKey: ["cart", locale] });
     },
     onError: (error) =>
       setNotice(
-        error instanceof Error ? error.message : "Unable to add course.",
+        error instanceof Error ? error.message : copy("unableToAddCourse"),
       ),
   });
   function addToCart() {
@@ -59,11 +58,7 @@ export function CourseCard({ course }: { course: CourseSummary }) {
         router.push(`/${locale}/login`);
         return;
       }
-      setNotice(
-        locale === "ar"
-          ? "الشراء متاح من حساب الطالب فقط."
-          : "Purchasing is available to student accounts only.",
-      );
+      setNotice(copy("purchasingIsAvailableToStudentAccountsOnly"));
       return;
     }
     add.mutate();
@@ -106,12 +101,12 @@ export function CourseCard({ course }: { course: CourseSummary }) {
           <span className="inline-flex items-center gap-1">
             <ListVideo size={14} />
             {formatLocalizedNumber(course.lessonCount, locale)}{" "}
-            {locale === "ar" ? "دروس" : "lessons"}
+            {copy("lessons")}
           </span>
           <span className="inline-flex items-center gap-1">
             <Clock3 size={14} />
             {course.durationMinutes > 0
-              ? `${formatLocalizedNumber(course.durationMinutes, locale)} ${locale === "ar" ? "دقيقة" : "min"}`
+              ? `${formatLocalizedNumber(course.durationMinutes, locale)} ${copy("min")}`
               : "—"}
           </span>
           {course.teacherName ? (
@@ -138,9 +133,7 @@ export function CourseCard({ course }: { course: CourseSummary }) {
         <div className="mt-auto flex items-center justify-between gap-3 pt-5">
           <strong>
             {course.isFree
-              ? locale === "ar"
-                ? "مجاني"
-                : "Free"
+              ? copy("free")
               : formatLocalizedCurrency(course.price, course.currency, locale)}
           </strong>
           <button
@@ -153,23 +146,17 @@ export function CourseCard({ course }: { course: CourseSummary }) {
             {user.isPending
               ? "…"
               : isStudent
-                ? locale === "ar"
-                  ? "أضف للسلة"
-                  : "Add"
+                ? copy("add")
                 : user.data
-                  ? locale === "ar"
-                    ? "حساب طالب فقط"
-                    : "Student account only"
-                  : locale === "ar"
-                    ? "سجّل الدخول للشراء"
-                    : "Sign in to purchase"}
+                  ? copy("studentAccountOnly")
+                  : copy("signInToPurchase")}
           </button>
         </div>
         <Link
           href={`/${locale}/courses/${course.slug}`}
           className="focus-ring mt-4 inline-flex items-center gap-1 text-sm font-bold text-primary"
         >
-          {locale === "ar" ? "عرض الدورة" : "View course"}
+          {copy("viewCourse")}
           <ArrowLeft
             size={16}
             className="rtl:rotate-180 transition-transform group-hover:-translate-x-1"
@@ -185,7 +172,7 @@ export function CourseCard({ course }: { course: CourseSummary }) {
                 className="focus-ring shrink-0 font-bold text-primary underline"
                 href={`/${locale}/cart`}
               >
-                {locale === "ar" ? "عرض السلة" : "View cart"}
+                {copy("viewCart")}
               </Link>
             )}
           </div>

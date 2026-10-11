@@ -5,7 +5,7 @@ import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import Image from "next/image";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useDeferredValue, useState } from "react";
 
 type Taxonomy = {
@@ -27,6 +27,7 @@ type Taxonomy = {
 
 export default function CoursesPage() {
   const locale = useLocale();
+  const copy = useTranslations("publicDiscovery.catalog");
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({
     track: "",
@@ -63,15 +64,13 @@ export default function CoursesPage() {
         <span className="absolute -end-14 -top-14 size-64 rounded-full border border-primary/20" />
         <div className="relative max-w-3xl">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-            BETCCO Catalog
+            {copy("betccoCatalog")}
           </p>
           <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
-            {locale === "ar" ? "اكتشف الدورات" : "Discover courses"}
+            {copy("discoverCourses")}
           </h1>
           <p className="mt-3 max-w-2xl leading-7 text-muted">
-            {locale === "ar"
-              ? "ابحث في الدورات المنشورة، واختر المسار والتخصص المناسبين."
-              : "Search published courses and select the track and specialization that fit you."}
+            {copy("searchPublishedCoursesAndSelectTheTrack")}
           </p>
         </div>
       </div>
@@ -86,7 +85,7 @@ export default function CoursesPage() {
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder={locale === "ar" ? "ابحث عن دورة" : "Search courses"}
+              placeholder={copy("searchCourses")}
               className="w-full bg-transparent text-sm outline-none placeholder:text-muted"
             />
           </label>
@@ -96,14 +95,12 @@ export default function CoursesPage() {
               className="text-primary"
               aria-hidden="true"
             />
-            {locale === "ar"
-              ? "فلترة من بيانات المنصة"
-              : "Filter from platform data"}
+            {copy("filterFromPlatformData")}
           </div>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <FilterSelect
-            label={locale === "ar" ? "المسار" : "Track"}
+            label={copy("track")}
             value={filters.track}
             onChange={(track) =>
               update({ track, grade: "", specialization: "", subject: "" })
@@ -116,7 +113,7 @@ export default function CoursesPage() {
             )}
           />
           <FilterSelect
-            label={locale === "ar" ? "الصف" : "Grade"}
+            label={copy("grade")}
             value={filters.grade}
             onChange={(grade) => update({ grade })}
             options={uniqueOptions(
@@ -129,7 +126,7 @@ export default function CoursesPage() {
             )}
           />
           <FilterSelect
-            label={locale === "ar" ? "التخصص" : "Specialization"}
+            label={copy("specialization")}
             value={filters.specialization}
             onChange={(specialization) =>
               update({ specialization, subject: "" })
@@ -144,7 +141,7 @@ export default function CoursesPage() {
             )}
           />
           <FilterSelect
-            label={locale === "ar" ? "المادة" : "Subject"}
+            label={copy("subject")}
             value={filters.subject}
             onChange={(subject) => update({ subject })}
             options={uniqueOptions(
@@ -161,20 +158,18 @@ export default function CoursesPage() {
             )}
           />
           <FilterSelect
-            label={locale === "ar" ? "الترتيب" : "Sort"}
+            label={copy("sort")}
             value={filters.sort}
             onChange={(sort) => update({ sort: sort as typeof filters.sort })}
             options={[
-              { value: "newest", label: locale === "ar" ? "الأحدث" : "Newest" },
+              { value: "newest", label: copy("newest") },
               {
                 value: "price-asc",
-                label:
-                  locale === "ar" ? "السعر: الأقل أولًا" : "Price: low first",
+                label: copy("priceLowFirst"),
               },
               {
                 value: "price-desc",
-                label:
-                  locale === "ar" ? "السعر: الأعلى أولًا" : "Price: high first",
+                label: copy("priceHighFirst"),
               },
             ]}
           />
@@ -188,7 +183,7 @@ export default function CoursesPage() {
             className="focus-ring mt-3 inline-flex items-center gap-1 text-sm font-bold text-primary"
           >
             <X size={16} aria-hidden="true" />
-            {locale === "ar" ? "مسح الفلاتر" : "Clear filters"}
+            {copy("clearFilters")}
           </button>
         )}
       </div>

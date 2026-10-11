@@ -14,13 +14,16 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { getCourseVisual } from "@/lib/course-visuals";
 
 export function CourseDetailView({ slug }: { slug: string }) {
   const locale = useLocale();
+  const copy = useTranslations("publicDiscovery.detail");
+  const navigation = useTranslations("navigation");
+  const rootCopy = useTranslations();
   const router = useRouter();
   const client = useQueryClient();
   const [notice, setNotice] = useState<string>();
@@ -63,15 +66,13 @@ export function CourseDetailView({ slug }: { slug: string }) {
         method: "POST",
       }),
     onSuccess: (cart) => {
-      setNotice(
-        locale === "ar" ? "أضيفت الدورة إلى السلة." : "Course added to cart.",
-      );
+      setNotice(copy("courseAddedToCart"));
       client.setQueryData(["cart", locale], cart);
       client.invalidateQueries({ queryKey: ["cart", locale] });
     },
     onError: (error) =>
       setNotice(
-        error instanceof Error ? error.message : "Unable to add course.",
+        error instanceof Error ? error.message : copy("unableToAddCourse"),
       ),
   });
   function addToCart(courseId: string) {
@@ -81,11 +82,7 @@ export function CourseDetailView({ slug }: { slug: string }) {
         router.push(`/${locale}/login`);
         return;
       }
-      setNotice(
-        locale === "ar"
-          ? "الشراء متاح من حساب الطالب فقط."
-          : "Purchasing is available to student accounts only.",
-      );
+      setNotice(copy("purchasingIsAvailableToStudentAccountsOnly"));
       return;
     }
     add.mutate(courseId);
@@ -100,9 +97,7 @@ export function CourseDetailView({ slug }: { slug: string }) {
     return (
       <section className="shell py-12">
         <p role="alert" className="card p-6">
-          {locale === "ar"
-            ? "الدورة غير متاحة."
-            : "This course is unavailable."}
+          {copy("thisCourseIsUnavailable")}
         </p>
       </section>
     );
@@ -110,12 +105,9 @@ export function CourseDetailView({ slug }: { slug: string }) {
   const visual = getCourseVisual(course);
   return (
     <section className="shell py-10 md:py-14">
-      <nav
-        aria-label={locale === "ar" ? "مسار التنقل" : "Breadcrumb"}
-        className="mb-6 text-sm text-muted"
-      >
+      <nav aria-label={copy("breadcrumb")} className="mb-6 text-sm text-muted">
         <Link className="focus-ring hover:text-primary" href={`/${locale}`}>
-          {locale === "ar" ? "الرئيسية" : "Home"}
+          {navigation("home")}
         </Link>
         <span className="px-2" aria-hidden="true">
           /
@@ -124,7 +116,7 @@ export function CourseDetailView({ slug }: { slug: string }) {
           className="focus-ring hover:text-primary"
           href={`/${locale}/courses`}
         >
-          {locale === "ar" ? "الدورات" : "Courses"}
+          {rootCopy("courses")}
         </Link>
         <span className="px-2" aria-hidden="true">
           /
@@ -157,41 +149,40 @@ export function CourseDetailView({ slug }: { slug: string }) {
           <div className="glass-panel mt-7 flex flex-wrap gap-x-6 gap-y-3 rounded-2xl p-4 text-sm text-muted">
             <span className="inline-flex items-center gap-2">
               <ListVideo size={17} />
-              {course.lessonCount} {locale === "ar" ? "دروس" : "lessons"}
+              {course.lessonCount} {copy("lessons")}
             </span>
             <span className="inline-flex items-center gap-2">
               <Clock3 size={17} />
-              {course.durationMinutes || "—"}{" "}
-              {locale === "ar" ? "دقيقة" : "min"}
+              {course.durationMinutes || "—"} {copy("min")}
             </span>
             {course.teacherName ? (
               <span className="inline-flex items-center gap-2">
                 <GraduationCap size={17} />
-                {locale === "ar" ? "المعلم:" : "Teacher:"} {course.teacherName}
+                {copy("teacher")} {course.teacherName}
               </span>
             ) : null}
           </div>
           <nav
-            aria-label={locale === "ar" ? "أقسام الدورة" : "Course sections"}
+            aria-label={copy("courseSections")}
             className="sticky top-[4.5rem] z-20 mt-10 flex gap-2 overflow-x-auto border-y border-border bg-[color:var(--background)]/85 py-3 backdrop-blur"
           >
             <a
               className="focus-ring whitespace-nowrap rounded-lg px-3 py-2 text-sm font-bold text-primary hover:bg-primary/10"
               href="#overview"
             >
-              {locale === "ar" ? "نظرة عامة" : "Overview"}
+              {copy("overview")}
             </a>
             <a
               className="focus-ring whitespace-nowrap rounded-lg px-3 py-2 text-sm font-bold text-muted hover:text-foreground"
               href="#curriculum"
             >
-              {locale === "ar" ? "المحتوى" : "Curriculum"}
+              {copy("curriculum")}
             </a>
             <a
               className="focus-ring whitespace-nowrap rounded-lg px-3 py-2 text-sm font-bold text-muted hover:text-foreground"
               href="#skills"
             >
-              {locale === "ar" ? "المهارات" : "Skills"}
+              {copy("skills")}
             </a>
           </nav>
           <div
@@ -199,9 +190,7 @@ export function CourseDetailView({ slug }: { slug: string }) {
             className="mt-10 grid scroll-mt-28 gap-7 md:grid-cols-2"
           >
             <div className="glass-panel rounded-2xl p-5">
-              <h2 className="text-xl font-black">
-                {locale === "ar" ? "ماذا ستتعلم؟" : "What you will learn"}
-              </h2>
+              <h2 className="text-xl font-black">{copy("whatYouWillLearn")}</h2>
               <ul className="mt-3 space-y-3">
                 {outcomes.map((item) => (
                   <li key={item.english} className="flex gap-2 text-sm">
@@ -215,9 +204,7 @@ export function CourseDetailView({ slug }: { slug: string }) {
               id="skills"
               className="glass-panel scroll-mt-28 rounded-2xl p-5"
             >
-              <h2 className="text-xl font-black">
-                {locale === "ar" ? "المهارات" : "Skills"}
-              </h2>
+              <h2 className="text-xl font-black">{copy("skills")}</h2>
               <div className="mt-3 flex flex-wrap gap-2">
                 {skills.map((item) => (
                   <span
@@ -231,9 +218,7 @@ export function CourseDetailView({ slug }: { slug: string }) {
             </div>
           </div>
           <div id="curriculum" className="mt-10 scroll-mt-28">
-            <h2 className="text-xl font-black">
-              {locale === "ar" ? "المحتوى" : "Curriculum"}
-            </h2>
+            <h2 className="text-xl font-black">{copy("curriculum")}</h2>
             <div className="mt-3 space-y-3">
               {modules.map((module) => (
                 <div key={module.id} className="card p-5">
@@ -246,15 +231,12 @@ export function CourseDetailView({ slug }: { slug: string }) {
                       >
                         <span>
                           {lesson.title}
-                          {lesson.isPreview
-                            ? locale === "ar"
-                              ? " · معاينة"
-                              : " · Preview"
-                            : ""}
+                          {lesson.isPreview ? copy("preview") : ""}
                         </span>
                         <span className="flex shrink-0 items-center gap-3">
                           <span>
-                            {Math.round(lesson.durationSeconds / 60)} min
+                            {Math.round(lesson.durationSeconds / 60)}{" "}
+                            {copy("min")}
                           </span>
                           {lesson.isPreview ? (
                             <button
@@ -262,7 +244,7 @@ export function CourseDetailView({ slug }: { slug: string }) {
                               onClick={() => setPreviewLessonId(lesson.id)}
                               className="focus-ring rounded-lg border border-primary/35 px-2.5 py-1 text-xs font-bold text-primary hover:bg-primary/10"
                             >
-                              {locale === "ar" ? "فتح" : "Open"}
+                              {copy("open")}
                             </button>
                           ) : null}
                         </span>
@@ -278,23 +260,17 @@ export function CourseDetailView({ slug }: { slug: string }) {
                 aria-live="polite"
               >
                 {preview.isPending ? (
-                  <p className="text-sm text-muted">
-                    {locale === "ar"
-                      ? "جارٍ تحميل المعاينة…"
-                      : "Loading preview…"}
-                  </p>
+                  <p className="text-sm text-muted">{copy("loadingPreview")}</p>
                 ) : preview.isError || !preview.data ? (
                   <p className="text-sm text-red-500">
-                    {locale === "ar"
-                      ? "تعذر فتح هذه المعاينة الآن."
-                      : "This preview could not be opened now."}
+                    {copy("thisPreviewCouldNotBeOpenedNow")}
                   </p>
                 ) : (
                   <>
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">
-                          {locale === "ar" ? "درس تجريبي" : "Preview lesson"}
+                          {copy("previewLesson")}
                         </p>
                         <h3 className="mt-1 text-xl font-black">
                           {preview.data.title}
@@ -305,14 +281,12 @@ export function CourseDetailView({ slug }: { slug: string }) {
                         onClick={() => setPreviewLessonId(undefined)}
                         className="focus-ring rounded-lg px-3 py-2 text-sm font-bold text-muted hover:bg-white/5"
                       >
-                        {locale === "ar" ? "إغلاق" : "Close"}
+                        {copy("close")}
                       </button>
                     </div>
                     <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-muted">
                       {preview.data.body ||
-                        (locale === "ar"
-                          ? "لا يوجد نص متاح لهذه المعاينة."
-                          : "No text is available for this preview.")}
+                        copy("noTextIsAvailableForThisPreview")}
                     </p>
                     {preview.data.resources.length ? (
                       <div className="mt-4 flex flex-wrap gap-2">
@@ -343,15 +317,11 @@ export function CourseDetailView({ slug }: { slug: string }) {
         <aside className="glass-panel h-fit rounded-2xl p-5 lg:sticky lg:top-24">
           <p className="text-2xl font-black">
             {course.isFree
-              ? locale === "ar"
-                ? "مجاني"
-                : "Free"
+              ? copy("free")
               : formatLocalizedCurrency(course.price, course.currency, locale)}
           </p>
           <p className="mt-2 text-sm text-muted">
-            {locale === "ar"
-              ? "السعر يتحقق منه الخادم عند الدفع."
-              : "The server verifies the price at checkout."}
+            {copy("theServerVerifiesThePriceAtCheckout")}
           </p>
           <button
             type="button"
@@ -363,16 +333,10 @@ export function CourseDetailView({ slug }: { slug: string }) {
             {user.isPending
               ? "…"
               : isStudent
-                ? locale === "ar"
-                  ? "أضف إلى السلة"
-                  : "Add to cart"
+                ? copy("addToCart")
                 : user.data
-                  ? locale === "ar"
-                    ? "حساب طالب فقط"
-                    : "Student account only"
-                  : locale === "ar"
-                    ? "سجّل الدخول للشراء"
-                    : "Sign in to purchase"}
+                  ? copy("studentAccountOnly")
+                  : copy("signInToPurchase")}
           </button>
           {notice && (
             <div className="mt-3 flex items-center justify-between gap-2 text-xs">
@@ -384,7 +348,7 @@ export function CourseDetailView({ slug }: { slug: string }) {
                   className="focus-ring shrink-0 font-bold text-primary underline"
                   href={`/${locale}/cart`}
                 >
-                  {locale === "ar" ? "عرض السلة" : "View cart"}
+                  {copy("viewCart")}
                 </Link>
               )}
             </div>
