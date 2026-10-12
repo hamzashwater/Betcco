@@ -1,9 +1,11 @@
 import baseline from "../fixtures/public-trust-i18n-baseline.json";
 import { digest, leaves } from "./admin-final-i18n-audit";
+import { withoutPublicPurchaseAdditions } from "./public-purchase-catalogue-projection";
 
 // Historical projections may remove only independently frozen A6.3 additions.
 // Any changed value, removed key or unrelated addition remains mutation-sensitive.
 export function withoutPublicTrustAdditions(value: Record<string, unknown>) {
+  withoutPublicPurchaseAdditions(value);
   const frozenDigests = {
     ar: "70ad785c0e5b531c533b4c31e4d4749910406301d45d50ccac9e36d31b37adb9",
     en: "45c8984a7988a29693ea548d055f98189523adf25f54e3d144806b29ded86627",

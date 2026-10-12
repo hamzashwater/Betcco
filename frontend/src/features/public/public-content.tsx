@@ -96,6 +96,7 @@ function EmptyState({ text }: { text: string }) {
 }
 
 export function MembershipDirectory() {
+  const copy = useTranslations("publicPurchase.memberships");
   const locale = useLocale();
   const router = useRouter();
   const [coupon, setCoupon] = useState("");
@@ -174,33 +175,24 @@ export function MembershipDirectory() {
     }
     checkout.mutate({ kind, id });
   };
-  const heading =
-    locale === "ar"
-      ? "عضويات BETCCO والاشتراكات"
-      : "BETCCO memberships & subscriptions";
+  const heading = copy("title");
   return (
     <section className="shell py-12">
       <PublicHeader
         icon={UsersRound}
         eyebrow="BETCCO"
         title={heading}
-        description={
-          locale === "ar"
-            ? "اختر وصولًا شهريًا أو ربع سنويًا أو سنويًا. لا يبدأ الوصول إلا بعد تأكيد الدفع من الخادم."
-            : "Choose monthly, quarterly, or yearly access. Learning access begins only after server-side payment confirmation."
-        }
+        description={copy("description")}
       />
       <label className="mt-6 grid max-w-sm gap-1 text-sm font-bold text-muted">
-        {locale === "ar" ? "كود خصم اختياري" : "Optional coupon code"}
+        {copy("coupon")}
         <input
           value={coupon}
           onChange={(event) => setCoupon(event.target.value)}
           className="rounded-xl border border-border bg-transparent px-3 py-2.5 text-foreground"
         />
       </label>
-      <h2 className="mt-8 text-2xl font-black">
-        {locale === "ar" ? "العضويات" : "Membership plans"}
-      </h2>
+      <h2 className="mt-8 text-2xl font-black">{copy("plans")}</h2>
       <div className="mt-4 grid gap-4 md:grid-cols-3">
         {memberships.data?.map((plan) => (
           <article key={plan.id} className="card flex flex-col p-6">
@@ -223,29 +215,15 @@ export function MembershipDirectory() {
               disabled={checkout.isPending}
               className="focus-ring mt-5 rounded-xl bg-primary px-4 py-3 text-sm font-black text-slate-950 disabled:opacity-50"
             >
-              {isStudent
-                ? locale === "ar"
-                  ? "بدء الدفع"
-                  : "Start checkout"
-                : locale === "ar"
-                  ? "سجّل للدفع"
-                  : "Sign in to checkout"}
+              {isStudent ? copy("start") : copy("signIn")}
             </button>
           </article>
         ))}
       </div>
       {!memberships.isPending && !memberships.data?.length ? (
-        <EmptyState
-          text={
-            locale === "ar"
-              ? "لا توجد عضويات منشورة الآن."
-              : "No memberships are published yet."
-          }
-        />
+        <EmptyState text={copy("empty")} />
       ) : null}
-      <h2 className="mt-10 text-2xl font-black">
-        {locale === "ar" ? "اشتراكات الدورات" : "Course subscriptions"}
-      </h2>
+      <h2 className="mt-10 text-2xl font-black">{copy("subscriptions")}</h2>
       <div className="mt-4 grid gap-4 md:grid-cols-3">
         {subscriptions.data?.map((plan) => (
           <article key={plan.id} className="card p-6">
@@ -261,7 +239,7 @@ export function MembershipDirectory() {
               disabled={checkout.isPending}
               className="focus-ring mt-5 rounded-xl border border-primary/50 px-4 py-3 text-sm font-black text-primary disabled:opacity-50"
             >
-              {locale === "ar" ? "بدء الدفع" : "Start checkout"}
+              {copy("subscriptionStart")}
             </button>
           </article>
         ))}
@@ -275,20 +253,14 @@ export function MembershipDirectory() {
               locale,
             )}
           </p>
-          <p className="mt-2 text-sm text-muted">
-            {locale === "ar"
-              ? "اختبار محلي فقط: أتمم الدفع الاختباري لحسابك. الإنتاج يحتاج تأكيدًا من مزود دفع فعلي."
-              : "Local test only: complete the test payment for your account. Production needs confirmation from a real payment provider."}
-          </p>
+          <p className="mt-2 text-sm text-muted">{copy("developmentNotice")}</p>
           <button
             type="button"
             onClick={() => confirm.mutate(checkout.data!)}
             disabled={confirm.isPending}
             className="focus-ring mt-4 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950"
           >
-            {locale === "ar"
-              ? "إتمام الدفع الاختباري"
-              : "Complete test payment"}
+            {copy("confirmTest")}
           </button>
         </div>
       ) : null}
@@ -296,7 +268,7 @@ export function MembershipDirectory() {
         <p role="alert" className="mt-4 text-sm text-red-400">
           {(checkout.error ?? confirm.error) instanceof Error
             ? (checkout.error ?? (confirm.error as Error)).message
-            : "Request failed."}
+            : copy("requestFailed")}
         </p>
       ) : null}
     </section>
@@ -465,6 +437,7 @@ export function TeacherDirectory() {
 }
 
 export function PackageDirectory() {
+  const copy = useTranslations("publicPurchase.packages");
   const locale = useLocale();
   const router = useRouter();
   const client = useQueryClient();
@@ -518,9 +491,7 @@ export function PackageDirectory() {
             className="focus-ring mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950"
           >
             <BookOpenCheck size={17} aria-hidden="true" />
-            {locale === "ar"
-              ? "استكشف الدورات المتاحة"
-              : "Browse available courses"}
+            {copy("browseCourses")}
           </Link>
         </div>
       ) : null}
