@@ -99,24 +99,35 @@ type PracticeSubmission = {
 const tr = (locale: string, ar: string, en: string) =>
   locale === "ar" ? ar : en;
 
-function practiceStatus(locale: string, status: string) {
+type PracticeTranslations = ReturnType<
+  typeof useTranslations<"learningPractice">
+>;
+function practiceStatus(
+  locale: string,
+  status: string,
+  practiceCopy: PracticeTranslations,
+) {
   const arabic: Record<string, string> = {
-    NotConfigured: "لم يُنشأ النشاط بعد",
-    Locked: "مقفل",
-    Available: "متاح",
-    Draft: "مسودة",
-    Submitted: "مُسلَّم، بانتظار المراجعة",
-    Finalized: "تمت المراجعة",
+    NotConfigured: practiceCopy("aim.status.notConfigured"),
+    Locked: practiceCopy("aim.status.locked"),
+    Available: practiceCopy("aim.status.available"),
+    Draft: practiceCopy("aim.status.draft"),
+    Submitted: practiceCopy("aim.status.submitted"),
+    Finalized: practiceCopy("aim.status.finalized"),
   };
   return locale === "ar" ? (arabic[status] ?? status) : status;
 }
 
-function trainingOutcomeLabel(locale: string, outcome: string) {
+function trainingOutcomeLabel(
+  locale: string,
+  outcome: string,
+  practiceCopy: PracticeTranslations,
+) {
   const arabic: Record<string, string> = {
-    NotYetAchieved: "لم يتحقق بعد (Not Yet Achieved)",
-    Pass: "نجاح (Pass)",
-    Merit: "جدارة (Merit)",
-    Distinction: "تميز (Distinction)",
+    NotYetAchieved: practiceCopy("aim.outcome.notYetAchieved"),
+    Pass: practiceCopy("aim.outcome.pass"),
+    Merit: practiceCopy("aim.outcome.merit"),
+    Distinction: practiceCopy("aim.outcome.distinction"),
   };
   return locale === "ar" ? (arabic[outcome] ?? outcome) : outcome;
 }
@@ -127,6 +138,7 @@ function formatAttemptTimestamp(locale: string, value: string) {
 
 export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
   const locale = useLocale();
+  const practiceCopy = useTranslations("learningPractice");
   const client = useQueryClient();
   const [active, setActive] = useState<{
     assignmentId: string;
@@ -170,7 +182,7 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
   });
   const upload = useMutation({
     mutationFn: async () => {
-      if (!active) throw new Error("No active practice submission");
+      if (!active) throw new Error(practiceCopy("aim.noActiveSubmission"));
       for (const file of files) {
         const body = new FormData();
         body.set("file", file);
@@ -187,7 +199,7 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
   });
   const submit = useMutation({
     mutationFn: () => {
-      if (!active) throw new Error("No active practice submission");
+      if (!active) throw new Error(practiceCopy("aim.noActiveSubmission"));
       return api(
         `/student/assignments/submissions/${active.submissionId}/submit`,
         { method: "POST" },
@@ -200,42 +212,15 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
     },
   });
   if (units.isPending || mine.isPending)
-    return (
-      <QueryState
-        kind="loading"
-        title={tr(locale, "جارٍ تحميل أهداف التعلم…", "Loading learning aims…")}
-      />
-    );
+    return <QueryState kind="loading" title={practiceCopy("aim.loading")} />;
   if (units.isError || mine.isError)
-    return (
-      <QueryState
-        kind="error"
-        title={tr(
-          locale,
-          "تعذر تحميل أنشطة التدريب.",
-          "Practice activities could not be loaded.",
-        )}
-      />
-    );
+    return <QueryState kind="error" title={practiceCopy("aim.loadFailed")} />;
   if (!units.data?.length) return null;
   return (
-    <section
-      className={styles.region}
-      aria-label={tr(
-        locale,
-        "أهداف التعلم والتدريب",
-        "Learning aims and practice",
-      )}
-    >
-      <h2 className={styles.regionTitle}>
-        {tr(locale, "أهداف التعلم والتدريب", "Learning aims and practice")}
-      </h2>
+    <section className={styles.region} aria-label={practiceCopy("aim.title")}>
+      <h2 className={styles.regionTitle}>{practiceCopy("aim.title")}</h2>
       <p className={styles.disclaimer}>
-        {tr(
-          locale,
-          "هذه نتيجة تدريبية تكوينية وليست نتيجة تقييم BTEC رسمي ولا تدخل في ASSESS.",
-          "This formative training result is not a formal BTEC assessment result and is not part of ASSESS.",
-        )}
+        {practiceCopy("aim.formativeDisclaimer")}
       </p>
       {units.data.map((unit) => (
         <div key={unit.id} className={styles.unit}>
@@ -276,56 +261,44 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                     </h4>
                     <span className={styles.status}>
                       {aim.isComplete
-                        ? tr(locale, "مكتمل", "Complete")
+                        ? practiceCopy("aim.complete")
                         : aim.isUnlocked
-                          ? tr(locale, "متاح", "Available")
-                          : tr(locale, "مقفل", "Locked")}
+                          ? practiceCopy("common.status.available")
+                          : practiceCopy("common.status.locked")}
                     </span>
                   </div>
                   <p className="mt-2 text-sm text-muted">
-                    {tr(locale, "المحتوى", "Content")}: {aim.contentCompleted} /{" "}
+                    {practiceCopy("aim.content")}: {aim.contentCompleted} /{" "}
                     {aim.contentTotal}
                   </p>
                   <p className="mt-1 text-sm text-muted">
-                    {tr(locale, "التدريب", "Practice")}:{" "}
-                    {practiceStatus(locale, aim.practiceStatus)}
+                    {practiceCopy("aim.practice")}:{" "}
+                    {practiceStatus(locale, aim.practiceStatus, practiceCopy)}
                     {aim.practiceStatus === "Submitted" ? (
                       <span className={styles.waiting} role="status">
-                        {tr(
-                          locale,
-                          "مُسلَّم، بانتظار مراجعة المعلم",
-                          "Submitted, awaiting teacher review",
-                        )}
+                        {practiceCopy("common.status.awaitingReview")}
                       </span>
                     ) : null}
                   </p>
                   {aim.assignmentId ? (
                     <p className="mt-1 text-sm text-muted">
-                      {tr(locale, "المحاولات", "Attempts")}:{" "}
-                      {aim.attemptsUsed ?? 0} / {aim.maxAttempts ?? 1}
+                      {practiceCopy("aim.attempts")}: {aim.attemptsUsed ?? 0} /{" "}
+                      {aim.maxAttempts ?? 1}
                       {(aim.attemptsRemaining ?? 0) > 0
-                        ? ` · ${tr(locale, "المتبقي", "Remaining")}: ${aim.attemptsRemaining}`
+                        ? ` · ${practiceCopy("aim.remaining")}: ${aim.attemptsRemaining}`
                         : ""}
                     </p>
                   ) : null}
                   {!aim.isUnlocked ? (
                     <p className="mt-2 text-sm text-muted">
-                      {tr(
-                        locale,
-                        "أكمل الهدف السابق ومراجعته لفتح هذا الهدف.",
-                        "Complete the previous aim and its review to unlock this aim.",
-                      )}
+                      {practiceCopy("aim.previousAimRequired")}
                     </p>
                   ) : null}
                   {aim.isUnlocked && aim.assignmentId ? (
                     <>
                       {!aim.contentComplete ? (
                         <p className="mt-2 text-sm text-muted">
-                          {tr(
-                            locale,
-                            "أكمل جميع عناصر المحتوى لفتح النشاط.",
-                            "Complete all content items to unlock practice.",
-                          )}
+                          {practiceCopy("aim.contentRequired")}
                         </p>
                       ) : null}
                     </>
@@ -338,8 +311,10 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                       <summary className={styles.disclosure}>
                         {tr(
                           locale,
-                          aim.assignmentArabicTitle ?? "نشاط تدريبي",
-                          aim.assignmentEnglishTitle ?? "Practice activity",
+                          aim.assignmentArabicTitle ??
+                            practiceCopy("aim.fallbackTitle"),
+                          aim.assignmentEnglishTitle ??
+                            practiceCopy("aim.fallbackTitle"),
                         )}
                       </summary>
                       <div className={styles.activityBody}>
@@ -353,12 +328,12 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                         {uploaded.length ? (
                           <div
                             className={styles.evidence}
-                            aria-label={tr(locale, "ملفات الحل", "Work files")}
+                            aria-label={practiceCopy("common.workFiles")}
                           >
                             <p role={upload.isSuccess ? "status" : undefined}>
-                              {tr(locale, "المحاولة", "Attempt")}{" "}
-                              {activeVersion} · {uploaded.length}{" "}
-                              {tr(locale, "ملفات مرفوعة", "uploaded files")}
+                              {practiceCopy("aim.attempt")} {activeVersion} ·{" "}
+                              {uploaded.length}{" "}
+                              {practiceCopy("aim.uploadedFiles")}
                             </p>
                             {uploaded.map((file) => (
                               <a
@@ -373,7 +348,7 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                         ) : null}
                         {currentAttempt?.submittedAtUtc ? (
                           <p className={styles.meta}>
-                            {tr(locale, "تاريخ التسليم", "Submitted")}{" "}
+                            {practiceCopy("aim.submittedAt")}{" "}
                             <time dateTime={currentAttempt.submittedAtUtc}>
                               {formatAttemptTimestamp(
                                 locale,
@@ -391,42 +366,22 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                               <Action
                                 variant="primary"
                                 pending={start.isPending}
-                                pendingLabel={tr(
-                                  locale,
-                                  "بدء التدريب",
-                                  "Start practice",
-                                )}
+                                pendingLabel={practiceCopy("aim.startPractice")}
                                 type="button"
                                 disabled={start.isPending}
                                 onClick={() => start.mutate(aim.assignmentId!)}
                                 className={styles.action}
                               >
                                 {submission?.status === "Draft"
-                                  ? tr(
-                                      locale,
-                                      "متابعة المسودة",
-                                      "Continue draft",
-                                    )
+                                  ? practiceCopy("common.continueDraft")
                                   : aim.practiceStatus === "Finalized"
-                                    ? tr(
-                                        locale,
-                                        "بدء محاولة تحسين",
-                                        "Start improvement attempt",
-                                      )
-                                    : tr(
-                                        locale,
-                                        "بدء التدريب",
-                                        "Start practice",
-                                      )}
+                                    ? practiceCopy("aim.startImprovement")
+                                    : practiceCopy("aim.startPractice")}
                               </Action>
                             ) : (
                               <>
                                 <label className="grid gap-1 text-sm">
-                                  {tr(
-                                    locale,
-                                    "ملاحظة للمعلم (اختيارية)",
-                                    "Note to teacher (optional)",
-                                  )}
+                                  {practiceCopy("common.teacherNote")}
                                   <textarea
                                     value={comment}
                                     maxLength={4000}
@@ -437,17 +392,15 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                                   />
                                 </label>
                                 <FilePicker
-                                  label={tr(locale, "ملفات الحل", "Work files")}
+                                  label={practiceCopy("common.workFiles")}
                                   files={files}
                                   onFilesChange={setFiles}
                                   locale={locale}
                                   multiple
                                   accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg,.zip,.txt"
                                   maxFileBytes={100 * 1024 * 1024}
-                                  chooseLabel={tr(
-                                    locale,
-                                    "اختيار ملفات",
-                                    "Choose files",
+                                  chooseLabel={practiceCopy(
+                                    "common.chooseFiles",
                                   )}
                                 />
 
@@ -455,10 +408,8 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                                   <Action
                                     variant="secondary"
                                     pending={start.isPending}
-                                    pendingLabel={tr(
-                                      locale,
-                                      "حفظ الملاحظة",
-                                      "Save note",
+                                    pendingLabel={practiceCopy(
+                                      "common.saveNote",
                                     )}
                                     type="button"
                                     disabled={
@@ -471,15 +422,13 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                                     }
                                     className={styles.action}
                                   >
-                                    {tr(locale, "حفظ الملاحظة", "Save note")}
+                                    {practiceCopy("common.saveNote")}
                                   </Action>
                                   <Action
                                     variant="secondary"
                                     pending={upload.isPending}
-                                    pendingLabel={tr(
-                                      locale,
-                                      "رفع الملفات",
-                                      "Upload files",
+                                    pendingLabel={practiceCopy(
+                                      "common.uploadFiles",
                                     )}
                                     type="button"
                                     disabled={
@@ -490,15 +439,13 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                                     onClick={() => upload.mutate()}
                                     className={styles.action}
                                   >
-                                    {tr(locale, "رفع الملفات", "Upload files")}
+                                    {practiceCopy("common.uploadFiles")}
                                   </Action>
                                   <Action
                                     variant="primary"
                                     pending={submit.isPending}
-                                    pendingLabel={tr(
-                                      locale,
-                                      "تسليم للمعلم",
-                                      "Submit to teacher",
+                                    pendingLabel={practiceCopy(
+                                      "common.submitToTeacher",
                                     )}
                                     type="button"
                                     disabled={
@@ -509,11 +456,7 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                                     onClick={() => submit.mutate()}
                                     className={styles.action}
                                   >
-                                    {tr(
-                                      locale,
-                                      "تسليم للمعلم",
-                                      "Submit to teacher",
-                                    )}
+                                    {practiceCopy("common.submitToTeacher")}
                                   </Action>
                                 </div>
                               </>
@@ -523,44 +466,39 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                         {aim.trainingOutcome ? (
                           <div className={styles.feedback}>
                             <p className="font-black">
-                              {tr(
-                                locale,
-                                "النتيجة التدريبية",
-                                "Training Outcome",
-                              )}
-                              :{" "}
+                              {practiceCopy("common.trainingOutcome")}:{" "}
                               {trainingOutcomeLabel(
                                 locale,
                                 aim.trainingOutcome,
+                                practiceCopy,
                               )}
                             </p>
 
                             <p>
                               <strong>
-                                {tr(locale, "نقاط القوة", "Strengths")}:
+                                {practiceCopy("common.strengths")}:
                               </strong>{" "}
                               {aim.strengths}
                             </p>
                             <p>
-                              <strong>
-                                {tr(locale, "الفجوات", "Missing / gaps")}:
-                              </strong>{" "}
+                              <strong>{practiceCopy("aim.gaps")}:</strong>{" "}
                               {aim.gaps}
                             </p>
                             <p>
                               <strong>
-                                {tr(locale, "كيفية التحسين", "How to improve")}:
+                                {practiceCopy("common.howToImprove")}:
                               </strong>{" "}
                               {aim.improvementGuidance}
                             </p>
                             {aim.bestTrainingOutcome ? (
                               <p>
                                 <strong>
-                                  {tr(locale, "أفضل نتيجة", "Best achieved")}:
+                                  {practiceCopy("aim.bestAchieved")}:
                                 </strong>{" "}
                                 {trainingOutcomeLabel(
                                   locale,
                                   aim.bestTrainingOutcome,
+                                  practiceCopy,
                                 )}
                               </p>
                             ) : null}
@@ -568,15 +506,14 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                               (attempt) => attempt.trainingOutcome,
                             ) ? (
                               <p>
-                                <strong>
-                                  {tr(locale, "مسار التحسن", "Progress")}:
-                                </strong>{" "}
+                                <strong>{practiceCopy("aim.progress")}:</strong>{" "}
                                 {(aim.attemptHistory ?? [])
                                   .filter((attempt) => attempt.trainingOutcome)
                                   .map((attempt) =>
                                     trainingOutcomeLabel(
                                       locale,
                                       attempt.trainingOutcome!,
+                                      practiceCopy,
                                     ),
                                   )
                                   .join(" → ")}
@@ -587,7 +524,7 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                         {(aim.attemptHistory ?? []).length ? (
                           <details className={styles.history}>
                             <summary className={styles.disclosure}>
-                              {tr(locale, "سجل المحاولات", "Attempt history")}
+                              {practiceCopy("aim.attemptHistory")}
                             </summary>
                             <div className="mt-2 grid gap-2">
                               {(aim.attemptHistory ?? []).map((attempt) => {
@@ -603,19 +540,18 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                                     className="rounded-lg bg-white/5 p-2"
                                   >
                                     <p className="font-bold">
-                                      {tr(locale, "المحاولة", "Attempt")}{" "}
+                                      {practiceCopy("aim.attempt")}{" "}
                                       {attempt.attemptNumber} ·{" "}
-                                      {practiceStatus(locale, attempt.status)}
+                                      {practiceStatus(
+                                        locale,
+                                        attempt.status,
+                                        practiceCopy,
+                                      )}
                                     </p>
                                     {attempt.submittedAtUtc ? (
                                       <p>
                                         <strong>
-                                          {tr(
-                                            locale,
-                                            "تاريخ التسليم",
-                                            "Submitted",
-                                          )}
-                                          :
+                                          {practiceCopy("aim.submittedAt")}:
                                         </strong>{" "}
                                         <time dateTime={attempt.submittedAtUtc}>
                                           {formatAttemptTimestamp(
@@ -628,12 +564,7 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                                     {attempt.reviewedAtUtc ? (
                                       <p>
                                         <strong>
-                                          {tr(
-                                            locale,
-                                            "تاريخ المراجعة",
-                                            "Reviewed",
-                                          )}
-                                          :
+                                          {practiceCopy("aim.reviewedAt")}:
                                         </strong>{" "}
                                         <time dateTime={attempt.reviewedAtUtc}>
                                           {formatAttemptTimestamp(
@@ -646,12 +577,7 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                                     {attemptFiles.length ? (
                                       <div className="grid gap-1">
                                         <strong>
-                                          {tr(
-                                            locale,
-                                            "ملفات المحاولة",
-                                            "Attempt files",
-                                          )}
-                                          :
+                                          {practiceCopy("aim.attemptFiles")}:
                                         </strong>
                                         {attemptFiles.map((file) => (
                                           <a
@@ -668,35 +594,30 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                                     ) : null}
                                     {attempt.trainingOutcome ? (
                                       <p>
-                                        {tr(locale, "النتيجة", "Result")}:{" "}
+                                        {practiceCopy("aim.result")}:{" "}
                                         {trainingOutcomeLabel(
                                           locale,
                                           attempt.trainingOutcome,
+                                          practiceCopy,
                                         )}
                                       </p>
                                     ) : null}
                                     {attempt.strengths ? (
                                       <p>
-                                        {tr(locale, "نقاط القوة", "Strengths")}:{" "}
+                                        {practiceCopy("common.strengths")}:{" "}
                                         {attempt.strengths}
                                       </p>
                                     ) : null}
                                     {attempt.gaps ? (
                                       <p>
-                                        {tr(
-                                          locale,
-                                          "الفجوات",
-                                          "Missing / gaps",
-                                        )}
-                                        : {attempt.gaps}
+                                        {practiceCopy("aim.gaps")}:{" "}
+                                        {attempt.gaps}
                                       </p>
                                     ) : null}
                                     {attempt.improvementGuidance ? (
                                       <p>
-                                        {tr(
-                                          locale,
-                                          "إرشادات التحسين",
-                                          "Improvement guidance",
+                                        {practiceCopy(
+                                          "aim.improvementGuidance",
                                         )}
                                         : {attempt.improvementGuidance}
                                       </p>
@@ -718,13 +639,13 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
       ))}
       {start.isSuccess && active ? (
         <MutationOutcome kind="success">
-          {tr(locale, "حُفظت التعديلات.", "Changes saved.")}
+          {practiceCopy("common.changesSaved")}
         </MutationOutcome>
       ) : null}
       {start.isError || upload.isError || submit.isError ? (
         <MutationOutcome kind="error">
           {(start.error ?? upload.error ?? submit.error)?.message ??
-            tr(locale, "تعذر إكمال العملية.", "The action failed.")}
+            practiceCopy("aim.actionFailed")}
         </MutationOutcome>
       ) : null}
     </section>

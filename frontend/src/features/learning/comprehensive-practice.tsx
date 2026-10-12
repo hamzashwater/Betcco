@@ -17,26 +17,25 @@ import {
 
 const tr = (locale: string, ar: string, en: string) =>
   locale === "ar" ? ar : en;
-const statusLabel = (locale: string, status: string) =>
+type PracticeTranslations = ReturnType<
+  typeof useTranslations<"learningPractice">
+>;
+const statusLabel = (practiceCopy: PracticeTranslations, status: string) =>
   ({
-    NotConfigured: tr(locale, "لم تُنشأ المهمة بعد", "Not configured"),
-    Locked: tr(locale, "مقفل", "Locked"),
-    Available: tr(locale, "متاح", "Available"),
-    Draft: tr(locale, "مسودة", "Draft"),
-    Submitted: tr(
-      locale,
-      "مُسلَّم، بانتظار مراجعة المعلم",
-      "Submitted, awaiting teacher review",
-    ),
-    Finalized: tr(locale, "تمت المراجعة", "Reviewed"),
-  })[status] ?? tr(locale, "حالة غير معروفة", "Unknown status");
-const outcomeLabel = (locale: string, outcome: string) =>
+    NotConfigured: practiceCopy("comprehensive.status.notConfigured"),
+    Locked: practiceCopy("common.status.locked"),
+    Available: practiceCopy("common.status.available"),
+    Draft: practiceCopy("common.status.draft"),
+    Submitted: practiceCopy("common.status.awaitingReview"),
+    Finalized: practiceCopy("common.status.reviewed"),
+  })[status] ?? practiceCopy("common.status.unknown");
+const outcomeLabel = (practiceCopy: PracticeTranslations, outcome: string) =>
   ({
-    NotYetAchieved: tr(locale, "لم يتحقق بعد", "Not yet achieved"),
-    Pass: tr(locale, "نجاح", "Pass"),
-    Merit: tr(locale, "جدارة", "Merit"),
-    Distinction: tr(locale, "تميز", "Distinction"),
-  })[outcome] ?? tr(locale, "نتيجة غير معروفة", "Unknown outcome");
+    NotYetAchieved: practiceCopy("comprehensive.outcome.notYetAchieved"),
+    Pass: practiceCopy("comprehensive.outcome.pass"),
+    Merit: practiceCopy("comprehensive.outcome.merit"),
+    Distinction: practiceCopy("comprehensive.outcome.distinction"),
+  })[outcome] ?? practiceCopy("comprehensive.outcome.unknown");
 
 type FinalPractice = {
   assignmentId?: string;
@@ -83,6 +82,7 @@ export function StudentComprehensivePractice({
   courseId: string;
 }) {
   const locale = useLocale();
+  const practiceCopy = useTranslations("learningPractice");
   const access = useTranslations("studentCoursesLearningHub.access");
   const client = useQueryClient();
   const [active, setActive] = useState<{
@@ -121,7 +121,8 @@ export function StudentComprehensivePractice({
   });
   const upload = useMutation({
     mutationFn: async () => {
-      if (!active) throw new Error("No active submission");
+      if (!active)
+        throw new Error(practiceCopy("comprehensive.noActiveSubmission"));
       for (const file of files) {
         const body = new FormData();
         body.set("file", file);
@@ -138,7 +139,8 @@ export function StudentComprehensivePractice({
   });
   const submit = useMutation({
     mutationFn: () => {
-      if (!active) throw new Error("No active submission");
+      if (!active)
+        throw new Error(practiceCopy("comprehensive.noActiveSubmission"));
       return api(
         `/student/assignments/submissions/${active.submissionId}/submit`,
         { method: "POST" },
@@ -154,29 +156,21 @@ export function StudentComprehensivePractice({
     return (
       <QueryState
         kind="loading"
-        title={tr(
-          locale,
-          "جارٍ تحميل تدريب الوحدة…",
-          "Loading Final Unit Practice…",
-        )}
+        title={practiceCopy("comprehensive.loading")}
       />
     );
   if (units.isError || mine.isError)
     return (
       <QueryState
         kind="error"
-        title={tr(
-          locale,
-          "تعذر تحميل تدريب الوحدة.",
-          "Final Unit Practice could not be loaded.",
-        )}
+        title={practiceCopy("comprehensive.loadFailed")}
       />
     );
   if (!units.data?.length) return null;
   return (
     <section
       className={styles.region}
-      aria-label={tr(locale, "التدريب النهائي للوحدة", "Final Unit Practice")}
+      aria-label={practiceCopy("comprehensive.title")}
     >
       {units.data.map((unit) => {
         const practice = unit.finalPractice;
@@ -197,15 +191,11 @@ export function StudentComprehensivePractice({
               <div>
                 <h2 className="text-lg font-black">
                   {tr(locale, unit.arabicTitle, unit.englishTitle)} ·{" "}
-                  {tr(locale, "التدريب النهائي للوحدة", "Final Unit Practice")}
+                  {practiceCopy("comprehensive.title")}
                 </h2>
                 <p className="text-sm text-muted">
-                  {tr(
-                    locale,
-                    "أهداف التعلم المكتملة",
-                    "Learning Aims complete",
-                  )}
-                  : {unit.aims.filter((aim) => aim.isComplete).length} /{" "}
+                  {practiceCopy("comprehensive.aimsComplete")}:{" "}
+                  {unit.aims.filter((aim) => aim.isComplete).length} /{" "}
                   {unit.aims.length}
                 </p>
               </div>
@@ -213,30 +203,22 @@ export function StudentComprehensivePractice({
                 className={styles.status}
                 role={practice.status === "Submitted" ? "status" : undefined}
               >
-                {statusLabel(locale, practice.status)}
+                {statusLabel(practiceCopy, practice.status)}
               </span>
             </div>
             <p className={styles.disclaimer}>
-              {tr(
-                locale,
-                "هذه نتيجة تدريبية لمهمة الوحدة وليست نتيجة تقييم BTEC رسمي.",
-                "This is a training result for the Unit Practice and is not a formal BTEC assessment result.",
-              )}
+              {practiceCopy("comprehensive.formativeDisclaimer")}
             </p>
             {practice.effectiveDueAtUtc ? (
               <p className="mt-1 text-sm text-muted">
-                {tr(locale, "الموعد النهائي", "Deadline")}:{" "}
+                {practiceCopy("comprehensive.deadline")}:{" "}
                 {formatLocalizedDateTime(practice.effectiveDueAtUtc, locale)}
               </p>
             ) : null}
 
             {practice.isTrainingComplete ? (
               <p className="mt-2 font-bold">
-                {tr(
-                  locale,
-                  "اكتمل مسار التدريب للوحدة",
-                  "Unit Training Complete",
-                )}
+                {practiceCopy("comprehensive.trainingComplete")}
               </p>
             ) : null}
             {!practice.isAvailable &&
@@ -244,11 +226,7 @@ export function StudentComprehensivePractice({
             practice.status !== "Finalized" &&
             practice.unavailableReason === "LearningAimsIncomplete" ? (
               <p className="mt-2 text-sm text-muted">
-                {tr(
-                  locale,
-                  "أكمل جميع أهداف التعلم ومراجعاتها أولًا.",
-                  "Complete all Learning Aims and their reviews first.",
-                )}
+                {practiceCopy("comprehensive.aimsRequired")}
               </p>
             ) : null}
             {!practice.isAvailable &&
@@ -256,11 +234,7 @@ export function StudentComprehensivePractice({
             practice.status !== "Finalized" &&
             practice.unavailableReason === "DeadlineExpired" ? (
               <p className="mt-2 text-sm text-muted">
-                {tr(
-                  locale,
-                  "انتهى الموعد النهائي لهذه المهمة التدريبية.",
-                  "The deadline for this Unit Practice has passed.",
-                )}
+                {practiceCopy("comprehensive.deadlineExpired")}
               </p>
             ) : null}
             {!practice.isAvailable &&
@@ -274,8 +248,10 @@ export function StudentComprehensivePractice({
                 <h3 className="font-bold">
                   {tr(
                     locale,
-                    practice.arabicTitle ?? "مهمة الوحدة",
-                    practice.englishTitle ?? "Unit Practice",
+                    practice.arabicTitle ??
+                      practiceCopy("comprehensive.fallbackTitle"),
+                    practice.englishTitle ??
+                      practiceCopy("comprehensive.fallbackTitle"),
                   )}
                 </h3>
                 <p className={styles.instructions}>
@@ -297,11 +273,7 @@ export function StudentComprehensivePractice({
                 {practice.criteria?.length ? (
                   <div className="mt-2 text-sm">
                     <p className="font-bold">
-                      {tr(
-                        locale,
-                        "معايير مرجعية للتدريب",
-                        "Training reference criteria",
-                      )}
+                      {practiceCopy("comprehensive.referenceCriteria")}
                     </p>
                     {practice.criteria.map((criterion) => (
                       <p key={criterion.code}>
@@ -320,13 +292,13 @@ export function StudentComprehensivePractice({
             {uploaded.length ? (
               <div
                 className={styles.evidence}
-                aria-label={tr(locale, "ملفات الحل", "Work files")}
+                aria-label={practiceCopy("common.workFiles")}
               >
                 <p
                   className={styles.meta}
                   role={upload.isSuccess ? "status" : undefined}
                 >
-                  {tr(locale, "ملفات الحل", "Work files")}
+                  {practiceCopy("common.workFiles")}
                 </p>{" "}
                 {uploaded.map((file) => (
                   <a
@@ -345,24 +317,20 @@ export function StudentComprehensivePractice({
                   <Action
                     variant="primary"
                     pending={start.isPending}
-                    pendingLabel={tr(locale, "فتح التدريب", "Open Practice")}
+                    pendingLabel={practiceCopy("comprehensive.openPractice")}
                     type="button"
                     disabled={start.isPending}
                     onClick={() => start.mutate(practice.assignmentId!)}
                     className={styles.action}
                   >
                     {submission
-                      ? tr(locale, "متابعة المسودة", "Continue draft")
-                      : tr(locale, "فتح التدريب", "Open Practice")}
+                      ? practiceCopy("common.continueDraft")
+                      : practiceCopy("comprehensive.openPractice")}
                   </Action>
                 ) : (
                   <>
                     <label className="grid gap-1 text-sm">
-                      {tr(
-                        locale,
-                        "ملاحظة للمعلم (اختيارية)",
-                        "Note to teacher (optional)",
-                      )}
+                      {practiceCopy("common.teacherNote")}
                       <textarea
                         value={comment}
                         maxLength={4000}
@@ -371,20 +339,20 @@ export function StudentComprehensivePractice({
                       />
                     </label>
                     <FilePicker
-                      label={tr(locale, "ملفات الحل", "Work files")}
+                      label={practiceCopy("common.workFiles")}
                       files={files}
                       onFilesChange={setFiles}
                       locale={locale}
                       multiple
                       accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg,.zip,.txt"
                       maxFileBytes={100 * 1024 * 1024}
-                      chooseLabel={tr(locale, "اختيار ملفات", "Choose files")}
+                      chooseLabel={practiceCopy("common.chooseFiles")}
                     />
                     <div className="flex flex-wrap gap-2">
                       <Action
                         variant="secondary"
                         pending={start.isPending}
-                        pendingLabel={tr(locale, "حفظ الملاحظة", "Save note")}
+                        pendingLabel={practiceCopy("common.saveNote")}
                         type="button"
                         disabled={
                           start.isPending ||
@@ -394,12 +362,12 @@ export function StudentComprehensivePractice({
                         onClick={() => start.mutate(practice.assignmentId!)}
                         className={styles.action}
                       >
-                        {tr(locale, "حفظ الملاحظة", "Save note")}
+                        {practiceCopy("common.saveNote")}
                       </Action>
                       <Action
                         variant="secondary"
                         pending={upload.isPending}
-                        pendingLabel={tr(locale, "رفع الملفات", "Upload files")}
+                        pendingLabel={practiceCopy("common.uploadFiles")}
                         type="button"
                         disabled={
                           !files.length || upload.isPending || submit.isPending
@@ -407,16 +375,12 @@ export function StudentComprehensivePractice({
                         onClick={() => upload.mutate()}
                         className={styles.action}
                       >
-                        {tr(locale, "رفع الملفات", "Upload files")}
+                        {practiceCopy("common.uploadFiles")}
                       </Action>
                       <Action
                         variant="primary"
                         pending={submit.isPending}
-                        pendingLabel={tr(
-                          locale,
-                          "تسليم للمعلم",
-                          "Submit to teacher",
-                        )}
+                        pendingLabel={practiceCopy("common.submitToTeacher")}
                         type="button"
                         disabled={
                           !uploaded.length ||
@@ -426,7 +390,7 @@ export function StudentComprehensivePractice({
                         onClick={() => submit.mutate()}
                         className={styles.action}
                       >
-                        {tr(locale, "تسليم للمعلم", "Submit to teacher")}
+                        {practiceCopy("common.submitToTeacher")}
                       </Action>
                     </div>
                   </>
@@ -436,29 +400,20 @@ export function StudentComprehensivePractice({
             {practice.trainingOutcome ? (
               <div className={styles.feedback}>
                 <p className="font-black">
-                  {tr(locale, "النتيجة التدريبية", "Training Outcome")}:{" "}
-                  {outcomeLabel(locale, practice.trainingOutcome)}
+                  {practiceCopy("common.trainingOutcome")}:{" "}
+                  {outcomeLabel(practiceCopy, practice.trainingOutcome)}
                 </p>
 
                 <p>
-                  <strong>{tr(locale, "نقاط القوة", "Strengths")}:</strong>{" "}
+                  <strong>{practiceCopy("common.strengths")}:</strong>{" "}
                   {practice.strengths}
                 </p>
                 <p>
-                  <strong>
-                    {tr(
-                      locale,
-                      "الفجوات والأدلة الناقصة",
-                      "Gaps / missing evidence",
-                    )}
-                    :
-                  </strong>{" "}
+                  <strong>{practiceCopy("comprehensive.gaps")}:</strong>{" "}
                   {practice.gaps}
                 </p>
                 <p>
-                  <strong>
-                    {tr(locale, "كيفية التحسين", "How to improve")}:
-                  </strong>{" "}
+                  <strong>{practiceCopy("common.howToImprove")}:</strong>{" "}
                   {practice.improvementGuidance}
                 </p>
               </div>
@@ -468,7 +423,7 @@ export function StudentComprehensivePractice({
       })}
       {start.isSuccess && active ? (
         <MutationOutcome kind="success">
-          {tr(locale, "حُفظت التعديلات.", "Changes saved.")}
+          {practiceCopy("common.changesSaved")}
         </MutationOutcome>
       ) : null}
       {start.isError || upload.isError || submit.isError ? (

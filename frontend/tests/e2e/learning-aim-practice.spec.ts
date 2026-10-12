@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { capturePracticeEvidence } from "../helpers/learning-practice-browser-evidence";
 
 const courseId = "course-1";
 const assignmentId = "practice-A";
@@ -30,11 +31,17 @@ for (const scenario of [
   { locale: "en", width: 1280 },
   { locale: "ar", width: 1280 },
   { locale: "en", width: 390 },
+  { locale: "ar", width: 390 },
 ]) {
   test(`student learning aim practice flow ${scenario.locale} ${scenario.width}px (mocked API)`, async ({
     page,
   }) => {
     await page.setViewportSize({ width: scenario.width, height: 844 });
+    const capture = (state: string) =>
+      capturePracticeEvidence(
+        page,
+        `aim-${scenario.locale}-${scenario.width}-${state}`,
+      );
     const errors = watchErrors(page);
     let contentDone = false;
     let draft = false;
@@ -252,6 +259,7 @@ for (const scenario of [
         )
         .first(),
     ).toBeVisible();
+    await capture("locked");
     await page
       .getByRole("button", {
         name: scenario.locale === "ar" ? "تمييز كمكتمل" : "Mark complete",
@@ -262,11 +270,13 @@ for (const scenario of [
         name: scenario.locale === "ar" ? "بدء التدريب" : "Start practice",
       }),
     ).toBeVisible();
+    await capture("content-complete");
     await area
       .getByRole("button", {
         name: scenario.locale === "ar" ? "بدء التدريب" : "Start practice",
       })
-      .click();
+      .focus();
+    await page.keyboard.press("Enter");
     await area.locator('input[type="file"]').setInputFiles({
       name: "work.pdf",
       mimeType: "application/pdf",
@@ -286,7 +296,9 @@ for (const scenario of [
       .getByRole("button", {
         name: scenario.locale === "ar" ? "تسليم للمعلم" : "Submit to teacher",
       })
-      .click();
+      .focus();
+    await capture("draft-evidence");
+    await page.keyboard.press("Enter");
     await expect(
       area.getByText(
         scenario.locale === "ar"
@@ -295,6 +307,7 @@ for (const scenario of [
       ),
     ).toBeVisible();
     reviewed = true;
+    await capture("submitted");
     await page.reload();
     await area
       .locator("summary")
@@ -322,6 +335,7 @@ for (const scenario of [
       area.getByText(scenario.locale === "ar" ? /هدف ب/ : /Aim B/),
     ).toBeVisible();
     expect(errors).toEqual([]);
+    await capture("reviewed-formative");
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= window.innerWidth,
