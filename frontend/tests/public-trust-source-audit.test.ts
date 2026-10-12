@@ -15,6 +15,11 @@ const catalogues = {
   ar: catalogue(read("messages/ar.json")),
   en: catalogue(read("messages/en.json")),
 };
+// Catalogue snapshots are immutable; flatten each once for all reference checks.
+const catalogueLeaves = {
+  ar: leaves(catalogues.ar.value),
+  en: leaves(catalogues.en.value),
+};
 
 describe("T7-A6.3 public documents, identity and trust", () => {
   it("pins the exact four original sources and 153/4/2 inventory before wiring", () => {
@@ -110,9 +115,7 @@ describe("T7-A6.3 public documents, identity and trust", () => {
       );
       for (const reference of audit.references)
         for (const locale of ["ar", "en"] as const)
-          expect(typeof leaves(catalogues[locale].value)[reference]).toBe(
-            "string",
-          );
+          expect(typeof catalogueLeaves[locale][reference]).toBe("string");
     },
   );
   it("limits production and supporting paths to the authorized wave", () => {
@@ -129,8 +132,8 @@ describe("T7-A6.3 public documents, identity and trust", () => {
     ).toThrow();
   });
   it("exact catalogue shape parity and no duplicate keys", () => {
-    expect(Object.keys(leaves(catalogues.ar.value)).sort()).toEqual(
-      Object.keys(leaves(catalogues.en.value)).sort(),
+    expect(Object.keys(catalogueLeaves.ar).sort()).toEqual(
+      Object.keys(catalogueLeaves.en).sort(),
     );
     expect(catalogues.ar.duplicates).toEqual([]);
     expect(catalogues.en.duplicates).toEqual([]);
@@ -201,7 +204,7 @@ describe("T7-A6.3 public documents, identity and trust", () => {
       trustFiles.flatMap((path) => auditTrust(read(path), path).references),
     );
     expect([...references].sort()).toEqual(
-      Object.keys(leaves(catalogues.en.value))
+      Object.keys(catalogueLeaves.en)
         .filter((key) => key.startsWith("publicTrust."))
         .sort(),
     );
