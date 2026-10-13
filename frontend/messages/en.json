@@ -3471,5 +3471,97 @@
     "packages": {
       "browseCourses": "Browse available courses"
     }
+  },
+  "learningPractice": {
+    "comprehensive": {
+      "status": {
+        "notConfigured": "Not configured"
+      },
+      "outcome": {
+        "notYetAchieved": "Not yet achieved",
+        "pass": "Pass",
+        "merit": "Merit",
+        "distinction": "Distinction",
+        "unknown": "Unknown outcome"
+      },
+      "noActiveSubmission": "No active submission",
+      "loading": "Loading Final Unit Practice…",
+      "loadFailed": "Final Unit Practice could not be loaded.",
+      "title": "Final Unit Practice",
+      "aimsComplete": "Learning Aims complete",
+      "formativeDisclaimer": "This is a training result for the Unit Practice and is not a formal BTEC assessment result.",
+      "deadline": "Deadline",
+      "trainingComplete": "Unit Training Complete",
+      "aimsRequired": "Complete all Learning Aims and their reviews first.",
+      "deadlineExpired": "The deadline for this Unit Practice has passed.",
+      "fallbackTitle": "Unit Practice",
+      "referenceCriteria": "Training reference criteria",
+      "openPractice": "Open Practice",
+      "gaps": "Gaps / missing evidence"
+    },
+    "common": {
+      "status": {
+        "locked": "Locked",
+        "available": "Available",
+        "draft": "Draft",
+        "awaitingReview": "Submitted, awaiting teacher review",
+        "reviewed": "Reviewed",
+        "unknown": "Unknown status"
+      },
+      "workFiles": "Work files",
+      "continueDraft": "Continue draft",
+      "teacherNote": "Note to teacher (optional)",
+      "chooseFiles": "Choose files",
+      "saveNote": "Save note",
+      "uploadFiles": "Upload files",
+      "submitToTeacher": "Submit to teacher",
+      "trainingOutcome": "Training Outcome",
+      "strengths": "Strengths",
+      "howToImprove": "How to improve",
+      "changesSaved": "Changes saved."
+    },
+    "aim": {
+      "status": {
+        "notConfigured": "NotConfigured",
+        "locked": "Locked",
+        "available": "Available",
+        "draft": "Draft",
+        "submitted": "Submitted",
+        "finalized": "Finalized"
+      },
+      "outcome": {
+        "notYetAchieved": "NotYetAchieved",
+        "pass": "Pass",
+        "merit": "Merit",
+        "distinction": "Distinction"
+      },
+      "noActiveSubmission": "No active practice submission",
+      "loading": "Loading learning aims…",
+      "loadFailed": "Practice activities could not be loaded.",
+      "title": "Learning aims and practice",
+      "formativeDisclaimer": "This formative training result is not a formal BTEC assessment result and is not part of ASSESS.",
+      "complete": "Complete",
+      "content": "Content",
+      "practice": "Practice",
+      "attempts": "Attempts",
+      "remaining": "Remaining",
+      "previousAimRequired": "Complete the previous aim and its review to unlock this aim.",
+      "contentRequired": "Complete all content items to unlock practice.",
+      "fallbackTitle": "Practice activity",
+      "attempt": "Attempt",
+      "uploadedFiles": "uploaded files",
+      "submittedAt": "Submitted",
+      "startPractice": "Start practice",
+      "startImprovement": "Start improvement attempt",
+      "gaps": "Missing / gaps",
+      "bestAchieved": "Best achieved",
+      "progress": "Progress",
+      "attemptHistory": "Attempt history",
+      "reviewedAt": "Reviewed",
+      "attemptFiles": "Attempt files",
+      "result": "Result",
+      "improvementGuidance": "Improvement guidance",
+      "actionFailed": "The action failed."
+    }
   }
 }

@@ -3471,5 +3471,97 @@
     "packages": {
       "browseCourses": "استكشف الدورات المتاحة"
     }
+  },
+  "learningPractice": {
+    "comprehensive": {
+      "status": {
+        "notConfigured": "لم تُنشأ المهمة بعد"
+      },
+      "outcome": {
+        "notYetAchieved": "لم يتحقق بعد",
+        "pass": "نجاح",
+        "merit": "جدارة",
+        "distinction": "تميز",
+        "unknown": "نتيجة غير معروفة"
+      },
+      "noActiveSubmission": "لا يوجد تسليم نشط",
+      "loading": "جارٍ تحميل تدريب الوحدة…",
+      "loadFailed": "تعذر تحميل تدريب الوحدة.",
+      "title": "التدريب النهائي للوحدة",
+      "aimsComplete": "أهداف التعلم المكتملة",
+      "formativeDisclaimer": "هذه نتيجة تدريبية لمهمة الوحدة وليست نتيجة تقييم BTEC رسمي.",
+      "deadline": "الموعد النهائي",
+      "trainingComplete": "اكتمل مسار التدريب للوحدة",
+      "aimsRequired": "أكمل جميع أهداف التعلم ومراجعاتها أولًا.",
+      "deadlineExpired": "انتهى الموعد النهائي لهذه المهمة التدريبية.",
+      "fallbackTitle": "مهمة الوحدة",
+      "referenceCriteria": "معايير مرجعية للتدريب",
+      "openPractice": "فتح التدريب",
+      "gaps": "الفجوات والأدلة الناقصة"
+    },
+    "common": {
+      "status": {
+        "locked": "مقفل",
+        "available": "متاح",
+        "draft": "مسودة",
+        "awaitingReview": "مُسلَّم، بانتظار مراجعة المعلم",
+        "reviewed": "تمت المراجعة",
+        "unknown": "حالة غير معروفة"
+      },
+      "workFiles": "ملفات الحل",
+      "continueDraft": "متابعة المسودة",
+      "teacherNote": "ملاحظة للمعلم (اختيارية)",
+      "chooseFiles": "اختيار ملفات",
+      "saveNote": "حفظ الملاحظة",
+      "uploadFiles": "رفع الملفات",
+      "submitToTeacher": "تسليم للمعلم",
+      "trainingOutcome": "النتيجة التدريبية",
+      "strengths": "نقاط القوة",
+      "howToImprove": "كيفية التحسين",
+      "changesSaved": "حُفظت التعديلات."
+    },
+    "aim": {
+      "status": {
+        "notConfigured": "لم يُنشأ النشاط بعد",
+        "locked": "مقفل",
+        "available": "متاح",
+        "draft": "مسودة",
+        "submitted": "مُسلَّم، بانتظار المراجعة",
+        "finalized": "تمت المراجعة"
+      },
+      "outcome": {
+        "notYetAchieved": "لم يتحقق بعد (Not Yet Achieved)",
+        "pass": "نجاح (Pass)",
+        "merit": "جدارة (Merit)",
+        "distinction": "تميز (Distinction)"
+      },
+      "noActiveSubmission": "لا يوجد تسليم تدريب نشط",
+      "loading": "جارٍ تحميل أهداف التعلم…",
+      "loadFailed": "تعذر تحميل أنشطة التدريب.",
+      "title": "أهداف التعلم والتدريب",
+      "formativeDisclaimer": "هذه نتيجة تدريبية تكوينية وليست نتيجة تقييم BTEC رسمي ولا تدخل في ASSESS.",
+      "complete": "مكتمل",
+      "content": "المحتوى",
+      "practice": "التدريب",
+      "attempts": "المحاولات",
+      "remaining": "المتبقي",
+      "previousAimRequired": "أكمل الهدف السابق ومراجعته لفتح هذا الهدف.",
+      "contentRequired": "أكمل جميع عناصر المحتوى لفتح النشاط.",
+      "fallbackTitle": "نشاط تدريبي",
+      "attempt": "المحاولة",
+      "uploadedFiles": "ملفات مرفوعة",
+      "submittedAt": "تاريخ التسليم",
+      "startPractice": "بدء التدريب",
+      "startImprovement": "بدء محاولة تحسين",
+      "gaps": "الفجوات",
+      "bestAchieved": "أفضل نتيجة",
+      "progress": "مسار التحسن",
+      "attemptHistory": "سجل المحاولات",
+      "reviewedAt": "تاريخ المراجعة",
+      "attemptFiles": "ملفات المحاولة",
+      "result": "النتيجة",
+      "improvementGuidance": "إرشادات التحسين",
+      "actionFailed": "تعذر إكمال العملية."
+    }
   }
 }

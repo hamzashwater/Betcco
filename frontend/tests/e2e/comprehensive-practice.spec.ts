@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { capturePracticeEvidence } from "../helpers/learning-practice-browser-evidence";
 
 const courseId = "course-comprehensive";
 const assignmentId = "final-unit-practice";
@@ -34,11 +35,17 @@ for (const scenario of [
   { locale: "en", width: 1280 },
   { locale: "ar", width: 1280 },
   { locale: "en", width: 390 },
+  { locale: "ar", width: 390 },
 ]) {
   test(`Final Unit Practice lifecycle ${scenario.locale} ${scenario.width}px (mocked API)`, async ({
     page,
   }) => {
     await page.setViewportSize({ width: scenario.width, height: 844 });
+    const capture = (state: string) =>
+      capturePracticeEvidence(
+        page,
+        `comprehensive-${scenario.locale}-${scenario.width}-${state}`,
+      );
     const errors = watchErrors(page);
     let role: "Student" | "Teacher" = "Student";
     let configured = false;
@@ -382,6 +389,7 @@ for (const scenario of [
     ).toBeVisible();
 
     role = "Teacher";
+    await capture("not-configured");
     await page.goto(
       `/${scenario.locale}/teacher/courses/${courseId}#assignments`,
     );
@@ -512,6 +520,7 @@ for (const scenario of [
     ).toBeVisible();
     ready = true;
     deadlineExpired = true;
+    await capture("locked");
     await page.reload();
     await expect(
       finalArea.getByText(
@@ -526,13 +535,16 @@ for (const scenario of [
       }),
     ).toHaveCount(0);
     deadlineExpired = false;
+    await capture("deadline-expired");
     await page.reload();
     role = "Student";
     await finalArea
       .getByRole("button", {
         name: scenario.locale === "ar" ? "فتح التدريب" : "Open Practice",
       })
-      .click();
+      .focus();
+    await capture("available");
+    await page.keyboard.press("Enter");
     await finalArea.locator('input[type="file"]').setInputFiles({
       name: "unit.pdf",
       mimeType: "application/pdf",
@@ -544,6 +556,7 @@ for (const scenario of [
       })
       .click();
     await expect(finalArea.getByText("unit.pdf")).toBeVisible();
+    await capture("draft-evidence");
     role = "Teacher";
     await page.goto(
       `/${scenario.locale}/teacher/courses/${courseId}#assignments`,
@@ -568,6 +581,7 @@ for (const scenario of [
           : /Submitted, awaiting teacher review/,
       ),
     ).toBeVisible();
+    await capture("submitted");
 
     role = "Teacher";
     await page.goto(
@@ -621,6 +635,7 @@ for (const scenario of [
       ),
     ).toBeVisible();
     expect(errors).toEqual([]);
+    await capture("reviewed-formative");
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= window.innerWidth,
