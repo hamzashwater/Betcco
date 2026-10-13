@@ -1,0 +1,1490 @@
+{
+  "base": "aff7a7013abaf906bc21c70ef0800f28b53ef4fa",
+  "sources": {
+    "src/features/support/support-account-area.tsx": "\"use client\";\n\nimport { AccountProfile } from \"@/features/auth/account-profile\";\nimport { AccountSecurity } from \"@/features/auth/account-security\";\nimport { api } from \"@/lib/api\";\nimport { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\nimport { useLocale } from \"next-intl\";\nimport { useState, useSyncExternalStore } from \"react\";\n\nconst subscribeToHydration = () => () => {};\n\ntype FreezeTarget = {\n  id: string;\n  displayName: string;\n  email: string;\n  isFrozen: boolean;\n};\ntype TargetResponse = { items: FreezeTarget[]; totalCount: number };\n\nexport function SupportAccountArea({ segment }: { segment: string[] }) {\n  const locale = useLocale();\n  const client = useQueryClient();\n  const [role, setRole] = useState<\"Student\" | \"Teacher\">(\"Student\");\n  const [search, setSearch] = useState(\"\");\n  const [term, setTerm] = useState(\"\");\n  const [page, setPage] = useState(1);\n  const mounted = useSyncExternalStore(\n    subscribeToHydration,\n    () => true,\n    () => false,\n  );\n  const current = segment.join(\"/\") || \"accounts\";\n  const viewer = useQuery({\n    queryKey: [\"current-user\"],\n    queryFn: () => api<{ roles: string[] }>(\"/auth/me\"),\n  });\n  const permitted =\n    viewer.data?.roles.includes(\"SupportAdmin\") ||\n    viewer.data?.roles.includes(\"Admin\") ||\n    viewer.data?.roles.includes(\"SystemAdmin\");\n  const targets = useQuery({\n    queryKey: [\"support-freeze-targets\", role, term, page],\n    queryFn: () =>\n      api<TargetResponse>(\n        `/admin/users/freeze-targets?${new URLSearchParams({ role, search: term, page: String(page) })}`,\n      ),\n    enabled: Boolean(permitted) && current === \"accounts\",\n  });\n  const freeze = useMutation({\n    mutationFn: ({ id, frozen }: { id: string; frozen: boolean }) =>\n      api<void>(`/admin/users/${id}/freeze`, {\n        method: \"POST\",\n        body: JSON.stringify({ frozen }),\n      }),\n    onSuccess: () =>\n      void client.invalidateQueries({ queryKey: [\"support-freeze-targets\"] }),\n  });\n\n  if (!mounted || viewer.isPending)\n    return (\n      <p className=\"shell py-10\" aria-busy=\"true\">\n        {locale === \"ar\" ? \"جارٍ التحميل…\" : \"Loading…\"}\n      </p>\n    );\n  if (!permitted)\n    return (\n      <p className=\"shell py-10\" role=\"alert\">\n        {locale === \"ar\"\n          ? \"لا تملك صلاحية إدارة الحسابات.\"\n          : \"You do not have account management access.\"}\n      </p>\n    );\n  if (current === \"profile\") return <AccountProfile role=\"support\" />;\n  if (current === \"security\") return <AccountSecurity role=\"support\" />;\n\n  return (\n    <section className=\"shell min-w-0 py-8\">\n      <h1 className=\"text-3xl font-black\">\n        {locale === \"ar\" ? \"مساعدة إدارة الحسابات\" : \"Account support\"}\n      </h1>\n      <p className=\"mt-2 text-sm text-muted\">\n        {locale === \"ar\"\n          ? \"يمكنك تجميد حسابات الطلاب والمعلمين أو إعادة تفعيلها فقط.\"\n          : \"Freeze or reactivate Student and Teacher accounts only.\"}\n      </p>\n      <div className=\"card mt-6 grid min-w-0 gap-4 p-5 sm:p-6\">\n        <div className=\"flex flex-wrap gap-2\">\n          {([\"Student\", \"Teacher\"] as const).map((value) => (\n            <button\n              key={value}\n              type=\"button\"\n              aria-pressed={role === value}\n              onClick={() => {\n                setRole(value);\n                setPage(1);\n              }}\n              className=\"focus-ring rounded-xl border border-border px-4 py-2 text-sm font-bold aria-pressed:bg-primary aria-pressed:text-slate-950\"\n            >\n              {value === \"Student\"\n                ? locale === \"ar\"\n                  ? \"الطلاب\"\n                  : \"Students\"\n                : locale === \"ar\"\n                  ? \"المعلمون\"\n                  : \"Teachers\"}\n            </button>\n          ))}\n        </div>\n        <form\n          onSubmit={(event) => {\n            event.preventDefault();\n            setTerm(search);\n            setPage(1);\n          }}\n          className=\"flex min-w-0 flex-wrap gap-2\"\n        >\n          <label className=\"min-w-0 flex-1 text-sm font-bold\">\n            <span className=\"sr-only\">\n              {locale === \"ar\" ? \"بحث عن حساب\" : \"Search accounts\"}\n            </span>\n            <input\n              value={search}\n              maxLength={100}\n              onChange={(event) => setSearch(event.target.value)}\n              placeholder={\n                locale === \"ar\" ? \"الاسم أو البريد\" : \"Name or email\"\n              }\n              className=\"focus-ring w-full min-w-0 rounded-xl border border-border bg-transparent px-3 py-2\"\n            />\n          </label>\n          <button\n            type=\"submit\"\n            className=\"focus-ring rounded-xl bg-primary px-4 py-2 text-sm font-bold text-slate-950\"\n          >\n            {locale === \"ar\" ? \"بحث\" : \"Search\"}\n          </button>\n        </form>\n        {targets.isPending ? (\n          <p aria-busy=\"true\">\n            {locale === \"ar\" ? \"جارٍ تحميل الحسابات…\" : \"Loading accounts…\"}\n          </p>\n        ) : targets.isError ? (\n          <p role=\"alert\" className=\"text-red-600\">\n            {locale === \"ar\"\n              ? \"تعذر تحميل الحسابات.\"\n              : \"Unable to load accounts.\"}\n          </p>\n        ) : targets.data?.items.length ? (\n          <div className=\"grid gap-3\">\n            {targets.data.items.map((target) => (\n              <article\n                key={target.id}\n                className=\"flex min-w-0 flex-wrap items-center justify-between gap-3 rounded-xl border border-border p-4\"\n              >\n                <div className=\"min-w-0\">\n                  <p className=\"font-bold\">{target.displayName}</p>\n                  <p className=\"break-all text-sm text-muted\" dir=\"ltr\">\n                    {target.email}\n                  </p>\n                  <p className=\"text-xs text-muted\">\n                    {target.isFrozen\n                      ? locale === \"ar\"\n                        ? \"مجمّد\"\n                        : \"Frozen\"\n                      : locale === \"ar\"\n                        ? \"نشط\"\n                        : \"Active\"}\n                  </p>\n                </div>\n                <button\n                  type=\"button\"\n                  disabled={freeze.isPending}\n                  onClick={() => {\n                    if (\n                      window.confirm(\n                        target.isFrozen\n                          ? locale === \"ar\"\n                            ? \"إعادة تفعيل الحساب؟\"\n                            : \"Reactivate this account?\"\n                          : locale === \"ar\"\n                            ? \"تجميد الحساب وإنهاء جلساته؟\"\n                            : \"Freeze this account and end its sessions?\",\n                      )\n                    )\n                      freeze.mutate({\n                        id: target.id,\n                        frozen: !target.isFrozen,\n                      });\n                  }}\n                  className=\"focus-ring rounded-xl border border-border px-3 py-2 text-sm font-bold disabled:opacity-60\"\n                >\n                  {target.isFrozen\n                    ? locale === \"ar\"\n                      ? \"إعادة تفعيل\"\n                      : \"Reactivate\"\n                    : locale === \"ar\"\n                      ? \"تجميد\"\n                      : \"Freeze\"}\n                </button>\n              </article>\n            ))}\n          </div>\n        ) : (\n          <p className=\"text-sm text-muted\">\n            {locale === \"ar\"\n              ? \"لا توجد حسابات مطابقة.\"\n              : \"No matching accounts.\"}\n          </p>\n        )}\n        {freeze.isError && (\n          <p role=\"alert\" className=\"text-sm text-red-600\">\n            {locale === \"ar\"\n              ? \"تعذر تحديث الحساب.\"\n              : \"Unable to update the account.\"}\n          </p>\n        )}\n        {targets.data && (\n          <div className=\"flex items-center gap-3 text-sm\">\n            <button\n              type=\"button\"\n              disabled={page === 1}\n              onClick={() => setPage(page - 1)}\n              className=\"focus-ring disabled:opacity-50\"\n            >\n              {locale === \"ar\" ? \"السابق\" : \"Previous\"}\n            </button>\n            <span>{page}</span>\n            <button\n              type=\"button\"\n              disabled={page * 25 >= targets.data.totalCount}\n              onClick={() => setPage(page + 1)}\n              className=\"focus-ring disabled:opacity-50\"\n            >\n              {locale === \"ar\" ? \"التالي\" : \"Next\"}\n            </button>\n          </div>\n        )}\n      </div>\n    </section>\n  );\n}\n",
+    "src/features/support/support-center.tsx": "\"use client\";\n\nimport { formatLocalizedDateTime } from \"@/i18n/date-time\";\nimport { api } from \"@/lib/api\";\nimport { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\nimport {\n  Headphones,\n  MessageCircleMore,\n  MessageSquareText,\n  Plus,\n  Send,\n} from \"lucide-react\";\nimport { useLocale } from \"next-intl\";\nimport { useState } from \"react\";\n\ntype TicketSummary = {\n  id: string;\n  subject: string;\n  category: string;\n  status: string;\n  createdAtUtc: string;\n  updatedAtUtc: string;\n};\n\ntype TicketList = {\n  items: TicketSummary[];\n  page: number;\n  pageSize: number;\n  totalCount: number;\n};\n\ntype TicketDetail = TicketSummary & {\n  messages: {\n    id: string;\n    body: string;\n    createdAtUtc: string;\n    isFromCurrentUser: boolean;\n  }[];\n};\n\ntype CreatedTicket = { id: string; status: string };\ntype ManagedTicketStatus = \"InProgress\" | \"Resolved\" | \"Closed\";\n\nfunction statusLabel(status: string, locale: string) {\n  const labels: Record<string, [string, string]> = {\n    Open: [\"مفتوحة\", \"Open\"],\n    InProgress: [\"قيد المعالجة\", \"In progress\"],\n    WaitingForStudent: [\"بانتظار ردك\", \"Waiting for you\"],\n    Resolved: [\"تم الحل\", \"Resolved\"],\n    Closed: [\"مغلقة\", \"Closed\"],\n  };\n  return labels[status]?.[locale === \"ar\" ? 0 : 1] ?? status;\n}\n\nfunction formatDate(value: string, locale: string) {\n  return formatLocalizedDateTime(value, locale);\n}\n\nexport function SupportCenter({ mode }: { mode: \"student\" | \"admin\" }) {\n  const locale = useLocale();\n  const isAdmin = mode === \"admin\";\n  const client = useQueryClient();\n  const [selectedId, setSelectedId] = useState<string | null>(null);\n  const [subject, setSubject] = useState(\"\");\n  const [category, setCategory] = useState(\"General\");\n  const [openingMessage, setOpeningMessage] = useState(\"\");\n  const [reply, setReply] = useState(\"\");\n  const tickets = useQuery({\n    queryKey: [\"support-tickets\", mode],\n    queryFn: () => api<TicketList>(\"/support/tickets?page=1&pageSize=50\"),\n  });\n  const activeTicketId = selectedId ?? tickets.data?.items[0]?.id ?? null;\n  const ticket = useQuery({\n    queryKey: [\"support-ticket\", activeTicketId],\n    queryFn: () => api<TicketDetail>(`/support/tickets/${activeTicketId}`),\n    enabled: Boolean(activeTicketId),\n  });\n  const refresh = () => {\n    void client.invalidateQueries({ queryKey: [\"support-tickets\", mode] });\n    if (activeTicketId)\n      void client.invalidateQueries({\n        queryKey: [\"support-ticket\", activeTicketId],\n      });\n  };\n  const create = useMutation({\n    mutationFn: () =>\n      api<CreatedTicket>(\"/support/tickets\", {\n        method: \"POST\",\n        body: JSON.stringify({\n          subject: subject.trim(),\n          category,\n          message: openingMessage.trim(),\n        }),\n      }),\n    onSuccess: (created) => {\n      setSubject(\"\");\n      setCategory(\"General\");\n      setOpeningMessage(\"\");\n      setSelectedId(created.id);\n      void client.invalidateQueries({ queryKey: [\"support-tickets\", mode] });\n    },\n  });\n  const sendReply = useMutation({\n    mutationFn: () =>\n      api(`/support/tickets/${activeTicketId}/messages`, {\n        method: \"POST\",\n        body: JSON.stringify({ message: reply.trim() }),\n      }),\n    onSuccess: () => {\n      setReply(\"\");\n      refresh();\n    },\n  });\n  const changeStatus = useMutation({\n    mutationFn: (status: ManagedTicketStatus) =>\n      api(`/support/tickets/${activeTicketId}/status`, {\n        method: \"POST\",\n        body: JSON.stringify({ status }),\n      }),\n    onSuccess: refresh,\n  });\n  const title = isAdmin\n    ? locale === \"ar\"\n      ? \"صندوق دعم BETCCO\"\n      : \"BETCCO support inbox\"\n    : locale === \"ar\"\n      ? \"مركز الدعم\"\n      : \"Support centre\";\n  const description = isAdmin\n    ? locale === \"ar\"\n      ? \"راجع الطلبات الواردة وردّ عليها من داخل المنصة؛ كل طالب يرى تذاكره فقط.\"\n      : \"Review incoming requests and reply in the platform; each learner can see only their own tickets.\"\n    : locale === \"ar\"\n      ? \"افتح تذكرة وتابع الردود في نفس المحادثة. تظل المراسلات مرتبطة بحسابك فقط.\"\n      : \"Open a ticket and follow replies in the same conversation. Messages remain scoped to your account.\";\n  return (\n    <section className=\"shell py-10\">\n      <header className=\"flex flex-wrap items-start justify-between gap-4\">\n        <div>\n          <p className=\"text-xs font-black uppercase tracking-[0.18em] text-primary\">\n            BETCCO SUPPORT\n          </p>\n          <h1 className=\"mt-2 text-3xl font-black\">{title}</h1>\n          <p className=\"mt-3 max-w-3xl leading-7 text-muted\">{description}</p>\n        </div>\n        <span className=\"grid size-12 place-items-center rounded-2xl bg-primary/15 text-primary\">\n          <Headphones size={24} aria-hidden=\"true\" />\n        </span>\n      </header>\n      <div\n        className={`mt-7 grid gap-5 ${isAdmin ? \"lg:grid-cols-[minmax(17rem,0.7fr)_minmax(0,1.3fr)]\" : \"lg:grid-cols-[minmax(17rem,0.7fr)_minmax(0,1.3fr)_minmax(17rem,0.7fr)]\"}`}\n      >\n        <aside className=\"card min-h-72 p-4 sm:p-5\">\n          <div className=\"flex items-center justify-between gap-3\">\n            <div>\n              <h2 className=\"font-black\">\n                {isAdmin\n                  ? locale === \"ar\"\n                    ? \"كل التذاكر\"\n                    : \"All tickets\"\n                  : locale === \"ar\"\n                    ? \"تذاكري\"\n                    : \"My tickets\"}\n              </h2>\n              <p className=\"mt-1 text-xs text-muted\">\n                {tickets.data?.totalCount ?? 0}{\" \"}\n                {locale === \"ar\" ? \"تذكرة\" : \"tickets\"}\n              </p>\n            </div>\n            <MessageSquareText\n              size={19}\n              className=\"text-primary\"\n              aria-hidden=\"true\"\n            />\n          </div>\n          {tickets.isPending ? (\n            <p className=\"mt-6 text-sm text-muted\" aria-busy>\n              …\n            </p>\n          ) : tickets.isError ? (\n            <p role=\"alert\" className=\"mt-6 text-sm text-red-600\">\n              {locale === \"ar\"\n                ? \"تعذر تحميل التذاكر.\"\n                : \"Tickets could not be loaded.\"}\n            </p>\n          ) : tickets.data?.items.length ? (\n            <div className=\"mt-5 grid gap-2\">\n              {tickets.data.items.map((item) => (\n                <button\n                  key={item.id}\n                  type=\"button\"\n                  onClick={() => setSelectedId(item.id)}\n                  aria-pressed={activeTicketId === item.id}\n                  className={`focus-ring rounded-xl border p-3 text-start transition-colors ${activeTicketId === item.id ? \"border-primary/55 bg-primary/10\" : \"border-border hover:bg-muted/35\"}`}\n                >\n                  <div className=\"flex items-start justify-between gap-2\">\n                    <p className=\"line-clamp-2 font-bold\">{item.subject}</p>\n                    <span className=\"shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-bold text-muted\">\n                      {statusLabel(item.status, locale)}\n                    </span>\n                  </div>\n                  <p className=\"mt-2 text-xs text-muted\">\n                    {formatDate(item.updatedAtUtc, locale)}\n                  </p>\n                </button>\n              ))}\n            </div>\n          ) : (\n            <div className=\"mt-6 rounded-xl border border-dashed border-border p-4 text-center text-sm leading-6 text-muted\">\n              <MessageCircleMore\n                className=\"mx-auto text-primary\"\n                aria-hidden=\"true\"\n              />\n              <p className=\"mt-3\">\n                {isAdmin\n                  ? locale === \"ar\"\n                    ? \"لا توجد تذاكر واردة بعد.\"\n                    : \"There are no incoming tickets yet.\"\n                  : locale === \"ar\"\n                    ? \"لا توجد تذاكر في حسابك بعد.\"\n                    : \"There are no tickets in your account yet.\"}\n              </p>\n            </div>\n          )}\n        </aside>\n\n        <section className=\"card flex min-h-72 flex-col p-4 sm:p-6\">\n          {ticket.isPending && activeTicketId ? (\n            <p className=\"text-sm text-muted\" aria-busy>\n              …\n            </p>\n          ) : ticket.isError ? (\n            <p role=\"alert\" className=\"text-sm text-red-600\">\n              {locale === \"ar\"\n                ? \"تعذر فتح هذه المحادثة.\"\n                : \"This conversation could not be opened.\"}\n            </p>\n          ) : ticket.data ? (\n            <>\n              <div className=\"flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4\">\n                <div>\n                  <p className=\"text-xs font-black uppercase tracking-[0.15em] text-primary\">\n                    {ticket.data.category}\n                  </p>\n                  <h2 className=\"mt-1 text-xl font-black\">\n                    {ticket.data.subject}\n                  </h2>\n                </div>\n                <div className=\"flex flex-wrap items-center justify-end gap-2\">\n                  <span className=\"rounded-full bg-primary/10 px-3 py-1.5 text-xs font-black text-primary\">\n                    {statusLabel(ticket.data.status, locale)}\n                  </span>\n                  {isAdmin ? (\n                    <div className=\"flex flex-wrap justify-end gap-2\">\n                      {ticket.data.status !== \"InProgress\" &&\n                      ticket.data.status !== \"Closed\" ? (\n                        <button\n                          type=\"button\"\n                          disabled={changeStatus.isPending}\n                          onClick={() => changeStatus.mutate(\"InProgress\")}\n                          className=\"focus-ring rounded-lg border border-border px-2.5 py-1.5 text-xs font-bold hover:bg-muted disabled:opacity-60\"\n                        >\n                          {locale === \"ar\" ? \"بدء المعالجة\" : \"Start work\"}\n                        </button>\n                      ) : null}\n                      {ticket.data.status !== \"Resolved\" &&\n                      ticket.data.status !== \"Closed\" ? (\n                        <button\n                          type=\"button\"\n                          disabled={changeStatus.isPending}\n                          onClick={() => changeStatus.mutate(\"Resolved\")}\n                          className=\"focus-ring rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1.5 text-xs font-bold text-emerald-800 hover:bg-emerald-500/20 disabled:opacity-60 dark:text-emerald-300\"\n                        >\n                          {locale === \"ar\" ? \"تم الحل\" : \"Resolve\"}\n                        </button>\n                      ) : null}\n                      {ticket.data.status !== \"Closed\" ? (\n                        <button\n                          type=\"button\"\n                          disabled={changeStatus.isPending}\n                          onClick={() => changeStatus.mutate(\"Closed\")}\n                          className=\"focus-ring rounded-lg border border-red-500/35 px-2.5 py-1.5 text-xs font-bold text-red-700 hover:bg-red-500/10 disabled:opacity-60 dark:text-red-300\"\n                        >\n                          {locale === \"ar\" ? \"إغلاق\" : \"Close\"}\n                        </button>\n                      ) : null}\n                    </div>\n                  ) : null}\n                </div>\n              </div>\n              {changeStatus.isError ? (\n                <p role=\"alert\" className=\"mt-3 text-sm text-red-600\">\n                  {changeStatus.error instanceof Error\n                    ? changeStatus.error.message\n                    : locale === \"ar\"\n                      ? \"تعذر تحديث حالة التذكرة.\"\n                      : \"The ticket status could not be updated.\"}\n                </p>\n              ) : null}\n              <div className=\"mt-5 flex-1 space-y-3\">\n                {ticket.data.messages.map((message) => (\n                  <article\n                    key={message.id}\n                    className={`max-w-[88%] rounded-2xl p-3 text-sm leading-6 ${message.isFromCurrentUser ? \"ms-auto bg-primary text-slate-950\" : \"bg-muted/45 text-foreground\"}`}\n                  >\n                    <p className=\"whitespace-pre-wrap\">{message.body}</p>\n                    <p\n                      className={`mt-2 text-[11px] ${message.isFromCurrentUser ? \"text-slate-900/75\" : \"text-muted\"}`}\n                    >\n                      {formatDate(message.createdAtUtc, locale)}\n                    </p>\n                  </article>\n                ))}\n              </div>\n              <form\n                className=\"mt-5 border-t border-border pt-4\"\n                onSubmit={(event) => {\n                  event.preventDefault();\n                  if (reply.trim()) sendReply.mutate();\n                }}\n              >\n                <label className=\"sr-only\">\n                  {locale === \"ar\" ? \"ردك\" : \"Your reply\"}\n                </label>\n                <div className=\"flex gap-2\">\n                  <textarea\n                    value={reply}\n                    maxLength={4000}\n                    disabled={\n                      ticket.data.status === \"Closed\" || sendReply.isPending\n                    }\n                    onChange={(event) => setReply(event.target.value)}\n                    placeholder={\n                      ticket.data.status === \"Closed\"\n                        ? locale === \"ar\"\n                          ? \"هذه التذكرة مغلقة.\"\n                          : \"This ticket is closed.\"\n                        : locale === \"ar\"\n                          ? \"اكتب ردك…\"\n                          : \"Write your reply…\"\n                    }\n                    className=\"focus-ring min-h-20 flex-1 rounded-xl border border-border bg-transparent p-3 text-sm disabled:cursor-not-allowed disabled:opacity-60\"\n                  />\n                  <button\n                    type=\"submit\"\n                    disabled={\n                      !reply.trim() ||\n                      ticket.data.status === \"Closed\" ||\n                      sendReply.isPending\n                    }\n                    className=\"focus-ring self-end rounded-xl bg-primary p-3 text-slate-950 disabled:cursor-not-allowed disabled:opacity-60\"\n                    aria-label={locale === \"ar\" ? \"إرسال الرد\" : \"Send reply\"}\n                  >\n                    <Send size={19} aria-hidden=\"true\" />\n                  </button>\n                </div>\n                {sendReply.isError ? (\n                  <p role=\"alert\" className=\"mt-2 text-sm text-red-600\">\n                    {sendReply.error instanceof Error\n                      ? sendReply.error.message\n                      : locale === \"ar\"\n                        ? \"تعذر إرسال الرد.\"\n                        : \"The reply could not be sent.\"}\n                  </p>\n                ) : null}\n              </form>\n            </>\n          ) : (\n            <div className=\"m-auto max-w-sm text-center\">\n              <MessageCircleMore\n                className=\"mx-auto size-9 text-primary\"\n                aria-hidden=\"true\"\n              />\n              <p className=\"mt-3 text-sm leading-6 text-muted\">\n                {locale === \"ar\"\n                  ? \"اختر تذكرة لعرض المحادثة.\"\n                  : \"Choose a ticket to view its conversation.\"}\n              </p>\n            </div>\n          )}\n        </section>\n\n        {!isAdmin ? (\n          <form\n            className=\"card h-fit p-4 sm:p-5\"\n            onSubmit={(event) => {\n              event.preventDefault();\n              create.mutate();\n            }}\n          >\n            <div className=\"flex items-start gap-3\">\n              <span className=\"grid size-10 place-items-center rounded-xl bg-primary/15 text-primary\">\n                <Plus size={20} aria-hidden=\"true\" />\n              </span>\n              <div>\n                <h2 className=\"font-black\">\n                  {locale === \"ar\" ? \"تذكرة جديدة\" : \"New ticket\"}\n                </h2>\n                <p className=\"mt-1 text-xs leading-5 text-muted\">\n                  {locale === \"ar\"\n                    ? \"صف المشكلة بوضوح وتجنب إرسال كلمات المرور أو بيانات الدفع.\"\n                    : \"Describe the issue clearly and never send passwords or payment details.\"}\n                </p>\n              </div>\n            </div>\n            <div className=\"mt-5 grid gap-3\">\n              <label className=\"grid gap-1 text-sm font-bold\">\n                <span>{locale === \"ar\" ? \"الموضوع\" : \"Subject\"}</span>\n                <input\n                  required\n                  maxLength={200}\n                  value={subject}\n                  onChange={(event) => setSubject(event.target.value)}\n                  className=\"focus-ring rounded-xl border border-border bg-transparent px-3 py-2.5\"\n                />\n              </label>\n              <label className=\"grid gap-1 text-sm font-bold\">\n                <span>{locale === \"ar\" ? \"التصنيف\" : \"Category\"}</span>\n                <select\n                  value={category}\n                  onChange={(event) => setCategory(event.target.value)}\n                  className=\"focus-ring rounded-xl border border-border bg-transparent px-3 py-2.5\"\n                >\n                  <option value=\"General\">\n                    {locale === \"ar\" ? \"عام\" : \"General\"}\n                  </option>\n                  <option value=\"Technical\">\n                    {locale === \"ar\" ? \"تقني\" : \"Technical\"}\n                  </option>\n                  <option value=\"Payment\">\n                    {locale === \"ar\" ? \"دفع\" : \"Payment\"}\n                  </option>\n                  <option value=\"Course\">\n                    {locale === \"ar\" ? \"دورة\" : \"Course\"}\n                  </option>\n                  <option value=\"Safety\">\n                    {locale === \"ar\" ? \"سلامة\" : \"Safety\"}\n                  </option>\n                </select>\n              </label>\n              <label className=\"grid gap-1 text-sm font-bold\">\n                <span>{locale === \"ar\" ? \"الرسالة\" : \"Message\"}</span>\n                <textarea\n                  required\n                  maxLength={4000}\n                  value={openingMessage}\n                  onChange={(event) => setOpeningMessage(event.target.value)}\n                  className=\"focus-ring min-h-32 rounded-xl border border-border bg-transparent p-3\"\n                />\n              </label>\n              <button\n                type=\"submit\"\n                disabled={\n                  create.isPending || !subject.trim() || !openingMessage.trim()\n                }\n                className=\"focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-black text-slate-950 disabled:cursor-wait disabled:opacity-60\"\n              >\n                <Send size={17} aria-hidden=\"true\" />\n                {create.isPending\n                  ? locale === \"ar\"\n                    ? \"جارٍ الإرسال…\"\n                    : \"Sending…\"\n                  : locale === \"ar\"\n                    ? \"فتح التذكرة\"\n                    : \"Open ticket\"}\n              </button>\n              {create.isError ? (\n                <p role=\"alert\" className=\"text-sm text-red-600\">\n                  {create.error instanceof Error\n                    ? create.error.message\n                    : locale === \"ar\"\n                      ? \"تعذر فتح التذكرة.\"\n                      : \"The ticket could not be opened.\"}\n                </p>\n              ) : null}\n            </div>\n          </form>\n        ) : null}\n      </div>\n    </section>\n  );\n}\n"
+  },
+  "records": {
+    "src/features/support/support-account-area.tsx": [
+      {
+        "line": 62,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"جارٍ التحميل…\" : \"Loading…\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "جارٍ التحميل…",
+        "en": "Loading…"
+      },
+      {
+        "line": 68,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"لا تملك صلاحية إدارة الحسابات.\" : \"You do not have account management access.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "لا تملك صلاحية إدارة الحسابات.",
+        "en": "You do not have account management access."
+      },
+      {
+        "line": 79,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"مساعدة إدارة الحسابات\" : \"Account support\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "مساعدة إدارة الحسابات",
+        "en": "Account support"
+      },
+      {
+        "line": 82,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"يمكنك تجميد حسابات الطلاب والمعلمين أو إعادة تفعيلها فقط.\" : \"Freeze or reactivate Student and Teacher accounts only.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "يمكنك تجميد حسابات الطلاب والمعلمين أو إعادة تفعيلها فقط.",
+        "en": "Freeze or reactivate Student and Teacher accounts only."
+      },
+      {
+        "line": 100,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"الطلاب\" : \"Students\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "الطلاب",
+        "en": "Students"
+      },
+      {
+        "line": 103,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"المعلمون\" : \"Teachers\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "المعلمون",
+        "en": "Teachers"
+      },
+      {
+        "line": 119,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"بحث عن حساب\" : \"Search accounts\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "بحث عن حساب",
+        "en": "Search accounts"
+      },
+      {
+        "line": 126,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"الاسم أو البريد\" : \"Name or email\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "الاسم أو البريد",
+        "en": "Name or email"
+      },
+      {
+        "line": 135,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"بحث\" : \"Search\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "بحث",
+        "en": "Search"
+      },
+      {
+        "line": 140,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"جارٍ تحميل الحسابات…\" : \"Loading accounts…\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "جارٍ تحميل الحسابات…",
+        "en": "Loading accounts…"
+      },
+      {
+        "line": 144,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تعذر تحميل الحسابات.\" : \"Unable to load accounts.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تعذر تحميل الحسابات.",
+        "en": "Unable to load accounts."
+      },
+      {
+        "line": 162,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"مجمّد\" : \"Frozen\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "مجمّد",
+        "en": "Frozen"
+      },
+      {
+        "line": 165,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"نشط\" : \"Active\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "نشط",
+        "en": "Active"
+      },
+      {
+        "line": 177,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"إعادة تفعيل الحساب؟\" : \"Reactivate this account?\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "إعادة تفعيل الحساب؟",
+        "en": "Reactivate this account?"
+      },
+      {
+        "line": 180,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تجميد الحساب وإنهاء جلساته؟\" : \"Freeze this account and end its sessions?\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تجميد الحساب وإنهاء جلساته؟",
+        "en": "Freeze this account and end its sessions?"
+      },
+      {
+        "line": 193,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"إعادة تفعيل\" : \"Reactivate\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "إعادة تفعيل",
+        "en": "Reactivate"
+      },
+      {
+        "line": 196,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تجميد\" : \"Freeze\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تجميد",
+        "en": "Freeze"
+      },
+      {
+        "line": 205,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"لا توجد حسابات مطابقة.\" : \"No matching accounts.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "لا توجد حسابات مطابقة.",
+        "en": "No matching accounts."
+      },
+      {
+        "line": 212,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تعذر تحديث الحساب.\" : \"Unable to update the account.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تعذر تحديث الحساب.",
+        "en": "Unable to update the account."
+      },
+      {
+        "line": 225,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"السابق\" : \"Previous\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "السابق",
+        "en": "Previous"
+      },
+      {
+        "line": 234,
+        "owner": "SupportAccountArea",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"التالي\" : \"Next\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "التالي",
+        "en": "Next"
+      }
+    ],
+    "src/features/support/support-center.tsx": [
+      {
+        "line": 123,
+        "owner": "title",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"صندوق دعم BETCCO\" : \"BETCCO support inbox\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "صندوق دعم BETCCO",
+        "en": "BETCCO support inbox"
+      },
+      {
+        "line": 126,
+        "owner": "title",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"مركز الدعم\" : \"Support centre\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "مركز الدعم",
+        "en": "Support centre"
+      },
+      {
+        "line": 130,
+        "owner": "description",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"راجع الطلبات الواردة وردّ عليها من داخل المنصة؛ كل طالب يرى تذاكره فقط.\" : \"Review incoming requests and reply in the platform; each learner can see only their own tickets.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "راجع الطلبات الواردة وردّ عليها من داخل المنصة؛ كل طالب يرى تذاكره فقط.",
+        "en": "Review incoming requests and reply in the platform; each learner can see only their own tickets."
+      },
+      {
+        "line": 133,
+        "owner": "description",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"افتح تذكرة وتابع الردود في نفس المحادثة. تظل المراسلات مرتبطة بحسابك فقط.\" : \"Open a ticket and follow replies in the same conversation. Messages remain scoped to your account.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "افتح تذكرة وتابع الردود في نفس المحادثة. تظل المراسلات مرتبطة بحسابك فقط.",
+        "en": "Open a ticket and follow replies in the same conversation. Messages remain scoped to your account."
+      },
+      {
+        "line": 158,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"كل التذاكر\" : \"All tickets\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "كل التذاكر",
+        "en": "All tickets"
+      },
+      {
+        "line": 161,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تذاكري\" : \"My tickets\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تذاكري",
+        "en": "My tickets"
+      },
+      {
+        "line": 167,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تذكرة\" : \"tickets\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تذكرة",
+        "en": "tickets"
+      },
+      {
+        "line": 182,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تعذر تحميل التذاكر.\" : \"Tickets could not be loaded.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تعذر تحميل التذاكر.",
+        "en": "Tickets could not be loaded."
+      },
+      {
+        "line": 216,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"لا توجد تذاكر واردة بعد.\" : \"There are no incoming tickets yet.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "لا توجد تذاكر واردة بعد.",
+        "en": "There are no incoming tickets yet."
+      },
+      {
+        "line": 219,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"لا توجد تذاكر في حسابك بعد.\" : \"There are no tickets in your account yet.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "لا توجد تذاكر في حسابك بعد.",
+        "en": "There are no tickets in your account yet."
+      },
+      {
+        "line": 234,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تعذر فتح هذه المحادثة.\" : \"This conversation could not be opened.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تعذر فتح هذه المحادثة.",
+        "en": "This conversation could not be opened."
+      },
+      {
+        "line": 263,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"بدء المعالجة\" : \"Start work\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "بدء المعالجة",
+        "en": "Start work"
+      },
+      {
+        "line": 274,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تم الحل\" : \"Resolve\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تم الحل",
+        "en": "Resolve"
+      },
+      {
+        "line": 284,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"إغلاق\" : \"Close\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "إغلاق",
+        "en": "Close"
+      },
+      {
+        "line": 295,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تعذر تحديث حالة التذكرة.\" : \"The ticket status could not be updated.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تعذر تحديث حالة التذكرة.",
+        "en": "The ticket status could not be updated."
+      },
+      {
+        "line": 323,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"ردك\" : \"Your reply\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "ردك",
+        "en": "Your reply"
+      },
+      {
+        "line": 335,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"هذه التذكرة مغلقة.\" : \"This ticket is closed.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "هذه التذكرة مغلقة.",
+        "en": "This ticket is closed."
+      },
+      {
+        "line": 338,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"اكتب ردك…\" : \"Write your reply…\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "اكتب ردك…",
+        "en": "Write your reply…"
+      },
+      {
+        "line": 352,
+        "owner": "SupportCenter",
+        "category": "ACCESSIBILITY_STATIC_UI",
+        "originalCategory": "ACCESSIBILITY_STATIC_UI",
+        "context": "locale === \"ar\" ? \"إرسال الرد\" : \"Send reply\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "إرسال الرد",
+        "en": "Send reply"
+      },
+      {
+        "line": 361,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تعذر إرسال الرد.\" : \"The reply could not be sent.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تعذر إرسال الرد.",
+        "en": "The reply could not be sent."
+      },
+      {
+        "line": 375,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"اختر تذكرة لعرض المحادثة.\" : \"Choose a ticket to view its conversation.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "اختر تذكرة لعرض المحادثة.",
+        "en": "Choose a ticket to view its conversation."
+      },
+      {
+        "line": 397,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تذكرة جديدة\" : \"New ticket\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تذكرة جديدة",
+        "en": "New ticket"
+      },
+      {
+        "line": 400,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"صف المشكلة بوضوح وتجنب إرسال كلمات المرور أو بيانات الدفع.\" : \"Describe the issue clearly and never send passwords or payment details.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "صف المشكلة بوضوح وتجنب إرسال كلمات المرور أو بيانات الدفع.",
+        "en": "Describe the issue clearly and never send passwords or payment details."
+      },
+      {
+        "line": 408,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"الموضوع\" : \"Subject\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "الموضوع",
+        "en": "Subject"
+      },
+      {
+        "line": 418,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"التصنيف\" : \"Category\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "التصنيف",
+        "en": "Category"
+      },
+      {
+        "line": 425,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"عام\" : \"General\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "عام",
+        "en": "General"
+      },
+      {
+        "line": 428,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تقني\" : \"Technical\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تقني",
+        "en": "Technical"
+      },
+      {
+        "line": 431,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"دفع\" : \"Payment\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "دفع",
+        "en": "Payment"
+      },
+      {
+        "line": 434,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"دورة\" : \"Course\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "دورة",
+        "en": "Course"
+      },
+      {
+        "line": 437,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"سلامة\" : \"Safety\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "سلامة",
+        "en": "Safety"
+      },
+      {
+        "line": 442,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"الرسالة\" : \"Message\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "الرسالة",
+        "en": "Message"
+      },
+      {
+        "line": 460,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"جارٍ الإرسال…\" : \"Sending…\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "جارٍ الإرسال…",
+        "en": "Sending…"
+      },
+      {
+        "line": 463,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"فتح التذكرة\" : \"Open ticket\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "فتح التذكرة",
+        "en": "Open ticket"
+      },
+      {
+        "line": 471,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "locale === \"ar\" ? \"تعذر فتح التذكرة.\" : \"The ticket could not be opened.\"",
+        "reason": "Static locale-selected display copy",
+        "ar": "تعذر فتح التذكرة.",
+        "en": "The ticket could not be opened."
+      },
+      {
+        "line": 141,
+        "owner": "SupportCenter",
+        "category": "STATIC_UI",
+        "originalCategory": "STATIC_UI",
+        "context": "BETCCO SUPPORT ",
+        "reason": "Hardcoded JSX child",
+        "en": "BETCCO SUPPORT"
+      },
+      {
+        "line": 46,
+        "category": "STATIC_UI",
+        "context": "[\"مفتوحة\", \"Open\"]",
+        "reason": "One AR/EN ticket presentation label pair per status",
+        "reviewed": true
+      },
+      {
+        "line": 47,
+        "category": "STATIC_UI",
+        "context": "[\"قيد المعالجة\", \"In progress\"]",
+        "reason": "One AR/EN ticket presentation label pair per status",
+        "reviewed": true
+      },
+      {
+        "line": 48,
+        "category": "STATIC_UI",
+        "context": "[\"بانتظار ردك\", \"Waiting for you\"]",
+        "reason": "One AR/EN ticket presentation label pair per status",
+        "reviewed": true
+      },
+      {
+        "line": 49,
+        "category": "STATIC_UI",
+        "context": "[\"تم الحل\", \"Resolved\"]",
+        "reason": "One AR/EN ticket presentation label pair per status",
+        "reviewed": true
+      },
+      {
+        "line": 50,
+        "category": "STATIC_UI",
+        "context": "[\"مغلقة\", \"Closed\"]",
+        "reason": "One AR/EN ticket presentation label pair per status",
+        "reviewed": true
+      }
+    ]
+  },
+  "classifications": {
+    "accessibility": {
+      "file": "src/features/support/support-center.tsx",
+      "originalLine": 352,
+      "expression": "locale === \"ar\" ? \"إرسال الرد\" : \"Send reply\"",
+      "category": "ACCESSIBILITY_STATIC_UI",
+      "reason": "Client-owned accessible name of the native reply submit button; Send icon stays aria-hidden."
+    },
+    "brand": {
+      "file": "src/features/support/support-center.tsx",
+      "originalLine": 141,
+      "text": "BETCCO SUPPORT",
+      "category": "STATIC_UI",
+      "ar": "دعم BETCCO",
+      "en": "BETCCO SUPPORT",
+      "reason": "SUPPORT is a descriptive presentation eyebrow, not an invariant identity token. Preserve BETCCO spelling; localize its support descriptor."
+    }
+  },
+  "replacements": {
+    "src/features/support/support-account-area.tsx": [
+      {
+        "start": 2099,
+        "end": 2145,
+        "original": "locale === \"ar\" ? \"جارٍ التحميل…\" : \"Loading…\"",
+        "text": "supportCopy(\"account.loading\")",
+        "recordLine": 62,
+        "key": "account.loading",
+        "ar": "جارٍ التحميل…",
+        "en": "Loading…",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 2252,
+        "end": 2369,
+        "original": "locale === \"ar\"\n          ? \"لا تملك صلاحية إدارة الحسابات.\"\n          : \"You do not have account management access.\"",
+        "text": "supportCopy(\"account.denied\")",
+        "recordLine": 68,
+        "key": "account.denied",
+        "ar": "لا تملك صلاحية إدارة الحسابات.",
+        "en": "You do not have account management access.",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 2642,
+        "end": 2703,
+        "original": "locale === \"ar\" ? \"مساعدة إدارة الحسابات\" : \"Account support\"",
+        "text": "supportCopy(\"account.title\")",
+        "recordLine": 79,
+        "key": "account.title",
+        "ar": "مساعدة إدارة الحسابات",
+        "en": "Account support",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 2772,
+        "end": 2929,
+        "original": "locale === \"ar\"\n          ? \"يمكنك تجميد حسابات الطلاب والمعلمين أو إعادة تفعيلها فقط.\"\n          : \"Freeze or reactivate Student and Teacher accounts only.\"",
+        "text": "supportCopy(\"account.scope\")",
+        "recordLine": 82,
+        "key": "account.scope",
+        "ar": "يمكنك تجميد حسابات الطلاب والمعلمين أو إعادة تفعيلها فقط.",
+        "en": "Freeze or reactivate Student and Teacher accounts only.",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 3557,
+        "end": 3632,
+        "original": "locale === \"ar\"\n                  ? \"الطلاب\"\n                  : \"Students\"",
+        "text": "supportCopy(\"account.students\")",
+        "recordLine": 100,
+        "key": "account.students",
+        "ar": "الطلاب",
+        "en": "Students",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 3651,
+        "end": 3728,
+        "original": "locale === \"ar\"\n                  ? \"المعلمون\"\n                  : \"Teachers\"",
+        "text": "supportCopy(\"account.teachers\")",
+        "recordLine": 103,
+        "key": "account.teachers",
+        "ar": "المعلمون",
+        "en": "Teachers",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 4108,
+        "end": 4159,
+        "original": "locale === \"ar\" ? \"بحث عن حساب\" : \"Search accounts\"",
+        "text": "supportCopy(\"account.searchLabel\")",
+        "recordLine": 119,
+        "key": "account.searchLabel",
+        "ar": "بحث عن حساب",
+        "en": "Search accounts",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 4369,
+        "end": 4422,
+        "original": "locale === \"ar\" ? \"الاسم أو البريد\" : \"Name or email\"",
+        "text": "supportCopy(\"account.searchPlaceholder\")",
+        "recordLine": 126,
+        "key": "account.searchPlaceholder",
+        "ar": "الاسم أو البريد",
+        "en": "Name or email",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 4751,
+        "end": 4785,
+        "original": "locale === \"ar\" ? \"بحث\" : \"Search\"",
+        "text": "supportCopy(\"account.search\")",
+        "recordLine": 135,
+        "key": "account.search",
+        "ar": "بحث",
+        "en": "Search",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 4898,
+        "end": 4960,
+        "original": "locale === \"ar\" ? \"جارٍ تحميل الحسابات…\" : \"Loading accounts…\"",
+        "text": "supportCopy(\"account.loadingAccounts\")",
+        "recordLine": 140,
+        "key": "account.loadingAccounts",
+        "ar": "جارٍ تحميل الحسابات…",
+        "en": "Loading accounts…",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 5074,
+        "end": 5171,
+        "original": "locale === \"ar\"\n              ? \"تعذر تحميل الحسابات.\"\n              : \"Unable to load accounts.\"",
+        "text": "supportCopy(\"account.loadFailed\")",
+        "recordLine": 144,
+        "key": "account.loadFailed",
+        "ar": "تعذر تحميل الحسابات.",
+        "en": "Unable to load accounts.",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 5868,
+        "end": 5952,
+        "original": "locale === \"ar\"\n                        ? \"مجمّد\"\n                        : \"Frozen\"",
+        "text": "supportCopy(\"account.frozen\")",
+        "recordLine": 162,
+        "key": "account.frozen",
+        "ar": "مجمّد",
+        "en": "Frozen",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 5977,
+        "end": 6059,
+        "original": "locale === \"ar\"\n                        ? \"نشط\"\n                        : \"Active\"",
+        "text": "supportCopy(\"account.active\")",
+        "recordLine": 165,
+        "key": "account.active",
+        "ar": "نشط",
+        "en": "Active",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 6375,
+        "end": 6499,
+        "original": "locale === \"ar\"\n                            ? \"إعادة تفعيل الحساب؟\"\n                            : \"Reactivate this account?\"",
+        "text": "supportCopy(\"account.confirmReactivate\")",
+        "recordLine": 177,
+        "key": "account.confirmReactivate",
+        "ar": "إعادة تفعيل الحساب؟",
+        "en": "Reactivate this account?",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 6528,
+        "end": 6677,
+        "original": "locale === \"ar\"\n                            ? \"تجميد الحساب وإنهاء جلساته؟\"\n                            : \"Freeze this account and end its sessions?\"",
+        "text": "supportCopy(\"account.confirmFreeze\")",
+        "recordLine": 180,
+        "key": "account.confirmFreeze",
+        "ar": "تجميد الحساب وإنهاء جلساته؟",
+        "en": "Freeze this account and end its sessions?",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 7095,
+        "end": 7185,
+        "original": "locale === \"ar\"\n                      ? \"إعادة تفعيل\"\n                      : \"Reactivate\"",
+        "text": "supportCopy(\"account.reactivate\")",
+        "recordLine": 193,
+        "key": "account.reactivate",
+        "ar": "إعادة تفعيل",
+        "en": "Reactivate",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 7208,
+        "end": 7288,
+        "original": "locale === \"ar\"\n                      ? \"تجميد\"\n                      : \"Freeze\"",
+        "text": "supportCopy(\"account.freeze\")",
+        "recordLine": 196,
+        "key": "account.freeze",
+        "ar": "تجميد",
+        "en": "Freeze",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 7446,
+        "end": 7542,
+        "original": "locale === \"ar\"\n              ? \"لا توجد حسابات مطابقة.\"\n              : \"No matching accounts.\"",
+        "text": "supportCopy(\"account.empty\")",
+        "recordLine": 205,
+        "key": "account.empty",
+        "ar": "لا توجد حسابات مطابقة.",
+        "en": "No matching accounts.",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 7672,
+        "end": 7772,
+        "original": "locale === \"ar\"\n              ? \"تعذر تحديث الحساب.\"\n              : \"Unable to update the account.\"",
+        "text": "supportCopy(\"account.updateFailed\")",
+        "recordLine": 212,
+        "key": "account.updateFailed",
+        "ar": "تعذر تحديث الحساب.",
+        "en": "Unable to update the account.",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 8105,
+        "end": 8144,
+        "original": "locale === \"ar\" ? \"السابق\" : \"Previous\"",
+        "text": "supportCopy(\"account.previous\")",
+        "recordLine": 225,
+        "key": "account.previous",
+        "ar": "السابق",
+        "en": "Previous",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 8444,
+        "end": 8479,
+        "original": "locale === \"ar\" ? \"التالي\" : \"Next\"",
+        "text": "supportCopy(\"account.next\")",
+        "recordLine": 234,
+        "key": "account.next",
+        "ar": "التالي",
+        "en": "Next",
+        "category": "STATIC_UI"
+      }
+    ],
+    "src/features/support/support-center.tsx": [
+      {
+        "start": 1011,
+        "end": 1029,
+        "original": "[\"مفتوحة\", \"Open\"]",
+        "text": "[supportCopy(\"center.status.open\"), supportCopy(\"center.status.open\")]",
+        "recordLine": 46,
+        "key": "center.status.open",
+        "ar": "مفتوحة",
+        "en": "Open",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 1047,
+        "end": 1078,
+        "original": "[\"قيد المعالجة\", \"In progress\"]",
+        "text": "[supportCopy(\"center.status.inProgress\"), supportCopy(\"center.status.inProgress\")]",
+        "recordLine": 47,
+        "key": "center.status.inProgress",
+        "ar": "قيد المعالجة",
+        "en": "In progress",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 1103,
+        "end": 1137,
+        "original": "[\"بانتظار ردك\", \"Waiting for you\"]",
+        "text": "[supportCopy(\"center.status.waitingForStudent\"), supportCopy(\"center.status.waitingForStudent\")]",
+        "recordLine": 48,
+        "key": "center.status.waitingForStudent",
+        "ar": "بانتظار ردك",
+        "en": "Waiting for you",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 1153,
+        "end": 1176,
+        "original": "[\"تم الحل\", \"Resolved\"]",
+        "text": "[supportCopy(\"center.status.resolved\"), supportCopy(\"center.status.resolved\")]",
+        "recordLine": 49,
+        "key": "center.status.resolved",
+        "ar": "تم الحل",
+        "en": "Resolved",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 1190,
+        "end": 1209,
+        "original": "[\"مغلقة\", \"Closed\"]",
+        "text": "[supportCopy(\"center.status.closed\"), supportCopy(\"center.status.closed\")]",
+        "recordLine": 50,
+        "key": "center.status.closed",
+        "ar": "مغلقة",
+        "en": "Closed",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 3556,
+        "end": 3629,
+        "original": "locale === \"ar\"\n      ? \"صندوق دعم BETCCO\"\n      : \"BETCCO support inbox\"",
+        "text": "supportCopy(\"center.adminTitle\")",
+        "recordLine": 123,
+        "key": "center.adminTitle",
+        "ar": "صندوق دعم BETCCO",
+        "en": "BETCCO support inbox",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 3636,
+        "end": 3697,
+        "original": "locale === \"ar\"\n      ? \"مركز الدعم\"\n      : \"Support centre\"",
+        "text": "supportCopy(\"center.studentTitle\")",
+        "recordLine": 126,
+        "key": "center.studentTitle",
+        "ar": "مركز الدعم",
+        "en": "Support centre",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 3735,
+        "end": 3939,
+        "original": "locale === \"ar\"\n      ? \"راجع الطلبات الواردة وردّ عليها من داخل المنصة؛ كل طالب يرى تذاكره فقط.\"\n      : \"Review incoming requests and reply in the platform; each learner can see only their own tickets.\"",
+        "text": "supportCopy(\"center.adminDescription\")",
+        "recordLine": 130,
+        "key": "center.adminDescription",
+        "ar": "راجع الطلبات الواردة وردّ عليها من داخل المنصة؛ كل طالب يرى تذاكره فقط.",
+        "en": "Review incoming requests and reply in the platform; each learner can see only their own tickets.",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 3946,
+        "end": 4154,
+        "original": "locale === \"ar\"\n      ? \"افتح تذكرة وتابع الردود في نفس المحادثة. تظل المراسلات مرتبطة بحسابك فقط.\"\n      : \"Open a ticket and follow replies in the same conversation. Messages remain scoped to your account.\"",
+        "text": "supportCopy(\"center.studentDescription\")",
+        "recordLine": 133,
+        "key": "center.studentDescription",
+        "ar": "افتح تذكرة وتابع الردود في نفس المحادثة. تظل المراسلات مرتبطة بحسابك فقط.",
+        "en": "Open a ticket and follow replies in the same conversation. Messages remain scoped to your account.",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 4393,
+        "end": 4418,
+        "original": "BETCCO SUPPORT\n          ",
+        "text": "{supportCopy(\"center.eyebrow\")}",
+        "recordLine": 141,
+        "key": "center.eyebrow",
+        "ar": "دعم BETCCO",
+        "en": "BETCCO SUPPORT",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 5189,
+        "end": 5275,
+        "original": "locale === \"ar\"\n                    ? \"كل التذاكر\"\n                    : \"All tickets\"",
+        "text": "supportCopy(\"center.allTickets\")",
+        "recordLine": 158,
+        "key": "center.allTickets",
+        "ar": "كل التذاكر",
+        "en": "All tickets",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 5296,
+        "end": 5377,
+        "original": "locale === \"ar\"\n                    ? \"تذاكري\"\n                    : \"My tickets\"",
+        "text": "supportCopy(\"center.myTickets\")",
+        "recordLine": 161,
+        "key": "center.myTickets",
+        "ar": "تذاكري",
+        "en": "My tickets",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 5523,
+        "end": 5560,
+        "original": "locale === \"ar\" ? \"تذكرة\" : \"tickets\"",
+        "text": "supportCopy(\"center.ticketCount\")",
+        "recordLine": 167,
+        "key": "center.ticketCount",
+        "ar": "تذكرة",
+        "en": "tickets",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 6003,
+        "end": 6107,
+        "original": "locale === \"ar\"\n                ? \"تعذر تحميل التذاكر.\"\n                : \"Tickets could not be loaded.\"",
+        "text": "supportCopy(\"center.listFailed\")",
+        "recordLine": 182,
+        "key": "center.listFailed",
+        "ar": "تعذر تحميل التذاكر.",
+        "en": "Tickets could not be loaded.",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 7623,
+        "end": 7746,
+        "original": "locale === \"ar\"\n                    ? \"لا توجد تذاكر واردة بعد.\"\n                    : \"There are no incoming tickets yet.\"",
+        "text": "supportCopy(\"center.adminEmpty\")",
+        "recordLine": 216,
+        "key": "center.adminEmpty",
+        "ar": "لا توجد تذاكر واردة بعد.",
+        "en": "There are no incoming tickets yet.",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 7767,
+        "end": 7900,
+        "original": "locale === \"ar\"\n                    ? \"لا توجد تذاكر في حسابك بعد.\"\n                    : \"There are no tickets in your account yet.\"",
+        "text": "supportCopy(\"center.studentEmpty\")",
+        "recordLine": 219,
+        "key": "center.studentEmpty",
+        "ar": "لا توجد تذاكر في حسابك بعد.",
+        "en": "There are no tickets in your account yet.",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 8290,
+        "end": 8407,
+        "original": "locale === \"ar\"\n                ? \"تعذر فتح هذه المحادثة.\"\n                : \"This conversation could not be opened.\"",
+        "text": "supportCopy(\"center.detailFailed\")",
+        "recordLine": 234,
+        "key": "center.detailFailed",
+        "ar": "تعذر فتح هذه المحادثة.",
+        "en": "This conversation could not be opened.",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 9817,
+        "end": 9864,
+        "original": "locale === \"ar\" ? \"بدء المعالجة\" : \"Start work\"",
+        "text": "supportCopy(\"center.startWork\")",
+        "recordLine": 263,
+        "key": "center.startWork",
+        "ar": "بدء المعالجة",
+        "en": "Start work",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 10531,
+        "end": 10570,
+        "original": "locale === \"ar\" ? \"تم الحل\" : \"Resolve\"",
+        "text": "supportCopy(\"center.resolve\")",
+        "recordLine": 274,
+        "key": "center.resolve",
+        "ar": "تم الحل",
+        "en": "Resolve",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 11142,
+        "end": 11177,
+        "original": "locale === \"ar\" ? \"إغلاق\" : \"Close\"",
+        "text": "supportCopy(\"center.close\")",
+        "recordLine": 284,
+        "key": "center.close",
+        "ar": "إغلاق",
+        "en": "Close",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 11581,
+        "end": 11713,
+        "original": "locale === \"ar\"\n                      ? \"تعذر تحديث حالة التذكرة.\"\n                      : \"The ticket status could not be updated.\"",
+        "text": "supportCopy(\"center.statusFailed\")",
+        "recordLine": 295,
+        "key": "center.statusFailed",
+        "ar": "تعذر تحديث حالة التذكرة.",
+        "en": "The ticket status could not be updated.",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 12848,
+        "end": 12886,
+        "original": "locale === \"ar\" ? \"ردك\" : \"Your reply\"",
+        "text": "supportCopy(\"center.replyLabel\")",
+        "recordLine": 323,
+        "key": "center.replyLabel",
+        "ar": "ردك",
+        "en": "Your reply",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 13372,
+        "end": 13489,
+        "original": "locale === \"ar\"\n                          ? \"هذه التذكرة مغلقة.\"\n                          : \"This ticket is closed.\"",
+        "text": "supportCopy(\"center.closedPlaceholder\")",
+        "recordLine": 335,
+        "key": "center.closedPlaceholder",
+        "ar": "هذه التذكرة مغلقة.",
+        "en": "This ticket is closed.",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 13516,
+        "end": 13619,
+        "original": "locale === \"ar\"\n                          ? \"اكتب ردك…\"\n                          : \"Write your reply…\"",
+        "text": "supportCopy(\"center.replyPlaceholder\")",
+        "recordLine": 338,
+        "key": "center.replyPlaceholder",
+        "ar": "اكتب ردك…",
+        "en": "Write your reply…",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 14253,
+        "end": 14298,
+        "original": "locale === \"ar\" ? \"إرسال الرد\" : \"Send reply\"",
+        "text": "supportCopy(\"center.sendReply\")",
+        "recordLine": 352,
+        "key": "center.sendReply",
+        "ar": "إرسال الرد",
+        "en": "Send reply",
+        "category": "ACCESSIBILITY_STATIC_UI"
+      },
+      {
+        "start": 14667,
+        "end": 14784,
+        "original": "locale === \"ar\"\n                        ? \"تعذر إرسال الرد.\"\n                        : \"The reply could not be sent.\"",
+        "text": "supportCopy(\"center.replyFailed\")",
+        "recordLine": 361,
+        "key": "center.replyFailed",
+        "ar": "تعذر إرسال الرد.",
+        "en": "The reply could not be sent.",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 15169,
+        "end": 15296,
+        "original": "locale === \"ar\"\n                  ? \"اختر تذكرة لعرض المحادثة.\"\n                  : \"Choose a ticket to view its conversation.\"",
+        "text": "supportCopy(\"center.chooseTicket\")",
+        "recordLine": 375,
+        "key": "center.chooseTicket",
+        "ar": "اختر تذكرة لعرض المحادثة.",
+        "en": "Choose a ticket to view its conversation.",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 15899,
+        "end": 15945,
+        "original": "locale === \"ar\" ? \"تذكرة جديدة\" : \"New ticket\"",
+        "text": "supportCopy(\"center.newTicket\")",
+        "recordLine": 397,
+        "key": "center.newTicket",
+        "ar": "تذكرة جديدة",
+        "en": "New ticket",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 16054,
+        "end": 16248,
+        "original": "locale === \"ar\"\n                    ? \"صف المشكلة بوضوح وتجنب إرسال كلمات المرور أو بيانات الدفع.\"\n                    : \"Describe the issue clearly and never send passwords or payment details.\"",
+        "text": "supportCopy(\"center.securityWarning\")",
+        "recordLine": 400,
+        "key": "center.securityWarning",
+        "ar": "صف المشكلة بوضوح وتجنب إرسال كلمات المرور أو بيانات الدفع.",
+        "en": "Describe the issue clearly and never send passwords or payment details.",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 16443,
+        "end": 16482,
+        "original": "locale === \"ar\" ? \"الموضوع\" : \"Subject\"",
+        "text": "supportCopy(\"center.subject\")",
+        "recordLine": 408,
+        "key": "center.subject",
+        "ar": "الموضوع",
+        "en": "Subject",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 16908,
+        "end": 16948,
+        "original": "locale === \"ar\" ? \"التصنيف\" : \"Category\"",
+        "text": "supportCopy(\"center.category\")",
+        "recordLine": 418,
+        "key": "center.category",
+        "ar": "التصنيف",
+        "en": "Category",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 17270,
+        "end": 17305,
+        "original": "locale === \"ar\" ? \"عام\" : \"General\"",
+        "text": "supportCopy(\"center.categories.general\")",
+        "recordLine": 425,
+        "key": "center.categories.general",
+        "ar": "عام",
+        "en": "General",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 17401,
+        "end": 17439,
+        "original": "locale === \"ar\" ? \"تقني\" : \"Technical\"",
+        "text": "supportCopy(\"center.categories.technical\")",
+        "recordLine": 428,
+        "key": "center.categories.technical",
+        "ar": "تقني",
+        "en": "Technical",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 17533,
+        "end": 17568,
+        "original": "locale === \"ar\" ? \"دفع\" : \"Payment\"",
+        "text": "supportCopy(\"center.categories.payment\")",
+        "recordLine": 431,
+        "key": "center.categories.payment",
+        "ar": "دفع",
+        "en": "Payment",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 17661,
+        "end": 17696,
+        "original": "locale === \"ar\" ? \"دورة\" : \"Course\"",
+        "text": "supportCopy(\"center.categories.course\")",
+        "recordLine": 434,
+        "key": "center.categories.course",
+        "ar": "دورة",
+        "en": "Course",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 17789,
+        "end": 17825,
+        "original": "locale === \"ar\" ? \"سلامة\" : \"Safety\"",
+        "text": "supportCopy(\"center.categories.safety\")",
+        "recordLine": 437,
+        "key": "center.categories.safety",
+        "ar": "سلامة",
+        "en": "Safety",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 17990,
+        "end": 18029,
+        "original": "locale === \"ar\" ? \"الرسالة\" : \"Message\"",
+        "text": "supportCopy(\"center.openingMessage\")",
+        "recordLine": 442,
+        "key": "center.openingMessage",
+        "ar": "الرسالة",
+        "en": "Message",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 18881,
+        "end": 18967,
+        "original": "locale === \"ar\"\n                    ? \"جارٍ الإرسال…\"\n                    : \"Sending…\"",
+        "text": "supportCopy(\"center.sending\")",
+        "recordLine": 460,
+        "key": "center.sending",
+        "ar": "جارٍ الإرسال…",
+        "en": "Sending…",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 18988,
+        "end": 19075,
+        "original": "locale === \"ar\"\n                    ? \"فتح التذكرة\"\n                    : \"Open ticket\"",
+        "text": "supportCopy(\"center.openTicket\")",
+        "recordLine": 463,
+        "key": "center.openTicket",
+        "ar": "فتح التذكرة",
+        "en": "Open ticket",
+        "category": "STATIC_UI"
+      },
+      {
+        "start": 19315,
+        "end": 19432,
+        "original": "locale === \"ar\"\n                      ? \"تعذر فتح التذكرة.\"\n                      : \"The ticket could not be opened.\"",
+        "text": "supportCopy(\"center.createFailed\")",
+        "recordLine": 471,
+        "key": "center.createFailed",
+        "ar": "تعذر فتح التذكرة.",
+        "en": "The ticket could not be opened.",
+        "category": "STATIC_UI"
+      }
+    ]
+  },
+  "wiring": {
+    "src/features/support/support-account-area.tsx": [
+      {
+        "before": "import { useLocale } from \"next-intl\";",
+        "after": "import { useTranslations } from \"next-intl\";"
+      },
+      {
+        "before": "const locale = useLocale();",
+        "after": "const supportCopy = useTranslations(\"supportWorkspace\");"
+      }
+    ],
+    "src/features/support/support-center.tsx": [
+      {
+        "before": "import { useLocale } from \"next-intl\";",
+        "after": "import { useLocale, useTranslations } from \"next-intl\";"
+      },
+      {
+        "before": "function statusLabel(status: string, locale: string)",
+        "after": "type SupportTranslations = ReturnType<typeof useTranslations<\"supportWorkspace\">>;\n\nfunction statusLabel(status: string, locale: string, supportCopy: SupportTranslations)"
+      },
+      {
+        "before": "const locale = useLocale();",
+        "after": "const locale = useLocale();\n  const supportCopy = useTranslations(\"supportWorkspace\");"
+      },
+      {
+        "before": "statusLabel(item.status, locale)",
+        "after": "statusLabel(item.status, locale, supportCopy)"
+      },
+      {
+        "before": "statusLabel(ticket.data.status, locale)",
+        "after": "statusLabel(ticket.data.status, locale, supportCopy)"
+      }
+    ]
+  },
+  "approvedSources": {
+    "src/features/support/support-account-area.tsx": "\"use client\";\n\nimport { AccountProfile } from \"@/features/auth/account-profile\";\nimport { AccountSecurity } from \"@/features/auth/account-security\";\nimport { api } from \"@/lib/api\";\nimport { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\nimport { useTranslations } from \"next-intl\";\nimport { useState, useSyncExternalStore } from \"react\";\n\nconst subscribeToHydration = () => () => {};\n\ntype FreezeTarget = {\n  id: string;\n  displayName: string;\n  email: string;\n  isFrozen: boolean;\n};\ntype TargetResponse = { items: FreezeTarget[]; totalCount: number };\n\nexport function SupportAccountArea({ segment }: { segment: string[] }) {\n  const supportCopy = useTranslations(\"supportWorkspace\");\n  const client = useQueryClient();\n  const [role, setRole] = useState<\"Student\" | \"Teacher\">(\"Student\");\n  const [search, setSearch] = useState(\"\");\n  const [term, setTerm] = useState(\"\");\n  const [page, setPage] = useState(1);\n  const mounted = useSyncExternalStore(\n    subscribeToHydration,\n    () => true,\n    () => false,\n  );\n  const current = segment.join(\"/\") || \"accounts\";\n  const viewer = useQuery({\n    queryKey: [\"current-user\"],\n    queryFn: () => api<{ roles: string[] }>(\"/auth/me\"),\n  });\n  const permitted =\n    viewer.data?.roles.includes(\"SupportAdmin\") ||\n    viewer.data?.roles.includes(\"Admin\") ||\n    viewer.data?.roles.includes(\"SystemAdmin\");\n  const targets = useQuery({\n    queryKey: [\"support-freeze-targets\", role, term, page],\n    queryFn: () =>\n      api<TargetResponse>(\n        `/admin/users/freeze-targets?${new URLSearchParams({ role, search: term, page: String(page) })}`,\n      ),\n    enabled: Boolean(permitted) && current === \"accounts\",\n  });\n  const freeze = useMutation({\n    mutationFn: ({ id, frozen }: { id: string; frozen: boolean }) =>\n      api<void>(`/admin/users/${id}/freeze`, {\n        method: \"POST\",\n        body: JSON.stringify({ frozen }),\n      }),\n    onSuccess: () =>\n      void client.invalidateQueries({ queryKey: [\"support-freeze-targets\"] }),\n  });\n\n  if (!mounted || viewer.isPending)\n    return (\n      <p className=\"shell py-10\" aria-busy=\"true\">\n        {supportCopy(\"account.loading\")}\n      </p>\n    );\n  if (!permitted)\n    return (\n      <p className=\"shell py-10\" role=\"alert\">\n        {supportCopy(\"account.denied\")}\n      </p>\n    );\n  if (current === \"profile\") return <AccountProfile role=\"support\" />;\n  if (current === \"security\") return <AccountSecurity role=\"support\" />;\n\n  return (\n    <section className=\"shell min-w-0 py-8\">\n      <h1 className=\"text-3xl font-black\">\n        {supportCopy(\"account.title\")}\n      </h1>\n      <p className=\"mt-2 text-sm text-muted\">\n        {supportCopy(\"account.scope\")}\n      </p>\n      <div className=\"card mt-6 grid min-w-0 gap-4 p-5 sm:p-6\">\n        <div className=\"flex flex-wrap gap-2\">\n          {([\"Student\", \"Teacher\"] as const).map((value) => (\n            <button\n              key={value}\n              type=\"button\"\n              aria-pressed={role === value}\n              onClick={() => {\n                setRole(value);\n                setPage(1);\n              }}\n              className=\"focus-ring rounded-xl border border-border px-4 py-2 text-sm font-bold aria-pressed:bg-primary aria-pressed:text-slate-950\"\n            >\n              {value === \"Student\"\n                ? supportCopy(\"account.students\")\n                : supportCopy(\"account.teachers\")}\n            </button>\n          ))}\n        </div>\n        <form\n          onSubmit={(event) => {\n            event.preventDefault();\n            setTerm(search);\n            setPage(1);\n          }}\n          className=\"flex min-w-0 flex-wrap gap-2\"\n        >\n          <label className=\"min-w-0 flex-1 text-sm font-bold\">\n            <span className=\"sr-only\">\n              {supportCopy(\"account.searchLabel\")}\n            </span>\n            <input\n              value={search}\n              maxLength={100}\n              onChange={(event) => setSearch(event.target.value)}\n              placeholder={\n                supportCopy(\"account.searchPlaceholder\")\n              }\n              className=\"focus-ring w-full min-w-0 rounded-xl border border-border bg-transparent px-3 py-2\"\n            />\n          </label>\n          <button\n            type=\"submit\"\n            className=\"focus-ring rounded-xl bg-primary px-4 py-2 text-sm font-bold text-slate-950\"\n          >\n            {supportCopy(\"account.search\")}\n          </button>\n        </form>\n        {targets.isPending ? (\n          <p aria-busy=\"true\">\n            {supportCopy(\"account.loadingAccounts\")}\n          </p>\n        ) : targets.isError ? (\n          <p role=\"alert\" className=\"text-red-600\">\n            {supportCopy(\"account.loadFailed\")}\n          </p>\n        ) : targets.data?.items.length ? (\n          <div className=\"grid gap-3\">\n            {targets.data.items.map((target) => (\n              <article\n                key={target.id}\n                className=\"flex min-w-0 flex-wrap items-center justify-between gap-3 rounded-xl border border-border p-4\"\n              >\n                <div className=\"min-w-0\">\n                  <p className=\"font-bold\">{target.displayName}</p>\n                  <p className=\"break-all text-sm text-muted\" dir=\"ltr\">\n                    {target.email}\n                  </p>\n                  <p className=\"text-xs text-muted\">\n                    {target.isFrozen\n                      ? supportCopy(\"account.frozen\")\n                      : supportCopy(\"account.active\")}\n                  </p>\n                </div>\n                <button\n                  type=\"button\"\n                  disabled={freeze.isPending}\n                  onClick={() => {\n                    if (\n                      window.confirm(\n                        target.isFrozen\n                          ? supportCopy(\"account.confirmReactivate\")\n                          : supportCopy(\"account.confirmFreeze\"),\n                      )\n                    )\n                      freeze.mutate({\n                        id: target.id,\n                        frozen: !target.isFrozen,\n                      });\n                  }}\n                  className=\"focus-ring rounded-xl border border-border px-3 py-2 text-sm font-bold disabled:opacity-60\"\n                >\n                  {target.isFrozen\n                    ? supportCopy(\"account.reactivate\")\n                    : supportCopy(\"account.freeze\")}\n                </button>\n              </article>\n            ))}\n          </div>\n        ) : (\n          <p className=\"text-sm text-muted\">\n            {supportCopy(\"account.empty\")}\n          </p>\n        )}\n        {freeze.isError && (\n          <p role=\"alert\" className=\"text-sm text-red-600\">\n            {supportCopy(\"account.updateFailed\")}\n          </p>\n        )}\n        {targets.data && (\n          <div className=\"flex items-center gap-3 text-sm\">\n            <button\n              type=\"button\"\n              disabled={page === 1}\n              onClick={() => setPage(page - 1)}\n              className=\"focus-ring disabled:opacity-50\"\n            >\n              {supportCopy(\"account.previous\")}\n            </button>\n            <span>{page}</span>\n            <button\n              type=\"button\"\n              disabled={page * 25 >= targets.data.totalCount}\n              onClick={() => setPage(page + 1)}\n              className=\"focus-ring disabled:opacity-50\"\n            >\n              {supportCopy(\"account.next\")}\n            </button>\n          </div>\n        )}\n      </div>\n    </section>\n  );\n}\n",
+    "src/features/support/support-center.tsx": "\"use client\";\n\nimport { formatLocalizedDateTime } from \"@/i18n/date-time\";\nimport { api } from \"@/lib/api\";\nimport { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\nimport {\n  Headphones,\n  MessageCircleMore,\n  MessageSquareText,\n  Plus,\n  Send,\n} from \"lucide-react\";\nimport { useLocale, useTranslations } from \"next-intl\";\nimport { useState } from \"react\";\n\ntype TicketSummary = {\n  id: string;\n  subject: string;\n  category: string;\n  status: string;\n  createdAtUtc: string;\n  updatedAtUtc: string;\n};\n\ntype TicketList = {\n  items: TicketSummary[];\n  page: number;\n  pageSize: number;\n  totalCount: number;\n};\n\ntype TicketDetail = TicketSummary & {\n  messages: {\n    id: string;\n    body: string;\n    createdAtUtc: string;\n    isFromCurrentUser: boolean;\n  }[];\n};\n\ntype CreatedTicket = { id: string; status: string };\ntype ManagedTicketStatus = \"InProgress\" | \"Resolved\" | \"Closed\";\n\ntype SupportTranslations = ReturnType<typeof useTranslations<\"supportWorkspace\">>;\n\nfunction statusLabel(status: string, locale: string, supportCopy: SupportTranslations) {\n  const labels: Record<string, [string, string]> = {\n    Open: [supportCopy(\"center.status.open\"), supportCopy(\"center.status.open\")],\n    InProgress: [supportCopy(\"center.status.inProgress\"), supportCopy(\"center.status.inProgress\")],\n    WaitingForStudent: [supportCopy(\"center.status.waitingForStudent\"), supportCopy(\"center.status.waitingForStudent\")],\n    Resolved: [supportCopy(\"center.status.resolved\"), supportCopy(\"center.status.resolved\")],\n    Closed: [supportCopy(\"center.status.closed\"), supportCopy(\"center.status.closed\")],\n  };\n  return labels[status]?.[locale === \"ar\" ? 0 : 1] ?? status;\n}\n\nfunction formatDate(value: string, locale: string) {\n  return formatLocalizedDateTime(value, locale);\n}\n\nexport function SupportCenter({ mode }: { mode: \"student\" | \"admin\" }) {\n  const locale = useLocale();\n  const supportCopy = useTranslations(\"supportWorkspace\");\n  const isAdmin = mode === \"admin\";\n  const client = useQueryClient();\n  const [selectedId, setSelectedId] = useState<string | null>(null);\n  const [subject, setSubject] = useState(\"\");\n  const [category, setCategory] = useState(\"General\");\n  const [openingMessage, setOpeningMessage] = useState(\"\");\n  const [reply, setReply] = useState(\"\");\n  const tickets = useQuery({\n    queryKey: [\"support-tickets\", mode],\n    queryFn: () => api<TicketList>(\"/support/tickets?page=1&pageSize=50\"),\n  });\n  const activeTicketId = selectedId ?? tickets.data?.items[0]?.id ?? null;\n  const ticket = useQuery({\n    queryKey: [\"support-ticket\", activeTicketId],\n    queryFn: () => api<TicketDetail>(`/support/tickets/${activeTicketId}`),\n    enabled: Boolean(activeTicketId),\n  });\n  const refresh = () => {\n    void client.invalidateQueries({ queryKey: [\"support-tickets\", mode] });\n    if (activeTicketId)\n      void client.invalidateQueries({\n        queryKey: [\"support-ticket\", activeTicketId],\n      });\n  };\n  const create = useMutation({\n    mutationFn: () =>\n      api<CreatedTicket>(\"/support/tickets\", {\n        method: \"POST\",\n        body: JSON.stringify({\n          subject: subject.trim(),\n          category,\n          message: openingMessage.trim(),\n        }),\n      }),\n    onSuccess: (created) => {\n      setSubject(\"\");\n      setCategory(\"General\");\n      setOpeningMessage(\"\");\n      setSelectedId(created.id);\n      void client.invalidateQueries({ queryKey: [\"support-tickets\", mode] });\n    },\n  });\n  const sendReply = useMutation({\n    mutationFn: () =>\n      api(`/support/tickets/${activeTicketId}/messages`, {\n        method: \"POST\",\n        body: JSON.stringify({ message: reply.trim() }),\n      }),\n    onSuccess: () => {\n      setReply(\"\");\n      refresh();\n    },\n  });\n  const changeStatus = useMutation({\n    mutationFn: (status: ManagedTicketStatus) =>\n      api(`/support/tickets/${activeTicketId}/status`, {\n        method: \"POST\",\n        body: JSON.stringify({ status }),\n      }),\n    onSuccess: refresh,\n  });\n  const title = isAdmin\n    ? supportCopy(\"center.adminTitle\")\n    : supportCopy(\"center.studentTitle\");\n  const description = isAdmin\n    ? supportCopy(\"center.adminDescription\")\n    : supportCopy(\"center.studentDescription\");\n  return (\n    <section className=\"shell py-10\">\n      <header className=\"flex flex-wrap items-start justify-between gap-4\">\n        <div>\n          <p className=\"text-xs font-black uppercase tracking-[0.18em] text-primary\">\n            {supportCopy(\"center.eyebrow\")}</p>\n          <h1 className=\"mt-2 text-3xl font-black\">{title}</h1>\n          <p className=\"mt-3 max-w-3xl leading-7 text-muted\">{description}</p>\n        </div>\n        <span className=\"grid size-12 place-items-center rounded-2xl bg-primary/15 text-primary\">\n          <Headphones size={24} aria-hidden=\"true\" />\n        </span>\n      </header>\n      <div\n        className={`mt-7 grid gap-5 ${isAdmin ? \"lg:grid-cols-[minmax(17rem,0.7fr)_minmax(0,1.3fr)]\" : \"lg:grid-cols-[minmax(17rem,0.7fr)_minmax(0,1.3fr)_minmax(17rem,0.7fr)]\"}`}\n      >\n        <aside className=\"card min-h-72 p-4 sm:p-5\">\n          <div className=\"flex items-center justify-between gap-3\">\n            <div>\n              <h2 className=\"font-black\">\n                {isAdmin\n                  ? supportCopy(\"center.allTickets\")\n                  : supportCopy(\"center.myTickets\")}\n              </h2>\n              <p className=\"mt-1 text-xs text-muted\">\n                {tickets.data?.totalCount ?? 0}{\" \"}\n                {supportCopy(\"center.ticketCount\")}\n              </p>\n            </div>\n            <MessageSquareText\n              size={19}\n              className=\"text-primary\"\n              aria-hidden=\"true\"\n            />\n          </div>\n          {tickets.isPending ? (\n            <p className=\"mt-6 text-sm text-muted\" aria-busy>\n              …\n            </p>\n          ) : tickets.isError ? (\n            <p role=\"alert\" className=\"mt-6 text-sm text-red-600\">\n              {supportCopy(\"center.listFailed\")}\n            </p>\n          ) : tickets.data?.items.length ? (\n            <div className=\"mt-5 grid gap-2\">\n              {tickets.data.items.map((item) => (\n                <button\n                  key={item.id}\n                  type=\"button\"\n                  onClick={() => setSelectedId(item.id)}\n                  aria-pressed={activeTicketId === item.id}\n                  className={`focus-ring rounded-xl border p-3 text-start transition-colors ${activeTicketId === item.id ? \"border-primary/55 bg-primary/10\" : \"border-border hover:bg-muted/35\"}`}\n                >\n                  <div className=\"flex items-start justify-between gap-2\">\n                    <p className=\"line-clamp-2 font-bold\">{item.subject}</p>\n                    <span className=\"shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-bold text-muted\">\n                      {statusLabel(item.status, locale, supportCopy)}\n                    </span>\n                  </div>\n                  <p className=\"mt-2 text-xs text-muted\">\n                    {formatDate(item.updatedAtUtc, locale)}\n                  </p>\n                </button>\n              ))}\n            </div>\n          ) : (\n            <div className=\"mt-6 rounded-xl border border-dashed border-border p-4 text-center text-sm leading-6 text-muted\">\n              <MessageCircleMore\n                className=\"mx-auto text-primary\"\n                aria-hidden=\"true\"\n              />\n              <p className=\"mt-3\">\n                {isAdmin\n                  ? supportCopy(\"center.adminEmpty\")\n                  : supportCopy(\"center.studentEmpty\")}\n              </p>\n            </div>\n          )}\n        </aside>\n\n        <section className=\"card flex min-h-72 flex-col p-4 sm:p-6\">\n          {ticket.isPending && activeTicketId ? (\n            <p className=\"text-sm text-muted\" aria-busy>\n              …\n            </p>\n          ) : ticket.isError ? (\n            <p role=\"alert\" className=\"text-sm text-red-600\">\n              {supportCopy(\"center.detailFailed\")}\n            </p>\n          ) : ticket.data ? (\n            <>\n              <div className=\"flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4\">\n                <div>\n                  <p className=\"text-xs font-black uppercase tracking-[0.15em] text-primary\">\n                    {ticket.data.category}\n                  </p>\n                  <h2 className=\"mt-1 text-xl font-black\">\n                    {ticket.data.subject}\n                  </h2>\n                </div>\n                <div className=\"flex flex-wrap items-center justify-end gap-2\">\n                  <span className=\"rounded-full bg-primary/10 px-3 py-1.5 text-xs font-black text-primary\">\n                    {statusLabel(ticket.data.status, locale, supportCopy)}\n                  </span>\n                  {isAdmin ? (\n                    <div className=\"flex flex-wrap justify-end gap-2\">\n                      {ticket.data.status !== \"InProgress\" &&\n                      ticket.data.status !== \"Closed\" ? (\n                        <button\n                          type=\"button\"\n                          disabled={changeStatus.isPending}\n                          onClick={() => changeStatus.mutate(\"InProgress\")}\n                          className=\"focus-ring rounded-lg border border-border px-2.5 py-1.5 text-xs font-bold hover:bg-muted disabled:opacity-60\"\n                        >\n                          {supportCopy(\"center.startWork\")}\n                        </button>\n                      ) : null}\n                      {ticket.data.status !== \"Resolved\" &&\n                      ticket.data.status !== \"Closed\" ? (\n                        <button\n                          type=\"button\"\n                          disabled={changeStatus.isPending}\n                          onClick={() => changeStatus.mutate(\"Resolved\")}\n                          className=\"focus-ring rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1.5 text-xs font-bold text-emerald-800 hover:bg-emerald-500/20 disabled:opacity-60 dark:text-emerald-300\"\n                        >\n                          {supportCopy(\"center.resolve\")}\n                        </button>\n                      ) : null}\n                      {ticket.data.status !== \"Closed\" ? (\n                        <button\n                          type=\"button\"\n                          disabled={changeStatus.isPending}\n                          onClick={() => changeStatus.mutate(\"Closed\")}\n                          className=\"focus-ring rounded-lg border border-red-500/35 px-2.5 py-1.5 text-xs font-bold text-red-700 hover:bg-red-500/10 disabled:opacity-60 dark:text-red-300\"\n                        >\n                          {supportCopy(\"center.close\")}\n                        </button>\n                      ) : null}\n                    </div>\n                  ) : null}\n                </div>\n              </div>\n              {changeStatus.isError ? (\n                <p role=\"alert\" className=\"mt-3 text-sm text-red-600\">\n                  {changeStatus.error instanceof Error\n                    ? changeStatus.error.message\n                    : supportCopy(\"center.statusFailed\")}\n                </p>\n              ) : null}\n              <div className=\"mt-5 flex-1 space-y-3\">\n                {ticket.data.messages.map((message) => (\n                  <article\n                    key={message.id}\n                    className={`max-w-[88%] rounded-2xl p-3 text-sm leading-6 ${message.isFromCurrentUser ? \"ms-auto bg-primary text-slate-950\" : \"bg-muted/45 text-foreground\"}`}\n                  >\n                    <p className=\"whitespace-pre-wrap\">{message.body}</p>\n                    <p\n                      className={`mt-2 text-[11px] ${message.isFromCurrentUser ? \"text-slate-900/75\" : \"text-muted\"}`}\n                    >\n                      {formatDate(message.createdAtUtc, locale)}\n                    </p>\n                  </article>\n                ))}\n              </div>\n              <form\n                className=\"mt-5 border-t border-border pt-4\"\n                onSubmit={(event) => {\n                  event.preventDefault();\n                  if (reply.trim()) sendReply.mutate();\n                }}\n              >\n                <label className=\"sr-only\">\n                  {supportCopy(\"center.replyLabel\")}\n                </label>\n                <div className=\"flex gap-2\">\n                  <textarea\n                    value={reply}\n                    maxLength={4000}\n                    disabled={\n                      ticket.data.status === \"Closed\" || sendReply.isPending\n                    }\n                    onChange={(event) => setReply(event.target.value)}\n                    placeholder={\n                      ticket.data.status === \"Closed\"\n                        ? supportCopy(\"center.closedPlaceholder\")\n                        : supportCopy(\"center.replyPlaceholder\")\n                    }\n                    className=\"focus-ring min-h-20 flex-1 rounded-xl border border-border bg-transparent p-3 text-sm disabled:cursor-not-allowed disabled:opacity-60\"\n                  />\n                  <button\n                    type=\"submit\"\n                    disabled={\n                      !reply.trim() ||\n                      ticket.data.status === \"Closed\" ||\n                      sendReply.isPending\n                    }\n                    className=\"focus-ring self-end rounded-xl bg-primary p-3 text-slate-950 disabled:cursor-not-allowed disabled:opacity-60\"\n                    aria-label={supportCopy(\"center.sendReply\")}\n                  >\n                    <Send size={19} aria-hidden=\"true\" />\n                  </button>\n                </div>\n                {sendReply.isError ? (\n                  <p role=\"alert\" className=\"mt-2 text-sm text-red-600\">\n                    {sendReply.error instanceof Error\n                      ? sendReply.error.message\n                      : supportCopy(\"center.replyFailed\")}\n                  </p>\n                ) : null}\n              </form>\n            </>\n          ) : (\n            <div className=\"m-auto max-w-sm text-center\">\n              <MessageCircleMore\n                className=\"mx-auto size-9 text-primary\"\n                aria-hidden=\"true\"\n              />\n              <p className=\"mt-3 text-sm leading-6 text-muted\">\n                {supportCopy(\"center.chooseTicket\")}\n              </p>\n            </div>\n          )}\n        </section>\n\n        {!isAdmin ? (\n          <form\n            className=\"card h-fit p-4 sm:p-5\"\n            onSubmit={(event) => {\n              event.preventDefault();\n              create.mutate();\n            }}\n          >\n            <div className=\"flex items-start gap-3\">\n              <span className=\"grid size-10 place-items-center rounded-xl bg-primary/15 text-primary\">\n                <Plus size={20} aria-hidden=\"true\" />\n              </span>\n              <div>\n                <h2 className=\"font-black\">\n                  {supportCopy(\"center.newTicket\")}\n                </h2>\n                <p className=\"mt-1 text-xs leading-5 text-muted\">\n                  {supportCopy(\"center.securityWarning\")}\n                </p>\n              </div>\n            </div>\n            <div className=\"mt-5 grid gap-3\">\n              <label className=\"grid gap-1 text-sm font-bold\">\n                <span>{supportCopy(\"center.subject\")}</span>\n                <input\n                  required\n                  maxLength={200}\n                  value={subject}\n                  onChange={(event) => setSubject(event.target.value)}\n                  className=\"focus-ring rounded-xl border border-border bg-transparent px-3 py-2.5\"\n                />\n              </label>\n              <label className=\"grid gap-1 text-sm font-bold\">\n                <span>{supportCopy(\"center.category\")}</span>\n                <select\n                  value={category}\n                  onChange={(event) => setCategory(event.target.value)}\n                  className=\"focus-ring rounded-xl border border-border bg-transparent px-3 py-2.5\"\n                >\n                  <option value=\"General\">\n                    {supportCopy(\"center.categories.general\")}\n                  </option>\n                  <option value=\"Technical\">\n                    {supportCopy(\"center.categories.technical\")}\n                  </option>\n                  <option value=\"Payment\">\n                    {supportCopy(\"center.categories.payment\")}\n                  </option>\n                  <option value=\"Course\">\n                    {supportCopy(\"center.categories.course\")}\n                  </option>\n                  <option value=\"Safety\">\n                    {supportCopy(\"center.categories.safety\")}\n                  </option>\n                </select>\n              </label>\n              <label className=\"grid gap-1 text-sm font-bold\">\n                <span>{supportCopy(\"center.openingMessage\")}</span>\n                <textarea\n                  required\n                  maxLength={4000}\n                  value={openingMessage}\n                  onChange={(event) => setOpeningMessage(event.target.value)}\n                  className=\"focus-ring min-h-32 rounded-xl border border-border bg-transparent p-3\"\n                />\n              </label>\n              <button\n                type=\"submit\"\n                disabled={\n                  create.isPending || !subject.trim() || !openingMessage.trim()\n                }\n                className=\"focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-black text-slate-950 disabled:cursor-wait disabled:opacity-60\"\n              >\n                <Send size={17} aria-hidden=\"true\" />\n                {create.isPending\n                  ? supportCopy(\"center.sending\")\n                  : supportCopy(\"center.openTicket\")}\n              </button>\n              {create.isError ? (\n                <p role=\"alert\" className=\"text-sm text-red-600\">\n                  {create.error instanceof Error\n                    ? create.error.message\n                    : supportCopy(\"center.createFailed\")}\n                </p>\n              ) : null}\n            </div>\n          </form>\n        ) : null}\n      </div>\n    </section>\n  );\n}\n"
+  },
+  "catalogues": {
+    "ar": {
+      "baseHash": "8c87450cb03d7245d02028580494bf83d7c13307ddef5d8e696d627ebf536217",
+      "additions": {
+        "account": {
+          "loading": "جارٍ التحميل…",
+          "denied": "لا تملك صلاحية إدارة الحسابات.",
+          "title": "مساعدة إدارة الحسابات",
+          "scope": "يمكنك تجميد حسابات الطلاب والمعلمين أو إعادة تفعيلها فقط.",
+          "students": "الطلاب",
+          "teachers": "المعلمون",
+          "searchLabel": "بحث عن حساب",
+          "searchPlaceholder": "الاسم أو البريد",
+          "search": "بحث",
+          "loadingAccounts": "جارٍ تحميل الحسابات…",
+          "loadFailed": "تعذر تحميل الحسابات.",
+          "frozen": "مجمّد",
+          "active": "نشط",
+          "confirmReactivate": "إعادة تفعيل الحساب؟",
+          "confirmFreeze": "تجميد الحساب وإنهاء جلساته؟",
+          "reactivate": "إعادة تفعيل",
+          "freeze": "تجميد",
+          "empty": "لا توجد حسابات مطابقة.",
+          "updateFailed": "تعذر تحديث الحساب.",
+          "previous": "السابق",
+          "next": "التالي"
+        },
+        "center": {
+          "status": {
+            "open": "مفتوحة",
+            "inProgress": "قيد المعالجة",
+            "waitingForStudent": "بانتظار ردك",
+            "resolved": "تم الحل",
+            "closed": "مغلقة"
+          },
+          "adminTitle": "صندوق دعم BETCCO",
+          "studentTitle": "مركز الدعم",
+          "adminDescription": "راجع الطلبات الواردة وردّ عليها من داخل المنصة؛ كل طالب يرى تذاكره فقط.",
+          "studentDescription": "افتح تذكرة وتابع الردود في نفس المحادثة. تظل المراسلات مرتبطة بحسابك فقط.",
+          "eyebrow": "دعم BETCCO",
+          "allTickets": "كل التذاكر",
+          "myTickets": "تذاكري",
+          "ticketCount": "تذكرة",
+          "listFailed": "تعذر تحميل التذاكر.",
+          "adminEmpty": "لا توجد تذاكر واردة بعد.",
+          "studentEmpty": "لا توجد تذاكر في حسابك بعد.",
+          "detailFailed": "تعذر فتح هذه المحادثة.",
+          "startWork": "بدء المعالجة",
+          "resolve": "تم الحل",
+          "close": "إغلاق",
+          "statusFailed": "تعذر تحديث حالة التذكرة.",
+          "replyLabel": "ردك",
+          "closedPlaceholder": "هذه التذكرة مغلقة.",
+          "replyPlaceholder": "اكتب ردك…",
+          "sendReply": "إرسال الرد",
+          "replyFailed": "تعذر إرسال الرد.",
+          "chooseTicket": "اختر تذكرة لعرض المحادثة.",
+          "newTicket": "تذكرة جديدة",
+          "securityWarning": "صف المشكلة بوضوح وتجنب إرسال كلمات المرور أو بيانات الدفع.",
+          "subject": "الموضوع",
+          "category": "التصنيف",
+          "categories": {
+            "general": "عام",
+            "technical": "تقني",
+            "payment": "دفع",
+            "course": "دورة",
+            "safety": "سلامة"
+          },
+          "openingMessage": "الرسالة",
+          "sending": "جارٍ الإرسال…",
+          "openTicket": "فتح التذكرة",
+          "createFailed": "تعذر فتح التذكرة."
+        }
+      }
+    },
+    "en": {
+      "baseHash": "38051ed7db27e14528f06dbc774306894cbbc70507966cd958569f782a966f3e",
+      "additions": {
+        "account": {
+          "loading": "Loading…",
+          "denied": "You do not have account management access.",
+          "title": "Account support",
+          "scope": "Freeze or reactivate Student and Teacher accounts only.",
+          "students": "Students",
+          "teachers": "Teachers",
+          "searchLabel": "Search accounts",
+          "searchPlaceholder": "Name or email",
+          "search": "Search",
+          "loadingAccounts": "Loading accounts…",
+          "loadFailed": "Unable to load accounts.",
+          "frozen": "Frozen",
+          "active": "Active",
+          "confirmReactivate": "Reactivate this account?",
+          "confirmFreeze": "Freeze this account and end its sessions?",
+          "reactivate": "Reactivate",
+          "freeze": "Freeze",
+          "empty": "No matching accounts.",
+          "updateFailed": "Unable to update the account.",
+          "previous": "Previous",
+          "next": "Next"
+        },
+        "center": {
+          "status": {
+            "open": "Open",
+            "inProgress": "In progress",
+            "waitingForStudent": "Waiting for you",
+            "resolved": "Resolved",
+            "closed": "Closed"
+          },
+          "adminTitle": "BETCCO support inbox",
+          "studentTitle": "Support centre",
+          "adminDescription": "Review incoming requests and reply in the platform; each learner can see only their own tickets.",
+          "studentDescription": "Open a ticket and follow replies in the same conversation. Messages remain scoped to your account.",
+          "eyebrow": "BETCCO SUPPORT",
+          "allTickets": "All tickets",
+          "myTickets": "My tickets",
+          "ticketCount": "tickets",
+          "listFailed": "Tickets could not be loaded.",
+          "adminEmpty": "There are no incoming tickets yet.",
+          "studentEmpty": "There are no tickets in your account yet.",
+          "detailFailed": "This conversation could not be opened.",
+          "startWork": "Start work",
+          "resolve": "Resolve",
+          "close": "Close",
+          "statusFailed": "The ticket status could not be updated.",
+          "replyLabel": "Your reply",
+          "closedPlaceholder": "This ticket is closed.",
+          "replyPlaceholder": "Write your reply…",
+          "sendReply": "Send reply",
+          "replyFailed": "The reply could not be sent.",
+          "chooseTicket": "Choose a ticket to view its conversation.",
+          "newTicket": "New ticket",
+          "securityWarning": "Describe the issue clearly and never send passwords or payment details.",
+          "subject": "Subject",
+          "category": "Category",
+          "categories": {
+            "general": "General",
+            "technical": "Technical",
+            "payment": "Payment",
+            "course": "Course",
+            "safety": "Safety"
+          },
+          "openingMessage": "Message",
+          "sending": "Sending…",
+          "openTicket": "Open ticket",
+          "createFailed": "The ticket could not be opened."
+        }
+      }
+    }
+  }
+}

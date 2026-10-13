@@ -4,7 +4,7 @@ import { AccountProfile } from "@/features/auth/account-profile";
 import { AccountSecurity } from "@/features/auth/account-security";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useState, useSyncExternalStore } from "react";
 
 const subscribeToHydration = () => () => {};
@@ -18,7 +18,7 @@ type FreezeTarget = {
 type TargetResponse = { items: FreezeTarget[]; totalCount: number };
 
 export function SupportAccountArea({ segment }: { segment: string[] }) {
-  const locale = useLocale();
+  const supportCopy = useTranslations("supportWorkspace");
   const client = useQueryClient();
   const [role, setRole] = useState<"Student" | "Teacher">("Student");
   const [search, setSearch] = useState("");
@@ -59,15 +59,13 @@ export function SupportAccountArea({ segment }: { segment: string[] }) {
   if (!mounted || viewer.isPending)
     return (
       <p className="shell py-10" aria-busy="true">
-        {locale === "ar" ? "جارٍ التحميل…" : "Loading…"}
+        {supportCopy("account.loading")}
       </p>
     );
   if (!permitted)
     return (
       <p className="shell py-10" role="alert">
-        {locale === "ar"
-          ? "لا تملك صلاحية إدارة الحسابات."
-          : "You do not have account management access."}
+        {supportCopy("account.denied")}
       </p>
     );
   if (current === "profile") return <AccountProfile role="support" />;
@@ -75,14 +73,8 @@ export function SupportAccountArea({ segment }: { segment: string[] }) {
 
   return (
     <section className="shell min-w-0 py-8">
-      <h1 className="text-3xl font-black">
-        {locale === "ar" ? "مساعدة إدارة الحسابات" : "Account support"}
-      </h1>
-      <p className="mt-2 text-sm text-muted">
-        {locale === "ar"
-          ? "يمكنك تجميد حسابات الطلاب والمعلمين أو إعادة تفعيلها فقط."
-          : "Freeze or reactivate Student and Teacher accounts only."}
-      </p>
+      <h1 className="text-3xl font-black">{supportCopy("account.title")}</h1>
+      <p className="mt-2 text-sm text-muted">{supportCopy("account.scope")}</p>
       <div className="card mt-6 grid min-w-0 gap-4 p-5 sm:p-6">
         <div className="flex flex-wrap gap-2">
           {(["Student", "Teacher"] as const).map((value) => (
@@ -97,12 +89,8 @@ export function SupportAccountArea({ segment }: { segment: string[] }) {
               className="focus-ring rounded-xl border border-border px-4 py-2 text-sm font-bold aria-pressed:bg-primary aria-pressed:text-slate-950"
             >
               {value === "Student"
-                ? locale === "ar"
-                  ? "الطلاب"
-                  : "Students"
-                : locale === "ar"
-                  ? "المعلمون"
-                  : "Teachers"}
+                ? supportCopy("account.students")
+                : supportCopy("account.teachers")}
             </button>
           ))}
         </div>
@@ -116,15 +104,13 @@ export function SupportAccountArea({ segment }: { segment: string[] }) {
         >
           <label className="min-w-0 flex-1 text-sm font-bold">
             <span className="sr-only">
-              {locale === "ar" ? "بحث عن حساب" : "Search accounts"}
+              {supportCopy("account.searchLabel")}
             </span>
             <input
               value={search}
               maxLength={100}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder={
-                locale === "ar" ? "الاسم أو البريد" : "Name or email"
-              }
+              placeholder={supportCopy("account.searchPlaceholder")}
               className="focus-ring w-full min-w-0 rounded-xl border border-border bg-transparent px-3 py-2"
             />
           </label>
@@ -132,18 +118,14 @@ export function SupportAccountArea({ segment }: { segment: string[] }) {
             type="submit"
             className="focus-ring rounded-xl bg-primary px-4 py-2 text-sm font-bold text-slate-950"
           >
-            {locale === "ar" ? "بحث" : "Search"}
+            {supportCopy("account.search")}
           </button>
         </form>
         {targets.isPending ? (
-          <p aria-busy="true">
-            {locale === "ar" ? "جارٍ تحميل الحسابات…" : "Loading accounts…"}
-          </p>
+          <p aria-busy="true">{supportCopy("account.loadingAccounts")}</p>
         ) : targets.isError ? (
           <p role="alert" className="text-red-600">
-            {locale === "ar"
-              ? "تعذر تحميل الحسابات."
-              : "Unable to load accounts."}
+            {supportCopy("account.loadFailed")}
           </p>
         ) : targets.data?.items.length ? (
           <div className="grid gap-3">
@@ -159,12 +141,8 @@ export function SupportAccountArea({ segment }: { segment: string[] }) {
                   </p>
                   <p className="text-xs text-muted">
                     {target.isFrozen
-                      ? locale === "ar"
-                        ? "مجمّد"
-                        : "Frozen"
-                      : locale === "ar"
-                        ? "نشط"
-                        : "Active"}
+                      ? supportCopy("account.frozen")
+                      : supportCopy("account.active")}
                   </p>
                 </div>
                 <button
@@ -174,12 +152,8 @@ export function SupportAccountArea({ segment }: { segment: string[] }) {
                     if (
                       window.confirm(
                         target.isFrozen
-                          ? locale === "ar"
-                            ? "إعادة تفعيل الحساب؟"
-                            : "Reactivate this account?"
-                          : locale === "ar"
-                            ? "تجميد الحساب وإنهاء جلساته؟"
-                            : "Freeze this account and end its sessions?",
+                          ? supportCopy("account.confirmReactivate")
+                          : supportCopy("account.confirmFreeze"),
                       )
                     )
                       freeze.mutate({
@@ -190,28 +164,18 @@ export function SupportAccountArea({ segment }: { segment: string[] }) {
                   className="focus-ring rounded-xl border border-border px-3 py-2 text-sm font-bold disabled:opacity-60"
                 >
                   {target.isFrozen
-                    ? locale === "ar"
-                      ? "إعادة تفعيل"
-                      : "Reactivate"
-                    : locale === "ar"
-                      ? "تجميد"
-                      : "Freeze"}
+                    ? supportCopy("account.reactivate")
+                    : supportCopy("account.freeze")}
                 </button>
               </article>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted">
-            {locale === "ar"
-              ? "لا توجد حسابات مطابقة."
-              : "No matching accounts."}
-          </p>
+          <p className="text-sm text-muted">{supportCopy("account.empty")}</p>
         )}
         {freeze.isError && (
           <p role="alert" className="text-sm text-red-600">
-            {locale === "ar"
-              ? "تعذر تحديث الحساب."
-              : "Unable to update the account."}
+            {supportCopy("account.updateFailed")}
           </p>
         )}
         {targets.data && (
@@ -222,7 +186,7 @@ export function SupportAccountArea({ segment }: { segment: string[] }) {
               onClick={() => setPage(page - 1)}
               className="focus-ring disabled:opacity-50"
             >
-              {locale === "ar" ? "السابق" : "Previous"}
+              {supportCopy("account.previous")}
             </button>
             <span>{page}</span>
             <button
@@ -231,7 +195,7 @@ export function SupportAccountArea({ segment }: { segment: string[] }) {
               onClick={() => setPage(page + 1)}
               className="focus-ring disabled:opacity-50"
             >
-              {locale === "ar" ? "التالي" : "Next"}
+              {supportCopy("account.next")}
             </button>
           </div>
         )}

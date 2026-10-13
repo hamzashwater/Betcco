@@ -1,5 +1,6 @@
 import baseline from "../fixtures/learning-practice-i18n-baseline.json";
 import { digest, leaves } from "./admin-final-i18n-audit";
+import { withoutSupportAdditions } from "./support-catalogue-projection";
 
 const frozenDigests = {
   ar: "63546d0380f06ffe04a39e354f2e955469136fcf4f8ebca503c7381b4b64ad60",
@@ -18,6 +19,7 @@ const expectedLeaves = (["ar", "en"] as const).map((locale) => {
 export function withoutLearningPracticeAdditions(
   value: Record<string, unknown>,
 ) {
+  withoutSupportAdditions(value);
   if (!expectedLeaves.includes(JSON.stringify(leaves(value.learningPractice))))
     throw new Error("Unverified learning practice additions");
   delete value.learningPractice;

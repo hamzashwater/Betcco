@@ -3563,5 +3563,76 @@
       "improvementGuidance": "Improvement guidance",
       "actionFailed": "The action failed."
     }
+  },
+  "supportWorkspace": {
+    "account": {
+      "loading": "Loading…",
+      "denied": "You do not have account management access.",
+      "title": "Account support",
+      "scope": "Freeze or reactivate Student and Teacher accounts only.",
+      "students": "Students",
+      "teachers": "Teachers",
+      "searchLabel": "Search accounts",
+      "searchPlaceholder": "Name or email",
+      "search": "Search",
+      "loadingAccounts": "Loading accounts…",
+      "loadFailed": "Unable to load accounts.",
+      "frozen": "Frozen",
+      "active": "Active",
+      "confirmReactivate": "Reactivate this account?",
+      "confirmFreeze": "Freeze this account and end its sessions?",
+      "reactivate": "Reactivate",
+      "freeze": "Freeze",
+      "empty": "No matching accounts.",
+      "updateFailed": "Unable to update the account.",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "center": {
+      "status": {
+        "open": "Open",
+        "inProgress": "In progress",
+        "waitingForStudent": "Waiting for you",
+        "resolved": "Resolved",
+        "closed": "Closed"
+      },
+      "adminTitle": "BETCCO support inbox",
+      "studentTitle": "Support centre",
+      "adminDescription": "Review incoming requests and reply in the platform; each learner can see only their own tickets.",
+      "studentDescription": "Open a ticket and follow replies in the same conversation. Messages remain scoped to your account.",
+      "eyebrow": "BETCCO SUPPORT",
+      "allTickets": "All tickets",
+      "myTickets": "My tickets",
+      "ticketCount": "tickets",
+      "listFailed": "Tickets could not be loaded.",
+      "adminEmpty": "There are no incoming tickets yet.",
+      "studentEmpty": "There are no tickets in your account yet.",
+      "detailFailed": "This conversation could not be opened.",
+      "startWork": "Start work",
+      "resolve": "Resolve",
+      "close": "Close",
+      "statusFailed": "The ticket status could not be updated.",
+      "replyLabel": "Your reply",
+      "closedPlaceholder": "This ticket is closed.",
+      "replyPlaceholder": "Write your reply…",
+      "sendReply": "Send reply",
+      "replyFailed": "The reply could not be sent.",
+      "chooseTicket": "Choose a ticket to view its conversation.",
+      "newTicket": "New ticket",
+      "securityWarning": "Describe the issue clearly and never send passwords or payment details.",
+      "subject": "Subject",
+      "category": "Category",
+      "categories": {
+        "general": "General",
+        "technical": "Technical",
+        "payment": "Payment",
+        "course": "Course",
+        "safety": "Safety"
+      },
+      "openingMessage": "Message",
+      "sending": "Sending…",
+      "openTicket": "Open ticket",
+      "createFailed": "The ticket could not be opened."
+    }
   }
 }
