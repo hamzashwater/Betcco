@@ -3636,5 +3636,14 @@
       "openTicket": "فتح التذكرة",
       "createFailed": "تعذر فتح التذكرة."
     }
+  },
+  "siteMetadata": {
+    "title": "{brand} | تعلّم. طبّق. حقق المعايير.",
+    "description": "منصة {brand} التعليمية الذكية لطلاب BTEC.",
+    "organizationDescription": "منصة تعليمية مستقلة تدعم طلاب BTEC بالتعلم والمهام ومعايير التقييم.",
+    "socialImage": {
+      "headline": "تعلّم. طبّق. حقق المعايير.",
+      "description": "التعلّم والمهام والمعايير والتقييم لطلاب BTEC في مكان واحد."
+    }
   }
 }
