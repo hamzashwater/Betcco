@@ -1,5 +1,6 @@
 import baseline from "../fixtures/runtime-student-i18n-baseline.json";
 import { digest } from "./admin-final-i18n-audit";
+import { withoutMetadataAdditions } from "./metadata-catalogue-projection";
 
 const frozenDigests = {
   ar: "bf5a90f5655c56f06f3023d8e1afa3fae3450bda4cf78a0400825c5428ae41c1",
@@ -14,6 +15,7 @@ const expected = (["ar", "en"] as const).map((locale) => {
 
 // Project only these two exact paired leaves out of historical catalogue proofs.
 export function withoutRuntimeStudentAdditions(value: Record<string, unknown>) {
+  withoutMetadataAdditions(value);
   const errors = (
     value.studentWorkspace as {
       coursework: { errors: Record<string, unknown> };

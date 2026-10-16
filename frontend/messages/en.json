@@ -3636,5 +3636,14 @@
       "openTicket": "Open ticket",
       "createFailed": "The ticket could not be opened."
     }
+  },
+  "siteMetadata": {
+    "title": "{brand} | Learn. Apply. Achieve.",
+    "description": "{brand} is an intelligent learning platform for BTEC students.",
+    "organizationDescription": "An independent educational platform supporting BTEC learners with courses, assignments, and assessment criteria.",
+    "socialImage": {
+      "headline": "Learn. Apply. Achieve.",
+      "description": "BTEC-first learning, assignments, criteria, and evaluation in one place."
+    }
   }
 }

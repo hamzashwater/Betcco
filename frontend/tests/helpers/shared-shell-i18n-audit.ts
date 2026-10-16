@@ -1,5 +1,6 @@
 import ts from "typescript";
 import { createAudit, compact, ancestors } from "./admin-final-i18n-audit";
+import { withoutMetadataPresentationChanges } from "./metadata-source-projection";
 
 export const scopedFiles = [
   "src/app/[locale]/error.tsx",
@@ -67,7 +68,16 @@ export function auditShell(source: string, name = "fixture.tsx") {
       if (!call.arguments.length) translators.set(n.name.text, "");
       else if (ts.isStringLiteral(call.arguments[0]))
         translators.set(n.name.text, call.arguments[0].text);
-      else findings.push({ category: "UNCLASSIFIED", text: compact(call) });
+      else if (ts.isObjectLiteralExpression(call.arguments[0])) {
+        const namespace = call.arguments[0].properties.find(
+          (property): property is ts.PropertyAssignment =>
+            ts.isPropertyAssignment(property) &&
+            property.name.getText() === "namespace",
+        )?.initializer;
+        if (namespace && ts.isStringLiteral(namespace))
+          translators.set(n.name.text, namespace.text);
+        else findings.push({ category: "UNCLASSIFIED", text: compact(call) });
+      } else findings.push({ category: "UNCLASSIFIED", text: compact(call) });
     }
   });
   visit(file, (n) => {
@@ -217,6 +227,7 @@ export function auditShell(source: string, name = "fixture.tsx") {
 }
 
 export function shellContracts(source: string) {
+  source = withoutMetadataPresentationChanges(source);
   const file = ts.createSourceFile(
     "contract.tsx",
     source,

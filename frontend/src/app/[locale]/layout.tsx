@@ -29,14 +29,12 @@ type Props = Readonly<{
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  const title =
-    locale === "ar"
-      ? `${defaultBrand.BrandName} | تعلّم. طبّق. حقق المعايير.`
-      : `${defaultBrand.BrandName} | Learn. Apply. Achieve.`;
-  const description =
-    locale === "ar"
-      ? `منصة ${defaultBrand.BrandName} التعليمية الذكية لطلاب BTEC.`
-      : `${defaultBrand.BrandName} is an intelligent learning platform for BTEC students.`;
+  if (!hasLocale(routing.locales, locale)) notFound();
+  const metadata = await getTranslations({ locale, namespace: "siteMetadata" });
+  const title = metadata("title", { brand: defaultBrand.BrandName });
+  const description = metadata("description", {
+    brand: defaultBrand.BrandName,
+  });
   const base = process.env.NEXT_PUBLIC_APP_URL;
   return {
     ...baseMetadata,
@@ -48,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       type: "website",
       locale: locale === "ar" ? "ar_JO" : "en_US",
-      images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+      images: [{ url: `/${locale}/opengraph-image`, width: 1200, height: 630 }],
     },
     twitter: { card: "summary_large_image", title, description },
     robots: { index: true, follow: true },
@@ -68,6 +66,7 @@ export default async function LocaleLayout({ children, params }: Props) {
     getPublicBrandSettings(locale),
   ]);
   const t = await getTranslations("navigation.accessibility");
+  const metadata = await getTranslations({ locale, namespace: "siteMetadata" });
   const queryClient = new QueryClient();
   queryClient.setQueryData(publicBrandSettingsQueryKey(locale), brandSettings);
   const publicBase =
@@ -77,10 +76,7 @@ export default async function LocaleLayout({ children, params }: Props) {
     "@type": "EducationalOrganization",
     name: defaultBrand.BrandName,
     url: publicBase ? `${publicBase.replace(/\/$/, "")}/${locale}` : undefined,
-    description:
-      locale === "ar"
-        ? "منصة تعليمية مستقلة تدعم طلاب BTEC بالتعلم والمهام ومعايير التقييم."
-        : "An independent educational platform supporting BTEC learners with courses, assignments, and assessment criteria.",
+    description: metadata("organizationDescription"),
   }).replace(/</g, "\\u003c");
   return (
     <html

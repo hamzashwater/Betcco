@@ -48,11 +48,11 @@ for (const route of localizedRoutes) {
       );
       await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
         "content",
-        `${applicationOrigin}/opengraph-image`,
+        `${applicationOrigin}/${route.locale}/opengraph-image`,
       );
       if (route.locale === "ar") {
         const imageResponse = await page.request.get(
-          `${applicationOrigin}/opengraph-image`,
+          `${applicationOrigin}/${route.locale}/opengraph-image`,
         );
         expect(imageResponse.status()).toBe(200);
         expect(imageResponse.headers()["content-type"]).toContain("image/png");
