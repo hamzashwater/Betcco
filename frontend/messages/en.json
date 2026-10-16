@@ -1588,7 +1588,9 @@
       "errors": {
         "action": "The action could not be completed.",
         "start": "Unable to start the submission.",
-        "load": "Unable to load coursework."
+        "load": "Unable to load coursework.",
+        "startBeforeUpload": "Start the submission before uploading files.",
+        "startBeforeSubmit": "Start the submission before submitting."
       }
     },
     "evaluationWizard": {
