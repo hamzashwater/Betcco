@@ -20,7 +20,7 @@ export function DashboardHeader({
     <header className="relative overflow-hidden rounded-3xl border border-border bg-[radial-gradient(circle_at_85%_15%,color-mix(in_srgb,var(--primary)_24%,transparent),transparent_38%),linear-gradient(125deg,color-mix(in_srgb,var(--surface)_92%,transparent),color-mix(in_srgb,var(--surface-solid)_72%,transparent))] p-6 shadow-[var(--shadow)] sm:p-8">
       <div className="relative z-10 flex flex-wrap items-end justify-between gap-5">
         <div className="max-w-2xl">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-text-secondary">
             {eyebrow}
           </p>
           <h1 className="mt-3 text-3xl font-black tracking-tight text-foreground sm:text-4xl">
@@ -54,10 +54,10 @@ export function MetricCard({
   tone?: "primary" | "secondary" | "accent" | "warm";
 }) {
   const colors = {
-    primary: "bg-primary/15 text-primary",
-    secondary: "bg-secondary/15 text-secondary",
-    accent: "bg-accent/15 text-accent",
-    warm: "bg-warm/15 text-warm",
+    primary: "bg-primary/15 text-text-link",
+    secondary: "bg-secondary/15 text-text-link",
+    accent: "bg-accent/15 text-text-link",
+    warm: "bg-warm/15 text-text-link",
   };
   return (
     <article className="card group p-5" data-interactive>
@@ -94,7 +94,7 @@ export function ActionCard({
 }) {
   return (
     <article className="card group h-full p-5" data-interactive>
-      <span className="grid size-10 place-items-center rounded-xl bg-primary/15 text-primary transition-transform duration-300 group-hover:scale-110">
+      <span className="grid size-10 place-items-center rounded-xl bg-primary/15 text-text-link transition-transform duration-300 group-hover:scale-110">
         <Icon size={20} aria-hidden="true" />
       </span>
       <h2 className="mt-5 font-black text-foreground">{title}</h2>

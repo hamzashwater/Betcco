@@ -79,6 +79,20 @@ function formatDate(value: string, locale: string) {
   return formatLocalizedDateTime(value, locale);
 }
 
+function statusClassName(status: string) {
+  switch (status) {
+    case "Open":
+    case "InProgress":
+      return "bg-info-surface text-info";
+    case "WaitingForStudent":
+      return "bg-warning-surface text-warning";
+    case "Resolved":
+      return "bg-success-surface text-success";
+    default:
+      return "bg-surface-muted text-text-secondary";
+  }
+}
+
 export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
   const locale = useLocale();
   const supportCopy = useTranslations("supportWorkspace");
@@ -205,7 +219,9 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
                 >
                   <div className="flex items-start justify-between gap-2">
                     <p className="line-clamp-2 font-bold">{item.subject}</p>
-                    <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-bold text-muted">
+                    <span
+                      className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold ${statusClassName(item.status)}`}
+                    >
                       {statusLabel(item.status, locale, supportCopy)}
                     </span>
                   </div>

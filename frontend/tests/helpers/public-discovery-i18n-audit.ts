@@ -1,6 +1,7 @@
 import ts from "typescript";
 import baseline from "../fixtures/public-discovery-i18n-baseline.json";
 import { ancestors, compact } from "./admin-final-i18n-audit";
+import { projectUi1rPresentation } from "./ui1r-presentation-projection";
 
 export const scopedFiles = [
   "src/app/[locale]/page.tsx",
@@ -55,6 +56,7 @@ function translated(source: string, path: ScopedFile) {
 // even in a helper/map/error fallback, must be classified instead of escaping
 // through a broad technical-string allowlist.
 export function auditDiscovery(source: string, path: ScopedFile) {
+  source = projectUi1rPresentation(source, path);
   const file = parse(source),
     approved = parse(translated(baseline.sources[path], path));
   const technical = new Set<string>();
@@ -174,6 +176,7 @@ export function discoveryContract(
   isBase = false,
 ) {
   if (isBase) source = translated(source, path);
+  source = projectUi1rPresentation(source, path);
   const arrays: ts.Node[] = [];
   const result = ts.transform(parse(source), [
     (context) => {
