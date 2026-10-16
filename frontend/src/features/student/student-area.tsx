@@ -3459,8 +3459,7 @@ export function CourseAssignmentPanel({
   });
   const upload = useMutation({
     mutationFn: async () => {
-      if (!active)
-        throw new Error("Start the submission before uploading files.");
+      if (!active) throw new Error(t("coursework.errors.startBeforeUpload"));
       for (const file of files) {
         const body = new FormData();
         body.set("file", file);
@@ -3480,7 +3479,7 @@ export function CourseAssignmentPanel({
   });
   const submit = useMutation({
     mutationFn: () => {
-      if (!active) throw new Error("Start the submission before submitting.");
+      if (!active) throw new Error(t("coursework.errors.startBeforeSubmit"));
       return api(
         `/student/assignments/submissions/${active.submissionId}/submit`,
         {
