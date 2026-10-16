@@ -3563,5 +3563,76 @@
       "improvementGuidance": "إرشادات التحسين",
       "actionFailed": "تعذر إكمال العملية."
     }
+  },
+  "supportWorkspace": {
+    "account": {
+      "loading": "جارٍ التحميل…",
+      "denied": "لا تملك صلاحية إدارة الحسابات.",
+      "title": "مساعدة إدارة الحسابات",
+      "scope": "يمكنك تجميد حسابات الطلاب والمعلمين أو إعادة تفعيلها فقط.",
+      "students": "الطلاب",
+      "teachers": "المعلمون",
+      "searchLabel": "بحث عن حساب",
+      "searchPlaceholder": "الاسم أو البريد",
+      "search": "بحث",
+      "loadingAccounts": "جارٍ تحميل الحسابات…",
+      "loadFailed": "تعذر تحميل الحسابات.",
+      "frozen": "مجمّد",
+      "active": "نشط",
+      "confirmReactivate": "إعادة تفعيل الحساب؟",
+      "confirmFreeze": "تجميد الحساب وإنهاء جلساته؟",
+      "reactivate": "إعادة تفعيل",
+      "freeze": "تجميد",
+      "empty": "لا توجد حسابات مطابقة.",
+      "updateFailed": "تعذر تحديث الحساب.",
+      "previous": "السابق",
+      "next": "التالي"
+    },
+    "center": {
+      "status": {
+        "open": "مفتوحة",
+        "inProgress": "قيد المعالجة",
+        "waitingForStudent": "بانتظار ردك",
+        "resolved": "تم الحل",
+        "closed": "مغلقة"
+      },
+      "adminTitle": "صندوق دعم BETCCO",
+      "studentTitle": "مركز الدعم",
+      "adminDescription": "راجع الطلبات الواردة وردّ عليها من داخل المنصة؛ كل طالب يرى تذاكره فقط.",
+      "studentDescription": "افتح تذكرة وتابع الردود في نفس المحادثة. تظل المراسلات مرتبطة بحسابك فقط.",
+      "eyebrow": "دعم BETCCO",
+      "allTickets": "كل التذاكر",
+      "myTickets": "تذاكري",
+      "ticketCount": "تذكرة",
+      "listFailed": "تعذر تحميل التذاكر.",
+      "adminEmpty": "لا توجد تذاكر واردة بعد.",
+      "studentEmpty": "لا توجد تذاكر في حسابك بعد.",
+      "detailFailed": "تعذر فتح هذه المحادثة.",
+      "startWork": "بدء المعالجة",
+      "resolve": "تم الحل",
+      "close": "إغلاق",
+      "statusFailed": "تعذر تحديث حالة التذكرة.",
+      "replyLabel": "ردك",
+      "closedPlaceholder": "هذه التذكرة مغلقة.",
+      "replyPlaceholder": "اكتب ردك…",
+      "sendReply": "إرسال الرد",
+      "replyFailed": "تعذر إرسال الرد.",
+      "chooseTicket": "اختر تذكرة لعرض المحادثة.",
+      "newTicket": "تذكرة جديدة",
+      "securityWarning": "صف المشكلة بوضوح وتجنب إرسال كلمات المرور أو بيانات الدفع.",
+      "subject": "الموضوع",
+      "category": "التصنيف",
+      "categories": {
+        "general": "عام",
+        "technical": "تقني",
+        "payment": "دفع",
+        "course": "دورة",
+        "safety": "سلامة"
+      },
+      "openingMessage": "الرسالة",
+      "sending": "جارٍ الإرسال…",
+      "openTicket": "فتح التذكرة",
+      "createFailed": "تعذر فتح التذكرة."
+    }
   }
 }

@@ -10,7 +10,7 @@ import {
   Plus,
   Send,
 } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 type TicketSummary = {
@@ -41,13 +41,36 @@ type TicketDetail = TicketSummary & {
 type CreatedTicket = { id: string; status: string };
 type ManagedTicketStatus = "InProgress" | "Resolved" | "Closed";
 
-function statusLabel(status: string, locale: string) {
+type SupportTranslations = ReturnType<
+  typeof useTranslations<"supportWorkspace">
+>;
+
+function statusLabel(
+  status: string,
+  locale: string,
+  supportCopy: SupportTranslations,
+) {
   const labels: Record<string, [string, string]> = {
-    Open: ["مفتوحة", "Open"],
-    InProgress: ["قيد المعالجة", "In progress"],
-    WaitingForStudent: ["بانتظار ردك", "Waiting for you"],
-    Resolved: ["تم الحل", "Resolved"],
-    Closed: ["مغلقة", "Closed"],
+    Open: [
+      supportCopy("center.status.open"),
+      supportCopy("center.status.open"),
+    ],
+    InProgress: [
+      supportCopy("center.status.inProgress"),
+      supportCopy("center.status.inProgress"),
+    ],
+    WaitingForStudent: [
+      supportCopy("center.status.waitingForStudent"),
+      supportCopy("center.status.waitingForStudent"),
+    ],
+    Resolved: [
+      supportCopy("center.status.resolved"),
+      supportCopy("center.status.resolved"),
+    ],
+    Closed: [
+      supportCopy("center.status.closed"),
+      supportCopy("center.status.closed"),
+    ],
   };
   return labels[status]?.[locale === "ar" ? 0 : 1] ?? status;
 }
@@ -58,6 +81,7 @@ function formatDate(value: string, locale: string) {
 
 export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
   const locale = useLocale();
+  const supportCopy = useTranslations("supportWorkspace");
   const isAdmin = mode === "admin";
   const client = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -120,25 +144,17 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
     onSuccess: refresh,
   });
   const title = isAdmin
-    ? locale === "ar"
-      ? "صندوق دعم BETCCO"
-      : "BETCCO support inbox"
-    : locale === "ar"
-      ? "مركز الدعم"
-      : "Support centre";
+    ? supportCopy("center.adminTitle")
+    : supportCopy("center.studentTitle");
   const description = isAdmin
-    ? locale === "ar"
-      ? "راجع الطلبات الواردة وردّ عليها من داخل المنصة؛ كل طالب يرى تذاكره فقط."
-      : "Review incoming requests and reply in the platform; each learner can see only their own tickets."
-    : locale === "ar"
-      ? "افتح تذكرة وتابع الردود في نفس المحادثة. تظل المراسلات مرتبطة بحسابك فقط."
-      : "Open a ticket and follow replies in the same conversation. Messages remain scoped to your account.";
+    ? supportCopy("center.adminDescription")
+    : supportCopy("center.studentDescription");
   return (
     <section className="shell py-10">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-            BETCCO SUPPORT
+            {supportCopy("center.eyebrow")}
           </p>
           <h1 className="mt-2 text-3xl font-black">{title}</h1>
           <p className="mt-3 max-w-3xl leading-7 text-muted">{description}</p>
@@ -155,16 +171,12 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
             <div>
               <h2 className="font-black">
                 {isAdmin
-                  ? locale === "ar"
-                    ? "كل التذاكر"
-                    : "All tickets"
-                  : locale === "ar"
-                    ? "تذاكري"
-                    : "My tickets"}
+                  ? supportCopy("center.allTickets")
+                  : supportCopy("center.myTickets")}
               </h2>
               <p className="mt-1 text-xs text-muted">
                 {tickets.data?.totalCount ?? 0}{" "}
-                {locale === "ar" ? "تذكرة" : "tickets"}
+                {supportCopy("center.ticketCount")}
               </p>
             </div>
             <MessageSquareText
@@ -179,9 +191,7 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
             </p>
           ) : tickets.isError ? (
             <p role="alert" className="mt-6 text-sm text-red-600">
-              {locale === "ar"
-                ? "تعذر تحميل التذاكر."
-                : "Tickets could not be loaded."}
+              {supportCopy("center.listFailed")}
             </p>
           ) : tickets.data?.items.length ? (
             <div className="mt-5 grid gap-2">
@@ -196,7 +206,7 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
                   <div className="flex items-start justify-between gap-2">
                     <p className="line-clamp-2 font-bold">{item.subject}</p>
                     <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-bold text-muted">
-                      {statusLabel(item.status, locale)}
+                      {statusLabel(item.status, locale, supportCopy)}
                     </span>
                   </div>
                   <p className="mt-2 text-xs text-muted">
@@ -213,12 +223,8 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
               />
               <p className="mt-3">
                 {isAdmin
-                  ? locale === "ar"
-                    ? "لا توجد تذاكر واردة بعد."
-                    : "There are no incoming tickets yet."
-                  : locale === "ar"
-                    ? "لا توجد تذاكر في حسابك بعد."
-                    : "There are no tickets in your account yet."}
+                  ? supportCopy("center.adminEmpty")
+                  : supportCopy("center.studentEmpty")}
               </p>
             </div>
           )}
@@ -231,9 +237,7 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
             </p>
           ) : ticket.isError ? (
             <p role="alert" className="text-sm text-red-600">
-              {locale === "ar"
-                ? "تعذر فتح هذه المحادثة."
-                : "This conversation could not be opened."}
+              {supportCopy("center.detailFailed")}
             </p>
           ) : ticket.data ? (
             <>
@@ -248,7 +252,7 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
                 </div>
                 <div className="flex flex-wrap items-center justify-end gap-2">
                   <span className="rounded-full bg-primary/10 px-3 py-1.5 text-xs font-black text-primary">
-                    {statusLabel(ticket.data.status, locale)}
+                    {statusLabel(ticket.data.status, locale, supportCopy)}
                   </span>
                   {isAdmin ? (
                     <div className="flex flex-wrap justify-end gap-2">
@@ -260,7 +264,7 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
                           onClick={() => changeStatus.mutate("InProgress")}
                           className="focus-ring rounded-lg border border-border px-2.5 py-1.5 text-xs font-bold hover:bg-muted disabled:opacity-60"
                         >
-                          {locale === "ar" ? "بدء المعالجة" : "Start work"}
+                          {supportCopy("center.startWork")}
                         </button>
                       ) : null}
                       {ticket.data.status !== "Resolved" &&
@@ -271,7 +275,7 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
                           onClick={() => changeStatus.mutate("Resolved")}
                           className="focus-ring rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1.5 text-xs font-bold text-emerald-800 hover:bg-emerald-500/20 disabled:opacity-60 dark:text-emerald-300"
                         >
-                          {locale === "ar" ? "تم الحل" : "Resolve"}
+                          {supportCopy("center.resolve")}
                         </button>
                       ) : null}
                       {ticket.data.status !== "Closed" ? (
@@ -281,7 +285,7 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
                           onClick={() => changeStatus.mutate("Closed")}
                           className="focus-ring rounded-lg border border-red-500/35 px-2.5 py-1.5 text-xs font-bold text-red-700 hover:bg-red-500/10 disabled:opacity-60 dark:text-red-300"
                         >
-                          {locale === "ar" ? "إغلاق" : "Close"}
+                          {supportCopy("center.close")}
                         </button>
                       ) : null}
                     </div>
@@ -292,9 +296,7 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
                 <p role="alert" className="mt-3 text-sm text-red-600">
                   {changeStatus.error instanceof Error
                     ? changeStatus.error.message
-                    : locale === "ar"
-                      ? "تعذر تحديث حالة التذكرة."
-                      : "The ticket status could not be updated."}
+                    : supportCopy("center.statusFailed")}
                 </p>
               ) : null}
               <div className="mt-5 flex-1 space-y-3">
@@ -320,7 +322,7 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
                 }}
               >
                 <label className="sr-only">
-                  {locale === "ar" ? "ردك" : "Your reply"}
+                  {supportCopy("center.replyLabel")}
                 </label>
                 <div className="flex gap-2">
                   <textarea
@@ -332,12 +334,8 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
                     onChange={(event) => setReply(event.target.value)}
                     placeholder={
                       ticket.data.status === "Closed"
-                        ? locale === "ar"
-                          ? "هذه التذكرة مغلقة."
-                          : "This ticket is closed."
-                        : locale === "ar"
-                          ? "اكتب ردك…"
-                          : "Write your reply…"
+                        ? supportCopy("center.closedPlaceholder")
+                        : supportCopy("center.replyPlaceholder")
                     }
                     className="focus-ring min-h-20 flex-1 rounded-xl border border-border bg-transparent p-3 text-sm disabled:cursor-not-allowed disabled:opacity-60"
                   />
@@ -349,7 +347,7 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
                       sendReply.isPending
                     }
                     className="focus-ring self-end rounded-xl bg-primary p-3 text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
-                    aria-label={locale === "ar" ? "إرسال الرد" : "Send reply"}
+                    aria-label={supportCopy("center.sendReply")}
                   >
                     <Send size={19} aria-hidden="true" />
                   </button>
@@ -358,9 +356,7 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
                   <p role="alert" className="mt-2 text-sm text-red-600">
                     {sendReply.error instanceof Error
                       ? sendReply.error.message
-                      : locale === "ar"
-                        ? "تعذر إرسال الرد."
-                        : "The reply could not be sent."}
+                      : supportCopy("center.replyFailed")}
                   </p>
                 ) : null}
               </form>
@@ -372,9 +368,7 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
                 aria-hidden="true"
               />
               <p className="mt-3 text-sm leading-6 text-muted">
-                {locale === "ar"
-                  ? "اختر تذكرة لعرض المحادثة."
-                  : "Choose a ticket to view its conversation."}
+                {supportCopy("center.chooseTicket")}
               </p>
             </div>
           )}
@@ -394,18 +388,16 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
               </span>
               <div>
                 <h2 className="font-black">
-                  {locale === "ar" ? "تذكرة جديدة" : "New ticket"}
+                  {supportCopy("center.newTicket")}
                 </h2>
                 <p className="mt-1 text-xs leading-5 text-muted">
-                  {locale === "ar"
-                    ? "صف المشكلة بوضوح وتجنب إرسال كلمات المرور أو بيانات الدفع."
-                    : "Describe the issue clearly and never send passwords or payment details."}
+                  {supportCopy("center.securityWarning")}
                 </p>
               </div>
             </div>
             <div className="mt-5 grid gap-3">
               <label className="grid gap-1 text-sm font-bold">
-                <span>{locale === "ar" ? "الموضوع" : "Subject"}</span>
+                <span>{supportCopy("center.subject")}</span>
                 <input
                   required
                   maxLength={200}
@@ -415,31 +407,31 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
                 />
               </label>
               <label className="grid gap-1 text-sm font-bold">
-                <span>{locale === "ar" ? "التصنيف" : "Category"}</span>
+                <span>{supportCopy("center.category")}</span>
                 <select
                   value={category}
                   onChange={(event) => setCategory(event.target.value)}
                   className="focus-ring rounded-xl border border-border bg-transparent px-3 py-2.5"
                 >
                   <option value="General">
-                    {locale === "ar" ? "عام" : "General"}
+                    {supportCopy("center.categories.general")}
                   </option>
                   <option value="Technical">
-                    {locale === "ar" ? "تقني" : "Technical"}
+                    {supportCopy("center.categories.technical")}
                   </option>
                   <option value="Payment">
-                    {locale === "ar" ? "دفع" : "Payment"}
+                    {supportCopy("center.categories.payment")}
                   </option>
                   <option value="Course">
-                    {locale === "ar" ? "دورة" : "Course"}
+                    {supportCopy("center.categories.course")}
                   </option>
                   <option value="Safety">
-                    {locale === "ar" ? "سلامة" : "Safety"}
+                    {supportCopy("center.categories.safety")}
                   </option>
                 </select>
               </label>
               <label className="grid gap-1 text-sm font-bold">
-                <span>{locale === "ar" ? "الرسالة" : "Message"}</span>
+                <span>{supportCopy("center.openingMessage")}</span>
                 <textarea
                   required
                   maxLength={4000}
@@ -457,20 +449,14 @@ export function SupportCenter({ mode }: { mode: "student" | "admin" }) {
               >
                 <Send size={17} aria-hidden="true" />
                 {create.isPending
-                  ? locale === "ar"
-                    ? "جارٍ الإرسال…"
-                    : "Sending…"
-                  : locale === "ar"
-                    ? "فتح التذكرة"
-                    : "Open ticket"}
+                  ? supportCopy("center.sending")
+                  : supportCopy("center.openTicket")}
               </button>
               {create.isError ? (
                 <p role="alert" className="text-sm text-red-600">
                   {create.error instanceof Error
                     ? create.error.message
-                    : locale === "ar"
-                      ? "تعذر فتح التذكرة."
-                      : "The ticket could not be opened."}
+                    : supportCopy("center.createFailed")}
                 </p>
               ) : null}
             </div>
