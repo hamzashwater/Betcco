@@ -2,6 +2,7 @@ import ts from "typescript";
 import baseline from "../fixtures/support-i18n-baseline.json";
 import { ancestors, compact } from "./admin-final-i18n-audit";
 import { practiceContract } from "./learning-practice-i18n-audit";
+import { projectUi1rPresentation } from "./ui1r-presentation-projection";
 
 export const supportFiles = [
   "src/features/support/support-account-area.tsx",
@@ -20,8 +21,9 @@ function walk(node: ts.Node, visit: (node: ts.Node) => void) {
   visit(node);
   ts.forEachChild(node, (child) => walk(child, visit));
 }
-// Reuse the established complete syntax proof, with no additional erasure rules.
-export const supportContract = practiceContract;
+// Retain the complete T7 proof after reversing only reviewed UI-1R syntax.
+export const supportContract = (source: string) =>
+  practiceContract(projectUi1rPresentation(source, supportFiles[1]));
 export function assertSupportScope(paths: string[]) {
   const sources = paths
     .filter((path) => path.startsWith("frontend/src/"))
@@ -77,6 +79,7 @@ const reviewed = new Map<SupportFile, ReadonlySet<string>>(
 );
 
 export function auditSupport(source: string, path: SupportFile) {
+  source = projectUi1rPresentation(source, path);
   const file = parse(source),
     retainedLiterals = reviewed.get(path);
   if (!retainedLiterals) throw new Error("Missing reviewed Support baseline");
