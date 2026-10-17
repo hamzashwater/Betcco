@@ -6,6 +6,41 @@
   --betcco-mint: #e6f7f5;
   --betcco-white: #f5f6f8;
 
+  /* Approved DC02 primitives. Identity anchors above stay stable.
+     Ramps are inputs to semantic roles, not interchangeable text colors. */
+  --betcco-neutral-0: #ffffff;
+  --betcco-neutral-25: #f7f8fa;
+  --betcco-neutral-50: #eef1f4;
+  --betcco-neutral-100: #dde3e8;
+  --betcco-neutral-200: #bbc7d0;
+  --betcco-neutral-300: #91a4b2;
+  --betcco-neutral-400: #6c8393;
+  --betcco-neutral-500: #496679;
+  --betcco-neutral-600: #334f63;
+  --betcco-neutral-700: #1c3447;
+  --betcco-neutral-800: #10283b;
+  --betcco-neutral-900: var(--betcco-navy);
+  --betcco-blue-50: #eff6fa;
+  --betcco-blue-100: #dcecf5;
+  --betcco-blue-200: #b9d8e9;
+  --betcco-blue-300: #86bad6;
+  --betcco-blue-400: #5299bd;
+  --betcco-blue-500: #2b789f;
+  --betcco-blue-600: var(--betcco-blue);
+  --betcco-blue-700: #163f5b;
+  --betcco-blue-800: #123149;
+  --betcco-blue-900: #0d2336;
+  --betcco-teal-50: var(--betcco-mint);
+  --betcco-teal-100: #c4eee7;
+  --betcco-teal-200: #92dfd1;
+  --betcco-teal-300: #62cdbb;
+  --betcco-teal-400: var(--betcco-teal);
+  --betcco-teal-500: #10a18c;
+  --betcco-teal-600: var(--betcco-teal-strong);
+  --betcco-teal-700: #086459;
+  --betcco-teal-800: #0d4d45;
+  --betcco-teal-900: #103c37;
+
   /* Keep the existing application stack; these are fallback contracts, not
      promises that a web font has been downloaded. Identity and UI state
      colors are intentionally separate (semantic roles live in globals.css). */

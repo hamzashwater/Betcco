@@ -75,7 +75,8 @@ describe("bounded UI-1R presentation projection for closed T7 guards", () => {
 
   it.each([
     ["rgba(5,10,25,.72)", "rgba(5,10,25,.73)"],
-    ["text-action-primary-text", "text-info"],
+    ["text-text-on-image", "text-info"],
+    ["text-text-on-image", "text-action-primary-text"],
     ['copy("discoverCourses")', 'copy("changedCourses")'],
     ['["catalog-taxonomy", locale]', '["catalog-taxonomy"]'],
   ])("still rejects catalogue drift from %s", (from, to) => {

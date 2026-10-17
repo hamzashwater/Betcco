@@ -63,13 +63,13 @@ export default function CoursesPage() {
         <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(5,10,25,.92),rgba(5,10,25,.72))]" />
         <span className="absolute -end-14 -top-14 size-64 rounded-full border border-primary/20" />
         <div className="relative max-w-3xl">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-action-primary-text">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-text-on-image">
             {copy("betccoCatalog")}
           </p>
-          <h1 className="mt-3 text-4xl font-black tracking-tight text-action-primary-text sm:text-5xl">
+          <h1 className="mt-3 text-4xl font-black tracking-tight text-text-on-image sm:text-5xl">
             {copy("discoverCourses")}
           </h1>
-          <p className="mt-3 max-w-2xl leading-7 text-action-primary-text">
+          <p className="mt-3 max-w-2xl leading-7 text-text-on-image">
             {copy("searchPublishedCoursesAndSelectTheTrack")}
           </p>
         </div>

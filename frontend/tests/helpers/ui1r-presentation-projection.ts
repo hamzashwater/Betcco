@@ -69,7 +69,7 @@ const coursesEdits = [
     before: `<p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
       {copy("betccoCatalog")}
     </p>`,
-    after: `<p className="text-xs font-black uppercase tracking-[0.18em] text-action-primary-text">
+    after: `<p className="text-xs font-black uppercase tracking-[0.18em] text-text-on-image">
       {copy("betccoCatalog")}
     </p>`,
   },
@@ -78,7 +78,7 @@ const coursesEdits = [
     before: `<h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
       {copy("discoverCourses")}
     </h1>`,
-    after: `<h1 className="mt-3 text-4xl font-black tracking-tight text-action-primary-text sm:text-5xl">
+    after: `<h1 className="mt-3 text-4xl font-black tracking-tight text-text-on-image sm:text-5xl">
       {copy("discoverCourses")}
     </h1>`,
   },
@@ -87,7 +87,7 @@ const coursesEdits = [
     before: `<p className="mt-3 max-w-2xl leading-7 text-muted">
       {copy("searchPublishedCoursesAndSelectTheTrack")}
     </p>`,
-    after: `<p className="mt-3 max-w-2xl leading-7 text-action-primary-text">
+    after: `<p className="mt-3 max-w-2xl leading-7 text-text-on-image">
       {copy("searchPublishedCoursesAndSelectTheTrack")}
     </p>`,
   },
