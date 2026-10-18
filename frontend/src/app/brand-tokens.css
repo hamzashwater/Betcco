@@ -1,3 +1,50 @@
+/* UI-D01-03: unmodified, locally served OFL fonts; source hashes/licenses
+   are in public/fonts/. Optional display keeps late delivery from swapping
+   already readable fallback text. Only named typography roles opt in. */
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/inter/InterVariable.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: optional;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans Arabic";
+  src: url("/fonts/ibm-plex-sans-arabic/IBMPlexSansArabic-Regular.woff2")
+    format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: optional;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans Arabic";
+  src: url("/fonts/ibm-plex-sans-arabic/IBMPlexSansArabic-Medium.woff2")
+    format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: optional;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans Arabic";
+  src: url("/fonts/ibm-plex-sans-arabic/IBMPlexSansArabic-SemiBold.woff2")
+    format("woff2");
+  font-style: normal;
+  font-weight: 600;
+  font-display: optional;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans Arabic";
+  src: url("/fonts/ibm-plex-sans-arabic/IBMPlexSansArabic-Bold.woff2")
+    format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: optional;
+}
+
 :root {
   --betcco-navy: #0d1b2a;
   --betcco-blue: #1b4f72;
@@ -44,6 +91,10 @@
   /* Keep the existing application stack; these are fallback contracts, not
      promises that a web font has been downloaded. Identity and UI state
      colors are intentionally separate (semantic roles live in globals.css). */
+  --betcco-typeface-en: "Inter", "Segoe UI", Arial, sans-serif;
+  --betcco-typeface-ar:
+    "IBM Plex Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
+
   --betcco-font-en:
     "Tajawal", "Noto Sans Arabic", "Segoe UI", Arial, sans-serif;
   --betcco-font-ar:

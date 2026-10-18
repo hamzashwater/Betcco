@@ -89,10 +89,24 @@
   --ui-overlay-scrim: rgb(0 0 0 / 0.65);
   --ui-font-body: var(--betcco-font-en);
   --ui-font-heading: var(--ui-font-body);
-  --ui-type-page-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
-  --ui-type-section-size: 1.25rem;
-  --ui-type-body-size: 1rem;
-  --ui-type-meta-size: 0.875rem;
+  /* Approved DC03 roles; legacy body/font aliases remain unchanged. */
+  --ui-type-family: var(--betcco-typeface-en);
+  --ui-type-display-size: 56px;
+  --ui-type-display-line: 64px;
+  --ui-type-page-size: 28px;
+  --ui-type-page-line: 36px;
+  --ui-type-section-size: 20px;
+  --ui-type-section-line: 28px;
+  --ui-type-item-size: 16px;
+  --ui-type-item-line: 24px;
+  --ui-type-body-size: 16px;
+  --ui-type-body-line: 26px;
+  --ui-type-label-size: 14px;
+  --ui-type-label-line: 22px;
+  --ui-type-meta-size: 12px;
+  --ui-type-meta-line: 18px;
+  --ui-type-data-size: 14px;
+  --ui-type-data-line: 22px;
   --ui-heading-leading: 1.4;
   --ui-body-leading: 1.65;
   --ui-heading-tracking: -0.015em;
@@ -408,45 +422,169 @@ select optgroup {
   outline-offset: 3px;
 }
 
-/* Typography roles are opt-in. Arabic has its own leading/tracking even
-   inside an English interface; existing feature-specific styles are intact. */
+/* Named roles and the Action/QueryState primitives opt in. Unmigrated
+   page copy, body defaults and legacy heavy classes retain their baseline. */
+:lang(en) {
+  --ui-type-family: var(--betcco-typeface-en);
+  --ui-type-display-size: 56px;
+  --ui-type-display-line: 64px;
+  --ui-type-page-size: 28px;
+  --ui-type-page-line: 36px;
+  --ui-type-section-size: 20px;
+  --ui-type-section-line: 28px;
+  --ui-type-item-size: 16px;
+  --ui-type-item-line: 24px;
+  --ui-type-body-size: 16px;
+  --ui-type-body-line: 26px;
+  --ui-type-label-size: 14px;
+  --ui-type-label-line: 22px;
+  --ui-type-meta-size: 12px;
+  --ui-type-meta-line: 18px;
+  --ui-type-data-size: 14px;
+  --ui-type-data-line: 22px;
+}
+
 :lang(ar) {
   --ui-font-body: var(--betcco-font-ar);
   --ui-font-heading: var(--ui-font-body);
   --ui-heading-leading: 1.6;
   --ui-body-leading: 1.8;
   --ui-heading-tracking: normal;
+  --ui-type-family: var(--betcco-typeface-ar);
+  --ui-type-display-size: 48px;
+  --ui-type-display-line: 72px;
+  --ui-type-page-size: 28px;
+  --ui-type-page-line: 42px;
+  --ui-type-section-size: 20px;
+  --ui-type-section-line: 32px;
+  --ui-type-item-size: 17px;
+  --ui-type-item-line: 28px;
+  --ui-type-body-size: 16px;
+  --ui-type-body-line: 29px;
+  --ui-type-label-size: 15px;
+  --ui-type-label-line: 26px;
+  --ui-type-meta-size: 13px;
+  --ui-type-meta-line: 22px;
+  --ui-type-data-size: 15px;
+  --ui-type-data-line: 26px;
 }
 
+.ui-type-display,
 .ui-type-page,
-.ui-type-section {
-  font-family: var(--ui-font-heading);
-  line-height: var(--ui-heading-leading);
-  letter-spacing: var(--ui-heading-tracking);
+.ui-type-section,
+.ui-type-item,
+.ui-type-body,
+.ui-type-label,
+.ui-type-meta,
+.ui-type-data {
+  font-family: var(--ui-type-family);
+  font-synthesis: none;
+  letter-spacing: normal;
+}
+
+/* Explicit language runs keep mixed identifiers/content intact. */
+:is(
+    .ui-type-display,
+    .ui-type-page,
+    .ui-type-section,
+    .ui-type-item,
+    .ui-type-body,
+    .ui-type-label,
+    .ui-type-meta,
+    .ui-type-data
+  )
+  [lang] {
+  font-family: var(--ui-type-family);
+  font-synthesis: none;
+  letter-spacing: normal;
+}
+
+.ui-type-display {
+  font-size: var(--ui-type-display-size);
+  line-height: var(--ui-type-display-line);
   font-weight: 700;
 }
 
 .ui-type-page {
   font-size: var(--ui-type-page-size);
+  line-height: var(--ui-type-page-line);
+  font-weight: 700;
 }
 
 .ui-type-section {
   font-size: var(--ui-type-section-size);
+  line-height: var(--ui-type-section-line);
+  font-weight: 600;
 }
 
-.ui-type-body,
-.ui-type-meta {
-  font-family: var(--ui-font-body);
-  line-height: var(--ui-body-leading);
-  letter-spacing: normal;
+.ui-type-item {
+  font-size: var(--ui-type-item-size);
+  line-height: var(--ui-type-item-line);
+  font-weight: 600;
 }
 
 .ui-type-body {
   font-size: var(--ui-type-body-size);
+  line-height: var(--ui-type-body-line);
+  font-weight: 400;
+}
+
+.ui-type-label {
+  font-size: var(--ui-type-label-size);
+  line-height: var(--ui-type-label-line);
+  font-weight: 500;
 }
 
 .ui-type-meta {
   font-size: var(--ui-type-meta-size);
+  line-height: var(--ui-type-meta-line);
+  font-weight: 400;
+}
+
+.ui-type-data {
+  font-size: var(--ui-type-data-size);
+  line-height: var(--ui-type-data-line);
+  font-weight: 400;
+}
+
+.ui-type-display,
+.ui-type-page,
+.ui-type-section,
+.ui-type-item {
+  letter-spacing: var(--ui-heading-tracking);
+}
+
+.ui-type-data th {
+  font-weight: 600;
+}
+
+/* Inter's Latin tabular figures are verified. Plex Arabic-Indic numerals
+   remain proportional; preserve the actual glyphs and end-align columns. */
+.ui-type-data:lang(en),
+.ui-type-data [lang|="en"] {
+  font-variant-numeric: tabular-nums;
+}
+
+.ui-type-data:lang(ar),
+.ui-type-data [lang|="ar"] {
+  font-variant-numeric: normal;
+}
+
+@media (max-width: 767px) {
+  :root,
+  :lang(en) {
+    --ui-type-display-size: 32px;
+    --ui-type-display-line: 40px;
+    --ui-type-page-size: 24px;
+    --ui-type-page-line: 32px;
+  }
+
+  :lang(ar) {
+    --ui-type-display-size: 30px;
+    --ui-type-display-line: 46px;
+    --ui-type-page-size: 24px;
+    --ui-type-page-line: 38px;
+  }
 }
 
 @media print {

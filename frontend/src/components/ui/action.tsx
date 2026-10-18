@@ -16,7 +16,7 @@ export function actionClassName(
   className = "",
   pending = false,
 ) {
-  return `focus-ring inline-flex min-h-11 max-w-full items-center justify-center gap-2 rounded-control border px-4 py-2 text-sm font-bold leading-6 whitespace-normal break-words transition-colors duration-150 motion-reduce:transition-none enabled:hover:brightness-110 focus-visible:outline-offset-4 disabled:cursor-not-allowed disabled:opacity-100 ${pending ? "" : "disabled:border-border-default! disabled:bg-action-disabled disabled:text-action-disabled-text"} ${variants[variant]} ${className}`;
+  return `focus-ring inline-flex min-h-11 max-w-full items-center justify-center gap-2 rounded-control border px-4 py-2 ui-type-label whitespace-normal break-words transition-colors duration-150 motion-reduce:transition-none enabled:hover:brightness-110 focus-visible:outline-offset-4 disabled:cursor-not-allowed disabled:opacity-100 ${pending ? "" : "disabled:border-border-default! disabled:bg-action-disabled disabled:text-action-disabled-text"} ${variants[variant]} ${className}`;
 }
 
 type ActionProps = ButtonHTMLAttributes<HTMLButtonElement> & {
