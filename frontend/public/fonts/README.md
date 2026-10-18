@@ -1,0 +1,18 @@
+# UI-D01-03 font delivery
+
+These are unmodified upstream WOFF2 files, served from this application's public directory. Their SIL Open Font License 1.1 notice wording is included beside each family; only line endings and trailing whitespace are normalized for Git. [sources.json](sources.json) records the exact byte lengths and SHA-256 hashes of the stored fonts and notices, plus the original upstream notice hashes.
+
+| Family               | Pinned source                                                                                                                                   | Delivered files                                                                                                                                                                                                               |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Inter                | [rsms/inter at 353b61b](https://github.com/rsms/inter/tree/353b61b9f4430d5f420d56605a6e7993e0941470/docs/font-files)                            | `InterVariable.woff2`; upstream [LICENSE.txt](https://raw.githubusercontent.com/rsms/inter/353b61b9f4430d5f420d56605a6e7993e0941470/LICENSE.txt) retained as `inter/OFL.txt`                                                  |
+| IBM Plex Sans Arabic | [IBM/plex at 71f5589](https://github.com/IBM/plex/tree/71f558992315a12ca1f06a2215d57962a1992162/packages/plex-sans-arabic/fonts/complete/woff2) | Regular, Medium, SemiBold, Bold; upstream [LICENSE.txt](https://raw.githubusercontent.com/IBM/plex/71f558992315a12ca1f06a2215d57962a1992162/packages/plex-sans-arabic/LICENSE.txt) retained as `ibm-plex-sans-arabic/OFL.txt` |
+
+Only normal 400/500/600/700 roles are exposed by `brand-tokens.css`. The unmodified Inter variable binary contains its upstream 100–900 weight and optical-size axes; CSS deliberately exposes only 400–700. No italic face, font package, subsetting or conversion is introduced. The five WOFF2 files total **650,276 bytes**; this is the complete available payload, not a claim that every page downloads every face.
+
+Named `.ui-type-*` roles opt in through `--betcco-typeface-en/ar`. Existing `--betcco-font-en/ar`, body defaults and layout modules retain their previous policy. Explicit language runs select the corresponding family without changing their text or direction.
+
+Each face uses `font-display: optional`, with no global preload. A slow first navigation can keep the readable system fallback for that navigation; a subsequent cached navigation can use the approved face. This deliberately trades immediate brand-font consistency for avoiding a late font swap. See the [font-display behavior](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/font-display). Fallback is Segoe UI, then Arial for EN; Segoe UI, Tahoma, then Arial for AR; platform shaping/final sans-serif remains browser-owned.
+
+Inter Latin digits were verified with `tnum`. The delivered Plex Arabic-Indic digits are proportional and have no `tnum` feature; preserve the actual digits and use end-aligned columns. Do not infer Arabic tabular support from Latin digits or from alignment alone.
+
+See [implementation and measured limits](../../specimens/UI-D01-03.md). Font updates must refresh source pins, license notices, hashes and rendering/fallback evidence together.

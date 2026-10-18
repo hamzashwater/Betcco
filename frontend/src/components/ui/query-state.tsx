@@ -68,9 +68,9 @@ export function QueryState({
           className={`mt-0.5 shrink-0 ${color}`}
         />
         <div className="min-w-0 flex-1">
-          <p className="break-words text-sm font-bold leading-6">{title}</p>
+          <p className="ui-type-label break-words">{title}</p>
           {description ? (
-            <div className="mt-1 text-sm leading-6 text-text-secondary">
+            <div className="ui-type-body mt-1 text-text-secondary">
               {description}
             </div>
           ) : null}
@@ -95,7 +95,7 @@ export function MutationOutcome({
   return (
     <p
       role={kind === "success" ? "status" : "alert"}
-      className={`flex items-start gap-2 text-sm font-semibold leading-6 ${kind === "success" ? "text-success" : "text-danger"}`}
+      className={`ui-type-label flex items-start gap-2 ${kind === "success" ? "text-success" : "text-danger"}`}
     >
       <Icon size={20} aria-hidden="true" className="mt-0.5 shrink-0" />
       {children}
