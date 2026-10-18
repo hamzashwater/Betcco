@@ -6,6 +6,8 @@ import {
   formatLocalizedPercentage,
 } from "@/i18n/number-format";
 import { DashboardHeader } from "@/components/dashboard/dashboard-ui";
+import { Action, actionClassName } from "@/components/ui/action";
+import { QueryState } from "@/components/ui/query-state";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -286,20 +288,25 @@ export function TeacherStudentFollowUp() {
       </div>
 
       <div aria-live="polite" aria-busy={result.isPending}>
+        {result.isError ? (
+          <QueryState
+            kind="error"
+            title={t("loadError")}
+            className="mt-4"
+            action={
+              <Action
+                variant="secondary"
+                type="button"
+                onClick={() => void result.refetch()}
+              >
+                {t("retry")}
+              </Action>
+            }
+          />
+        ) : null}
         {result.isPending ? (
-          <div className="card mt-4 p-6 text-sm text-muted">{t("loading")}</div>
-        ) : result.isError ? (
-          <div className="card mt-4 p-6" role="alert">
-            <p className="text-sm text-muted">{t("loadError")}</p>
-            <button
-              type="button"
-              onClick={() => void result.refetch()}
-              className="focus-ring mt-3 rounded-xl border border-border px-4 py-2 text-sm font-bold text-primary"
-            >
-              {t("retry")}
-            </button>
-          </div>
-        ) : result.data.studentsAtRisk.length ? (
+          <QueryState kind="loading" title={t("loading")} className="mt-4" />
+        ) : result.data?.studentsAtRisk.length ? (
           <>
             <p className="mt-4 text-sm font-semibold text-muted">
               {t("results", { from, to, count: filteredCount })}
@@ -319,10 +326,10 @@ export function TeacherStudentFollowUp() {
                         {student.studentName}
                       </h2>
                       <span
-                        className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-black ${
+                        className={`ui-type-label shrink-0 rounded-full px-2.5 py-1 ${
                           student.riskLevel === "High"
-                            ? "bg-red-500/15 text-red-600 dark:text-red-300"
-                            : "bg-amber-500/15 text-amber-700 dark:text-amber-300"
+                            ? "bg-danger-surface text-state-danger-foreground"
+                            : "bg-warning-surface text-state-warning-foreground"
                         }`}
                       >
                         {t(`attention.${student.riskLevel}`)}
@@ -385,43 +392,43 @@ export function TeacherStudentFollowUp() {
               className="card mt-4 flex flex-wrap items-center justify-between gap-3 p-4"
               aria-label={t("paginationLabel")}
             >
-              <button
+              <Action
+                variant="secondary"
                 type="button"
                 disabled={page <= 1 || result.isFetching}
                 onClick={() => setPage((current) => Math.max(1, current - 1))}
-                className="focus-ring inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-bold text-foreground disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <ChevronLeft
-                  size={17}
+                  size={18}
                   className="rtl:-scale-x-100"
                   aria-hidden="true"
                 />
                 {t("previous")}
-              </button>
+              </Action>
               <span
                 className="text-sm font-bold text-muted"
                 aria-current="page"
               >
                 {t("currentPage", { page, totalPages })}
               </span>
-              <button
+              <Action
+                variant="secondary"
                 type="button"
                 disabled={page >= totalPages || result.isFetching}
                 onClick={() =>
                   setPage((current) => Math.min(totalPages, current + 1))
                 }
-                className="focus-ring inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-bold text-foreground disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {t("next")}
                 <ChevronRight
-                  size={17}
+                  size={18}
                   className="rtl:-scale-x-100"
                   aria-hidden="true"
                 />
-              </button>
+              </Action>
             </nav>
           </>
-        ) : (
+        ) : result.data ? (
           <EmptyState
             message={
               result.data.studentsAtRiskCount === 0
@@ -443,7 +450,7 @@ export function TeacherStudentFollowUp() {
               sort !== "priority"
             }
           />
-        )}
+        ) : null}
       </div>
     </section>
   );
@@ -451,10 +458,12 @@ export function TeacherStudentFollowUp() {
 
 export function TeacherFollowUpPreview({
   pending,
+  error = false,
   students,
   totalCount,
 }: {
   pending: boolean;
+  error?: boolean;
   students: TeacherFollowUpStudent[];
   totalCount: number;
 }) {
@@ -485,16 +494,19 @@ export function TeacherFollowUpPreview({
         </div>
         <Link
           href={`/${locale}/teacher/students`}
-          className="focus-ring inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-black text-primary hover:bg-primary/10"
+          className={actionClassName("quiet")}
         >
           {t("viewAll")}
           <ArrowUpRight
-            size={17}
+            size={18}
             className="rtl:-scale-x-100"
             aria-hidden="true"
           />
         </Link>
       </div>
+      {error ? (
+        <QueryState kind="error" title={t("loadError")} className="mt-4" />
+      ) : null}
       {pending ? (
         <p className="mt-4 text-sm text-muted" aria-busy="true">
           {t("loading")}
@@ -511,7 +523,7 @@ export function TeacherFollowUpPreview({
                 <p className="min-w-0 break-words font-black text-foreground">
                   {student.studentName}
                 </p>
-                <span className="shrink-0 text-xs font-black text-amber-700 dark:text-amber-300">
+                <span className="ui-type-label shrink-0 rounded-full bg-warning-surface px-2.5 py-1 text-state-warning-foreground">
                   {t(`attention.${student.riskLevel}`)}
                 </span>
               </div>
@@ -531,11 +543,11 @@ export function TeacherFollowUpPreview({
             </li>
           ))}
         </ul>
-      ) : (
+      ) : !error ? (
         <p className="mt-4 rounded-xl border border-dashed border-border px-4 py-5 text-sm text-muted">
           {t("empty.noFollowUp")}
         </p>
-      )}
+      ) : null}
       {!pending && totalCount > preview.length ? (
         <p className="mt-3 text-xs font-semibold text-muted">
           {t("previewCount", {
@@ -645,17 +657,17 @@ function EmptyState({
   showReset: boolean;
 }) {
   return (
-    <div className="card mt-4 p-6 text-center">
-      <p className="font-bold text-foreground">{message}</p>
-      {showReset ? (
-        <button
-          type="button"
-          onClick={onReset}
-          className="focus-ring mt-3 rounded-xl border border-border px-4 py-2 text-sm font-bold text-primary"
-        >
-          {resetLabel}
-        </button>
-      ) : null}
-    </div>
+    <QueryState
+      kind="empty"
+      title={message}
+      className="mt-4"
+      action={
+        showReset ? (
+          <Action variant="secondary" type="button" onClick={onReset}>
+            {resetLabel}
+          </Action>
+        ) : undefined
+      }
+    />
   );
 }

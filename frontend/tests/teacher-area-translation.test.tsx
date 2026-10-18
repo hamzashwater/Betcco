@@ -217,12 +217,19 @@ describe.each(["en", "ar"] as const)(
       );
       expect(screen.getByText(copy.dashboard.drafts)).toBeVisible();
       expect(screen.queryByText("Server course title")).not.toBeInTheDocument();
-      // The dashboard owns no separate error alert; the existing course summary does.
+      // Each failed region reports its own error while keeping cached values.
       apiMock.mockRejectedValue(new Error("RAW fetch failure"));
       await act(async () => {
         await client.refetchQueries();
       });
-      expect(await screen.findByRole("alert")).toHaveTextContent(
+      expect(
+        await screen.findByText(
+          (locale === "ar" ? arMessages : enMessages).teacherStudentFollowUp
+            .loadError,
+        ),
+      ).toBeVisible();
+      expect(screen.getAllByRole("alert")).toHaveLength(2);
+      expect(screen.getAllByRole("alert")[1]).toHaveTextContent(
         locale === "ar"
           ? "تعذر تحميل دوراتك"
           : "Your courses could not be loaded.",
