@@ -3,12 +3,18 @@ import ts from "typescript";
 import { describe, expect, it } from "vitest";
 import messages from "../messages/en.json";
 import {
+  projectAdminStateSource,
+  withoutAdminStateAdditions,
+} from "./helpers/admin-state-projection";
+import {
   contractHash,
   scopedFunctions,
   scopedNames,
   staticCopyFindings,
 } from "./helpers/admin-dashboard-i18n-audit";
-const source = readFileSync("src/features/admin/admin-area.tsx", "utf8");
+const source = projectAdminStateSource(
+  readFileSync("src/features/admin/admin-area.tsx", "utf8"),
+);
 function leaves(value: unknown, prefix = ""): string[] {
   return value && typeof value === "object"
     ? Object.entries(value).flatMap(([key, child]) =>
@@ -51,7 +57,9 @@ describe("scoped Admin Dashboard translation and contract AST audit", () => {
       }
       visit(fn);
     }
-    const dashboardLeaves = leaves(messages.adminWorkspace).filter(
+    const dashboardLeaves = leaves(
+      withoutAdminStateAdditions(structuredClone(messages)).adminWorkspace,
+    ).filter(
       (key) =>
         key.startsWith("dashboard.") ||
         key.startsWith("analytics.") ||

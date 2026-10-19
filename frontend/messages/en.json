@@ -2444,7 +2444,8 @@
         "orders": "Orders",
         "activeSubscriptions": "Active subscriptions",
         "refunds": "Refunds"
-      }
+      },
+      "requestError": "The dashboard request failed."
     },
     "navigation": {
       "students": {
@@ -2683,7 +2684,8 @@
       "approveAfterReview": "Approve after review",
       "publish": "Publish course",
       "requestError": "Request failed.",
-      "empty": "No courses await review."
+      "empty": "No courses await review.",
+      "signIn": "Sign in to access course approvals."
     },
     "courseApprovalPreview": {
       "loadError": "Unable to load course content.",

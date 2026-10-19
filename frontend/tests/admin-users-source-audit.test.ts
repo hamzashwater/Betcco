@@ -11,6 +11,7 @@ import {
 import messages from "../messages/en.json";
 import arabicMessages from "../messages/ar.json";
 import copyBaseline from "./fixtures/admin-users-copy-baseline.json";
+import { withoutAdminStateAdditions } from "./helpers/admin-state-projection";
 const files = Object.entries(scopes).map(([path, names]) => ({
   path,
   names,
@@ -55,7 +56,8 @@ describe("scoped Admin user/identity source and contract audit", () => {
       ["ar", arabicMessages],
       ["en", messages],
     ] as const) {
-      const workspace = catalogue.adminWorkspace;
+      const workspace = withoutAdminStateAdditions(structuredClone(catalogue))
+        .adminWorkspace as typeof catalogue.adminWorkspace;
       // Select the original slice explicitly as later scoped slices extend it.
       const original: Record<string, unknown> = Object.fromEntries(
         Object.entries(workspace).filter(([key]) =>

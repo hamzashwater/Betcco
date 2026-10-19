@@ -11,6 +11,7 @@ import {
 import { createTranslator, NextIntlClientProvider } from "next-intl";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AdminArea } from "@/features/admin/admin-area";
+import { ApiError } from "@/lib/api";
 import { formatLocalizedCurrency } from "@/i18n/number-format";
 import ar from "../messages/ar.json";
 import en from "../messages/en.json";
@@ -22,7 +23,10 @@ import {
 } from "./fixtures/admin-evaluations-approvals";
 const apiMock = vi.hoisted(() => vi.fn());
 const assignmentProps = vi.hoisted(() => vi.fn());
-vi.mock("@/lib/api", () => ({ api: apiMock }));
+vi.mock("@/lib/api", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/api")>()),
+  api: apiMock,
+}));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
   usePathname: () => "/en/admin/evaluations",
@@ -576,7 +580,7 @@ describe.each(["ar", "en"] as const)(
         );
       });
       it("localizes access denied and preserves the existing error presentation", async () => {
-        apiMock.mockRejectedValue(Error("denied"));
+        apiMock.mockRejectedValue(new ApiError(403, "denied"));
         const { copy } = setup(locale, "course-approvals");
         expect(
           await screen.findByText(copy.courseApprovals.accessDenied),

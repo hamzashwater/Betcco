@@ -1,6 +1,7 @@
 import baseline from "../fixtures/metadata-i18n-baseline.json";
 import { digest, leaves } from "./admin-final-i18n-audit";
 import { withoutStudentStateAdditions } from "./student-state-projection";
+import { withoutAdminStateAdditions } from "./admin-state-projection";
 
 const frozen = {
   ar: "ffbc3c9c3e0dd13097122eeb08069cf11fa5dafdc524141cb5a68248ba1fb9d5",
@@ -14,6 +15,7 @@ const expected = (["ar", "en"] as const).map((locale) => {
 });
 
 export function withoutMetadataAdditions(value: Record<string, unknown>) {
+  withoutAdminStateAdditions(value);
   withoutStudentStateAdditions(value);
   if (!expected.includes(JSON.stringify(leaves(value.siteMetadata))))
     throw new Error("Unverified metadata additions");

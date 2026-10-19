@@ -117,7 +117,10 @@ function literalType(type: ts.Type): string[] | undefined {
     if (parts.every((part) => part !== undefined)) return parts.flat();
   }
 }
-export function createAudit(files = inventory()) {
+export function createAudit(
+  files = inventory(),
+  project?: (path: string, source: string) => string,
+) {
   const root = resolve(".");
   const config = ts.readConfigFile(resolve("tsconfig.json"), ts.sys.readFile);
   const options = ts.parseJsonConfigFileContent(
@@ -125,7 +128,14 @@ export function createAudit(files = inventory()) {
     ts.sys,
     root,
   ).options;
-  const program = ts.createProgram(files, options);
+  const host = ts.createCompilerHost(options);
+  const readFile = host.readFile;
+  if (project)
+    host.readFile = (path) => {
+      const source = readFile(path);
+      return source === undefined ? source : project(path, source);
+    };
+  const program = ts.createProgram(files, options, host);
   return { program, checker: program.getTypeChecker() };
 }
 export function auditFile(
@@ -617,9 +627,12 @@ export function auditFile(
     findings,
   };
 }
-export function wholeAudit(exceptions: Record<string, Exception[]>) {
+export function wholeAudit(
+  exceptions: Record<string, Exception[]>,
+  project?: (path: string, source: string) => string,
+) {
   const files = inventory(),
-    { program, checker } = createAudit(files);
+    { program, checker } = createAudit(files, project);
   return files.map((path) =>
     auditFile(
       program.getSourceFile(path)!,

@@ -6,6 +6,7 @@ import { join, basename } from "node:path";
 import baseline from "./fixtures/admin-final-i18n-baseline.json";
 import { withoutFinalAdminAdditions } from "./helpers/admin-final-catalogue-projection";
 import { withoutSharedShellAdditions } from "./helpers/shared-shell-catalogue-projection";
+import { projectAdminStateSource } from "./helpers/admin-state-projection";
 import {
   auditFile,
   catalogue,
@@ -19,7 +20,11 @@ import {
 } from "./helpers/admin-final-i18n-audit";
 
 const exceptions = baseline.exceptions as Record<string, Exception[]>;
-const reports = wholeAudit(exceptions);
+const project = (path: string, source: string) =>
+  path.replaceAll("\\", "/").endsWith("/admin-area.tsx")
+    ? projectAdminStateSource(source)
+    : source;
+const reports = wholeAudit(exceptions, project);
 const debt = (findings: (typeof reports)[number]["findings"]) =>
   findings.filter((f) =>
     ["STATIC_UI", "ACCESSIBILITY_STATIC_UI", "UNCLASSIFIED"].includes(
@@ -78,7 +83,8 @@ describe("final whole-Admin i18n gate", () => {
   it.each(reports)(
     "freezes all non-copy contracts in $file against live base",
     (report) => {
-      const source = read(`src/features/admin/${report.file}`);
+      const path = `src/features/admin/${report.file}`;
+      const source = project(path, read(path));
       if (report.file === "content-studio.tsx")
         expect(contentContract(source)).toEqual(baseline.contentContract);
       else

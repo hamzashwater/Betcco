@@ -1,0 +1,63 @@
+{
+  "base": "7464f0d73dabb0e07385d23b85592f568091063c",
+  "sourceHash": "8f85c33f8f8714db05d6e280f3beeca944cbc496a4ef491112de4050fd64e421",
+  "seams": [
+    {
+      "approved": "  formatLocalizedNumber,\n  formatLocalizedPercentage,\n} from \"@/i18n/number-format\";\nimport { api, ApiError } from \"@/lib/api\";\nimport { AccountSecurity } from \"@/features/auth/account-security\";\nimport { AccountProfile } from \"@/features/auth/account-profile\";\nimport { AccountIdentityManagement } from \"@/features/admin/account-identity-management\";\n",
+      "previous": "  formatLocalizedNumber,\n  formatLocalizedPercentage,\n} from \"@/i18n/number-format\";\nimport { api } from \"@/lib/api\";\nimport { AccountSecurity } from \"@/features/auth/account-security\";\nimport { AccountProfile } from \"@/features/auth/account-profile\";\nimport { AccountIdentityManagement } from \"@/features/admin/account-identity-management\";\n"
+    },
+    {
+      "approved": "  ActionCard,\n  DashboardHeader,\n  MetricCard,\n  QueryState,\n} from \"@/components/dashboard/dashboard-ui\";\nimport Link from \"next/link\";\nimport { useLocale, useTranslations } from \"next-intl\";\n",
+      "previous": "  ActionCard,\n  DashboardHeader,\n  MetricCard,\n} from \"@/components/dashboard/dashboard-ui\";\nimport Link from \"next/link\";\nimport { useLocale, useTranslations } from \"next-intl\";\n"
+    },
+    {
+      "approved": "  return date.toISOString().slice(0, 10);\n}\n\nfunction AdminRequestFailure({\n  error,\n  signInTitle,\n  failureTitle,\n  cached = false,\n}: {\n  error: unknown;\n  signInTitle: string;\n  failureTitle: string;\n  cached?: boolean;\n}) {\n  const t = useTranslations(\"adminWorkspace\");\n  const status = error instanceof ApiError ? error.status : undefined;\n  const unauthenticated = status === 401 && !cached;\n  const forbidden = status === 403;\n  return (\n    <QueryState\n      kind={unauthenticated || forbidden ? \"restricted\" : \"error\"}\n      title={\n        unauthenticated\n          ? signInTitle\n          : forbidden\n            ? t(\"courseApprovals.accessDenied\")\n            : failureTitle\n      }\n    />\n  );\n}\n\nfunction AdminDashboard() {\n  const t = useTranslations(\"adminWorkspace\");\n  const locale = useLocale();\n",
+      "previous": "  return date.toISOString().slice(0, 10);\n}\n\nfunction AdminDashboard() {\n  const t = useTranslations(\"adminWorkspace\");\n  const locale = useLocale();\n"
+    },
+    {
+      "approved": "  if (result.isPending)\n    return (\n      <section className=\"shell py-10\">\n        <QueryState kind=\"loading\" title={t(\"shared.loadingIndicator\")} />\n      </section>\n    );\n  if (!result.data)\n    return (\n      <section className=\"shell py-10\">\n        <AdminRequestFailure\n          error={result.error}\n          signInTitle={t(\"dashboard.signIn\")}\n          failureTitle={t(\"dashboard.requestError\")}\n        />\n      </section>\n    );\n  return (\n    <section className=\"shell py-10\">\n      {result.isError ? (\n        <AdminRequestFailure\n          error={result.error}\n          signInTitle={t(\"dashboard.signIn\")}\n          failureTitle={t(\"dashboard.requestError\")}\n          cached\n        />\n      ) : null}\n      <DashboardHeader\n        eyebrow={t(\"dashboard.eyebrow\")}\n        title={t(\"dashboard.title\")}\n",
+      "previous": "  if (result.isPending)\n    return (\n      <section className=\"shell py-10\">\n        <div className=\"card p-6\" aria-busy>\n          {t(\"shared.loadingIndicator\")}\n        </div>\n      </section>\n    );\n  if (result.isError || !result.data)\n    return (\n      <section className=\"shell py-10\">\n        <p className=\"card p-6\">{t(\"dashboard.signIn\")}</p>\n      </section>\n    );\n  return (\n    <section className=\"shell py-10\">\n      <DashboardHeader\n        eyebrow={t(\"dashboard.eyebrow\")}\n        title={t(\"dashboard.title\")}\n"
+    },
+    {
+      "approved": "  if (approvals.isPending)\n    return (\n      <section className=\"shell py-10\">\n        <QueryState kind=\"loading\" title={t(\"shared.loadingIndicator\")} />\n      </section>\n    );\n  if (!approvals.data)\n    return (\n      <section className=\"shell py-10\">\n        <AdminRequestFailure\n          error={approvals.error}\n          signInTitle={t(\"courseApprovals.signIn\")}\n          failureTitle={t(\"courseApprovals.requestError\")}\n        />\n      </section>\n    );\n  return (\n    <section className=\"shell py-10\">\n      {approvals.isError ? (\n        <AdminRequestFailure\n          error={approvals.error}\n          signInTitle={t(\"courseApprovals.signIn\")}\n          failureTitle={t(\"courseApprovals.requestError\")}\n          cached\n        />\n      ) : null}\n      <h1 className=\"text-3xl font-black\">{t(\"courseApprovals.title\")}</h1>\n      <p className=\"mt-2 max-w-3xl text-sm leading-6 text-muted\">\n        {t(\"courseApprovals.description\")}\n",
+      "previous": "  if (approvals.isPending)\n    return (\n      <section className=\"shell py-10\">\n        <div className=\"card p-6\" aria-busy>\n          {t(\"shared.loadingIndicator\")}\n        </div>\n      </section>\n    );\n  if (approvals.isError)\n    return (\n      <section className=\"shell py-10\">\n        <p className=\"card p-6\">{t(\"courseApprovals.accessDenied\")}</p>\n      </section>\n    );\n  return (\n    <section className=\"shell py-10\">\n      <h1 className=\"text-3xl font-black\">{t(\"courseApprovals.title\")}</h1>\n      <p className=\"mt-2 max-w-3xl text-sm leading-6 text-muted\">\n        {t(\"courseApprovals.description\")}\n"
+    },
+    {
+      "approved": "          </article>\n        ))}\n        {!approvals.data.length && (\n          <QueryState kind=\"empty\" title={t(\"courseApprovals.empty\")} />\n        )}\n      </div>\n    </section>\n",
+      "previous": "          </article>\n        ))}\n        {!approvals.data.length && (\n          <p className=\"card p-5 text-muted\">{t(\"courseApprovals.empty\")}</p>\n        )}\n      </div>\n    </section>\n"
+    }
+  ],
+  "additions": {
+    "en": {
+      "dashboard": {
+        "requestError": "The dashboard request failed."
+      },
+      "courseApprovals": {
+        "signIn": "Sign in to access course approvals."
+      }
+    },
+    "ar": {
+      "dashboard": {
+        "requestError": "تعذر إكمال طلب بيانات لوحة الإدارة."
+      },
+      "courseApprovals": {
+        "signIn": "سجّل الدخول للوصول إلى اعتماد الدورات."
+      }
+    }
+  },
+  "protectedFiles": {
+    "src/lib/api.ts": "c37160d930f46ecc1bb7f0ded769945dd33ebf4e10243e927cd6d6137ed75d84",
+    "src/components/ui/action.tsx": "8b558a91ec9a22f827519f829d15b24918268557b32417311410d84595bca904",
+    "src/components/ui/query-state.tsx": "77f75acfc70d7d6650f5dd5950eeaf2164c37af1a644e47a189312e48433d261",
+    "src/features/student/student-area.tsx": "b9f1af95f9840c064d178857476b01db8a41fe94e769af2d808c353df2eefb06",
+    "src/features/student/ai-practice-shell.tsx": "83b2687d77b5735a54b048b72f68589206e86bafaffa10ed3d8d36e948394531",
+    "src/features/teacher/teacher-area.tsx": "0bcb859946bdffde2efe43a86e39de49384bc59abcbe86ddb39908c426f2fe23",
+    "src/features/teacher/teacher-student-follow-up.tsx": "15a1dde91155e9147da9421e0546b0959f4aff1530e38509031759b6c5b79436",
+    "src/components/site-navigation.tsx": "fa379962fe96368da2ebad1da2ff984656da8e7c489dc4cd42bae7e67a6966ce",
+    "src/app/globals.css": "4ccb757d213b313fba87b13a54e392b80422daa9921fec02e120edb0e54daf01",
+    "src/app/brand-tokens.css": "7c24ddb90bd006506fb3132932bd32553ef48f9586431c37843f6185d65c5f1c",
+    "package.json": "38b49d24cd42cc223cb609364d2a30302095671503e1f351f91523a0e92a5609",
+    "pnpm-lock.yaml": "ad0f5192f977ad72ed3a364d7f6d6a3d6d04521dbfefff790a68af0b0f63e9c2",
+    "public/fonts/sources.json": "35deedc4403f76ac621b8c7ab1b5470646359d7b6c80ed3d118a3663265499c1"
+  }
+}
