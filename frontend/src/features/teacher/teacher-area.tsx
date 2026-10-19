@@ -6,6 +6,7 @@ import {
   formatLocalizedPercentage,
 } from "@/i18n/number-format";
 import { api } from "@/lib/api";
+import { actionClassName } from "@/components/ui/action";
 import { AccountSecurity } from "@/features/auth/account-security";
 import { AccountProfile } from "@/features/auth/account-profile";
 import { CourseEditor } from "@/features/teacher/course-editor";
@@ -84,7 +85,7 @@ function TeacherDashboard() {
         actions={
           <Link
             href={`/${locale}/teacher/courses/new`}
-            className="focus-ring inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-black text-slate-950"
+            className={actionClassName()}
           >
             <Plus size={18} aria-hidden="true" />
             {t("dashboard.createCourse")}
@@ -94,27 +95,31 @@ function TeacherDashboard() {
       <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <MetricCard
           label={t("dashboard.drafts")}
-          value={courses.isPending ? "—" : drafts}
+          value={courses.isPending || !courses.data ? "—" : drafts}
           detail={t("dashboard.draftsDetail")}
           icon={FilePenLine}
         />
         <MetricCard
           label={t("dashboard.awaitingReview")}
-          value={courses.isPending ? "—" : waiting}
+          value={courses.isPending || !courses.data ? "—" : waiting}
           detail={t("dashboard.awaitingReviewDetail")}
           icon={BadgeCheck}
           tone="warm"
         />
         <MetricCard
           label={t("dashboard.publishedCourses")}
-          value={courses.isPending ? "—" : published}
+          value={courses.isPending || !courses.data ? "—" : published}
           detail={t("dashboard.publishedCoursesDetail")}
           icon={GraduationCap}
           tone="secondary"
         />
         <MetricCard
           label={t("dashboard.enrolledStudents")}
-          value={analytics.isPending ? "—" : (analytics.data?.students ?? 0)}
+          value={
+            analytics.isPending || !analytics.data
+              ? "—"
+              : (analytics.data?.students ?? 0)
+          }
           detail={t("dashboard.enrolledStudentsDetail")}
           icon={GraduationCap}
           tone="secondary"
@@ -122,7 +127,9 @@ function TeacherDashboard() {
         <MetricCard
           label={t("dashboard.pendingReviews")}
           value={
-            analytics.isPending ? "—" : (analytics.data?.pendingReviews ?? 0)
+            analytics.isPending || !analytics.data
+              ? "—"
+              : (analytics.data?.pendingReviews ?? 0)
           }
           detail={t("dashboard.pendingReviewsDetail")}
           icon={ClipboardCheck}
@@ -131,7 +138,7 @@ function TeacherDashboard() {
         <MetricCard
           label={t("dashboard.averageProgress")}
           value={
-            analytics.isPending
+            analytics.isPending || !analytics.data
               ? "—"
               : formatLocalizedPercentage(
                   analytics.data?.averageLessonProgress ?? 0,
@@ -144,7 +151,7 @@ function TeacherDashboard() {
         <MetricCard
           label={t("dashboard.studentsNeedingAttention")}
           value={
-            analytics.isPending
+            analytics.isPending || !analytics.data
               ? "—"
               : (analytics.data?.studentsAtRiskCount ?? 0)
           }
@@ -155,6 +162,7 @@ function TeacherDashboard() {
       </div>
       <TeacherFollowUpPreview
         pending={analytics.isPending}
+        error={analytics.isError}
         students={analytics.data?.studentsAtRisk ?? []}
         totalCount={analytics.data?.studentsAtRiskCount ?? 0}
       />

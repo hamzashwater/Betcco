@@ -13,28 +13,28 @@ type QueryStateKind =
 const states = {
   loading: {
     icon: Loader,
-    color: "text-info",
-    surface: "border-s-2 border-info! bg-surface-muted",
+    color: "text-state-info-foreground",
+    surface: "border-s-2 border-state-info-border! bg-info-surface",
   },
   empty: {
     icon: Inbox,
-    color: "text-text-muted",
-    surface: "border-s-2 border-border-subtle!",
+    color: "text-state-neutral-foreground",
+    surface: "border-s-2 border-state-neutral-border! bg-state-neutral-surface",
   },
   error: {
     icon: CircleAlert,
-    color: "text-danger",
-    surface: "rounded-region border border-danger! bg-danger-surface",
+    color: "text-state-danger-foreground",
+    surface: "border-s-2 border-state-danger-border! bg-danger-surface",
   },
   unavailable: {
     icon: Info,
-    color: "text-warning",
-    surface: "border-s-2 border-warning! bg-warning-surface",
+    color: "text-state-warning-foreground",
+    surface: "border-s-2 border-state-warning-border! bg-warning-surface",
   },
   restricted: {
     icon: LockKeyhole,
-    color: "text-warning",
-    surface: "border-s-2 border-warning! bg-warning-surface",
+    color: "text-state-warning-foreground",
+    surface: "border-s-2 border-state-warning-border! bg-warning-surface",
   },
 };
 
@@ -59,11 +59,12 @@ export function QueryState({
         kind === "error" ? "alert" : kind === "loading" ? "status" : undefined
       }
       aria-busy={kind === "loading" ? true : undefined}
-      className={`min-w-0 p-5 text-text-primary ${surface} ${className}`}
+      className={`min-w-0 rounded-xl p-4 text-text-primary [overflow-wrap:anywhere] ${surface} ${className}`}
     >
       <div className="flex items-start gap-3">
         <Icon
-          size={22}
+          size={20}
+          strokeWidth={2}
           aria-hidden="true"
           className={`mt-0.5 shrink-0 ${color}`}
         />
@@ -95,9 +96,14 @@ export function MutationOutcome({
   return (
     <p
       role={kind === "success" ? "status" : "alert"}
-      className={`ui-type-label flex items-start gap-2 ${kind === "success" ? "text-success" : "text-danger"}`}
+      className={`ui-type-label flex min-w-0 items-start gap-2 rounded-lg border-s-2 p-3 [overflow-wrap:anywhere] ${kind === "success" ? "border-state-success-border! bg-success-surface text-state-success-foreground" : "border-state-danger-border! bg-danger-surface text-state-danger-foreground"}`}
     >
-      <Icon size={20} aria-hidden="true" className="mt-0.5 shrink-0" />
+      <Icon
+        size={20}
+        strokeWidth={2}
+        aria-hidden="true"
+        className="mt-0.5 shrink-0"
+      />
       {children}
     </p>
   );

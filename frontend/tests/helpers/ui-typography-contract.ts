@@ -1,4 +1,5 @@
 import ts from "typescript";
+import { interactionPresentation } from "./ui-interaction-contract";
 
 const seams = {
   "action.tsx": [
@@ -24,6 +25,7 @@ const seams = {
 } as const;
 
 export function typographyContract(source: string, file: keyof typeof seams) {
+  source = interactionPresentation(source, file);
   for (const [approved, previous] of seams[file]) {
     // Missing/duplicated/changed seams stay intact so the full source proof fails.
     if (source.split(approved).length !== 2) return syntax(source);
