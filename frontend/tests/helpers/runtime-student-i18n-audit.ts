@@ -1,6 +1,7 @@
 import ts from "typescript";
 import baseline from "../fixtures/runtime-student-i18n-baseline.json";
 import { ancestors, compact, digest } from "./admin-final-i18n-audit";
+import { projectStudentStateSource } from "./student-state-projection";
 
 export const runtimeStudentFiles = Object.keys(
   baseline.sourceHashes,
@@ -69,6 +70,7 @@ export function reconcileRuntimeStudent(sources: RuntimeSources) {
   for (const path of runtimeStudentFiles) {
     let source = sources[path].replace(/\r\n/g, "\n");
     if (path.endsWith("/student-area.tsx")) {
+      source = projectStudentStateSource(source);
       for (const replacement of baseline.replacements) {
         if (source.split(replacement.to).length !== 2)
           violations.push(`${path}: missing, duplicate or unbounded guard key`);

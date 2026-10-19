@@ -1558,7 +1558,9 @@
         "needsImprovement": "Needs improvement",
         "resubmissionRequired": "Resubmission required",
         "notApplicable": "Not applicable"
-      }
+      },
+      "loadError": "Unable to load the gradebook.",
+      "emptyCriteria": "No criterion records are listed for this course yet."
     },
     "coursework": {
       "title": "Coursework",
@@ -1591,7 +1593,8 @@
         "load": "Unable to load coursework.",
         "startBeforeUpload": "Start the submission before uploading files.",
         "startBeforeSubmit": "Start the submission before submitting."
-      }
+      },
+      "empty": "No coursework is listed for this lesson."
     },
     "evaluationWizard": {
       "resume": {
