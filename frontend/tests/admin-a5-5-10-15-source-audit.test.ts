@@ -16,11 +16,16 @@ import {
   type Scope,
 } from "./helpers/admin-a5-5-10-15-i18n-audit";
 import { withoutFinalAdminAdditions } from "./helpers/admin-final-catalogue-projection";
+import { projectAdminStateSource } from "./helpers/admin-state-projection";
 
 const completed = Object.keys(scopes) as Scope[];
 const names = Object.keys(scopes) as Scope[];
 const source = (name: Scope) =>
-  readFileSync(`src/features/admin/${scopes[name][0]}.tsx`, "utf8");
+  scopes[name][0] === "admin-area"
+    ? projectAdminStateSource(
+        readFileSync(`src/features/admin/${scopes[name][0]}.tsx`, "utf8"),
+      )
+    : readFileSync(`src/features/admin/${scopes[name][0]}.tsx`, "utf8");
 function leaves(v: unknown, prefix = ""): string[] {
   return typeof v === "string"
     ? [prefix]

@@ -7,6 +7,7 @@ import {
   withoutStudentStateAdditions,
 } from "./helpers/student-state-projection";
 import { functionSource } from "./helpers/runtime-student-i18n-audit";
+import { projectAdminStateSource } from "./helpers/admin-state-projection";
 
 const source = readFileSync("src/features/student/student-area.tsx", "utf8");
 const hash = (value: string | Buffer) =>
@@ -80,9 +81,18 @@ describe("Student adoption retains the complete source and transport boundary", 
     );
   });
 
-  it("keeps shared #194, Teacher/Admin/AI/formal flows, route, CSS and dependencies byte-identical", () => {
-    for (const [path, expected] of Object.entries(baseline.protectedFiles))
-      expect(hash(readFileSync(path)), path).toBe(expected);
+  it("keeps protected files byte-identical after exact authorized Admin state projection", () => {
+    for (const [path, expected] of Object.entries(baseline.protectedFiles)) {
+      const file = readFileSync(path);
+      expect(
+        hash(
+          path === "src/features/admin/admin-area.tsx"
+            ? projectAdminStateSource(file.toString())
+            : file,
+        ),
+        path,
+      ).toBe(expected);
+    }
   });
 
   it.each(["en", "ar"] as const)(

@@ -8,6 +8,7 @@ import { describe, expect, it } from "vitest";
 import ar from "../messages/ar.json";
 import en from "../messages/en.json";
 import baseline from "./fixtures/admin-evaluations-approvals-copy-baseline.json";
+import { projectAdminStateSource } from "./helpers/admin-state-projection";
 import {
   audit,
   contractHashes,
@@ -16,7 +17,9 @@ import {
   outsideScopeHash,
   owners,
 } from "./helpers/admin-evaluations-approvals-i18n-audit";
-const source = readFileSync("src/features/admin/admin-area.tsx", "utf8");
+const source = projectAdminStateSource(
+  readFileSync("src/features/admin/admin-area.tsx", "utf8"),
+);
 const result = audit(source);
 describe("Admin evaluation/approval static copy and frozen contracts", () => {
   it("owns exactly three functions and preserves every byte outside their boundaries", () => {

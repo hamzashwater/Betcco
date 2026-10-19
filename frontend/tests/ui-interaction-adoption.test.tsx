@@ -11,6 +11,10 @@ import baseline from "./fixtures/ui-d01-04-baseline.json";
 import { interactionPresentation } from "./helpers/ui-interaction-contract";
 import { syntax } from "./helpers/ui-typography-contract";
 import {
+  projectAdminStateSource,
+  withoutAdminStateAdditions,
+} from "./helpers/admin-state-projection";
+import {
   projectStudentStateSource,
   withoutStudentStateAdditions,
 } from "./helpers/student-state-projection";
@@ -64,10 +68,14 @@ describe("UI-D01-04 presentation and ownership boundary", () => {
       let source = readFileSync(file, "utf8");
       if (file === "src/features/student/student-area.tsx")
         source = projectStudentStateSource(source);
+      if (file === "src/features/admin/admin-area.tsx")
+        source = projectAdminStateSource(source);
       if (file === "messages/en.json" || file === "messages/ar.json")
         source =
           JSON.stringify(
-            withoutStudentStateAdditions(JSON.parse(source)),
+            withoutStudentStateAdditions(
+              withoutAdminStateAdditions(JSON.parse(source)),
+            ),
             null,
             2,
           ) + "\n";

@@ -21,7 +21,10 @@ import en from "../messages/en.json";
 import dashboard from "./fixtures/admin-dashboard.json";
 
 const apiMock = vi.hoisted(() => vi.fn());
-vi.mock("@/lib/api", () => ({ api: apiMock }));
+vi.mock("@/lib/api", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/api")>()),
+  api: apiMock,
+}));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
   usePathname: () => "/en/admin/dashboard",
@@ -168,7 +171,10 @@ describe.each(["ar", "en"] as const)(
       apiMock.mockRejectedValue(new Error("RAW backend error"));
       const { copy } = renderDashboard(locale);
       expect(screen.getByText(copy.shared.loadingIndicator)).toBeVisible();
-      expect(await screen.findByText(copy.dashboard.signIn)).toBeVisible();
+      expect(
+        await screen.findByText(copy.dashboard.requestError),
+      ).toBeVisible();
+      expect(screen.queryByText(copy.dashboard.signIn)).not.toBeInTheDocument();
       expect(screen.queryByText("RAW backend error")).not.toBeInTheDocument();
     });
     it("keeps the 7d period value and exact request", async () => {

@@ -9,7 +9,7 @@ import {
   formatLocalizedNumber,
   formatLocalizedPercentage,
 } from "@/i18n/number-format";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
 import { AccountSecurity } from "@/features/auth/account-security";
 import { AccountProfile } from "@/features/auth/account-profile";
 import { AccountIdentityManagement } from "@/features/admin/account-identity-management";
@@ -55,6 +55,7 @@ import {
   ActionCard,
   DashboardHeader,
   MetricCard,
+  QueryState,
 } from "@/components/dashboard/dashboard-ui";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
@@ -189,6 +190,35 @@ function DateInputValue(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
+function AdminRequestFailure({
+  error,
+  signInTitle,
+  failureTitle,
+  cached = false,
+}: {
+  error: unknown;
+  signInTitle: string;
+  failureTitle: string;
+  cached?: boolean;
+}) {
+  const t = useTranslations("adminWorkspace");
+  const status = error instanceof ApiError ? error.status : undefined;
+  const unauthenticated = status === 401 && !cached;
+  const forbidden = status === 403;
+  return (
+    <QueryState
+      kind={unauthenticated || forbidden ? "restricted" : "error"}
+      title={
+        unauthenticated
+          ? signInTitle
+          : forbidden
+            ? t("courseApprovals.accessDenied")
+            : failureTitle
+      }
+    />
+  );
+}
+
 function AdminDashboard() {
   const t = useTranslations("adminWorkspace");
   const locale = useLocale();
@@ -213,19 +243,29 @@ function AdminDashboard() {
   if (result.isPending)
     return (
       <section className="shell py-10">
-        <div className="card p-6" aria-busy>
-          {t("shared.loadingIndicator")}
-        </div>
+        <QueryState kind="loading" title={t("shared.loadingIndicator")} />
       </section>
     );
-  if (result.isError || !result.data)
+  if (!result.data)
     return (
       <section className="shell py-10">
-        <p className="card p-6">{t("dashboard.signIn")}</p>
+        <AdminRequestFailure
+          error={result.error}
+          signInTitle={t("dashboard.signIn")}
+          failureTitle={t("dashboard.requestError")}
+        />
       </section>
     );
   return (
     <section className="shell py-10">
+      {result.isError ? (
+        <AdminRequestFailure
+          error={result.error}
+          signInTitle={t("dashboard.signIn")}
+          failureTitle={t("dashboard.requestError")}
+          cached
+        />
+      ) : null}
       <DashboardHeader
         eyebrow={t("dashboard.eyebrow")}
         title={t("dashboard.title")}
@@ -2242,19 +2282,29 @@ function CourseApprovals() {
   if (approvals.isPending)
     return (
       <section className="shell py-10">
-        <div className="card p-6" aria-busy>
-          {t("shared.loadingIndicator")}
-        </div>
+        <QueryState kind="loading" title={t("shared.loadingIndicator")} />
       </section>
     );
-  if (approvals.isError)
+  if (!approvals.data)
     return (
       <section className="shell py-10">
-        <p className="card p-6">{t("courseApprovals.accessDenied")}</p>
+        <AdminRequestFailure
+          error={approvals.error}
+          signInTitle={t("courseApprovals.signIn")}
+          failureTitle={t("courseApprovals.requestError")}
+        />
       </section>
     );
   return (
     <section className="shell py-10">
+      {approvals.isError ? (
+        <AdminRequestFailure
+          error={approvals.error}
+          signInTitle={t("courseApprovals.signIn")}
+          failureTitle={t("courseApprovals.requestError")}
+          cached
+        />
+      ) : null}
       <h1 className="text-3xl font-black">{t("courseApprovals.title")}</h1>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
         {t("courseApprovals.description")}
@@ -2363,7 +2413,7 @@ function CourseApprovals() {
           </article>
         ))}
         {!approvals.data.length && (
-          <p className="card p-5 text-muted">{t("courseApprovals.empty")}</p>
+          <QueryState kind="empty" title={t("courseApprovals.empty")} />
         )}
       </div>
     </section>

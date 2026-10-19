@@ -2444,7 +2444,8 @@
         "orders": "الطلبات",
         "activeSubscriptions": "اشتراكات نشطة",
         "refunds": "الاستردادات"
-      }
+      },
+      "requestError": "تعذر إكمال طلب بيانات لوحة الإدارة."
     },
     "navigation": {
       "students": {
@@ -2683,7 +2684,8 @@
       "approveAfterReview": "اعتماد بعد المراجعة",
       "publish": "نشر الدورة",
       "requestError": "فشل الطلب.",
-      "empty": "لا توجد دورات بانتظار المراجعة."
+      "empty": "لا توجد دورات بانتظار المراجعة.",
+      "signIn": "سجّل الدخول للوصول إلى اعتماد الدورات."
     },
     "courseApprovalPreview": {
       "loadError": "تعذر تحميل محتوى الدورة.",
