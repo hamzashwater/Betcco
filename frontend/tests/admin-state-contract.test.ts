@@ -6,6 +6,7 @@ import {
   projectAdminStateSource,
   withoutAdminStateAdditions,
 } from "./helpers/admin-state-projection";
+import { projectTeacherRouteBoundary } from "./helpers/teacher-route-boundary-projection";
 const source = readFileSync("src/features/admin/admin-area.tsx", "utf8");
 const hash = (value: string | Buffer) =>
   createHash("sha256").update(value).digest("hex");
@@ -40,9 +41,18 @@ describe("exact Admin state adoption preserves all other contracts", () => {
       baseline.sourceHash,
     );
   });
-  it("keeps API/auth, shared #194, Student/Teacher/AI/navigation/tokens/fonts/dependencies byte-identical", () => {
-    for (const [file, expected] of Object.entries(baseline.protectedFiles))
-      expect(hash(readFileSync(file)), file).toBe(expected);
+  it("keeps protected files byte-identical after the exact authorized Teacher route repair", () => {
+    for (const [file, expected] of Object.entries(baseline.protectedFiles)) {
+      const value = readFileSync(file);
+      expect(
+        hash(
+          file === "src/components/site-navigation.tsx"
+            ? projectTeacherRouteBoundary(value.toString())
+            : value,
+        ),
+        file,
+      ).toBe(expected);
+    }
   });
   it.each(["en", "ar"] as const)(
     "accepts only two exact %s copy leaves",

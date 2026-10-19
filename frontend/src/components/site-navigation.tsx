@@ -46,6 +46,11 @@ type Taxonomy = {
   specializations: { id: string; learningTrackId: string; name: string }[];
 };
 
+function isTeacherWorkspacePath(pathname: string, locale: string) {
+  const sectionRoot = `/${locale}/teacher`;
+  return pathname === sectionRoot || pathname.startsWith(`${sectionRoot}/`);
+}
+
 export function SiteNavigation() {
   const locale = useLocale();
   const pathname = usePathname();
@@ -81,7 +86,7 @@ export function SiteNavigation() {
   };
   const workspace = pathname.startsWith(`/${locale}/admin`)
     ? "admin"
-    : pathname.startsWith(`/${locale}/teacher`)
+    : isTeacherWorkspacePath(pathname, locale)
       ? "teacher"
       : pathname.startsWith(`/${locale}/support`)
         ? "support"
@@ -89,7 +94,7 @@ export function SiteNavigation() {
   const isWorkspace = workspace !== null;
   const isAccountArea =
     pathname.startsWith(`/${locale}/admin`) ||
-    pathname.startsWith(`/${locale}/teacher`) ||
+    isTeacherWorkspacePath(pathname, locale) ||
     pathname.startsWith(`/${locale}/support`) ||
     pathname.startsWith(`/${locale}/student`);
   const user = useQuery({
