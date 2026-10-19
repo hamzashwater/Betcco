@@ -3,6 +3,10 @@
   "sourceHash": "dd47a1368ff836e43ba0a16c5c19143c35418e8c9d8db2d13922ebd710f26435",
   "seams": [
     {
+      "approved": "            {mine.data &&\n            submission?.status !== \"Graded\" &&\n",
+      "previous": "            {submission?.status !== \"Graded\" &&\n"
+    },
+    {
       "approved": "  Action,\n  actionClassName,\n  QueryState,\n  MutationOutcome,\n  DashboardHeader,\n} from \"@/components/dashboard/dashboard-ui\";\nimport { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\n",
       "previous": "  Action,\n  actionClassName,\n  QueryState,\n  DashboardHeader,\n} from \"@/components/dashboard/dashboard-ui\";\nimport { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\n"
     },

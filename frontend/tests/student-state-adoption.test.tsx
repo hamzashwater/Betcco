@@ -75,6 +75,255 @@ describe.each(["en", "ar"] as const)(
     const gradePath = `/gradebook/student/courses/course-raw?locale=${locale}`;
     const gradeKey = ["student-course-gradebook", "course-raw", locale];
 
+    it("withholds submission actions when assignments resolve before pending mine data", async () => {
+      const waiting = deferred<unknown>();
+      apiMock.mockImplementation((path: string) =>
+        path === assignmentPath
+          ? Promise.resolve([assignment])
+          : waiting.promise,
+      );
+      const { client } = mount(locale, "coursework");
+      expect(await screen.findByText(title)).toBeVisible();
+      expect(screen.getByRole("status")).toHaveAttribute("aria-busy", "true");
+      expect(client.getQueryState(mineKey)).toMatchObject({
+        status: "pending",
+        data: undefined,
+      });
+      for (const name of [
+        copy.coursework.actions.startSubmission,
+        copy.coursework.actions.continueDraft,
+        copy.coursework.actions.startResubmission,
+      ])
+        expect(screen.queryByRole("button", { name })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button")).not.toBeInTheDocument();
+      expect(
+        apiMock.mock.calls.filter(([, options]) => options?.method === "POST"),
+      ).toEqual([]);
+      await act(async () =>
+        waiting.resolve([{ ...submission, status: "Draft" }]),
+      );
+      expect(
+        await screen.findByRole("button", {
+          name: copy.coursework.actions.continueDraft,
+        }),
+      ).toBeEnabled();
+      expect(
+        screen.queryByRole("button", {
+          name: copy.coursework.actions.startSubmission,
+        }),
+      ).not.toBeInTheDocument();
+    });
+
+    it.each([false, true])(
+      "withholds submission actions on cold mine failure with cached assignment refresh failure=%s",
+      async (failAssignmentRefresh) => {
+        const waiting = deferred<unknown>();
+        let failAssignments = false;
+        apiMock.mockImplementation((path: string) =>
+          path === assignmentPath
+            ? failAssignments
+              ? Promise.reject(new Error("Assignment refresh failed"))
+              : Promise.resolve([assignment])
+            : waiting.promise,
+        );
+        const { client } = mount(locale, "coursework");
+        expect(await screen.findByText(title)).toBeVisible();
+        if (failAssignmentRefresh) {
+          failAssignments = true;
+          await act(async () => {
+            await client.refetchQueries({
+              queryKey: assignmentKey,
+              exact: true,
+            });
+          });
+          expect(screen.getByText(title)).toBeVisible();
+          expect(screen.getByRole("status")).toHaveAttribute(
+            "aria-busy",
+            "true",
+          );
+          expect(screen.queryByRole("button")).not.toBeInTheDocument();
+        }
+        await act(async () => waiting.reject(new Error("Mine cold failure")));
+        expect(await screen.findByRole("alert")).toHaveTextContent(
+          copy.coursework.errors.load,
+        );
+        expect(screen.getByText(title)).toBeVisible();
+        expect(client.getQueryState(mineKey)).toMatchObject({
+          status: "error",
+          data: undefined,
+        });
+        for (const name of [
+          copy.coursework.actions.startSubmission,
+          copy.coursework.actions.continueDraft,
+          copy.coursework.actions.startResubmission,
+        ])
+          expect(
+            screen.queryByRole("button", { name }),
+          ).not.toBeInTheDocument();
+        expect(screen.queryByRole("button")).not.toBeInTheDocument();
+        expect(
+          apiMock.mock.calls.filter(
+            ([, options]) => options?.method === "POST",
+          ),
+        ).toEqual([]);
+      },
+    );
+
+    it.each(["Draft", "Submitted", "NeedsRevision"])(
+      "preserves usable cached %s actions, status, links and order after either query refresh fails",
+      async (status) => {
+        for (const failingKey of [mineKey, assignmentKey]) {
+          let fail = false;
+          apiMock.mockImplementation(
+            (path: string, options?: { method?: string }) => {
+              if (options?.method === "POST")
+                return Promise.resolve({ submissionId: "draft-raw" });
+              if (
+                fail &&
+                path === (failingKey === mineKey ? minePath : assignmentPath)
+              )
+                return Promise.reject(new Error("Refresh failed"));
+              return Promise.resolve(
+                path === assignmentPath
+                  ? [
+                      assignment,
+                      {
+                        ...assignment,
+                        id: "second",
+                        englishTitle: "Second raw",
+                        arabicTitle: "الثانية",
+                      },
+                    ]
+                  : [
+                      { ...submission, status },
+                      {
+                        ...submission,
+                        id: "second-submission",
+                        assignmentId: "second",
+                        status: "Graded",
+                      },
+                    ],
+              );
+            },
+          );
+          const { client, container, unmount } = mount(locale, "coursework");
+          const name =
+            status === "Draft"
+              ? copy.coursework.actions.continueDraft
+              : status === "NeedsRevision"
+                ? copy.coursework.actions.startResubmission
+                : copy.coursework.actions.startSubmission;
+          expect(await screen.findByRole("button", { name })).toBeEnabled();
+          const beforeLinks = [...container.querySelectorAll("a")].map((link) =>
+            link.getAttribute("href"),
+          );
+          const beforeOrder = [...container.querySelectorAll("article h3")].map(
+            (node) => node.textContent,
+          );
+          expect(beforeLinks).toContain(
+            "/api/v1/assignments/submissions/submission-raw/files/file-raw",
+          );
+          fail = true;
+          await act(async () => {
+            await client.refetchQueries({ queryKey: failingKey, exact: true });
+          });
+          expect(await screen.findByRole("alert")).toHaveTextContent(
+            copy.coursework.errors.load,
+          );
+          expect(screen.getByText(status)).toBeVisible();
+          expect(client.getQueryData(mineKey)).toEqual([
+            { ...submission, status },
+            {
+              ...submission,
+              id: "second-submission",
+              assignmentId: "second",
+              status: "Graded",
+            },
+          ]);
+          expect(
+            [...container.querySelectorAll("article h3")].map(
+              (node) => node.textContent,
+            ),
+          ).toEqual(beforeOrder);
+          expect(
+            [...container.querySelectorAll("a")].map((link) =>
+              link.getAttribute("href"),
+            ),
+          ).toEqual(beforeLinks);
+          const action = screen.getByRole("button", { name });
+          expect(action).toBeEnabled();
+          expect(
+            apiMock.mock.calls.filter(
+              ([, options]) => options?.method === "POST",
+            ),
+          ).toEqual([]);
+          await userEvent.setup().click(action);
+          await screen.findByPlaceholderText(
+            copy.coursework.submission.notePlaceholder,
+          );
+          expect(
+            apiMock.mock.calls.filter(
+              ([, options]) => options?.method === "POST",
+            ),
+          ).toEqual([
+            [
+              "/student/assignments/assignment-raw/submissions",
+              { method: "POST", body: JSON.stringify({ comment: "" }) },
+            ],
+          ]);
+          unmount();
+          client.clear();
+          apiMock.mockReset();
+        }
+      },
+    );
+
+    it.each(["open", "not-open", "past-due"])(
+      "uses successful empty mine as known absence while preserving %s availability guards",
+      async (state) => {
+        const currentAssignment = {
+          ...assignment,
+          availableFromUtc:
+            state === "not-open"
+              ? "2099-01-01T00:00:00Z"
+              : assignment.availableFromUtc,
+          effectiveDueAtUtc:
+            state === "past-due"
+              ? "2020-01-01T00:00:00Z"
+              : assignment.effectiveDueAtUtc,
+        };
+        apiMock.mockImplementation((path: string) =>
+          Promise.resolve(path === assignmentPath ? [currentAssignment] : []),
+        );
+        const { client } = mount(locale, "coursework");
+        const name =
+          state === "open"
+            ? copy.coursework.actions.startSubmission
+            : state === "not-open"
+              ? copy.coursework.actions.notOpenYet
+              : copy.coursework.actions.deadlinePassed;
+        const action = await screen.findByRole("button", { name });
+        expect(client.getQueryState(mineKey)).toMatchObject({
+          status: "success",
+          data: [],
+        });
+        if (state === "open") expect(action).toBeEnabled();
+        else {
+          expect(action).toBeDisabled();
+          expect(
+            screen.queryByRole("button", {
+              name: copy.coursework.actions.startSubmission,
+            }),
+          ).not.toBeInTheDocument();
+        }
+        expect(
+          apiMock.mock.calls.filter(
+            ([, options]) => options?.method === "POST",
+          ),
+        ).toEqual([]);
+      },
+    );
+
     it("exposes initial coursework loading without false empty or status", async () => {
       const waiting = deferred<unknown>();
       apiMock.mockReturnValue(waiting.promise);

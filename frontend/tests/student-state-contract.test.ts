@@ -19,6 +19,8 @@ describe("Student adoption retains the complete source and transport boundary", 
   });
 
   it.each([
+    ["mine.data &&", "true &&"],
+    ["mine.data &&", "mine.isSuccess &&"],
     ['["student-course-assignments", courseId]', '["wrong-query", courseId]'],
     ['body.set("file", file)', 'body.set("upload", file)'],
     ["for (const file of files)", "for (const file of files.reverse())"],

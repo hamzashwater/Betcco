@@ -3725,7 +3725,8 @@ export function CourseAssignmentPanel({
                   ))}
               </div>
             ) : null}
-            {submission?.status !== "Graded" &&
+            {mine.data &&
+            submission?.status !== "Graded" &&
             submission?.status !== "Finalized" ? (
               <div className="mt-4 border-t border-border pt-4">
                 {!activeHere ? (
