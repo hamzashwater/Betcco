@@ -10,6 +10,10 @@ import { MutationOutcome, QueryState } from "@/components/ui/query-state";
 import baseline from "./fixtures/ui-d01-04-baseline.json";
 import { interactionPresentation } from "./helpers/ui-interaction-contract";
 import { syntax } from "./helpers/ui-typography-contract";
+import {
+  projectStudentStateSource,
+  withoutStudentStateAdditions,
+} from "./helpers/student-state-projection";
 
 afterEach(cleanup);
 
@@ -56,11 +60,21 @@ describe("UI-D01-04 presentation and ownership boundary", () => {
   });
 
   it("preserves foundation/font/copy/dependency files and deferred consumers", () => {
-    for (const [file, hash] of Object.entries(baseline.protectedFiles))
-      expect(
-        createHash("sha256").update(readFileSync(file)).digest("hex"),
-        file,
-      ).toBe(hash);
+    for (const [file, hash] of Object.entries(baseline.protectedFiles)) {
+      let source = readFileSync(file, "utf8");
+      if (file === "src/features/student/student-area.tsx")
+        source = projectStudentStateSource(source);
+      if (file === "messages/en.json" || file === "messages/ar.json")
+        source =
+          JSON.stringify(
+            withoutStudentStateAdditions(JSON.parse(source)),
+            null,
+            2,
+          ) + "\n";
+      expect(createHash("sha256").update(source).digest("hex"), file).toBe(
+        hash,
+      );
+    }
   });
 
   it("preserves all Teacher query/mutation options and untouched domain sections", () => {

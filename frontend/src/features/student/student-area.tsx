@@ -64,6 +64,7 @@ import {
   Action,
   actionClassName,
   QueryState,
+  MutationOutcome,
   DashboardHeader,
 } from "@/components/dashboard/dashboard-ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -3204,7 +3205,38 @@ type StudentCourseGradebook = {
   }[];
 };
 
-function StudentCourseGradebookPanel({ courseId }: { courseId: string }) {
+function studentStatusClassName(status?: string) {
+  const tones: Record<string, string> = {
+    Achieved:
+      "border-state-success-border! bg-success-surface text-state-success-foreground",
+    InReview:
+      "border-state-info-border! bg-info-surface text-state-info-foreground",
+    Submitted:
+      "border-state-info-border! bg-info-surface text-state-info-foreground",
+    Graded:
+      "border-state-info-border! bg-info-surface text-state-info-foreground",
+    Finalized:
+      "border-state-info-border! bg-info-surface text-state-info-foreground",
+    NotAchieved:
+      "border-state-danger-border! bg-danger-surface text-state-danger-foreground",
+    NeedsImprovement:
+      "border-state-warning-border! bg-warning-surface text-state-warning-foreground",
+    ResubmissionRequired:
+      "border-state-warning-border! bg-warning-surface text-state-warning-foreground",
+    NeedsRevision:
+      "border-state-warning-border! bg-warning-surface text-state-warning-foreground",
+  };
+  const tone = Object.hasOwn(tones, status ?? "")
+    ? tones[status ?? ""]
+    : "border-state-neutral-border! bg-state-neutral-surface text-state-neutral-foreground";
+  return `inline-block max-w-full rounded-lg border px-3 py-1 ui-type-label [overflow-wrap:anywhere] ${tone}`;
+}
+
+export function StudentCourseGradebookPanel({
+  courseId,
+}: {
+  courseId: string;
+}) {
   const t = useTranslations("studentWorkspace");
   const locale = useLocale();
   const gradeLabels: Record<string, string> = {
@@ -3230,20 +3262,28 @@ function StudentCourseGradebookPanel({ courseId }: { courseId: string }) {
       ),
   });
   if (gradebook.isPending) {
-    return (
-      <section
-        className="mt-5 rounded-2xl border border-border bg-surface-solid/55 p-4"
-        aria-busy
-      >
-        <p className="text-sm text-muted">{t("loading")}</p>
-      </section>
-    );
+    return <QueryState kind="loading" title={t("loading")} className="mt-5" />;
   }
-  if (gradebook.isError || !gradebook.data) return null;
+  if (!gradebook.data) {
+    return gradebook.isError ? (
+      <QueryState
+        kind="error"
+        title={t("gradebook.loadError")}
+        className="mt-5"
+      />
+    ) : null;
+  }
   const data = gradebook.data;
   const summary = data.predictedGrade;
   return (
-    <section className="mt-5 rounded-2xl border border-secondary/30 bg-secondary/5 p-4">
+    <section className="mt-5 min-w-0 rounded-2xl border border-secondary/30 bg-secondary/5 p-4 [overflow-wrap:anywhere]">
+      {gradebook.isError ? (
+        <QueryState
+          kind="error"
+          title={t("gradebook.loadError")}
+          className="mb-4"
+        />
+      ) : null}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.16em] text-secondary">
@@ -3359,7 +3399,7 @@ function StudentCourseGradebookPanel({ courseId }: { courseId: string }) {
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <strong>{criterion.code}</strong>
-                  <span className="font-bold text-primary">
+                  <span className={studentStatusClassName(criterion.status)}>
                     {criterionStatusLabel(
                       criterion.status,
                       criterionStatusLabels,
@@ -3378,7 +3418,13 @@ function StudentCourseGradebookPanel({ courseId }: { courseId: string }) {
             ))}
           </ul>
         </details>
-      ) : null}
+      ) : (
+        <QueryState
+          kind="empty"
+          title={t("gradebook.emptyCriteria")}
+          className="mt-4"
+        />
+      )}
     </section>
   );
 }
@@ -3497,13 +3543,13 @@ export function CourseAssignmentPanel({
   const visible = (assignments.data ?? []).filter(
     (assignment) => !assignment.lessonId || assignment.lessonId === lessonId,
   );
-  if (assignments.isPending || !visible.length) return null;
   return (
-    <section className="mt-6 grid gap-4 rounded-2xl border border-primary/25 bg-primary/5 p-4">
+    <section className="mt-6 grid min-w-0 gap-4 rounded-2xl border border-primary/25 bg-primary/5 p-4 [overflow-wrap:anywhere]">
       <div>
         <h2 className="flex items-center gap-2 text-lg font-black">
           <ClipboardCheck
-            size={19}
+            size={20}
+            strokeWidth={2}
             className="text-primary"
             aria-hidden="true"
           />
@@ -3511,6 +3557,15 @@ export function CourseAssignmentPanel({
         </h2>
         <p className="mt-1 text-sm text-muted">{t("coursework.description")}</p>
       </div>
+      {assignments.isPending || mine.isPending ? (
+        <QueryState kind="loading" title={t("loading")} />
+      ) : null}
+      {assignments.isError || mine.isError ? (
+        <QueryState kind="error" title={t("coursework.errors.load")} />
+      ) : null}
+      {assignments.isSuccess && mine.isSuccess && !visible.length ? (
+        <QueryState kind="empty" title={t("coursework.empty")} />
+      ) : null}
       {visible.map((assignment) => {
         const submission = mine.data?.find(
           (item) => item.assignmentId === assignment.id,
@@ -3524,10 +3579,22 @@ export function CourseAssignmentPanel({
           assignment.effectiveDueAtUtc &&
           new Date(assignment.effectiveDueAtUtc) < new Date(),
         );
+        const startLabel = deadlinePassed
+          ? t("coursework.actions.deadlinePassed")
+          : opensInFuture
+            ? t("coursework.actions.notOpenYet")
+            : submission?.status === "NeedsRevision" &&
+                !assignment.allowResubmission
+              ? t("coursework.actions.resubmissionUnavailable")
+              : submission?.status === "NeedsRevision"
+                ? t("coursework.actions.startResubmission")
+                : submission?.status === "Draft"
+                  ? t("coursework.actions.continueDraft")
+                  : t("coursework.actions.startSubmission");
         return (
           <article
             key={assignment.id}
-            className="rounded-xl border border-border bg-surface-solid/55 p-4"
+            className="min-w-0 rounded-xl border border-border bg-surface-solid/55 p-4"
           >
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
@@ -3575,11 +3642,12 @@ export function CourseAssignmentPanel({
                       <a
                         key={resource.id}
                         href={`/api/v1/assignments/${assignment.id}/resources/${resource.id}`}
-                        className="focus-ring rounded-lg border border-primary/35 px-2.5 py-2 text-xs font-bold text-primary"
+                        className={actionClassName("quiet")}
                       >
                         <FileBadge
-                          size={14}
-                          className="me-1 inline"
+                          size={18}
+                          strokeWidth={2}
+                          className="shrink-0"
                           aria-hidden="true"
                         />
                         {resource.displayName}
@@ -3589,11 +3657,11 @@ export function CourseAssignmentPanel({
                 ) : null}
               </div>
               {submission?.calculatedGrade ? (
-                <span className="rounded-full bg-primary/15 px-3 py-1 text-sm font-black text-primary">
+                <span className={studentStatusClassName()}>
                   {submission.calculatedGrade}
                 </span>
               ) : submission ? (
-                <span className="rounded-full border border-border px-3 py-1 text-xs font-bold text-muted">
+                <span className={studentStatusClassName(submission.status)}>
                   {submission.status}
                 </span>
               ) : null}
@@ -3644,11 +3712,12 @@ export function CourseAssignmentPanel({
                     <a
                       key={file.id}
                       href={`/api/v1/assignments/submissions/${submission.id}/files/${file.id}`}
-                      className="focus-ring rounded-lg border border-primary/35 px-2.5 py-2 text-xs font-bold text-primary"
+                      className={actionClassName("quiet")}
                     >
                       <FileBadge
-                        size={14}
-                        className="me-1 inline"
+                        size={18}
+                        strokeWidth={2}
+                        className="shrink-0"
                         aria-hidden="true"
                       />
                       {file.originalFileName}
@@ -3656,12 +3725,15 @@ export function CourseAssignmentPanel({
                   ))}
               </div>
             ) : null}
-            {submission?.status !== "Graded" &&
+            {mine.data &&
+            submission?.status !== "Graded" &&
             submission?.status !== "Finalized" ? (
               <div className="mt-4 border-t border-border pt-4">
                 {!activeHere ? (
-                  <button
+                  <Action
                     type="button"
+                    pending={start.isPending}
+                    pendingLabel={startLabel}
                     onClick={() => start.mutate(assignment.id)}
                     disabled={
                       start.isPending ||
@@ -3670,21 +3742,9 @@ export function CourseAssignmentPanel({
                       (submission?.status === "NeedsRevision" &&
                         !assignment.allowResubmission)
                     }
-                    className="focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
                   >
-                    {deadlinePassed
-                      ? t("coursework.actions.deadlinePassed")
-                      : opensInFuture
-                        ? t("coursework.actions.notOpenYet")
-                        : submission?.status === "NeedsRevision" &&
-                            !assignment.allowResubmission
-                          ? t("coursework.actions.resubmissionUnavailable")
-                          : submission?.status === "NeedsRevision"
-                            ? t("coursework.actions.startResubmission")
-                            : submission?.status === "Draft"
-                              ? t("coursework.actions.continueDraft")
-                              : t("coursework.actions.startSubmission")}
-                  </button>
+                    {startLabel}
+                  </Action>
                 ) : (
                   <div className="grid gap-3">
                     <textarea
@@ -3710,39 +3770,47 @@ export function CourseAssignmentPanel({
                       })}
                     />
                     <div className="flex flex-wrap gap-2">
-                      <button
+                      <Action
                         type="button"
+                        variant="secondary"
+                        pending={start.isPending}
+                        pendingLabel={t("coursework.submission.saveNote")}
                         onClick={() => start.mutate(assignment.id)}
                         disabled={start.isPending || deadlinePassed}
-                        className="focus-ring rounded-xl border border-border px-4 py-2.5 text-sm font-bold text-muted disabled:opacity-50"
                       >
                         {t("coursework.submission.saveNote")}
-                      </button>
-                      <button
+                      </Action>
+                      <Action
                         type="button"
+                        variant="secondary"
+                        pending={upload.isPending}
+                        pendingLabel={t("coursework.submission.uploadFiles")}
                         onClick={() => upload.mutate()}
                         disabled={
                           !files.length || upload.isPending || deadlinePassed
                         }
-                        className="focus-ring rounded-xl border border-primary/40 px-4 py-2.5 text-sm font-bold text-primary disabled:opacity-50"
                       >
                         {t("coursework.submission.uploadFiles")}
-                      </button>
-                      <button
+                      </Action>
+                      <Action
                         type="button"
+                        variant="primary"
+                        pending={submit.isPending}
+                        pendingLabel={t("coursework.submission.submit")}
                         onClick={() => submit.mutate()}
                         disabled={submit.isPending || deadlinePassed}
-                        className="focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
                       >
                         {t("coursework.submission.submit")}
-                      </button>
+                      </Action>
                     </div>
                     {upload.isError || submit.isError ? (
-                      <p role="alert" className="text-sm text-red-400">
-                        {(upload.error ?? submit.error) instanceof Error
-                          ? (upload.error ?? submit.error)?.message
-                          : t("coursework.errors.action")}
-                      </p>
+                      <MutationOutcome kind="error">
+                        <span className="min-w-0 [overflow-wrap:anywhere]">
+                          {(upload.error ?? submit.error) instanceof Error
+                            ? (upload.error ?? submit.error)?.message
+                            : t("coursework.errors.action")}
+                        </span>
+                      </MutationOutcome>
                     ) : null}
                   </div>
                 )}
@@ -3752,16 +3820,13 @@ export function CourseAssignmentPanel({
         );
       })}
       {start.isError ? (
-        <p role="alert" className="text-sm text-red-400">
-          {start.error instanceof Error
-            ? start.error.message
-            : t("coursework.errors.start")}
-        </p>
-      ) : null}
-      {assignments.isError || mine.isError ? (
-        <p role="alert" className="text-sm text-red-400">
-          {t("coursework.errors.load")}
-        </p>
+        <MutationOutcome kind="error">
+          <span className="min-w-0 [overflow-wrap:anywhere]">
+            {start.error instanceof Error
+              ? start.error.message
+              : t("coursework.errors.start")}
+          </span>
+        </MutationOutcome>
       ) : null}
     </section>
   );

@@ -1558,7 +1558,9 @@
         "needsImprovement": "يحتاج تحسين",
         "resubmissionRequired": "إعادة تسليم مطلوبة",
         "notApplicable": "غير منطبق"
-      }
+      },
+      "loadError": "تعذر تحميل سجل النتائج.",
+      "emptyCriteria": "لا توجد سجلات معايير مدرجة لهذه الدورة بعد."
     },
     "coursework": {
       "title": "مهمة الدورة",
@@ -1591,7 +1593,8 @@
         "load": "تعذر تحميل مهمة الدورة.",
         "startBeforeUpload": "ابدأ التسليم قبل رفع الملفات.",
         "startBeforeSubmit": "ابدأ التسليم قبل إرساله."
-      }
+      },
+      "empty": "لا توجد مهام دورة مدرجة لهذا الدرس."
     },
     "evaluationWizard": {
       "resume": {

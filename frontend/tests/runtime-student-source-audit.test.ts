@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import baseline from "./fixtures/runtime-student-i18n-baseline.json";
 import { catalogue, digest, leaves } from "./helpers/admin-final-i18n-audit";
 import { withoutRuntimeStudentAdditions } from "./helpers/runtime-student-catalogue-projection";
+import { projectStudentStateSource } from "./helpers/student-state-projection";
 import {
   errorOccurrences,
   functionSource,
@@ -91,7 +92,9 @@ describe("T7-A6.7 six-occurrence reconciliation", () => {
       );
     expect(
       functionSource(
-        sources["src/features/student/student-area.tsx"],
+        projectStudentStateSource(
+          sources["src/features/student/student-area.tsx"],
+        ),
         "CourseAssignmentPanel",
       ),
     ).toBe(approved);

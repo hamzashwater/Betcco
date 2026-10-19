@@ -192,7 +192,7 @@ describe.each(["en", "ar"] as const)("student coursework in %s", (locale) => {
       await screen.findByRole("heading", { name: labels.heading }),
     ).toBeVisible();
     expect(screen.getByText(labels.description)).toBeVisible();
-    expect(screen.getByText(labels.title)).toBeVisible();
+    expect(await screen.findByText(labels.title)).toBeVisible();
     expect(screen.getByText(labels.instructions)).toBeVisible();
     expect(screen.getByText(new RegExp(labels.criterion))).toBeVisible();
     expect(screen.getByText(new RegExp(labels.due))).toBeVisible();
