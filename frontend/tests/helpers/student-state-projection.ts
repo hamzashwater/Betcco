@@ -1,9 +1,13 @@
 import baseline from "../fixtures/ui-d01-04-student-baseline.json";
+import { projectStudentContinuitySource } from "./student-continuity-projection";
 
 // Reverse only the exact reviewed Student presentation hunks. Any missing,
 // duplicate or modified hunk leaves the full source unprojected and fails proofs.
 export function projectStudentStateSource(source: string) {
-  const normalized = source.replace(/\r\n/g, "\n");
+  const normalized = projectStudentContinuitySource(
+    source,
+    "src/features/student/student-area.tsx",
+  );
   let result = normalized;
   for (const { approved, previous } of baseline.seams) {
     if (result.split(approved).length !== 2) return normalized;

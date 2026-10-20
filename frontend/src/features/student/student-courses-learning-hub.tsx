@@ -116,6 +116,7 @@ export function StudentCoursesLearningHub({
 }) {
   const locale = useLocale();
   const t = useTranslations("studentCoursesLearningHub");
+  const dashboard = useTranslations("studentWorkspace.dashboard");
   const ai = useTranslations("aiPractice");
   const [search, setSearch] = useState("");
   const [progress, setProgress] = useState<ProgressFilter>("All");
@@ -168,7 +169,7 @@ export function StudentCoursesLearningHub({
     );
   }
 
-  if (result.isError) {
+  if (!result.data) {
     return (
       <section
         className={variant === "full" ? "shell py-10" : "min-w-0"}
@@ -196,6 +197,23 @@ export function StudentCoursesLearningHub({
   const pageCount = Math.max(1, Math.ceil(data.totalCount / data.pageSize));
   const hasNoEnrollments = data.summary.totalCourses === 0 && !deferredSearch;
   const hasNoMatches = data.items.length === 0 && !hasNoEnrollments;
+  const refreshError = result.isError ? (
+    <QueryState
+      kind="error"
+      title={dashboard("courseRefreshError")}
+      className="mb-4"
+      action={
+        <Action
+          variant="secondary"
+          pending={result.isFetching}
+          pendingLabel={t("loading")}
+          onClick={() => void result.refetch()}
+        >
+          {t("retry")}
+        </Action>
+      }
+    />
+  ) : null;
 
   const featuredCourse =
     page === 1 &&
@@ -213,6 +231,7 @@ export function StudentCoursesLearningHub({
         dir={locale === "ar" ? "rtl" : "ltr"}
         aria-labelledby="student-courses-compact-heading"
       >
+        {refreshError}
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2
@@ -258,6 +277,7 @@ export function StudentCoursesLearningHub({
       dir={locale === "ar" ? "rtl" : "ltr"}
       aria-labelledby="student-courses-heading"
     >
+      {refreshError}
       <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
           <h1
@@ -539,10 +559,12 @@ export function CourseCard({
   course,
   compact = false,
   featured = false,
+  continuation = false,
 }: {
   course: StudentCourseLearningHubItem;
   compact?: boolean;
   featured?: boolean;
+  continuation?: boolean;
 }) {
   const locale = useLocale();
   const t = useTranslations("studentCoursesLearningHub");
@@ -558,12 +580,14 @@ export function CourseCard({
   return (
     <article
       className={
-        featured
-          ? styles.hero
-          : `${styles.courseRow} ${compact ? styles.compactCourse : ""}`
+        continuation
+          ? styles.continuation
+          : featured
+            ? styles.hero
+            : `${styles.courseRow} ${compact ? styles.compactCourse : ""}`
       }
     >
-      {!compact && (
+      {!compact && !continuation && (
         <div className={styles.artwork}>
           {course.hasCover && !coverFailed ? (
             <img
@@ -583,7 +607,11 @@ export function CourseCard({
           )}
         </div>
       )}
-      <div className={featured ? styles.heroBody : styles.courseBody}>
+      <div
+        className={
+          featured && !continuation ? styles.heroBody : styles.courseBody
+        }
+      >
         {featured && (
           <p className="mb-3 text-sm font-bold opacity-90">
             {t("compactTitle")}
@@ -593,7 +621,9 @@ export function CourseCard({
           <Heading
             className={
               featured
-                ? styles.heroTitle
+                ? continuation
+                  ? styles.continuationTitle
+                  : styles.heroTitle
                 : "min-w-0 text-lg leading-7 font-extrabold break-words"
             }
           >
@@ -601,7 +631,7 @@ export function CourseCard({
           </Heading>
           <span
             className={
-              featured
+              featured && !continuation
                 ? "text-xs font-semibold opacity-90"
                 : "text-xs font-semibold text-text-secondary"
             }
@@ -611,58 +641,70 @@ export function CourseCard({
         </div>
         {course.teacherName && (
           <p
-            className={`mt-2 flex items-center gap-2 text-sm ${featured ? styles.heroMeta : "text-text-secondary"}`}
+            className={`mt-2 flex items-center gap-2 text-sm ${featured && !continuation ? styles.heroMeta : "text-text-secondary"}`}
           >
             <UserRound size={15} className="shrink-0" aria-hidden="true" />
             {course.teacherName}
           </p>
         )}
-        <div className="mt-5">
-          <div
-            className={`flex flex-wrap items-end justify-between gap-2 ${featured ? styles.heroMeta : "text-text-secondary"}`}
-          >
-            <span className="text-sm">{t("progressLabel")}</span>
-            <span
-              className={
-                featured
-                  ? "text-3xl leading-none font-extrabold"
-                  : "text-sm font-bold text-text-primary"
-              }
-            >
-              {formatLocalizedPercentage(course.progressPercent, locale, {
-                maximumFractionDigits: 2,
-              })}
-            </span>
-          </div>
-          <div className={styles.progressTrack}>
-            <div
-              className={styles.progressFill}
-              style={{ width: `${progress}%` }}
-              role="progressbar"
-              aria-label={t("progressLabel")}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={course.progressPercent}
-            />
-          </div>
-        </div>
-        <div
-          className={`mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs leading-5 ${featured ? styles.heroMeta : "text-text-secondary"}`}
-        >
-          <span className="inline-flex items-center gap-2">
-            <CircleCheckBig size={14} aria-hidden="true" />
+        {continuation ? (
+          <p className={styles.lessonRatio}>
+            <CircleCheckBig size={18} aria-hidden="true" />
             {t("lessons", {
               completed: course.completedLessons,
               total: course.totalLessons,
             })}
-          </span>
-          {!compact && (
+          </p>
+        ) : (
+          <div className="mt-5">
+            <div
+              className={`flex flex-wrap items-end justify-between gap-2 ${featured ? styles.heroMeta : "text-text-secondary"}`}
+            >
+              <span className="text-sm">{t("progressLabel")}</span>
+              <span
+                className={
+                  featured
+                    ? "text-3xl leading-none font-extrabold"
+                    : "text-sm font-bold text-text-primary"
+                }
+              >
+                {formatLocalizedPercentage(course.progressPercent, locale, {
+                  maximumFractionDigits: 2,
+                })}
+              </span>
+            </div>
+            <div className={styles.progressTrack}>
+              <div
+                className={styles.progressFill}
+                style={{ width: `${progress}%` }}
+                role="progressbar"
+                aria-label={t("progressLabel")}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={course.progressPercent}
+              />
+            </div>
+          </div>
+        )}
+        {!continuation && (
+          <div
+            className={`mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs leading-5 ${featured ? styles.heroMeta : "text-text-secondary"}`}
+          >
             <span className="inline-flex items-center gap-2">
-              <Layers3 size={14} aria-hidden="true" />
-              {t("modules", { count: course.publishedModuleCount })}
+              <CircleCheckBig size={14} aria-hidden="true" />
+              {t("lessons", {
+                completed: course.completedLessons,
+                total: course.totalLessons,
+              })}
             </span>
-          )}
-        </div>
+            {!compact && (
+              <span className="inline-flex items-center gap-2">
+                <Layers3 size={14} aria-hidden="true" />
+                {t("modules", { count: course.publishedModuleCount })}
+              </span>
+            )}
+          </div>
+        )}
         <div className="mt-5">
           {course.accessAvailable ? (
             <Link
@@ -672,8 +714,8 @@ export function CourseCard({
                 title: course.localizedTitle,
               })}
               className={actionClassName(
-                featured ? "secondary" : "primary",
-                featured
+                featured && !continuation ? "secondary" : "primary",
+                featured && !continuation
                   ? "border-white/40! bg-white! text-[var(--betcco-navy)]!"
                   : "",
               )}
@@ -687,7 +729,7 @@ export function CourseCard({
             </Link>
           ) : (
             <span
-              className={`inline-flex items-center gap-2 text-sm font-bold ${featured ? styles.heroMeta : "text-text-secondary"}`}
+              className={`inline-flex items-center gap-2 text-sm font-bold ${featured && !continuation ? styles.heroMeta : "text-text-secondary"}`}
               aria-disabled="true"
             >
               <LockKeyhole size={17} className="shrink-0" aria-hidden="true" />

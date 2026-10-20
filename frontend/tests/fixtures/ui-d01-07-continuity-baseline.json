@@ -1,0 +1,12 @@
+{
+  "base": "4534ec747067e49f90cb77580b13131fa4512469",
+  "studentHash": "b9f1af95f9840c064d178857476b01db8a41fe94e769af2d808c353df2eefb06",
+  "hubCalls": [
+    "function queryString(options: {\n  locale: string;\n  page: number;\n  pageSize: number;\n  search?: string;\n  progress?: ProgressFilter;\n  sort?: CourseSort;\n}) {\n  const params = new URLSearchParams({\n    locale: options.locale,\n    page: String(options.page),\n    pageSize: String(options.pageSize),\n    progress: options.progress ?? \"All\",\n    sort: options.sort ?? \"Recent\",\n  });\n  if (options.search) params.set(\"search\", options.search);\n  return `/learning/my-courses?${params.toString()}`;\n}",
+    "api<StudentCoursesLearningHubResult>(\n        queryString({ locale, page: 1, pageSize: 3 }),\n      )",
+    "useMemo(\n    () => ({\n      queryKey: [\n        \"student-courses-learning-hub\",\n        locale,\n        \"full\",\n        page,\n        deferredSearch,\n        progress,\n        sort,\n      ] as const,\n      queryFn: () =>\n        api<StudentCoursesLearningHubResult>(\n          queryString({\n            locale,\n            page,\n            pageSize: 12,\n            search: deferredSearch,\n            progress,\n            sort,\n          }),\n        ),\n      placeholderData: (\n        previous: StudentCoursesLearningHubResult | undefined,\n      ) => previous,\n    }),\n    [deferredSearch, locale, page, progress, sort],\n  )",
+    "api<StudentCoursesLearningHubResult>(\n          queryString({\n            locale,\n            page,\n            pageSize: 12,\n            search: deferredSearch,\n            progress,\n            sort,\n          }),\n        )",
+    "useQuery<StudentCoursesLearningHubResult>({\n    ...(variant === \"compact\"\n      ? compactStudentCoursesQueryOptions(locale)\n      : fullQuery),\n    placeholderData: (previous) => previous,\n  })"
+  ],
+  "hubAiHash": "f3a32976958d4a3e9cf32e69af7aadba0fb5a81179bc40310a365009909cfad0"
+}

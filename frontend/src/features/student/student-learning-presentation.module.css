@@ -1,6 +1,8 @@
 .hero {
   position: relative;
   display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  align-items: start;
   min-width: 0;
   overflow: hidden;
   border-radius: var(--ui-radius-region);
@@ -25,11 +27,11 @@
 }
 .heroBody {
   position: relative;
-  padding: 1.5rem;
+  padding: 1rem;
   min-width: 0;
 }
 .heroTitle {
-  font-size: clamp(1.65rem, 2.8vw, 2.65rem);
+  font-size: clamp(1.25rem, 2.4vw, 2rem);
   line-height: 1.35;
   font-weight: 800;
   overflow-wrap: anywhere;
@@ -50,6 +52,10 @@
 }
 .hero .artwork {
   position: relative;
+  height: 4.5rem;
+  margin-block-start: 1rem;
+  margin-inline-start: 1rem;
+  border-radius: var(--ui-radius-control);
   background: color-mix(
     in srgb,
     var(--ui-action-primary) 70%,
@@ -75,13 +81,15 @@
 }
 .courseRow {
   display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
   min-width: 0;
   overflow: hidden;
   border-block-end: 1px solid var(--ui-border-subtle);
   padding-block: 1.25rem;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 .courseRow .artwork {
+  height: 4.5rem;
   border-radius: var(--ui-radius-control);
 }
 .courseBody {
@@ -168,7 +176,9 @@
   .hero .artwork {
     order: 2;
     height: 100%;
-    min-height: 18rem;
+    min-height: 15rem;
+    margin: 0;
+    border-radius: 0;
   }
   .heroBody {
     order: 1;
@@ -194,6 +204,33 @@
 .attention,
 .upcoming {
   min-width: 0;
+}
+.continuation {
+  min-width: 0;
+  padding: 1.25rem;
+  border: 1px solid var(--ui-border-subtle);
+  border-inline-start: 3px solid var(--ui-text-link);
+  border-radius: var(--ui-radius-region);
+  background: var(--ui-surface-panel);
+}
+.continuationTitle {
+  font-size: clamp(1.25rem, 2vw, 1.65rem);
+  line-height: 1.4;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+.lessonRatio {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-block-start: 1rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--ui-text-secondary);
+}
+.lessonRatio svg {
+  flex-shrink: 0;
+  color: var(--ui-text-link);
 }
 .attention,
 .upcoming {
