@@ -1,0 +1,1178 @@
+{
+  "label": "MOCKED UI-CONTRACT EVIDENCE",
+  "status": "PASSED",
+  "base": "40c1457988fc439b175f3a9cd08f4dc9ead1ec6a",
+  "sourceHashes": {
+    "specimens/progress-contracts.ts": "cba3fd1acdbcdfe4f7a168ec62bb536aac4747528a436cd564da007df3252cfa",
+    "specimens/progress-patterns.tsx": "7062378519007ee8dfbd79830c26e16f98ef93f9ebc577a63d985bbd388438c6",
+    "specimens/progress-patterns.module.css": "e2ab5bcf35237188ce8acb198b5ca666e163fbd9b6c9501e75a6868ce2c3a5ae",
+    "specimens/progress-fixtures.ts": "4f3822dc65d26a3c9f32980fc845a1fb1dd158c5fb5a1604f4a042a38db4f06d",
+    "specimens/progress-copy.en.json": "c2cf64edae4e8ba97a292c754354c146f6682c9ecb09aed7f5f2b8e9974fe2e2",
+    "specimens/progress-copy.ar.json": "3206801d16ca8a783fd691379b907334b43421f1e22c6967828ca15977ecb182",
+    "specimens/ui-d01-06.tsx": "8a80415f13b6a9b62c9dc677e3189697d0630bbcce0bddb569389353a1575b0e"
+  },
+  "unchangedBaseTrees": {
+    "frontend/src": "554e2e0dfa99696eae0a57e3ba862ab3b3aba5f8",
+    "frontend/messages": "e3c3315aef59a9b89c53580714b410be900d888b",
+    "frontend/public": "3e570913bc7f845f41ab48d2ea6eb2ca8472568b",
+    "backend": "8226cd20cb7fd9d4e7c75e3176a4bc4fade3c8a8"
+  },
+  "scenarios": 54,
+  "minimumSampledStatusTextContrast": 6.60658223464378,
+  "keyboardFocusCases": 12,
+  "validationRuns": [
+    {
+      "scope": "54 initial browser cases",
+      "sourceHashes": {
+        "specimens/progress-contracts.ts": "cba3fd1acdbcdfe4f7a168ec62bb536aac4747528a436cd564da007df3252cfa",
+        "specimens/progress-patterns.tsx": "7062378519007ee8dfbd79830c26e16f98ef93f9ebc577a63d985bbd388438c6",
+        "specimens/progress-patterns.module.css": "e2ab5bcf35237188ce8acb198b5ca666e163fbd9b6c9501e75a6868ce2c3a5ae",
+        "specimens/progress-fixtures.ts": "4f3822dc65d26a3c9f32980fc845a1fb1dd158c5fb5a1604f4a042a38db4f06d",
+        "specimens/progress-copy.en.json": "34edc3677c46858ffb4a9336ede20b6effba6d7a8b873140fc6e9bb67bea13da",
+        "specimens/progress-copy.ar.json": "c9d9c5cab5bba8a8e029726128b442ae50a65f4ebebdc60a783ffa7bc21579c4",
+        "specimens/ui-d01-06.tsx": "8a80415f13b6a9b62c9dc677e3189697d0630bbcce0bddb569389353a1575b0e"
+      }
+    },
+    {
+      "scope": "2 zero-denominator cases after paired copy refinement",
+      "sourceHashes": {
+        "specimens/progress-contracts.ts": "cba3fd1acdbcdfe4f7a168ec62bb536aac4747528a436cd564da007df3252cfa",
+        "specimens/progress-patterns.tsx": "7062378519007ee8dfbd79830c26e16f98ef93f9ebc577a63d985bbd388438c6",
+        "specimens/progress-patterns.module.css": "e2ab5bcf35237188ce8acb198b5ca666e163fbd9b6c9501e75a6868ce2c3a5ae",
+        "specimens/progress-fixtures.ts": "4f3822dc65d26a3c9f32980fc845a1fb1dd158c5fb5a1604f4a042a38db4f06d",
+        "specimens/progress-copy.en.json": "c2cf64edae4e8ba97a292c754354c146f6682c9ecb09aed7f5f2b8e9974fe2e2",
+        "specimens/progress-copy.ar.json": "3206801d16ca8a783fd691379b907334b43421f1e22c6967828ca15977ecb182",
+        "specimens/ui-d01-06.tsx": "8a80415f13b6a9b62c9dc677e3189697d0630bbcce0bddb569389353a1575b0e"
+      }
+    },
+    {
+      "scope": "2 existing layout cases for margin-correct model detail captures",
+      "sourceHashes": {
+        "specimens/progress-contracts.ts": "cba3fd1acdbcdfe4f7a168ec62bb536aac4747528a436cd564da007df3252cfa",
+        "specimens/progress-patterns.tsx": "7062378519007ee8dfbd79830c26e16f98ef93f9ebc577a63d985bbd388438c6",
+        "specimens/progress-patterns.module.css": "e2ab5bcf35237188ce8acb198b5ca666e163fbd9b6c9501e75a6868ce2c3a5ae",
+        "specimens/progress-fixtures.ts": "4f3822dc65d26a3c9f32980fc845a1fb1dd158c5fb5a1604f4a042a38db4f06d",
+        "specimens/progress-copy.en.json": "c2cf64edae4e8ba97a292c754354c146f6682c9ecb09aed7f5f2b8e9974fe2e2",
+        "specimens/progress-copy.ar.json": "3206801d16ca8a783fd691379b907334b43421f1e22c6967828ca15977ecb182",
+        "specimens/ui-d01-06.tsx": "8a80415f13b6a9b62c9dc677e3189697d0630bbcce0bddb569389353a1575b0e"
+      }
+    }
+  ],
+  "reuse": "Only the paired noContent copy leaf changed after the initial run. It renders solely when total === 0, present only in the two zero cases; those two were refreshed separately. All initial captures and logs are preserved. The other 52 cases remain valid for the final presentation.",
+  "limits": "Isolated actual specimen components and production CSS/fonts; synthetic source-shaped snapshots; no production routes or live backend workflows. Equivalent viewport/DPR reflow is not native zoom. No whole-site WCAG claim.",
+  "modelDetails": [
+    {
+      "screenshot": "model-detail-refresh/screenshots/ar-390-model-aim.png",
+      "imageSha256": "08af81d39ceec7683a00a0361dd4e005488dd3f6897d9d9275f109a0d7f068e8"
+    },
+    {
+      "screenshot": "model-detail-refresh/screenshots/ar-390-model-course.png",
+      "imageSha256": "c83c684439e083b7c89b182b3fdc8883a32915055d8117ba3e13973f89a92226"
+    },
+    {
+      "screenshot": "model-detail-refresh/screenshots/ar-390-model-dashboard.png",
+      "imageSha256": "db6862e8cb7b8dcdaad49e2f39389ae2ebc9834e32c7fdc31a61e2004ce1b741"
+    },
+    {
+      "screenshot": "model-detail-refresh/screenshots/ar-390-model-evaluation.png",
+      "imageSha256": "187d75c1376049d90b12dad99e8c3996e30e85c91a85c607693e783ed0199db8"
+    },
+    {
+      "screenshot": "model-detail-refresh/screenshots/ar-390-model-milestone.png",
+      "imageSha256": "3a163ac93280f8f1e18a1dd2c6eaf70d41abad1d8d8771fd867d700262485836"
+    },
+    {
+      "screenshot": "model-detail-refresh/screenshots/ar-390-model-task.png",
+      "imageSha256": "2285afc7c3356fa35469e76707ae45f1876b9c3cf1ee89aab776a76bfad5fe69"
+    },
+    {
+      "screenshot": "model-detail-refresh/screenshots/en-1440-model-aim.png",
+      "imageSha256": "3faeea17fa7906802c5acea398ddf66049bd605ba02f6f135efb59778d2c018e"
+    },
+    {
+      "screenshot": "model-detail-refresh/screenshots/en-1440-model-course.png",
+      "imageSha256": "4c6b29f05e4060b5b38d0fc39a23512885a22b92ce45650ad3747e314d106041"
+    },
+    {
+      "screenshot": "model-detail-refresh/screenshots/en-1440-model-dashboard.png",
+      "imageSha256": "30f511fa2b70f67bf56c5696364d2b3929bebe560dada7c9b93f009c237d95af"
+    },
+    {
+      "screenshot": "model-detail-refresh/screenshots/en-1440-model-evaluation.png",
+      "imageSha256": "7333debecec7d98357570326169d3169a1da346d7a0967b107e9bf881fa7fb64"
+    },
+    {
+      "screenshot": "model-detail-refresh/screenshots/en-1440-model-milestone.png",
+      "imageSha256": "705420d4d8f19eed823d0b6a1ff6a45714527df448fca8bcd98ff562b48fde48"
+    },
+    {
+      "screenshot": "model-detail-refresh/screenshots/en-1440-model-task.png",
+      "imageSha256": "f51e3e1b00f1267280963ccacf568e6faee76ce8815c16f23c83783507eee8a1"
+    }
+  ],
+  "records": [
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "in-progress",
+      "name": "en-light-1440-in-progress",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-1440-in-progress.png",
+      "imageSha256": "238c3d428ac5376c65f5b6de1968dcb8266eb34fbb44c2b7b023f37a56c58dd0",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      },
+      "focus": {
+        "visible": true,
+        "width": "3px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 834,
+      "scenario": "in-progress",
+      "name": "en-light-834-in-progress",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-834-in-progress.png",
+      "imageSha256": "b8c41da5e23e6092c3116ddd3dde162012bf775bd8fa7e92b141bb8cf2189c73",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      },
+      "focus": {
+        "visible": true,
+        "width": "3px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 390,
+      "scenario": "in-progress",
+      "name": "en-light-390-in-progress",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-390-in-progress.png",
+      "imageSha256": "eddb47863fe29abe4538d638db2fe6b4cb2f07d476035b29e92c48519bf2c759",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      },
+      "focus": {
+        "visible": true,
+        "width": "3px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "width": 1440,
+      "scenario": "in-progress",
+      "name": "en-dark-1440-in-progress",
+      "generation": "initial",
+      "screenshot": "screenshots/en-dark-1440-in-progress.png",
+      "imageSha256": "ddca5ab30eac9344c4bddc9f2634a4e37a0f3b245081b83ab6e5f3ab9887bfbc",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      },
+      "focus": {
+        "visible": true,
+        "width": "3px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "width": 834,
+      "scenario": "in-progress",
+      "name": "en-dark-834-in-progress",
+      "generation": "initial",
+      "screenshot": "screenshots/en-dark-834-in-progress.png",
+      "imageSha256": "bd2d8d09e4712f277f4cff99ab5a55d6ea90cc0d391c75ef2b569881d345789c",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      },
+      "focus": {
+        "visible": true,
+        "width": "3px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "in-progress",
+      "name": "en-dark-390-in-progress",
+      "generation": "initial",
+      "screenshot": "screenshots/en-dark-390-in-progress.png",
+      "imageSha256": "ab1c296edbb8c1db4fc42b5e608119b5039649f6ff68f6b734643628c51dd95a",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      },
+      "focus": {
+        "visible": true,
+        "width": "3px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "in-progress",
+      "name": "ar-light-1440-in-progress",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-light-1440-in-progress.png",
+      "imageSha256": "1e117e04c049dfb64ab606209ee17d6a1417374cfd4615644d8285b857db9d67",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      },
+      "focus": {
+        "visible": true,
+        "width": "3px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "light",
+      "width": 834,
+      "scenario": "in-progress",
+      "name": "ar-light-834-in-progress",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-light-834-in-progress.png",
+      "imageSha256": "17bc0238ba4827e02a08b1577f909274b1d493ce558276da5edf935a788ba908",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      },
+      "focus": {
+        "visible": true,
+        "width": "3px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "light",
+      "width": 390,
+      "scenario": "in-progress",
+      "name": "ar-light-390-in-progress",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-light-390-in-progress.png",
+      "imageSha256": "09df391b212694c05d72c167183ab1abab9e04990e5e687cb4af252a31b732f4",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      },
+      "focus": {
+        "visible": true,
+        "width": "3px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 1440,
+      "scenario": "in-progress",
+      "name": "ar-dark-1440-in-progress",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-1440-in-progress.png",
+      "imageSha256": "9b7416b86f3dab5b34dbf2cbcf8b329689f5f882c8650e191184a22732fbe548",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      },
+      "focus": {
+        "visible": true,
+        "width": "3px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 834,
+      "scenario": "in-progress",
+      "name": "ar-dark-834-in-progress",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-834-in-progress.png",
+      "imageSha256": "2bdecc1d112371f899e6fe44ccc394ee5c58c3077ba86098a383a81da5a7cbe6",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      },
+      "focus": {
+        "visible": true,
+        "width": "3px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "in-progress",
+      "name": "ar-dark-390-in-progress",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-390-in-progress.png",
+      "imageSha256": "fbb5810b00b6ecad67fb60797eb988bc83e68416311b44e7fc24ebc1f5db0c02",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      },
+      "focus": {
+        "visible": true,
+        "width": "3px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "available",
+      "name": "en-light-1440-available",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-1440-available.png",
+      "imageSha256": "5290bbb13397a99cb216259c1a75804a478eb1fb7631ac78b5998defea90ddc6",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "available",
+      "name": "ar-dark-390-available",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-390-available.png",
+      "imageSha256": "0b35c6a7cee964c220c9d76220b495a8fac8e9eda5c1c7faac5b593cac0f17da",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "locked",
+      "name": "en-light-1440-locked",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-1440-locked.png",
+      "imageSha256": "629c7e223ff55040448b09879cf4d89445bd5dadce69ee897ba293ea9da04ba2",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "locked",
+      "name": "ar-dark-390-locked",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-390-locked.png",
+      "imageSha256": "ec34b7fc1e9207c0f109dd585d0ea961c7d0c62e511277b2fe822b04e87fbd9c",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "waiting-review",
+      "name": "en-light-1440-waiting-review",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-1440-waiting-review.png",
+      "imageSha256": "e2fb5d36ba817f1902f5a3f305f1eb621d61880e5a51f5d9df4745ab1df72cf2",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "waiting-review",
+      "name": "ar-dark-390-waiting-review",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-390-waiting-review.png",
+      "imageSha256": "cc8a2e19aca43119cc325ff12cefe17de0df56c38295b882d30b73541c2613a2",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "aim-waiting-review",
+      "name": "en-light-1440-aim-waiting-review",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-1440-aim-waiting-review.png",
+      "imageSha256": "d8ec9038b8ca0e737020f6808bb5c8e9cf45e8bdf08c53780dca87a897619e0f",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "aim-waiting-review",
+      "name": "ar-dark-390-aim-waiting-review",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-390-aim-waiting-review.png",
+      "imageSha256": "87c11cdb8e3fa230846cdcf12b3f4af75fce01a9c5d6e4cde35c7ee2537cbe59",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "complete",
+      "name": "en-light-1440-complete",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-1440-complete.png",
+      "imageSha256": "e2e45727bb2829e4b189da5a15af6db63eb3aa5ff45c610ba3b3f88f2aed6dba",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "complete",
+      "name": "ar-dark-390-complete",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-390-complete.png",
+      "imageSha256": "875777d2b3ffaa0569f0546c214f6f3e1caea7ff930322f8cc14decf334790e7",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "missing-configuration",
+      "name": "en-light-1440-missing-configuration",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-1440-missing-configuration.png",
+      "imageSha256": "e293bbedaad9ac7ac3b94fe1c4ca9729e0a031da5a8ee3687e762688ae30df2e",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "missing-configuration",
+      "name": "ar-dark-390-missing-configuration",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-390-missing-configuration.png",
+      "imageSha256": "5e2722369ccfb8f513f9b664e0258e89c03dd8116c3c1263b94257da74a2d8fc",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "expired",
+      "name": "en-light-1440-expired",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-1440-expired.png",
+      "imageSha256": "a6af794ad388401debbafba6e6ac0b3009a366261e58ecbbb28d718e4f4129e6",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "expired",
+      "name": "ar-dark-390-expired",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-390-expired.png",
+      "imageSha256": "75d80b5a8b97f64c016f956dbc7e5cb7bb73f38f17acf255ab4cd9e0b10725aa",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "restricted",
+      "name": "en-light-1440-restricted",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-1440-restricted.png",
+      "imageSha256": "4d3dbac07585c61cf0d6b5314722288e75a5d66d62a78fb49fa1e202500568c5",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "restricted",
+      "name": "ar-dark-390-restricted",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-390-restricted.png",
+      "imageSha256": "508809ffa1077c659736dd054e04683b09e04ffa731c6a78909d6ea38b457560",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "revision",
+      "name": "en-light-1440-revision",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-1440-revision.png",
+      "imageSha256": "30d9904cc02a49b0dce1aebe507c4e8b1a29b994f88b242e6e022b4c0732db9b",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "revision",
+      "name": "ar-dark-390-revision",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-390-revision.png",
+      "imageSha256": "5c79f84ddfd4b439c0e727c67d87516b7fa025ad487951c64aa0d3bc160b8d9e",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "resit",
+      "name": "en-light-1440-resit",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-1440-resit.png",
+      "imageSha256": "99c8d036980fd9eb0d61a2e230710ed2a5e30370c3cc698ef4ae3f4f384e639b",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "resit",
+      "name": "ar-dark-390-resit",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-390-resit.png",
+      "imageSha256": "ca9cdd8d336fdc82218aaa7f31ca6b7d0e97ef144c55f979e292163c6b10e1a8",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "historical-retake",
+      "name": "en-light-1440-historical-retake",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-1440-historical-retake.png",
+      "imageSha256": "67bdc02bf9f3653e29de473197b81e2430e9b00fee1a37026e12ec762ac91691",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "historical-retake",
+      "name": "ar-dark-390-historical-retake",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-390-historical-retake.png",
+      "imageSha256": "f7af8cfa6b122d0d634e92527aceac76076bf39f9df23179214fa815dcbf67a5",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "partial-data",
+      "name": "en-light-1440-partial-data",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-1440-partial-data.png",
+      "imageSha256": "452eab2f65343508bd0fb4377b3a3931b9900062fdfb6725070b1f96bb8099e0",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "partial-data",
+      "name": "ar-dark-390-partial-data",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-390-partial-data.png",
+      "imageSha256": "3070d93adb0cd353dd078513794170f9c5815f1c606e85ac96fe513053dc0e2a",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "pending",
+      "name": "en-light-1440-pending",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-1440-pending.png",
+      "imageSha256": "d2a0e479c652743cb83f3fab2918b7063af296021bcf8b2eccf1e58d35f828ac",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": null
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "pending",
+      "name": "ar-dark-390-pending",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-390-pending.png",
+      "imageSha256": "28349350588d6387cc03db00357bd4a2ed091ef0b93f1fb8cea6e19dbd9fc18a",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": null
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "cold-error",
+      "name": "en-light-1440-cold-error",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-1440-cold-error.png",
+      "imageSha256": "14a0bdcebf5bc9fd7c0b19cf1807a0ffdc8ce15cdeef3eca310f48fb67556f2a",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": null
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "cold-error",
+      "name": "ar-dark-390-cold-error",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-390-cold-error.png",
+      "imageSha256": "89b1f2a9dd6bb11f371540ad946961dca6ec6f1ebd61bd7dcd198260df150ef8",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": null
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "empty",
+      "name": "en-light-1440-empty",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-1440-empty.png",
+      "imageSha256": "65f5598ead26994935785333b6046e6f033c78391e9566096943ecbda28ed528",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": null
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "empty",
+      "name": "ar-dark-390-empty",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-390-empty.png",
+      "imageSha256": "a640279f66734aa9eec64154140c2d1df11ee8cccb2bf7d07e89204e4ec0e23f",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": null
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "cached-error",
+      "name": "en-light-1440-cached-error",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-1440-cached-error.png",
+      "imageSha256": "d17e056bae575448a0d3f9c6c6772a9e19fe04ace3cd0a483ff1501d36fba724",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "cached-error",
+      "name": "ar-dark-390-cached-error",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-390-cached-error.png",
+      "imageSha256": "72725235aa2ed430adbcab301ef5fe337e05372107724dc87d2971662a0d79bc",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "disabled",
+      "name": "en-light-1440-disabled",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-1440-disabled.png",
+      "imageSha256": "680db606c8ba7856c9bd52b56ae2bce392655d28f7635e0112109f6b9cc5260d",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "disabled",
+      "name": "ar-dark-390-disabled",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-390-disabled.png",
+      "imageSha256": "a77ee647f9a285fe3b2b59866d58fd150b3bf80a8575569e1b2e98a14a58c2c1",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 390,
+      "scenario": "complete",
+      "reduced": true,
+      "name": "en-light-390-complete-reduced",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-390-complete-reduced.png",
+      "imageSha256": "c93284f1cc54e610f3c572afc412a18fb6643de3d3bf9f7fa0a3e1f94ad4dd73",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "complete",
+      "reduced": true,
+      "name": "en-dark-390-complete-reduced",
+      "generation": "initial",
+      "screenshot": "screenshots/en-dark-390-complete-reduced.png",
+      "imageSha256": "90e5463852ef4eb55103850ee462386ed67f05e1c35470ab395ecdc79950f620",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "light",
+      "width": 390,
+      "scenario": "complete",
+      "reduced": true,
+      "name": "ar-light-390-complete-reduced",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-light-390-complete-reduced.png",
+      "imageSha256": "c0002ce552253ab315a8da2c836533e6396c040468a2fb50f1b9f56d3613654d",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "complete",
+      "reduced": true,
+      "name": "ar-dark-390-complete-reduced",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-dark-390-complete-reduced.png",
+      "imageSha256": "875777d2b3ffaa0569f0546c214f6f3e1caea7ff930322f8cc14decf334790e7",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 720,
+      "scenario": "in-progress",
+      "reflow": true,
+      "name": "en-light-720-in-progress-equivalent-200-reflow",
+      "generation": "initial",
+      "screenshot": "screenshots/en-light-720-in-progress-equivalent-200-reflow.png",
+      "imageSha256": "c6f2359e9c4480e86311c5216c4be7d4ac9ff3cbd48a18f64925c531b438a20c",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "light",
+      "width": 720,
+      "scenario": "in-progress",
+      "reflow": true,
+      "name": "ar-light-720-in-progress-equivalent-200-reflow",
+      "generation": "initial",
+      "screenshot": "screenshots/ar-light-720-in-progress-equivalent-200-reflow.png",
+      "imageSha256": "8a56dc38045b85d284137d05f39ed769dd86b704c6d501ae51c1c0327eddcdc5",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      }
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "width": 1440,
+      "scenario": "zero",
+      "name": "en-light-1440-zero",
+      "generation": "zero-copy-refinement",
+      "screenshot": "zero-refresh/screenshots/en-light-1440-zero.png",
+      "imageSha256": "4ead961ef143eb2d809ef982d0f3e44f5d0df1a85f763234a3adb0363d7ff2dc",
+      "overflow": false,
+      "direction": "ltr",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "2px",
+        "right": "0px"
+      }
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "width": 390,
+      "scenario": "zero",
+      "name": "ar-dark-390-zero",
+      "generation": "zero-copy-refinement",
+      "screenshot": "zero-refresh/screenshots/ar-dark-390-zero.png",
+      "imageSha256": "f1076df2c477430801505c1ca8a216d587ac02d87a1d7b5b376657cd1e34fd64",
+      "overflow": false,
+      "direction": "rtl",
+      "errors": [],
+      "api": [],
+      "writes": [],
+      "railBorder": {
+        "left": "0px",
+        "right": "2px"
+      }
+    }
+  ],
+  "failures": []
+}
