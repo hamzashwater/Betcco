@@ -7,6 +7,7 @@ import { QueryState } from "@/components/ui/query-state";
 import baseline from "./fixtures/ui-d01-03-baseline.json";
 import { brandTokens, globals, tokensFor } from "./helpers/ui-color-roles";
 import { syntax, typographyContract } from "./helpers/ui-typography-contract";
+import { projectRoleShellSource } from "./helpers/role-shell-projection";
 
 afterEach(cleanup);
 
@@ -68,10 +69,12 @@ describe("bounded bilingual typography delivery", () => {
     },
   );
 
-  test("keeps the root layouts, #191 consumers and #190 manifests byte-identical", () => {
+  test("keeps the root layouts, #191 consumers and #190 manifests byte-identical outside exact role-shell presentation seams", () => {
     for (const [file, hash] of Object.entries(baseline.protectedFiles))
       expect(
-        createHash("sha256").update(readFileSync(file)).digest("hex"),
+        createHash("sha256")
+          .update(projectRoleShellSource(readFileSync(file, "utf8"), file))
+          .digest("hex"),
         file,
       ).toBe(hash);
     expect(globals).toContain("font-family: var(--font-sans)");

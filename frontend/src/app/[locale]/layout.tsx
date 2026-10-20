@@ -94,7 +94,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         <NextIntlClientProvider messages={messages} locale={locale}>
           <Providers dehydratedState={dehydrate(queryClient)}>
             <DeepSpaceBackground />
-            <div className="relative z-10 flex min-h-screen flex-col">
+            <div className="group/role-shell relative z-10 flex min-h-screen flex-col">
               <MfaEnrollmentBoundary
                 navigation={
                   <>
@@ -108,12 +108,14 @@ export default async function LocaleLayout({ children, params }: Props) {
                 <main
                   id="main-content"
                   tabIndex={-1}
-                  className="page-backdrop flex-1"
+                  className="page-backdrop min-w-0 flex-1 lg:group-has-[[data-staff-shell=teacher]]/role-shell:ms-60 lg:group-has-[[data-staff-shell=admin]]/role-shell:ms-64"
                 >
                   {children}
                 </main>
               </MfaEnrollmentBoundary>
-              <SiteFooter />
+              <div className="lg:group-has-[[data-staff-shell=teacher]]/role-shell:ms-60 lg:group-has-[[data-staff-shell=admin]]/role-shell:ms-64">
+                <SiteFooter />
+              </div>
             </div>
             <ScrollProgress />
             <CookieConsent />

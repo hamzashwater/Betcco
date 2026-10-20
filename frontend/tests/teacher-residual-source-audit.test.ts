@@ -7,11 +7,12 @@ import {
 } from "./helpers/teacher-i18n-audit";
 import technical from "./fixtures/teacher-i18n-technical-strings.json";
 import ts from "typescript";
+import { projectRoleShellSource } from "./helpers/role-shell-projection";
 
 const currentAudit = (path: string) =>
   auditTeacherSource(
     path,
-    readFileSync(path, "utf8"),
+    projectRoleShellSource(readFileSync(path, "utf8"), path),
     false,
     path === "src/components/forms/file-picker.tsx",
   );

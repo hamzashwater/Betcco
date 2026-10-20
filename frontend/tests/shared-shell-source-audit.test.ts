@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import baseline from "./fixtures/shared-shell-i18n-baseline.json";
 import { catalogue, digest, leaves } from "./helpers/admin-final-i18n-audit";
 import { withoutSharedShellAdditions } from "./helpers/shared-shell-catalogue-projection";
+import { projectRoleShellSource } from "./helpers/role-shell-projection";
 import {
   auditShell,
   liveShellAudit,
@@ -11,7 +12,8 @@ import {
 } from "./helpers/shared-shell-i18n-audit";
 
 const reports = liveShellAudit();
-const read = (path: string) => readFileSync(path, "utf8");
+const read = (path: string) =>
+  projectRoleShellSource(readFileSync(path, "utf8"), path);
 const messages = {
   ar: catalogue(read("messages/ar.json")),
   en: catalogue(read("messages/en.json")),

@@ -6,8 +6,10 @@ import { practiceContract } from "./helpers/learning-practice-i18n-audit";
 import { auditMetadata } from "./helpers/metadata-i18n-audit";
 import { withoutMetadataAdditions } from "./helpers/metadata-catalogue-projection";
 import { withoutMetadataPresentationChanges } from "./helpers/metadata-source-projection";
+import { projectRoleShellSource } from "./helpers/role-shell-projection";
 
-const read = (path: string) => readFileSync(path, "utf8");
+const read = (path: string) =>
+  projectRoleShellSource(readFileSync(path, "utf8"), path);
 const paths = Object.keys(
   baseline.approvedSources,
 ) as (keyof typeof baseline.approvedSources)[];

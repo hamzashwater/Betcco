@@ -54,8 +54,9 @@ export function CourseWorkspaceNavigation() {
     <nav
       aria-label={t("label")}
       dir={locale === "ar" ? "rtl" : "ltr"}
-      className="elevated-surface sticky top-[4.5rem] z-40 mt-6 rounded-2xl border border-border p-2 backdrop-blur-xl lg:top-[7.5rem]"
+      className="sticky top-20 z-30 mt-6 min-w-0 border-y border-border-subtle! bg-surface-panel p-2"
     >
+      <p className="ui-type-meta px-3 py-1 text-text-muted">{t("label")}</p>
       <ol className="flex gap-1 overflow-x-auto" role="list">
         {courseWorkspaceSections.map((section) => {
           const isActive = activeSection === section;
@@ -65,10 +66,10 @@ export function CourseWorkspaceNavigation() {
                 href={`#${section}`}
                 aria-current={isActive ? "location" : undefined}
                 onClick={() => setActiveSection(section)}
-                className={`focus-ring inline-flex rounded-xl px-3 py-2 text-sm font-bold transition-colors ${
+                className={`focus-ring ui-type-label inline-flex min-h-11 items-center rounded-lg border-b-2 px-3 py-2 transition-colors duration-120 motion-reduce:transition-none ${
                   isActive
-                    ? "bg-primary text-slate-950 shadow-sm"
-                    : "text-muted hover:bg-white/5 hover:text-foreground"
+                    ? "border-selection-marker! bg-selection-surface text-selection-text"
+                    : "border-transparent! text-text-secondary hover:bg-surface-row-hover"
                 }`}
               >
                 {t(section)}

@@ -112,6 +112,22 @@
     "theme": {
       "toggle": "تبديل المظهر",
       "label": "المظهر"
+    },
+    "roleShell": {
+      "learningActivity": "التعلّم والنشاط",
+      "work": "العمل",
+      "people": "الأشخاص",
+      "academic": "الإعداد الأكاديمي",
+      "finance": "المالية",
+      "governance": "الحوكمة",
+      "publishing": "النشر",
+      "courses": "الدورات",
+      "account": "الحساب",
+      "menu": "القائمة",
+      "hideNavigation": "إخفاء التنقل",
+      "showNavigation": "إظهار التنقل",
+      "localDestinations": "وجهات مساحة العمل الحالية",
+      "catalogue": "الكتالوج العام"
     }
   },
   "footer": {

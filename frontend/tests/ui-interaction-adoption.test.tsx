@@ -11,6 +11,10 @@ import baseline from "./fixtures/ui-d01-04-baseline.json";
 import { interactionPresentation } from "./helpers/ui-interaction-contract";
 import { syntax } from "./helpers/ui-typography-contract";
 import {
+  projectRoleShellSource,
+  withoutRoleShellAdditions,
+} from "./helpers/role-shell-projection";
+import {
   projectAdminStateSource,
   withoutAdminStateAdditions,
 } from "./helpers/admin-state-projection";
@@ -65,7 +69,7 @@ describe("UI-D01-04 presentation and ownership boundary", () => {
 
   it("preserves foundation/font/copy/dependency files and deferred consumers", () => {
     for (const [file, hash] of Object.entries(baseline.protectedFiles)) {
-      let source = readFileSync(file, "utf8");
+      let source = projectRoleShellSource(readFileSync(file, "utf8"), file);
       if (file === "src/features/student/student-area.tsx")
         source = projectStudentStateSource(source);
       if (file === "src/features/admin/admin-area.tsx")
@@ -74,7 +78,9 @@ describe("UI-D01-04 presentation and ownership boundary", () => {
         source =
           JSON.stringify(
             withoutStudentStateAdditions(
-              withoutAdminStateAdditions(JSON.parse(source)),
+              withoutAdminStateAdditions(
+                withoutRoleShellAdditions(JSON.parse(source)),
+              ),
             ),
             null,
             2,
