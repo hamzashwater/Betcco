@@ -3,13 +3,14 @@
 import { Action } from "@/components/ui/action";
 import { QueryState } from "@/components/ui/query-state";
 import { useDialogFocus } from "./use-dialog-focus";
+import type { DestinationGroup } from "./workspace-navigation";
 import { api } from "@/lib/api";
 import type { CourseSummary, PagedResult } from "@/types/api";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, BookOpen, Compass, Home, Search, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { Fragment, useMemo, useRef, useState } from "react";
 
 type PaletteItem = {
   id: string;
@@ -17,14 +18,17 @@ type PaletteItem = {
   hint?: string;
   href: string;
   icon: typeof Home;
+  group?: string;
 };
 
 export function CommandPalette({
   open,
   onClose,
+  localGroups = [],
 }: {
   open: boolean;
   onClose: () => void;
+  localGroups?: DestinationGroup[];
 }) {
   const locale = useLocale();
   const router = useRouter();
@@ -68,18 +72,43 @@ export function CommandPalette({
     ],
     [locale, t, palette],
   );
+  const localItems = localGroups.flatMap((group) =>
+    group.links.map((link) => ({
+      id: `local:${link.href}`,
+      label: link.label,
+      href: link.href,
+      icon: Compass,
+      group: group.label,
+    })),
+  );
   const courseItems = (result.data?.items ?? []).map<PaletteItem>((course) => ({
     id: course.id,
     label: course.title,
     hint: course.track,
     href: `/${locale}/courses/${course.slug}`,
     icon: BookOpen,
+    group: t("navigation.roleShell.catalogue"),
   }));
-  const items = term.trim().length >= 2 ? courseItems : navigation;
 
   const searchRequested = term.trim().length >= 2;
   const searching = searchRequested && result.isPending;
   const failed = searchRequested && result.isError;
+  const localMatches = searchRequested
+    ? localItems.filter((item) =>
+        item.label
+          .toLocaleLowerCase(locale)
+          .includes(term.trim().toLocaleLowerCase(locale)),
+      )
+    : localItems;
+  const publicItems = searchRequested
+    ? searching || failed
+      ? []
+      : courseItems
+    : navigation.map((item) => ({
+        ...item,
+        group: t("navigation.roleShell.catalogue"),
+      }));
+  const items: PaletteItem[] = [...localMatches, ...publicItems];
 
   if (!open) return null;
 
@@ -143,6 +172,11 @@ export function CommandPalette({
           </Action>
         </div>
         <div className="max-h-[52vh] overflow-y-auto p-2">
+          {localGroups.length > 0 && (
+            <p className="ui-type-meta px-3 py-2 text-text-muted">
+              {t("navigation.roleShell.localDestinations")}
+            </p>
+          )}
           {searching && (
             <QueryState kind="loading" title={palette("searching")} />
           )}
@@ -162,28 +196,32 @@ export function CommandPalette({
               }
             />
           )}
-          {!searching &&
-            !failed &&
-            items.map((item, index) => {
-              const Icon = item.icon;
-              return (
+          {items.map((item, index) => {
+            const Icon = item.icon;
+            return (
+              <Fragment key={item.id}>
+                {localGroups.length > 0 &&
+                  (index === 0 || items[index - 1].group !== item.group) && (
+                    <h3 className="ui-type-meta px-3 pt-3 pb-1 text-text-muted">
+                      {item.group}
+                    </h3>
+                  )}
                 <button
                   type="button"
-                  key={item.id}
                   onMouseEnter={() => setActiveIndex(index)}
                   onClick={() => select(item)}
-                  className={`focus-ring flex w-full items-center gap-3 rounded-xl px-3 py-3 text-start text-sm ${index === activeIndex ? "bg-surface-interactive text-text-primary" : "text-text-secondary hover:bg-surface-muted"}`}
+                  className={`focus-ring ui-type-label flex min-h-11 w-full items-center gap-3 rounded-lg border-s-2 px-3 py-3 text-start ${index === activeIndex ? "border-selection-marker! bg-selection-surface text-selection-text" : "border-transparent! text-text-secondary hover:bg-surface-row-hover"}`}
                 >
                   <Icon
                     size={18}
                     className="shrink-0 text-text-link"
                     aria-hidden="true"
                   />
-                  <span className="min-w-0 flex-1 truncate font-semibold">
+                  <span className="min-w-0 flex-1 break-words font-medium">
                     {item.label}
                   </span>
                   {item.hint && (
-                    <span className="truncate text-xs text-muted">
+                    <span className="ui-type-meta truncate text-text-muted">
                       {item.hint}
                     </span>
                   )}
@@ -193,8 +231,9 @@ export function CommandPalette({
                     aria-hidden="true"
                   />
                 </button>
-              );
-            })}
+              </Fragment>
+            );
+          })}
           {!searching &&
             !failed &&
             searchRequested &&
@@ -207,7 +246,7 @@ export function CommandPalette({
           {palette("keyboardHelp")}
         </p>
         <p className="sr-only" role="status">
-          {!searching && !failed ? items[activeIndex]?.label : null}
+          {items[activeIndex]?.label}
         </p>
       </section>
     </div>

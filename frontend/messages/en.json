@@ -112,6 +112,22 @@
     "theme": {
       "toggle": "Toggle theme",
       "label": "Theme"
+    },
+    "roleShell": {
+      "learningActivity": "Learning & activity",
+      "work": "Work",
+      "people": "People",
+      "academic": "Academic setup",
+      "finance": "Finance",
+      "governance": "Governance",
+      "publishing": "Publishing",
+      "courses": "Courses",
+      "account": "Account",
+      "menu": "Menu",
+      "hideNavigation": "Hide navigation",
+      "showNavigation": "Show navigation",
+      "localDestinations": "Current workspace destinations",
+      "catalogue": "Public catalogue"
     }
   },
   "footer": {

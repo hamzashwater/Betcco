@@ -18,6 +18,21 @@ export function useDialogFocus(
     const previous = document.activeElement as HTMLElement | null;
     const overflow = document.body.style.overflow;
     const root = container.current;
+    const background: { element: HTMLElement; inert: boolean }[] = [];
+    let branch: HTMLElement = root;
+    while (branch.parentElement) {
+      for (const sibling of branch.parentElement.children) {
+        if (sibling !== branch && sibling instanceof HTMLElement) {
+          background.push({
+            element: sibling,
+            inert: sibling.hasAttribute("inert"),
+          });
+          sibling.setAttribute("inert", "");
+        }
+      }
+      if (branch.parentElement === document.body) break;
+      branch = branch.parentElement;
+    }
     const focusable = () =>
       Array.from(
         root.querySelectorAll<HTMLElement>(
@@ -60,6 +75,8 @@ export function useDialogFocus(
     return () => {
       root.removeEventListener("keydown", handleKey);
       document.body.style.overflow = overflow;
+      for (const { element, inert } of background)
+        if (!inert) element.removeAttribute("inert");
       if (previous?.isConnected) previous.focus();
     };
   }, [open, container, initialFocus]);

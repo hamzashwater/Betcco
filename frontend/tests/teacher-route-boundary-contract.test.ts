@@ -2,8 +2,12 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { projectTeacherRouteBoundary } from "./helpers/teacher-route-boundary-projection";
+import { projectRoleShellSource } from "./helpers/role-shell-projection";
 
-const source = readFileSync("src/components/site-navigation.tsx", "utf8");
+const source = projectRoleShellSource(
+  readFileSync("src/components/site-navigation.tsx", "utf8"),
+  "src/components/site-navigation.tsx",
+);
 const hash = (value: string) =>
   createHash("sha256").update(value).digest("hex");
 // Independently verified b420f76 main source; also retained by the #196 freeze.

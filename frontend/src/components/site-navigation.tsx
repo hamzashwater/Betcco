@@ -14,6 +14,7 @@ import { Action, actionClassName } from "@/components/ui/action";
 import { useDialogFocus } from "@/components/navigation/use-dialog-focus";
 import {
   WorkspaceNavigation,
+  StaffWorkspaceNavigation,
   GroupedDestinations,
   type ShellDestination,
   type DestinationGroup,
@@ -61,6 +62,9 @@ export function SiteNavigation() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [sidebarHidden, setSidebarHidden] = useState(false);
+  const sidebar = useRef<HTMLElement>(null);
+  const sidebarMenu = useRef<HTMLDivElement>(null);
   const mega = useRef<HTMLDivElement>(null);
   const subjectsTrigger = useRef<HTMLButtonElement>(null);
   const header = useRef<HTMLElement>(null);
@@ -92,6 +96,7 @@ export function SiteNavigation() {
         ? "support"
         : null;
   const isWorkspace = workspace !== null;
+  const staffShell = workspace === "teacher" || workspace === "admin";
   const isAccountArea =
     pathname.startsWith(`/${locale}/admin`) ||
     isTeacherWorkspacePath(pathname, locale) ||
@@ -475,7 +480,7 @@ export function SiteNavigation() {
     primary = studentLinks.slice(0, 4);
     groups = [
       {
-        label: nav("accessibility.menuLinks"),
+        label: nav("roleShell.learningActivity"),
         links: studentLinks.slice(4, 10),
       },
       { label: student("account"), links: studentLinks.slice(10) },
@@ -484,56 +489,57 @@ export function SiteNavigation() {
     primary = shellLinks.filter((link) => link.exact);
     groups = [
       {
-        label: nav("admin.students"),
+        label: nav("roleShell.work"),
+        links: pick(
+          "course-approvals",
+          "evaluations",
+          "internal-verification",
+          "evaluation-appeals",
+          "support",
+        ),
+      },
+      {
+        label: nav("roleShell.people"),
         links: pick("students", "teachers", "account-identities"),
       },
       {
-        label: t("academicCatalogue.title"),
+        label: nav("roleShell.academic"),
         links: pick(
-          "course-approvals",
           "qualification-registry",
           "academic-catalogue",
           "delivery-planning",
-        ),
-      },
-      {
-        label: nav("admin.evaluations"),
-        links: pick(
-          "evaluations",
           "evaluator-specialisms",
-          "internal-verification",
-          "evaluation-appeals",
         ),
       },
-      { label: nav("admin.wallet"), links: pick("wallet", "commerce") },
+      { label: nav("roleShell.finance"), links: pick("wallet", "commerce") },
       {
-        label: nav("accessibility.menuLinks"),
+        label: nav("roleShell.governance"),
         links: pick(
-          "content",
           "audit-logs",
           "privacy",
           "security-incidents",
-          "ratings",
-          "support",
           "integrations",
-          "profile",
-          "security",
         ),
       },
+      { label: nav("roleShell.publishing"), links: pick("content", "ratings") },
+      { label: nav("roleShell.account"), links: pick("profile", "security") },
     ];
   } else if (workspace === "teacher") {
-    primary = shellLinks.filter(
-      (link) =>
-        link.exact ||
-        ["courses", "students", "evaluations"].includes(
-          link.href.split("/").at(-1) ?? "",
-        ),
-    );
+    primary = [];
     groups = [
       {
-        label: nav("accessibility.menuLinks"),
-        links: pick("wallet", "profile", "security"),
+        label: nav("roleShell.work"),
+        links: shellLinks.filter(
+          (link) =>
+            link.exact ||
+            ["students", "evaluations"].includes(
+              link.href.split("/").at(-1) ?? "",
+            ),
+        ),
       },
+      { label: nav("roleShell.courses"), links: pick("courses") },
+      { label: nav("roleShell.finance"), links: pick("wallet") },
+      { label: nav("roleShell.account"), links: pick("profile", "security") },
     ];
   } else if (workspace === "support") {
     primary = pick("accounts");
@@ -558,6 +564,18 @@ export function SiteNavigation() {
   );
   const drawerGroups = [{ label: shellLabel, links: primary }, ...groups];
   const closeDrawer = () => setDrawerOpen(false);
+  const hideSidebar = () => {
+    setSidebarHidden(true);
+    window.requestAnimationFrame(() =>
+      sidebarMenu.current?.querySelector("button")?.focus(),
+    );
+  };
+  const showSidebar = () => {
+    setSidebarHidden(false);
+    window.requestAnimationFrame(() =>
+      sidebar.current?.querySelector("button")?.focus(),
+    );
+  };
   const logo = (
     <span className="block w-full max-w-36 text-sm font-bold leading-5 break-words [&_.brand-logo-fallback]:line-clamp-2!">
       <BrandLogo
@@ -580,13 +598,16 @@ export function SiteNavigation() {
     <>
       <header
         ref={header}
+        data-staff-shell={staffShell && !sidebarHidden ? workspace : undefined}
         className="sticky top-0 z-50 border-b border-border-default! bg-surface-overlay text-text-primary"
       >
-        <div className="shell flex min-h-[4.5rem] items-center justify-between gap-2 py-2">
+        <div
+          className={`shell flex items-center justify-between gap-2 ${staffShell ? "h-20 py-1" : "min-h-[4.5rem] py-2"}`}
+        >
           <div className="min-w-0 flex-1">
             <Link
               href={brandDestination}
-              className="focus-ring inline-flex max-w-full items-center"
+              className="focus-ring inline-flex min-h-11 max-w-full items-center"
               aria-label={
                 isWorkspace
                   ? nav("accessibility.brandBack", {
@@ -599,7 +620,7 @@ export function SiteNavigation() {
               {logo}
             </Link>
             {shellWorkspace && (
-              <p className="mt-1 flex min-w-0 items-center gap-2 text-[0.6875rem] leading-4 text-text-muted">
+              <p className="ui-type-meta mt-1 flex min-w-0 items-center gap-2 text-text-muted">
                 <span className="truncate" title={shellLabel}>
                   {shellLabel}
                 </span>
@@ -607,7 +628,7 @@ export function SiteNavigation() {
                   <>
                     <span aria-hidden="true">/</span>
                     <span
-                      className="truncate font-bold text-text-primary"
+                      className="truncate font-medium text-text-primary"
                       title={currentDestination.label}
                     >
                       {currentDestination.label}
@@ -625,6 +646,7 @@ export function SiteNavigation() {
               aria-label={nav("search")}
             >
               <Search size={19} aria-hidden="true" />
+              <span className="hidden xl:inline">{nav("search")}</span>
               <kbd className="hidden text-[10px] text-text-muted xl:inline">
                 Ctrl K
               </kbd>
@@ -635,7 +657,7 @@ export function SiteNavigation() {
               onNavigate={preserveLocaleSwitchContext}
               className={actionClassName(
                 "quiet",
-                "hidden! px-3! text-xs! md:inline-flex!",
+                "hidden! min-w-11 px-3! text-xs! md:inline-flex!",
               )}
               aria-label={nav("accessibility.switchLanguage")}
             >
@@ -702,13 +724,29 @@ export function SiteNavigation() {
                 {t("login")}
               </Link>
             ) : null}
+            {staffShell && sidebarHidden && (
+              <div ref={sidebarMenu} className="hidden lg:block">
+                <Action
+                  variant="quiet"
+                  onClick={showSidebar}
+                  aria-label={nav("roleShell.showNavigation")}
+                  aria-controls="staff-workspace-navigation"
+                  className="px-3!"
+                >
+                  <Menu size={20} strokeWidth={2} aria-hidden="true" />
+                  {nav("roleShell.menu")}
+                </Action>
+              </div>
+            )}
             <Action
               variant="quiet"
               onClick={() => setDrawerOpen(true)}
               className={
-                studentShell
-                  ? "px-3! hidden! md:inline-flex! lg:hidden!"
-                  : "px-3! md:hidden!"
+                staffShell
+                  ? "px-3! lg:hidden!"
+                  : studentShell
+                    ? "px-3! hidden! md:inline-flex! lg:hidden!"
+                    : "px-3! md:hidden!"
               }
               aria-label={nav("accessibility.openMenu")}
               aria-expanded={drawerOpen}
@@ -719,72 +757,89 @@ export function SiteNavigation() {
           </div>
         </div>
       </header>
-      <div className="relative z-40 border-border-default! bg-surface-overlay md:border-b">
-        <WorkspaceNavigation
-          label={
-            studentShell
-              ? student("ariaLabel")
-              : shellWorkspace
-                ? nav("accessibility.workspace")
-                : nav("accessibility.primary")
-          }
+      {staffShell && (
+        <StaffWorkspaceNavigation
+          role={workspace === "teacher" ? "teacher" : "admin"}
+          label={shellLabel}
+          navigationLabel={nav("accessibility.workspace")}
           primary={primary}
           groups={groups}
           active={shellActive}
-          student={studentShell}
-          moreLabel={nav("accessibility.openMenu")}
-          onMore={() => setDrawerOpen(true)}
-          moreExpanded={drawerOpen}
-        >
-          {!shellWorkspace && (
-            <button
-              ref={subjectsTrigger}
-              type="button"
-              className={actionClassName("quiet", "px-3!")}
-              onClick={() => setMegaOpen(!megaOpen)}
-              aria-expanded={megaOpen}
-              aria-controls="subjects-mega-menu"
-            >
-              {nav("subjects")}
-              <ChevronDown size={14} aria-hidden="true" />
-            </button>
-          )}
-        </WorkspaceNavigation>
-        {!shellWorkspace && megaOpen && (
-          <div
-            ref={mega}
-            id="subjects-mega-menu"
-            className="absolute inset-x-0 top-full border-y border-border-default! bg-surface-overlay shadow-overlay"
+          container={sidebar}
+          hidden={sidebarHidden}
+          onHide={hideSidebar}
+          hideLabel={nav("roleShell.hideNavigation")}
+        />
+      )}
+      {!staffShell && (
+        <div className="relative z-40 border-border-default! bg-surface-overlay md:border-b">
+          <WorkspaceNavigation
+            label={
+              studentShell
+                ? student("ariaLabel")
+                : shellWorkspace
+                  ? nav("accessibility.workspace")
+                  : nav("accessibility.primary")
+            }
+            primary={primary}
+            groups={groups}
+            active={shellActive}
+            student={studentShell}
+            moreLabel={nav("accessibility.openMenu")}
+            onMore={() => setDrawerOpen(true)}
+            moreExpanded={drawerOpen}
           >
-            <div className="shell grid gap-6 py-6 md:grid-cols-3">
-              <div>
-                <p className="text-sm font-bold">{nav("explorePath")}</p>
-                <p className="mt-2 text-sm leading-6 text-text-secondary">
-                  {nav("exploreDescription")}
-                </p>
-                <Link
-                  href={`/${locale}/tracks`}
-                  onClick={() => setMegaOpen(false)}
-                  className={actionClassName("quiet", "mt-3 px-0!")}
-                >
-                  {nav("allTracks")}
-                  <BookOpen size={16} aria-hidden="true" />
-                </Link>
+            {!shellWorkspace && (
+              <button
+                ref={subjectsTrigger}
+                type="button"
+                className={actionClassName("quiet", "px-3!")}
+                onClick={() => setMegaOpen(!megaOpen)}
+                aria-expanded={megaOpen}
+                aria-controls="subjects-mega-menu"
+              >
+                {nav("subjects")}
+                <ChevronDown size={14} aria-hidden="true" />
+              </button>
+            )}
+          </WorkspaceNavigation>
+          {!shellWorkspace && megaOpen && (
+            <div
+              ref={mega}
+              id="subjects-mega-menu"
+              className="absolute inset-x-0 top-full border-y border-border-default! bg-surface-overlay shadow-overlay"
+            >
+              <div className="shell grid gap-6 py-6 md:grid-cols-3">
+                <div>
+                  <p className="text-sm font-bold">{nav("explorePath")}</p>
+                  <p className="mt-2 text-sm leading-6 text-text-secondary">
+                    {nav("exploreDescription")}
+                  </p>
+                  <Link
+                    href={`/${locale}/tracks`}
+                    onClick={() => setMegaOpen(false)}
+                    className={actionClassName("quiet", "mt-3 px-0!")}
+                  >
+                    {nav("allTracks")}
+                    <BookOpen size={16} aria-hidden="true" />
+                  </Link>
+                </div>
+                <TaxonomyColumn
+                  title={nav("accessibility.grades")}
+                  items={taxonomy.data?.grades.map((item) => item.name) ?? []}
+                />
+                <TaxonomyColumn
+                  title={nav("accessibility.specializations")}
+                  items={
+                    taxonomy.data?.specializations.map((item) => item.name) ??
+                    []
+                  }
+                />
               </div>
-              <TaxonomyColumn
-                title={nav("accessibility.grades")}
-                items={taxonomy.data?.grades.map((item) => item.name) ?? []}
-              />
-              <TaxonomyColumn
-                title={nav("accessibility.specializations")}
-                items={
-                  taxonomy.data?.specializations.map((item) => item.name) ?? []
-                }
-              />
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
       {drawerOpen && (
         <div
           className="fixed inset-0 z-[70] bg-slate-950/65"
@@ -804,10 +859,12 @@ export function SiteNavigation() {
           >
             <div className="flex items-start justify-between gap-3 border-b border-border-subtle! p-4">
               <div className="min-w-0">
-                <p className="text-sm font-bold break-words">
+                <p className="ui-type-label break-words">
                   {identity.shortName}
                 </p>
-                <p className="mt-1 text-xs text-text-muted">{shellLabel}</p>
+                <p className="ui-type-meta mt-1 text-text-muted">
+                  {shellLabel}
+                </p>
               </div>
               <Action
                 variant="quiet"
@@ -861,7 +918,7 @@ export function SiteNavigation() {
               <Link
                 href={localeSwitchPathname}
                 onNavigate={preserveLocaleSwitchContext}
-                className={actionClassName("quiet", "px-3!")}
+                className={actionClassName("quiet", "min-w-11 px-3!")}
                 aria-label={nav("accessibility.switchLanguage")}
               >
                 {alternate.toUpperCase()}
@@ -916,6 +973,7 @@ export function SiteNavigation() {
       <CommandPalette
         open={paletteOpen}
         onClose={() => setPaletteOpen(false)}
+        localGroups={shellWorkspace && isSignedIn ? drawerGroups : []}
       />
     </>
   );

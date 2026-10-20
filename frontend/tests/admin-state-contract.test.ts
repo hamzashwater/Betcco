@@ -7,6 +7,7 @@ import {
   withoutAdminStateAdditions,
 } from "./helpers/admin-state-projection";
 import { projectTeacherRouteBoundary } from "./helpers/teacher-route-boundary-projection";
+import { projectRoleShellSource } from "./helpers/role-shell-projection";
 const source = readFileSync("src/features/admin/admin-area.tsx", "utf8");
 const hash = (value: string | Buffer) =>
   createHash("sha256").update(value).digest("hex");
@@ -47,7 +48,9 @@ describe("exact Admin state adoption preserves all other contracts", () => {
       expect(
         hash(
           file === "src/components/site-navigation.tsx"
-            ? projectTeacherRouteBoundary(value.toString())
+            ? projectTeacherRouteBoundary(
+                projectRoleShellSource(value.toString(), file),
+              )
             : value,
         ),
         file,
