@@ -2,6 +2,7 @@
 
 import { formatLocalizedDate } from "@/i18n/date-time";
 import { formatLocalizedCurrency } from "@/i18n/number-format";
+import { actionClassName } from "@/components/ui/action";
 import { FilePicker } from "@/components/forms/file-picker";
 import { academicText } from "@/lib/academic-localization";
 import { api, ApiError } from "@/lib/api";
@@ -10,6 +11,8 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import styles from "./student-evaluation-wizard.module.css";
+import { EvaluationCurrentState } from "./student-evaluation-presentation";
 
 type Academic = {
   qualificationCode: string;
@@ -151,19 +154,19 @@ export function StudentResitOpportunities() {
     },
   });
   return (
-    <section className="mt-6 grid gap-3" aria-label={t("ariaLabel")}>
-      <h2 className="text-xl font-black">{t("title")}</h2>
+    <section
+      className={`mt-6 grid gap-3 ${styles.flow}`}
+      aria-label={t("ariaLabel")}
+    >
+      <h2 className="text-xl font-semibold">{t("title")}</h2>
       {opportunities.isPending ? <p role="status">{t("loading")}</p> : null}
       {opportunities.isError ? <p role="alert">{t("loadError")}</p> : null}
       {opportunities.data?.items?.length === 0 ? (
         <p className="text-sm text-muted">{t("empty")}</p>
       ) : null}
       {opportunities.data?.items?.map((item) => (
-        <article
-          className="card grid min-w-0 gap-2 p-4"
-          key={item.authorizationId}
-        >
-          <strong className="text-primary">{t("cardTitle")}</strong>
+        <article className={styles.request} key={item.authorizationId}>
+          <strong className="text-text-link">{t("cardTitle")}</strong>
           <AcademicContext academic={item.academic} locale={locale} />
           <p className="text-sm">
             {t("originalRequest")}:{" "}
@@ -177,7 +180,7 @@ export function StudentResitOpportunities() {
               <p className="text-sm text-muted">{t("authorizedDescription")}</p>
               <button
                 type="button"
-                className="focus-ring w-fit rounded-xl bg-primary px-4 py-2 font-bold text-white disabled:opacity-50"
+                className={actionClassName("primary", "w-fit")}
                 disabled={activate.isPending}
                 onClick={() => activate.mutate(item.authorizationId)}
               >
@@ -191,7 +194,7 @@ export function StudentResitOpportunities() {
                 {item.resitEvaluationRequestId.slice(0, 8)}
               </p>
               <Link
-                className="focus-ring w-fit font-bold text-primary underline"
+                className="focus-ring w-fit font-bold text-text-link underline"
                 href={`/${locale}/student/evaluations/${item.resitEvaluationRequestId}`}
               >
                 {t("openDraft")}
@@ -347,9 +350,9 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
   });
   const data = detail.data;
   return (
-    <section className="shell grid min-w-0 gap-4 py-10">
+    <section className={`shell grid min-w-0 gap-4 py-10 ${styles.flow}`}>
       <Link
-        className="focus-ring w-fit font-semibold text-primary underline"
+        className="focus-ring w-fit font-semibold text-text-link underline"
         href={`/${locale}/student/evaluations`}
       >
         {t("back")}
@@ -360,12 +363,14 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
       ) : null}
       {data?.isResit ? (
         <>
-          <header className="card grid gap-2 p-5">
-            <h1 className="text-2xl font-black">{t("header.title")}</h1>
+          <header className={styles.request}>
+            <h1 className="text-2xl font-semibold">{t("header.title")}</h1>
             <AcademicContext academic={data.academic} locale={locale} />
-            <p>
-              {t("header.status")}: {data.status}
-            </p>
+            <EvaluationCurrentState status={data.status} branch="resit">
+              <p>
+                {t("header.status")}: {data.status}
+              </p>
+            </EvaluationCurrentState>
             {data.resitOfEvaluationRequestId ? (
               <p className="text-sm">
                 {t("header.originalRequest")}:{" "}
@@ -374,8 +379,8 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
             ) : null}
           </header>
           {data.status === "Draft" ? (
-            <div className="card grid gap-5 p-5">
-              <h2 className="text-xl font-black">{t("draft.title")}</h2>
+            <div className={styles.panel}>
+              <h2 className="text-xl font-semibold">{t("draft.title")}</h2>
               <FilePicker
                 label={t("draft.files.label")}
                 files={files}
@@ -388,7 +393,7 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
               />
               <button
                 type="button"
-                className="focus-ring w-fit rounded-xl bg-primary px-4 py-2 font-bold text-white disabled:opacity-50"
+                className={actionClassName("primary", "w-fit")}
                 disabled={!files.length || upload.isPending}
                 onClick={() => upload.mutate()}
               >
@@ -400,7 +405,7 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
                 </p>
               ) : null}
               {upload.isSuccess ? (
-                <p role="status" className="text-sm text-primary">
+                <p role="status" className="text-sm text-text-link">
                   {t("draft.files.saved")}
                 </p>
               ) : null}
@@ -467,13 +472,13 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
                   </p>
                 ) : null}
                 {saveEvidence.isSuccess ? (
-                  <p role="status" className="text-sm text-primary">
+                  <p role="status" className="text-sm text-text-link">
                     {t("draft.evidence.saved")}
                   </p>
                 ) : null}
               </div>
               {data.hasAuthenticityDeclaration ? (
-                <p role="status" className="font-semibold text-primary">
+                <p role="status" className="font-semibold text-text-link">
                   {t("draft.authenticity.confirmed")}
                 </p>
               ) : (
@@ -511,7 +516,7 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
                 </p>
               ) : null}
               <div className="grid gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm">
-                <p className="font-black">{t("payment.title")}</p>
+                <p className="font-semibold">{t("payment.title")}</p>
                 <p>
                   {t("payment.price", {
                     price: formatLocalizedCurrency(
@@ -539,7 +544,7 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
                 </label>
                 <button
                   type="button"
-                  className="focus-ring w-fit rounded-xl bg-primary px-4 py-2 font-bold text-white disabled:opacity-50"
+                  className={actionClassName("primary", "w-fit")}
                   disabled={
                     checkout.isPending ||
                     !data.files.some((file) => file.scanStatus === "Clean") ||
@@ -560,8 +565,8 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
               </div>
             </div>
           ) : data.status === "PendingPayment" ? (
-            <div className="card grid gap-3 p-5" aria-live="polite">
-              <h2 className="text-xl font-black">
+            <div className={styles.panel} aria-live="polite">
+              <h2 className="text-xl font-semibold">
                 {t("payment.pendingTitle")}
               </h2>
               {paymentSession?.provider.startsWith("Fake") ? (
@@ -569,7 +574,7 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
                   <p>{t("payment.developmentDescription")}</p>
                   <button
                     type="button"
-                    className="focus-ring w-fit rounded-lg border border-primary px-3 py-2 font-black text-primary disabled:opacity-50"
+                    className="focus-ring w-fit rounded-lg border border-primary px-3 py-2 font-semibold text-text-link disabled:opacity-50"
                     disabled={confirmDevelopmentPayment.isPending}
                     onClick={() => confirmDevelopmentPayment.mutate()}
                   >
@@ -586,9 +591,9 @@ export function StudentResitDetail({ evaluationId }: { evaluationId: string }) {
               )}
             </div>
           ) : data.status === "Completed" ? (
-            <div className="card grid gap-3 p-5">
-              <h2 className="text-xl font-black">{t("completed.title")}</h2>
-              <p className="text-2xl font-black">
+            <div className={styles.panel}>
+              <h2 className="text-xl font-semibold">{t("completed.title")}</h2>
+              <p className="text-2xl font-semibold">
                 {data.calculatedGrade ?? "—"}
               </p>
               {data.sectionResults.map((result) => (

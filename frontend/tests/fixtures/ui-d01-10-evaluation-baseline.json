@@ -1,0 +1,447 @@
+{
+  "referenceMain": "fe84a0c6a580d9cdaa8c7a7a910964e6c2bf53a5",
+  "files": {
+    "src/features/student/student-area.tsx": {
+      "hash": "807e3d7f90f12194d6ac35b67e0b062b52aa4da8ddc552dcd816762108e992dd",
+      "seams": [
+        {
+          "previous": "import styles from \"./student-learning-presentation.module.css\";\nimport playerStyles from \"./student-course-player.module.css\";\nimport wizardStyles from \"./student-evaluation-wizard.module.css\";\nimport { useDialogFocus } from \"@/components/navigation/use-dialog-focus\";\nimport { createPortal } from \"react-dom\";\nimport { MotivationCard } from \"@/components/motivation-card\";\n",
+          "approved": "import styles from \"./student-learning-presentation.module.css\";\nimport playerStyles from \"./student-course-player.module.css\";\nimport wizardStyles from \"./student-evaluation-wizard.module.css\";\nimport { EvaluationCurrentState } from \"./student-evaluation-presentation\";\nimport { useDialogFocus } from \"@/components/navigation/use-dialog-focus\";\nimport { createPortal } from \"react-dom\";\nimport { MotivationCard } from \"@/components/motivation-card\";\n"
+        },
+        {
+          "previous": "\nfunction EvaluationWizard() {\n  const t = useTranslations(\"studentWorkspace.evaluationWizard\");\n  const loadingLabel = useTranslations(\n    \"studentWorkspace.myEvaluations.pagination\",\n  )(\"loading\");\n",
+          "approved": "\nfunction EvaluationWizard() {\n  const t = useTranslations(\"studentWorkspace.evaluationWizard\");\n  const presentation = useTranslations(\"studentEvaluationPresentation\");\n  const loadingLabel = useTranslations(\n    \"studentWorkspace.myEvaluations.pagination\",\n  )(\"loading\");\n"
+        },
+        {
+          "previous": "        <QueryState kind=\"loading\" title={t(\"resume.loading\")} />\n      </section>\n    );\n  if (resumeRequested && (resumeDetail.isError || !resumeDetail.data))\n    return (\n      <section className=\"shell py-10\">\n        <div className=\"card grid justify-items-start gap-3 p-6\">\n",
+          "approved": "        <QueryState kind=\"loading\" title={t(\"resume.loading\")} />\n      </section>\n    );\n  if (resumeRequested && !resumeDetail.data)\n    return (\n      <section className=\"shell py-10\">\n        <div className=\"card grid justify-items-start gap-3 p-6\">\n"
+        },
+        {
+          "previous": "          <button\n            type=\"button\"\n            onClick={() => void resumeDetail.refetch()}\n            className=\"focus-ring rounded-lg border border-primary px-3 py-2 font-semibold text-primary\"\n          >\n            {t(\"resume.retry\")}\n          </button>\n          <Link\n            className=\"focus-ring font-bold text-primary underline\"\n            href={`/${locale}/student/evaluations`}\n          >\n            {t(\"resume.back\")}\n",
+          "approved": "          <button\n            type=\"button\"\n            onClick={() => void resumeDetail.refetch()}\n            className=\"focus-ring rounded-lg border border-primary px-3 py-2 font-semibold text-text-link\"\n          >\n            {t(\"resume.retry\")}\n          </button>\n          <Link\n            className=\"focus-ring font-bold text-text-link underline\"\n            href={`/${locale}/student/evaluations`}\n          >\n            {t(\"resume.back\")}\n"
+        },
+        {
+          "previous": "        <QueryState kind=\"loading\" title={loadingLabel} />\n      </section>\n    );\n  if (!resumeRequested && (options.isError || !options.data))\n    return (\n      <section className=\"shell py-10\">\n        <QueryState kind=\"error\" title={t(\"errors.options\")} />\n",
+          "approved": "        <QueryState kind=\"loading\" title={loadingLabel} />\n      </section>\n    );\n  if (!resumeRequested && !options.data)\n    return (\n      <section className=\"shell py-10\">\n        <QueryState kind=\"error\" title={t(\"errors.options\")} />\n"
+        },
+        {
+          "previous": "        <h1>{t(\"header.title\")}</h1>\n        <p>{t(\"header.description\")}</p>\n      </header>\n      <ol className={wizardStyles.stages}>\n        <li aria-current={!evaluationId ? \"step\" : undefined}>\n          {`01 · ${t(\"scope.assessment\")}`}\n        </li>\n",
+          "approved": "        <h1>{t(\"header.title\")}</h1>\n        <p>{t(\"header.description\")}</p>\n      </header>\n      {resumeRequested && resumeDetail.isError ? (\n        <QueryState kind=\"error\" title={t(\"resume.loadError\")} />\n      ) : !resumeRequested && options.isError ? (\n        <QueryState kind=\"error\" title={t(\"errors.options\")} />\n      ) : null}\n      <ol\n        className={wizardStyles.stages}\n        aria-label={presentation(\"preparation\")}\n      >\n        <li aria-current={!evaluationId ? \"step\" : undefined}>\n          {`01 · ${t(\"scope.assessment\")}`}\n        </li>\n"
+        },
+        {
+          "previous": "          {`02 · ${t(\"evidence.portfolio\")}`}\n        </li>\n        <li aria-current={paymentSession ? \"step\" : undefined}>\n          {`03 · ${hasIncludedCredit ? t(\"actions.included\") : t(\"actions.payment\")}`}\n        </li>\n      </ol>\n      <form\n",
+          "approved": "          {`02 · ${t(\"evidence.portfolio\")}`}\n        </li>\n        <li aria-current={paymentSession ? \"step\" : undefined}>\n          {`03 · ${!selected.assessmentScopeId || includedCredit.isPending || includedCredit.isError ? presentation(\"submissionRoute\") : hasIncludedCredit ? t(\"actions.included\") : t(\"actions.payment\")}`}\n        </li>\n      </ol>\n      <form\n"
+        },
+        {
+          "previous": "                    {resumeDetail.data.files.map((file) => (\n                      <li key={file.id}>\n                        <a\n                          className=\"focus-ring font-semibold text-primary underline\"\n                          href={`/api/v1/evaluations/${encodeURIComponent(resumeDetail.data.id)}/files/${encodeURIComponent(file.id)}`}\n                        >\n                          <bdi>{file.originalFileName}</bdi>\n",
+          "approved": "                    {resumeDetail.data.files.map((file) => (\n                      <li key={file.id}>\n                        <a\n                          className=\"focus-ring font-semibold text-text-link underline\"\n                          href={`/api/v1/evaluations/${encodeURIComponent(resumeDetail.data.id)}/files/${encodeURIComponent(file.id)}`}\n                        >\n                          <bdi>{file.originalFileName}</bdi>\n"
+        },
+        {
+          "previous": "          {evaluationId && (\n            <section className={wizardStyles.panel}>\n              <div>\n                <h2 className=\"font-black\">{t(\"evidence.portfolio\")}</h2>\n                <p className=\"mt-1 text-xs leading-5 text-muted\">\n                  {t(\"evidence.description\")}\n                </p>\n",
+          "approved": "          {evaluationId && (\n            <section className={wizardStyles.panel}>\n              <div>\n                <h2 className=\"font-semibold\">{t(\"evidence.portfolio\")}</h2>\n                <p className=\"mt-1 text-xs leading-5 text-muted\">\n                  {t(\"evidence.description\")}\n                </p>\n"
+        },
+        {
+          "previous": "          !hasIncludedCredit ? (\n            <section className={wizardStyles.payment}>\n              <div>\n                <h2 className=\"font-black\">{t(\"payment.title\")}</h2>\n                <p className=\"mt-1 text-sm text-muted\">\n                  {evaluationPrice\n                    ? t(\"payment.priceKnown\", {\n",
+          "approved": "          !hasIncludedCredit ? (\n            <section className={wizardStyles.payment}>\n              <div>\n                <h2 className=\"font-semibold\">{t(\"payment.title\")}</h2>\n                <p className=\"mt-1 text-sm text-muted\">\n                  {evaluationPrice\n                    ? t(\"payment.priceKnown\", {\n"
+        },
+        {
+          "previous": "            <section className={wizardStyles.payment} aria-live=\"polite\">\n              {paymentSession.provider?.startsWith(\"Fake\") ? (\n                <>\n                  <p className=\"font-black text-primary\">\n                    {t(\"developmentPayment.title\")}\n                  </p>\n                  <p className=\"mt-1 leading-6 text-muted\">\n",
+          "approved": "            <section className={wizardStyles.payment} aria-live=\"polite\">\n              {paymentSession.provider?.startsWith(\"Fake\") ? (\n                <>\n                  <p className=\"font-semibold text-text-link\">\n                    {t(\"developmentPayment.title\")}\n                  </p>\n                  <p className=\"mt-1 leading-6 text-muted\">\n"
+        },
+        {
+          "previous": "                  </p>\n                  {typeof paymentSession.total === \"number\" &&\n                  paymentSession.currency ? (\n                    <p className=\"mt-2 font-black\">\n                      {t(\"developmentPayment.total\")}{\" \"}\n                      {formatLocalizedCurrency(\n                        paymentSession.total,\n",
+          "approved": "                  </p>\n                  {typeof paymentSession.total === \"number\" &&\n                  paymentSession.currency ? (\n                    <p className=\"mt-2 font-semibold\">\n                      {t(\"developmentPayment.total\")}{\" \"}\n                      {formatLocalizedCurrency(\n                        paymentSession.total,\n"
+        },
+        {
+          "previous": "                </>\n              ) : (\n                <>\n                  <p className=\"font-black\">\n                    {t(\"developmentPayment.sessionTitle\")}\n                  </p>\n                  <p className=\"mt-1 leading-6 text-muted\">\n",
+          "approved": "                </>\n              ) : (\n                <>\n                  <p className=\"font-semibold\">\n                    {t(\"developmentPayment.sessionTitle\")}\n                  </p>\n                  <p className=\"mt-1 leading-6 text-muted\">\n"
+        },
+        {
+          "previous": "\nfunction MyEvaluations() {\n  const t = useTranslations(\"studentWorkspace.myEvaluations\");\n  const locale = useLocale();\n  const result = useStudentEvaluations<{\n    id: string;\n",
+          "approved": "\nfunction MyEvaluations() {\n  const t = useTranslations(\"studentWorkspace.myEvaluations\");\n  const presentation = useTranslations(\"studentEvaluationPresentation\");\n  const locale = useLocale();\n  const result = useStudentEvaluations<{\n    id: string;\n"
+        },
+        {
+          "previous": "  }>();\n  const items = result.data?.pages.flatMap((page) => page.items) ?? [];\n  return (\n    <section className=\"shell py-10\">\n      <h1 className=\"text-3xl font-black\">{t(\"title\")}</h1>\n      <StudentResitOpportunities />\n      {result.isPending ? (\n        <div className=\"card mt-6 p-5\" aria-busy>\n          …\n        </div>\n      ) : null}\n      {result.isError && !result.data ? (\n        <p role=\"alert\" className=\"card mt-6 p-5\">\n          {t(\"errors.load\")}\n        </p>\n      ) : null}\n      <div className=\"mt-6 space-y-3\">\n        {items.map((item) => (\n          <article key={item.id} className=\"card grid gap-4 p-4\">\n            {item.isResit ? (\n              <div className=\"grid gap-1 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3\">\n                <strong className=\"text-primary\">{t(\"resit.title\")}</strong>\n                {item.resitOfEvaluationRequestId ? (\n                  <span className=\"text-xs text-muted\">\n                    {t(\"resit.originalRequest\")}:{\" \"}\n",
+          "approved": "  }>();\n  const items = result.data?.pages.flatMap((page) => page.items) ?? [];\n  return (\n    <section className={`shell py-10 ${wizardStyles.flow}`}>\n      <h1 className={wizardStyles.pageTitle}>{t(\"title\")}</h1>\n      <StudentResitOpportunities />\n      {result.isPending ? (\n        <QueryState kind=\"loading\" title={t(\"pagination.loading\")} />\n      ) : null}\n      {result.isError && !result.data ? (\n        <p role=\"alert\" className=\"card mt-6 p-5\">\n          {t(\"errors.load\")}\n        </p>\n      ) : null}\n      {result.isError && result.data && !result.isFetchNextPageError ? (\n        <QueryState kind=\"error\" title={t(\"errors.load\")} />\n      ) : null}\n      {result.isSuccess && items.length === 0 ? (\n        <QueryState kind=\"empty\" title={presentation(\"empty\")} />\n      ) : null}\n      <div className=\"mt-6 space-y-3\">\n        {items.map((item) => (\n          <article key={item.id} className={wizardStyles.request}>\n            {item.isResit ? (\n              <div className=\"grid gap-1 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3\">\n                <strong className=\"text-text-link\">{t(\"resit.title\")}</strong>\n                {item.resitOfEvaluationRequestId ? (\n                  <span className=\"text-xs text-muted\">\n                    {t(\"resit.originalRequest\")}:{\" \"}\n"
+        },
+        {
+          "previous": "            ) : null}\n            {item.isRetake && !item.isResit ? (\n              <div className=\"flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3\">\n                <strong className=\"text-primary\">{t(\"retake.title\")}</strong>\n                <span className=\"text-xs text-muted\">\n                  {t(\"retake.outcome\")}\n                </span>\n",
+          "approved": "            ) : null}\n            {item.isRetake && !item.isResit ? (\n              <div className=\"flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3\">\n                <strong className=\"text-text-link\">{t(\"retake.title\")}</strong>\n                <span className=\"text-xs text-muted\">\n                  {t(\"retake.outcome\")}\n                </span>\n"
+        },
+        {
+          "previous": "            ) : null}\n            <AcademicIdentity academic={item.academic} locale={locale} />\n            <div className=\"flex flex-wrap items-center justify-between gap-3\">\n              <span className=\"font-bold\">{item.status}</span>\n              <span>\n                {formatLocalizedCurrency(item.price, item.currency, locale)}\n              </span>\n            </div>\n            {(item.status === \"NeedsRevision\" || item.status === \"Completed\") &&\n            item.results.length > 0 ? (\n              <div className=\"rounded-xl border border-border/70 bg-surface-solid/70 p-4\">\n                <h2 className=\"font-bold\">{t(\"results.title\")}</h2>\n                <div className=\"mt-3 rounded-xl border border-primary/30 bg-primary/10 p-4\">\n                  <p className=\"text-xs font-black uppercase tracking-wide text-primary\">\n                    {item.status === \"NeedsRevision\"\n                      ? t(\"results.current\")\n                      : item.isResit\n                        ? t(\"resit.result\")\n                        : t(\"results.final\")}\n                  </p>\n                  <p className=\"mt-1 text-2xl font-black text-foreground\">\n                    {item.calculatedGrade ?? \"—\"}\n                  </p>\n                  <div className=\"mt-3 grid gap-2 sm:grid-cols-3\">\n",
+          "approved": "            ) : null}\n            <AcademicIdentity academic={item.academic} locale={locale} />\n            <div className=\"flex flex-wrap items-center justify-between gap-3\">\n              <EvaluationCurrentState\n                status={item.status}\n                branch={\n                  item.isResit ? \"resit\" : item.isRetake ? \"retake\" : \"standard\"\n                }\n                fundingUnknown\n              >\n                <span className=\"font-bold\">{item.status}</span>\n              </EvaluationCurrentState>\n              <span>\n                {formatLocalizedCurrency(item.price, item.currency, locale)}\n              </span>\n            </div>\n            {(item.status === \"NeedsRevision\" || item.status === \"Completed\") &&\n            item.results.length > 0 ? (\n              <div className={wizardStyles.resultSection}>\n                <h2 className=\"font-bold\">{t(\"results.title\")}</h2>\n                <div className={wizardStyles.resultSummary}>\n                  <p className=\"text-xs font-semibold uppercase tracking-wide text-text-link\">\n                    {item.status === \"NeedsRevision\"\n                      ? t(\"results.current\")\n                      : item.isResit\n                        ? t(\"resit.result\")\n                        : t(\"results.final\")}\n                  </p>\n                  <p className=\"mt-1 text-2xl font-semibold text-foreground\">\n                    {item.calculatedGrade ?? \"—\"}\n                  </p>\n                  <div className=\"mt-3 grid gap-2 sm:grid-cols-3\">\n"
+        },
+        {
+          "previous": "              <p className=\"text-sm text-muted\">{t(\"results.pending\")}</p>\n            ) : null}\n            {item.evidence.length ? (\n              <div className=\"rounded-xl border border-border/70 bg-page/40 p-4\">\n                <h2 className=\"font-bold\">{t(\"evidence.title\")}</h2>\n                <ul className=\"mt-3 grid gap-2 text-sm\">\n                  {item.evidence.map((evidence) => (\n",
+          "approved": "              <p className=\"text-sm text-muted\">{t(\"results.pending\")}</p>\n            ) : null}\n            {item.evidence.length ? (\n              <div className={wizardStyles.resultSection}>\n                <h2 className=\"font-bold\">{t(\"evidence.title\")}</h2>\n                <ul className=\"mt-3 grid gap-2 text-sm\">\n                  {item.evidence.map((evidence) => (\n"
+        },
+        {
+          "previous": "              </div>\n            ) : null}\n            {item.feedback.length ? (\n              <div className=\"rounded-xl border border-amber-500/30 bg-amber-500/5 p-4\">\n                <h2 className=\"font-bold\">{t(\"feedback.title\")}</h2>\n                {item.feedback.map((feedback) => (\n                  <p\n                    key={feedback.createdAtUtc}\n                    className=\"mt-2 text-sm text-muted\"\n                  >\n                    {feedback.body}\n                  </p>\n                ))}\n              </div>\n            ) : null}\n            {item.status === \"NeedsRevision\" && !item.isResit ? (\n",
+          "approved": "              </div>\n            ) : null}\n            {item.feedback.length ? (\n              <div className={wizardStyles.resultSection}>\n                <h2 className=\"font-bold\">{t(\"feedback.title\")}</h2>\n                <ol className={wizardStyles.feedbackRail}>\n                  {item.feedback.map((feedback) => (\n                    <li\n                      key={feedback.createdAtUtc}\n                      data-revision={feedback.requestsResubmission || undefined}\n                    >\n                      <p>{feedback.body}</p>\n                      <time\n                        className={wizardStyles.meta}\n                        dateTime={feedback.createdAtUtc}\n                      >\n                        {formatLocalizedDateTime(feedback.createdAtUtc, locale)}\n                      </time>\n                      {feedback.requestsResubmission ? (\n                        <p className={wizardStyles.meta}>\n                          {presentation(\"sameRequestRevision\")}\n                        </p>\n                      ) : null}\n                    </li>\n                  ))}\n                </ol>\n              </div>\n            ) : null}\n            {item.status === \"NeedsRevision\" && !item.isResit ? (\n"
+        },
+        {
+          "previous": "            ) : null}\n            {item.isResit && item.status === \"Draft\" ? (\n              <Link\n                className=\"focus-ring w-fit font-bold text-primary underline\"\n                href={`/${locale}/student/evaluations/${item.id}`}\n              >\n                {t(\"resit.continue\")}\n",
+          "approved": "            ) : null}\n            {item.isResit && item.status === \"Draft\" ? (\n              <Link\n                className=\"focus-ring w-fit font-bold text-text-link underline\"\n                href={`/${locale}/student/evaluations/${item.id}`}\n              >\n                {t(\"resit.continue\")}\n"
+        },
+        {
+          "previous": "            ) : null}\n            {item.status === \"Draft\" && !item.isRetake && !item.isResit ? (\n              <Link\n                className=\"focus-ring w-fit font-bold text-primary underline\"\n                href={`/${locale}/student/evaluations/new?resume=${encodeURIComponent(item.id)}`}\n              >\n                {t(\"actions.continueStandard\")}\n",
+          "approved": "            ) : null}\n            {item.status === \"Draft\" && !item.isRetake && !item.isResit ? (\n              <Link\n                className=\"focus-ring w-fit font-bold text-text-link underline\"\n                href={`/${locale}/student/evaluations/new?resume=${encodeURIComponent(item.id)}`}\n              >\n                {t(\"actions.continueStandard\")}\n"
+        },
+        {
+          "previous": "  });\n  return (\n    <section className=\"rounded-xl border border-primary/30 bg-primary/5 p-4\">\n      <h2 className=\"font-black\">{t(\"title\")}</h2>\n      <p className=\"mt-2 text-sm text-muted\">{t(\"description\")}</p>\n      <div className=\"mt-3\">\n        <FilePicker\n",
+          "approved": "  });\n  return (\n    <section className=\"rounded-xl border border-primary/30 bg-primary/5 p-4\">\n      <h2 className=\"font-semibold\">{t(\"title\")}</h2>\n      <p className=\"mt-2 text-sm text-muted\">{t(\"description\")}</p>\n      <div className=\"mt-3\">\n        <FilePicker\n"
+        },
+        {
+          "previous": "        type=\"button\"\n        onClick={() => resubmit.mutate()}\n        disabled={resubmit.isPending || !files.length || !authenticityConfirmed}\n        className=\"focus-ring mt-3 rounded-xl bg-primary px-4 py-2 text-sm font-black text-slate-950 disabled:opacity-60\"\n      >\n        {t(\"actions.submit\")}\n      </button>\n",
+          "approved": "        type=\"button\"\n        onClick={() => resubmit.mutate()}\n        disabled={resubmit.isPending || !files.length || !authenticityConfirmed}\n        className=\"focus-ring mt-3 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-slate-950 disabled:opacity-60\"\n      >\n        {t(\"actions.submit\")}\n      </button>\n"
+        }
+      ],
+      "transport": [
+        "useQuery(compactStudentCoursesQueryOptions(locale))",
+        "useQuery({ queryKey: [\"student-learning-overview\", locale], queryFn: () => api<LearningOverview>(`/student-tools/overview?locale=${locale}`), })",
+        "api<LearningOverview>(`/student-tools/overview?locale=${locale}`)",
+        "useQuery({ queryKey: [\"student-profile\"], queryFn: () => api<StudentProfile>(\"/auth/profile\"), })",
+        "api<StudentProfile>(\"/auth/profile\")",
+        "useQuery({ queryKey: [\"student-memberships\"], queryFn: () => api<StudentMemberships>(\"/memberships/me\"), })",
+        "api<StudentMemberships>(\"/memberships/me\")",
+        "useMutation({ mutationFn: (form: { displayName: string; phone: string; marketingConsent: boolean; }) => api<StudentProfile>(\"/auth/profile\", { method: \"PUT\", body: JSON.stringify({ displayName: form.displayName.trim(), phone: form.phone.trim() || null, marketingConsent: form.marketingConsent, }), }), onSuccess: () => { setNotice(t(\"account.saved\")); void client.invalidateQueries({ queryKey: [\"student-profile\"] }); void client.invalidateQueries({ queryKey: [\"current-user\"] }); }, })",
+        "api<StudentProfile>(\"/auth/profile\", { method: \"PUT\", body: JSON.stringify({ displayName: form.displayName.trim(), phone: form.phone.trim() || null, marketingConsent: form.marketingConsent, }), })",
+        "client.invalidateQueries({ queryKey: [\"student-profile\"] })",
+        "client.invalidateQueries({ queryKey: [\"current-user\"] })",
+        "useQuery({ queryKey: [\"student-purchases\", page], queryFn: () => api<StudentPurchaseHistory>( `/student-tools/purchases?page=${page}&pageSize=12`, ), })",
+        "api<StudentPurchaseHistory>( `/student-tools/purchases?page=${page}&pageSize=12`, )",
+        "useQuery({ queryKey: [\"student-entitlements\", locale], queryFn: () => api<StudentEntitlementResponse>( `/student-tools/entitlements?locale=${locale}`, ), })",
+        "api<StudentEntitlementResponse>( `/student-tools/entitlements?locale=${locale}`, )",
+        "useQuery({ queryKey: [\"student-learning-overview\", locale], queryFn: () => api<LearningOverview>(`/student-tools/overview?locale=${locale}`), })",
+        "api<LearningOverview>(`/student-tools/overview?locale=${locale}`)",
+        "client.invalidateQueries({ queryKey: [\"student-learning-overview\"] })",
+        "useMutation({ mutationFn: () => api(\"/student-tools/calendar\", { method: \"POST\", body: JSON.stringify({ title, details, startsAtUtc: new Date(startsAt).toISOString(), endsAtUtc: null, }), }), onSuccess: () => { setTitle(\"\"); setDetails(\"\"); setStartsAt(\"\"); refresh(); }, })",
+        "api(\"/student-tools/calendar\", { method: \"POST\", body: JSON.stringify({ title, details, startsAtUtc: new Date(startsAt).toISOString(), endsAtUtc: null, }), })",
+        "useMutation({ mutationFn: (id: string) => api(`/student-tools/calendar/${id}`, { method: \"DELETE\" }), onSuccess: refresh, })",
+        "api(`/student-tools/calendar/${id}`, { method: \"DELETE\" })",
+        "useQuery({ queryKey: [\"my-certificate\", verificationCode, locale], queryFn: () => api<CertificateDetail>( `/student-tools/my-certificates/${encodeURIComponent(verificationCode)}?locale=${locale}`, ), })",
+        "api<CertificateDetail>( `/student-tools/my-certificates/${encodeURIComponent(verificationCode)}?locale=${locale}`, )",
+        "useQuery({ queryKey: [\"player\", courseId, locale, requestedLessonId], queryFn: () => { const params = new URLSearchParams({ locale }); if (requestedLessonId) params.set(\"lessonId\", requestedLessonId); return api<StudentCoursePlayerResult>( `/learning/courses/${courseId}/player?${params.toString()}`, ); }, })",
+        "api<StudentCoursePlayerResult>( `/learning/courses/${courseId}/player?${params.toString()}`, )",
+        "useMutation({ mutationFn: (request: { lessonId: string; lastPositionSeconds: number; markCompleted: boolean; }) => api<StudentLessonProgressResult>( `/learning/lessons/${request.lessonId}/progress`, { method: \"POST\", body: JSON.stringify({ lastPositionSeconds: request.lastPositionSeconds, markCompleted: request.markCompleted, }), }, ), onSuccess: (saved, request) => { client.setQueriesData<StudentCoursePlayerResult>( { queryKey: [\"player\", courseId] }, (current) => current ? { ...current, modules: current.modules.map((module) => ({ ...module, lessons: module.lessons.map((lesson) => lesson.id === request.lessonId ? { ...lesson, isCompleted: saved.isCompleted, lastPositionSeconds: saved.lastPositionSeconds, lastVisitedAtUtc: saved.lastVisitedAtUtc, } : lesson, ), })), } : current, ); if (request.markCompleted) { void client.invalidateQueries({ queryKey: [\"player\", courseId] }); void client.invalidateQueries({ queryKey: [\"learning-aim-practice\", courseId], }); void client.invalidateQueries({ queryKey: [\"student-courses-learning-hub\"], }); } }, })",
+        "api<StudentLessonProgressResult>( `/learning/lessons/${request.lessonId}/progress`, { method: \"POST\", body: JSON.stringify({ lastPositionSeconds: request.lastPositionSeconds, markCompleted: request.markCompleted, }), }, )",
+        "client.invalidateQueries({ queryKey: [\"player\", courseId] })",
+        "client.invalidateQueries({ queryKey: [\"learning-aim-practice\", courseId], })",
+        "client.invalidateQueries({ queryKey: [\"student-courses-learning-hub\"], })",
+        "useMutation({ mutationFn: () => api<{ verificationCode: string }>( `/student-tools/courses/${courseId}/certificates`, { method: \"POST\" }, ), onSuccess: () => client.invalidateQueries({ queryKey: [\"student-learning-overview\"] }), })",
+        "api<{ verificationCode: string }>( `/student-tools/courses/${courseId}/certificates`, { method: \"POST\" }, )",
+        "client.invalidateQueries({ queryKey: [\"student-learning-overview\"] })",
+        "useQuery({ queryKey: [\"student-course-announcements\", courseId, locale], queryFn: () => api< { id: string; title: string; body: string; unitTitle?: string; publishedAtUtc?: string; }[] >(`/student-tools/courses/${courseId}/announcements?locale=${locale}`), })",
+        "api< { id: string; title: string; body: string; unitTitle?: string; publishedAtUtc?: string; }[] >(`/student-tools/courses/${courseId}/announcements?locale=${locale}`)",
+        "useQuery({ queryKey: [\"course-resource-center\", courseId, locale], queryFn: () => api< { id: string; lessonId: string; lessonTitle: string; displayName: string; contentType: string; externalUrl?: string; category: string; }[] >(`/learning/courses/${courseId}/resources?locale=${locale}`), })",
+        "api< { id: string; lessonId: string; lessonTitle: string; displayName: string; contentType: string; externalUrl?: string; category: string; }[] >(`/learning/courses/${courseId}/resources?locale=${locale}`)",
+        "useQuery({ queryKey: [\"student-learning-overview\", locale], queryFn: () => api<LearningOverview>(`/student-tools/overview?locale=${locale}`), })",
+        "api<LearningOverview>(`/student-tools/overview?locale=${locale}`)",
+        "useQuery({ queryKey: [\"course-questions\", courseId, locale], queryFn: () => api< { id: string; lessonId?: string; body: string; isResolved: boolean; replies: { id: string; body: string; authorName: string }[]; }[] >(`/course-community/courses/${courseId}/questions?locale=${locale}`), })",
+        "api< { id: string; lessonId?: string; body: string; isResolved: boolean; replies: { id: string; body: string; authorName: string }[]; }[] >(`/course-community/courses/${courseId}/questions?locale=${locale}`)",
+        "client.invalidateQueries({ queryKey: [\"student-learning-overview\"] })",
+        "useMutation({ mutationFn: () => api(\"/student-tools/notes\", { method: \"POST\", body: JSON.stringify({ lessonId, body: noteValue }), }), onSuccess: invalidateOverview, })",
+        "api(\"/student-tools/notes\", { method: \"POST\", body: JSON.stringify({ lessonId, body: noteValue }), })",
+        "useMutation({ mutationFn: () => api(`/student-tools/notes/${lessonId}`, { method: \"DELETE\" }), onSuccess: () => { setNote(undefined); invalidateOverview(); }, })",
+        "api(`/student-tools/notes/${lessonId}`, { method: \"DELETE\" })",
+        "useMutation({ mutationFn: () => api(`/student-tools/bookmarks/${lessonId}`, { method: bookmarked ? \"DELETE\" : \"POST\", }), onSuccess: invalidateOverview, })",
+        "api(`/student-tools/bookmarks/${lessonId}`, { method: bookmarked ? \"DELETE\" : \"POST\", })",
+        "useMutation({ mutationFn: () => api(`/course-community/courses/${courseId}/questions`, { method: \"POST\", body: JSON.stringify({ body: question, lessonId }), }), onSuccess: () => { setQuestion(\"\"); client.invalidateQueries({ queryKey: [\"course-questions\", courseId] }); }, })",
+        "api(`/course-community/courses/${courseId}/questions`, { method: \"POST\", body: JSON.stringify({ body: question, lessonId }), })",
+        "client.invalidateQueries({ queryKey: [\"course-questions\", courseId] })",
+        "useMutation({ mutationFn: () => api<{ text: string; citations: string[] }>( `/ai/courses/${courseId}/chat`, { method: \"POST\", body: JSON.stringify({ lessonId, mode, message }), }, ), })",
+        "api<{ text: string; citations: string[] }>( `/ai/courses/${courseId}/chat`, { method: \"POST\", body: JSON.stringify({ lessonId, mode, message }), }, )",
+        "useQuery({ queryKey: [\"student-course-gradebook\", courseId, locale], queryFn: () => api<StudentCourseGradebook>( `/gradebook/student/courses/${courseId}?locale=${locale}`, ), })",
+        "api<StudentCourseGradebook>( `/gradebook/student/courses/${courseId}?locale=${locale}`, )",
+        "useQuery({ queryKey: [\"student-course-assignments\", courseId], queryFn: () => api<StudentCourseAssignment[]>( `/student/courses/${courseId}/assignments`, ), })",
+        "api<StudentCourseAssignment[]>( `/student/courses/${courseId}/assignments`, )",
+        "useQuery({ queryKey: [\"student-course-assignment-submissions\"], queryFn: () => api<StudentCourseAssignmentSubmission[]>(\"/student/assignments/mine\"), })",
+        "api<StudentCourseAssignmentSubmission[]>(\"/student/assignments/mine\")",
+        "client.invalidateQueries({ queryKey: [\"student-course-assignments\", courseId], })",
+        "client.invalidateQueries({ queryKey: [\"student-course-assignment-submissions\"], })",
+        "useMutation({ mutationFn: (assignmentId: string) => api<{ submissionId: string }>( `/student/assignments/${assignmentId}/submissions`, { method: \"POST\", body: JSON.stringify({ comment }) }, ), onSuccess: (response, assignmentId) => { setActive({ assignmentId, submissionId: response.submissionId }); setFiles([]); refresh(); }, })",
+        "api<{ submissionId: string }>( `/student/assignments/${assignmentId}/submissions`, { method: \"POST\", body: JSON.stringify({ comment }) }, )",
+        "useMutation({ mutationFn: async () => { if (!active) throw new Error(t(\"coursework.errors.startBeforeUpload\")); for (const file of files) { const body = new FormData(); body.set(\"file\", file); await api( `/student/assignments/submissions/${active.submissionId}/files`, { method: \"POST\", body, }, ); } }, onSuccess: () => { setFiles([]); refresh(); }, })",
+        "api( `/student/assignments/submissions/${active.submissionId}/files`, { method: \"POST\", body, }, )",
+        "useMutation({ mutationFn: () => { if (!active) throw new Error(t(\"coursework.errors.startBeforeSubmit\")); return api( `/student/assignments/submissions/${active.submissionId}/submit`, { method: \"POST\", }, ); }, onSuccess: () => { setActive(undefined); setFiles([]); setComment(\"\"); refresh(); }, })",
+        "api( `/student/assignments/submissions/${active.submissionId}/submit`, { method: \"POST\", }, )",
+        "useQuery({ queryKey: [\"evaluation-detail\", resumeId], queryFn: () => api<EvaluationDetail>(`/evaluations/${encodeURIComponent(resumeId!)}`), enabled: Boolean(resumeId), })",
+        "api<EvaluationDetail>(`/evaluations/${encodeURIComponent(resumeId!)}`)",
+        "api(`/evaluations/${requestId}/files`, { method: \"POST\", body: form, })",
+        "useQuery({ queryKey: [\"assessment-scopes\"], queryFn: () => api<AssessmentScopeOption[]>(\"/evaluations/assessment-scopes\"), enabled: !resumeRequested, })",
+        "api<AssessmentScopeOption[]>(\"/evaluations/assessment-scopes\")",
+        "useQuery({ queryKey: [\"included-evaluation-credit\", selected.assessmentScopeId], queryFn: () => api<{ available: boolean }>( `/evaluations/assessment-scopes/${selected.assessmentScopeId}/included-credit`, ), enabled: Boolean(selected.assessmentScopeId), })",
+        "api<{ available: boolean }>( `/evaluations/assessment-scopes/${selected.assessmentScopeId}/included-credit`, )",
+        "useMutation({ mutationFn: () => api<{ id: string; criteria: string[]; price: number; currency: string }>( \"/evaluations/scoped\", { method: \"POST\", body: JSON.stringify({ assessmentScopeId: selected.assessmentScopeId, studentComment: selected.comment, }), }, ), onSuccess: async (response) => { setEvaluationId(response.id); setEvaluationCriteria(response.criteria); setEvaluationPrice({ price: response.price, currency: response.currency, }); await uploadFiles(response.id, files); }, })",
+        "api<{ id: string; criteria: string[]; price: number; currency: string }>( \"/evaluations/scoped\", { method: \"POST\", body: JSON.stringify({ assessmentScopeId: selected.assessmentScopeId, studentComment: selected.comment, }), }, )",
+        "useMutation({ mutationFn: async () => { const hasCleanServerFile = resumeDetail.data?.files.some((item) => item.scanStatus === \"Clean\") ?? false; if (!evaluationId || (!hasCleanServerFile && files.length === 0)) throw new Error(t(\"errors.fileRequired\")); if (!authenticityConfirmed) throw new Error(t(\"errors.authenticityRequired\")); const pendingFiles = files.filter( (item) => !uploadedFileKeys.includes(fileKey(item)), ); await uploadFiles(evaluationId, pendingFiles); await Promise.all( Object.entries(evidenceDrafts) .filter(([, narrative]) => narrative.trim()) .map(([criterionCode, narrative]) => api(`/evaluations/${evaluationId}/evidence`, { method: \"POST\", body: JSON.stringify({ criterionCode, narrative }), }), ), ); if (!authenticityAlreadyDeclared) await api(`/evaluations/${evaluationId}/authenticity-declaration`, { method: \"POST\", }); return api<EvaluationCheckoutResponse>( `/evaluations/${evaluationId}/checkout`, { method: \"POST\", headers: { \"Idempotency-Key\": crypto.randomUUID() }, body: JSON.stringify({ paymentMethod, expectIncludedCredit: hasIncludedCredit, }), }, ); }, onSuccess: (result) => { setPaymentSession(null); if (result.includedCreditApplied) { router.push(`/${locale}/student/evaluations`); return; } if (result.redirectUrl) { window.location.assign(result.redirectUrl); return; } setPaymentSession(result); }, })",
+        "api(`/evaluations/${evaluationId}/evidence`, { method: \"POST\", body: JSON.stringify({ criterionCode, narrative }), })",
+        "api(`/evaluations/${evaluationId}/authenticity-declaration`, { method: \"POST\", })",
+        "api<EvaluationCheckoutResponse>( `/evaluations/${evaluationId}/checkout`, { method: \"POST\", headers: { \"Idempotency-Key\": crypto.randomUUID() }, body: JSON.stringify({ paymentMethod, expectIncludedCredit: hasIncludedCredit, }), }, )",
+        "router.push(`/${locale}/student/evaluations`)",
+        "window.location.assign(result.redirectUrl)",
+        "useMutation({ mutationFn: async () => { if ( !paymentSession?.paymentId || !paymentSession.provider?.startsWith(\"Fake\") ) throw new Error(t(\"errors.invalidDevelopmentPayment\")); return api(\"/payments/fake/confirm\", { method: \"POST\", body: JSON.stringify({ paymentId: paymentSession.paymentId, providerEventId: `evaluation_test_${crypto.randomUUID()}`, }), }); }, onSuccess: () => router.push(`/${locale}/student/evaluations`), })",
+        "api(\"/payments/fake/confirm\", { method: \"POST\", body: JSON.stringify({ paymentId: paymentSession.paymentId, providerEventId: `evaluation_test_${crypto.randomUUID()}`, }), })",
+        "router.push(`/${locale}/student/evaluations`)",
+        "useMutation({ mutationFn: async () => { if (!files.length) throw new Error(t(\"errors.fileRequired\")); if (!authenticityConfirmed) throw new Error(t(\"errors.authenticityRequired\")); for (const file of files) { const form = new FormData(); form.set(\"file\", file); await api(`/evaluations/${requestId}/files`, { method: \"POST\", body: form, }); } await Promise.all( Object.entries(evidence) .filter(([, narrative]) => narrative.trim()) .map(([criterionCode, narrative]) => api(`/evaluations/${requestId}/evidence`, { method: \"POST\", body: JSON.stringify({ criterionCode, narrative }), }), ), ); await api(`/evaluations/${requestId}/authenticity-declaration`, { method: \"POST\", }); return api<{ paymentId: string }>(`/evaluations/${requestId}/checkout`, { method: \"POST\", headers: { \"Idempotency-Key\": crypto.randomUUID() }, body: JSON.stringify({ paymentMethod }), }); }, onSuccess: async (payment) => { await api(\"/payments/fake/confirm\", { method: \"POST\", body: JSON.stringify({ paymentId: payment.paymentId, providerEventId: `test_${crypto.randomUUID()}`, }), }); await client.invalidateQueries({ queryKey: [\"evaluations\"] }); }, })",
+        "api(`/evaluations/${requestId}/files`, { method: \"POST\", body: form, })",
+        "api(`/evaluations/${requestId}/evidence`, { method: \"POST\", body: JSON.stringify({ criterionCode, narrative }), })",
+        "api(`/evaluations/${requestId}/authenticity-declaration`, { method: \"POST\", })",
+        "api<{ paymentId: string }>(`/evaluations/${requestId}/checkout`, { method: \"POST\", headers: { \"Idempotency-Key\": crypto.randomUUID() }, body: JSON.stringify({ paymentMethod }), })",
+        "api(\"/payments/fake/confirm\", { method: \"POST\", body: JSON.stringify({ paymentId: payment.paymentId, providerEventId: `test_${crypto.randomUUID()}`, }), })",
+        "client.invalidateQueries({ queryKey: [\"evaluations\"] })",
+        "useMutation({ mutationFn: async () => { if (!files.length) throw new Error(t(\"errors.fileRequired\")); if (!authenticityConfirmed) throw new Error(t(\"errors.authenticityRequired\")); for (const file of files) { if (file.size > 100 * 1024 * 1024) throw new Error(t(\"errors.fileSize\")); const body = new FormData(); body.set(\"file\", file); await api(`/evaluations/${requestId}/files`, { method: \"POST\", body }); } await api(`/evaluations/${requestId}/authenticity-declaration`, { method: \"POST\", }); return api(`/evaluations/${requestId}/resubmit`, { method: \"POST\" }); }, onSuccess: () => client.invalidateQueries({ queryKey: [\"evaluations\"] }), })",
+        "api(`/evaluations/${requestId}/files`, { method: \"POST\", body })",
+        "api(`/evaluations/${requestId}/authenticity-declaration`, { method: \"POST\", })",
+        "api(`/evaluations/${requestId}/resubmit`, { method: \"POST\" })",
+        "client.invalidateQueries({ queryKey: [\"evaluations\"] })"
+      ]
+    },
+    "src/features/student/student-evaluation-wizard.module.css": {
+      "hash": "99a278e063e8d16ec5537a55e96a05a458ecc86bc3e5efcbf676025c81b36948",
+      "seams": [
+        {
+          "previous": "\n.header h1 {\n  font-size: clamp(1.6rem, 3vw, 2.5rem);\n  font-weight: 900;\n  line-height: 1.3;\n  text-wrap: balance;\n}\n",
+          "approved": "\n.header h1 {\n  font-size: clamp(1.6rem, 3vw, 2.5rem);\n  font-weight: 700;\n  line-height: 1.3;\n  text-wrap: balance;\n}\n"
+        },
+        {
+          "previous": ".eyebrow {\n  color: var(--ui-text-link);\n  font-size: 0.8rem;\n  font-weight: 800;\n}\n\n.stages {\n",
+          "approved": ".eyebrow {\n  color: var(--ui-text-link);\n  font-size: 0.8rem;\n  font-weight: 600;\n}\n\n.stages {\n"
+        },
+        {
+          "previous": ".stages span {\n  direction: ltr;\n  font-size: 0.7rem;\n  font-weight: 800;\n}\n\n.stages li[aria-current] {\n  color: var(--ui-text-primary);\n  font-weight: 800;\n}\n\n.layout,\n",
+          "approved": ".stages span {\n  direction: ltr;\n  font-size: 0.7rem;\n  font-weight: 600;\n}\n\n.stages li[aria-current] {\n  color: var(--ui-text-primary);\n  font-weight: 600;\n}\n\n.layout,\n"
+        },
+        {
+          "previous": ".panel h2,\n.review h2 {\n  font-size: 1rem;\n  font-weight: 800;\n  line-height: 1.5;\n}\n\n",
+          "approved": ".panel h2,\n.review h2 {\n  font-size: 1rem;\n  font-weight: 600;\n  line-height: 1.5;\n}\n\n"
+        },
+        {
+          "previous": "  min-width: 0;\n  gap: 0.6rem;\n  font-size: 0.85rem;\n  font-weight: 800;\n}\n\n.criterion textarea {\n",
+          "approved": "  min-width: 0;\n  gap: 0.6rem;\n  font-size: 0.85rem;\n  font-weight: 600;\n}\n\n.criterion textarea {\n"
+        },
+        {
+          "previous": "}\n\n.serverFiles h3 {\n  font-weight: 800;\n}\n\n.serverFiles ul {\n",
+          "approved": "}\n\n.serverFiles h3 {\n  font-weight: 600;\n}\n\n.serverFiles ul {\n"
+        },
+        {
+          "previous": "  width: 100%;\n}\n\n@media (min-width: 1024px) {\n  .layout {\n    grid-template-columns: minmax(0, 1fr) minmax(280px, 330px);\n",
+          "approved": "  width: 100%;\n}\n\n.flow {\n  min-width: 0;\n  color: var(--ui-text-primary);\n  overflow-wrap: anywhere;\n}\n.pageTitle,\n.flow h1 {\n  font-size: clamp(1.5rem, 3vw, 2rem);\n  font-weight: 700;\n  line-height: 1.5;\n}\n.flow h2 {\n  font-weight: 700;\n  line-height: 1.6;\n}\n.flow button,\n.flow select,\n.flow a {\n  min-height: 2.75rem;\n}\n.flow a {\n  display: inline-flex;\n  align-items: center;\n}\n.flow select,\n.flow textarea {\n  min-width: 0;\n  max-width: 100%;\n  background: var(--ui-surface-content);\n  color: var(--ui-text-primary);\n}\n.flow :is(button, select, textarea, input, a):focus-visible {\n  outline: 2px solid var(--ui-focus);\n  outline-offset: 3px;\n}\n.request {\n  display: grid;\n  min-width: 0;\n  gap: 1rem;\n  padding: clamp(1rem, 2vw, 1.5rem);\n  border: 1px solid var(--ui-border-default);\n  border-radius: var(--ui-radius-region);\n  background: var(--ui-surface-content);\n}\n.lifecycle {\n  display: grid;\n  min-width: 0;\n  flex: 1 1 20rem;\n  gap: 0.625rem;\n  padding-inline-start: 1rem;\n  border-inline-start: 3px solid var(--ui-border-default);\n}\n.branchLabel,\n.statusValue {\n  font-weight: 600;\n  line-height: 1.7;\n}\n.branchLabel {\n  color: var(--ui-text-link);\n}\n.meta {\n  color: var(--ui-text-secondary);\n  font-size: 0.8125rem;\n  line-height: 1.8;\n}\n.currentStage {\n  list-style: none;\n}\n.resultSection {\n  min-width: 0;\n  border-block-start: 1px solid var(--ui-border-subtle);\n  padding-block-start: 1rem;\n}\n.resultSummary {\n  margin-block-start: 0.75rem;\n  padding-block: 0.75rem;\n  border-block-end: 1px solid var(--ui-border-subtle);\n}\n.feedbackRail {\n  display: grid;\n  list-style: none;\n  gap: 1rem;\n  margin-block-start: 0.75rem;\n}\n.feedbackRail > li {\n  min-width: 0;\n  border-inline-start: 2px solid var(--ui-border-subtle);\n  padding-inline-start: 0.75rem;\n  white-space: pre-wrap;\n  line-height: 1.8;\n}\n.feedbackRail > li[data-revision] {\n  border-inline-start-color: var(--ui-text-link);\n}\n\n@media (min-width: 1024px) {\n  .layout {\n    grid-template-columns: minmax(0, 1fr) minmax(280px, 330px);\n"
+        }
+      ],
+      "transport": []
+    },
+    "src/features/student/student-resit-workflow.tsx": {
+      "hash": "62a6ebf2c09cdd691204d8ff66c1dff0cbf2874ec15b28e0e964854e1cc16842",
+      "seams": [
+        {
+          "previous": "\nimport { formatLocalizedDate } from \"@/i18n/date-time\";\nimport { formatLocalizedCurrency } from \"@/i18n/number-format\";\nimport { FilePicker } from \"@/components/forms/file-picker\";\nimport { academicText } from \"@/lib/academic-localization\";\nimport { api, ApiError } from \"@/lib/api\";\n",
+          "approved": "\nimport { formatLocalizedDate } from \"@/i18n/date-time\";\nimport { formatLocalizedCurrency } from \"@/i18n/number-format\";\nimport { actionClassName } from \"@/components/ui/action\";\nimport { FilePicker } from \"@/components/forms/file-picker\";\nimport { academicText } from \"@/lib/academic-localization\";\nimport { api, ApiError } from \"@/lib/api\";\n"
+        },
+        {
+          "previous": "import { useLocale, useTranslations } from \"next-intl\";\nimport { useRouter } from \"next/navigation\";\nimport { useRef, useState } from \"react\";\n\ntype Academic = {\n  qualificationCode: string;\n",
+          "approved": "import { useLocale, useTranslations } from \"next-intl\";\nimport { useRouter } from \"next/navigation\";\nimport { useRef, useState } from \"react\";\nimport styles from \"./student-evaluation-wizard.module.css\";\nimport { EvaluationCurrentState } from \"./student-evaluation-presentation\";\n\ntype Academic = {\n  qualificationCode: string;\n"
+        },
+        {
+          "previous": "    },\n  });\n  return (\n    <section className=\"mt-6 grid gap-3\" aria-label={t(\"ariaLabel\")}>\n      <h2 className=\"text-xl font-black\">{t(\"title\")}</h2>\n      {opportunities.isPending ? <p role=\"status\">{t(\"loading\")}</p> : null}\n      {opportunities.isError ? <p role=\"alert\">{t(\"loadError\")}</p> : null}\n      {opportunities.data?.items?.length === 0 ? (\n        <p className=\"text-sm text-muted\">{t(\"empty\")}</p>\n      ) : null}\n      {opportunities.data?.items?.map((item) => (\n        <article\n          className=\"card grid min-w-0 gap-2 p-4\"\n          key={item.authorizationId}\n        >\n          <strong className=\"text-primary\">{t(\"cardTitle\")}</strong>\n          <AcademicContext academic={item.academic} locale={locale} />\n          <p className=\"text-sm\">\n            {t(\"originalRequest\")}:{\" \"}\n",
+          "approved": "    },\n  });\n  return (\n    <section\n      className={`mt-6 grid gap-3 ${styles.flow}`}\n      aria-label={t(\"ariaLabel\")}\n    >\n      <h2 className=\"text-xl font-semibold\">{t(\"title\")}</h2>\n      {opportunities.isPending ? <p role=\"status\">{t(\"loading\")}</p> : null}\n      {opportunities.isError ? <p role=\"alert\">{t(\"loadError\")}</p> : null}\n      {opportunities.data?.items?.length === 0 ? (\n        <p className=\"text-sm text-muted\">{t(\"empty\")}</p>\n      ) : null}\n      {opportunities.data?.items?.map((item) => (\n        <article className={styles.request} key={item.authorizationId}>\n          <strong className=\"text-text-link\">{t(\"cardTitle\")}</strong>\n          <AcademicContext academic={item.academic} locale={locale} />\n          <p className=\"text-sm\">\n            {t(\"originalRequest\")}:{\" \"}\n"
+        },
+        {
+          "previous": "              <p className=\"text-sm text-muted\">{t(\"authorizedDescription\")}</p>\n              <button\n                type=\"button\"\n                className=\"focus-ring w-fit rounded-xl bg-primary px-4 py-2 font-bold text-white disabled:opacity-50\"\n                disabled={activate.isPending}\n                onClick={() => activate.mutate(item.authorizationId)}\n              >\n",
+          "approved": "              <p className=\"text-sm text-muted\">{t(\"authorizedDescription\")}</p>\n              <button\n                type=\"button\"\n                className={actionClassName(\"primary\", \"w-fit\")}\n                disabled={activate.isPending}\n                onClick={() => activate.mutate(item.authorizationId)}\n              >\n"
+        },
+        {
+          "previous": "                {item.resitEvaluationRequestId.slice(0, 8)}\n              </p>\n              <Link\n                className=\"focus-ring w-fit font-bold text-primary underline\"\n                href={`/${locale}/student/evaluations/${item.resitEvaluationRequestId}`}\n              >\n                {t(\"openDraft\")}\n",
+          "approved": "                {item.resitEvaluationRequestId.slice(0, 8)}\n              </p>\n              <Link\n                className=\"focus-ring w-fit font-bold text-text-link underline\"\n                href={`/${locale}/student/evaluations/${item.resitEvaluationRequestId}`}\n              >\n                {t(\"openDraft\")}\n"
+        },
+        {
+          "previous": "  });\n  const data = detail.data;\n  return (\n    <section className=\"shell grid min-w-0 gap-4 py-10\">\n      <Link\n        className=\"focus-ring w-fit font-semibold text-primary underline\"\n        href={`/${locale}/student/evaluations`}\n      >\n        {t(\"back\")}\n",
+          "approved": "  });\n  const data = detail.data;\n  return (\n    <section className={`shell grid min-w-0 gap-4 py-10 ${styles.flow}`}>\n      <Link\n        className=\"focus-ring w-fit font-semibold text-text-link underline\"\n        href={`/${locale}/student/evaluations`}\n      >\n        {t(\"back\")}\n"
+        },
+        {
+          "previous": "      ) : null}\n      {data?.isResit ? (\n        <>\n          <header className=\"card grid gap-2 p-5\">\n            <h1 className=\"text-2xl font-black\">{t(\"header.title\")}</h1>\n            <AcademicContext academic={data.academic} locale={locale} />\n            <p>\n              {t(\"header.status\")}: {data.status}\n            </p>\n            {data.resitOfEvaluationRequestId ? (\n              <p className=\"text-sm\">\n                {t(\"header.originalRequest\")}:{\" \"}\n",
+          "approved": "      ) : null}\n      {data?.isResit ? (\n        <>\n          <header className={styles.request}>\n            <h1 className=\"text-2xl font-semibold\">{t(\"header.title\")}</h1>\n            <AcademicContext academic={data.academic} locale={locale} />\n            <EvaluationCurrentState status={data.status} branch=\"resit\">\n              <p>\n                {t(\"header.status\")}: {data.status}\n              </p>\n            </EvaluationCurrentState>\n            {data.resitOfEvaluationRequestId ? (\n              <p className=\"text-sm\">\n                {t(\"header.originalRequest\")}:{\" \"}\n"
+        },
+        {
+          "previous": "            ) : null}\n          </header>\n          {data.status === \"Draft\" ? (\n            <div className=\"card grid gap-5 p-5\">\n              <h2 className=\"text-xl font-black\">{t(\"draft.title\")}</h2>\n              <FilePicker\n                label={t(\"draft.files.label\")}\n                files={files}\n",
+          "approved": "            ) : null}\n          </header>\n          {data.status === \"Draft\" ? (\n            <div className={styles.panel}>\n              <h2 className=\"text-xl font-semibold\">{t(\"draft.title\")}</h2>\n              <FilePicker\n                label={t(\"draft.files.label\")}\n                files={files}\n"
+        },
+        {
+          "previous": "              />\n              <button\n                type=\"button\"\n                className=\"focus-ring w-fit rounded-xl bg-primary px-4 py-2 font-bold text-white disabled:opacity-50\"\n                disabled={!files.length || upload.isPending}\n                onClick={() => upload.mutate()}\n              >\n",
+          "approved": "              />\n              <button\n                type=\"button\"\n                className={actionClassName(\"primary\", \"w-fit\")}\n                disabled={!files.length || upload.isPending}\n                onClick={() => upload.mutate()}\n              >\n"
+        },
+        {
+          "previous": "                </p>\n              ) : null}\n              {upload.isSuccess ? (\n                <p role=\"status\" className=\"text-sm text-primary\">\n                  {t(\"draft.files.saved\")}\n                </p>\n              ) : null}\n",
+          "approved": "                </p>\n              ) : null}\n              {upload.isSuccess ? (\n                <p role=\"status\" className=\"text-sm text-text-link\">\n                  {t(\"draft.files.saved\")}\n                </p>\n              ) : null}\n"
+        },
+        {
+          "previous": "                  </p>\n                ) : null}\n                {saveEvidence.isSuccess ? (\n                  <p role=\"status\" className=\"text-sm text-primary\">\n                    {t(\"draft.evidence.saved\")}\n                  </p>\n                ) : null}\n              </div>\n              {data.hasAuthenticityDeclaration ? (\n                <p role=\"status\" className=\"font-semibold text-primary\">\n                  {t(\"draft.authenticity.confirmed\")}\n                </p>\n              ) : (\n",
+          "approved": "                  </p>\n                ) : null}\n                {saveEvidence.isSuccess ? (\n                  <p role=\"status\" className=\"text-sm text-text-link\">\n                    {t(\"draft.evidence.saved\")}\n                  </p>\n                ) : null}\n              </div>\n              {data.hasAuthenticityDeclaration ? (\n                <p role=\"status\" className=\"font-semibold text-text-link\">\n                  {t(\"draft.authenticity.confirmed\")}\n                </p>\n              ) : (\n"
+        },
+        {
+          "previous": "                </p>\n              ) : null}\n              <div className=\"grid gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm\">\n                <p className=\"font-black\">{t(\"payment.title\")}</p>\n                <p>\n                  {t(\"payment.price\", {\n                    price: formatLocalizedCurrency(\n",
+          "approved": "                </p>\n              ) : null}\n              <div className=\"grid gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm\">\n                <p className=\"font-semibold\">{t(\"payment.title\")}</p>\n                <p>\n                  {t(\"payment.price\", {\n                    price: formatLocalizedCurrency(\n"
+        },
+        {
+          "previous": "                </label>\n                <button\n                  type=\"button\"\n                  className=\"focus-ring w-fit rounded-xl bg-primary px-4 py-2 font-bold text-white disabled:opacity-50\"\n                  disabled={\n                    checkout.isPending ||\n                    !data.files.some((file) => file.scanStatus === \"Clean\") ||\n",
+          "approved": "                </label>\n                <button\n                  type=\"button\"\n                  className={actionClassName(\"primary\", \"w-fit\")}\n                  disabled={\n                    checkout.isPending ||\n                    !data.files.some((file) => file.scanStatus === \"Clean\") ||\n"
+        },
+        {
+          "previous": "              </div>\n            </div>\n          ) : data.status === \"PendingPayment\" ? (\n            <div className=\"card grid gap-3 p-5\" aria-live=\"polite\">\n              <h2 className=\"text-xl font-black\">\n                {t(\"payment.pendingTitle\")}\n              </h2>\n              {paymentSession?.provider.startsWith(\"Fake\") ? (\n",
+          "approved": "              </div>\n            </div>\n          ) : data.status === \"PendingPayment\" ? (\n            <div className={styles.panel} aria-live=\"polite\">\n              <h2 className=\"text-xl font-semibold\">\n                {t(\"payment.pendingTitle\")}\n              </h2>\n              {paymentSession?.provider.startsWith(\"Fake\") ? (\n"
+        },
+        {
+          "previous": "                  <p>{t(\"payment.developmentDescription\")}</p>\n                  <button\n                    type=\"button\"\n                    className=\"focus-ring w-fit rounded-lg border border-primary px-3 py-2 font-black text-primary disabled:opacity-50\"\n                    disabled={confirmDevelopmentPayment.isPending}\n                    onClick={() => confirmDevelopmentPayment.mutate()}\n                  >\n",
+          "approved": "                  <p>{t(\"payment.developmentDescription\")}</p>\n                  <button\n                    type=\"button\"\n                    className=\"focus-ring w-fit rounded-lg border border-primary px-3 py-2 font-semibold text-text-link disabled:opacity-50\"\n                    disabled={confirmDevelopmentPayment.isPending}\n                    onClick={() => confirmDevelopmentPayment.mutate()}\n                  >\n"
+        },
+        {
+          "previous": "              )}\n            </div>\n          ) : data.status === \"Completed\" ? (\n            <div className=\"card grid gap-3 p-5\">\n              <h2 className=\"text-xl font-black\">{t(\"completed.title\")}</h2>\n              <p className=\"text-2xl font-black\">\n                {data.calculatedGrade ?? \"—\"}\n              </p>\n              {data.sectionResults.map((result) => (\n",
+          "approved": "              )}\n            </div>\n          ) : data.status === \"Completed\" ? (\n            <div className={styles.panel}>\n              <h2 className=\"text-xl font-semibold\">{t(\"completed.title\")}</h2>\n              <p className=\"text-2xl font-semibold\">\n                {data.calculatedGrade ?? \"—\"}\n              </p>\n              {data.sectionResults.map((result) => (\n"
+        }
+      ],
+      "transport": [
+        "useQuery({ queryKey: [\"student\", \"resit-authorizations\", page], queryFn: () => api<AuthorizationPage>( `/student/resit-authorizations?page=${page}&pageSize=10`, ), })",
+        "api<AuthorizationPage>( `/student/resit-authorizations?page=${page}&pageSize=10`, )",
+        "useMutation({ mutationFn: (authorizationId: string) => api<{ status: string; resitEvaluationRequestId: string }>( `/student/resit-authorizations/${authorizationId}/activate`, { method: \"POST\" }, ), onSuccess: async (result) => { await Promise.all([ client.invalidateQueries({ queryKey: [\"student\", \"resit-authorizations\"], }), client.invalidateQueries({ queryKey: [\"evaluations\", \"mine\"] }), ]); if (result.resitEvaluationRequestId) router.push( `/${locale}/student/evaluations/${result.resitEvaluationRequestId}`, ); }, })",
+        "api<{ status: string; resitEvaluationRequestId: string }>( `/student/resit-authorizations/${authorizationId}/activate`, { method: \"POST\" }, )",
+        "client.invalidateQueries({ queryKey: [\"student\", \"resit-authorizations\"], })",
+        "client.invalidateQueries({ queryKey: [\"evaluations\", \"mine\"] })",
+        "router.push( `/${locale}/student/evaluations/${result.resitEvaluationRequestId}`, )",
+        "useQuery({ queryKey: [\"evaluations\", \"detail\", evaluationId], queryFn: () => api<Detail>(`/evaluations/${evaluationId}`), })",
+        "api<Detail>(`/evaluations/${evaluationId}`)",
+        "client.invalidateQueries({ queryKey: [\"evaluations\", \"detail\", evaluationId], })",
+        "useMutation({ mutationFn: async () => { for (const file of files) { const body = new FormData(); body.set(\"file\", file); await api(`/evaluations/${evaluationId}/files`, { method: \"POST\", body, }); } }, onSuccess: async () => { setFiles([]); await refresh(); }, })",
+        "api(`/evaluations/${evaluationId}/files`, { method: \"POST\", body, })",
+        "useMutation({ mutationFn: ({ criterionCode, narrative, }: { criterionCode: string; narrative: string; }) => api(`/evaluations/${evaluationId}/evidence`, { method: \"POST\", body: JSON.stringify({ criterionCode, narrative }), }), onSuccess: refresh, })",
+        "api(`/evaluations/${evaluationId}/evidence`, { method: \"POST\", body: JSON.stringify({ criterionCode, narrative }), })",
+        "useMutation({ mutationFn: () => api(`/evaluations/${evaluationId}/authenticity-declaration`, { method: \"POST\", }), onSuccess: async () => { setConfirmOriginality(false); await refresh(); }, })",
+        "api(`/evaluations/${evaluationId}/authenticity-declaration`, { method: \"POST\", })",
+        "useMutation({ mutationFn: async () => { checkoutKey.current ??= crypto.randomUUID(); const result = await api<{ includedCreditApplied: boolean; paymentId: string; provider: string; redirectUrl: string | null; total: number; currency: string; }>(`/evaluations/${evaluationId}/checkout`, { method: \"POST\", headers: { \"Idempotency-Key\": checkoutKey.current }, body: JSON.stringify({ paymentMethod, expectIncludedCredit: false }), }); if (result.includedCreditApplied) throw new Error(\"RESIT_INCLUDED_CREDIT_INVARIANT_VIOLATION\"); return result; }, onSuccess: async (result) => { checkoutKey.current = null; if (result.redirectUrl) { window.location.assign(result.redirectUrl); return; } setPaymentSession(result); await refresh(); }, })",
+        "api<{ includedCreditApplied: boolean; paymentId: string; provider: string; redirectUrl: string | null; total: number; currency: string; }>(`/evaluations/${evaluationId}/checkout`, { method: \"POST\", headers: { \"Idempotency-Key\": checkoutKey.current }, body: JSON.stringify({ paymentMethod, expectIncludedCredit: false }), })",
+        "window.location.assign(result.redirectUrl)",
+        "useMutation({ mutationFn: async () => { if (!paymentSession?.provider.startsWith(\"Fake\")) throw new Error(\"No development test payment is available.\"); await api(\"/payments/fake/confirm\", { method: \"POST\", body: JSON.stringify({ paymentId: paymentSession.paymentId, providerEventId: `resit_test_${crypto.randomUUID()}`, }), }); }, onSuccess: async () => { await client.invalidateQueries({ queryKey: [\"evaluations\"] }); await client.invalidateQueries({ queryKey: [\"student\", \"resit-authorizations\"], }); router.push(`/${locale}/student/evaluations`); }, })",
+        "api(\"/payments/fake/confirm\", { method: \"POST\", body: JSON.stringify({ paymentId: paymentSession.paymentId, providerEventId: `resit_test_${crypto.randomUUID()}`, }), })",
+        "client.invalidateQueries({ queryKey: [\"evaluations\"] })",
+        "client.invalidateQueries({ queryKey: [\"student\", \"resit-authorizations\"], })",
+        "router.push(`/${locale}/student/evaluations`)"
+      ]
+    },
+    "src/features/student/evaluation-appeals.tsx": {
+      "hash": "3e93c24ff9f522132dc1217b7f3a592b697508edc0463b4f4e030de4d486809c",
+      "seams": [
+        {
+          "previous": "import { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\nimport { useLocale, useTranslations } from \"next-intl\";\nimport { useMemo, useState } from \"react\";\n\ntype Evaluation = {\n  id: string;\n",
+          "approved": "import { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\nimport { useLocale, useTranslations } from \"next-intl\";\nimport { useMemo, useState } from \"react\";\nimport { actionClassName } from \"@/components/ui/action\";\nimport styles from \"./student-evaluation-wizard.module.css\";\n\ntype Evaluation = {\n  id: string;\n"
+        },
+        {
+          "previous": "  const date = (value: string) => formatLocalizedDateTime(value, locale);\n\n  return (\n    <section className=\"shell py-8 sm:py-10\">\n      <div className=\"max-w-3xl\">\n        <p className=\"text-xs font-black uppercase tracking-[0.18em] text-primary\">\n          BETCCO · {t(\"integrity\")}\n        </p>\n        <h1 className=\"mt-3 text-3xl font-black tracking-tight sm:text-4xl\">\n          {t(\"title\")}\n        </h1>\n        <p className=\"mt-3 leading-7 text-muted\">{t(\"description\")}</p>\n      </div>\n\n      <form\n        className=\"card mt-6 grid max-w-3xl gap-4 p-5 sm:p-6\"\n        onSubmit={(event) => {\n          event.preventDefault();\n          if (canSubmit) create.mutate();\n        }}\n      >\n        <h2 className=\"text-lg font-black\">{t(\"form.title\")}</h2>\n        <label className=\"grid gap-2 text-sm font-black\">\n          {t(\"form.releasedEvaluation\")}\n          <select\n            className=\"focus-ring rounded-xl border border-border bg-background px-3 py-3 text-foreground\"\n",
+          "approved": "  const date = (value: string) => formatLocalizedDateTime(value, locale);\n\n  return (\n    <section className={`shell py-8 sm:py-10 ${styles.flow}`}>\n      <div className=\"max-w-3xl\">\n        <p className=\"text-xs font-semibold uppercase tracking-[0.18em] text-text-link\">\n          BETCCO · {t(\"integrity\")}\n        </p>\n        <h1 className=\"mt-3 text-3xl font-semibold tracking-tight sm:text-4xl\">\n          {t(\"title\")}\n        </h1>\n        <p className=\"mt-3 leading-7 text-muted\">{t(\"description\")}</p>\n      </div>\n\n      <form\n        className={`${styles.panel} mt-6 max-w-3xl`}\n        onSubmit={(event) => {\n          event.preventDefault();\n          if (canSubmit) create.mutate();\n        }}\n      >\n        <h2 className=\"text-lg font-semibold\">{t(\"form.title\")}</h2>\n        <label className=\"grid gap-2 text-sm font-semibold\">\n          {t(\"form.releasedEvaluation\")}\n          <select\n            className=\"focus-ring rounded-xl border border-border bg-background px-3 py-3 text-foreground\"\n"
+        },
+        {
+          "previous": "            {t(\"evaluations.empty\")}\n          </p>\n        ) : null}\n        <label className=\"grid gap-2 text-sm font-black\">\n          {t(\"form.reason\")}\n          <textarea\n            className=\"focus-ring min-h-32 rounded-xl border border-border bg-background px-3 py-3 text-foreground\"\n",
+          "approved": "            {t(\"evaluations.empty\")}\n          </p>\n        ) : null}\n        <label className=\"grid gap-2 text-sm font-semibold\">\n          {t(\"form.reason\")}\n          <textarea\n            className=\"focus-ring min-h-32 rounded-xl border border-border bg-background px-3 py-3 text-foreground\"\n"
+        },
+        {
+          "previous": "        <button\n          type=\"submit\"\n          disabled={!canSubmit || create.isPending}\n          className=\"focus-ring justify-self-start rounded-xl bg-primary px-5 py-3 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60\"\n        >\n          {create.isPending ? t(\"form.submitting\") : t(\"form.submit\")}\n        </button>\n",
+          "approved": "        <button\n          type=\"submit\"\n          disabled={!canSubmit || create.isPending}\n          className={actionClassName(\"primary\", \"justify-self-start\")}\n        >\n          {create.isPending ? t(\"form.submitting\") : t(\"form.submit\")}\n        </button>\n"
+        },
+        {
+          "previous": "      </form>\n\n      <div className=\"mt-8 max-w-3xl\">\n        <h2 className=\"text-xl font-black\">{t(\"appeals.title\")}</h2>\n        {appeals.isPending ? (\n          <p className=\"mt-4 text-muted\">{t(\"appeals.loading\")}</p>\n        ) : null}\n",
+          "approved": "      </form>\n\n      <div className=\"mt-8 max-w-3xl\">\n        <h2 className=\"text-xl font-semibold\">{t(\"appeals.title\")}</h2>\n        {appeals.isPending ? (\n          <p className=\"mt-4 text-muted\">{t(\"appeals.loading\")}</p>\n        ) : null}\n"
+        },
+        {
+          "previous": "          {appeals.data?.map((appeal) => {\n            const canWithdraw = appeal.status === \"Submitted\";\n            return (\n              <article key={appeal.id} className=\"card grid gap-3 p-4 sm:p-5\">\n                <div className=\"flex flex-wrap items-center justify-between gap-3\">\n                  <span className=\"rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-black text-primary\">\n                    {appeal.status}\n                  </span>\n                  <time\n",
+          "approved": "          {appeals.data?.map((appeal) => {\n            const canWithdraw = appeal.status === \"Submitted\";\n            return (\n              <article key={appeal.id} className={styles.request}>\n                <div className=\"flex flex-wrap items-center justify-between gap-3\">\n                  <span className=\"rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-semibold text-text-link\">\n                    {appeal.status}\n                  </span>\n                  <time\n"
+        },
+        {
+          "previous": "                    type=\"button\"\n                    onClick={() => withdraw.mutate(appeal.id)}\n                    disabled={withdraw.isPending}\n                    className=\"focus-ring justify-self-start rounded-xl border border-border px-4 py-2 text-sm font-black hover:border-primary disabled:opacity-60\"\n                  >\n                    {t(\"appeals.withdraw\")}\n                  </button>\n",
+          "approved": "                    type=\"button\"\n                    onClick={() => withdraw.mutate(appeal.id)}\n                    disabled={withdraw.isPending}\n                    className=\"focus-ring justify-self-start rounded-xl border border-border px-4 py-2 text-sm font-semibold hover:border-primary disabled:opacity-60\"\n                  >\n                    {t(\"appeals.withdraw\")}\n                  </button>\n"
+        }
+      ],
+      "transport": [
+        "useQuery({ queryKey: [\"evaluation-appeals\", \"mine\"], queryFn: () => api<Appeal[]>(\"/evaluation-appeals/mine\"), retry: false, })",
+        "api<Appeal[]>(\"/evaluation-appeals/mine\")",
+        "useMutation({ mutationFn: () => api<Appeal>(\"/evaluation-appeals\", { method: \"POST\", body: JSON.stringify({ evaluationRequestId, reason: reason.trim() }), }), onSuccess: () => { setReason(\"\"); setEvaluationRequestId(\"\"); void client.invalidateQueries({ queryKey: [\"evaluation-appeals\", \"mine\"], }); }, })",
+        "api<Appeal>(\"/evaluation-appeals\", { method: \"POST\", body: JSON.stringify({ evaluationRequestId, reason: reason.trim() }), })",
+        "client.invalidateQueries({ queryKey: [\"evaluation-appeals\", \"mine\"], })",
+        "useMutation({ mutationFn: (appealId: string) => api<void>(`/evaluation-appeals/${appealId}/withdraw`, { method: \"POST\" }), onSuccess: () => client.invalidateQueries({ queryKey: [\"evaluation-appeals\", \"mine\"] }), })",
+        "api<void>(`/evaluation-appeals/${appealId}/withdraw`, { method: \"POST\" })",
+        "client.invalidateQueries({ queryKey: [\"evaluation-appeals\", \"mine\"] })"
+      ]
+    },
+    "src/features/student/student-evaluation-page.ts": {
+      "hash": "5a1c44913302af6bcded12bb1d04913abea0fab43a8212fdc023d0068826496c",
+      "seams": [],
+      "transport": [
+        "useInfiniteQuery({ queryKey: [\"evaluations\", \"mine\"], initialPageParam: 1, queryFn: ({ pageParam }) => api<StudentEvaluationPage<T>>( `/evaluations/mine?page=${pageParam}&pageSize=20`, ), getNextPageParam: (lastPage) => lastPage.hasNextPage ? lastPage.page + 1 : undefined, retry, })",
+        "api<StudentEvaluationPage<T>>( `/evaluations/mine?page=${pageParam}&pageSize=20`, )"
+      ]
+    }
+  },
+  "additions": {
+    "en": {
+      "lifecycle": "Evaluation · current saved state",
+      "currentStage": "Current saved stage",
+      "preparation": "Request preparation",
+      "submissionRoute": "Submission route",
+      "empty": "No evaluation requests in this successful response.",
+      "branches": {
+        "standard": "Standard evaluation request",
+        "resit": "Separate Resit request",
+        "retake": "Historical Retake"
+      },
+      "statusNotGrade": "A workflow stage does not declare a passing grade. Read the supplied BETCCO result separately.",
+      "fundingUnknown": "This response does not identify the Included Evaluation / payment source.",
+      "historicalRetake": "Historical Retake record. New Retake creation is disabled.",
+      "sameRequestRevision": "Revision / Resubmission stays on this same request.",
+      "states": {
+        "draft": "Saved request; preparation does not imply submission or review.",
+        "pendingPayment": "Payment is pending; successful payment is not confirmed by this stage.",
+        "paid": "Payment is recorded; review completion is not implied.",
+        "pendingAssignment": "Waiting for evaluator assignment.",
+        "assigned": "An evaluator is assigned; this does not declare a result.",
+        "underReview": "This request is under review.",
+        "needsRevision": "A revision stage is recorded. Follow only this request’s supplied deadline and actions.",
+        "completed": "The workflow is complete. This stage alone does not declare a passing grade.",
+        "closed": "This request is closed.",
+        "paymentFailed": "Payment failed; no successful payment is implied.",
+        "cancelled": "This request is cancelled.",
+        "refunded": "A refund stage is recorded; it does not declare a review result.",
+        "unknown": "No known evaluation stage is supplied. No payment, review or result is inferred."
+      }
+    },
+    "ar": {
+      "lifecycle": "التقييم · الحالة الحالية المحفوظة",
+      "currentStage": "المرحلة الحالية المحفوظة",
+      "preparation": "تجهيز الطلب",
+      "submissionRoute": "مسار التسليم",
+      "empty": "لا توجد طلبات تقييم في هذه الاستجابة الناجحة.",
+      "branches": {
+        "standard": "طلب تقييم عادي",
+        "resit": "طلب Resit مستقل",
+        "retake": "سجل Retake تاريخي"
+      },
+      "statusNotGrade": "مرحلة سير العمل لا تعني الحصول على درجة نجاح. اقرأ نتيجة BETCCO المرفقة بصورة مستقلة.",
+      "fundingUnknown": "هذه الاستجابة لا تحدد مصدر الرصيد المشمول أو الدفع.",
+      "historicalRetake": "سجل Retake تاريخي. إنشاء طلبات Retake جديدة معطّل.",
+      "sameRequestRevision": "المراجعة وإعادة التسليم تبقيان على الطلب نفسه.",
+      "states": {
+        "draft": "طلب محفوظ؛ التجهيز لا يعني التسليم أو المراجعة.",
+        "pendingPayment": "الدفع قيد الانتظار؛ هذه المرحلة لا تؤكد نجاح الدفع.",
+        "paid": "سُجّل الدفع؛ وهذا لا يعني اكتمال المراجعة.",
+        "pendingAssignment": "بانتظار تعيين المقيّم.",
+        "assigned": "تم تعيين المقيّم؛ وهذا لا يحدد نتيجة.",
+        "underReview": "هذا الطلب قيد المراجعة.",
+        "needsRevision": "سُجّلت مرحلة مراجعة. اتبع الموعد والإجراءات المرفقة بهذا الطلب فقط.",
+        "completed": "اكتمل سير العمل. هذه المرحلة وحدها لا تعني الحصول على درجة نجاح.",
+        "closed": "هذا الطلب مغلق.",
+        "paymentFailed": "فشل الدفع؛ ولا يُفترض نجاحه.",
+        "cancelled": "هذا الطلب ملغى.",
+        "refunded": "سُجّلت مرحلة استرداد المبلغ؛ وهي لا تحدد نتيجة المراجعة.",
+        "unknown": "لم تُرفق مرحلة تقييم معروفة. لا يُفترض دفع أو مراجعة أو نتيجة."
+      }
+    }
+  },
+  "presentationHash": "84f91a9902572308e8d0bc4b29ca0978a7f7d611a6f622b48aea63c070b6728e"
+}

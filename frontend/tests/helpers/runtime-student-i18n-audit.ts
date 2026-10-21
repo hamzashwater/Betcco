@@ -2,6 +2,7 @@ import ts from "typescript";
 import baseline from "../fixtures/runtime-student-i18n-baseline.json";
 import { ancestors, compact, digest } from "./admin-final-i18n-audit";
 import { projectStudentStateSource } from "./student-state-projection";
+import { projectEvaluationPresentationSource } from "./evaluation-presentation-projection";
 
 export const runtimeStudentFiles = Object.keys(
   baseline.sourceHashes,
@@ -68,7 +69,10 @@ export function errorOccurrences(source: string) {
 export function reconcileRuntimeStudent(sources: RuntimeSources) {
   const violations: string[] = [];
   for (const path of runtimeStudentFiles) {
-    let source = sources[path].replace(/\r\n/g, "\n");
+    let source = projectEvaluationPresentationSource(
+      sources[path],
+      path,
+    ).replace(/\r\n/g, "\n");
     if (path.endsWith("/student-area.tsx")) {
       source = projectStudentStateSource(source);
       for (const replacement of baseline.replacements) {
