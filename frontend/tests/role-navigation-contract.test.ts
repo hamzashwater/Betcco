@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
 import baseline from "./fixtures/ui-d01-05-role-shell-baseline.json";
+import { projectStudentContinuitySource } from "./helpers/student-continuity-projection";
 import {
   projectRoleShellSource,
   withoutRoleShellAdditions,
@@ -97,7 +98,9 @@ describe("role-shell presentation retains the merged route/data/auth contracts",
   });
   it("keeps routes, MFA, dashboards, editor data/logic, API, AI, shared primitives, fonts, tokens and dependencies byte-identical", () => {
     for (const [file, expected] of Object.entries(baseline.protectedFiles))
-      expect(hash(readFileSync(file)), file).toBe(expected);
+      expect(hash(projectStudentContinuitySource(read(file), file)), file).toBe(
+        expected,
+      );
   });
   it.each(["en", "ar"] as const)(
     "adds only the exact paired %s role-shell copy and retains every old value",

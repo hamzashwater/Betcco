@@ -197,12 +197,9 @@ describe("student dashboard pending actions", () => {
       await within(hero).findByRole("heading", { name: "Actual course" }),
     ).toBeVisible();
     expect(within(hero).getByText("Actual teacher")).toBeVisible();
-    expect(within(hero).getByText("28.57%")).toBeVisible();
     expect(within(hero).getByText("2/7 lessons completed")).toBeVisible();
-    expect(within(hero).getByRole("progressbar")).toHaveAttribute(
-      "aria-valuenow",
-      "28.57",
-    );
+    expect(within(hero).queryByRole("progressbar")).not.toBeInTheDocument();
+    expect(within(hero).queryByText("28.57%")).not.toBeInTheDocument();
     expect(
       within(hero).getByRole("link", {
         name: "Continue learning: Actual course",

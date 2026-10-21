@@ -338,6 +338,7 @@ function StudentDashboard() {
               key={currentCourse.courseId}
               course={currentCourse}
               featured
+              continuation
             />
           ) : (
             <>
@@ -536,7 +537,7 @@ function StudentDashboard() {
               {upcomingAssignments.map((assignment) => (
                 <Link
                   key={assignment.id}
-                  href={`/${locale}/student/learn/${assignment.courseId}`}
+                  href={`/${locale}/student/learn/${assignment.courseId}${assignment.lessonId ? `?lessonId=${encodeURIComponent(assignment.lessonId)}` : ""}`}
                   className="focus-ring block border-b border-border-subtle! py-4"
                 >
                   <div className="flex items-start justify-between gap-3">
