@@ -2,480 +2,562 @@
   "classification": "MOCKED UI-CONTRACT EVIDENCE",
   "base": "4534ec747067e49f90cb77580b13131fa4512469",
   "browser": "Chromium, actual production Next 16.3.6 on isolated localhost:3017",
-  "stats": {
-    "startTime": "2026-10-20T23:04:27.049Z",
-    "duration": 244401.553,
-    "expected": 58,
-    "skipped": 0,
-    "unexpected": 0,
-    "flaky": 0
+  "originalRun": {
+    "reviewedHead": "6807de783c1f9217ed5ecb8617692a5ad3e5f5af",
+    "stats": {
+      "startTime": "2026-10-20T23:04:27.049Z",
+      "duration": 244401.553,
+      "expected": 58,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
   },
-  "rawScreenshotRoot": "C:/Users/user/Documents/Codex/2026-10-17/files-pasted-by-the-user-device/outputs/UI-D01-07/browser",
+  "refreshRun": {
+    "parentReviewedHead": "6807de783c1f9217ed5ecb8617692a5ad3e5f5af",
+    "scope": "Only continuationTitle font-weight: 800 to 700; dashboard data and cached states.",
+    "source": {
+      "path": "src/features/student/student-learning-presentation.module.css",
+      "normalizedSha256": "5c95ec8e9001771c954896bf44cfa3e0a44900c0cdfa518c3116b05c4561abb0"
+    },
+    "stats": {
+      "startTime": "2026-10-21T00:07:29.630Z",
+      "duration": 71453.28,
+      "expected": 16,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  },
+  "coverage": {
+    "totalScenarios": 58,
+    "refreshedScenarios": 16,
+    "retainedUnchangedScenarios": 42
+  },
+  "rawScreenshotRoot": "C:/Users/user/Documents/Codex/2026-10-17/files-pasted-by-the-user-device/outputs/UI-D01-07",
   "boundary": "Synthetic GET data and cover; no backend, authorization, deployment or whole-site WCAG proof. Existing native theme toggle is used and applied theme asserted.",
   "cases": [
     {
       "title": "en light 1440 dashboard: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-bd181-er-and-reduced-motion-focus/data-focus.png",
-      "sha256": "06b70c869aa27128e1bc24ecf1de8d0ab1efd18a965bf0f2dbb8817b1f52bd83",
+      "screenshot": "dc03-fix/browser/student-home-continuity-en-bd181-er-and-reduced-motion-focus/data-focus.png",
+      "sha256": "d7e8b9daae149370a35fe0ebb9ac35b2da898f947e7f745af61c02e081f86db2",
       "width": 1440,
-      "height": 1786
+      "height": 1786,
+      "evidenceRun": "dc03-fix"
     },
     {
       "title": "en light 1440 courses: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-5eb72-er-and-reduced-motion-focus/data-focus.png",
+      "screenshot": "browser/student-home-continuity-en-5eb72-er-and-reduced-motion-focus/data-focus.png",
       "sha256": "698c0d83f8e7efe9763e8c430542cc31bf59f9ef284e5c9365c7ac6302615f8b",
       "width": 1440,
-      "height": 2163
+      "height": 2163,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en light 834 dashboard: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-51465-er-and-reduced-motion-focus/data-focus.png",
-      "sha256": "051c4408db9c3f9f035e7b248a93a097b2a7e4836fe6f597b9663c09c55a976b",
+      "screenshot": "dc03-fix/browser/student-home-continuity-en-51465-er-and-reduced-motion-focus/data-focus.png",
+      "sha256": "222ffbbd8fdc284a79946c43808263c75e901f8776333e18a1e1611e2775960d",
       "width": 834,
-      "height": 2375
+      "height": 2375,
+      "evidenceRun": "dc03-fix"
     },
     {
       "title": "en light 834 courses: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-731ea-er-and-reduced-motion-focus/data-focus.png",
+      "screenshot": "browser/student-home-continuity-en-731ea-er-and-reduced-motion-focus/data-focus.png",
       "sha256": "32850c0b7d86a17f3e6692a0fbb9bae3d9d11aeaa8c1b80ed5ec988de015b07c",
       "width": 834,
-      "height": 2360
+      "height": 2360,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en light 390 dashboard: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-2e97b-er-and-reduced-motion-focus/data-focus.png",
-      "sha256": "dbbebce6ce55ef9a169a2d11ba4c9298d7acae990273a8253ee799f16e57419e",
+      "screenshot": "dc03-fix/browser/student-home-continuity-en-2e97b-er-and-reduced-motion-focus/data-focus.png",
+      "sha256": "0b9d1d7a9e2a051e6533f083eb57489c18a14d3da4de15c4c58534f3912c296d",
       "width": 390,
-      "height": 3434
+      "height": 3434,
+      "evidenceRun": "dc03-fix"
     },
     {
       "title": "en light 390 courses: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-64f86-er-and-reduced-motion-focus/data-focus.png",
+      "screenshot": "browser/student-home-continuity-en-64f86-er-and-reduced-motion-focus/data-focus.png",
       "sha256": "9552f44ff6b2b70e0c021bb8b93b4a050ef00a52378a926864fadeabef7ff02d",
       "width": 390,
-      "height": 3273
+      "height": 3273,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en light mobile dashboard pending: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-610df-pending-factual-query-state/pending.png",
+      "screenshot": "browser/student-home-continuity-en-610df-pending-factual-query-state/pending.png",
       "sha256": "e71828af1a6af2b7d73a8cafad8a6ebf5a47006cefbb9aedbc92af01d74ed701",
       "width": 390,
-      "height": 2540
+      "height": 2540,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en light mobile courses pending: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-cf4b3-pending-factual-query-state/pending.png",
+      "screenshot": "browser/student-home-continuity-en-cf4b3-pending-factual-query-state/pending.png",
       "sha256": "1b609439c758f1dd696b03bc126251c00eb2578b1ac6aed5c80e476ffa4d9ae1",
       "width": 390,
-      "height": 1219
+      "height": 1219,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en light mobile dashboard empty: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-17753-d-empty-factual-query-state/empty.png",
+      "screenshot": "browser/student-home-continuity-en-17753-d-empty-factual-query-state/empty.png",
       "sha256": "7d9d1185c2ee3e1f059d538257f8723e86291957d96a4402ae16fba23c63070d",
       "width": 390,
-      "height": 2698
+      "height": 2698,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en light mobile courses empty: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-83ac4-s-empty-factual-query-state/empty.png",
+      "screenshot": "browser/student-home-continuity-en-83ac4-s-empty-factual-query-state/empty.png",
       "sha256": "fd63e9822db664e648932be2df6ee7da1679508f00a2e7e421eebaa132e1f9e4",
       "width": 390,
-      "height": 1988
+      "height": 1988,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en light mobile dashboard error: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-2a137-d-error-factual-query-state/error.png",
+      "screenshot": "browser/student-home-continuity-en-2a137-d-error-factual-query-state/error.png",
       "sha256": "2cf462a02a8a5b0e5d66e0be4df15cadaa10077a8dc4bc065a006c45b31450e0",
       "width": 390,
-      "height": 2774
+      "height": 2774,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en light mobile courses error: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-9b574-s-error-factual-query-state/error.png",
+      "screenshot": "browser/student-home-continuity-en-9b574-s-error-factual-query-state/error.png",
       "sha256": "067c6c5613ababd42666778c71a2d0d5e0d385776b8dd8c87dc57f4b3e5775f0",
       "width": 390,
-      "height": 1279
+      "height": 1279,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en light mobile dashboard cached: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-e6afc--cached-factual-query-state/cached.png",
-      "sha256": "fbcf11e6ae8828e130e89b83ed1191b9db52ad4178adcba35e2288fe59437521",
+      "screenshot": "dc03-fix/browser/student-home-continuity-en-e6afc--cached-factual-query-state/cached.png",
+      "sha256": "df2c45e7fa731fff3cfdedae157c0315cd4fc1350466dfdf8a48e745b93b1889",
       "width": 390,
-      "height": 3674
+      "height": 3674,
+      "evidenceRun": "dc03-fix"
     },
     {
       "title": "en light mobile courses cached: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-b0646--cached-factual-query-state/cached.png",
+      "screenshot": "browser/student-home-continuity-en-b0646--cached-factual-query-state/cached.png",
       "sha256": "855f956e1bf82bb5fbbc1f0e9ee60dc51ccf4decd48e63d040b0d048a7f280cd",
       "width": 390,
-      "height": 3403
+      "height": 3403,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en dark 1440 dashboard: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-8b437-er-and-reduced-motion-focus/data-focus.png",
-      "sha256": "ab6d9ecccbf7428b144dbe7d462012d1fe1169e5091c54c972db210564ca60e9",
+      "screenshot": "dc03-fix/browser/student-home-continuity-en-8b437-er-and-reduced-motion-focus/data-focus.png",
+      "sha256": "994ea38fb04b23d0167bc0243308581a097aad43e65783037e2f6799a041776a",
       "width": 1440,
-      "height": 1786
+      "height": 1786,
+      "evidenceRun": "dc03-fix"
     },
     {
       "title": "en dark 1440 courses: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-1eecb-er-and-reduced-motion-focus/data-focus.png",
+      "screenshot": "browser/student-home-continuity-en-1eecb-er-and-reduced-motion-focus/data-focus.png",
       "sha256": "8c3ca05b7eafa0eee6b0e2cd9cecf924142528e426cd3e7581aba8721d90a448",
       "width": 1440,
-      "height": 2163
+      "height": 2163,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en dark 834 dashboard: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-ddff7-er-and-reduced-motion-focus/data-focus.png",
-      "sha256": "55da6dfa7df877cc5b8ad9a762f48394c42a6810d0a306c35a4881b196177897",
+      "screenshot": "dc03-fix/browser/student-home-continuity-en-ddff7-er-and-reduced-motion-focus/data-focus.png",
+      "sha256": "af900dabe64376a97c01f34f35a27f554fbff4ba4cf157d078b3ec274f3ebf48",
       "width": 834,
-      "height": 2375
+      "height": 2375,
+      "evidenceRun": "dc03-fix"
     },
     {
       "title": "en dark 834 courses: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-8972b-er-and-reduced-motion-focus/data-focus.png",
+      "screenshot": "browser/student-home-continuity-en-8972b-er-and-reduced-motion-focus/data-focus.png",
       "sha256": "4da0bb5ff12ede80c459732b00e17da07b90bb1efede5fb90805ad338a5a527c",
       "width": 834,
-      "height": 2360
+      "height": 2360,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en dark 390 dashboard: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-fa509-er-and-reduced-motion-focus/data-focus.png",
-      "sha256": "9b0f27666f25b587324217a721e3b5e6b2db4a39d8c6aa13d8b89e34e2321a68",
+      "screenshot": "dc03-fix/browser/student-home-continuity-en-fa509-er-and-reduced-motion-focus/data-focus.png",
+      "sha256": "80f9aa5da1e94a9b48c6b927737bf9263d751d17c10e372e9def1f2a33776baa",
       "width": 390,
-      "height": 3434
+      "height": 3434,
+      "evidenceRun": "dc03-fix"
     },
     {
       "title": "en dark 390 courses: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-6e786-er-and-reduced-motion-focus/data-focus.png",
+      "screenshot": "browser/student-home-continuity-en-6e786-er-and-reduced-motion-focus/data-focus.png",
       "sha256": "a811d36d5b9eaa8997f3e8a8276ac0cc4e162f5aa183bdbd8b16b3b94ac5fbd5",
       "width": 390,
-      "height": 3273
+      "height": 3273,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en dark mobile dashboard pending: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-acc7a-pending-factual-query-state/pending.png",
+      "screenshot": "browser/student-home-continuity-en-acc7a-pending-factual-query-state/pending.png",
       "sha256": "ebccc5833c24fe7cf90e82c0fcd6361e581855a40822f011ff8ce3a2b5bb6bd7",
       "width": 390,
-      "height": 2540
+      "height": 2540,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en dark mobile courses pending: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-32ef6-pending-factual-query-state/pending.png",
+      "screenshot": "browser/student-home-continuity-en-32ef6-pending-factual-query-state/pending.png",
       "sha256": "6d87442feb6f2dde2334b4100b4af9edca7851e1864c246f1b997f41552a84ff",
       "width": 390,
-      "height": 1219
+      "height": 1219,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en dark mobile dashboard empty: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-48c3a-d-empty-factual-query-state/empty.png",
+      "screenshot": "browser/student-home-continuity-en-48c3a-d-empty-factual-query-state/empty.png",
       "sha256": "4fedbc962e37662c802068eff2cf8bab1ea8fce995f33181a848e3686dda8787",
       "width": 390,
-      "height": 2698
+      "height": 2698,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en dark mobile courses empty: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-ad87d-s-empty-factual-query-state/empty.png",
+      "screenshot": "browser/student-home-continuity-en-ad87d-s-empty-factual-query-state/empty.png",
       "sha256": "c614df1c2ee451d5eeede96dd3e28aa4ef59eecf44c35be69a0a165fb71791b0",
       "width": 390,
-      "height": 1988
+      "height": 1988,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en dark mobile dashboard error: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-e1069-d-error-factual-query-state/error.png",
+      "screenshot": "browser/student-home-continuity-en-e1069-d-error-factual-query-state/error.png",
       "sha256": "53296f916b67631333bb3259d238290bf45b91c2cc730287c73687b7a3059ec3",
       "width": 390,
-      "height": 2774
+      "height": 2774,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en dark mobile courses error: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-c7fd7-s-error-factual-query-state/error.png",
+      "screenshot": "browser/student-home-continuity-en-c7fd7-s-error-factual-query-state/error.png",
       "sha256": "7149baf8d10e46a4899c3b0c0ca5f999093e482380765e12f4280ee630457da2",
       "width": 390,
-      "height": 1279
+      "height": 1279,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en dark mobile dashboard cached: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-0e299--cached-factual-query-state/cached.png",
-      "sha256": "75f2d07551153ea279422350ac0405be55224a75b2f505af0f05ee567482a4c0",
+      "screenshot": "dc03-fix/browser/student-home-continuity-en-0e299--cached-factual-query-state/cached.png",
+      "sha256": "b135962654a90d99515e6163025825c7709fbf3853d356f1055757c82076390d",
       "width": 390,
-      "height": 3674
+      "height": 3674,
+      "evidenceRun": "dc03-fix"
     },
     {
       "title": "en dark mobile courses cached: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-63f18--cached-factual-query-state/cached.png",
+      "screenshot": "browser/student-home-continuity-en-63f18--cached-factual-query-state/cached.png",
       "sha256": "b5ac7d3e8dae9936a85e2748bad8415d864ebc27baec78facd35ae72a33ebb9f",
       "width": 390,
-      "height": 3403
+      "height": 3403,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "en: deadline opens a distinct Assignment lesson instead of the resume lesson",
       "status": "passed",
-      "screenshot": "student-home-continuity-en-b393d-nstead-of-the-resume-lesson/assignment-lesson.png",
+      "screenshot": "browser/student-home-continuity-en-b393d-nstead-of-the-resume-lesson/assignment-lesson.png",
       "sha256": "96ed8767c2fdcd092368a7c2db8fd0edb8faeda4d9ec8d09e9638074212e8432",
       "width": 390,
-      "height": 3528
+      "height": 3528,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar light 1440 dashboard: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-f83a0-er-and-reduced-motion-focus/data-focus.png",
-      "sha256": "e08534813a0e033ac4ab97a084ec10df3db2842edc1a813ba8fb8fadedda7c45",
+      "screenshot": "dc03-fix/browser/student-home-continuity-ar-f83a0-er-and-reduced-motion-focus/data-focus.png",
+      "sha256": "7a6af4fd1359c56c3460e8ea7727cbf2ccbde66d55162fa84b61bb891d56a432",
       "width": 1440,
-      "height": 1742
+      "height": 1742,
+      "evidenceRun": "dc03-fix"
     },
     {
       "title": "ar light 1440 courses: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-652ca-er-and-reduced-motion-focus/data-focus.png",
+      "screenshot": "browser/student-home-continuity-ar-652ca-er-and-reduced-motion-focus/data-focus.png",
       "sha256": "7d51f79f30be6675051e37bac821c9e13d28c794dfda31dd63eeb4c8ac147487",
       "width": 1440,
-      "height": 2095
+      "height": 2095,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar light 834 dashboard: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-44918-er-and-reduced-motion-focus/data-focus.png",
-      "sha256": "7914a4db2021b5decb13eeec5a161d00e2372bb9a58e214778d87dee8a8e267b",
+      "screenshot": "dc03-fix/browser/student-home-continuity-ar-44918-er-and-reduced-motion-focus/data-focus.png",
+      "sha256": "340957ab9300e958d29d44cd8a5eda04b4cbf2575f16b50db8b977cd840285b3",
       "width": 834,
-      "height": 2343
+      "height": 2343,
+      "evidenceRun": "dc03-fix"
     },
     {
       "title": "ar light 834 courses: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-7ff06-er-and-reduced-motion-focus/data-focus.png",
+      "screenshot": "browser/student-home-continuity-ar-7ff06-er-and-reduced-motion-focus/data-focus.png",
       "sha256": "c5da13c3cad0e588f2b1d0ab6c2e386686819fc58b902b1eceb3ecc4f6b1b54e",
       "width": 834,
-      "height": 2237
+      "height": 2237,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar light 390 dashboard: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-f04b1-er-and-reduced-motion-focus/data-focus.png",
-      "sha256": "f283db33ea4e506d3fa93870e47f1376e67c315eddb08f8b3b69bc7ef3d46024",
+      "screenshot": "dc03-fix/browser/student-home-continuity-ar-f04b1-er-and-reduced-motion-focus/data-focus.png",
+      "sha256": "7c3f5883e843f3a373b62149ddf01cf3052e881f7cfcbee735c0164abb71e285",
       "width": 390,
-      "height": 3182
+      "height": 3182,
+      "evidenceRun": "dc03-fix"
     },
     {
       "title": "ar light 390 courses: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-7dd9b-er-and-reduced-motion-focus/data-focus.png",
+      "screenshot": "browser/student-home-continuity-ar-7dd9b-er-and-reduced-motion-focus/data-focus.png",
       "sha256": "b1f0710b61c3a2cb0735edb0daab400e47dfed432453dbe43861702f5a2b888c",
       "width": 390,
-      "height": 2982
+      "height": 2982,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar light mobile dashboard pending: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-a886f-pending-factual-query-state/pending.png",
+      "screenshot": "browser/student-home-continuity-ar-a886f-pending-factual-query-state/pending.png",
       "sha256": "4c95b54f0dc6aea1702eff67d83c7478906d9d3dbc358030bb4b70c84d804505",
       "width": 390,
-      "height": 2380
+      "height": 2380,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar light mobile courses pending: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-d9d8c-pending-factual-query-state/pending.png",
+      "screenshot": "browser/student-home-continuity-ar-d9d8c-pending-factual-query-state/pending.png",
       "sha256": "25c8cf1d4c8b03647a52ce7a0182b4758f4b019fba47ca715a38cf2bd1d986d4",
       "width": 390,
-      "height": 1175
+      "height": 1175,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar light mobile dashboard empty: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-02fdf-d-empty-factual-query-state/empty.png",
+      "screenshot": "browser/student-home-continuity-ar-02fdf-d-empty-factual-query-state/empty.png",
       "sha256": "7a15a3c480146773682a45418befe2c7c38e7c396225437a4f861a0fef8ab05d",
       "width": 390,
-      "height": 2436
+      "height": 2436,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar light mobile courses empty: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-db03d-s-empty-factual-query-state/empty.png",
+      "screenshot": "browser/student-home-continuity-ar-db03d-s-empty-factual-query-state/empty.png",
       "sha256": "64fef8256dbc672139dcd153d99b607ae3b1e6fc5b8ff3a5e96792f203034aa4",
       "width": 390,
-      "height": 1898
+      "height": 1898,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar light mobile dashboard error: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-84fa5-d-error-factual-query-state/error.png",
+      "screenshot": "browser/student-home-continuity-ar-84fa5-d-error-factual-query-state/error.png",
       "sha256": "4e43b35136749ea27a255588f066889393623f198a20efcb827d80dd40c0c018",
       "width": 390,
-      "height": 2558
+      "height": 2558,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar light mobile courses error: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-9f637-s-error-factual-query-state/error.png",
+      "screenshot": "browser/student-home-continuity-ar-9f637-s-error-factual-query-state/error.png",
       "sha256": "00a2b8defd4d6debe628767ffcd7185bf5b83a449a4d2415f1796cf088d41833",
       "width": 390,
-      "height": 1235
+      "height": 1235,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar light mobile dashboard cached: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-44fc5--cached-factual-query-state/cached.png",
-      "sha256": "a2ccf27274c1fb0fdee4710392c3cf7076053cef1910892ae86245be50ad0f40",
+      "screenshot": "dc03-fix/browser/student-home-continuity-ar-44fc5--cached-factual-query-state/cached.png",
+      "sha256": "cf1123769cbd3c1ad2624073e3eca504c5b3d02ca53b77b31f9e876a5c137b83",
       "width": 390,
-      "height": 3430
+      "height": 3430,
+      "evidenceRun": "dc03-fix"
     },
     {
       "title": "ar light mobile courses cached: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-c7452--cached-factual-query-state/cached.png",
+      "screenshot": "browser/student-home-continuity-ar-c7452--cached-factual-query-state/cached.png",
       "sha256": "ee42067889c75f6e15c56061ccebab5025c4340b91ed66d873e3176eb8c5fdb0",
       "width": 390,
-      "height": 3116
+      "height": 3116,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar dark 1440 dashboard: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-12312-er-and-reduced-motion-focus/data-focus.png",
-      "sha256": "28731a444ec59d8306ac6624e9f0c31f43a5a0bc038c39a4c4924ee06de83062",
+      "screenshot": "dc03-fix/browser/student-home-continuity-ar-12312-er-and-reduced-motion-focus/data-focus.png",
+      "sha256": "9df4644cf1959654f018558533631dac2982c0dab9f545f6df03d08435ff1e2d",
       "width": 1440,
-      "height": 1742
+      "height": 1742,
+      "evidenceRun": "dc03-fix"
     },
     {
       "title": "ar dark 1440 courses: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-cfe8b-er-and-reduced-motion-focus/data-focus.png",
+      "screenshot": "browser/student-home-continuity-ar-cfe8b-er-and-reduced-motion-focus/data-focus.png",
       "sha256": "735975621f70f2a85f5a33833af8c997489d8abe10c76c05c777c60ab243b760",
       "width": 1440,
-      "height": 2095
+      "height": 2095,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar dark 834 dashboard: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-e8c42-er-and-reduced-motion-focus/data-focus.png",
-      "sha256": "7a3a968522fba49c39c3f9f47f220afdcd2b983b180649611e5a1e9c0f8a3ff1",
+      "screenshot": "dc03-fix/browser/student-home-continuity-ar-e8c42-er-and-reduced-motion-focus/data-focus.png",
+      "sha256": "c1c54be47bf03b58f01228485583b2d8940ab5199ba34e9f6cee072553bb8540",
       "width": 834,
-      "height": 2343
+      "height": 2343,
+      "evidenceRun": "dc03-fix"
     },
     {
       "title": "ar dark 834 courses: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-1177f-er-and-reduced-motion-focus/data-focus.png",
+      "screenshot": "browser/student-home-continuity-ar-1177f-er-and-reduced-motion-focus/data-focus.png",
       "sha256": "fc2fb3ff92f043fd2a3648d0934f4a77788a639dd1b4983e06391eed5e5a6eb5",
       "width": 834,
-      "height": 2237
+      "height": 2237,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar dark 390 dashboard: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-5d66e-er-and-reduced-motion-focus/data-focus.png",
-      "sha256": "b551a7e752b7144b40592cc9228fa8a1ea91c7d95ae4c0e2e6c5ea5e71a462dd",
+      "screenshot": "dc03-fix/browser/student-home-continuity-ar-5d66e-er-and-reduced-motion-focus/data-focus.png",
+      "sha256": "78be1f2ecccc57bd8e424f8bb57f88b30c77beed369f93f1161e8738d983b918",
       "width": 390,
-      "height": 3182
+      "height": 3182,
+      "evidenceRun": "dc03-fix"
     },
     {
       "title": "ar dark 390 courses: continuation, covers, server order and reduced-motion focus",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-18647-er-and-reduced-motion-focus/data-focus.png",
+      "screenshot": "browser/student-home-continuity-ar-18647-er-and-reduced-motion-focus/data-focus.png",
       "sha256": "ec0fe595856f6b9ac6fe8ea749ad095ca88ce2c2a8f5df87316f2ce12c973683",
       "width": 390,
-      "height": 2982
+      "height": 2982,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar dark mobile dashboard pending: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-7a5dd-pending-factual-query-state/pending.png",
+      "screenshot": "browser/student-home-continuity-ar-7a5dd-pending-factual-query-state/pending.png",
       "sha256": "5672796f4fdc1affd7308c1d391be56b13b055d7ab90a9b130ab6df43239d628",
       "width": 390,
-      "height": 2380
+      "height": 2380,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar dark mobile courses pending: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-81663-pending-factual-query-state/pending.png",
+      "screenshot": "browser/student-home-continuity-ar-81663-pending-factual-query-state/pending.png",
       "sha256": "c640005649fc6aaebd0a7afda9ef909a1a2c0493d9f4dba3fc1561ed6980a5f7",
       "width": 390,
-      "height": 1175
+      "height": 1175,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar dark mobile dashboard empty: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-51080-d-empty-factual-query-state/empty.png",
+      "screenshot": "browser/student-home-continuity-ar-51080-d-empty-factual-query-state/empty.png",
       "sha256": "cea0c55073bbe493c468f65f8b2c741d8a14d1b90f9251aea413805e8b70cfa6",
       "width": 390,
-      "height": 2436
+      "height": 2436,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar dark mobile courses empty: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-843cd-s-empty-factual-query-state/empty.png",
+      "screenshot": "browser/student-home-continuity-ar-843cd-s-empty-factual-query-state/empty.png",
       "sha256": "c03eb34fcce7508a8e28af4040ad08d249e5eecb9d1380b13da8a5577d04ca26",
       "width": 390,
-      "height": 1898
+      "height": 1898,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar dark mobile dashboard error: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-cd0cb-d-error-factual-query-state/error.png",
+      "screenshot": "browser/student-home-continuity-ar-cd0cb-d-error-factual-query-state/error.png",
       "sha256": "8a86b49600e2ef1c9eda17b14f68881f5c8b9004173e4ec7ba67bc73c2b2c609",
       "width": 390,
-      "height": 2558
+      "height": 2558,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar dark mobile courses error: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-5bffd-s-error-factual-query-state/error.png",
+      "screenshot": "browser/student-home-continuity-ar-5bffd-s-error-factual-query-state/error.png",
       "sha256": "226307306db9a0abd8a94111e05aedb25f6bc24e0ee99e3de5ef7c8ba3a5303b",
       "width": 390,
-      "height": 1235
+      "height": 1235,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar dark mobile dashboard cached: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-c5900--cached-factual-query-state/cached.png",
-      "sha256": "51943ada880c38096766db4d333f57f23480b554fd04d526101fb415d0ded58b",
+      "screenshot": "dc03-fix/browser/student-home-continuity-ar-c5900--cached-factual-query-state/cached.png",
+      "sha256": "36e97981046271bef18370516f07e6c966b1de2d725219d4ff7c41685b62f316",
       "width": 390,
-      "height": 3430
+      "height": 3430,
+      "evidenceRun": "dc03-fix"
     },
     {
       "title": "ar dark mobile courses cached: factual query state",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-bc50f--cached-factual-query-state/cached.png",
+      "screenshot": "browser/student-home-continuity-ar-bc50f--cached-factual-query-state/cached.png",
       "sha256": "b4c6774f3d5007b7e848f6a70ef2f6411977ade425a3b2fe3f6e980e85658964",
       "width": 390,
-      "height": 3116
+      "height": 3116,
+      "evidenceRun": "original-reviewed-head"
     },
     {
       "title": "ar: deadline opens a distinct Assignment lesson instead of the resume lesson",
       "status": "passed",
-      "screenshot": "student-home-continuity-ar-e8154-nstead-of-the-resume-lesson/assignment-lesson.png",
+      "screenshot": "browser/student-home-continuity-ar-e8154-nstead-of-the-resume-lesson/assignment-lesson.png",
       "sha256": "9fc4cc422f9658a8110de4927c3c1aadbd6ac4c9e4de5ef1273057ea891f923c",
       "width": 390,
-      "height": 3432
+      "height": 3432,
+      "evidenceRun": "original-reviewed-head"
     }
   ]
 }

@@ -34,6 +34,15 @@ function calls(source: string) {
   return result;
 }
 describe("UI-D01-07 retains source-owned workflow and frozen AI", () => {
+  it("keeps the new continuation title at the locked DC03 weight 700", () => {
+    const css = readFileSync(
+      "src/features/student/student-learning-presentation.module.css",
+      "utf8",
+    );
+    const titles = [...css.matchAll(/\.continuationTitle\s*\{([^}]+)\}/g)];
+    expect(titles).toHaveLength(1);
+    expect(titles[0][1].match(/font-weight:\s*(\d+)\s*;/)?.[1]).toBe("700");
+  });
   it("reverses exactly the dashboard variant and optional lesson deep link to verified main", () => {
     expect(baseline.base).toBe("4534ec747067e49f90cb77580b13131fa4512469");
     expect(hash(projectStudentContinuitySource(source, path))).toBe(

@@ -223,6 +223,11 @@ for (const locale of ["en", "ar"] as const) {
             const current = main.getByRole("region", {
               name: copy.studentWorkspace.dashboard.continueLearning,
             });
+            expect(
+              await current
+                .getByRole("heading")
+                .evaluate((e) => getComputedStyle(e).fontWeight),
+            ).toBe("700");
             await expect(current.getByRole("progressbar")).toHaveCount(0);
             await expect(current.locator("img")).toHaveCount(0);
             const attention = main.getByRole("region", {
@@ -321,6 +326,12 @@ for (const locale of ["en", "ar"] as const) {
             await expect(
               main.getByRole("heading", { name: title, exact: true }),
             ).toBeVisible();
+            if (surface === "dashboard")
+              expect(
+                await main
+                  .getByRole("heading", { name: title, exact: true })
+                  .evaluate((e) => getComputedStyle(e).fontWeight),
+              ).toBe("700");
             await fixture.refreshWithFailure();
             await expect(main.getByRole("alert").first()).toContainText(
               copy.studentWorkspace.dashboard.courseRefreshError,

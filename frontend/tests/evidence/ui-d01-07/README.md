@@ -10,6 +10,9 @@ percentage gauge. Current accessible learning, attention, upcoming deadlines,
 summary metrics, earned milestones and utilities keep their existing order.
 The current course remains the first accessible item in the server's Recent
 order, with the existing first-item fallback when all items are unavailable.
+The new continuation title uses the locked DC03 routine weight **700**. The
+same-PR follow-up changes only that production declaration from 800 to 700;
+historical typography elsewhere is retained.
 
 Course catalogue covers become 72px thumbnails on mobile. Featured courses retain
 the approved Navy/Teal treatment. A missing or failed cover keeps its existing
@@ -43,19 +46,26 @@ lesson; following the deadline must render the requested Assignment lesson.
 
 ## Verification
 
-Focused tests: 188 passed in 9 files. Full frontend suite: 2729 passed in 111 files.
-Formatting, ESLint with zero warnings, typecheck, production build and diff check
-passed. Commands:
+DC03 follow-up validation: **203 focused tests passed in 10 files**, including
+the existing bilingual typography contracts and a regression for this selector's
+weight. Formatting, ESLint with zero warnings, typecheck, a fresh production build
+and diff check passed on the corrected source. Commands:
 
 ```powershell
-pnpm test tests/student-home-continuity.test.tsx tests/student-continuity-contract.test.ts tests/student-dashboard-pending-actions.test.tsx tests/student-courses-learning-hub.test.tsx tests/student-course-player.test.tsx tests/student-state-contract.test.ts tests/runtime-student-source-audit.test.ts tests/admin-state-contract.test.ts tests/role-navigation-contract.test.ts --maxWorkers=2
-pnpm test --maxWorkers=2
+pnpm test tests/student-home-continuity.test.tsx tests/student-continuity-contract.test.ts tests/student-dashboard-pending-actions.test.tsx tests/student-courses-learning-hub.test.tsx tests/student-course-player.test.tsx tests/student-state-contract.test.ts tests/runtime-student-source-audit.test.ts tests/admin-state-contract.test.ts tests/role-navigation-contract.test.ts tests/ui-bilingual-typography.test.tsx --maxWorkers=2
 pnpm format:check
 pnpm exec eslint . --max-warnings 0
 pnpm typecheck
 pnpm build
 git diff --check
 ```
+
+Historical full-suite result at reviewed head
+`6807de783c1f9217ed5ecb8617692a5ad3e5f5af`: 2729 passed in 111 files. The full
+suite was not rerun for this single scoped font-weight correction, in accordance
+with the repository's narrow-validation rule; that old run is not claimed as a
+new-head test result. The production build and affected browser evidence were
+rerun because CSS changed.
 
 ## Browser evidence boundary
 
@@ -77,6 +87,8 @@ remain above the bottom dock. Assignment navigation is verified in both locales.
 pnpm start --port 3017
 $env:PLAYWRIGHT_PORT='3017'
 pnpm exec playwright test tests/e2e/student-home-continuity.spec.ts
+# Same-PR DC03 fix: regenerate only the 16 affected dashboard scenarios.
+pnpm exec playwright test tests/e2e/student-home-continuity.spec.ts --grep 'dashboard:|dashboard cached:'
 ```
 
 The existing inline theme initialization can leave `data-theme` unset under the
@@ -88,9 +100,18 @@ See the paired viewport overview images and `browser-evidence.json` for the
 verified run, screenshot hashes and individual scenarios. Full-size raw captures
 are retained in the task output directory documented in that manifest.
 
-Browser run: **58 passed, 0 failed, 0 skipped, 0 flaky**, Chromium against the
-production build. The overviews crop raw captures to their initial viewport;
-full-page originals are preserved separately with SHA-256 hashes in the manifest.
+Original browser run at reviewed head `6807de7`: 58 passed. The DC03 fix refreshes
+only **16 affected captures (16/16 passed, no skipped/flaky cases)**: 12 data views across both locales/themes and three
+viewports, plus 4 cached refresh-error views across both locales/themes. The new
+run explicitly checks computed continuation title weight 700. The other 42
+captures retain their original hashes and provenance; they were not regenerated.
+The manifest distinguishes the original run from the refresh and fingerprints
+the corrected CSS. It does not present all 58 as a new-head browser run.
+
+Only the dashboard viewport overview and two cached-dashboard panels in the state
+overview are refreshed. Every unrelated state panel retains identical pixels;
+the course overview remains byte-identical. Overviews crop raw captures to their
+initial viewport; full-page originals retain SHA-256 hashes in the manifest.
 
 ![Dashboard viewport matrix](dashboard-viewport-overview.png)
 
