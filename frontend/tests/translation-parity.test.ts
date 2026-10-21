@@ -4,6 +4,7 @@ import ts from "typescript";
 import arabicMessages from "../messages/ar.json";
 import englishMessages from "../messages/en.json";
 import { projectTeacherWorkloadSource } from "./helpers/teacher-workload-projection";
+import { projectTeacherAuthoringSource } from "./helpers/teacher-authoring-projection";
 
 const parityNamespaces = [
   "navigation",
@@ -19,6 +20,7 @@ const parityNamespaces = [
   "teacherCoursesManagement",
   "teacherStudentFollowUp",
   "teacherWorkloadPresentation",
+  "teacherAuthoringPresentation",
   "adminWorkspace",
 ] as const;
 
@@ -100,8 +102,24 @@ describe("shared shell, authentication, account, student, and teacher workspace 
       "dashboard.walletDescription",
       "shared.open",
     ]);
+    const priorEditor = projectTeacherAuthoringSource(
+      editorSource,
+      "src/features/teacher/course-editor.tsx",
+    );
+    const retiredEditor = [
+      ...new Set(
+        [...priorEditor.matchAll(/\bt\(\s*"([^"]+)"/gu)].map(
+          (match) => match[1],
+        ),
+      ),
+    ]
+      .filter((key) => !editorKeys.includes(key))
+      .sort();
+    expect(retiredEditor).toEqual(["courseEditor.unavailable"]);
     expect(
-      [...new Set([...usedKeys, ...editorKeys, ...retired])].sort(),
+      [
+        ...new Set([...usedKeys, ...editorKeys, ...retired, ...retiredEditor]),
+      ].sort(),
     ).toEqual(shape(englishMessages.teacherWorkspace).sort());
   });
 

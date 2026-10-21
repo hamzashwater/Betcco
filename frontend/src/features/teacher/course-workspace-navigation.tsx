@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import authoringStyles from "./course-authoring.module.css";
 import { type ReactNode, useEffect, useState } from "react";
 
 export const courseWorkspaceSections = [
@@ -25,6 +26,7 @@ function sectionFromHash(): CourseWorkspaceSectionId {
 export function CourseWorkspaceNavigation() {
   const locale = useLocale();
   const t = useTranslations("teacherCourseWorkspace.navigation");
+  const presentation = useTranslations("teacherAuthoringPresentation");
   const [activeSection, setActiveSection] =
     useState<CourseWorkspaceSectionId>("details");
 
@@ -54,7 +56,7 @@ export function CourseWorkspaceNavigation() {
     <nav
       aria-label={t("label")}
       dir={locale === "ar" ? "rtl" : "ltr"}
-      className="sticky top-20 z-30 mt-6 min-w-0 border-y border-border-subtle! bg-surface-panel p-2"
+      className={authoringStyles.navigation}
     >
       <p className="ui-type-meta px-3 py-1 text-text-muted">{t("label")}</p>
       <ol className="flex gap-1 overflow-x-auto" role="list">
@@ -78,6 +80,9 @@ export function CourseWorkspaceNavigation() {
           );
         })}
       </ol>
+      <p className={authoringStyles.currentSection}>
+        {presentation("currentSection", { section: t(activeSection) })}
+      </p>
     </nav>
   );
 }
@@ -90,7 +95,7 @@ export function CourseWorkspaceSection({
   children: ReactNode;
 }) {
   return (
-    <div id={id} className="min-w-0 scroll-mt-[11rem]">
+    <div id={id} className={authoringStyles.anchor}>
       {children}
     </div>
   );

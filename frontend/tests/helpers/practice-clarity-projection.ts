@@ -1,8 +1,10 @@
 import baseline from "../fixtures/ui-d01-09-practice-baseline.json";
+import { projectTeacherAuthoringSource } from "./teacher-authoring-projection";
 
 // Accept only the exact UI-D01-09 presentation seams. Historical source hashes
 // and all transport, teacher, AI and unrelated presentation bytes stay frozen.
 export function projectPracticeClaritySource(source: string, path: string) {
+  source = projectTeacherAuthoringSource(source, path);
   const file = baseline.files[path as keyof typeof baseline.files];
   if (!file) return source;
   const original = source.replace(/\r\n/g, "\n");

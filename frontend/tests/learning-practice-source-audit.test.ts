@@ -14,6 +14,7 @@ import { withoutLearningPracticeAdditions } from "./helpers/learning-practice-ca
 import { withoutPublicPurchaseAdditions } from "./helpers/public-purchase-catalogue-projection";
 import { withoutPublicTrustAdditions } from "./helpers/public-trust-catalogue-projection";
 import { withoutPublicDiscoveryAdditions } from "./helpers/public-discovery-catalogue-projection";
+import { projectTeacherAuthoringSource } from "./helpers/teacher-authoring-projection";
 
 const read = (path: string) => readFileSync(path, "utf8");
 const catalogues = {
@@ -211,7 +212,7 @@ describe("T7-A6.5 Learning Practice", () => {
       expect(practiceContract(source)).toBe(approvedContracts[path]);
       expect(
         practiceContract(
-          source.replace(
+          projectTeacherAuthoringSource(source, path).replace(
             '"use client";',
             '"use client";\n// harmless formatting',
           ),

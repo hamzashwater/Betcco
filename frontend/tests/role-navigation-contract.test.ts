@@ -4,6 +4,7 @@ import ts from "typescript";
 import { describe, expect, it } from "vitest";
 import baseline from "./fixtures/ui-d01-05-role-shell-baseline.json";
 import { projectStudentContinuitySource } from "./helpers/student-continuity-projection";
+import { projectTeacherAuthoringSource } from "./helpers/teacher-authoring-projection";
 import {
   projectRoleShellSource,
   withoutRoleShellAdditions,
@@ -37,10 +38,16 @@ describe("role-shell presentation retains the merged route/data/auth contracts",
     (file, expected) => {
       const source = read(file);
       expect(hash(projectRoleShellSource(source, file))).toBe(expected.hash);
+      const priorSource = projectTeacherAuthoringSource(source, file);
       const seam = expected.seams[0].approved;
       for (const replacement of ["", seam + seam, seam.replace(/\S/, "!")])
         expect(
-          hash(projectRoleShellSource(source.replace(seam, replacement), file)),
+          hash(
+            projectRoleShellSource(
+              priorSource.replace(seam, replacement),
+              file,
+            ),
+          ),
         ).not.toBe(expected.hash);
     },
   );

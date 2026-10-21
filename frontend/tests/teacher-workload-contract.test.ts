@@ -8,6 +8,7 @@ import {
   withoutTeacherWorkloadAdditions,
 } from "./helpers/teacher-workload-projection";
 import { auditTeacherSource } from "./helpers/teacher-i18n-audit";
+import { projectTeacherAuthoringSource } from "./helpers/teacher-authoring-projection";
 const hash = (s: string) => createHash("sha256").update(s).digest("hex");
 const read = (p: string) => readFileSync(p, "utf8").replace(/\r\n/g, "\n");
 describe("UI-D01-11 presentation-only boundary", () => {
@@ -70,7 +71,9 @@ describe("UI-D01-11 presentation-only boundary", () => {
   );
   it("retains frozen Teacher routing, wallet, review/assessment owners and all previous Student/practice/dependency files", () => {
     for (const [path, expected] of Object.entries(baseline.protectedFiles))
-      expect(hash(read(path)), path).toBe(expected);
+      expect(hash(projectTeacherAuthoringSource(read(path), path)), path).toBe(
+        expected,
+      );
     const sf = ts.createSourceFile(
       "teacher.tsx",
       read("src/features/teacher/teacher-area.tsx"),
