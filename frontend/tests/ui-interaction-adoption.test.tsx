@@ -10,6 +10,7 @@ import { MutationOutcome, QueryState } from "@/components/ui/query-state";
 import baseline from "./fixtures/ui-d01-04-baseline.json";
 import { interactionPresentation } from "./helpers/ui-interaction-contract";
 import { syntax } from "./helpers/ui-typography-contract";
+import { projectTeacherWorkloadSource } from "./helpers/teacher-workload-projection";
 import {
   projectRoleShellSource,
   withoutRoleShellAdditions,
@@ -93,7 +94,10 @@ describe("UI-D01-04 presentation and ownership boundary", () => {
 
   it("preserves all Teacher query/mutation options and untouched domain sections", () => {
     for (const [file, calls] of Object.entries(baseline.teacherHooks)) {
-      const source = readFileSync(file, "utf8").replace(/\r\n/g, "\n");
+      const source = projectTeacherWorkloadSource(
+        readFileSync(file, "utf8"),
+        file,
+      );
       const ast = ts.createSourceFile(
         file,
         source,

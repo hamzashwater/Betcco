@@ -9,6 +9,7 @@ import {
 import { functionSource } from "./helpers/runtime-student-i18n-audit";
 import { projectAdminStateSource } from "./helpers/admin-state-projection";
 import { projectEvaluationPresentationSource } from "./helpers/evaluation-presentation-projection";
+import { projectTeacherWorkloadSource } from "./helpers/teacher-workload-projection";
 
 const source = readFileSync("src/features/student/student-area.tsx", "utf8");
 const hash = (value: string | Buffer) =>
@@ -91,7 +92,7 @@ describe("Student adoption retains the complete source and transport boundary", 
             ? projectAdminStateSource(file.toString())
             : path === "src/features/student/student-resit-workflow.tsx"
               ? projectEvaluationPresentationSource(file.toString(), path)
-              : file,
+              : projectTeacherWorkloadSource(file.toString(), path),
         ),
         path,
       ).toBe(expected);

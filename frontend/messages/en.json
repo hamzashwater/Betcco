@@ -3715,5 +3715,21 @@
       "refunded": "A refund stage is recorded; it does not declare a review result.",
       "unknown": "No known evaluation stage is supplied. No payment, review or result is inferred."
     }
+  },
+  "teacherWorkloadPresentation": {
+    "workload": "Review and follow-up",
+    "coursework": "Coursework / formative submissions awaiting review",
+    "separate": "This analytics count covers coursework and formative practice. Formal Evaluation assignments are a separate queue; their count is not supplied here.",
+    "context": "Course and learning context",
+    "utilities": "Teacher workspace links",
+    "formalScope": "Search and status filters apply locally to the returned assigned requests only. They do not query the server, change server order or represent a platform-wide backlog.",
+    "queueSearch": "Search loaded request ID, status or student note",
+    "queueStatus": "Filter loaded requests by status",
+    "allStatuses": "All loaded statuses",
+    "queueResults": "Showing {visible} of {total} loaded assigned requests",
+    "assignedList": "Loaded formal evaluation assignments",
+    "noMatches": "No loaded assigned requests match these local filters.",
+    "followUpScope": "Search, attention, reason and sorting are sent to the server. Results are paged in groups of 10; the supplied priority remains server-owned.",
+    "courseScope": "Search, status and sorting apply locally to the loaded course list."
   }
 }

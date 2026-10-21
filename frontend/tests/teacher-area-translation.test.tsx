@@ -200,14 +200,22 @@ describe.each(["en", "ar"] as const)(
         .map((link) => link.getAttribute("href"));
       for (const target of ["courses", "courses/new", "evaluations", "wallet"])
         expect(destinations).toContain(`/${locale}/teacher/${target}`);
-      expect(screen.getAllByText(copy.shared.open)).toHaveLength(4);
+      expect(screen.queryByText(copy.shared.open)).not.toBeInTheDocument();
+      expect(
+        screen
+          .getAllByRole("link")
+          .filter(
+            (link) =>
+              link.getAttribute("href") === `/${locale}/teacher/courses/new`,
+          ),
+      ).toHaveLength(1);
     });
 
     it("preserves dashboard pending metrics and empty/error fallbacks", async () => {
       const pending = deferred<unknown>();
       apiMock.mockReturnValue(pending.promise);
       const { container, client, copy } = renderArea([], locale);
-      expect(screen.getAllByText("—")).toHaveLength(7);
+      expect(screen.getAllByText("—")).toHaveLength(8);
       await act(async () => pending.resolve([]));
       await act(async () => {
         client.setQueryData(["teacher-analytics"], analytics);
@@ -458,7 +466,14 @@ describe.each(["en", "ar"] as const)(
         screen.getByText(`${copy.shared.originalRequest} original`),
       ).toBeVisible();
       expect(screen.getAllByText(detail.studentComment)).toHaveLength(2);
-      expect(screen.getAllByText("Assigned")).toHaveLength(3);
+      expect(
+        within(
+          screen.getByRole("region", {
+            name: (locale === "ar" ? arMessages : enMessages)
+              .teacherWorkloadPresentation.assignedList,
+          }),
+        ).getAllByText("Assigned"),
+      ).toHaveLength(3);
       expect(
         screen.getAllByRole("link").map((link) => link.getAttribute("href")),
       ).toEqual(

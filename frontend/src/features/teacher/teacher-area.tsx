@@ -33,13 +33,14 @@ import {
   WalletCards,
 } from "lucide-react";
 import {
-  ActionCard,
   DashboardHeader,
   MetricCard,
 } from "@/components/dashboard/dashboard-ui";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { QueryState } from "@/components/ui/query-state";
+import styles from "./teacher-workload.module.css";
 
 export function TeacherArea({ segment }: { segment: string[] }) {
   const current = segment.join("/") || "dashboard";
@@ -59,6 +60,7 @@ export function TeacherArea({ segment }: { segment: string[] }) {
 
 function TeacherDashboard() {
   const locale = useLocale();
+  const p = useTranslations("teacherWorkloadPresentation");
   const t = useTranslations("teacherWorkspace");
   const courses = useQuery({
     queryKey: ["teacher-courses"],
@@ -77,124 +79,140 @@ function TeacherDashboard() {
     (course) => course.status === "Published",
   ).length;
   return (
-    <section className="shell py-10">
-      <DashboardHeader
-        eyebrow={t("dashboard.eyebrow")}
-        title={t("dashboard.title")}
-        description={t("dashboard.description")}
-        actions={
+    <section className={`shell py-8 ${styles.workspace}`}>
+      <header className={styles.header}>
+        <div>
+          <p className={styles.eyebrow}>{t("dashboard.eyebrow")}</p>
+          <h1>{t("dashboard.title")}</h1>
+          <p>{t("dashboard.description")}</p>
+        </div>
+        <Link
+          href={`/${locale}/teacher/courses/new`}
+          className={actionClassName()}
+        >
+          <Plus size={18} aria-hidden="true" />
+          {t("dashboard.createCourse")}
+        </Link>
+      </header>
+      <section
+        className={styles.panel}
+        aria-labelledby="teacher-workload-heading"
+      >
+        <h2 id="teacher-workload-heading">{p("workload")}</h2>
+        <div className={styles.workLinks}>
+          <p>
+            {p("coursework")}:{" "}
+            <strong>
+              {analytics.data ? analytics.data.pendingReviews : "—"}
+            </strong>
+          </p>
           <Link
-            href={`/${locale}/teacher/courses/new`}
-            className={actionClassName()}
+            href={`/${locale}/teacher/evaluations`}
+            className={actionClassName("secondary")}
           >
-            <Plus size={18} aria-hidden="true" />
-            {t("dashboard.createCourse")}
+            <ClipboardCheck size={18} aria-hidden="true" />
+            {t("shared.evaluationWork")}
           </Link>
-        }
-      />
-      <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <MetricCard
-          label={t("dashboard.drafts")}
-          value={courses.isPending || !courses.data ? "—" : drafts}
-          detail={t("dashboard.draftsDetail")}
-          icon={FilePenLine}
+        </div>
+        <p className={styles.scope}>{p("separate")}</p>
+        <TeacherFollowUpPreview
+          pending={analytics.isPending}
+          error={analytics.isError}
+          students={analytics.data?.studentsAtRisk ?? []}
+          totalCount={analytics.data?.studentsAtRiskCount ?? 0}
         />
-        <MetricCard
-          label={t("dashboard.awaitingReview")}
-          value={courses.isPending || !courses.data ? "—" : waiting}
-          detail={t("dashboard.awaitingReviewDetail")}
-          icon={BadgeCheck}
-          tone="warm"
-        />
-        <MetricCard
-          label={t("dashboard.publishedCourses")}
-          value={courses.isPending || !courses.data ? "—" : published}
-          detail={t("dashboard.publishedCoursesDetail")}
-          icon={GraduationCap}
-          tone="secondary"
-        />
-        <MetricCard
-          label={t("dashboard.enrolledStudents")}
-          value={
-            analytics.isPending || !analytics.data
-              ? "—"
-              : (analytics.data?.students ?? 0)
-          }
-          detail={t("dashboard.enrolledStudentsDetail")}
-          icon={GraduationCap}
-          tone="secondary"
-        />
-        <MetricCard
-          label={t("dashboard.pendingReviews")}
-          value={
-            analytics.isPending || !analytics.data
-              ? "—"
-              : (analytics.data?.pendingReviews ?? 0)
-          }
-          detail={t("dashboard.pendingReviewsDetail")}
-          icon={ClipboardCheck}
-          tone="warm"
-        />
-        <MetricCard
-          label={t("dashboard.averageProgress")}
-          value={
-            analytics.isPending || !analytics.data
-              ? "—"
-              : formatLocalizedPercentage(
-                  analytics.data?.averageLessonProgress ?? 0,
-                  locale,
-                )
-          }
-          detail={t("dashboard.publishedLessons")}
-          icon={BookOpenCheck}
-        />
-        <MetricCard
-          label={t("dashboard.studentsNeedingAttention")}
-          value={
-            analytics.isPending || !analytics.data
-              ? "—"
-              : (analytics.data?.studentsAtRiskCount ?? 0)
-          }
-          detail={t("dashboard.studentsNeedingAttentionDetail")}
-          icon={AlertTriangle}
-          tone="warm"
-        />
-      </div>
-      <TeacherFollowUpPreview
-        pending={analytics.isPending}
-        error={analytics.isError}
-        students={analytics.data?.studentsAtRisk ?? []}
-        totalCount={analytics.data?.studentsAtRiskCount ?? 0}
-      />
-      <div className="mt-5 grid gap-4 md:grid-cols-3">
-        <AreaLink
-          href="courses"
-          title={t("dashboard.myCourses")}
-          text={t("dashboard.myCoursesDescription")}
-          icon={BookOpenCheck}
-        />
-        <AreaLink
-          href="courses/new"
-          title={t("dashboard.newCourse")}
-          text={t("dashboard.newCourseDescription")}
-          icon={FilePenLine}
-        />
-        <AreaLink
-          href="evaluations"
-          title={t("shared.evaluationWork")}
-          text={t("dashboard.evaluationWorkDescription")}
-          icon={ClipboardCheck}
-        />
-        <AreaLink
-          href="wallet"
-          title={t("shared.myWallet")}
-          text={t("dashboard.walletDescription")}
-          icon={WalletCards}
-        />
-      </div>
-      <div className="mt-8">
+      </section>
+      <div className={styles.section}>
         <TeacherCoursesManagement variant="compact" />
       </div>
+      <section
+        className={styles.panel}
+        aria-labelledby="teacher-context-heading"
+      >
+        <h2 id="teacher-context-heading">{p("context")}</h2>
+        <div className={styles.metrics}>
+          <MetricCard
+            label={t("dashboard.drafts")}
+            value={courses.isPending || !courses.data ? "—" : drafts}
+            detail={t("dashboard.draftsDetail")}
+            icon={FilePenLine}
+          />
+          <MetricCard
+            label={t("dashboard.awaitingReview")}
+            value={courses.isPending || !courses.data ? "—" : waiting}
+            detail={t("dashboard.awaitingReviewDetail")}
+            icon={BadgeCheck}
+            tone="warm"
+          />
+          <MetricCard
+            label={t("dashboard.publishedCourses")}
+            value={courses.isPending || !courses.data ? "—" : published}
+            detail={t("dashboard.publishedCoursesDetail")}
+            icon={GraduationCap}
+            tone="secondary"
+          />
+          <MetricCard
+            label={t("dashboard.enrolledStudents")}
+            value={
+              analytics.isPending || !analytics.data
+                ? "—"
+                : (analytics.data?.students ?? 0)
+            }
+            detail={t("dashboard.enrolledStudentsDetail")}
+            icon={GraduationCap}
+            tone="secondary"
+          />
+          <MetricCard
+            label={t("dashboard.pendingReviews")}
+            value={
+              analytics.isPending || !analytics.data
+                ? "—"
+                : (analytics.data?.pendingReviews ?? 0)
+            }
+            detail={t("dashboard.pendingReviewsDetail")}
+            icon={ClipboardCheck}
+            tone="warm"
+          />
+          <MetricCard
+            label={t("dashboard.averageProgress")}
+            value={
+              analytics.isPending || !analytics.data
+                ? "—"
+                : formatLocalizedPercentage(
+                    analytics.data?.averageLessonProgress ?? 0,
+                    locale,
+                  )
+            }
+            detail={t("dashboard.publishedLessons")}
+            icon={BookOpenCheck}
+          />
+          <MetricCard
+            label={t("dashboard.studentsNeedingAttention")}
+            value={
+              analytics.isPending || !analytics.data
+                ? "—"
+                : (analytics.data?.studentsAtRiskCount ?? 0)
+            }
+            detail={t("dashboard.studentsNeedingAttentionDetail")}
+            icon={AlertTriangle}
+            tone="warm"
+          />
+        </div>
+      </section>
+      <nav className={styles.utilities} aria-label={p("utilities")}>
+        <Link
+          href={`/${locale}/teacher/courses`}
+          className={actionClassName("quiet")}
+        >
+          {t("dashboard.myCourses")}
+        </Link>
+        <Link
+          href={`/${locale}/teacher/wallet`}
+          className={actionClassName("quiet")}
+        >
+          {t("shared.myWallet")}
+        </Link>
+      </nav>
     </section>
   );
 }
@@ -472,33 +490,6 @@ function WalletTable({
     </section>
   );
 }
-function AreaLink({
-  href,
-  title,
-  text,
-  icon,
-}: {
-  href: string;
-  title: string;
-  text: string;
-  icon: typeof BookOpenCheck;
-}) {
-  const locale = useLocale();
-  const t = useTranslations("teacherWorkspace");
-  return (
-    <Link
-      href={`/${locale}/teacher/${href}`}
-      className="focus-ring block rounded-[1.25rem]"
-    >
-      <ActionCard title={title} description={text} icon={icon}>
-        <span className="mt-4 inline-flex items-center gap-1 text-sm font-black text-primary">
-          {t("shared.open")}
-          <ArrowLeft size={16} className="rtl:rotate-180" aria-hidden="true" />
-        </span>
-      </ActionCard>
-    </Link>
-  );
-}
 type AssignedEvaluation = {
   id: string;
   status: string;
@@ -516,46 +507,88 @@ type AssignedEvaluation = {
 function TeacherEvaluations() {
   const locale = useLocale();
   const t = useTranslations("teacherWorkspace");
+  const p = useTranslations("teacherWorkloadPresentation");
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("");
   const evaluations = useQuery({
     queryKey: ["teacher-evaluations"],
     queryFn: () => api<AssignedEvaluation[]>("/evaluations/assigned"),
   });
-  if (evaluations.isPending)
-    return (
-      <section className="shell py-10">
-        <div className="card p-6" aria-busy>
-          {t("shared.loading")}
-        </div>
-      </section>
+  // Local presentation of the returned array only; filtering preserves server order.
+  const visible = useMemo(() => {
+    const term = search.trim().toLocaleLowerCase();
+    return (evaluations.data ?? []).filter(
+      (item) =>
+        (!status || item.status === status) &&
+        (!term ||
+          [item.id, item.status, item.studentComment ?? ""].some((value) =>
+            value.toLocaleLowerCase().includes(term),
+          )),
     );
-  if (evaluations.isError)
-    return (
-      <section className="shell py-10">
-        <p className="card p-6" role="alert">
-          {t("evaluations.loadError")}
-        </p>
-      </section>
-    );
+  }, [evaluations.data, search, status]);
   return (
-    <section className="shell py-10">
-      <DashboardHeader
-        eyebrow={t("evaluations.eyebrow")}
-        title={t("shared.evaluationWork")}
-        description={t("evaluations.description")}
-      />
-      <div className="mt-5 grid gap-4">
-        {evaluations.data?.map((evaluation) => (
+    <section className={`shell py-8 ${styles.workspace}`}>
+      <header className={styles.header}>
+        <div>
+          <p className={styles.eyebrow}>{t("evaluations.eyebrow")}</p>
+          <h1>{t("shared.evaluationWork")}</h1>
+          <p>{t("evaluations.description")}</p>
+        </div>
+      </header>
+      <p className={styles.scope}>{p("formalScope")}</p>
+      {evaluations.isPending ? (
+        <QueryState kind="loading" title={t("shared.loading")} />
+      ) : null}
+      {evaluations.isError ? (
+        <QueryState kind="error" title={t("evaluations.loadError")} />
+      ) : null}
+      {evaluations.data ? (
+        <div className={styles.filters}>
+          <label>
+            {p("queueSearch")}
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </label>
+          <label>
+            {p("queueStatus")}
+            <select
+              value={status}
+              onChange={(event) => setStatus(event.target.value)}
+            >
+              <option value="">{p("allStatuses")}</option>
+              {Array.from(
+                new Set(evaluations.data.map((item) => item.status)),
+              ).map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+          </label>
+          <p className={styles.scope} role="status">
+            {p("queueResults", {
+              visible: visible.length,
+              total: evaluations.data.length,
+            })}
+          </p>
+        </div>
+      ) : null}
+      <div className={styles.rows} role="region" aria-label={p("assignedList")}>
+        {visible.map((evaluation) => (
           <Link
             key={evaluation.id}
             href={`/${locale}/teacher/evaluations/${evaluation.id}`}
-            className="card focus-ring block p-5"
+            className={`focus-ring ${styles.row}`}
             data-interactive
           >
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <div className="flex items-center gap-2 text-primary">
+                <div className="flex items-center gap-2 text-text-link">
                   <ClipboardCheck size={18} aria-hidden="true" />
-                  <span className="text-sm font-black">
+                  <span className="text-sm font-semibold">
                     {evaluation.isRetake
                       ? t("evaluations.assignedRetake")
                       : evaluation.isResit
@@ -586,7 +619,7 @@ function TeacherEvaluations() {
               <span>
                 {evaluation.criteria.length} {t("evaluations.criteria")}
               </span>
-              <span className="ms-auto inline-flex items-center gap-1 font-bold text-primary">
+              <span className="ms-auto inline-flex items-center gap-1 font-bold text-text-link">
                 {t("evaluations.start")}
                 <ArrowLeft
                   size={15}
@@ -597,12 +630,13 @@ function TeacherEvaluations() {
             </div>
           </Link>
         ))}
-        {!evaluations.data?.length && (
-          <div className="card p-6 text-sm leading-6 text-muted">
-            {t("evaluations.empty")}
-          </div>
+        {evaluations.isSuccess && !evaluations.data?.length && (
+          <div className={styles.panel}>{t("evaluations.empty")}</div>
         )}
       </div>
+      {evaluations.data?.length && !visible.length ? (
+        <QueryState kind="empty" title={p("noMatches")} />
+      ) : null}
     </section>
   );
 }

@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import ts from "typescript";
 import arabicMessages from "../messages/ar.json";
 import englishMessages from "../messages/en.json";
+import { projectTeacherWorkloadSource } from "./helpers/teacher-workload-projection";
 
 const parityNamespaces = [
   "navigation",
@@ -17,6 +18,7 @@ const parityNamespaces = [
   "teacherWorkspace",
   "teacherCoursesManagement",
   "teacherStudentFollowUp",
+  "teacherWorkloadPresentation",
   "adminWorkspace",
 ] as const;
 
@@ -50,7 +52,7 @@ describe("shared shell, authentication, account, student, and teacher workspace 
     expect(arabicShape.every(Boolean)).toBe(true);
   });
 
-  it("keeps teacher area copy in messages with no missing or unused teacher keys", () => {
+  it("keeps Teacher copy complete with only the exact UI-D01-11 retired launch-card keys", () => {
     const source = readFileSync(
       "src/features/teacher/teacher-area.tsx",
       "utf8",
@@ -77,9 +79,30 @@ describe("shared shell, authentication, account, student, and teacher workspace 
     const editorKeys = [
       ...(editorSource + practiceSources).matchAll(/\bt\(\s*"([^"]+)"/gu),
     ].map((match) => match[1]);
-    expect([...new Set([...usedKeys, ...editorKeys])].sort()).toEqual(
-      shape(englishMessages.teacherWorkspace).sort(),
+    const priorSource = projectTeacherWorkloadSource(
+      source,
+      "src/features/teacher/teacher-area.tsx",
     );
+    const retired = [
+      ...new Set(
+        [...priorSource.matchAll(/\bt\(\s*"([^"]+)"/gu)].map(
+          (match) => match[1],
+        ),
+      ),
+    ]
+      .filter((key) => !usedKeys.includes(key) && !editorKeys.includes(key))
+      .sort();
+    expect(retired).toEqual([
+      "dashboard.evaluationWorkDescription",
+      "dashboard.myCoursesDescription",
+      "dashboard.newCourse",
+      "dashboard.newCourseDescription",
+      "dashboard.walletDescription",
+      "shared.open",
+    ]);
+    expect(
+      [...new Set([...usedKeys, ...editorKeys, ...retired])].sort(),
+    ).toEqual(shape(englishMessages.teacherWorkspace).sort());
   });
 
   it("keeps scoped course setup/access, curriculum, and coursework copy in messages while allowing only server bilingual branches", () => {
