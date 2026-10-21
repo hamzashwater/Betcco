@@ -3684,5 +3684,36 @@
     "notReviewed": "Current work has not been submitted for review",
     "contentInProgress": "Content in progress",
     "notConfigured": "Practice has not been configured for this aim."
+  },
+  "studentEvaluationPresentation": {
+    "lifecycle": "Evaluation · current saved state",
+    "currentStage": "Current saved stage",
+    "preparation": "Request preparation",
+    "submissionRoute": "Submission route",
+    "empty": "No evaluation requests in this successful response.",
+    "branches": {
+      "standard": "Standard evaluation request",
+      "resit": "Separate Resit request",
+      "retake": "Historical Retake"
+    },
+    "statusNotGrade": "A workflow stage does not declare a passing grade. Read the supplied BETCCO result separately.",
+    "fundingUnknown": "This response does not identify the Included Evaluation / payment source.",
+    "historicalRetake": "Historical Retake record. New Retake creation is disabled.",
+    "sameRequestRevision": "Revision / Resubmission stays on this same request.",
+    "states": {
+      "draft": "Saved request; preparation does not imply submission or review.",
+      "pendingPayment": "Payment is pending; successful payment is not confirmed by this stage.",
+      "paid": "Payment is recorded; review completion is not implied.",
+      "pendingAssignment": "Waiting for evaluator assignment.",
+      "assigned": "An evaluator is assigned; this does not declare a result.",
+      "underReview": "This request is under review.",
+      "needsRevision": "A revision stage is recorded. Follow only this request’s supplied deadline and actions.",
+      "completed": "The workflow is complete. This stage alone does not declare a passing grade.",
+      "closed": "This request is closed.",
+      "paymentFailed": "Payment failed; no successful payment is implied.",
+      "cancelled": "This request is cancelled.",
+      "refunded": "A refund stage is recorded; it does not declare a review result.",
+      "unknown": "No known evaluation stage is supplied. No payment, review or result is inferred."
+    }
   }
 }

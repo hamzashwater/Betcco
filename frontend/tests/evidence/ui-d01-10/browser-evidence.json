@@ -1,0 +1,1598 @@
+{
+  "classification": "MOCKED UI-CONTRACT EVIDENCE",
+  "base": "fe84a0c6a580d9cdaa8c7a7a910964e6c2bf53a5",
+  "branch": "fix/ui-d01-10-evaluation-revision-resit-clarity",
+  "browser": "Chromium, Playwright 1.62.1; actual Next 16.3.6 production build on isolated localhost:3021",
+  "stats": {
+    "startTime": "2026-10-21T21:21:51.802Z",
+    "duration": 125772.007,
+    "expected": 148,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "extraCacheCaptureStats": {
+    "startTime": "2026-10-21T21:27:04.784Z",
+    "duration": 23875.376,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "newCases": 74,
+  "newScreenshots": 96,
+  "rawScreenshotRoot": "C:/Users/user/Documents/Codex/2026-10-17/files-pasted-by-the-user-device/outputs/UI-D01-10/browser-final",
+  "sourceHashes": {
+    "src/features/student/student-area.tsx": "a0542eb7ebdd5608f23d4953f444f973ee06a8ce357894bbdf331e02496779e0",
+    "src/features/student/student-evaluation-wizard.module.css": "09b7ab06e33729c86660a10627b2f1b4b6034715a5b8b35f66278a4c78ccafcc",
+    "src/features/student/student-evaluation-presentation.tsx": "84f91a9902572308e8d0bc4b29ca0978a7f7d611a6f622b48aea63c070b6728e",
+    "src/features/student/student-resit-workflow.tsx": "b6e4bb93c1f4a961fa0eb6a744a453b9b484826d6fe9f4c444630db46d70adfa",
+    "src/features/student/evaluation-appeals.tsx": "0fd7c5ade0ae8b55a4f872d48f6be1ec84f962b6e252bbc4d60fc47878ee1674",
+    "src/features/student/student-evaluation-page.ts": "5a1c44913302af6bcded12bb1d04913abea0fab43a8212fdc023d0068826496c",
+    "messages/en.json": "7dcb2bb86b4b19491aec5fa6738ed5ad9c431de2581692e050271bf162dfaa88",
+    "messages/ar.json": "0d9c36e8973dfeee7a5d51a07899b3e60cd3cd99a555910fe389cac7e0dcc5f7"
+  },
+  "boundary": "Synthetic intercepted data and writes only. No backend persistence, authorization, settlement, PayTabs integration, deployment, production-readiness or full WCAG proof. 720x450 CSS pixels approximate desktop 200% reflow. Cached-error cases advance the browser clock past the original 30s staleTime then reconnect; production query options are unchanged. Themes are selected/verified using the native toggle after reload. Four cached-error cases rerun for separate error-notice and retained-form viewports.",
+  "cases": [
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar appeal failure: preserve reason and completed-result selection",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-ap-dcd72--completed-result-selection-chromium/appeal-error.png",
+          "sha256": "31cd84de220f25e86af319c28bf2061193209179a3eefbbfe68c3c49159ce11f",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar authorized: factual loading/error/empty or authorization",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-au-412bd-rror-empty-or-authorization-chromium/state.png",
+          "sha256": "ffa802b551483691bd586fa89fb17eab299c7211b3a9f731663402533d57135d",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar checkout failure: preserve current request and show factual error",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-ch-d2b09-uest-and-show-factual-error-chromium/checkout-error.png",
+          "sha256": "c070fb882a642b3cee946d69e426d525bb9d2e081c58acc9944b7cd7c1768261",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 1440 new: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-da-a21cf-ic-scope-and-saved-evidence-chromium/academic-selection.png",
+          "sha256": "2fc02a0058029143a8fd5f6c4c780a6b4d1086473dafd055bd3f0736f7e2dd15",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "file": "evaluation-workspace-ar-da-a21cf-ic-scope-and-saved-evidence-chromium/new.png",
+          "sha256": "7a78ed3c6693e296878b62f0d3afd50c1b5f412639683e35a53af7fd9c12e3c2",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 1440 resume: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-da-b5e5e-ic-scope-and-saved-evidence-chromium/resumed-draft.png",
+          "sha256": "679d42d9396b2405859e1d57bdb86af5df724f8d979a6a95f142610463068a83",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 390 new: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-da-2121b-ic-scope-and-saved-evidence-chromium/academic-selection.png",
+          "sha256": "aaefacbdcf326814432b80d3507795e979be1e4f61b620da627b7543b9498014",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "evaluation-workspace-ar-da-2121b-ic-scope-and-saved-evidence-chromium/new.png",
+          "sha256": "b6614f5e75afe76e35743dd107acd7d0310614c6f0b79a4552000c1c63624e77",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 390 resume: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-da-c46bf-ic-scope-and-saved-evidence-chromium/resumed-draft.png",
+          "sha256": "d0af5626b3d300f5b0b0aff70f8ee7cd6b22bd611a6cc15b8b5dd3cb3add5b53",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 834 new: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-da-cf77c-ic-scope-and-saved-evidence-chromium/academic-selection.png",
+          "sha256": "62a0bf66894ae7aa27142183ab6898749505cf4fff311f307e33ad1a21e94736",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "evaluation-workspace-ar-da-cf77c-ic-scope-and-saved-evidence-chromium/new.png",
+          "sha256": "fbe32e86511402b507450cf95df0c75cd46cc6511cd1f60ca9a5bc0b3097f61a",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 834 resume: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-da-e62aa-ic-scope-and-saved-evidence-chromium/resumed-draft.png",
+          "sha256": "fa27700ee17e9fbbe375eec296a3b38b8b5fcb2788bec5b684460b92f81e3668",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 1440 new: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-li-b657e-ic-scope-and-saved-evidence-chromium/academic-selection.png",
+          "sha256": "12d51ed99da56636acd238316e24b97231570af32594ab8a27a87dc0346869fd",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "file": "evaluation-workspace-ar-li-b657e-ic-scope-and-saved-evidence-chromium/new.png",
+          "sha256": "79722348845da140cd44990649b93eabf98c086668b804d5983159b2f4993539",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 1440 resume: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-li-8aee6-ic-scope-and-saved-evidence-chromium/resumed-draft.png",
+          "sha256": "b14b7f707d0e1e25dd5bedeb5611885f63214783f0687c2d54d11351ba91617f",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 390 new: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-li-592ff-ic-scope-and-saved-evidence-chromium/academic-selection.png",
+          "sha256": "6a8e549da43df848b6a540738047e0eefd4472904e09a4e9558ee26ec2887527",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "evaluation-workspace-ar-li-592ff-ic-scope-and-saved-evidence-chromium/new.png",
+          "sha256": "17d3bcafdd43e6458b0966fce1832fd9301d37be49b6731e4c3839f21185b72a",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 390 resume: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-li-b01fb-ic-scope-and-saved-evidence-chromium/resumed-draft.png",
+          "sha256": "03e547891f31df90d976c31adc201f62dc7b6ffc7b1cf9c852cd5412c0cb12ff",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 834 new: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-li-e37d0-ic-scope-and-saved-evidence-chromium/academic-selection.png",
+          "sha256": "4122c98ce137c8449bc8ea645622c78c90c0f6373232072168b88ab5e15e292a",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "evaluation-workspace-ar-li-e37d0-ic-scope-and-saved-evidence-chromium/new.png",
+          "sha256": "9ad40f5b1e07774baad56e41f1cf048343d99bc2b6c8ec6b3d749f9cc3e6c253",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 834 resume: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-li-bdf05-ic-scope-and-saved-evidence-chromium/resumed-draft.png",
+          "sha256": "1f02f6687bc212036c6c11d0254d650da5a4d2da91669afe70b872f83b5a34c6",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar list Completed: supplied result, branch and feedback",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-li-572b2--result-branch-and-feedback-chromium/request.png",
+          "sha256": "66afaa0eb1f30e5591d1c56698a72b0fc885a8edf35d02ac2db53feb70b00b1a",
+          "width": 358,
+          "height": 766
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar list Draft-resit: supplied result, branch and feedback",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-li-3674e--result-branch-and-feedback-chromium/request.png",
+          "sha256": "6b1b86b59c3f5cbeab687bbe1de9b65519045520389c8f78d9a12804be74c58e",
+          "width": 358,
+          "height": 617
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar list Draft-retake: supplied result, branch and feedback",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-li-f506a--result-branch-and-feedback-chromium/request.png",
+          "sha256": "2655b94fa38bce9031c1a607069f50c54fa48616d29b35d9c7f2475928dd3c3a",
+          "width": 358,
+          "height": 1157
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar list NeedsRevision: supplied result, branch and feedback",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-li-66389--result-branch-and-feedback-chromium/request.png",
+          "sha256": "54cb34abffc1d7c709c573742c03e745f15f5883bac6c4f12b915a8bccb7255e",
+          "width": 358,
+          "height": 1593
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar list RAW-UNKNOWN: supplied result, branch and feedback",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-li-b89d0--result-branch-and-feedback-chromium/request.png",
+          "sha256": "831ed34d368aa47cab5b9b677a82c3a5e36ed4fc051856f6beba20c5b15b0c4b",
+          "width": 358,
+          "height": 494
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar list UnderReview: supplied result, branch and feedback",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-li-22ffa--result-branch-and-feedback-chromium/request.png",
+          "sha256": "04ed36057c542777d634907ebe5c443094fafd6ee24e11996576461202623606",
+          "width": 358,
+          "height": 471
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar list-empty: factual loading/error/empty or authorization",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-li-862dd-rror-empty-or-authorization-chromium/state.png",
+          "sha256": "e7634da2bbadb241d5c8aab7ef3cada07d0314ff957fcb5396693537a6097121",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar list-error: factual loading/error/empty or authorization",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-li-d4812-rror-empty-or-authorization-chromium/state.png",
+          "sha256": "df970ada91b7d2c284139d76f28426f69bd377f0144f0cc9d90405349b176587",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar list-pending: factual loading/error/empty or authorization",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-li-0bc9e-rror-empty-or-authorization-chromium/state.png",
+          "sha256": "bc1d76b6ca68b40ab2ac1c2469aa24c798c174c9c61fe7928c63a02c92f5baad",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar options-error: factual loading/error/empty or authorization",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-op-fa70d-rror-empty-or-authorization-chromium/state.png",
+          "sha256": "a9c8bef14d4d351947ab3da3c8da4bb7460590d3f886b24e18e08f86b9427d43",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar options-pending: factual loading/error/empty or authorization",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-op-a3ee1-rror-empty-or-authorization-chromium/state.png",
+          "sha256": "1bfef36460b6fa4027b3acaf0b45a0e240ddb6a93a93ff154acdd2a38745b1be",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar reflow and keyboard: native preparation controls",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-re-5b207-native-preparation-controls-chromium/reflow-focus.png",
+          "sha256": "0f122988423d2c4b81a5ef4d199e76854120dfd37eb7aa97059b7015c786f437",
+          "width": 720,
+          "height": 450
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar Resit Completed: distinct request with no revision inference",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-Re-b250f--with-no-revision-inference-chromium/resit.png",
+          "sha256": "c00de320f840b3dd14e4574fa085f61df6eb1ac5cdec5720aa495ef5eed22ce6",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar Resit Draft: distinct request with no revision inference",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-Re-65639--with-no-revision-inference-chromium/resit.png",
+          "sha256": "11690e2337119247eb1b06123e88324133ac2e19eb776e21c653e529d620554e",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar Resit NeedsRevision: distinct request with no revision inference",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-Re-d0a79--with-no-revision-inference-chromium/resit.png",
+          "sha256": "ae2bf57e395c81c5a535432e12090929f6b0e6a1da7a41401f8f9e76fb07bc7d",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar Resit PendingPayment: distinct request with no revision inference",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-Re-ebbac--with-no-revision-inference-chromium/resit.png",
+          "sha256": "c62fbd5dbcecb144a6a2aeb632b03d3dd8e820acebbaa062be6bfb2a1b549dea",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar Resit UnderReview: distinct request with no revision inference",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-Re-982c6--with-no-revision-inference-chromium/resit.png",
+          "sha256": "28dbf71148a76764a118fa2a988c2ecbe9a3fb7e9f14987b34f4f0932285f990",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar resume-error: factual loading/error/empty or authorization",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-re-a376c-rror-empty-or-authorization-chromium/state.png",
+          "sha256": "3faafb7da1c580cab68ff9f2ed1d518f06062411abf5b4bc6b2033990fe74106",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar resumed Draft refresh failure: retain evidence and file selection",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-re-206f8-evidence-and-file-selection-chromium/cached-draft-error-notice.png",
+          "sha256": "6323a4f36adebe8d35762fcc5acf3d7a905ed77e101ddd79b24c93faa1409f99",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "evaluation-workspace-ar-re-206f8-evidence-and-file-selection-chromium/cached-draft-error.png",
+          "sha256": "d0ce4d248e9bd69cce684788f0f41755ecb8062e806d1561fe5f03f5514b55ed",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar revision: cached draft, pending protection and same-request resubmission",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-re-35a00-d-same-request-resubmission-chromium/cached-error-notice.png",
+          "sha256": "714aec62907693783694b33d491ca7ab7e0f8e67908a54a970fd13a195476220",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "evaluation-workspace-ar-re-35a00-d-same-request-resubmission-chromium/cached-error.png",
+          "sha256": "90b76b4210fe3b10b4ad121c8c8e20019b036c46ea2bc009399ce8b50c4a44c5",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "evaluation-workspace-ar-re-35a00-d-same-request-resubmission-chromium/resubmit-pending.png",
+          "sha256": "b860b308b0091a0f983f27afd50291bb103732facb9d3b39c30c01ae333febcf",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar scoped included-credit: prepare/upload/declaration/checkout",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-sc-b417b-upload-declaration-checkout-chromium/checkout-result.png",
+          "sha256": "48e893938a47ca6403c2578560711f92cf63bbe83252b2905c48d6b22f12253c",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "evaluation-workspace-ar-sc-b417b-upload-declaration-checkout-chromium/prepared.png",
+          "sha256": "c5b137197481c29a8864fd85e1043820c8f0b218e8f28616422bb1d514ec84cd",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar scoped paid-session: prepare/upload/declaration/checkout",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-ar-sc-a17ce-upload-declaration-checkout-chromium/checkout-result.png",
+          "sha256": "77a803657e2fff00e83244b0fa1b1aef7153db401bffb229fec7a39104b9ed7d",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "evaluation-workspace-ar-sc-a17ce-upload-declaration-checkout-chromium/prepared.png",
+          "sha256": "160ef5133605be0fad4e31a8dcf7c9e2873e403ba874af37e0e5fe393592ae6f",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en appeal failure: preserve reason and completed-result selection",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-ap-21828--completed-result-selection-chromium/appeal-error.png",
+          "sha256": "492b3702d48ce2f1e84e03d4b098924e1bc4814263bc78abfc3ec4a87b4132aa",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en authorized: factual loading/error/empty or authorization",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-au-13e91-rror-empty-or-authorization-chromium/state.png",
+          "sha256": "482b62028a2d039d77451edb03d754d80c291fa429f9955f34f1a16986989b01",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en checkout failure: preserve current request and show factual error",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-ch-70039-uest-and-show-factual-error-chromium/checkout-error.png",
+          "sha256": "eae4dc5746b1cd0b436fbf1c21023f19c0c2dc8b0539b204e06925c9d4529180",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 1440 new: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-da-92574-ic-scope-and-saved-evidence-chromium/academic-selection.png",
+          "sha256": "bfc9f06ba1aa5404a72749954df38020ab0b472edd1081aea9f8be5ee142cad9",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "file": "evaluation-workspace-en-da-92574-ic-scope-and-saved-evidence-chromium/new.png",
+          "sha256": "085915d45e003f7f798e8ed392fba1d648ed3fd13a6316ea8b3faead29c63f02",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 1440 resume: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-da-de3f8-ic-scope-and-saved-evidence-chromium/resumed-draft.png",
+          "sha256": "f9181fa6840a76cbd9803518defcbee418698cfb794d8bebf24085f7fc3e95a2",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 390 new: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-da-a67b2-ic-scope-and-saved-evidence-chromium/academic-selection.png",
+          "sha256": "c95ad79e709b269b5da227e572274a0da6dc0384e10dd727cd8c113160d80cd2",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "evaluation-workspace-en-da-a67b2-ic-scope-and-saved-evidence-chromium/new.png",
+          "sha256": "a8d06f7f4e5bb9c50b58aec9a24befdcda3059e355d5787cdd9d393d63b7b512",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 390 resume: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-da-7eeeb-ic-scope-and-saved-evidence-chromium/resumed-draft.png",
+          "sha256": "1fbb1135110e9c58f6e779d0293ffc0a272812206853d94a336cd46ce1aff15b",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 834 new: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-da-4cd1c-ic-scope-and-saved-evidence-chromium/academic-selection.png",
+          "sha256": "88db6b306b82b677b0298d6f15d1bce85261c0fbbc2f2b2885b6d86bb49821a0",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "evaluation-workspace-en-da-4cd1c-ic-scope-and-saved-evidence-chromium/new.png",
+          "sha256": "21cbe1aee78c7a2d88a8cbd9841204fd107bc748b423ecaac17bf1b8c7e62319",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 834 resume: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-da-6be63-ic-scope-and-saved-evidence-chromium/resumed-draft.png",
+          "sha256": "b150ce50dc6ec217578c76dd01a5d742a49f85377c4288e8b482ea636de7d9df",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 1440 new: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-li-8048b-ic-scope-and-saved-evidence-chromium/academic-selection.png",
+          "sha256": "c4285b4149449151eb8777c9ec05f946fbea9dda83647a9a27dff3bf79c897ea",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "file": "evaluation-workspace-en-li-8048b-ic-scope-and-saved-evidence-chromium/new.png",
+          "sha256": "e0273f4fdddc65e9bcf981abfd065c2a2f16f8725d6f6d9632bed7df4ad1f1bc",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 1440 resume: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-li-8a1f7-ic-scope-and-saved-evidence-chromium/resumed-draft.png",
+          "sha256": "dda70e056c4c56551ab2cfb98af4a0475e2c5c3b05e2f955e253713d5f0d373a",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 390 new: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-li-0fe2b-ic-scope-and-saved-evidence-chromium/academic-selection.png",
+          "sha256": "ffef09a0cdb2bd25e3a7a0b5a4bd3565c15ed0ffcb154721cba5244b098872fb",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "evaluation-workspace-en-li-0fe2b-ic-scope-and-saved-evidence-chromium/new.png",
+          "sha256": "3969f69570b8aec06f6d77a1d58e29f03732ea73dd84fbd48f54fdb6590a1277",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 390 resume: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-li-da747-ic-scope-and-saved-evidence-chromium/resumed-draft.png",
+          "sha256": "25363bb091ce37125bffdd960e62f03ecfe08e5e7bd6bb45cc1cdd95accc0be2",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 834 new: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-li-e0b55-ic-scope-and-saved-evidence-chromium/academic-selection.png",
+          "sha256": "c8af247f9ae1641d233ba28321921cd4684bef6003c95df027599fdf0afaf432",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "evaluation-workspace-en-li-e0b55-ic-scope-and-saved-evidence-chromium/new.png",
+          "sha256": "8c0de3c73409b81a6de33cec884af7b8461e3f2332a1e6fd6d575c694c8d7478",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 834 resume: academic scope and saved evidence",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-li-ec51e-ic-scope-and-saved-evidence-chromium/resumed-draft.png",
+          "sha256": "778554aa1e853ee7fe932a7941abf0b2ce382341dafacaa317d1dd135542b033",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en list Completed: supplied result, branch and feedback",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-li-612e5--result-branch-and-feedback-chromium/request.png",
+          "sha256": "0185ef391cf6e08d67f17ac4cf2c11e401cd6315168303aa07f8727a5715d760",
+          "width": 1320,
+          "height": 659
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en list Draft-resit: supplied result, branch and feedback",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-li-50b90--result-branch-and-feedback-chromium/request.png",
+          "sha256": "b38d8ca1645347c93ce246b8931ece9fb301855de3f51e61d24d5b5311fd938f",
+          "width": 1320,
+          "height": 533
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en list Draft-retake: supplied result, branch and feedback",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-li-6cad6--result-branch-and-feedback-chromium/request.png",
+          "sha256": "22f59c4a547c0c5c1226e7e260ab85b78e48b902efa5cb8eb36fa15f69190adb",
+          "width": 1320,
+          "height": 1001
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en list NeedsRevision: supplied result, branch and feedback",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-li-4e55f--result-branch-and-feedback-chromium/request.png",
+          "sha256": "a860f51685063410773bf5cb87c1fae7f358906d8cab498cf5bb3fd93afd4be7",
+          "width": 1320,
+          "height": 1322
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en list RAW-UNKNOWN: supplied result, branch and feedback",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-li-48e54--result-branch-and-feedback-chromium/request.png",
+          "sha256": "408e4006aa4c3aa2a767322e582d0d065c95a32a3aa373a93ab8dc01cc75b97f",
+          "width": 1320,
+          "height": 387
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en list UnderReview: supplied result, branch and feedback",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-li-bc2b9--result-branch-and-feedback-chromium/request.png",
+          "sha256": "b28d4a47b48892cc9c283483df24006ea65a15f80ccb14ca1d14c64c2813de32",
+          "width": 1320,
+          "height": 387
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en list-empty: factual loading/error/empty or authorization",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-li-12bcf-rror-empty-or-authorization-chromium/state.png",
+          "sha256": "a7e0ad37def2d895bc2c6c2386c20b690fceac4506e138289f51e3bd19d2dfd4",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en list-error: factual loading/error/empty or authorization",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-li-14e15-rror-empty-or-authorization-chromium/state.png",
+          "sha256": "0e4d1e2d295b3d4a8257eb5b5f15f925dfd67a476dc629f214d0378d4c5b3eff",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en list-pending: factual loading/error/empty or authorization",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-li-3c634-rror-empty-or-authorization-chromium/state.png",
+          "sha256": "03763dfed9c4ca66eeefb768189ef39b7c9fbbd25ab73917106cc0460f5088c3",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en options-error: factual loading/error/empty or authorization",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-op-e2d10-rror-empty-or-authorization-chromium/state.png",
+          "sha256": "b08191a8e50187cbc4a13880b70c9fb5fa3c3c52906f133568ec027fead6ecfe",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en options-pending: factual loading/error/empty or authorization",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-op-feada-rror-empty-or-authorization-chromium/state.png",
+          "sha256": "ca1d71d33c7c2151ef6b127e0a5bd7e5a61eef775a76c4206d651a01e9674f4b",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en reflow and keyboard: native preparation controls",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-re-347c0-native-preparation-controls-chromium/reflow-focus.png",
+          "sha256": "34bd322a663073fb1afeb56eddda5b4d2ef5813fd5f30c3da9b6c5bdcefe9f92",
+          "width": 720,
+          "height": 450
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en Resit Completed: distinct request with no revision inference",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-Re-85f89--with-no-revision-inference-chromium/resit.png",
+          "sha256": "d101705eebd92c506a6455cfb33c20f75f422a0d1c4b6532d68c0ec66772a15c",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en Resit Draft: distinct request with no revision inference",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-Re-da9ab--with-no-revision-inference-chromium/resit.png",
+          "sha256": "780216a49cbc2d9245fb0d08612222950057c40867b7dc45a65765410c2dba54",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en Resit NeedsRevision: distinct request with no revision inference",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-Re-64756--with-no-revision-inference-chromium/resit.png",
+          "sha256": "c6d1051fb29f4cc3a99dab64c1814a5c80b7618f7f80adf57529726c40ab2377",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en Resit PendingPayment: distinct request with no revision inference",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-Re-c4516--with-no-revision-inference-chromium/resit.png",
+          "sha256": "bea114fbb4d3e209eb2041742a2aa208724c0b7ca2192da3ed3c973333b5e136",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en Resit UnderReview: distinct request with no revision inference",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-Re-620a5--with-no-revision-inference-chromium/resit.png",
+          "sha256": "ef972aa2b29e84901d0c7b9ae3e415e7f1afedb63f11e982004a0230752d71df",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en resume-error: factual loading/error/empty or authorization",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-re-2e61b-rror-empty-or-authorization-chromium/state.png",
+          "sha256": "10acb2588729361f3a9c7e7408c0d6110a10fc2a7d63659728210f6adb94aa4d",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en resumed Draft refresh failure: retain evidence and file selection",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-re-5d5bc-evidence-and-file-selection-chromium/cached-draft-error-notice.png",
+          "sha256": "42354e26433b4d35245893c946643bf0a34f91de2c44d0f6fcbf521b78d67ea4",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "file": "evaluation-workspace-en-re-5d5bc-evidence-and-file-selection-chromium/cached-draft-error.png",
+          "sha256": "749ea3be6fe1d11aa0cf30614cc25675ab6476986c4c148861f7b118fd06eba0",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en revision: cached draft, pending protection and same-request resubmission",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-re-49f69-d-same-request-resubmission-chromium/cached-error-notice.png",
+          "sha256": "908f848075a26f33dcf3565dce01c1520588c0123ecef0f646fee6598a65f6b0",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "file": "evaluation-workspace-en-re-49f69-d-same-request-resubmission-chromium/cached-error.png",
+          "sha256": "dae522e5df23d6337f61240de98ae854f849705c40d8d65fc1e063994e72f5a4",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "file": "evaluation-workspace-en-re-49f69-d-same-request-resubmission-chromium/resubmit-pending.png",
+          "sha256": "2b62e05415f3c7f4def31cc91b04f148169379a1a78e7b992c0cf243f6bd0164",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en scoped included-credit: prepare/upload/declaration/checkout",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-sc-28f4f-upload-declaration-checkout-chromium/checkout-result.png",
+          "sha256": "ecb0b331ef2917619caefeed1c40b0a4f2d4618aea19ac9d4b01b239c70a8914",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "file": "evaluation-workspace-en-sc-28f4f-upload-declaration-checkout-chromium/prepared.png",
+          "sha256": "bb0356b50ba42b5494284635df2c3aec7331930d683f815066064e901e977dc2",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en scoped paid-session: prepare/upload/declaration/checkout",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "evaluation-workspace-en-sc-382bf-upload-declaration-checkout-chromium/checkout-result.png",
+          "sha256": "462eeb8417f9d7a9f7ff3c8c833326f79535fab7714013fd5d0e29b1b6bcfd18",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "file": "evaluation-workspace-en-sc-382bf-upload-declaration-checkout-chromium/prepared.png",
+          "sha256": "bdf6af58e7f88c206f7b1f181f3ffad60548bb99b17bb3262cd8f4fad37300f2",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    }
+  ],
+  "regressions": [
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en light 1440: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en light 834: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en light 390: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en dark 1440: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en dark 834: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en dark 390: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en locked: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en missing: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en content: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en submitted: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en reviewed: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en complete: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en improvement: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en pending: no unknown submission action",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en error: no unknown submission action",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en empty: no unknown submission action",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en aim: draft, pending scan/rejection, retry, submit and cached refresh",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en final: draft, pending scan/rejection, retry, submit and cached refresh",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en: keyboard disclosure and approximate 200% reflow",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar light 1440: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar light 834: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar light 390: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar dark 1440: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar dark 834: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar dark 390: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar locked: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar missing: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar content: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar submitted: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar reviewed: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar complete: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar improvement: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar pending: no unknown submission action",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar error: no unknown submission action",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar empty: no unknown submission action",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar aim: draft, pending scan/rejection, retry, submit and cached refresh",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar final: draft, pending scan/rejection, retry, submit and cached refresh",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar: keyboard disclosure and approximate 200% reflow",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en light 1440 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en light 834 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en light 390 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en dark 1440 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en dark 834 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en dark 390 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en Video: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en Assignment: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en Locked: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en Completed: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en: exact practice focus, note/question/file drafts and local keyboard navigation",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en: Final Unit target and 200 percent reflow",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en: Journey content action opens the existing outline without guessing a lesson",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en pending: factual player query state",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en error: factual player query state",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en empty: factual player query state",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar light 1440 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar light 834 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar light 390 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar dark 1440 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar dark 834 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar dark 390 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar Video: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar Assignment: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar Locked: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar Completed: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar: exact practice focus, note/question/file drafts and local keyboard navigation",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar: Final Unit target and 200 percent reflow",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar: Journey content action opens the existing outline without guessing a lesson",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar pending: factual player query state",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar error: factual player query state",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar empty: factual player query state",
+      "status": "passed"
+    },
+    {
+      "file": "student-resit.spec.ts",
+      "title": "student Resit payment at en 1280px",
+      "status": "passed"
+    },
+    {
+      "file": "student-resit.spec.ts",
+      "title": "student Resit payment at ar 1280px",
+      "status": "passed"
+    },
+    {
+      "file": "student-resit.spec.ts",
+      "title": "student Resit payment at en 390px",
+      "status": "passed"
+    },
+    {
+      "file": "student-resit.spec.ts",
+      "title": "real Resit provider checkout redirects without fake confirmation",
+      "status": "passed"
+    }
+  ],
+  "overviews": [
+    {
+      "file": "preparation-overview.png",
+      "sha256": "eabb2896ace03bab36e6427874c6e1cfc716acada93c3eaa6ab98908cd450917",
+      "width": 1400,
+      "height": 4460
+    },
+    {
+      "file": "results-branches-overview.png",
+      "sha256": "b9e73a8ef82a45e07769047447e8f713288dfa087b2d30b8faf389c72d5e2d3b",
+      "width": 1400,
+      "height": 2990
+    },
+    {
+      "file": "workflow-states-overview.png",
+      "sha256": "757e951367f237c0eaa7b23df61a7eba662e3a82cf8ba59e780291bb4083ad8e",
+      "width": 1400,
+      "height": 4460
+    }
+  ]
+}

@@ -13,6 +13,7 @@ import { academicText } from "@/lib/academic-localization";
 import styles from "./student-learning-presentation.module.css";
 import playerStyles from "./student-course-player.module.css";
 import wizardStyles from "./student-evaluation-wizard.module.css";
+import { EvaluationCurrentState } from "./student-evaluation-presentation";
 import { useDialogFocus } from "@/components/navigation/use-dialog-focus";
 import { createPortal } from "react-dom";
 import { MotivationCard } from "@/components/motivation-card";
@@ -3964,6 +3965,7 @@ export function CourseAssignmentPanel({
 
 function EvaluationWizard() {
   const t = useTranslations("studentWorkspace.evaluationWizard");
+  const presentation = useTranslations("studentEvaluationPresentation");
   const loadingLabel = useTranslations(
     "studentWorkspace.myEvaluations.pagination",
   )("loading");
@@ -4176,7 +4178,7 @@ function EvaluationWizard() {
         <QueryState kind="loading" title={t("resume.loading")} />
       </section>
     );
-  if (resumeRequested && (resumeDetail.isError || !resumeDetail.data))
+  if (resumeRequested && !resumeDetail.data)
     return (
       <section className="shell py-10">
         <div className="card grid justify-items-start gap-3 p-6">
@@ -4184,12 +4186,12 @@ function EvaluationWizard() {
           <button
             type="button"
             onClick={() => void resumeDetail.refetch()}
-            className="focus-ring rounded-lg border border-primary px-3 py-2 font-semibold text-primary"
+            className="focus-ring rounded-lg border border-primary px-3 py-2 font-semibold text-text-link"
           >
             {t("resume.retry")}
           </button>
           <Link
-            className="focus-ring font-bold text-primary underline"
+            className="focus-ring font-bold text-text-link underline"
             href={`/${locale}/student/evaluations`}
           >
             {t("resume.back")}
@@ -4218,7 +4220,7 @@ function EvaluationWizard() {
         <QueryState kind="loading" title={loadingLabel} />
       </section>
     );
-  if (!resumeRequested && (options.isError || !options.data))
+  if (!resumeRequested && !options.data)
     return (
       <section className="shell py-10">
         <QueryState kind="error" title={t("errors.options")} />
@@ -4283,7 +4285,15 @@ function EvaluationWizard() {
         <h1>{t("header.title")}</h1>
         <p>{t("header.description")}</p>
       </header>
-      <ol className={wizardStyles.stages}>
+      {resumeRequested && resumeDetail.isError ? (
+        <QueryState kind="error" title={t("resume.loadError")} />
+      ) : !resumeRequested && options.isError ? (
+        <QueryState kind="error" title={t("errors.options")} />
+      ) : null}
+      <ol
+        className={wizardStyles.stages}
+        aria-label={presentation("preparation")}
+      >
         <li aria-current={!evaluationId ? "step" : undefined}>
           {`01 · ${t("scope.assessment")}`}
         </li>
@@ -4291,7 +4301,7 @@ function EvaluationWizard() {
           {`02 · ${t("evidence.portfolio")}`}
         </li>
         <li aria-current={paymentSession ? "step" : undefined}>
-          {`03 · ${hasIncludedCredit ? t("actions.included") : t("actions.payment")}`}
+          {`03 · ${!selected.assessmentScopeId || includedCredit.isPending || includedCredit.isError ? presentation("submissionRoute") : hasIncludedCredit ? t("actions.included") : t("actions.payment")}`}
         </li>
       </ol>
       <form
@@ -4502,7 +4512,7 @@ function EvaluationWizard() {
                     {resumeDetail.data.files.map((file) => (
                       <li key={file.id}>
                         <a
-                          className="focus-ring font-semibold text-primary underline"
+                          className="focus-ring font-semibold text-text-link underline"
                           href={`/api/v1/evaluations/${encodeURIComponent(resumeDetail.data.id)}/files/${encodeURIComponent(file.id)}`}
                         >
                           <bdi>{file.originalFileName}</bdi>
@@ -4547,7 +4557,7 @@ function EvaluationWizard() {
           {evaluationId && (
             <section className={wizardStyles.panel}>
               <div>
-                <h2 className="font-black">{t("evidence.portfolio")}</h2>
+                <h2 className="font-semibold">{t("evidence.portfolio")}</h2>
                 <p className="mt-1 text-xs leading-5 text-muted">
                   {t("evidence.description")}
                 </p>
@@ -4635,7 +4645,7 @@ function EvaluationWizard() {
           !hasIncludedCredit ? (
             <section className={wizardStyles.payment}>
               <div>
-                <h2 className="font-black">{t("payment.title")}</h2>
+                <h2 className="font-semibold">{t("payment.title")}</h2>
                 <p className="mt-1 text-sm text-muted">
                   {evaluationPrice
                     ? t("payment.priceKnown", {
@@ -4708,7 +4718,7 @@ function EvaluationWizard() {
             <section className={wizardStyles.payment} aria-live="polite">
               {paymentSession.provider?.startsWith("Fake") ? (
                 <>
-                  <p className="font-black text-primary">
+                  <p className="font-semibold text-text-link">
                     {t("developmentPayment.title")}
                   </p>
                   <p className="mt-1 leading-6 text-muted">
@@ -4716,7 +4726,7 @@ function EvaluationWizard() {
                   </p>
                   {typeof paymentSession.total === "number" &&
                   paymentSession.currency ? (
-                    <p className="mt-2 font-black">
+                    <p className="mt-2 font-semibold">
                       {t("developmentPayment.total")}{" "}
                       {formatLocalizedCurrency(
                         paymentSession.total,
@@ -4740,7 +4750,7 @@ function EvaluationWizard() {
                 </>
               ) : (
                 <>
-                  <p className="font-black">
+                  <p className="font-semibold">
                     {t("developmentPayment.sessionTitle")}
                   </p>
                   <p className="mt-1 leading-6 text-muted">
@@ -4834,6 +4844,7 @@ function EvaluationResumeMessage({
 
 function MyEvaluations() {
   const t = useTranslations("studentWorkspace.myEvaluations");
+  const presentation = useTranslations("studentEvaluationPresentation");
   const locale = useLocale();
   const result = useStudentEvaluations<{
     id: string;
@@ -4867,25 +4878,29 @@ function MyEvaluations() {
   }>();
   const items = result.data?.pages.flatMap((page) => page.items) ?? [];
   return (
-    <section className="shell py-10">
-      <h1 className="text-3xl font-black">{t("title")}</h1>
+    <section className={`shell py-10 ${wizardStyles.flow}`}>
+      <h1 className={wizardStyles.pageTitle}>{t("title")}</h1>
       <StudentResitOpportunities />
       {result.isPending ? (
-        <div className="card mt-6 p-5" aria-busy>
-          …
-        </div>
+        <QueryState kind="loading" title={t("pagination.loading")} />
       ) : null}
       {result.isError && !result.data ? (
         <p role="alert" className="card mt-6 p-5">
           {t("errors.load")}
         </p>
       ) : null}
+      {result.isError && result.data && !result.isFetchNextPageError ? (
+        <QueryState kind="error" title={t("errors.load")} />
+      ) : null}
+      {result.isSuccess && items.length === 0 ? (
+        <QueryState kind="empty" title={presentation("empty")} />
+      ) : null}
       <div className="mt-6 space-y-3">
         {items.map((item) => (
-          <article key={item.id} className="card grid gap-4 p-4">
+          <article key={item.id} className={wizardStyles.request}>
             {item.isResit ? (
               <div className="grid gap-1 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3">
-                <strong className="text-primary">{t("resit.title")}</strong>
+                <strong className="text-text-link">{t("resit.title")}</strong>
                 {item.resitOfEvaluationRequestId ? (
                   <span className="text-xs text-muted">
                     {t("resit.originalRequest")}:{" "}
@@ -4896,7 +4911,7 @@ function MyEvaluations() {
             ) : null}
             {item.isRetake && !item.isResit ? (
               <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3">
-                <strong className="text-primary">{t("retake.title")}</strong>
+                <strong className="text-text-link">{t("retake.title")}</strong>
                 <span className="text-xs text-muted">
                   {t("retake.outcome")}
                 </span>
@@ -4904,24 +4919,32 @@ function MyEvaluations() {
             ) : null}
             <AcademicIdentity academic={item.academic} locale={locale} />
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <span className="font-bold">{item.status}</span>
+              <EvaluationCurrentState
+                status={item.status}
+                branch={
+                  item.isResit ? "resit" : item.isRetake ? "retake" : "standard"
+                }
+                fundingUnknown
+              >
+                <span className="font-bold">{item.status}</span>
+              </EvaluationCurrentState>
               <span>
                 {formatLocalizedCurrency(item.price, item.currency, locale)}
               </span>
             </div>
             {(item.status === "NeedsRevision" || item.status === "Completed") &&
             item.results.length > 0 ? (
-              <div className="rounded-xl border border-border/70 bg-surface-solid/70 p-4">
+              <div className={wizardStyles.resultSection}>
                 <h2 className="font-bold">{t("results.title")}</h2>
-                <div className="mt-3 rounded-xl border border-primary/30 bg-primary/10 p-4">
-                  <p className="text-xs font-black uppercase tracking-wide text-primary">
+                <div className={wizardStyles.resultSummary}>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-text-link">
                     {item.status === "NeedsRevision"
                       ? t("results.current")
                       : item.isResit
                         ? t("resit.result")
                         : t("results.final")}
                   </p>
-                  <p className="mt-1 text-2xl font-black text-foreground">
+                  <p className="mt-1 text-2xl font-semibold text-foreground">
                     {item.calculatedGrade ?? "—"}
                   </p>
                   <div className="mt-3 grid gap-2 sm:grid-cols-3">
@@ -4973,7 +4996,7 @@ function MyEvaluations() {
               <p className="text-sm text-muted">{t("results.pending")}</p>
             ) : null}
             {item.evidence.length ? (
-              <div className="rounded-xl border border-border/70 bg-page/40 p-4">
+              <div className={wizardStyles.resultSection}>
                 <h2 className="font-bold">{t("evidence.title")}</h2>
                 <ul className="mt-3 grid gap-2 text-sm">
                   {item.evidence.map((evidence) => (
@@ -4986,16 +5009,29 @@ function MyEvaluations() {
               </div>
             ) : null}
             {item.feedback.length ? (
-              <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+              <div className={wizardStyles.resultSection}>
                 <h2 className="font-bold">{t("feedback.title")}</h2>
-                {item.feedback.map((feedback) => (
-                  <p
-                    key={feedback.createdAtUtc}
-                    className="mt-2 text-sm text-muted"
-                  >
-                    {feedback.body}
-                  </p>
-                ))}
+                <ol className={wizardStyles.feedbackRail}>
+                  {item.feedback.map((feedback) => (
+                    <li
+                      key={feedback.createdAtUtc}
+                      data-revision={feedback.requestsResubmission || undefined}
+                    >
+                      <p>{feedback.body}</p>
+                      <time
+                        className={wizardStyles.meta}
+                        dateTime={feedback.createdAtUtc}
+                      >
+                        {formatLocalizedDateTime(feedback.createdAtUtc, locale)}
+                      </time>
+                      {feedback.requestsResubmission ? (
+                        <p className={wizardStyles.meta}>
+                          {presentation("sameRequestRevision")}
+                        </p>
+                      ) : null}
+                    </li>
+                  ))}
+                </ol>
               </div>
             ) : null}
             {item.status === "NeedsRevision" && !item.isResit ? (
@@ -5017,7 +5053,7 @@ function MyEvaluations() {
             ) : null}
             {item.isResit && item.status === "Draft" ? (
               <Link
-                className="focus-ring w-fit font-bold text-primary underline"
+                className="focus-ring w-fit font-bold text-text-link underline"
                 href={`/${locale}/student/evaluations/${item.id}`}
               >
                 {t("resit.continue")}
@@ -5025,7 +5061,7 @@ function MyEvaluations() {
             ) : null}
             {item.status === "Draft" && !item.isRetake && !item.isResit ? (
               <Link
-                className="focus-ring w-fit font-bold text-primary underline"
+                className="focus-ring w-fit font-bold text-text-link underline"
                 href={`/${locale}/student/evaluations/new?resume=${encodeURIComponent(item.id)}`}
               >
                 {t("actions.continueStandard")}
@@ -5214,7 +5250,7 @@ function EvaluationRevisionSubmission({ requestId }: { requestId: string }) {
   });
   return (
     <section className="rounded-xl border border-primary/30 bg-primary/5 p-4">
-      <h2 className="font-black">{t("title")}</h2>
+      <h2 className="font-semibold">{t("title")}</h2>
       <p className="mt-2 text-sm text-muted">{t("description")}</p>
       <div className="mt-3">
         <FilePicker
@@ -5247,7 +5283,7 @@ function EvaluationRevisionSubmission({ requestId }: { requestId: string }) {
         type="button"
         onClick={() => resubmit.mutate()}
         disabled={resubmit.isPending || !files.length || !authenticityConfirmed}
-        className="focus-ring mt-3 rounded-xl bg-primary px-4 py-2 text-sm font-black text-slate-950 disabled:opacity-60"
+        className="focus-ring mt-3 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-slate-950 disabled:opacity-60"
       >
         {t("actions.submit")}
       </button>

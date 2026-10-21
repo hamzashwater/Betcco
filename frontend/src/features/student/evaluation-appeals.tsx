@@ -6,6 +6,8 @@ import { useStudentEvaluations } from "@/features/student/student-evaluation-pag
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
+import { actionClassName } from "@/components/ui/action";
+import styles from "./student-evaluation-wizard.module.css";
 
 type Evaluation = {
   id: string;
@@ -67,26 +69,26 @@ export function EvaluationAppeals() {
   const date = (value: string) => formatLocalizedDateTime(value, locale);
 
   return (
-    <section className="shell py-8 sm:py-10">
+    <section className={`shell py-8 sm:py-10 ${styles.flow}`}>
       <div className="max-w-3xl">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-text-link">
           BETCCO · {t("integrity")}
         </p>
-        <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
           {t("title")}
         </h1>
         <p className="mt-3 leading-7 text-muted">{t("description")}</p>
       </div>
 
       <form
-        className="card mt-6 grid max-w-3xl gap-4 p-5 sm:p-6"
+        className={`${styles.panel} mt-6 max-w-3xl`}
         onSubmit={(event) => {
           event.preventDefault();
           if (canSubmit) create.mutate();
         }}
       >
-        <h2 className="text-lg font-black">{t("form.title")}</h2>
-        <label className="grid gap-2 text-sm font-black">
+        <h2 className="text-lg font-semibold">{t("form.title")}</h2>
+        <label className="grid gap-2 text-sm font-semibold">
           {t("form.releasedEvaluation")}
           <select
             className="focus-ring rounded-xl border border-border bg-background px-3 py-3 text-foreground"
@@ -127,7 +129,7 @@ export function EvaluationAppeals() {
             {t("evaluations.empty")}
           </p>
         ) : null}
-        <label className="grid gap-2 text-sm font-black">
+        <label className="grid gap-2 text-sm font-semibold">
           {t("form.reason")}
           <textarea
             className="focus-ring min-h-32 rounded-xl border border-border bg-background px-3 py-3 text-foreground"
@@ -148,7 +150,7 @@ export function EvaluationAppeals() {
         <button
           type="submit"
           disabled={!canSubmit || create.isPending}
-          className="focus-ring justify-self-start rounded-xl bg-primary px-5 py-3 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+          className={actionClassName("primary", "justify-self-start")}
         >
           {create.isPending ? t("form.submitting") : t("form.submit")}
         </button>
@@ -162,7 +164,7 @@ export function EvaluationAppeals() {
       </form>
 
       <div className="mt-8 max-w-3xl">
-        <h2 className="text-xl font-black">{t("appeals.title")}</h2>
+        <h2 className="text-xl font-semibold">{t("appeals.title")}</h2>
         {appeals.isPending ? (
           <p className="mt-4 text-muted">{t("appeals.loading")}</p>
         ) : null}
@@ -178,9 +180,9 @@ export function EvaluationAppeals() {
           {appeals.data?.map((appeal) => {
             const canWithdraw = appeal.status === "Submitted";
             return (
-              <article key={appeal.id} className="card grid gap-3 p-4 sm:p-5">
+              <article key={appeal.id} className={styles.request}>
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-black text-primary">
+                  <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-semibold text-text-link">
                     {appeal.status}
                   </span>
                   <time
@@ -202,7 +204,7 @@ export function EvaluationAppeals() {
                     type="button"
                     onClick={() => withdraw.mutate(appeal.id)}
                     disabled={withdraw.isPending}
-                    className="focus-ring justify-self-start rounded-xl border border-border px-4 py-2 text-sm font-black hover:border-primary disabled:opacity-60"
+                    className="focus-ring justify-self-start rounded-xl border border-border px-4 py-2 text-sm font-semibold hover:border-primary disabled:opacity-60"
                   >
                     {t("appeals.withdraw")}
                   </button>

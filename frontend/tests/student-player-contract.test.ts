@@ -5,6 +5,7 @@ import { describe, it, expect } from "vitest";
 import baseline from "./fixtures/ui-d01-08-player-baseline.json";
 import logic from "./fixtures/ui-d01-08-player-logic.json";
 import { projectPracticeClaritySource } from "./helpers/practice-clarity-projection";
+import { projectEvaluationPresentationSource } from "./helpers/evaluation-presentation-projection";
 import {
   projectPlayerWorkspaceSource,
   withoutPlayerWorkspaceAdditions,
@@ -48,7 +49,10 @@ describe("UI-D01-08 bounded presentation and workflow proof", () => {
     (path, file) => {
       const source = readFileSync(path, "utf8");
       expect(hash(projectPlayerWorkspaceSource(source, path))).toBe(file.hash);
-      const playerSource = projectPracticeClaritySource(source, path);
+      const playerSource = projectPracticeClaritySource(
+        projectEvaluationPresentationSource(source, path),
+        path,
+      );
       for (const seam of file.seams)
         for (const value of [
           "",
