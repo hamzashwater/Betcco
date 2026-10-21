@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "./student-course-player.module.css";
-import { QueryState } from "@/components/dashboard/dashboard-ui";
+import { Action, QueryState } from "@/components/dashboard/dashboard-ui";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -75,13 +75,20 @@ type Insight = {
   values?: Record<string, string | number>;
 };
 
+export type PlayerPracticeTarget = { kind: "aim" | "unit"; id: string };
+
 export function StudentProgressIntelligence({
   courseId,
+  onOpenPractice,
+  onViewContent,
 }: {
   courseId: string;
+  onOpenPractice?: (target: PlayerPracticeTarget) => void;
+  onViewContent?: () => void;
 }) {
   const locale = useLocale();
   const t = useTranslations("studentProgressIntelligence");
+  const workspace = useTranslations("studentPlayerWorkspace");
   const result = useQuery({
     queryKey: ["learning-aim-practice", courseId],
     queryFn: () =>
@@ -139,7 +146,7 @@ export function StudentProgressIntelligence({
         <div>
           <h2
             id="student-progress-intelligence-heading"
-            className="text-xl font-extrabold"
+            className="text-xl font-semibold"
           >
             {t("title")}
           </h2>
@@ -189,6 +196,9 @@ export function StudentProgressIntelligence({
               key={unit.id}
               open={unit.id === focusUnit.id}
               className={styles.journeyUnit}
+              data-complete={
+                unit.finalPractice?.isTrainingComplete || undefined
+              }
             >
               <summary className={`focus-ring ${styles.unitSummary}`}>
                 <h3 className={styles.unitHeading}>{unitTitle}</h3>
@@ -218,7 +228,7 @@ export function StudentProgressIntelligence({
                   ))}
                 </div>
                 <div className={styles.unitNext}>
-                  <p className="flex items-center gap-2 text-sm font-black">
+                  <p className="flex items-center gap-2 text-sm font-semibold">
                     <ArrowRight
                       size={16}
                       className="text-primary rtl:rotate-180"
@@ -229,6 +239,47 @@ export function StudentProgressIntelligence({
                   <p className="mt-2 text-sm leading-6 text-muted">
                     {t(`next.${unitNext.key}`, unitNext.values)}
                   </p>
+                  {onOpenPractice &&
+                  ["startFinalPractice", "waitingFinalReview"].includes(
+                    unitNext.key,
+                  ) &&
+                  unit.finalPractice?.assignmentId ? (
+                    <Action
+                      variant="secondary"
+                      onClick={() =>
+                        onOpenPractice({ kind: "unit", id: unit.id })
+                      }
+                    >
+                      {workspace("openPractice")}
+                    </Action>
+                  ) : onOpenPractice &&
+                    [
+                      "startAimPractice",
+                      "finishPracticeSubmission",
+                      "waitingPracticeReview",
+                    ].includes(unitNext.key) &&
+                    unit.aims.find((aim) => !aim.isComplete)?.assignmentId ? (
+                    <Action
+                      variant="secondary"
+                      onClick={() =>
+                        onOpenPractice({
+                          kind: "aim",
+                          id: unit.aims.find((aim) => !aim.isComplete)!.id,
+                        })
+                      }
+                    >
+                      {workspace("openPractice")}
+                    </Action>
+                  ) : onViewContent &&
+                    [
+                      "continueLearning",
+                      "continueAimContent",
+                      "completePreviousAim",
+                    ].includes(unitNext.key) ? (
+                    <Action variant="secondary" onClick={onViewContent}>
+                      {workspace("viewContent")}
+                    </Action>
+                  ) : null}
                 </div>
               </div>
             </details>
@@ -246,7 +297,7 @@ function AimRow({ aim, focused }: { aim: Aim; focused: boolean }) {
   return (
     <div className={styles.aimRow} data-focus-aim={focused}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="font-black">
+        <p className="font-semibold">
           {aim.code} · {title}
         </p>
         <span className="rounded-full border border-border px-2.5 py-1 text-xs font-bold text-muted">
@@ -308,7 +359,7 @@ function UnitState({ unit }: { unit: Unit }) {
   else if (unit.aims.length > 0 && unit.aims.every((aim) => aim.isComplete))
     label = t("unitStates.aimsComplete");
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-black text-primary">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
       <CircleDot size={13} aria-hidden="true" />
       {label}
     </span>

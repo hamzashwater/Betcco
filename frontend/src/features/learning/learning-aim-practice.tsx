@@ -247,6 +247,8 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
               return (
                 <article
                   key={aim.id}
+                  id={`player-practice-aim-${aim.id}`}
+                  tabIndex={-1}
                   className={styles.aim}
                   data-emphasized={
                     (aim.isUnlocked &&

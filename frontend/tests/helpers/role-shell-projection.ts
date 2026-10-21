@@ -1,4 +1,5 @@
 import baseline from "../fixtures/ui-d01-05-role-shell-baseline.json";
+import { withoutPlayerWorkspaceAdditions } from "./player-workspace-projection";
 
 // Missing, duplicate or altered reviewed hunks leave the entire source intact.
 // Historical proofs retain their original hashes and all unrelated bytes.
@@ -15,6 +16,7 @@ export function projectRoleShellSource(source: string, path: string) {
 }
 
 export function withoutRoleShellAdditions(value: Record<string, unknown>) {
+  withoutPlayerWorkspaceAdditions(value);
   const navigation = value.navigation as Record<string, unknown> | undefined;
   if (!navigation || !Object.hasOwn(navigation, "roleShell")) return value;
   if (
