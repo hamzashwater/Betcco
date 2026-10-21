@@ -1,8 +1,13 @@
 import baseline from "../fixtures/ui-d01-08-player-baseline.json";
+import {
+  projectPracticeClaritySource,
+  withoutPracticeClarityAdditions,
+} from "./practice-clarity-projection";
 
 // Reverse only exact reviewed UI-D01-08 presentation seams. All missing,
 // duplicated or altered hunks remain unprojected and fail the historical proofs.
 export function projectPlayerWorkspaceSource(source: string, path: string) {
+  source = projectPracticeClaritySource(source, path);
   const file = baseline.files[path as keyof typeof baseline.files];
   if (!file) return source;
   const original = source.replace(/\r\n/g, "\n");
@@ -17,6 +22,7 @@ export function projectPlayerWorkspaceSource(source: string, path: string) {
 export function withoutPlayerWorkspaceAdditions(
   value: Record<string, unknown>,
 ) {
+  withoutPracticeClarityAdditions(value);
   if (!Object.hasOwn(value, "studentPlayerWorkspace")) return value;
   if (
     !Object.values(baseline.additions).some(

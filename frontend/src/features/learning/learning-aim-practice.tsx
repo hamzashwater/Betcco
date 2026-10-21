@@ -139,6 +139,7 @@ function formatAttemptTimestamp(locale: string, value: string) {
 export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
   const locale = useLocale();
   const practiceCopy = useTranslations("learningPractice");
+  const workspaceCopy = useTranslations("studentPracticeWorkspace");
   const client = useQueryClient();
   const [active, setActive] = useState<{
     assignmentId: string;
@@ -211,13 +212,16 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
       refresh();
     },
   });
-  if (units.isPending || mine.isPending)
+  if ((units.isPending && !units.data) || (mine.isPending && !mine.data))
     return <QueryState kind="loading" title={practiceCopy("aim.loading")} />;
-  if (units.isError || mine.isError)
+  if ((units.isError && !units.data) || (mine.isError && !mine.data))
     return <QueryState kind="error" title={practiceCopy("aim.loadFailed")} />;
   if (!units.data?.length) return null;
   return (
     <section className={styles.region} aria-label={practiceCopy("aim.title")}>
+      {units.isError || mine.isError ? (
+        <QueryState kind="error" title={practiceCopy("aim.loadFailed")} />
+      ) : null}
       <h2 className={styles.regionTitle}>{practiceCopy("aim.title")}</h2>
       <p className={styles.disclaimer}>
         {practiceCopy("aim.formativeDisclaimer")}
@@ -269,19 +273,75 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                           : practiceCopy("common.status.locked")}
                     </span>
                   </div>
-                  <p className="mt-2 text-sm text-muted">
-                    {practiceCopy("aim.content")}: {aim.contentCompleted} /{" "}
-                    {aim.contentTotal}
-                  </p>
-                  <p className="mt-1 text-sm text-muted">
-                    {practiceCopy("aim.practice")}:{" "}
-                    {practiceStatus(locale, aim.practiceStatus, practiceCopy)}
-                    {aim.practiceStatus === "Submitted" ? (
-                      <span className={styles.waiting} role="status">
-                        {practiceCopy("common.status.awaitingReview")}
+                  <ol
+                    className={styles.stages}
+                    aria-label={workspaceCopy("stages")}
+                  >
+                    <li data-complete={aim.contentComplete || undefined}>
+                      <span className={styles.stageNumber} aria-hidden="true">
+                        1
                       </span>
-                    ) : null}
-                  </p>
+                      <div>
+                        <p className={styles.stageLabel}>
+                          {practiceCopy("aim.content")}: {aim.contentCompleted}{" "}
+                          / {aim.contentTotal}
+                        </p>
+                        <p className={styles.meta}>
+                          {aim.contentComplete
+                            ? practiceCopy("aim.complete")
+                            : workspaceCopy("contentInProgress")}
+                        </p>
+                      </div>
+                    </li>
+                    <li>
+                      <span className={styles.stageNumber} aria-hidden="true">
+                        2
+                      </span>
+                      <div>
+                        <p className={styles.stageLabel}>
+                          {practiceCopy("aim.practice")}:{" "}
+                          {practiceStatus(
+                            locale,
+                            aim.practiceStatus,
+                            practiceCopy,
+                          )}
+                          {aim.practiceStatus === "Submitted" ? (
+                            <span className={styles.waiting} role="status">
+                              {practiceCopy("common.status.awaitingReview")}
+                            </span>
+                          ) : null}
+                        </p>
+                      </div>
+                    </li>
+                    <li
+                      data-complete={
+                        aim.practiceStatus === "Finalized" || undefined
+                      }
+                    >
+                      <span className={styles.stageNumber} aria-hidden="true">
+                        3
+                      </span>
+                      <div>
+                        <p className={styles.stageLabel}>
+                          {workspaceCopy("teacherReview")}
+                        </p>
+                        <p className={styles.meta}>
+                          {aim.practiceStatus === "Finalized"
+                            ? workspaceCopy("reviewReceived")
+                            : aim.practiceStatus === "Submitted"
+                              ? workspaceCopy("reviewPending")
+                              : [
+                                    "NotConfigured",
+                                    "Locked",
+                                    "Available",
+                                    "Draft",
+                                  ].includes(aim.practiceStatus)
+                                ? workspaceCopy("notReviewed")
+                                : practiceCopy("common.status.unknown")}
+                        </p>
+                      </div>
+                    </li>
+                  </ol>
                   {aim.assignmentId ? (
                     <p className="mt-1 text-sm text-muted">
                       {practiceCopy("aim.attempts")}: {aim.attemptsUsed ?? 0} /{" "}
@@ -294,6 +354,11 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                   {!aim.isUnlocked ? (
                     <p className="mt-2 text-sm text-muted">
                       {practiceCopy("aim.previousAimRequired")}
+                    </p>
+                  ) : null}
+                  {aim.practiceStatus === "NotConfigured" ? (
+                    <p className={styles.meta}>
+                      {workspaceCopy("notConfigured")}
                     </p>
                   ) : null}
                   {aim.isUnlocked && aim.assignmentId ? (
@@ -467,7 +532,7 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                         ) : null}
                         {aim.trainingOutcome ? (
                           <div className={styles.feedback}>
-                            <p className="font-black">
+                            <p className={styles.outcomeTitle}>
                               {practiceCopy("common.trainingOutcome")}:{" "}
                               {trainingOutcomeLabel(
                                 locale,
@@ -539,7 +604,7 @@ export function StudentLearningAimPractice({ courseId }: { courseId: string }) {
                                 return (
                                   <div
                                     key={attempt.attemptNumber}
-                                    className="rounded-lg bg-white/5 p-2"
+                                    className={styles.historyEntry}
                                   >
                                     <p className="font-bold">
                                       {practiceCopy("aim.attempt")}{" "}

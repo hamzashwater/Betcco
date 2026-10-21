@@ -3675,5 +3675,14 @@
       "headline": "تعلّم. طبّق. حقق المعايير.",
       "description": "التعلّم والمهام والمعايير والتقييم لطلاب BTEC في مكان واحد."
     }
+  },
+  "studentPracticeWorkspace": {
+    "stages": "مراحل التدريب التكويني",
+    "teacherReview": "مراجعة المعلم",
+    "reviewReceived": "تم استلام المراجعة",
+    "reviewPending": "بانتظار مراجعة المعلم",
+    "notReviewed": "لم يُسلّم العمل الحالي للمراجعة",
+    "contentInProgress": "المحتوى قيد الإكمال",
+    "notConfigured": "لم يُعدّ تدريب لهذا الهدف بعد."
   }
 }
