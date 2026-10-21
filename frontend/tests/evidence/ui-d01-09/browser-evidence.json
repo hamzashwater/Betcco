@@ -1,0 +1,1038 @@
+{
+  "classification": "MOCKED UI-CONTRACT EVIDENCE",
+  "base": "4e49df5c52a749055508964917759c95bd18abac",
+  "branch": "fix/ui-d01-09-formative-practice-clarity",
+  "browser": "Chromium via Playwright 1.62.1; actual Next 16.3.6 production build on isolated localhost:3020",
+  "stats": {
+    "startTime": "2026-10-21T17:30:10.582Z",
+    "duration": 88926.96800000001,
+    "expected": 79,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "newScenarios": 38,
+  "newScreenshots": 80,
+  "rawScreenshotRoot": "C:/Users/user/Documents/Codex/2026-10-17/files-pasted-by-the-user-device/outputs/UI-D01-09/browser",
+  "sourceHashes": {
+    "src/features/learning/learning-aim-practice.tsx": "267f65648231b9ec75a07722cf319931dd8317c3b15aa9cc681998461be67b41",
+    "src/features/learning/comprehensive-practice.tsx": "ef2210fc9aad80c999616caa27c10232d4e5b792109004d71c26ab87bac72a7b",
+    "src/features/learning/student-practice-presentation.module.css": "0b10dca01ebf43db71d3469f46c5c1e74cc267ec07fc0f359935823d7e0a0313",
+    "messages/en.json": "1762fcf3b79c53936719292bdf394db927b6ede5ada78fd6ebb1abc777301d29",
+    "messages/ar.json": "3169a6fc8c80e18d6ae0fb2a5a1d2b133918e22fa78eba57cbb19f93121f4c73"
+  },
+  "boundary": "Synthetic intercepted data and multipart writes only. No live backend, persistence, authorization, payment, deployment or full WCAG proof. 720x450 CSS pixels are an approximate 200% desktop reflow proxy. File scanning/rejection is a raw server error message; no new scan-status model is invented.",
+  "cases": [
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar aim: draft, pending scan/rejection, retry, submit and cached refresh",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-c37b4-y-submit-and-cached-refresh-chromium/cached-error-draft.png",
+          "sha256": "dd5bd3cfb5afc44e8f931d926024c3f8799357f11064ad16729c33d4d3f46e31",
+          "width": 358,
+          "height": 1412
+        },
+        {
+          "file": "formative-practice-clarity-c37b4-y-submit-and-cached-refresh-chromium/rejected.png",
+          "sha256": "987280cb31ad8b0e9429370896b2aad2440938a4d3b8817010026a50a8d9617b",
+          "width": 358,
+          "height": 1393
+        },
+        {
+          "file": "formative-practice-clarity-c37b4-y-submit-and-cached-refresh-chromium/scan-error.png",
+          "sha256": "6a44efb86a17bf0e699cffeab972345267658cd1378c2861243fbc49aa99be69",
+          "width": 358,
+          "height": 1419
+        },
+        {
+          "file": "formative-practice-clarity-c37b4-y-submit-and-cached-refresh-chromium/submitted.png",
+          "sha256": "975ec07fc6903831826e0359d410af5a28e16439e6bb70ca36bce6e95f2ddbc1",
+          "width": 358,
+          "height": 837
+        },
+        {
+          "file": "formative-practice-clarity-c37b4-y-submit-and-cached-refresh-chromium/upload-pending.png",
+          "sha256": "95300b52e36ff59ede57e783873a7f69cfbd0d9a662ffb712eaead91dd4317df",
+          "width": 358,
+          "height": 1143
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar complete: server states, attempt history and final training distinction",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-b96e0--final-training-distinction-chromium/aim-complete.png",
+          "sha256": "2212da2b199f5909215e171d69e1a6256ce349cd1ae31849bbc64d749405d4cf",
+          "width": 358,
+          "height": 1488
+        },
+        {
+          "file": "formative-practice-clarity-b96e0--final-training-distinction-chromium/final-complete.png",
+          "sha256": "f2f342be434f32dfd323f908da43188de55be4ef056f45a0e1d861db33c3f16c",
+          "width": 358,
+          "height": 636
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar content: server states, attempt history and final training distinction",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-88ae2--final-training-distinction-chromium/aim-content.png",
+          "sha256": "848729d818dca738fff7d8f636382d1bae574987678dad86f9587562cf9c6df3",
+          "width": 358,
+          "height": 637
+        },
+        {
+          "file": "formative-practice-clarity-88ae2--final-training-distinction-chromium/final-content.png",
+          "sha256": "a32831ecb41361c7b8478ac580d6614d0c516d5105d7a76547853be98c856691",
+          "width": 358,
+          "height": 386
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 1440: formative content/practice/review checklist",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-a5286-t-practice-review-checklist-chromium/aim-draft.png",
+          "sha256": "857136ae2e84ce2eb6e19cf0680b2bf42a58d3354079236eb8487c56e5a00344",
+          "width": 984,
+          "height": 469
+        },
+        {
+          "file": "formative-practice-clarity-a5286-t-practice-review-checklist-chromium/final-draft.png",
+          "sha256": "a08875b2eb7983ffb75365cc6af253930bf5ed045de2878bf15efaa1e43d0329",
+          "width": 984,
+          "height": 522
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 390: formative content/practice/review checklist",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-cc7e5-t-practice-review-checklist-chromium/aim-draft.png",
+          "sha256": "2ec30a786d2e76201ef07f049c74e227d32e41c02b843f0d637f754567e441d0",
+          "width": 358,
+          "height": 707
+        },
+        {
+          "file": "formative-practice-clarity-cc7e5-t-practice-review-checklist-chromium/final-draft.png",
+          "sha256": "6fb30d54ed0430cea3794463444ca1a84a4999698579fc6a27044bb02df6fef5",
+          "width": 358,
+          "height": 636
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 834: formative content/practice/review checklist",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-b0fce-t-practice-review-checklist-chromium/aim-draft.png",
+          "sha256": "d0b51f234f7457921ac7c8744ccd536c6cf610a6f08015097eab5b0a578af9b9",
+          "width": 802,
+          "height": 469
+        },
+        {
+          "file": "formative-practice-clarity-b0fce-t-practice-review-checklist-chromium/final-draft.png",
+          "sha256": "4cee9a03d5dd6236174bb2306d4eaab9ee2bfe645a2f0cf4339a0e1c48d010f5",
+          "width": 802,
+          "height": 522
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar empty: no unknown submission action",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-68ae4-o-unknown-submission-action-chromium/empty.png",
+          "sha256": "0da066e12b1418167d532de84f7d59416f2737193c84c0137934ef049e564826",
+          "width": 880,
+          "height": 33
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar error: no unknown submission action",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-84ee7-o-unknown-submission-action-chromium/error.png",
+          "sha256": "2d5e7d4f05591c3bdaa186f5950849128429c2492c55e7db478d0176d9a779a3",
+          "width": 880,
+          "height": 149
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar final: draft, pending scan/rejection, retry, submit and cached refresh",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-309a9-y-submit-and-cached-refresh-chromium/cached-error-draft.png",
+          "sha256": "c91a6606ec05c9260eab4ad408f2e52c9ab71113d6f366f4eb09e1ec04bdb736",
+          "width": 358,
+          "height": 1207
+        },
+        {
+          "file": "formative-practice-clarity-309a9-y-submit-and-cached-refresh-chromium/rejected.png",
+          "sha256": "db7e7169d7cce3154b0bf47016a67f45f605407c81a11ba84407d91172d6a5fc",
+          "width": 358,
+          "height": 1172
+        },
+        {
+          "file": "formative-practice-clarity-309a9-y-submit-and-cached-refresh-chromium/scan-error.png",
+          "sha256": "ca615469b5337873cac35fe4b93cb97d839fdfb731b83f1299609f41059e4749",
+          "width": 358,
+          "height": 1198
+        },
+        {
+          "file": "formative-practice-clarity-309a9-y-submit-and-cached-refresh-chromium/submitted.png",
+          "sha256": "852d21d8324de22277b32aeaf7cb1298c5eba05bbc9a65e3c99c761cb44c6bd1",
+          "width": 358,
+          "height": 455
+        },
+        {
+          "file": "formative-practice-clarity-309a9-y-submit-and-cached-refresh-chromium/upload-pending.png",
+          "sha256": "e95acb9c021a531fd2e090b337c85d32fa26faab43bd75c942b85d06f558eaf9",
+          "width": 358,
+          "height": 1072
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar improvement: server states, attempt history and final training distinction",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-3fe46--final-training-distinction-chromium/aim-improvement.png",
+          "sha256": "4edf32f9b3799b8dc2e0c722824bb39754b56e0fd98362e0b60558903a776c92",
+          "width": 358,
+          "height": 1614
+        },
+        {
+          "file": "formative-practice-clarity-3fe46--final-training-distinction-chromium/final-improvement.png",
+          "sha256": "ee6383ff370a23c41079cdb78b72181957c49fd120bbe963348786ee220879cc",
+          "width": 358,
+          "height": 784
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 1440: formative content/practice/review checklist",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-f0de9-t-practice-review-checklist-chromium/aim-draft.png",
+          "sha256": "4cae096e373a99c3a4058de14f037e6ac434171a8bcb9816725a686d07b61205",
+          "width": 984,
+          "height": 469
+        },
+        {
+          "file": "formative-practice-clarity-f0de9-t-practice-review-checklist-chromium/final-draft.png",
+          "sha256": "2e80f40d7061dda987097d9dcdbb00b896aeaa0f6f708e7b3eff2e3dedfd6cbe",
+          "width": 984,
+          "height": 522
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 390: formative content/practice/review checklist",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-77994-t-practice-review-checklist-chromium/aim-draft.png",
+          "sha256": "9e2e99a6a894652b90899b63361536ffb19d5437751ebb8bacfd6145ba59b21f",
+          "width": 358,
+          "height": 707
+        },
+        {
+          "file": "formative-practice-clarity-77994-t-practice-review-checklist-chromium/final-draft.png",
+          "sha256": "062481de677c8481f1e37712398a883494bc83467e298b7bc6b3b98eeab5140f",
+          "width": 358,
+          "height": 636
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 834: formative content/practice/review checklist",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-59f71-t-practice-review-checklist-chromium/aim-draft.png",
+          "sha256": "1935015f638781e8ce619a62271bb028179680c3891a9e1eb386e986c8eca371",
+          "width": 802,
+          "height": 469
+        },
+        {
+          "file": "formative-practice-clarity-59f71-t-practice-review-checklist-chromium/final-draft.png",
+          "sha256": "2dbb06c57628ad4fd756ffe543fd35cce0fc1e5bf916d7c79e00807beeee0b0d",
+          "width": 802,
+          "height": 522
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar locked: server states, attempt history and final training distinction",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-1fc1a--final-training-distinction-chromium/aim-locked.png",
+          "sha256": "b746c304982699cd32ee856fbd86d4d968429ac2f396e591173db4dc2cbfa74c",
+          "width": 358,
+          "height": 326
+        },
+        {
+          "file": "formative-practice-clarity-1fc1a--final-training-distinction-chromium/final-locked.png",
+          "sha256": "79212a96a7f2ae1c56933bc1cf5e7730782bc937e086b36aa770e6506e8d0f82",
+          "width": 358,
+          "height": 386
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar missing: server states, attempt history and final training distinction",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-0d331--final-training-distinction-chromium/aim-missing.png",
+          "sha256": "f73b119dfe14e420c849c5f89707bdb655c88813d1af9a903daaab10af6e8279",
+          "width": 358,
+          "height": 302
+        },
+        {
+          "file": "formative-practice-clarity-0d331--final-training-distinction-chromium/final-missing.png",
+          "sha256": "6b63036a9c154623bb6a703e09d551136c5dc6974095bcd20adef7a91a7b1196",
+          "width": 358,
+          "height": 357
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar pending: no unknown submission action",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-c14d4-o-unknown-submission-action-chromium/pending.png",
+          "sha256": "deb747aded7d04df2feef2558c23055aefb67bc7963223167cc5f28c3b66bb2f",
+          "width": 880,
+          "height": 149
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar reviewed: server states, attempt history and final training distinction",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-9fd57--final-training-distinction-chromium/aim-reviewed.png",
+          "sha256": "4f80fb8a06e15d456a31fce6c76baf1b261cca3327757cc6effe61b0831c021e",
+          "width": 358,
+          "height": 1516
+        },
+        {
+          "file": "formative-practice-clarity-9fd57--final-training-distinction-chromium/final-reviewed.png",
+          "sha256": "c6ef521276b5f1a49bfae5bd5432e7e5b128ed0ace0e552c7eee6836e6d2bec2",
+          "width": 358,
+          "height": 604
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar submitted: server states, attempt history and final training distinction",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-5bdf6--final-training-distinction-chromium/aim-submitted.png",
+          "sha256": "ca0bf38bfc0fc7187a59fd1083d9fbf4dfff435902922bc8121604466547da99",
+          "width": 358,
+          "height": 740
+        },
+        {
+          "file": "formative-practice-clarity-5bdf6--final-training-distinction-chromium/final-submitted.png",
+          "sha256": "51e98c34afd2dd3e80c5f9859412e2e2fe65ff525cade12eccda6d629b784138",
+          "width": 358,
+          "height": 358
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: keyboard disclosure and approximate 200% reflow",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-124db--and-approximate-200-reflow-chromium/reflow-focus.png",
+          "sha256": "44e34c5341d52319160d36ff58a579ec4e200620fe16eeb2e966650a67772422",
+          "width": 688,
+          "height": 1377
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en aim: draft, pending scan/rejection, retry, submit and cached refresh",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-239d5-y-submit-and-cached-refresh-chromium/cached-error-draft.png",
+          "sha256": "be6c3738929d6b104f6707512779bad170be7c1ea352b0964fbf0a3e56bd8a28",
+          "width": 984,
+          "height": 1008
+        },
+        {
+          "file": "formative-practice-clarity-239d5-y-submit-and-cached-refresh-chromium/rejected.png",
+          "sha256": "a3cc57b999747d4d710175a6422c2ca4b22164fb18fedc07e597ba38b02f9b72",
+          "width": 984,
+          "height": 989
+        },
+        {
+          "file": "formative-practice-clarity-239d5-y-submit-and-cached-refresh-chromium/scan-error.png",
+          "sha256": "1b06b11ba8813c1c418244aa41bd61d09f743dedb51cd9ddc50dacdf8210a862",
+          "width": 984,
+          "height": 989
+        },
+        {
+          "file": "formative-practice-clarity-239d5-y-submit-and-cached-refresh-chromium/submitted.png",
+          "sha256": "61fb25be8f988183907ee01a304ad9bdf1a653f69c65ff68407ae9ad93a42f75",
+          "width": 984,
+          "height": 521
+        },
+        {
+          "file": "formative-practice-clarity-239d5-y-submit-and-cached-refresh-chromium/upload-pending.png",
+          "sha256": "b983fe1a1d5da0d77b81b4bafc7a14a4feec3dde7db7d443b2c6d60af8b9765f",
+          "width": 984,
+          "height": 770
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en complete: server states, attempt history and final training distinction",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-28341--final-training-distinction-chromium/aim-complete.png",
+          "sha256": "a7df0a9d0387e72d20639dd8597a9cd2ad5967c48e69064d965c1a424de6f603",
+          "width": 984,
+          "height": 1195
+        },
+        {
+          "file": "formative-practice-clarity-28341--final-training-distinction-chromium/final-complete.png",
+          "sha256": "7be4c0106855e83bcd7ec340e57e98e03b918f246bbd07590a827088dd77ef8e",
+          "width": 984,
+          "height": 522
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en content: server states, attempt history and final training distinction",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-e3527--final-training-distinction-chromium/aim-content.png",
+          "sha256": "a91b5376070d96209a78d8fa11f2456c7c1d4161235e98e15646606ee7f6f432",
+          "width": 984,
+          "height": 368
+        },
+        {
+          "file": "formative-practice-clarity-e3527--final-training-distinction-chromium/final-content.png",
+          "sha256": "5bd905a1cceea83b18245c28c0623f6719720c4efa0b66afd65ccf193ad5f75e",
+          "width": 984,
+          "height": 295
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 1440: formative content/practice/review checklist",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-8876e-t-practice-review-checklist-chromium/aim-draft.png",
+          "sha256": "3d3ba35781ffb437d3371bbf2b334c1b7d766758c1c56c1a9c678a496cc7743e",
+          "width": 984,
+          "height": 438
+        },
+        {
+          "file": "formative-practice-clarity-8876e-t-practice-review-checklist-chromium/final-draft.png",
+          "sha256": "9857624aa8968ce446f0a872580c24bb1256938aacbd37c10d148c97cb3bd640",
+          "width": 984,
+          "height": 546
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 390: formative content/practice/review checklist",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-b40a6-t-practice-review-checklist-chromium/aim-draft.png",
+          "sha256": "e36d9d74950e3de26c49495ddf30a3309e595ba4e69c7abdedf6d268f1d4ddb4",
+          "width": 358,
+          "height": 536
+        },
+        {
+          "file": "formative-practice-clarity-b40a6-t-practice-review-checklist-chromium/final-draft.png",
+          "sha256": "4e275c301d643b8521747f1e05727afd6d137f5fdf2a07814c94af96710b277d",
+          "width": 358,
+          "height": 661
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 834: formative content/practice/review checklist",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-29672-t-practice-review-checklist-chromium/aim-draft.png",
+          "sha256": "ff13e06e2ee78f9d026c5d1da2e488abd7c73aa70011d232d6bc584140a50cb9",
+          "width": 802,
+          "height": 437
+        },
+        {
+          "file": "formative-practice-clarity-29672-t-practice-review-checklist-chromium/final-draft.png",
+          "sha256": "1dae11885158184e6fdd93c9164fcf311885facf90d313512ff0ae6bf9a32107",
+          "width": 802,
+          "height": 547
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en empty: no unknown submission action",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-bcc22-o-unknown-submission-action-chromium/empty.png",
+          "sha256": "fab604054d0001ac122fd513231be938cae70329bb68e2412642489927b8a76c",
+          "width": 880,
+          "height": 33
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en error: no unknown submission action",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-5e24b-o-unknown-submission-action-chromium/error.png",
+          "sha256": "6ec3338c24e0358c4fcb7d89e431e11930341c8f66b42bcc8244f856a5718df8",
+          "width": 880,
+          "height": 141
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en final: draft, pending scan/rejection, retry, submit and cached refresh",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-23d88-y-submit-and-cached-refresh-chromium/cached-error-draft.png",
+          "sha256": "7852318ba63a49f7b2cb2bd9df1cea88797d018968d82aa8ca091c69539a19cc",
+          "width": 984,
+          "height": 1005
+        },
+        {
+          "file": "formative-practice-clarity-23d88-y-submit-and-cached-refresh-chromium/rejected.png",
+          "sha256": "696dcd5a8a841d1936547a0bc37ee329cc44b7cc2714e74ef2dd1b322eb7b228",
+          "width": 984,
+          "height": 970
+        },
+        {
+          "file": "formative-practice-clarity-23d88-y-submit-and-cached-refresh-chromium/scan-error.png",
+          "sha256": "5294d9c29e351537fc54614283cbc7eb031bff1e337cb6d3bacb395c313726a9",
+          "width": 984,
+          "height": 970
+        },
+        {
+          "file": "formative-practice-clarity-23d88-y-submit-and-cached-refresh-chromium/submitted.png",
+          "sha256": "3b3df2ea86d1f4a9ab1cf9c1dc3c70c22d007a99838718393928612cb294f07f",
+          "width": 984,
+          "height": 341
+        },
+        {
+          "file": "formative-practice-clarity-23d88-y-submit-and-cached-refresh-chromium/upload-pending.png",
+          "sha256": "f86fddfdc009516839fc46b1664accca0615b215843f1c0a6f8d50f7d86a5594",
+          "width": 984,
+          "height": 878
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en improvement: server states, attempt history and final training distinction",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-10dce--final-training-distinction-chromium/aim-improvement.png",
+          "sha256": "d230e81d3461e2da86b715d45aae451a28e9310d4f795ec9dacb7675b3a50bc2",
+          "width": 984,
+          "height": 1293
+        },
+        {
+          "file": "formative-practice-clarity-10dce--final-training-distinction-chromium/final-improvement.png",
+          "sha256": "69b7670228f3edc783e0a212de62ce661c1584b09c69d29900a6586489194e23",
+          "width": 984,
+          "height": 671
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 1440: formative content/practice/review checklist",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-bf74d-t-practice-review-checklist-chromium/aim-draft.png",
+          "sha256": "e788b37788e862bebaa25c6062db7ce6be5bbaf79f0f040239ecc1451371e49b",
+          "width": 984,
+          "height": 438
+        },
+        {
+          "file": "formative-practice-clarity-bf74d-t-practice-review-checklist-chromium/final-draft.png",
+          "sha256": "76a8e444323e0c05b050f494408f75adf880e2be05ec604a6d12344ba5ae889c",
+          "width": 984,
+          "height": 546
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 390: formative content/practice/review checklist",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-ab89e-t-practice-review-checklist-chromium/aim-draft.png",
+          "sha256": "9c75f2ca3ff454bb4d92dca83a1b5f699dc7a240e7fe2cd7f43953ba484d5fbd",
+          "width": 358,
+          "height": 536
+        },
+        {
+          "file": "formative-practice-clarity-ab89e-t-practice-review-checklist-chromium/final-draft.png",
+          "sha256": "75647e51d93e1b99b8fad4605d56e45069a6c15eff6031096c21749763a7531f",
+          "width": 358,
+          "height": 661
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 834: formative content/practice/review checklist",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-d3345-t-practice-review-checklist-chromium/aim-draft.png",
+          "sha256": "3d250db1614a8b6a7a0f60e4e12e11b9726b5befbe6fecc79ea60df3b433e2be",
+          "width": 802,
+          "height": 437
+        },
+        {
+          "file": "formative-practice-clarity-d3345-t-practice-review-checklist-chromium/final-draft.png",
+          "sha256": "2e61bcbee9377337b5767cd38be6d66e9b1dfefebb6d2da971ddef79c05e3751",
+          "width": 802,
+          "height": 547
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en locked: server states, attempt history and final training distinction",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-2758c--final-training-distinction-chromium/aim-locked.png",
+          "sha256": "2914588131e9d06a9d226b661d7cf245d38775432977e406e4dbf2d38437915e",
+          "width": 984,
+          "height": 251
+        },
+        {
+          "file": "formative-practice-clarity-2758c--final-training-distinction-chromium/final-locked.png",
+          "sha256": "2bafc23a1076d0fa9c2799727ba482bdb6721f2162e96e340f1f743f585d98ae",
+          "width": 984,
+          "height": 295
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en missing: server states, attempt history and final training distinction",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-350a1--final-training-distinction-chromium/aim-missing.png",
+          "sha256": "1dfc660129dfbde6a8b69cda507aeb2ef8259de8f37d7bb4836f6066ab8bb07f",
+          "width": 984,
+          "height": 227
+        },
+        {
+          "file": "formative-practice-clarity-350a1--final-training-distinction-chromium/final-missing.png",
+          "sha256": "69f20868e12bde15c373207e60d52638f419767a18f2ecefde5b279992d7b8a9",
+          "width": 984,
+          "height": 267
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en pending: no unknown submission action",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-1cdee-o-unknown-submission-action-chromium/pending.png",
+          "sha256": "de2337b60b2bb811f56087fc9de53ecdee9f786ffe42e284dbbcdf03423ced55",
+          "width": 880,
+          "height": 141
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en reviewed: server states, attempt history and final training distinction",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-d047f--final-training-distinction-chromium/aim-reviewed.png",
+          "sha256": "d9b95fb2a74659fdd4fbc9a09449ff94a5c41b22f5ed2c77b2e3a6f4b5aafb53",
+          "width": 984,
+          "height": 1195
+        },
+        {
+          "file": "formative-practice-clarity-d047f--final-training-distinction-chromium/final-reviewed.png",
+          "sha256": "bcc0ecb443a4ba4f14ba7ccfad09e8e91951ab4fc8490e593d7ada53bc992c6b",
+          "width": 984,
+          "height": 490
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en submitted: server states, attempt history and final training distinction",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-9a132--final-training-distinction-chromium/aim-submitted.png",
+          "sha256": "3450e649c651fcb22337ebc580692ec2b9d30caeaf1983ce11c1d09f927b6213",
+          "width": 984,
+          "height": 424
+        },
+        {
+          "file": "formative-practice-clarity-9a132--final-training-distinction-chromium/final-submitted.png",
+          "sha256": "976b0e8d439347d00fe9dead5a2eb8a217215042b9fa6de5be6ba69a8f11316a",
+          "width": 984,
+          "height": 244
+        }
+      ]
+    },
+    {
+      "label": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: keyboard disclosure and approximate 200% reflow",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "formative-practice-clarity-facad--and-approximate-200-reflow-chromium/reflow-focus.png",
+          "sha256": "f531312484701c16c3008377f187fc6da6c93abca2f594e0e5e51414e1d1b14c",
+          "width": 688,
+          "height": 1294
+        }
+      ]
+    }
+  ],
+  "regressions": [
+    {
+      "file": "comprehensive-practice.spec.ts",
+      "title": "Final Unit Practice lifecycle en 1280px (mocked API)",
+      "status": "passed"
+    },
+    {
+      "file": "comprehensive-practice.spec.ts",
+      "title": "Final Unit Practice lifecycle ar 1280px (mocked API)",
+      "status": "passed"
+    },
+    {
+      "file": "comprehensive-practice.spec.ts",
+      "title": "Final Unit Practice lifecycle en 390px (mocked API)",
+      "status": "passed"
+    },
+    {
+      "file": "comprehensive-practice.spec.ts",
+      "title": "Final Unit Practice lifecycle ar 390px (mocked API)",
+      "status": "passed"
+    },
+    {
+      "file": "learning-aim-practice.spec.ts",
+      "title": "student learning aim practice flow en 1280px (mocked API)",
+      "status": "passed"
+    },
+    {
+      "file": "learning-aim-practice.spec.ts",
+      "title": "student learning aim practice flow ar 1280px (mocked API)",
+      "status": "passed"
+    },
+    {
+      "file": "learning-aim-practice.spec.ts",
+      "title": "student learning aim practice flow en 390px (mocked API)",
+      "status": "passed"
+    },
+    {
+      "file": "learning-aim-practice.spec.ts",
+      "title": "student learning aim practice flow ar 390px (mocked API)",
+      "status": "passed"
+    },
+    {
+      "file": "learning-aim-practice.spec.ts",
+      "title": "teacher finalizes a Merit review (mocked API)",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en light 1440 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en light 834 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en light 390 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en dark 1440 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en dark 834 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en dark 390 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en Video: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en Assignment: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en Locked: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en Completed: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en: exact practice focus, note/question/file drafts and local keyboard navigation",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en: Final Unit target and 200 percent reflow",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en: Journey content action opens the existing outline without guessing a lesson",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en pending: factual player query state",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en error: factual player query state",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en empty: factual player query state",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar light 1440 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar light 834 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar light 390 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar dark 1440 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar dark 834 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar dark 390 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar Video: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar Assignment: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar Locked: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar Completed: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar: exact practice focus, note/question/file drafts and local keyboard navigation",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar: Final Unit target and 200 percent reflow",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar: Journey content action opens the existing outline without guessing a lesson",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar pending: factual player query state",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar error: factual player query state",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar empty: factual player query state",
+      "status": "passed"
+    }
+  ],
+  "overviews": [
+    {
+      "file": "layout-overview.png",
+      "sha256": "a71da11ef694b9426af94f2f6403efa404ce6dd606bcd5fc3bd57b63eb7132b7",
+      "width": 1400,
+      "height": 2990
+    },
+    {
+      "file": "state-overview.png",
+      "sha256": "dd8610c38c60bfdcd5d20b535ae162b4e1e0c82f29f757bf156e63db28f63f92",
+      "width": 1400,
+      "height": 3480
+    },
+    {
+      "file": "workflow-overview.png",
+      "sha256": "c21c377efa13091a7983660e0521d55de97f07a95912115d5c92e433a94adba2",
+      "width": 1400,
+      "height": 3480
+    }
+  ]
+}

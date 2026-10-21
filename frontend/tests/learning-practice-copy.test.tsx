@@ -94,9 +94,10 @@ for (const [kind, Component] of [
             ).queryByRole("link", { name: "RAW Earlier ملف.pdf" }),
           ).toBeNull();
         } else {
-          expect(
-            screen.getByText(messages.common.status.unknown),
-          ).toBeVisible();
+          for (const unknown of screen.getAllByText(
+            messages.common.status.unknown,
+          ))
+            expect(unknown).toBeVisible();
           expect(
             screen.getByRole("link", { name: "RAW Brief ملف.pdf" }),
           ).toHaveAttribute(

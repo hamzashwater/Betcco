@@ -1,0 +1,168 @@
+{
+  "referenceMain": "4e49df5c52a749055508964917759c95bd18abac",
+  "files": {
+    "src/features/learning/learning-aim-practice.tsx": {
+      "hash": "b1f488d957a07e7b29019a53e835ec6796774e3973040ed06d407f6d2aa8b1dd",
+      "seams": [
+        {
+          "previous": "export function StudentLearningAimPractice({ courseId }: { courseId: string }) {\n  const locale = useLocale();\n  const practiceCopy = useTranslations(\"learningPractice\");\n  const client = useQueryClient();\n  const [active, setActive] = useState<{\n    assignmentId: string;\n",
+          "approved": "export function StudentLearningAimPractice({ courseId }: { courseId: string }) {\n  const locale = useLocale();\n  const practiceCopy = useTranslations(\"learningPractice\");\n  const workspaceCopy = useTranslations(\"studentPracticeWorkspace\");\n  const client = useQueryClient();\n  const [active, setActive] = useState<{\n    assignmentId: string;\n"
+        },
+        {
+          "previous": "      refresh();\n    },\n  });\n  if (units.isPending || mine.isPending)\n    return <QueryState kind=\"loading\" title={practiceCopy(\"aim.loading\")} />;\n  if (units.isError || mine.isError)\n    return <QueryState kind=\"error\" title={practiceCopy(\"aim.loadFailed\")} />;\n  if (!units.data?.length) return null;\n  return (\n    <section className={styles.region} aria-label={practiceCopy(\"aim.title\")}>\n      <h2 className={styles.regionTitle}>{practiceCopy(\"aim.title\")}</h2>\n      <p className={styles.disclaimer}>\n        {practiceCopy(\"aim.formativeDisclaimer\")}\n",
+          "approved": "      refresh();\n    },\n  });\n  if ((units.isPending && !units.data) || (mine.isPending && !mine.data))\n    return <QueryState kind=\"loading\" title={practiceCopy(\"aim.loading\")} />;\n  if ((units.isError && !units.data) || (mine.isError && !mine.data))\n    return <QueryState kind=\"error\" title={practiceCopy(\"aim.loadFailed\")} />;\n  if (!units.data?.length) return null;\n  return (\n    <section className={styles.region} aria-label={practiceCopy(\"aim.title\")}>\n      {units.isError || mine.isError ? (\n        <QueryState kind=\"error\" title={practiceCopy(\"aim.loadFailed\")} />\n      ) : null}\n      <h2 className={styles.regionTitle}>{practiceCopy(\"aim.title\")}</h2>\n      <p className={styles.disclaimer}>\n        {practiceCopy(\"aim.formativeDisclaimer\")}\n"
+        },
+        {
+          "previous": "                          : practiceCopy(\"common.status.locked\")}\n                    </span>\n                  </div>\n                  <p className=\"mt-2 text-sm text-muted\">\n                    {practiceCopy(\"aim.content\")}: {aim.contentCompleted} /{\" \"}\n                    {aim.contentTotal}\n                  </p>\n                  <p className=\"mt-1 text-sm text-muted\">\n                    {practiceCopy(\"aim.practice\")}:{\" \"}\n                    {practiceStatus(locale, aim.practiceStatus, practiceCopy)}\n                    {aim.practiceStatus === \"Submitted\" ? (\n                      <span className={styles.waiting} role=\"status\">\n                        {practiceCopy(\"common.status.awaitingReview\")}\n                      </span>\n                    ) : null}\n                  </p>\n                  {aim.assignmentId ? (\n                    <p className=\"mt-1 text-sm text-muted\">\n                      {practiceCopy(\"aim.attempts\")}: {aim.attemptsUsed ?? 0} /{\" \"}\n",
+          "approved": "                          : practiceCopy(\"common.status.locked\")}\n                    </span>\n                  </div>\n                  <ol\n                    className={styles.stages}\n                    aria-label={workspaceCopy(\"stages\")}\n                  >\n                    <li data-complete={aim.contentComplete || undefined}>\n                      <span className={styles.stageNumber} aria-hidden=\"true\">\n                        1\n                      </span>\n                      <div>\n                        <p className={styles.stageLabel}>\n                          {practiceCopy(\"aim.content\")}: {aim.contentCompleted}{\" \"}\n                          / {aim.contentTotal}\n                        </p>\n                        <p className={styles.meta}>\n                          {aim.contentComplete\n                            ? practiceCopy(\"aim.complete\")\n                            : workspaceCopy(\"contentInProgress\")}\n                        </p>\n                      </div>\n                    </li>\n                    <li>\n                      <span className={styles.stageNumber} aria-hidden=\"true\">\n                        2\n                      </span>\n                      <div>\n                        <p className={styles.stageLabel}>\n                          {practiceCopy(\"aim.practice\")}:{\" \"}\n                          {practiceStatus(\n                            locale,\n                            aim.practiceStatus,\n                            practiceCopy,\n                          )}\n                          {aim.practiceStatus === \"Submitted\" ? (\n                            <span className={styles.waiting} role=\"status\">\n                              {practiceCopy(\"common.status.awaitingReview\")}\n                            </span>\n                          ) : null}\n                        </p>\n                      </div>\n                    </li>\n                    <li\n                      data-complete={\n                        aim.practiceStatus === \"Finalized\" || undefined\n                      }\n                    >\n                      <span className={styles.stageNumber} aria-hidden=\"true\">\n                        3\n                      </span>\n                      <div>\n                        <p className={styles.stageLabel}>\n                          {workspaceCopy(\"teacherReview\")}\n                        </p>\n                        <p className={styles.meta}>\n                          {aim.practiceStatus === \"Finalized\"\n                            ? workspaceCopy(\"reviewReceived\")\n                            : aim.practiceStatus === \"Submitted\"\n                              ? workspaceCopy(\"reviewPending\")\n                              : [\n                                    \"NotConfigured\",\n                                    \"Locked\",\n                                    \"Available\",\n                                    \"Draft\",\n                                  ].includes(aim.practiceStatus)\n                                ? workspaceCopy(\"notReviewed\")\n                                : practiceCopy(\"common.status.unknown\")}\n                        </p>\n                      </div>\n                    </li>\n                  </ol>\n                  {aim.assignmentId ? (\n                    <p className=\"mt-1 text-sm text-muted\">\n                      {practiceCopy(\"aim.attempts\")}: {aim.attemptsUsed ?? 0} /{\" \"}\n"
+        },
+        {
+          "previous": "                      {practiceCopy(\"aim.previousAimRequired\")}\n                    </p>\n                  ) : null}\n                  {aim.isUnlocked && aim.assignmentId ? (\n                    <>\n                      {!aim.contentComplete ? (\n",
+          "approved": "                      {practiceCopy(\"aim.previousAimRequired\")}\n                    </p>\n                  ) : null}\n                  {aim.practiceStatus === \"NotConfigured\" ? (\n                    <p className={styles.meta}>\n                      {workspaceCopy(\"notConfigured\")}\n                    </p>\n                  ) : null}\n                  {aim.isUnlocked && aim.assignmentId ? (\n                    <>\n                      {!aim.contentComplete ? (\n"
+        },
+        {
+          "previous": "                        ) : null}\n                        {aim.trainingOutcome ? (\n                          <div className={styles.feedback}>\n                            <p className=\"font-black\">\n                              {practiceCopy(\"common.trainingOutcome\")}:{\" \"}\n                              {trainingOutcomeLabel(\n                                locale,\n",
+          "approved": "                        ) : null}\n                        {aim.trainingOutcome ? (\n                          <div className={styles.feedback}>\n                            <p className={styles.outcomeTitle}>\n                              {practiceCopy(\"common.trainingOutcome\")}:{\" \"}\n                              {trainingOutcomeLabel(\n                                locale,\n"
+        },
+        {
+          "previous": "                                return (\n                                  <div\n                                    key={attempt.attemptNumber}\n                                    className=\"rounded-lg bg-white/5 p-2\"\n                                  >\n                                    <p className=\"font-bold\">\n                                      {practiceCopy(\"aim.attempt\")}{\" \"}\n",
+          "approved": "                                return (\n                                  <div\n                                    key={attempt.attemptNumber}\n                                    className={styles.historyEntry}\n                                  >\n                                    <p className=\"font-bold\">\n                                      {practiceCopy(\"aim.attempt\")}{\" \"}\n"
+        }
+      ],
+      "transport": [
+        "useQuery({ queryKey: [\"learning-aim-practice\", courseId], queryFn: () => api<Unit[]>(`/student/courses/${courseId}/learning-aim-practice`), })",
+        "api<Unit[]>(`/student/courses/${courseId}/learning-aim-practice`)",
+        "useQuery({ queryKey: [\"student-course-assignment-submissions\"], queryFn: () => api<Mine[]>(\"/student/assignments/mine\"), })",
+        "api<Mine[]>(\"/student/assignments/mine\")",
+        "client.invalidateQueries({ queryKey: [\"learning-aim-practice\", courseId], })",
+        "client.invalidateQueries({ queryKey: [\"student-course-assignment-submissions\"], })",
+        "client.invalidateQueries({ queryKey: [\"player\", courseId] })",
+        "useMutation({ mutationFn: (assignmentId: string) => api<{ submissionId: string; versionNumber: number }>( `/student/assignments/${assignmentId}/submissions`, { method: \"POST\", body: JSON.stringify({ comment }) }, ), onSuccess: (result, assignmentId) => { setActive({ assignmentId, submissionId: result.submissionId, versionNumber: result.versionNumber, }); refresh(); }, })",
+        "api<{ submissionId: string; versionNumber: number }>( `/student/assignments/${assignmentId}/submissions`, { method: \"POST\", body: JSON.stringify({ comment }) }, )",
+        "useMutation({ mutationFn: async () => { if (!active) throw new Error(practiceCopy(\"aim.noActiveSubmission\")); for (const file of files) { const body = new FormData(); body.set(\"file\", file); await api( `/student/assignments/submissions/${active.submissionId}/files`, { method: \"POST\", body }, ); } }, onSuccess: () => { setFiles([]); refresh(); }, })",
+        "api( `/student/assignments/submissions/${active.submissionId}/files`, { method: \"POST\", body }, )",
+        "useMutation({ mutationFn: () => { if (!active) throw new Error(practiceCopy(\"aim.noActiveSubmission\")); return api( `/student/assignments/submissions/${active.submissionId}/submit`, { method: \"POST\" }, ); }, onSuccess: () => { setActive(undefined); setComment(\"\"); refresh(); }, })",
+        "api( `/student/assignments/submissions/${active.submissionId}/submit`, { method: \"POST\" }, )",
+        "useQuery({ queryKey: [\"teacher-practice\", courseId], queryFn: () => api<Practice[]>(`/teacher/courses/${courseId}/practice`), })",
+        "api<Practice[]>(`/teacher/courses/${courseId}/practice`)",
+        "useQuery({ queryKey: [\"teacher-practice-submissions\", courseId], queryFn: () => api<PracticeSubmission[]>( `/teacher/courses/${courseId}/practice/submissions`, ), })",
+        "api<PracticeSubmission[]>( `/teacher/courses/${courseId}/practice/submissions`, )",
+        "client.invalidateQueries({ queryKey: [\"teacher-practice\", courseId] })",
+        "client.invalidateQueries({ queryKey: [\"teacher-practice-submissions\", courseId], })",
+        "useMutation({ mutationFn: () => api(\"/teacher/practice\", { method: \"POST\", body: JSON.stringify({ ...form, dueAtUtc: null }), }), onSuccess: () => { setForm({ learningAimId: \"\", arabicTitle: \"\", englishTitle: \"\", arabicInstructions: \"\", englishInstructions: \"\", maxSubmissionAttempts: 1, }); refresh(); }, })",
+        "api(\"/teacher/practice\", { method: \"POST\", body: JSON.stringify({ ...form, dueAtUtc: null }), })",
+        "useMutation({ mutationFn: () => api(`/teacher/practice/${practice.id}/attempt-limit`, { method: \"PUT\", body: JSON.stringify({ maxSubmissionAttempts: value }), }), onSuccess: onChanged, })",
+        "api(`/teacher/practice/${practice.id}/attempt-limit`, { method: \"PUT\", body: JSON.stringify({ maxSubmissionAttempts: value }), })",
+        "useMutation({ mutationFn: () => api(`/teacher/practice/submissions/${submission.id}/review`, { method: \"POST\", body: JSON.stringify(form), }), onSuccess: onChanged, })",
+        "api(`/teacher/practice/submissions/${submission.id}/review`, { method: \"POST\", body: JSON.stringify(form), })"
+      ]
+    },
+    "src/features/learning/comprehensive-practice.tsx": {
+      "hash": "365e00729b772031b822df93ed11d0fce474cb4439ec47eb963ab7f336c6b70c",
+      "seams": [
+        {
+          "previous": "}) {\n  const locale = useLocale();\n  const practiceCopy = useTranslations(\"learningPractice\");\n  const access = useTranslations(\"studentCoursesLearningHub.access\");\n  const client = useQueryClient();\n  const [active, setActive] = useState<{\n",
+          "approved": "}) {\n  const locale = useLocale();\n  const practiceCopy = useTranslations(\"learningPractice\");\n  const workspaceCopy = useTranslations(\"studentPracticeWorkspace\");\n  const access = useTranslations(\"studentCoursesLearningHub.access\");\n  const client = useQueryClient();\n  const [active, setActive] = useState<{\n"
+        },
+        {
+          "previous": "      refresh();\n    },\n  });\n  if (units.isPending || mine.isPending)\n    return (\n      <QueryState\n        kind=\"loading\"\n        title={practiceCopy(\"comprehensive.loading\")}\n      />\n    );\n  if (units.isError || mine.isError)\n    return (\n      <QueryState\n        kind=\"error\"\n",
+          "approved": "      refresh();\n    },\n  });\n  if ((units.isPending && !units.data) || (mine.isPending && !mine.data))\n    return (\n      <QueryState\n        kind=\"loading\"\n        title={practiceCopy(\"comprehensive.loading\")}\n      />\n    );\n  if ((units.isError && !units.data) || (mine.isError && !mine.data))\n    return (\n      <QueryState\n        kind=\"error\"\n"
+        },
+        {
+          "previous": "      className={styles.region}\n      aria-label={practiceCopy(\"comprehensive.title\")}\n    >\n      {units.data.map((unit) => {\n        const practice = unit.finalPractice;\n        if (!practice) return null;\n",
+          "approved": "      className={styles.region}\n      aria-label={practiceCopy(\"comprehensive.title\")}\n    >\n      {units.isError || mine.isError ? (\n        <QueryState\n          kind=\"error\"\n          title={practiceCopy(\"comprehensive.loadFailed\")}\n        />\n      ) : null}\n      {units.data.map((unit) => {\n        const practice = unit.finalPractice;\n        if (!practice) return null;\n"
+        },
+        {
+          "previous": "          >\n            <div className=\"flex flex-wrap items-start justify-between gap-2\">\n              <div>\n                <h2 className=\"text-lg font-black\">\n                  {tr(locale, unit.arabicTitle, unit.englishTitle)} ·{\" \"}\n                  {practiceCopy(\"comprehensive.title\")}\n                </h2>\n                <p className=\"text-sm text-muted\">\n                  {practiceCopy(\"comprehensive.aimsComplete\")}:{\" \"}\n                  {unit.aims.filter((aim) => aim.isComplete).length} /{\" \"}\n                  {unit.aims.length}\n                </p>\n              </div>\n              <span\n                className={styles.status}\n                role={practice.status === \"Submitted\" ? \"status\" : undefined}\n              >\n                {statusLabel(practiceCopy, practice.status)}\n              </span>\n            </div>\n            <p className={styles.disclaimer}>\n              {practiceCopy(\"comprehensive.formativeDisclaimer\")}\n            </p>\n",
+          "approved": "          >\n            <div className=\"flex flex-wrap items-start justify-between gap-2\">\n              <div>\n                <h2 className={styles.aimTitle}>\n                  {tr(locale, unit.arabicTitle, unit.englishTitle)} ·{\" \"}\n                  {practiceCopy(\"comprehensive.title\")}\n                </h2>\n              </div>\n            </div>\n            <ol className={styles.stages} aria-label={workspaceCopy(\"stages\")}>\n              <li>\n                <span className={styles.stageNumber} aria-hidden=\"true\">\n                  1\n                </span>\n                <p className={styles.stageLabel}>\n                  {practiceCopy(\"comprehensive.aimsComplete\")}:{\" \"}\n                  {unit.aims.filter((aim) => aim.isComplete).length} /{\" \"}\n                  {unit.aims.length}\n                </p>\n              </li>\n              <li>\n                <span className={styles.stageNumber} aria-hidden=\"true\">\n                  2\n                </span>\n                <div>\n                  <p className={styles.stageLabel}>\n                    {practiceCopy(\"aim.practice\")}\n                  </p>\n                  <span\n                    className={styles.status}\n                    role={\n                      practice.status === \"Submitted\" ? \"status\" : undefined\n                    }\n                  >\n                    {statusLabel(practiceCopy, practice.status)}\n                  </span>\n                </div>\n              </li>\n              <li data-complete={practice.status === \"Finalized\" || undefined}>\n                <span className={styles.stageNumber} aria-hidden=\"true\">\n                  3\n                </span>\n                <div>\n                  <p className={styles.stageLabel}>\n                    {workspaceCopy(\"teacherReview\")}\n                  </p>\n                  <p className={styles.meta}>\n                    {practice.status === \"Finalized\"\n                      ? workspaceCopy(\"reviewReceived\")\n                      : practice.status === \"Submitted\"\n                        ? workspaceCopy(\"reviewPending\")\n                        : [\n                              \"NotConfigured\",\n                              \"Locked\",\n                              \"Available\",\n                              \"Draft\",\n                            ].includes(practice.status)\n                          ? workspaceCopy(\"notReviewed\")\n                          : practiceCopy(\"common.status.unknown\")}\n                  </p>\n                </div>\n              </li>\n            </ol>\n            <p className={styles.disclaimer}>\n              {practiceCopy(\"comprehensive.formativeDisclaimer\")}\n            </p>\n"
+        },
+        {
+          "previous": "            ) : null}\n            {practice.trainingOutcome ? (\n              <div className={styles.feedback}>\n                <p className=\"font-black\">\n                  {practiceCopy(\"common.trainingOutcome\")}:{\" \"}\n                  {outcomeLabel(practiceCopy, practice.trainingOutcome)}\n                </p>\n",
+          "approved": "            ) : null}\n            {practice.trainingOutcome ? (\n              <div className={styles.feedback}>\n                <p className={styles.outcomeTitle}>\n                  {practiceCopy(\"common.trainingOutcome\")}:{\" \"}\n                  {outcomeLabel(practiceCopy, practice.trainingOutcome)}\n                </p>\n"
+        }
+      ],
+      "transport": [
+        "useQuery({ queryKey: [\"learning-aim-practice\", courseId], queryFn: () => api<Unit[]>(`/student/courses/${courseId}/learning-aim-practice`), })",
+        "api<Unit[]>(`/student/courses/${courseId}/learning-aim-practice`)",
+        "useQuery({ queryKey: [\"student-course-assignment-submissions\"], queryFn: () => api<Mine[]>(\"/student/assignments/mine\"), })",
+        "api<Mine[]>(\"/student/assignments/mine\")",
+        "client.invalidateQueries({ queryKey: [\"learning-aim-practice\", courseId], })",
+        "client.invalidateQueries({ queryKey: [\"student-course-assignment-submissions\"], })",
+        "useMutation({ mutationFn: (assignmentId: string) => api<{ submissionId: string }>( `/student/assignments/${assignmentId}/submissions`, { method: \"POST\", body: JSON.stringify({ comment }) }, ), onSuccess: (result, assignmentId) => { setActive({ assignmentId, submissionId: result.submissionId }); refresh(); }, })",
+        "api<{ submissionId: string }>( `/student/assignments/${assignmentId}/submissions`, { method: \"POST\", body: JSON.stringify({ comment }) }, )",
+        "useMutation({ mutationFn: async () => { if (!active) throw new Error(practiceCopy(\"comprehensive.noActiveSubmission\")); for (const file of files) { const body = new FormData(); body.set(\"file\", file); await api( `/student/assignments/submissions/${active.submissionId}/files`, { method: \"POST\", body }, ); } }, onSuccess: () => { setFiles([]); refresh(); }, })",
+        "api( `/student/assignments/submissions/${active.submissionId}/files`, { method: \"POST\", body }, )",
+        "useMutation({ mutationFn: () => { if (!active) throw new Error(practiceCopy(\"comprehensive.noActiveSubmission\")); return api( `/student/assignments/submissions/${active.submissionId}/submit`, { method: \"POST\" }, ); }, onSuccess: () => { setActive(undefined); setComment(\"\"); refresh(); }, })",
+        "api( `/student/assignments/submissions/${active.submissionId}/submit`, { method: \"POST\" }, )",
+        "useQuery({ queryKey: [\"teacher-comprehensive-practice\", courseId], queryFn: () => api<TeacherPractice[]>( `/teacher/courses/${courseId}/comprehensive-practice`, ), })",
+        "api<TeacherPractice[]>( `/teacher/courses/${courseId}/comprehensive-practice`, )",
+        "useQuery({ queryKey: [\"teacher-comprehensive-submissions\", courseId], queryFn: () => api<TeacherSubmission[]>( `/teacher/courses/${courseId}/comprehensive-practice/submissions`, ), })",
+        "api<TeacherSubmission[]>( `/teacher/courses/${courseId}/comprehensive-practice/submissions`, )",
+        "client.invalidateQueries({ queryKey: [\"teacher-comprehensive-practice\", courseId], })",
+        "client.invalidateQueries({ queryKey: [\"teacher-comprehensive-submissions\", courseId], })",
+        "useMutation({ mutationFn: () => api(\"/teacher/comprehensive-practice\", { method: \"POST\", body: JSON.stringify({ courseModuleId: moduleId, ...form, dueAtUtc: form.dueAt ? new Date(form.dueAt).toISOString() : null, }), }), onSuccess: () => { setModuleId(\"\"); setForm({ arabicTitle: \"\", englishTitle: \"\", arabicInstructions: \"\", englishInstructions: \"\", dueAt: \"\", }); refresh(); }, })",
+        "api(\"/teacher/comprehensive-practice\", { method: \"POST\", body: JSON.stringify({ courseModuleId: moduleId, ...form, dueAtUtc: form.dueAt ? new Date(form.dueAt).toISOString() : null, }), })",
+        "useMutation({ mutationFn: () => api(`/teacher/comprehensive-practice/${practice.id}`, { method: \"PUT\", body: JSON.stringify({ arabicTitle: form.arabicTitle, englishTitle: form.englishTitle, arabicInstructions: form.arabicInstructions, englishInstructions: form.englishInstructions, dueAtUtc: form.dueAt ? new Date(form.dueAt).toISOString() : null, }), }), onSuccess: onChanged, })",
+        "api(`/teacher/comprehensive-practice/${practice.id}`, { method: \"PUT\", body: JSON.stringify({ arabicTitle: form.arabicTitle, englishTitle: form.englishTitle, arabicInstructions: form.arabicInstructions, englishInstructions: form.englishInstructions, dueAtUtc: form.dueAt ? new Date(form.dueAt).toISOString() : null, }), })",
+        "useMutation({ mutationFn: () => api(`/teacher/assignments/${practice.id}/publish`, { method: \"POST\", body: JSON.stringify({ publish: true }), }), onSuccess: onChanged, })",
+        "api(`/teacher/assignments/${practice.id}/publish`, { method: \"POST\", body: JSON.stringify({ publish: true }), })",
+        "useMutation({ mutationFn: async () => { for (const file of files) { const body = new FormData(); body.set(\"file\", file); await api(`/teacher/assignments/${practice.id}/resources`, { method: \"POST\", body, }); } }, onSuccess: () => { setFiles([]); onChanged(); }, })",
+        "api(`/teacher/assignments/${practice.id}/resources`, { method: \"POST\", body, })",
+        "useMutation({ mutationFn: () => api(\"/teacher/assignments/criteria\", { method: \"POST\", body: JSON.stringify({ assignmentId: practice.id, btecCriterionId: criterionId, sortOrder: practice.criteria.length, }), }), onSuccess: () => { setCriterionId(\"\"); onChanged(); }, })",
+        "api(\"/teacher/assignments/criteria\", { method: \"POST\", body: JSON.stringify({ assignmentId: practice.id, btecCriterionId: criterionId, sortOrder: practice.criteria.length, }), })",
+        "useMutation({ mutationFn: () => api( `/teacher/comprehensive-practice/submissions/${submission.id}/review`, { method: \"POST\", body: JSON.stringify(form) }, ), onSuccess: onChanged, })",
+        "api( `/teacher/comprehensive-practice/submissions/${submission.id}/review`, { method: \"POST\", body: JSON.stringify(form) }, )"
+      ]
+    },
+    "src/features/learning/student-practice-presentation.module.css": {
+      "hash": "e7ab229a22ddf13f06bfcee33d9b20b963dbc0f02374430a3845cd7a925b070f",
+      "seams": [
+        {
+          "previous": "}\n.regionTitle {\n  font-size: 1.35rem;\n  font-weight: 800;\n  margin-block-end: 0.75rem;\n}\n.unit {\n",
+          "approved": "}\n.regionTitle {\n  font-size: 1.35rem;\n  font-weight: 700;\n  margin-block-end: 0.75rem;\n}\n.unit {\n"
+        },
+        {
+          "previous": "}\n.unitTitle {\n  font-size: 1rem;\n  font-weight: 750;\n  color: var(--ui-text-secondary);\n}\n.aim {\n",
+          "approved": "}\n.unitTitle {\n  font-size: 1rem;\n  font-weight: 600;\n  color: var(--ui-text-secondary);\n}\n.aim {\n"
+        },
+        {
+          "previous": "}\n.aimTitle {\n  font-size: 1.05rem;\n  font-weight: 800;\n  line-height: 1.6;\n}\n.final {\n",
+          "approved": "}\n.aimTitle {\n  font-size: 1.05rem;\n  font-weight: 700;\n  line-height: 1.6;\n}\n.final {\n"
+        },
+        {
+          "previous": ".status {\n  max-width: 100%;\n  font-size: 0.875rem;\n  font-weight: 750;\n  color: var(--ui-text-primary);\n}\n.meta {\n",
+          "approved": ".status {\n  max-width: 100%;\n  font-size: 0.875rem;\n  font-weight: 600;\n  color: var(--ui-text-primary);\n}\n.meta {\n"
+        },
+        {
+          "previous": "  min-height: 2.75rem;\n  padding-block: 0.5rem;\n  font-size: 0.9375rem;\n  font-weight: 750;\n  color: var(--ui-text-primary);\n  line-height: 1.75;\n}\n",
+          "approved": "  min-height: 2.75rem;\n  padding-block: 0.5rem;\n  font-size: 0.9375rem;\n  font-weight: 600;\n  color: var(--ui-text-primary);\n  line-height: 1.75;\n}\n"
+        },
+        {
+          "previous": "  min-height: 2.75rem;\n  overflow-wrap: anywhere;\n}\n@media (max-width: 47.99rem) {\n  .aim,\n  .final {\n    padding: 0.875rem;\n",
+          "approved": "  min-height: 2.75rem;\n  overflow-wrap: anywhere;\n}\n.stages {\n  display: grid;\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n  gap: 1rem;\n  margin-block: 1rem;\n  padding-block: 1rem;\n  list-style: none;\n  border-block: 1px solid var(--ui-border-subtle);\n}\n.stages > li {\n  display: flex;\n  align-items: flex-start;\n  gap: 0.625rem;\n  min-width: 0;\n}\n.stageNumber {\n  display: grid;\n  place-items: center;\n  flex: 0 0 1.75rem;\n  min-height: 1.75rem;\n  border: 1px solid var(--ui-border-default);\n  border-radius: var(--ui-radius-control);\n  font-size: 0.8125rem;\n  font-weight: 600;\n  color: var(--ui-text-secondary);\n}\n.stages > li[data-complete] .stageNumber {\n  color: var(--ui-text-link);\n  border-color: currentColor;\n}\n.stageLabel,\n.outcomeTitle {\n  font-weight: 600;\n  line-height: 1.7;\n}\n.historyEntry {\n  padding-block: 0.75rem;\n  border-block-end: 1px solid var(--ui-border-subtle);\n}\n@media (max-width: 47.99rem) {\n  .stages {\n    grid-template-columns: minmax(0, 1fr);\n    gap: 0.75rem;\n  }\n  .aim,\n  .final {\n    padding: 0.875rem;\n"
+        }
+      ],
+      "transport": []
+    }
+  },
+  "additions": {
+    "en": {
+      "stages": "Formative practice stages",
+      "teacherReview": "Teacher review",
+      "reviewReceived": "Review received",
+      "reviewPending": "Waiting for teacher review",
+      "notReviewed": "Current work has not been submitted for review",
+      "contentInProgress": "Content in progress",
+      "notConfigured": "Practice has not been configured for this aim."
+    },
+    "ar": {
+      "stages": "مراحل التدريب التكويني",
+      "teacherReview": "مراجعة المعلم",
+      "reviewReceived": "تم استلام المراجعة",
+      "reviewPending": "بانتظار مراجعة المعلم",
+      "notReviewed": "لم يُسلّم العمل الحالي للمراجعة",
+      "contentInProgress": "المحتوى قيد الإكمال",
+      "notConfigured": "لم يُعدّ تدريب لهذا الهدف بعد."
+    }
+  }
+}

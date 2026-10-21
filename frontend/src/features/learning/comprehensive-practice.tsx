@@ -83,6 +83,7 @@ export function StudentComprehensivePractice({
 }) {
   const locale = useLocale();
   const practiceCopy = useTranslations("learningPractice");
+  const workspaceCopy = useTranslations("studentPracticeWorkspace");
   const access = useTranslations("studentCoursesLearningHub.access");
   const client = useQueryClient();
   const [active, setActive] = useState<{
@@ -152,14 +153,14 @@ export function StudentComprehensivePractice({
       refresh();
     },
   });
-  if (units.isPending || mine.isPending)
+  if ((units.isPending && !units.data) || (mine.isPending && !mine.data))
     return (
       <QueryState
         kind="loading"
         title={practiceCopy("comprehensive.loading")}
       />
     );
-  if (units.isError || mine.isError)
+  if ((units.isError && !units.data) || (mine.isError && !mine.data))
     return (
       <QueryState
         kind="error"
@@ -172,6 +173,12 @@ export function StudentComprehensivePractice({
       className={styles.region}
       aria-label={practiceCopy("comprehensive.title")}
     >
+      {units.isError || mine.isError ? (
+        <QueryState
+          kind="error"
+          title={practiceCopy("comprehensive.loadFailed")}
+        />
+      ) : null}
       {units.data.map((unit) => {
         const practice = unit.finalPractice;
         if (!practice) return null;
@@ -194,23 +201,66 @@ export function StudentComprehensivePractice({
           >
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
-                <h2 className="text-lg font-black">
+                <h2 className={styles.aimTitle}>
                   {tr(locale, unit.arabicTitle, unit.englishTitle)} ·{" "}
                   {practiceCopy("comprehensive.title")}
                 </h2>
-                <p className="text-sm text-muted">
+              </div>
+            </div>
+            <ol className={styles.stages} aria-label={workspaceCopy("stages")}>
+              <li>
+                <span className={styles.stageNumber} aria-hidden="true">
+                  1
+                </span>
+                <p className={styles.stageLabel}>
                   {practiceCopy("comprehensive.aimsComplete")}:{" "}
                   {unit.aims.filter((aim) => aim.isComplete).length} /{" "}
                   {unit.aims.length}
                 </p>
-              </div>
-              <span
-                className={styles.status}
-                role={practice.status === "Submitted" ? "status" : undefined}
-              >
-                {statusLabel(practiceCopy, practice.status)}
-              </span>
-            </div>
+              </li>
+              <li>
+                <span className={styles.stageNumber} aria-hidden="true">
+                  2
+                </span>
+                <div>
+                  <p className={styles.stageLabel}>
+                    {practiceCopy("aim.practice")}
+                  </p>
+                  <span
+                    className={styles.status}
+                    role={
+                      practice.status === "Submitted" ? "status" : undefined
+                    }
+                  >
+                    {statusLabel(practiceCopy, practice.status)}
+                  </span>
+                </div>
+              </li>
+              <li data-complete={practice.status === "Finalized" || undefined}>
+                <span className={styles.stageNumber} aria-hidden="true">
+                  3
+                </span>
+                <div>
+                  <p className={styles.stageLabel}>
+                    {workspaceCopy("teacherReview")}
+                  </p>
+                  <p className={styles.meta}>
+                    {practice.status === "Finalized"
+                      ? workspaceCopy("reviewReceived")
+                      : practice.status === "Submitted"
+                        ? workspaceCopy("reviewPending")
+                        : [
+                              "NotConfigured",
+                              "Locked",
+                              "Available",
+                              "Draft",
+                            ].includes(practice.status)
+                          ? workspaceCopy("notReviewed")
+                          : practiceCopy("common.status.unknown")}
+                  </p>
+                </div>
+              </li>
+            </ol>
             <p className={styles.disclaimer}>
               {practiceCopy("comprehensive.formativeDisclaimer")}
             </p>
@@ -404,7 +454,7 @@ export function StudentComprehensivePractice({
             ) : null}
             {practice.trainingOutcome ? (
               <div className={styles.feedback}>
-                <p className="font-black">
+                <p className={styles.outcomeTitle}>
                   {practiceCopy("common.trainingOutcome")}:{" "}
                   {outcomeLabel(practiceCopy, practice.trainingOutcome)}
                 </p>

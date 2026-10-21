@@ -3675,5 +3675,14 @@
       "headline": "Learn. Apply. Achieve.",
       "description": "BTEC-first learning, assignments, criteria, and evaluation in one place."
     }
+  },
+  "studentPracticeWorkspace": {
+    "stages": "Formative practice stages",
+    "teacherReview": "Teacher review",
+    "reviewReceived": "Review received",
+    "reviewPending": "Waiting for teacher review",
+    "notReviewed": "Current work has not been submitted for review",
+    "contentInProgress": "Content in progress",
+    "notConfigured": "Practice has not been configured for this aim."
   }
 }
