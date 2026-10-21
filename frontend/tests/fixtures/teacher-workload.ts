@@ -1,0 +1,67 @@
+// MOCKED UI-CONTRACT EVIDENCE. Synthetic snapshots, never production seed data.
+export const workloadCourses = [
+  {
+    id: "z-draft",
+    arabicTitle: "دورة ياء طويلة لتوضيح متابعة أعمال المقرر",
+    englishTitle: "Zeta draft",
+    status: "Draft",
+    price: 0,
+    isFree: true,
+    hasCover: true,
+    moduleCount: 1,
+    lessonCount: 3,
+  },
+  {
+    id: "a-published",
+    arabicTitle: "دورة ألف المنشورة",
+    englishTitle: "Alpha published",
+    status: "Published",
+    price: 12.5,
+    isFree: false,
+    hasCover: false,
+    moduleCount: 2,
+    lessonCount: 5,
+  },
+  {
+    id: "m-rejected",
+    arabicTitle: "دورة ميم للمراجعة",
+    englishTitle: "Middle rejected",
+    status: "Rejected",
+    price: 0,
+    isFree: true,
+    hasCover: false,
+    moduleCount: 0,
+    lessonCount: 1,
+  },
+];
+export const workloadStudents = Array.from({ length: 13 }, (_, i) => ({
+  studentUserId: `student-${i}`,
+  studentName: `RAW student ${i} · اسم طالب طويل لمتابعة التعلّم والتدريب التكويني`,
+  riskLevel: i % 2 ? "Medium" : "High",
+  reasons: ["AwaitingPracticeReview"],
+  progressPercent: 30 + i,
+  missedAssignments: i % 3,
+  lastActiveAtUtc: "2026-10-01T10:00:00Z",
+  formativeSignals: [],
+}));
+export const workloadAnalytics = {
+  courses: 3,
+  students: 17,
+  pendingReviews: 6,
+  averageLessonProgress: 42,
+  studentsAtRisk: workloadStudents.slice(0, 8),
+  studentsAtRiskCount: 13,
+};
+export const workloadAssignments = Array.from({ length: 55 }, (_, i) => ({
+  id: `request-${String(55 - i).padStart(2, "0")}`,
+  status: i === 0 ? "UnknownServerState" : i % 2 ? "Assigned" : "UnderReview",
+  studentComment: `RAW note ${i} · ملاحظة الطالب كما أعادها الخادم`,
+  filesCount: i % 4,
+  criteria: ["A.P1"],
+  selectedCriteria: ["A.P1"],
+  submissionAttemptNumber: 1,
+  isRetake: i === 2,
+  isResit: i === 1,
+  resitOfEvaluationRequestId: i === 1 ? "original-resit" : null,
+  retakeOfEvaluationRequestId: i === 2 ? "original-retake" : null,
+}));

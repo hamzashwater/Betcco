@@ -5,7 +5,7 @@ import {
   formatLocalizedNumber,
   formatLocalizedPercentage,
 } from "@/i18n/number-format";
-import { DashboardHeader } from "@/components/dashboard/dashboard-ui";
+import styles from "./teacher-workload.module.css";
 import { Action, actionClassName } from "@/components/ui/action";
 import { QueryState } from "@/components/ui/query-state";
 import { api } from "@/lib/api";
@@ -107,6 +107,7 @@ const pageSize = 10;
 export function TeacherStudentFollowUp() {
   const locale = useLocale();
   const t = useTranslations("teacherStudentFollowUp");
+  const p = useTranslations("teacherWorkloadPresentation");
   const [search, setSearch] = useState("");
   const [attention, setAttention] = useState<AttentionFilter>("All");
   const [reason, setReason] = useState<ReasonFilter>("All");
@@ -149,12 +150,18 @@ export function TeacherStudentFollowUp() {
   };
 
   return (
-    <section className="shell py-10" dir={locale === "ar" ? "rtl" : "ltr"}>
-      <DashboardHeader
-        eyebrow={t("eyebrow")}
-        title={t("title")}
-        description={t("description")}
-      />
+    <section
+      className={`shell py-8 ${styles.workspace}`}
+      dir={locale === "ar" ? "rtl" : "ltr"}
+    >
+      <header className={styles.header}>
+        <div>
+          <p className={styles.eyebrow}>{t("eyebrow")}</p>
+          <h1>{t("title")}</h1>
+          <p>{t("description")}</p>
+        </div>
+      </header>
+      <p className={styles.scope}>{p("followUpScope")}</p>
       <div
         className="mt-5 flex items-start gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-foreground"
         role="note"
@@ -167,7 +174,7 @@ export function TeacherStudentFollowUp() {
         <p>{t("disclaimer")}</p>
       </div>
 
-      <div className="card mt-5 p-4 sm:p-5">
+      <div className={`mt-5 ${styles.panel}`}>
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(13rem,0.4fr)_minmax(13rem,0.4fr)] lg:items-end">
           <div>
             <label
@@ -200,7 +207,7 @@ export function TeacherStudentFollowUp() {
                     setSearch("");
                     setPage(1);
                   }}
-                  className="focus-ring grid size-8 shrink-0 place-items-center rounded-lg text-muted hover:bg-primary/10 hover:text-primary"
+                  className="focus-ring grid size-8 shrink-0 place-items-center rounded-lg text-muted hover:bg-primary/10 hover:text-text-link"
                   aria-label={t("clearSearch")}
                 >
                   <X size={17} aria-hidden="true" />
@@ -311,18 +318,15 @@ export function TeacherStudentFollowUp() {
             <p className="mt-4 text-sm font-semibold text-muted">
               {t("results", { from, to, count: filteredCount })}
             </p>
-            <ul
-              className="mt-3 grid min-w-0 gap-4 lg:grid-cols-2"
-              aria-label={t("studentListLabel")}
-            >
+            <ul className={styles.rows} aria-label={t("studentListLabel")}>
               {result.data.studentsAtRisk.map((student) => (
                 <li key={student.studentUserId} className="min-w-0">
                   <article
-                    className="card h-full min-w-0 p-5"
+                    className={styles.row}
                     data-risk-level={student.riskLevel}
                   >
                     <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
-                      <h2 className="min-w-0 break-words text-lg font-black text-foreground">
+                      <h2 className="min-w-0 break-words text-lg font-semibold text-foreground">
                         {student.studentName}
                       </h2>
                       <span
@@ -370,8 +374,8 @@ export function TeacherStudentFollowUp() {
                       />
                     </dl>
                     {student.formativeSignals?.length ? (
-                      <div className="mt-4 rounded-2xl border border-primary/20 bg-primary/5 p-4">
-                        <p className="text-xs font-black uppercase tracking-[0.12em] text-primary">
+                      <div className={styles.subsection}>
+                        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-text-link">
                           {t("formative.title")}
                         </p>
                         <div className="mt-3 grid gap-3">
@@ -472,7 +476,7 @@ export function TeacherFollowUpPreview({
   const preview = students.slice(0, 4);
   return (
     <section
-      className="card mt-5 p-5"
+      className={styles.preview}
       aria-labelledby="teacher-follow-up-preview-heading"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -483,7 +487,7 @@ export function TeacherFollowUpPreview({
           <div>
             <h2
               id="teacher-follow-up-preview-heading"
-              className="font-black text-foreground"
+              className="font-semibold text-foreground"
             >
               {t("dashboardTitle")}
             </h2>
@@ -512,15 +516,15 @@ export function TeacherFollowUpPreview({
           {t("loading")}
         </p>
       ) : preview.length ? (
-        <ul className="mt-4 grid gap-3 md:grid-cols-2">
+        <ul className={styles.rows}>
           {preview.map((student) => (
             <li
               key={student.studentUserId}
-              className="rounded-xl border border-border bg-white/5 p-4"
+              className={styles.previewRow}
               data-risk-level={student.riskLevel}
             >
               <div className="flex items-center justify-between gap-3">
-                <p className="min-w-0 break-words font-black text-foreground">
+                <p className="min-w-0 break-words font-semibold text-foreground">
                   {student.studentName}
                 </p>
                 <span className="ui-type-label shrink-0 rounded-full bg-warning-surface px-2.5 py-1 text-state-warning-foreground">
@@ -536,7 +540,7 @@ export function TeacherFollowUpPreview({
                 })}
               </p>
               {student.formativeSignals?.[0] ? (
-                <p className="mt-2 text-xs font-bold text-primary">
+                <p className="mt-2 text-xs font-bold text-text-link">
                   {t(`reasons.${student.formativeSignals[0].reason}`)}
                 </p>
               ) : null}
@@ -588,11 +592,11 @@ function FormativeSignalCard({ signal }: { signal: TeacherFormativeSignal }) {
 
   return (
     <article
-      className="rounded-xl border border-border bg-surface-solid/65 p-3"
+      className={styles.subsection}
       data-formative-signal={signal.reason}
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <p className="text-sm font-black text-foreground">
+        <p className="text-sm font-semibold text-foreground">
           {t(`reasons.${signal.reason}`)}
         </p>
         <span className="rounded-full border border-border px-2 py-1 text-[11px] font-bold text-muted">
@@ -638,9 +642,11 @@ function FormativeSignalCard({ signal }: { signal: TeacherFormativeSignal }) {
 
 function StudentMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="min-w-0 rounded-xl bg-surface-solid p-3">
+    <div className="min-w-0">
       <dt className="text-xs font-semibold text-muted">{label}</dt>
-      <dd className="mt-1 break-words font-black text-foreground">{value}</dd>
+      <dd className="mt-1 break-words font-semibold text-foreground">
+        {value}
+      </dd>
     </div>
   );
 }

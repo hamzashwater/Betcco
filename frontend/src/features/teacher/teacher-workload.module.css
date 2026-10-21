@@ -1,0 +1,215 @@
+.workspace {
+  min-width: 0;
+  color: var(--ui-text-primary);
+  overflow-wrap: anywhere;
+}
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.5rem 1.5rem;
+  border-block-end: 1px solid var(--ui-border-default);
+}
+.header h1 {
+  margin-block: 0.5rem;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  line-height: 1.5;
+}
+.header p {
+  max-width: 48rem;
+  color: var(--ui-text-secondary);
+  line-height: 1.8;
+}
+.header .eyebrow {
+  color: var(--ui-text-link);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.workspace h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.7;
+}
+.panel {
+  min-width: 0;
+  margin-block-start: 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--ui-border-default);
+  border-radius: 12px;
+  background: var(--ui-surface-content);
+}
+.section {
+  margin-block: 1.5rem;
+}
+.workLinks,
+.utilities {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-block: 0.75rem;
+}
+.utilities {
+  justify-content: start;
+}
+.scope {
+  margin-block: 0.75rem;
+  color: var(--ui-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.8;
+}
+.preview {
+  min-width: 0;
+  margin-block-start: 1rem;
+  border-block-start: 1px solid var(--ui-border-subtle);
+  padding-block-start: 1rem;
+}
+.rows {
+  display: grid;
+  min-width: 0;
+  gap: 0;
+  margin-block-start: 1rem;
+  border: 1px solid var(--ui-border-default);
+  border-radius: 12px;
+  overflow: clip;
+  background: var(--ui-surface-content);
+}
+.row,
+.previewRow,
+.courseRow {
+  display: block;
+  min-width: 0;
+  padding: 1rem;
+  border-block-end: 1px solid var(--ui-border-subtle);
+  background: var(--ui-surface-content);
+}
+.rows > :last-child,
+.rows > :last-child > .row,
+.rows > :last-child > .previewRow,
+.rows > :last-child > .courseRow {
+  border-block-end: 0;
+}
+.previewRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+.previewRow > div {
+  min-width: 0;
+}
+.courseRow {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+}
+.courseRow > * {
+  margin-block-start: 0;
+}
+.subsection {
+  min-width: 0;
+  border-inline-start: 2px solid var(--ui-border-subtle);
+  padding-inline-start: 0.75rem;
+  margin-block-start: 1rem;
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-block-start: 0.75rem;
+}
+.metrics > article {
+  min-width: 0;
+  padding: 0.75rem;
+  border: 0;
+  border-inline-start: 1px solid var(--ui-border-subtle);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  transform: none;
+}
+.metrics > article > div > span {
+  display: none;
+}
+.metrics > article p:nth-child(2) {
+  margin-block-start: 0.25rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+.filters {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 1rem;
+  padding-block: 1rem;
+}
+.filters label {
+  display: grid;
+  min-width: 0;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.filters .scope {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+.workspace input,
+.workspace select {
+  min-width: 0;
+  max-width: 100%;
+  min-height: 2.75rem;
+}
+.filters input,
+.filters select {
+  width: 100%;
+  border: 1px solid var(--ui-border-default);
+  border-radius: 8px;
+  padding: 0.625rem 0.75rem;
+  background: var(--ui-surface-content);
+  color: var(--ui-text-primary);
+}
+.workspace button,
+.workspace a {
+  min-height: 2.75rem;
+}
+.workspace button {
+  min-width: 2.75rem;
+}
+.workspace button[aria-pressed="true"] {
+  background: var(--ui-selection-surface);
+  color: var(--ui-selection-text);
+  border-color: var(--ui-selection-marker);
+}
+.workspace :is(a, button, input, select):focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 3px;
+}
+.rows a:focus-visible {
+  outline-offset: -3px;
+}
+.row:hover,
+.courseRow:hover,
+a.previewRow:hover {
+  background: var(--ui-surface-row-hover);
+}
+@media (max-width: 767px) {
+  .courseRow,
+  .filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .row,
+  .previewRow,
+  .courseRow {
+    padding: 1rem;
+  }
+}

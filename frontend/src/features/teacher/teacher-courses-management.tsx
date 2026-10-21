@@ -1,6 +1,9 @@
 "use client";
 
 import { api } from "@/lib/api";
+import { QueryState } from "@/components/ui/query-state";
+import { Action, actionClassName } from "@/components/ui/action";
+import styles from "./teacher-workload.module.css";
 import { formatLocalizedCurrency } from "@/i18n/number-format";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -85,6 +88,7 @@ export function TeacherCoursesManagement({
 }: TeacherCoursesManagementProps) {
   const locale = useLocale();
   const t = useTranslations("teacherCoursesManagement");
+  const p = useTranslations("teacherWorkloadPresentation");
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<CourseFilter>("All");
   const [sort, setSort] = useState<CourseSort>("title");
@@ -141,7 +145,7 @@ export function TeacherCoursesManagement({
     );
   }
 
-  if (result.isError) {
+  if (result.isError && !result.data) {
     return (
       <div className="card p-5" role="alert">
         <p className="text-sm text-muted">{t("loadError")}</p>
@@ -160,41 +164,51 @@ export function TeacherCoursesManagement({
   const heading = (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h2 id="teacher-courses-heading" className="text-xl font-black">
+        <h2 id="teacher-courses-heading" className="text-xl font-semibold">
           {t("title")}
         </h2>
         <p className="mt-1 text-sm text-muted">{t("description")}</p>
       </div>
-      <Link
-        href={`/${locale}/teacher/courses/new`}
-        className="focus-ring inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-slate-950"
-      >
-        <Plus size={18} aria-hidden="true" />
-        {t("addCourse")}
-      </Link>
+      {variant !== "compact" ? (
+        <Link
+          href={`/${locale}/teacher/courses/new`}
+          className={actionClassName()}
+        >
+          <Plus size={18} aria-hidden="true" />
+          {t("addCourse")}
+        </Link>
+      ) : null}
     </div>
   );
   const emptyState = (
     <div className="card mt-5 p-5 text-sm text-muted">
       <p>{t("empty.noCourses")}</p>
-      <Link
-        href={`/${locale}/teacher/courses/new`}
-        className="focus-ring mt-3 inline-flex items-center gap-2 font-bold text-primary underline"
-      >
-        <Plus size={16} aria-hidden="true" />
-        {t("addCourse")}
-      </Link>
     </div>
   );
 
   if (variant === "compact") {
     return (
       <section
-        className="min-w-0"
+        className={styles.workspace}
         dir={locale === "ar" ? "rtl" : "ltr"}
         aria-labelledby="teacher-courses-heading"
       >
         {heading}
+        {result.isError ? (
+          <QueryState
+            kind="error"
+            title={t("loadError")}
+            action={
+              <Action
+                variant="secondary"
+                type="button"
+                onClick={() => void result.refetch()}
+              >
+                {t("retry")}
+              </Action>
+            }
+          />
+        ) : null}
         {!courses.length ? (
           emptyState
         ) : (
@@ -211,11 +225,11 @@ export function TeacherCoursesManagement({
                   <Link
                     href={`/${locale}/teacher/courses/${course.id}`}
                     aria-label={t("courseActionLabel", { action, title })}
-                    className="card focus-ring flex min-w-0 flex-wrap items-center justify-between gap-3 p-4"
+                    className={`focus-ring ${styles.previewRow}`}
                     data-interactive
                   >
                     <div className="min-w-0">
-                      <h3 className="break-words font-black text-foreground">
+                      <h3 className="break-words font-semibold text-foreground">
                         {title}
                       </h3>
                       <p className="mt-1 text-xs font-semibold text-muted">
@@ -224,10 +238,10 @@ export function TeacherCoursesManagement({
                       </p>
                     </div>
                     <div className="flex shrink-0 items-center gap-3">
-                      <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
+                      <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-bold text-text-link">
                         {t(`statuses.${course.status}`)}
                       </span>
-                      <span className="inline-flex items-center gap-1.5 font-black text-primary">
+                      <span className="inline-flex items-center gap-1.5 font-semibold text-text-link">
                         {action}
                         <ArrowUpRight
                           size={17}
@@ -248,17 +262,33 @@ export function TeacherCoursesManagement({
 
   return (
     <section
-      className="min-w-0"
+      className={`shell py-8 ${styles.workspace}`}
       dir={locale === "ar" ? "rtl" : "ltr"}
       aria-labelledby="teacher-courses-heading"
     >
       {heading}
+      {result.isError ? (
+        <QueryState
+          kind="error"
+          title={t("loadError")}
+          action={
+            <Action
+              variant="secondary"
+              type="button"
+              onClick={() => void result.refetch()}
+            >
+              {t("retry")}
+            </Action>
+          }
+        />
+      ) : null}
 
       {!courses.length ? (
         emptyState
       ) : (
         <>
-          <div className="card mt-5 p-4 sm:p-5">
+          <div className={`mt-5 ${styles.panel}`}>
+            <p className={styles.scope}>{p("courseScope")}</p>
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(13rem,0.35fr)] lg:items-end">
               <div>
                 <label
@@ -285,7 +315,7 @@ export function TeacherCoursesManagement({
                     <button
                       type="button"
                       onClick={() => setSearch("")}
-                      className="focus-ring grid size-8 shrink-0 place-items-center rounded-lg text-muted hover:bg-primary/10 hover:text-primary"
+                      className="focus-ring grid size-8 shrink-0 place-items-center rounded-lg text-muted hover:bg-primary/10 hover:text-text-link"
                       aria-label={t("clearSearch")}
                     >
                       <X size={17} aria-hidden="true" />
@@ -353,10 +383,7 @@ export function TeacherCoursesManagement({
           </div>
 
           {visibleCourses.length ? (
-            <ul
-              className="mt-4 grid min-w-0 gap-4 md:grid-cols-2"
-              aria-label={t("courseListLabel")}
-            >
+            <ul className={styles.rows} aria-label={t("courseListLabel")}>
               {visibleCourses.map((course) => {
                 const title = localizedTitle(course, locale);
                 const editable = isEditable(course);
@@ -366,19 +393,19 @@ export function TeacherCoursesManagement({
                     <Link
                       href={`/${locale}/teacher/courses/${course.id}`}
                       aria-label={t("courseActionLabel", { action, title })}
-                      className="card focus-ring group flex h-full min-w-0 flex-col p-5"
+                      className={`focus-ring ${styles.courseRow}`}
                       data-interactive
                     >
                       <div className="flex min-w-0 items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <h3 className="break-words font-black text-foreground">
+                          <h3 className="break-words font-semibold text-foreground">
                             {title}
                           </h3>
-                          <span className="mt-2 inline-flex rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
+                          <span className="mt-2 inline-flex rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-bold text-text-link">
                             {t(`statuses.${course.status}`)}
                           </span>
                         </div>
-                        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-text-link">
                           {course.hasCover ? (
                             <ImageIcon size={20} aria-hidden="true" />
                           ) : (
@@ -409,7 +436,7 @@ export function TeacherCoursesManagement({
                         </span>
                       </div>
 
-                      <span className="mt-5 inline-flex items-center gap-1.5 self-start font-black text-primary">
+                      <span className="mt-5 inline-flex items-center gap-1.5 self-start font-semibold text-text-link">
                         {action}
                         <ArrowUpRight
                           size={17}
@@ -438,7 +465,7 @@ export function TeacherCoursesManagement({
                     setSearch("");
                     setFilter("All");
                   }}
-                  className="focus-ring mt-3 rounded-xl border border-border px-4 py-2 text-sm font-bold text-primary"
+                  className="focus-ring mt-3 rounded-xl border border-border px-4 py-2 text-sm font-bold text-text-link"
                 >
                   {t("showAllCourses")}
                 </button>

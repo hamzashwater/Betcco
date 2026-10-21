@@ -1,4 +1,5 @@
 import { projectPlayerWorkspaceSource } from "./player-workspace-projection";
+import { projectTeacherWorkloadSource } from "./teacher-workload-projection";
 
 // Only these two reviewed dashboard presentation/link seams may be reversed.
 // Missing, duplicated or altered seams fail closed; all historical hashes stay.
@@ -17,6 +18,7 @@ const seams = [
 ];
 
 export function projectStudentContinuitySource(source: string, path: string) {
+  source = projectTeacherWorkloadSource(source, path);
   if (path !== "src/features/student/student-area.tsx") return source;
   const original = projectPlayerWorkspaceSource(source, path).replace(
     /\r\n/g,

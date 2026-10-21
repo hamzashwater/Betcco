@@ -1,0 +1,2198 @@
+{
+  "classification": "MOCKED UI-CONTRACT EVIDENCE",
+  "base": "f6ffbf533a4037b9a2625d6130e5cdfaea59e269",
+  "branch": "fix/ui-d01-11-teacher-workload-first",
+  "browser": "Actual Next 16.3.6 production app; Playwright 1.62.1 Chromium on isolated localhost:3022",
+  "stats": {
+    "startTime": "2026-10-21T22:51:11.524Z",
+    "duration": 208040.827,
+    "expected": 236,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "extraContextCaptureStats": {
+    "startTime": "2026-10-21T22:55:16.849Z",
+    "duration": 13154.601,
+    "expected": 12,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "newCases": 84,
+  "newScreenshots": 118,
+  "rawScreenshotRoot": "C:/Users/user/Documents/Codex/2026-10-17/files-pasted-by-the-user-device/outputs/UI-D01-11/browser-final",
+  "sourceHashes": {
+    "src/features/teacher/teacher-area.tsx": "e78441b27e96d46b8f1c429b5c33352b96313e3633f62ed1f3f56122c6a5bd43",
+    "src/features/teacher/teacher-courses-management.tsx": "3c2cc1e6ca7282230f986bf8b8eb305c8341b912f2081dae9b22ef7afb86d867",
+    "src/features/teacher/teacher-student-follow-up.tsx": "f2b61cf950708124530945edb68c8022c54577d793b2c6c188a043d1f01fd3c8",
+    "src/features/teacher/teacher-workload.module.css": "18622d8b473d93ae3656c7e778698421460e6e185a2157858debc251b4e70d0e",
+    "messages/en.json": "1d7ca4d7700fa1610f1e159b7604dc13a401e7cf71e2c375ee8890a30ffe7e51",
+    "messages/ar.json": "f0f3e8c95365a58d9fe1fcab5119286a40528ae279718826f9e40a672a436efd"
+  },
+  "boundary": "Synthetic intercepted API responses only. No backend persistence, authorization, real payment/PayTabs settlement, database, deployment, production readiness or full WCAG proof. 720x450 CSS viewport is a 200% reflow proxy. Cache refresh tests advance past the original 30s staleTime, then dispatch reconnect events; no production query options change. Native theme selected/verified after navigation. Six retired launch-card catalogue leaves remain unchanged and precisely accounted for by the current-copy audit.",
+  "cases": [
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar controls: course local filters, formal local filter, follow-up server paging",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-contro-89a36-ter-follow-up-server-paging-chromium/course-local-filter.png",
+          "sha256": "ed27329d95d4207ab4600629f13f65a4c873cde3cdf91cb2f9926d2f6eeb7813",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "teacher-workload-ar-contro-89a36-ter-follow-up-server-paging-chromium/formal-local-filter.png",
+          "sha256": "bf259cc2d6960fc066b3797634cca9f21123b7eb259d89592e6945da9d6e12a2",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "teacher-workload-ar-contro-89a36-ter-follow-up-server-paging-chromium/server-follow-up-filter.png",
+          "sha256": "41e8d3c8993e7b175f5e8b8e6dcc9b521d2fb957f147631336324a02c1ee973f",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar courses cache refresh failure retains usable context",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-course-94c17-lure-retains-usable-context-chromium/cached-error.png",
+          "sha256": "b7e36a8a10962e23d1b834abea0b12adb96dd83c70724075dd440d8e3394b361",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "teacher-workload-ar-course-94c17-lure-retains-usable-context-chromium/retained-filter.png",
+          "sha256": "90193efeb3c5c6b2fe359523e1baf1a853a885959651ab139ba66fd283b61a4a",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar courses empty: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-courses-empty-factual-state-chromium/state.png",
+          "sha256": "34626318ca99c0e274ce83ded91207ccc9121e5537f6ce5630e98917330e3649",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar courses error: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-courses-error-factual-state-chromium/state.png",
+          "sha256": "2a5e8b01a33bbbd9f68c26c00afb9d93dc909c6c6b20f1cb17e1f5ad6deb4024",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar courses pending: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-courses-pending-factual-state-chromium/state.png",
+          "sha256": "47567b7f88a2f151aef95d53f7079ba338abe529e75782e2b3b18f9d713be85c",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 1440 courses populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-dark-1440-courses-populated-chromium/viewport.png",
+          "sha256": "5c3d1c0652448c855f0c12a33e4a7ae25806f3a7776905c2aa9085efe0dea049",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 1440 dashboard populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-dark-1440-dashboard-populated-chromium/context.png",
+          "sha256": "9ee4c23cc23ca2bd9da5af07fe6aad0e20d257b1657544de9d37e8d012558bcc",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "file": "teacher-workload-ar-dark-1440-dashboard-populated-chromium/viewport.png",
+          "sha256": "01b5931d9c22d72971dd8434a5b9fb66352edb18e22282ece5406206bcb621d8",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 1440 evaluations populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-dark-1440-evaluations-populated-chromium/queue-end.png",
+          "sha256": "ad4f23cd019e90e305b7996a8b96e9b0833358ee0c0a55227931eef5c783cd3b",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "file": "teacher-workload-ar-dark-1440-evaluations-populated-chromium/viewport.png",
+          "sha256": "da095bf37d484ee0d0f04c6184c897b95a562992e3e315272cd3299b0cfb1966",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 1440 students populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-dark-1440-students-populated-chromium/viewport.png",
+          "sha256": "2cf29cb874306355206eb47e62039e5b00b2da8f1f8302e6fcf8db8d002ec694",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 390 courses populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-dark-390-courses-populated-chromium/viewport.png",
+          "sha256": "234f3aab5410eca581a1d695e9f0861e1e4171183b1ab9b97c070fafc3f03d7f",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 390 dashboard populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-dark-390-dashboard-populated-chromium/context.png",
+          "sha256": "0bdcb72297b17b6b232df957661b2efae1c51ec6363fa953fec0c5e75102ed0d",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "teacher-workload-ar-dark-390-dashboard-populated-chromium/viewport.png",
+          "sha256": "1ddbdae6a563efeec8dea1862bee087107e913d3475a39ea76dadd834ffda7a0",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 390 evaluations populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-dark-390-evaluations-populated-chromium/queue-end.png",
+          "sha256": "728c213b84f6099be842be84917136a78a1933732fa32c33c8c2050ee40f960b",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "teacher-workload-ar-dark-390-evaluations-populated-chromium/viewport.png",
+          "sha256": "85b1ecf7e8c9c35d7346d71ef2a1fabd4fd46ea39fe6a9f2ccb335d078a0ef75",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 390 students populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-dark-390-students-populated-chromium/viewport.png",
+          "sha256": "9dd55fe02294fdd43a5adab64912146da664fa6715d1215f05abc08ac9521bcd",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 834 courses populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-dark-834-courses-populated-chromium/viewport.png",
+          "sha256": "dcc755f724dd69e016a80a95aed0361b4563490ab6467803f206778aa1914c5a",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 834 dashboard populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-dark-834-dashboard-populated-chromium/context.png",
+          "sha256": "7fd9e9671de3e5312db3f8c2f09576b96c4db64b013d5265d9797bfe0537dea7",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "teacher-workload-ar-dark-834-dashboard-populated-chromium/viewport.png",
+          "sha256": "4565a63e5626c0388d75a851ac09930b01dbbe04e1f8839bc68a3bc811258fda",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 834 evaluations populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-dark-834-evaluations-populated-chromium/queue-end.png",
+          "sha256": "7dd7de6b68b77dcfd5af140598ca753f18abe304447bf724d9a86a7b14f65408",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "teacher-workload-ar-dark-834-evaluations-populated-chromium/viewport.png",
+          "sha256": "fd3363b043ad2fea6edc23e047f28f2fba529e6ad11e498b35ef6ce43f777a5f",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 834 students populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-dark-834-students-populated-chromium/viewport.png",
+          "sha256": "6e2f2dd0f0ff85bfe257198d9b70ba569f008555d3c24c164d98d54516a1709f",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dashboard cache refresh failure retains usable context",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-dashbo-b1f05-lure-retains-usable-context-chromium/cached-error.png",
+          "sha256": "da823f995b4764bef3eed5cbfe0093567c4d07cf85b3e0a21533b16db1654fa2",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dashboard empty: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-dashboard-empty-factual-state-chromium/state.png",
+          "sha256": "18b483b7263823e83bd0cd5355d3cfe019377037c3ad70ad6aaa2bfda57bdfef",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dashboard error: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-dashboard-error-factual-state-chromium/state.png",
+          "sha256": "a45a9b37a40e2bedaebbf0719033265561f0022f57d1a10c8f44a2e1abbcae11",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dashboard pending: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-dashboard-pending-factual-state-chromium/state.png",
+          "sha256": "a0c286dd450a190230d6d4fc3e898d7e61cdfa477e6b32423168c866c3b948de",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar evaluations cache refresh failure retains usable context",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-evalua-d7ba4-lure-retains-usable-context-chromium/cached-error.png",
+          "sha256": "3799e840c86e70f20cb0763ec2d1a559e5a28e33ac7c09d7495a8629ff920000",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "teacher-workload-ar-evalua-d7ba4-lure-retains-usable-context-chromium/retained-filter.png",
+          "sha256": "daf9be24f338978fefbb76e132c414411066ad0636fb64a6cb1f94fc3a581243",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar evaluations empty: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-evaluations-empty-factual-state-chromium/state.png",
+          "sha256": "8cb5d2274de52e9cfe414a545d1e06419694f6aa37e9ce22edee8afc3acc211c",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar evaluations error: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-evaluations-error-factual-state-chromium/state.png",
+          "sha256": "4bcbbd34a1bd26817d7bc76e353aa86773797ddc01d8c4e2d093c5011e6ee53a",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar evaluations pending: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-evaluations-pending-factual-state-chromium/state.png",
+          "sha256": "ea654e01f52149328ea39a0e7bf813d498597aacfeb318999ca5b4bd1e2b1d68",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar keyboard focus, reduced motion and 200 percent reflow proxy",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-keyboa-89e6e-nd-200-percent-reflow-proxy-chromium/follow-up-reflow.png",
+          "sha256": "d8a95d8025d11c321922398c8b154afe4f5de71b74275eb88214843eef6ac825",
+          "width": 720,
+          "height": 450
+        },
+        {
+          "file": "teacher-workload-ar-keyboa-89e6e-nd-200-percent-reflow-proxy-chromium/keyboard-reflow.png",
+          "sha256": "f644e73bfc6e4fe99ad10d44baafe8633c2a180b416fe141b2629086119afaa4",
+          "width": 720,
+          "height": 450
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 1440 courses populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-light-1440-courses-populated-chromium/viewport.png",
+          "sha256": "bc6f860b0b7444d87d26aebb3ce907986b26773dabc4cf074d090bd6ef0a4225",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 1440 dashboard populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-light-1440-dashboard-populated-chromium/context.png",
+          "sha256": "fbbbc2586fd51a20f1ef591d0b6939c05b10146a148e520821c7441e1cf70249",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "file": "teacher-workload-ar-light-1440-dashboard-populated-chromium/viewport.png",
+          "sha256": "6f20985edfaa9f39dac0120e463f112a2ad1b23531b391d67a3660a1e7e44d91",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 1440 evaluations populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-light-1440-evaluations-populated-chromium/queue-end.png",
+          "sha256": "e0dad4fcdaf208e66cafb1e0b74286b505397e619d0600407cc6724b9a4eedfb",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "file": "teacher-workload-ar-light-1440-evaluations-populated-chromium/viewport.png",
+          "sha256": "b8fe8105fd6575fa0a0902a97f42b6d7ddb66de9b3eef3977a16d513b320bf29",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 1440 students populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-light-1440-students-populated-chromium/viewport.png",
+          "sha256": "1e772549aa0147eab8e8a84d2fb5e1ef8c0209a09554659a0e04158b3be7c9aa",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 390 courses populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-light-390-courses-populated-chromium/viewport.png",
+          "sha256": "cfe38114cfca4062851265f8a1ffddde09e76dfec24b4804e08be7355afdc26e",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 390 dashboard populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-light-390-dashboard-populated-chromium/context.png",
+          "sha256": "07c64d96a72b55f427e2f5989edfce078f6eabdb3084c5f26505dbbbb2ce7529",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "teacher-workload-ar-light-390-dashboard-populated-chromium/viewport.png",
+          "sha256": "88e8818fae047b6174062a4a71cbe92585174bc1c64ef1dcc4542a61b29a5991",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 390 evaluations populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-light-390-evaluations-populated-chromium/queue-end.png",
+          "sha256": "6c979b8bc2cd20ecedae15f0c6ef09df0d63b7f510f2b3823ef23af0232743c5",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "teacher-workload-ar-light-390-evaluations-populated-chromium/viewport.png",
+          "sha256": "a4fe481cde4e0623d82cea9a9f882608dd48b858d8940397b2501dbf32f071e6",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 390 students populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-light-390-students-populated-chromium/viewport.png",
+          "sha256": "2e14b98836d988e9b3fb6f4cfd030691003b28f02d0046e19694778ad3794e21",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 834 courses populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-light-834-courses-populated-chromium/viewport.png",
+          "sha256": "dcc491b9ce033ffbf69e793ce05a07872a65b2b751ecb9a6a4aa0290efdbd99f",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 834 dashboard populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-light-834-dashboard-populated-chromium/context.png",
+          "sha256": "24e8a2ec03759f47ded28c61f333a93acacbb70b5c5cc69df3e7f624efbc3e2b",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "teacher-workload-ar-light-834-dashboard-populated-chromium/viewport.png",
+          "sha256": "aee61f100b97f8dbeb2dd2f533ae0d2d46723ed1bb3147ff5cd03602a7fa0bdc",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 834 evaluations populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-light-834-evaluations-populated-chromium/queue-end.png",
+          "sha256": "10ff6f4c54b5489c0e7114f560318589d5125fe75845b14ea58ddb4816818164",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "teacher-workload-ar-light-834-evaluations-populated-chromium/viewport.png",
+          "sha256": "ac59c0dfa8e74d7e512772214dd5432b966df1116e5792612b2f26cc13bf2b51",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 834 students populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-light-834-students-populated-chromium/viewport.png",
+          "sha256": "d43300b67464026ea64d3b0a17e3f92a9796015830bbed8013ac5e4541245697",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar students cache refresh failure retains usable context",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-studen-2bae7-lure-retains-usable-context-chromium/cached-error.png",
+          "sha256": "631009e8dfeff4c58d32d03a33b4d4693d7709c88df1d9295990255a1c1edf22",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar students empty: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-students-empty-factual-state-chromium/state.png",
+          "sha256": "fdf92d0be77d946ed4c3b1b839985140e3e9f276f0bb0a3a5bc710fa14347777",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar students error: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-students-error-factual-state-chromium/state.png",
+          "sha256": "9c546af8ec6f83605fd7f0cddb25152f95a35e3bddf8e921d0f5a65609cfbf92",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar students pending: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-ar-students-pending-factual-state-chromium/state.png",
+          "sha256": "fdb29523422e1f63dad807ae81940bc3a5671c6c747b6bfc64ba628aae6c7dc2",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en controls: course local filters, formal local filter, follow-up server paging",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-contro-c1f0e-ter-follow-up-server-paging-chromium/course-local-filter.png",
+          "sha256": "193eebf08813786ca19d9ab5a397393c880dd647d2b3be0b725dc3fa76c4c988",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "teacher-workload-en-contro-c1f0e-ter-follow-up-server-paging-chromium/formal-local-filter.png",
+          "sha256": "010fb80577f241271434429e123c1eb9f5bf4b150e41875e1567f5ad805779b0",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "teacher-workload-en-contro-c1f0e-ter-follow-up-server-paging-chromium/server-follow-up-filter.png",
+          "sha256": "16c46c21bddf07a8769b4c655feb81d245e9bfc9e15cc74a2d9bb020da20447a",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en courses cache refresh failure retains usable context",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-course-7bc1b-lure-retains-usable-context-chromium/cached-error.png",
+          "sha256": "c6a9c6c37c765ffb41c9bd1a04ee7d4071cdf7b000f30c5702f22233ee2b60f2",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "teacher-workload-en-course-7bc1b-lure-retains-usable-context-chromium/retained-filter.png",
+          "sha256": "8a2eba3a6d8fa892b3bc05bb4ca7a80d71cc3ee56cd8e6cc83b28de523d76f68",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en courses empty: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-courses-empty-factual-state-chromium/state.png",
+          "sha256": "a9bdf3e9d5723ae3c2bc664fe5c1a8099e95f0650853f68820c2bb69e9930f83",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en courses error: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-courses-error-factual-state-chromium/state.png",
+          "sha256": "888c11164b473a83374d6acbec0bc5099c2d97c53059b8a849dc00910613651a",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en courses pending: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-courses-pending-factual-state-chromium/state.png",
+          "sha256": "a41cfaa999fab9d9636a9b5198c13e780cee7c3f582134ada1485b03d18ae0ce",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 1440 courses populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-dark-1440-courses-populated-chromium/viewport.png",
+          "sha256": "b5a59e3cf1e5042add4f00c2142f136369400cda9b1177bfdb7774ac53e341fa",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 1440 dashboard populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-dark-1440-dashboard-populated-chromium/context.png",
+          "sha256": "d4485aaa44a7ba116937549838af32f83d7c9ad6b96306ab7a298765127bd21e",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "file": "teacher-workload-en-dark-1440-dashboard-populated-chromium/viewport.png",
+          "sha256": "aded1a13425f87ef6d233e0d4cb5254181094acda44fd62a415fbf0a1303513c",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 1440 evaluations populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-dark-1440-evaluations-populated-chromium/queue-end.png",
+          "sha256": "659b9d74a9022e71b9155db6515829b532ac1a2379df35e28ba066b3cdb49b13",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "file": "teacher-workload-en-dark-1440-evaluations-populated-chromium/viewport.png",
+          "sha256": "e4fdee43807c17b9599eaf7ceb10b1dc9f5a74b202c03bb82174b6c34ffbba6d",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 1440 students populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-dark-1440-students-populated-chromium/viewport.png",
+          "sha256": "69405b9c9e4d748046421e32953645972ea056bdc4d28074489d25776240d384",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 390 courses populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-dark-390-courses-populated-chromium/viewport.png",
+          "sha256": "fba2e7ed4b9457972e7157137680ace0ffb593b01b1c427441949f02e0c0daf8",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 390 dashboard populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-dark-390-dashboard-populated-chromium/context.png",
+          "sha256": "417e360cfd2cae877ea6aa2dd1f4eeb253a5d1b588187881f03fcf8ab80e5bf6",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "teacher-workload-en-dark-390-dashboard-populated-chromium/viewport.png",
+          "sha256": "5d2b813dd02777b4cb9fa3bcd44276047f9babe1b26b292bf55f6f0cb9c56d09",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 390 evaluations populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-dark-390-evaluations-populated-chromium/queue-end.png",
+          "sha256": "f25d9ea0382a3568a47fe54c3966f54795e736121097bdaf1afb4ab3c7925d7b",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "teacher-workload-en-dark-390-evaluations-populated-chromium/viewport.png",
+          "sha256": "31e557ea5386b406bae8ef0cba7a9fd8e6d702dcce1a9e18b57a6dfb4c3f2d5a",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 390 students populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-dark-390-students-populated-chromium/viewport.png",
+          "sha256": "e9f02c432ae31171ca3cbe2324a95acfab7db8a6ac2d93959d1f4aefd88b9710",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 834 courses populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-dark-834-courses-populated-chromium/viewport.png",
+          "sha256": "fc775301a53b8393135fb9b5a99f595b27cbe733762388865b5246a346c664a6",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 834 dashboard populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-dark-834-dashboard-populated-chromium/context.png",
+          "sha256": "701afbdd5a01f1d979435269a047acc3eeb7d9cdedb4b65ea5b916ad586e221f",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "teacher-workload-en-dark-834-dashboard-populated-chromium/viewport.png",
+          "sha256": "b767af4b444cda48c298297917f923e036c8684b93ee4dfedf31b2d06d70d785",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 834 evaluations populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-dark-834-evaluations-populated-chromium/queue-end.png",
+          "sha256": "0b7f01ff180f5f515417c9afd15ce217fbf764e5108c8b80df27e58f4377337f",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "teacher-workload-en-dark-834-evaluations-populated-chromium/viewport.png",
+          "sha256": "09b6e4fbef29f53ec1dafd75d092603b5e5e98d6bb6b5e7e743ef68492a42947",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 834 students populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-dark-834-students-populated-chromium/viewport.png",
+          "sha256": "ae90f70a37ca4b752f647b011b9dfebab6ffcb875488f61589a6a06601b3dab7",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dashboard cache refresh failure retains usable context",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-dashbo-7ac65-lure-retains-usable-context-chromium/cached-error.png",
+          "sha256": "6d725af5c28f109cf9f9cb916b5444b1ebfae33db27605e65103d14d4548bb6f",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dashboard empty: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-dashboard-empty-factual-state-chromium/state.png",
+          "sha256": "a6da569b1ca75cd4c6acfde40c0a479c75cb7b8e3a493892261c7317f2f1bec8",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dashboard error: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-dashboard-error-factual-state-chromium/state.png",
+          "sha256": "62b117bd7c2bdb55762cbedecd61ee18b6afcdd919f7521103cd29b4f1146b1f",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dashboard pending: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-dashboard-pending-factual-state-chromium/state.png",
+          "sha256": "bcb64a20763d67345d80070b335cc82376c5545e0ee2a66547e5e6673f30b404",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en evaluations cache refresh failure retains usable context",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-evalua-863e0-lure-retains-usable-context-chromium/cached-error.png",
+          "sha256": "1700b51f13a4968b80be23f2e3f9ff823a7c8742f6ede1bfa1f2dd1a7793ff0c",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "teacher-workload-en-evalua-863e0-lure-retains-usable-context-chromium/retained-filter.png",
+          "sha256": "e225fd6d8b1327b54c236ff5f986555608d8b5eb543a779d9ccc6198c2fcb99c",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en evaluations empty: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-evaluations-empty-factual-state-chromium/state.png",
+          "sha256": "c29fe95e5ccb2da52f8d6fdae8bfbfb384c0c8609cbb94c9a5846fe499220b2d",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en evaluations error: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-evaluations-error-factual-state-chromium/state.png",
+          "sha256": "fe14c5051b9aef05f9ab8b56d9bf501a6ab22cc914ef3bb28efaddf0292ddcb4",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en evaluations pending: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-evaluations-pending-factual-state-chromium/state.png",
+          "sha256": "97126a079062d5347682ada5b519426e748634254ad1a8d7c3402592a2fff887",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en keyboard focus, reduced motion and 200 percent reflow proxy",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-keyboa-8fc41-nd-200-percent-reflow-proxy-chromium/follow-up-reflow.png",
+          "sha256": "1fe76d623a07d7b0b7e77eed5c1a8c09e0ff936028b319fe3e6e4e92fa85048b",
+          "width": 720,
+          "height": 450
+        },
+        {
+          "file": "teacher-workload-en-keyboa-8fc41-nd-200-percent-reflow-proxy-chromium/keyboard-reflow.png",
+          "sha256": "69199ee803acd5e9221beeb7db9baf35ed5ac2f86aa038301fb7dff8bb9380ac",
+          "width": 720,
+          "height": 450
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 1440 courses populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-light-1440-courses-populated-chromium/viewport.png",
+          "sha256": "14f8cdd3a719fd71829cf0ecb8186284060572f0e23cde832364b1e7d3761109",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 1440 dashboard populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-light-1440-dashboard-populated-chromium/context.png",
+          "sha256": "0104d19e501bd1ffb132ed3d9160b69d148c0dd2babee23366f1d124efc02805",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "file": "teacher-workload-en-light-1440-dashboard-populated-chromium/viewport.png",
+          "sha256": "0e48ae2923bc346065192f2e3029910bcbfa4135ff7da114d0012559b7636011",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 1440 evaluations populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-light-1440-evaluations-populated-chromium/queue-end.png",
+          "sha256": "beb68d050378ad3dbb74ab1f70e10550f7e46268efba1cd28c315cbbe24f60fd",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "file": "teacher-workload-en-light-1440-evaluations-populated-chromium/viewport.png",
+          "sha256": "992e3df4f64f2e32599d406f291bc8cff2f7f9eab90218be8c1be9647362b434",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 1440 students populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-light-1440-students-populated-chromium/viewport.png",
+          "sha256": "f3c52936f99f3dee7d2dc1d685d182152168f6ab87a2aa3010418ae056680ee7",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 390 courses populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-light-390-courses-populated-chromium/viewport.png",
+          "sha256": "2a2ec906ac4c2116d91ab57cae133d5ca7091357a45fe5001c9eaf9b84939ddb",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 390 dashboard populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-light-390-dashboard-populated-chromium/context.png",
+          "sha256": "0910953a4ac57923ef6254fab5a1e435e15921a486aef5f0d7664013ff81ab4b",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "teacher-workload-en-light-390-dashboard-populated-chromium/viewport.png",
+          "sha256": "78713d5684eb7d975de0a7b99b08fdaddc0276831c85b7672c69d5cc0f5508d5",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 390 evaluations populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-light-390-evaluations-populated-chromium/queue-end.png",
+          "sha256": "5777cfd85349d640c5a3fccaaf80f55bb8cff5d85d302c3d334c91fde37758b4",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "teacher-workload-en-light-390-evaluations-populated-chromium/viewport.png",
+          "sha256": "70870da308157aa9e972647554cb4ddca56507d36b0ea29cbff41841bb419efa",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 390 students populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-light-390-students-populated-chromium/viewport.png",
+          "sha256": "439867d7589f73d57f57f898db92276dc4b5e8499e016d2a5c5e4e621dfd7e17",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 834 courses populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-light-834-courses-populated-chromium/viewport.png",
+          "sha256": "b6cb425664de93c1e677c865f0d24af0e9621f53ecb0c0114f12322e516a8fb2",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 834 dashboard populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-light-834-dashboard-populated-chromium/context.png",
+          "sha256": "9f7a7756ed28b74bec902067c99fdb0147ad8e436740e982558df5acc8a973a4",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "teacher-workload-en-light-834-dashboard-populated-chromium/viewport.png",
+          "sha256": "3624e38756b64e710b1217c94eafb0c18eb26e251dca96875899bf1c4ec3bf94",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 834 evaluations populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-light-834-evaluations-populated-chromium/queue-end.png",
+          "sha256": "7dd74a11ef58f5add6157497a6b0480c4aefe305995735661816e99d6d855c18",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "teacher-workload-en-light-834-evaluations-populated-chromium/viewport.png",
+          "sha256": "ed0d7cb3aedafc037544fc59f446fbdeff240885374a335e4d3dfe43b4ea8421",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 834 students populated",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-light-834-students-populated-chromium/viewport.png",
+          "sha256": "5d9e44b0915b36b704ec2f515a5f694ce6ba4856f8c281d6273c014114f909c1",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en students cache refresh failure retains usable context",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-studen-276fe-lure-retains-usable-context-chromium/cached-error.png",
+          "sha256": "69551543f38f1dd0ba72fad1ac8ee8f2483fcb27ff6bf300891ad71f2849dad5",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en students empty: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-students-empty-factual-state-chromium/state.png",
+          "sha256": "82435c098aba091481f6bcc36266eb50db272ddf6b9fd48d64ae1c1205575029",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en students error: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-students-error-factual-state-chromium/state.png",
+          "sha256": "a924132a86a6c7f73efe137f3b8a3f1662c429b7956a7ec5a7a71eec85b466bb",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en students pending: factual state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "screenshots": [
+        {
+          "file": "teacher-workload-en-students-pending-factual-state-chromium/state.png",
+          "sha256": "ca9feca86c2380d5c33b92df4c27bfa4140c4a5f660f1400395763a2e9267113",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    }
+  ],
+  "regressions": [
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en light 1440 new: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en light 1440 resume: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en light 834 new: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en light 834 resume: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en light 390 new: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en light 390 resume: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en dark 1440 new: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en dark 1440 resume: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en dark 834 new: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en dark 834 resume: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en dark 390 new: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en dark 390 resume: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en list Completed: supplied result, branch and feedback",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en list NeedsRevision: supplied result, branch and feedback",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en list UnderReview: supplied result, branch and feedback",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en list RAW-UNKNOWN: supplied result, branch and feedback",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en list Draft-resit: supplied result, branch and feedback",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en list Draft-retake: supplied result, branch and feedback",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en Resit Draft: distinct request with no revision inference",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en Resit PendingPayment: distinct request with no revision inference",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en Resit UnderReview: distinct request with no revision inference",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en Resit Completed: distinct request with no revision inference",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en Resit NeedsRevision: distinct request with no revision inference",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en options-pending: factual loading/error/empty or authorization",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en options-error: factual loading/error/empty or authorization",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en resume-error: factual loading/error/empty or authorization",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en list-pending: factual loading/error/empty or authorization",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en list-error: factual loading/error/empty or authorization",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en list-empty: factual loading/error/empty or authorization",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en authorized: factual loading/error/empty or authorization",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en scoped paid-session: prepare/upload/declaration/checkout",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en scoped included-credit: prepare/upload/declaration/checkout",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en revision: cached draft, pending protection and same-request resubmission",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en appeal failure: preserve reason and completed-result selection",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en resumed Draft refresh failure: retain evidence and file selection",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en checkout failure: preserve current request and show factual error",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "en reflow and keyboard: native preparation controls",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar light 1440 new: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar light 1440 resume: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar light 834 new: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar light 834 resume: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar light 390 new: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar light 390 resume: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar dark 1440 new: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar dark 1440 resume: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar dark 834 new: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar dark 834 resume: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar dark 390 new: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar dark 390 resume: academic scope and saved evidence",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar list Completed: supplied result, branch and feedback",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar list NeedsRevision: supplied result, branch and feedback",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar list UnderReview: supplied result, branch and feedback",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar list RAW-UNKNOWN: supplied result, branch and feedback",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar list Draft-resit: supplied result, branch and feedback",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar list Draft-retake: supplied result, branch and feedback",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar Resit Draft: distinct request with no revision inference",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar Resit PendingPayment: distinct request with no revision inference",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar Resit UnderReview: distinct request with no revision inference",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar Resit Completed: distinct request with no revision inference",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar Resit NeedsRevision: distinct request with no revision inference",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar options-pending: factual loading/error/empty or authorization",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar options-error: factual loading/error/empty or authorization",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar resume-error: factual loading/error/empty or authorization",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar list-pending: factual loading/error/empty or authorization",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar list-error: factual loading/error/empty or authorization",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar list-empty: factual loading/error/empty or authorization",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar authorized: factual loading/error/empty or authorization",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar scoped paid-session: prepare/upload/declaration/checkout",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar scoped included-credit: prepare/upload/declaration/checkout",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar revision: cached draft, pending protection and same-request resubmission",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar appeal failure: preserve reason and completed-result selection",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar resumed Draft refresh failure: retain evidence and file selection",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar checkout failure: preserve current request and show factual error",
+      "status": "passed"
+    },
+    {
+      "file": "evaluation-workspace.spec.ts",
+      "title": "ar reflow and keyboard: native preparation controls",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en light 1440: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en light 834: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en light 390: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en dark 1440: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en dark 834: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en dark 390: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en locked: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en missing: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en content: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en submitted: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en reviewed: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en complete: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en improvement: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en pending: no unknown submission action",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en error: no unknown submission action",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en empty: no unknown submission action",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en aim: draft, pending scan/rejection, retry, submit and cached refresh",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en final: draft, pending scan/rejection, retry, submit and cached refresh",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "en: keyboard disclosure and approximate 200% reflow",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar light 1440: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar light 834: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar light 390: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar dark 1440: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar dark 834: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar dark 390: formative content/practice/review checklist",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar locked: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar missing: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar content: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar submitted: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar reviewed: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar complete: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar improvement: server states, attempt history and final training distinction",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar pending: no unknown submission action",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar error: no unknown submission action",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar empty: no unknown submission action",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar aim: draft, pending scan/rejection, retry, submit and cached refresh",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar final: draft, pending scan/rejection, retry, submit and cached refresh",
+      "status": "passed"
+    },
+    {
+      "file": "formative-practice-clarity.spec.ts",
+      "title": "ar: keyboard disclosure and approximate 200% reflow",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en light 1440 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en light 834 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en light 390 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en dark 1440 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en dark 834 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en dark 390 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en Video: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en Assignment: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en Locked: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en Completed: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en: exact practice focus, note/question/file drafts and local keyboard navigation",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en: Final Unit target and 200 percent reflow",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en: Journey content action opens the existing outline without guessing a lesson",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en pending: factual player query state",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en error: factual player query state",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "en empty: factual player query state",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar light 1440 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar light 834 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar light 390 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar dark 1440 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar dark 834 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar dark 390 Text: lesson continuity and expanded Unit rail",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar Video: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar Assignment: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar Locked: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar Completed: server state and media/assignment boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar: exact practice focus, note/question/file drafts and local keyboard navigation",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar: Final Unit target and 200 percent reflow",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar: Journey content action opens the existing outline without guessing a lesson",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar pending: factual player query state",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar error: factual player query state",
+      "status": "passed"
+    },
+    {
+      "file": "student-player-workspace.spec.ts",
+      "title": "ar empty: factual player query state",
+      "status": "passed"
+    },
+    {
+      "file": "student-resit.spec.ts",
+      "title": "student Resit payment at en 1280px",
+      "status": "passed"
+    },
+    {
+      "file": "student-resit.spec.ts",
+      "title": "student Resit payment at ar 1280px",
+      "status": "passed"
+    },
+    {
+      "file": "student-resit.spec.ts",
+      "title": "student Resit payment at en 390px",
+      "status": "passed"
+    },
+    {
+      "file": "student-resit.spec.ts",
+      "title": "real Resit provider checkout redirects without fake confirmation",
+      "status": "passed"
+    },
+    {
+      "file": "teacher-area-translation.spec.ts",
+      "title": "teacher dashboard, wallet and review copy in en (mocked API)",
+      "status": "passed"
+    },
+    {
+      "file": "teacher-area-translation.spec.ts",
+      "title": "teacher dashboard, wallet and review copy in ar (mocked API)",
+      "status": "passed"
+    },
+    {
+      "file": "teacher-assignments-review-translation.spec.ts",
+      "title": "coursework, gradebook, extensions and reviews en 1280px (mocked API)",
+      "status": "passed"
+    },
+    {
+      "file": "teacher-assignments-review-translation.spec.ts",
+      "title": "coursework, gradebook, extensions and reviews ar 390px (mocked API)",
+      "status": "passed"
+    }
+  ],
+  "overviews": [
+    {
+      "file": "dashboard-overview.png",
+      "sha256": "f369832b6dd559051f94b2859e725eeb3cd41f9b847ec15d48dac014b249185d",
+      "width": 1400,
+      "height": 3680
+    },
+    {
+      "file": "queues-courses-overview.png",
+      "sha256": "270e1375a65b2702cd80d403db4304cbae443981f571d6bb26460e2b48f637c9",
+      "width": 1400,
+      "height": 3680
+    },
+    {
+      "file": "states-controls-overview.png",
+      "sha256": "7b1835188bd8faf2094588df48dbf65a0b35bc6d91eea94fede2e2dfdf5b22a5",
+      "width": 1400,
+      "height": 3680
+    }
+  ]
+}
