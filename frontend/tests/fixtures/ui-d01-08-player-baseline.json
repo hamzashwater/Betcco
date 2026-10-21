@@ -1,0 +1,68 @@
+{
+  "base": "6053c5f3d9d05d2422527da7cdf9d8e754da1c28",
+  "files": {
+    "src/features/student/student-area.tsx": {
+      "hash": "9f3bc80b0191c42c4d5398dd0e479753feaf3c09cf47e38f1c364178c218d52e",
+      "seams": [
+        {
+          "previous": "  StudentResitOpportunities,\n} from \"@/features/student/student-resit-workflow\";\nimport { AiPracticeShell } from \"@/features/student/ai-practice-shell\";\nimport { StudentProgressIntelligence } from \"@/features/student/student-progress-intelligence\";\nimport {\n  compactStudentCoursesQueryOptions,\n  CourseCard,\n",
+          "approved": "  StudentResitOpportunities,\n} from \"@/features/student/student-resit-workflow\";\nimport { AiPracticeShell } from \"@/features/student/ai-practice-shell\";\nimport {\n  StudentProgressIntelligence,\n  type PlayerPracticeTarget,\n} from \"@/features/student/student-progress-intelligence\";\nimport {\n  compactStudentCoursesQueryOptions,\n  CourseCard,\n"
+        },
+        {
+          "previous": "  const t = useTranslations(\"studentWorkspace\");\n  const locale = useLocale();\n  const client = useQueryClient();\n  const [sidebarOpen, setSidebarOpen] = useState(true);\n  const [mobileOutlineOpen, setMobileOutlineOpen] = useState(false);\n  const outlineDialog = useRef<HTMLDivElement>(null);\n  const currentOutlineLink = useRef<HTMLAnchorElement>(null);\n  useDialogFocus(\n    mobileOutlineOpen,\n    outlineDialog,\n",
+          "approved": "  const t = useTranslations(\"studentWorkspace\");\n  const locale = useLocale();\n  const client = useQueryClient();\n  const workspace = useTranslations(\"studentPlayerWorkspace\");\n  const sections = [\"practice\", \"resources\", \"notes\", \"gradebook\"] as const;\n  const [section, setSection] = useState<(typeof sections)[number]>(\"practice\");\n  const [practiceTarget, setPracticeTarget] = useState<PlayerPracticeTarget>();\n  const practicePanel = useRef<HTMLDivElement>(null);\n  const desktopOutlineLink = useRef<HTMLAnchorElement>(null);\n  const [sidebarOpen, setSidebarOpen] = useState(true);\n  const [mobileOutlineOpen, setMobileOutlineOpen] = useState(false);\n  const outlineDialog = useRef<HTMLDivElement>(null);\n  const currentOutlineLink = useRef<HTMLAnchorElement>(null);\n  useEffect(() => {\n    if (!practiceTarget || section !== \"practice\" || !practicePanel.current)\n      return;\n    const panel = practicePanel.current;\n    const focusTarget = () => {\n      const element = document.getElementById(\n        `player-practice-${practiceTarget.kind}-${practiceTarget.id}`,\n      );\n      if (!element || !panel.contains(element)) return false;\n      element.focus();\n      element.scrollIntoView?.({ block: \"start\" });\n      return true;\n    };\n    if (focusTarget()) return;\n    panel.focus();\n    const observer = new MutationObserver(() => {\n      if (focusTarget()) observer.disconnect();\n    });\n    observer.observe(panel, { childList: true, subtree: true });\n    return () => observer.disconnect();\n  }, [practiceTarget, section]);\n  useDialogFocus(\n    mobileOutlineOpen,\n    outlineDialog,\n"
+        },
+        {
+          "previous": "  const nextLesson = allLessons.find(\n    (item) => item.id === result.data.nextLessonId,\n  );\n  const lessonHref = (lessonId: string) =>\n    `/${locale}/student/learn/${courseId}?lessonId=${encodeURIComponent(lessonId)}`;\n  const outline = (headingId: string, mobile = false) => (\n",
+          "approved": "  const nextLesson = allLessons.find(\n    (item) => item.id === result.data.nextLessonId,\n  );\n  const localSections = lesson ? sections : sections.slice(0, 1);\n  const selectedSection = lesson ? section : \"practice\";\n  const lessonHref = (lessonId: string) =>\n    `/${locale}/student/learn/${courseId}?lessonId=${encodeURIComponent(lessonId)}`;\n  const outline = (headingId: string, mobile = false) => (\n"
+        },
+        {
+          "previous": "      headingId={headingId}\n      lessonHref={lessonHref}\n      lockedMessage={lockedMessage}\n      currentLinkRef={mobile ? currentOutlineLink : undefined}\n      onNavigate={mobile ? () => setMobileOutlineOpen(false) : undefined}\n    />\n  );\n",
+          "approved": "      headingId={headingId}\n      lessonHref={lessonHref}\n      lockedMessage={lockedMessage}\n      currentLinkRef={mobile ? currentOutlineLink : desktopOutlineLink}\n      onNavigate={mobile ? () => setMobileOutlineOpen(false) : undefined}\n    />\n  );\n"
+        },
+        {
+          "previous": "            </>\n          )}\n          <div className={playerStyles.secondary}>\n            <StudentProgressIntelligence courseId={courseId} />\n            <StudentLearningAimPractice courseId={courseId} />\n            <StudentComprehensivePractice courseId={courseId} />\n            {lesson ? (\n              <>\n                <CourseResourceCenter courseId={courseId} />\n                <CourseAnnouncementsPanel courseId={courseId} />\n                <LessonWorkspace\n                  key={lesson.id}\n                  courseId={courseId}\n                  lessonId={lesson.id}\n                />\n                <StudentCourseGradebookPanel courseId={courseId} />\n                <AiTutorPanel courseId={courseId} lessonId={lesson.id} />\n                <div className={playerStyles.secondarySlot}>\n                  <Action\n",
+          "approved": "            </>\n          )}\n          <div className={playerStyles.secondary}>\n            <StudentProgressIntelligence\n              courseId={courseId}\n              onOpenPractice={(target) => {\n                setSection(\"practice\");\n                setPracticeTarget(target);\n              }}\n              onViewContent={() => {\n                if (window.matchMedia(\"(min-width: 1024px)\").matches) {\n                  setSidebarOpen(true);\n                  requestAnimationFrame(() =>\n                    desktopOutlineLink.current?.focus(),\n                  );\n                } else setMobileOutlineOpen(true);\n              }}\n            />\n            <div\n              className={playerStyles.localNavigation}\n              role=\"tablist\"\n              aria-label={workspace(\"navigation\")}\n            >\n              {localSections.map((value, index) => (\n                <button\n                  key={value}\n                  id={`player-tab-${value}`}\n                  type=\"button\"\n                  role=\"tab\"\n                  aria-selected={selectedSection === value}\n                  aria-controls={`player-panel-${value}`}\n                  tabIndex={selectedSection === value ? 0 : -1}\n                  className=\"focus-ring\"\n                  onClick={() => {\n                    setPracticeTarget(undefined);\n                    setSection(value);\n                  }}\n                  onKeyDown={(event) => {\n                    const direction = locale === \"ar\" ? -1 : 1;\n                    const nextIndex =\n                      event.key === \"Home\"\n                        ? 0\n                        : event.key === \"End\"\n                          ? localSections.length - 1\n                          : event.key === \"ArrowRight\"\n                            ? (index + direction + localSections.length) %\n                              localSections.length\n                            : event.key === \"ArrowLeft\"\n                              ? (index - direction + localSections.length) %\n                                localSections.length\n                              : undefined;\n                    if (nextIndex === undefined) return;\n                    event.preventDefault();\n                    setPracticeTarget(undefined);\n                    setSection(localSections[nextIndex]);\n                    document\n                      .getElementById(`player-tab-${localSections[nextIndex]}`)\n                      ?.focus();\n                  }}\n                >\n                  {workspace(value)}\n                </button>\n              ))}\n            </div>\n            <div\n              ref={practicePanel}\n              id=\"player-panel-practice\"\n              role=\"tabpanel\"\n              aria-labelledby=\"player-tab-practice\"\n              hidden={selectedSection !== \"practice\"}\n              tabIndex={-1}\n              className={playerStyles.localPanel}\n            >\n              <StudentLearningAimPractice courseId={courseId} />\n              <StudentComprehensivePractice courseId={courseId} />\n            </div>\n            {lesson ? (\n              <>\n                <div\n                  id=\"player-panel-resources\"\n                  role=\"tabpanel\"\n                  aria-labelledby=\"player-tab-resources\"\n                  hidden={section !== \"resources\"}\n                  tabIndex={-1}\n                  className={playerStyles.localPanel}\n                >\n                  <CourseResourceCenter courseId={courseId} />\n                  <CourseAnnouncementsPanel courseId={courseId} />\n                </div>\n                <div\n                  id=\"player-panel-notes\"\n                  role=\"tabpanel\"\n                  aria-labelledby=\"player-tab-notes\"\n                  hidden={section !== \"notes\"}\n                  tabIndex={-1}\n                  className={playerStyles.localPanel}\n                >\n                  <LessonWorkspace\n                    key={lesson.id}\n                    courseId={courseId}\n                    lessonId={lesson.id}\n                  />\n                </div>\n                <div\n                  id=\"player-panel-gradebook\"\n                  role=\"tabpanel\"\n                  aria-labelledby=\"player-tab-gradebook\"\n                  hidden={section !== \"gradebook\"}\n                  tabIndex={-1}\n                  className={playerStyles.localPanel}\n                >\n                  <StudentCourseGradebookPanel courseId={courseId} />\n                </div>\n                <AiTutorPanel courseId={courseId} lessonId={lesson.id} />\n                <div className={playerStyles.secondarySlot}>\n                  <Action\n"
+        }
+      ]
+    },
+    "src/features/learning/learning-aim-practice.tsx": {
+      "hash": "53a31300cc6f627cfe5c3d957caa41d3d4468c0d981570e6fef272054908a5a2",
+      "seams": [
+        {
+          "previous": "              return (\n                <article\n                  key={aim.id}\n                  className={styles.aim}\n                  data-emphasized={\n                    (aim.isUnlocked &&\n",
+          "approved": "              return (\n                <article\n                  key={aim.id}\n                  id={`player-practice-aim-${aim.id}`}\n                  tabIndex={-1}\n                  className={styles.aim}\n                  data-emphasized={\n                    (aim.isUnlocked &&\n"
+        }
+      ]
+    },
+    "src/features/learning/comprehensive-practice.tsx": {
+      "hash": "97b62f9b0efd7ef5d0ebb13b4201d1714731dd34a2486d5d84f8f87721ba387c",
+      "seams": [
+        {
+          "previous": "          practice.status !== \"Submitted\" &&\n          practice.status !== \"Finalized\";\n        return (\n          <article key={unit.id} className={styles.final}>\n            <div className=\"flex flex-wrap items-start justify-between gap-2\">\n              <div>\n                <h2 className=\"text-lg font-black\">\n",
+          "approved": "          practice.status !== \"Submitted\" &&\n          practice.status !== \"Finalized\";\n        return (\n          <article\n            key={unit.id}\n            id={`player-practice-unit-${unit.id}`}\n            tabIndex={-1}\n            className={styles.final}\n          >\n            <div className=\"flex flex-wrap items-start justify-between gap-2\">\n              <div>\n                <h2 className=\"text-lg font-black\">\n"
+        }
+      ]
+    }
+  },
+  "additions": {
+    "en": {
+      "navigation": "Course workspace sections",
+      "practice": "Practice",
+      "resources": "Resources",
+      "notes": "Notes and questions",
+      "gradebook": "Gradebook",
+      "openPractice": "View practice",
+      "viewContent": "View course content"
+    },
+    "ar": {
+      "navigation": "أقسام مساحة تعلم الدورة",
+      "practice": "التدريب",
+      "resources": "الموارد",
+      "notes": "الملاحظات والأسئلة",
+      "gradebook": "سجل الدرجات",
+      "openPractice": "عرض التدريب",
+      "viewContent": "عرض محتوى الدورة"
+    }
+  }
+}

@@ -1,0 +1,566 @@
+{
+  "classification": "MOCKED UI-CONTRACT EVIDENCE",
+  "base": "6053c5f3d9d05d2422527da7cdf9d8e754da1c28",
+  "browser": "Chromium; actual Next 16.3.6 production build on isolated localhost:3019",
+  "stats": {
+    "startTime": "2026-10-21T11:17:03.573Z",
+    "duration": 34759.809,
+    "expected": 32,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "rawScreenshotRoot": "C:/Users/user/Documents/Codex/2026-10-17/files-pasted-by-the-user-device/outputs/UI-D01-08/browser",
+  "sourceHashes": {
+    "src/features/student/student-area.tsx": "807e3d7f90f12194d6ac35b67e0b062b52aa4da8ddc552dcd816762108e992dd",
+    "src/features/student/student-course-player.module.css": "9e9ee75b4e4fec5ad5cc24643cbe10fe0b791b4c18e17b82c0397a59e26b4943",
+    "src/features/student/student-progress-intelligence.tsx": "39d54d523e497e056405b19d188ebae664ac6c3efcc24c50cfdb3c919dfa0bef",
+    "src/features/learning/learning-aim-practice.tsx": "b1f488d957a07e7b29019a53e835ec6796774e3973040ed06d407f6d2aa8b1dd",
+    "src/features/learning/comprehensive-practice.tsx": "365e00729b772031b822df93ed11d0fce474cb4439ec47eb963ab7f336c6b70c",
+    "messages/en.json": "3064b1cd2aceb2860c91043977b4b02b65c9c13ba0074508a7fc2b406c045ed1",
+    "messages/ar.json": "f41c02d3a4749dead83601aad3342c2535f880e19978d51ae0dd26d1271913cd"
+  },
+  "boundary": "Synthetic intercepted GET/explicit draft continuation response and synthetic playable WebM. No live backend, authorization, payment, database, deployment or whole-site WCAG proof. 720 CSS-pixel viewport is a 200% desktop reflow proxy.",
+  "cases": [
+    {
+      "title": "en light 1440 Text: lesson continuity and expanded Unit rail",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-e-5f720-uity-and-expanded-Unit-rail/journey.png",
+          "sha256": "d18aed06ed4c7ff67abca97a64be770cc32758d944946eb778238be8cd451712",
+          "width": 984,
+          "height": 678
+        },
+        {
+          "file": "student-player-workspace-e-5f720-uity-and-expanded-Unit-rail/lesson.png",
+          "sha256": "2e45b597e1dfb584acfea8cd9c2b9bf4d92d421aaaeb9c9802384639721a6783",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "title": "en light 834 Text: lesson continuity and expanded Unit rail",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-e-57a01-uity-and-expanded-Unit-rail/journey.png",
+          "sha256": "8b010e03b710d189e7e1b96f7b8ae67fa4540deec340d2292812913205c52de6",
+          "width": 802,
+          "height": 678
+        },
+        {
+          "file": "student-player-workspace-e-57a01-uity-and-expanded-Unit-rail/lesson.png",
+          "sha256": "b39086dd3ec19ebb286b72bfef1f97e511ecea8a0c4453a09f76211a974533d6",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "student-player-workspace-e-57a01-uity-and-expanded-Unit-rail/outline-dialog.png",
+          "sha256": "2e920ee3a9f0eeea29d0bbbbb6a9a2c3512dfaa7a53088f29b3b5c6ecb30a659",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "title": "en light 390 Text: lesson continuity and expanded Unit rail",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-e-6c710-uity-and-expanded-Unit-rail/journey.png",
+          "sha256": "9759125a5a0b054f246e7ecc1d3bbb8d1367328833ce27ed78dc5e4b583464c0",
+          "width": 358,
+          "height": 853
+        },
+        {
+          "file": "student-player-workspace-e-6c710-uity-and-expanded-Unit-rail/lesson.png",
+          "sha256": "beb181ad87b631bfa0d52f4d6cbcd8035f0ce58705f5ba49dfe70a1e19a3aaee",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "student-player-workspace-e-6c710-uity-and-expanded-Unit-rail/outline-dialog.png",
+          "sha256": "b03b9d734cdb1c3b965a70757bdb20ee73edb4a8c56e6132bff98b10bb5939a8",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "title": "en dark 1440 Text: lesson continuity and expanded Unit rail",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-e-562b6-uity-and-expanded-Unit-rail/journey.png",
+          "sha256": "1d8e3a3c5574aa589a6b71054cd22be2e67fbe71f606663a4f0a1d23edbe8f2f",
+          "width": 984,
+          "height": 678
+        },
+        {
+          "file": "student-player-workspace-e-562b6-uity-and-expanded-Unit-rail/lesson.png",
+          "sha256": "b0ee48186d478b155aa94feb236172cb1392228f20ac2f8d133859d4f6925093",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "title": "en dark 834 Text: lesson continuity and expanded Unit rail",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-e-3020a-uity-and-expanded-Unit-rail/journey.png",
+          "sha256": "8267221f3eec0f5961f364e62003accdd6cd7b5d3f0985a5efa1a233edc23b8d",
+          "width": 802,
+          "height": 678
+        },
+        {
+          "file": "student-player-workspace-e-3020a-uity-and-expanded-Unit-rail/lesson.png",
+          "sha256": "407abb3fe94dbde16311a7298eee30cdb246e282022f6de6e6f42294d875452b",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "student-player-workspace-e-3020a-uity-and-expanded-Unit-rail/outline-dialog.png",
+          "sha256": "6dd19655ad1c28d44ba47e0e9a90e79227cea523296ddef5cbe30f495f655a24",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "title": "en dark 390 Text: lesson continuity and expanded Unit rail",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-e-6b152-uity-and-expanded-Unit-rail/journey.png",
+          "sha256": "a84cf1849e92d927815a0293599ff8bf9f012d6571a2c1d787c0e1868f44ee72",
+          "width": 358,
+          "height": 853
+        },
+        {
+          "file": "student-player-workspace-e-6b152-uity-and-expanded-Unit-rail/lesson.png",
+          "sha256": "8dcbe4a28cfc1054027e23c2ade48211764cde4d0728be7a654485cfb0db0bf5",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "student-player-workspace-e-6b152-uity-and-expanded-Unit-rail/outline-dialog.png",
+          "sha256": "f95860580ebe281b1cd94b4db9613b230603a4f1bc1256697418b624dc994f16",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "title": "en Video: server state and media/assignment boundaries",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-e-6b50a-media-assignment-boundaries/Video.png",
+          "sha256": "af9fe973bd97b99dd13f049b3b8148b0f83e32dec0a39bff0ac7aa0612331395",
+          "width": 1440,
+          "height": 3380
+        }
+      ]
+    },
+    {
+      "title": "en Assignment: server state and media/assignment boundaries",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-e-62e35-media-assignment-boundaries/Assignment.png",
+          "sha256": "9ea8cee396c53701591369d603a0196762077eb8fd2ed17582d31d0a46690111",
+          "width": 1440,
+          "height": 4114
+        }
+      ]
+    },
+    {
+      "title": "en Locked: server state and media/assignment boundaries",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-e-54a32-media-assignment-boundaries/Locked.png",
+          "sha256": "ae54045d35d5bdd0014f8a7f7fc5050aa0aa795fbe0d8bbf7e003f21a2d24f78",
+          "width": 1440,
+          "height": 3541
+        }
+      ]
+    },
+    {
+      "title": "en Completed: server state and media/assignment boundaries",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-e-de767-media-assignment-boundaries/Completed.png",
+          "sha256": "e25511c549e1f15d6e0971e2864f90e557ea9755fdca1cbbe8880aa6ec72a4f9",
+          "width": 1440,
+          "height": 3837
+        }
+      ]
+    },
+    {
+      "title": "en: exact practice focus, note/question/file drafts and local keyboard navigation",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-e-415bb-d-local-keyboard-navigation/gradebook.png",
+          "sha256": "9bd4c6dcc9d3376b5482a62bfb887d0318ad9be78f81c8e18b2f1c1413b0bf91",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "student-player-workspace-e-415bb-d-local-keyboard-navigation/notes.png",
+          "sha256": "d8390019c0c47483942d768cc9b1d70c7c270a9d30d784e80391fe98d54c0d37",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "student-player-workspace-e-415bb-d-local-keyboard-navigation/practice-target.png",
+          "sha256": "1ff027c615197f5fb2662c1a94958f3c6f455f03938a2bdcfc83e6e55cafe717",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "student-player-workspace-e-415bb-d-local-keyboard-navigation/resources.png",
+          "sha256": "705aa2b4319ec3f1ac959231fc4b1da27f2cffd1253d00963b1e5d5d326cc4f0",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "title": "en: Final Unit target and 200 percent reflow",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-e-b2fd3-rget-and-200-percent-reflow/unit-practice-reflow.png",
+          "sha256": "dbf126fce6d8e86d34116db95d55b8a8f425a19bf92bed769306d509dc407c75",
+          "width": 720,
+          "height": 450
+        }
+      ]
+    },
+    {
+      "title": "en: Journey content action opens the existing outline without guessing a lesson",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-e-82fa7-e-without-guessing-a-lesson/journey-content-outline.png",
+          "sha256": "502cf8fee6453d9517ec305d1c13c17f0e3c71a3a9e3e261a4e3a057ad81efaa",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "title": "en pending: factual player query state",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-e-286fe--factual-player-query-state/pending.png",
+          "sha256": "414446cfae8958b0b3603c51907ef6466275a77d7720e29964c1aed93d8079e8",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "title": "en error: factual player query state",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-en-error-factual-player-query-state/error.png",
+          "sha256": "3c9e461f98b8998225b64895d1f31464e4e498971de9a5a202dcdf4f8a31c8d9",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "title": "en empty: factual player query state",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-en-empty-factual-player-query-state/empty.png",
+          "sha256": "45bb16334967236280c9f5365885e3b335641182591962787004a07621f165d1",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "title": "ar light 1440 Text: lesson continuity and expanded Unit rail",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-a-3d26a-uity-and-expanded-Unit-rail/journey.png",
+          "sha256": "4f8ec339bce56e409d9afc7585ba794e02449f12b9c4bf3e81c8d4f2448fa74a",
+          "width": 984,
+          "height": 654
+        },
+        {
+          "file": "student-player-workspace-a-3d26a-uity-and-expanded-Unit-rail/lesson.png",
+          "sha256": "a0099a7cf585301eb5f7d5fe608afb8d8f6c6e7e78cc7eecd2b2d1e6dbea2bb4",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "title": "ar light 834 Text: lesson continuity and expanded Unit rail",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-a-336b7-uity-and-expanded-Unit-rail/journey.png",
+          "sha256": "4aefaa9b390f2c375c55d810de73e67a87e7b53b9d5064ea7e28070b34ea49af",
+          "width": 802,
+          "height": 677
+        },
+        {
+          "file": "student-player-workspace-a-336b7-uity-and-expanded-Unit-rail/lesson.png",
+          "sha256": "90ed3433572af03bfbd5de20dc872f4ad28813c67aab487756957ca7543891c6",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "student-player-workspace-a-336b7-uity-and-expanded-Unit-rail/outline-dialog.png",
+          "sha256": "09c8101dcff1379198d1731014f4ce9926b5eec4637237329e9fd405456ac074",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "title": "ar light 390 Text: lesson continuity and expanded Unit rail",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-a-decdb-uity-and-expanded-Unit-rail/journey.png",
+          "sha256": "91c51c58114aab0aa4d5c1819d8f6ca23888ce1912f92fdf4810741929167d3b",
+          "width": 358,
+          "height": 835
+        },
+        {
+          "file": "student-player-workspace-a-decdb-uity-and-expanded-Unit-rail/lesson.png",
+          "sha256": "637d8ce486b5c1e36ed0ad6355ff0f05f7a75927bb67dd697ed949ea9fad15fb",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "student-player-workspace-a-decdb-uity-and-expanded-Unit-rail/outline-dialog.png",
+          "sha256": "b7631b7acf09119f29c3eed83f2ee790ae477d1405c8cbf3de941aa7a1acbec0",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "title": "ar dark 1440 Text: lesson continuity and expanded Unit rail",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-a-5c306-uity-and-expanded-Unit-rail/journey.png",
+          "sha256": "964c458c461f3fce976f9bf1e2fb8b7c8633082d86fc6d150cb2c11669ab4e2a",
+          "width": 984,
+          "height": 654
+        },
+        {
+          "file": "student-player-workspace-a-5c306-uity-and-expanded-Unit-rail/lesson.png",
+          "sha256": "cbf3f776c4c8486f9ccaa9c8a0b54f01369fedae49da09b13bfe54f499e67502",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "title": "ar dark 834 Text: lesson continuity and expanded Unit rail",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-a-ecac6-uity-and-expanded-Unit-rail/journey.png",
+          "sha256": "0a77aa78ba446ee448cf81ac8deef7a5c902ae12989fcbe0aa11db9006d48e32",
+          "width": 802,
+          "height": 677
+        },
+        {
+          "file": "student-player-workspace-a-ecac6-uity-and-expanded-Unit-rail/lesson.png",
+          "sha256": "eeaa458c8aeacf736a59e40aca237e329dd51f2cc98c5c08b638adb6cefc5824",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "file": "student-player-workspace-a-ecac6-uity-and-expanded-Unit-rail/outline-dialog.png",
+          "sha256": "5664ff7f1f13b19705d729ee9d2c8489bd90e09f0f6bc69d44648cc47e041578",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "title": "ar dark 390 Text: lesson continuity and expanded Unit rail",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-a-c9e55-uity-and-expanded-Unit-rail/journey.png",
+          "sha256": "5cfdcc7527a4c1392af9db2396b271da351e805702ba489471d273a48eaf0ea3",
+          "width": 358,
+          "height": 835
+        },
+        {
+          "file": "student-player-workspace-a-c9e55-uity-and-expanded-Unit-rail/lesson.png",
+          "sha256": "c0873ca351bd15cc7317555c14236aee97822e6a3ada9117e0ffd5f7cbd37879",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "student-player-workspace-a-c9e55-uity-and-expanded-Unit-rail/outline-dialog.png",
+          "sha256": "545c96e83272367412fcd2d686c02f6ed7cd05a4c5389f3203b939f628e0275d",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "title": "ar Video: server state and media/assignment boundaries",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-a-6c2b0-media-assignment-boundaries/Video.png",
+          "sha256": "7dee2245deb30a34b4f8e5277904911258a090594093b157326b2c8fa00328c9",
+          "width": 390,
+          "height": 4417
+        }
+      ]
+    },
+    {
+      "title": "ar Assignment: server state and media/assignment boundaries",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-a-ef225-media-assignment-boundaries/Assignment.png",
+          "sha256": "cc736af386194f594620d8111d32a2ad7888ed207f67cba34449eb93e779a774",
+          "width": 390,
+          "height": 5462
+        }
+      ]
+    },
+    {
+      "title": "ar Locked: server state and media/assignment boundaries",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-a-bb357-media-assignment-boundaries/Locked.png",
+          "sha256": "32360db39c69885df69468ba8319a5b24294bbd42a7af73efc5e1215613fab7f",
+          "width": 390,
+          "height": 4559
+        }
+      ]
+    },
+    {
+      "title": "ar Completed: server state and media/assignment boundaries",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-a-f87e4-media-assignment-boundaries/Completed.png",
+          "sha256": "736de9016a37b7fe4b85dac4977cd39b4d40ad829d28a786ca187e39f0697bfd",
+          "width": 390,
+          "height": 5161
+        }
+      ]
+    },
+    {
+      "title": "ar: exact practice focus, note/question/file drafts and local keyboard navigation",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-a-bec2f-d-local-keyboard-navigation/gradebook.png",
+          "sha256": "a9cf5e461c308db999ad055416f21b23eacec50fb6f086ed3839fd7952095f6e",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "student-player-workspace-a-bec2f-d-local-keyboard-navigation/notes.png",
+          "sha256": "5ee562af4525d7d2bb12574b68756faa8667a86fcb7a57afaf13eb6ece44c0ad",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "student-player-workspace-a-bec2f-d-local-keyboard-navigation/practice-target.png",
+          "sha256": "548141ce08461b616ab878b7b115a5a5b6b5c243e7b7ff0d58a7252b1951f119",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "file": "student-player-workspace-a-bec2f-d-local-keyboard-navigation/resources.png",
+          "sha256": "8aedf56bdbf1770449460e52d83032abc2a8aa3147817e8409a6734370c81e3e",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "title": "ar: Final Unit target and 200 percent reflow",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-a-c9e93-rget-and-200-percent-reflow/unit-practice-reflow.png",
+          "sha256": "51029528fe278f4c3553100d68d65966c4dfc4af319a59fd5e3ac0773d2918a2",
+          "width": 720,
+          "height": 450
+        }
+      ]
+    },
+    {
+      "title": "ar: Journey content action opens the existing outline without guessing a lesson",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-a-e1f35-e-without-guessing-a-lesson/journey-content-outline.png",
+          "sha256": "ec25ca92642a452478c70a50aae24b3c59fad4a76a475defafb3bf445e25bcbe",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "title": "ar pending: factual player query state",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-a-4be7a--factual-player-query-state/pending.png",
+          "sha256": "2b6be3896aa1b7da97008896f657e0dc9882af4c2aff027bcf9c164304f5931e",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "title": "ar error: factual player query state",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-ar-error-factual-player-query-state/error.png",
+          "sha256": "30f249fc555a43343ebced4a1b0ea93aebb11b7c27288462c678e096dbf4fedc",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "title": "ar empty: factual player query state",
+      "status": "passed",
+      "screenshots": [
+        {
+          "file": "student-player-workspace-ar-empty-factual-player-query-state/empty.png",
+          "sha256": "a5a8f83bb4d327537d6029e3bf20e25a7848172b69b562302f4733c0ba2ba406",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    }
+  ]
+}

@@ -1,4 +1,13 @@
 {
+  "studentPlayerWorkspace": {
+    "navigation": "Course workspace sections",
+    "practice": "Practice",
+    "resources": "Resources",
+    "notes": "Notes and questions",
+    "gradebook": "Gradebook",
+    "openPractice": "View practice",
+    "viewContent": "View course content"
+  },
   "brand": "BETCCO",
   "tagline": "Learn. Apply. Achieve.",
   "hero": "From learning to assignments and assessment criteria — everything a BTEC student needs in one place.",

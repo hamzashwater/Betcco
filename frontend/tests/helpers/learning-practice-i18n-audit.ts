@@ -1,6 +1,7 @@
 import ts from "typescript";
 import baseline from "../fixtures/learning-practice-i18n-baseline.json";
 import { ancestors, compact } from "./admin-final-i18n-audit";
+import { projectPlayerWorkspaceSource } from "./player-workspace-projection";
 
 export const practiceFiles = [
   "src/features/learning/comprehensive-practice.tsx",
@@ -44,6 +45,16 @@ export function assertPracticeScope(paths: string[]) {
 
 // Every syntax token remains in the proof; only comments/whitespace trivia vanish.
 export function practiceContract(source: string) {
+  if (source.includes("id={`player-practice-aim-"))
+    source = projectPlayerWorkspaceSource(
+      source,
+      "src/features/learning/learning-aim-practice.tsx",
+    );
+  if (source.includes("id={`player-practice-unit-"))
+    source = projectPlayerWorkspaceSource(
+      source,
+      "src/features/learning/comprehensive-practice.tsx",
+    );
   const file = parse(source);
   function jsxChildren(children: ts.NodeArray<ts.JsxChild>) {
     const result: unknown[] = [];
@@ -150,6 +161,7 @@ const approvedLiterals = new Map<PracticeFile, ReadonlySet<string>>(
 );
 
 export function auditPractice(source: string, path: PracticeFile) {
+  source = projectPlayerWorkspaceSource(source, path);
   const file = parse(source);
   const retainedLiterals = approvedLiterals.get(path);
   if (!retainedLiterals) throw new Error("Missing reviewed practice baseline");

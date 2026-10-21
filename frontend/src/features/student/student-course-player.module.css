@@ -30,7 +30,7 @@
 .lessonTitle {
   font-size: clamp(1.5rem, 2.5vw, 2.25rem);
   line-height: 1.35;
-  font-weight: 800;
+  font-weight: 700;
   overflow-wrap: anywhere;
   color: var(--ui-text-primary);
 }
@@ -102,6 +102,42 @@
   padding-block-start: 1rem;
   min-width: 0;
 }
+.localNavigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-block: 1rem;
+  border-block: 1px solid var(--ui-border-default);
+}
+.localNavigation button {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--ui-border-interactive);
+  border-radius: var(--ui-radius-control);
+  color: var(--ui-text-secondary);
+  font-weight: 500;
+  background: var(--ui-surface-panel);
+}
+.localNavigation button[aria-selected="true"] {
+  color: var(--ui-text-link);
+  border-color: var(--ui-text-link);
+  background: var(--ui-surface-muted);
+  font-weight: 600;
+}
+.localPanel {
+  min-width: 0;
+  padding-block: 1rem;
+  scroll-margin-block-start: 6rem;
+}
+.localPanel:focus,
+.localPanel :global(article[id^="player-practice-"]:focus) {
+  outline: 2px solid var(--ui-text-link);
+  outline-offset: 4px;
+  scroll-margin-block-start: 6rem;
+}
+.localPanel[hidden] {
+  display: none;
+}
 .desktopControl {
   display: none;
 }
@@ -130,7 +166,7 @@
   border-inline-start-color: var(--ui-text-link);
   background: var(--ui-surface-muted);
   color: var(--ui-text-primary);
-  font-weight: 800;
+  font-weight: 600;
 }
 .lockedRow {
   padding: 0.75rem;
@@ -154,7 +190,7 @@
   min-width: 0;
 }
 .lockedLesson[aria-current] {
-  font-weight: 800;
+  font-weight: 600;
   color: var(--ui-text-primary);
 }
 .lockedRow:has(.lockedLesson[aria-current]) {
@@ -224,9 +260,14 @@
   font-size: 1.25rem;
 }
 .journeyUnit {
+  border-inline-start: 2px solid var(--ui-border-default);
+  padding-inline-start: 1rem;
   border-block-end: 1px solid var(--ui-border-default);
   min-width: 0;
   padding-block: 0.75rem;
+}
+.journeyUnit[data-complete="true"] {
+  border-inline-start-color: var(--ui-text-link);
 }
 .unitSummary {
   cursor: pointer;
@@ -236,7 +277,7 @@
 .unitHeading {
   display: inline;
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: 600;
   overflow-wrap: anywhere;
 }
 .unitOverview {

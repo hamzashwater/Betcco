@@ -527,6 +527,12 @@ describe.each([
     );
     fireEvent.error(container.querySelector("video")!);
     expect(screen.getByRole("button", { name: copy.videoRetry })).toBeVisible();
+    fireEvent.click(
+      await screen.findByRole("tab", {
+        name: (locale === "ar" ? arMessages : enMessages).studentPlayerWorkspace
+          .resources,
+      }),
+    );
     expect(await screen.findByText(copy.announcements)).toBeVisible();
     expect(screen.getByText(copy.announcementError)).toBeVisible();
     expect(await screen.findByText(copy.resources)).toBeVisible();
@@ -542,6 +548,12 @@ describe.each([
   it("renders notes, questions, tutor and gradebook while keeping API enums and fallbacks", async () => {
     const fetchMock = installLearningFetch();
     renderPlayer(locale);
+    fireEvent.click(
+      await screen.findByRole("tab", {
+        name: (locale === "ar" ? arMessages : enMessages).studentPlayerWorkspace
+          .notes,
+      }),
+    );
     expect(await screen.findByText(copy.note)).toBeVisible();
     await waitFor(() =>
       expect(screen.getByPlaceholderText(copy.notePlaceholder)).toHaveValue(
@@ -627,6 +639,12 @@ describe.each([
     );
     expect(await screen.findByText("Server AI reply")).toBeVisible();
     expect(screen.getByText(new RegExp(copy.sources))).toBeVisible();
+    await user.click(
+      screen.getByRole("tab", {
+        name: (locale === "ar" ? arMessages : enMessages).studentPlayerWorkspace
+          .gradebook,
+      }),
+    );
     expect(await screen.findByText(copy.gradebook)).toBeVisible();
     expect(screen.getByText(copy.predicted)).toBeVisible();
     expect(screen.getByText(copy.grade)).toBeVisible();

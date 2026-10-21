@@ -186,7 +186,12 @@ export function StudentComprehensivePractice({
           practice.status !== "Submitted" &&
           practice.status !== "Finalized";
         return (
-          <article key={unit.id} className={styles.final}>
+          <article
+            key={unit.id}
+            id={`player-practice-unit-${unit.id}`}
+            tabIndex={-1}
+            className={styles.final}
+          >
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
                 <h2 className="text-lg font-black">

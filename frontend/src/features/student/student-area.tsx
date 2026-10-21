@@ -30,7 +30,10 @@ import {
   StudentResitOpportunities,
 } from "@/features/student/student-resit-workflow";
 import { AiPracticeShell } from "@/features/student/ai-practice-shell";
-import { StudentProgressIntelligence } from "@/features/student/student-progress-intelligence";
+import {
+  StudentProgressIntelligence,
+  type PlayerPracticeTarget,
+} from "@/features/student/student-progress-intelligence";
 import {
   compactStudentCoursesQueryOptions,
   CourseCard,
@@ -1893,10 +1896,37 @@ function CoursePlayer({
   const t = useTranslations("studentWorkspace");
   const locale = useLocale();
   const client = useQueryClient();
+  const workspace = useTranslations("studentPlayerWorkspace");
+  const sections = ["practice", "resources", "notes", "gradebook"] as const;
+  const [section, setSection] = useState<(typeof sections)[number]>("practice");
+  const [practiceTarget, setPracticeTarget] = useState<PlayerPracticeTarget>();
+  const practicePanel = useRef<HTMLDivElement>(null);
+  const desktopOutlineLink = useRef<HTMLAnchorElement>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOutlineOpen, setMobileOutlineOpen] = useState(false);
   const outlineDialog = useRef<HTMLDivElement>(null);
   const currentOutlineLink = useRef<HTMLAnchorElement>(null);
+  useEffect(() => {
+    if (!practiceTarget || section !== "practice" || !practicePanel.current)
+      return;
+    const panel = practicePanel.current;
+    const focusTarget = () => {
+      const element = document.getElementById(
+        `player-practice-${practiceTarget.kind}-${practiceTarget.id}`,
+      );
+      if (!element || !panel.contains(element)) return false;
+      element.focus();
+      element.scrollIntoView?.({ block: "start" });
+      return true;
+    };
+    if (focusTarget()) return;
+    panel.focus();
+    const observer = new MutationObserver(() => {
+      if (focusTarget()) observer.disconnect();
+    });
+    observer.observe(panel, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [practiceTarget, section]);
   useDialogFocus(
     mobileOutlineOpen,
     outlineDialog,
@@ -2036,6 +2066,8 @@ function CoursePlayer({
   const nextLesson = allLessons.find(
     (item) => item.id === result.data.nextLessonId,
   );
+  const localSections = lesson ? sections : sections.slice(0, 1);
+  const selectedSection = lesson ? section : "practice";
   const lessonHref = (lessonId: string) =>
     `/${locale}/student/learn/${courseId}?lessonId=${encodeURIComponent(lessonId)}`;
   const outline = (headingId: string, mobile = false) => (
@@ -2045,7 +2077,7 @@ function CoursePlayer({
       headingId={headingId}
       lessonHref={lessonHref}
       lockedMessage={lockedMessage}
-      currentLinkRef={mobile ? currentOutlineLink : undefined}
+      currentLinkRef={mobile ? currentOutlineLink : desktopOutlineLink}
       onNavigate={mobile ? () => setMobileOutlineOpen(false) : undefined}
     />
   );
@@ -2326,19 +2358,116 @@ function CoursePlayer({
             </>
           )}
           <div className={playerStyles.secondary}>
-            <StudentProgressIntelligence courseId={courseId} />
-            <StudentLearningAimPractice courseId={courseId} />
-            <StudentComprehensivePractice courseId={courseId} />
+            <StudentProgressIntelligence
+              courseId={courseId}
+              onOpenPractice={(target) => {
+                setSection("practice");
+                setPracticeTarget(target);
+              }}
+              onViewContent={() => {
+                if (window.matchMedia("(min-width: 1024px)").matches) {
+                  setSidebarOpen(true);
+                  requestAnimationFrame(() =>
+                    desktopOutlineLink.current?.focus(),
+                  );
+                } else setMobileOutlineOpen(true);
+              }}
+            />
+            <div
+              className={playerStyles.localNavigation}
+              role="tablist"
+              aria-label={workspace("navigation")}
+            >
+              {localSections.map((value, index) => (
+                <button
+                  key={value}
+                  id={`player-tab-${value}`}
+                  type="button"
+                  role="tab"
+                  aria-selected={selectedSection === value}
+                  aria-controls={`player-panel-${value}`}
+                  tabIndex={selectedSection === value ? 0 : -1}
+                  className="focus-ring"
+                  onClick={() => {
+                    setPracticeTarget(undefined);
+                    setSection(value);
+                  }}
+                  onKeyDown={(event) => {
+                    const direction = locale === "ar" ? -1 : 1;
+                    const nextIndex =
+                      event.key === "Home"
+                        ? 0
+                        : event.key === "End"
+                          ? localSections.length - 1
+                          : event.key === "ArrowRight"
+                            ? (index + direction + localSections.length) %
+                              localSections.length
+                            : event.key === "ArrowLeft"
+                              ? (index - direction + localSections.length) %
+                                localSections.length
+                              : undefined;
+                    if (nextIndex === undefined) return;
+                    event.preventDefault();
+                    setPracticeTarget(undefined);
+                    setSection(localSections[nextIndex]);
+                    document
+                      .getElementById(`player-tab-${localSections[nextIndex]}`)
+                      ?.focus();
+                  }}
+                >
+                  {workspace(value)}
+                </button>
+              ))}
+            </div>
+            <div
+              ref={practicePanel}
+              id="player-panel-practice"
+              role="tabpanel"
+              aria-labelledby="player-tab-practice"
+              hidden={selectedSection !== "practice"}
+              tabIndex={-1}
+              className={playerStyles.localPanel}
+            >
+              <StudentLearningAimPractice courseId={courseId} />
+              <StudentComprehensivePractice courseId={courseId} />
+            </div>
             {lesson ? (
               <>
-                <CourseResourceCenter courseId={courseId} />
-                <CourseAnnouncementsPanel courseId={courseId} />
-                <LessonWorkspace
-                  key={lesson.id}
-                  courseId={courseId}
-                  lessonId={lesson.id}
-                />
-                <StudentCourseGradebookPanel courseId={courseId} />
+                <div
+                  id="player-panel-resources"
+                  role="tabpanel"
+                  aria-labelledby="player-tab-resources"
+                  hidden={section !== "resources"}
+                  tabIndex={-1}
+                  className={playerStyles.localPanel}
+                >
+                  <CourseResourceCenter courseId={courseId} />
+                  <CourseAnnouncementsPanel courseId={courseId} />
+                </div>
+                <div
+                  id="player-panel-notes"
+                  role="tabpanel"
+                  aria-labelledby="player-tab-notes"
+                  hidden={section !== "notes"}
+                  tabIndex={-1}
+                  className={playerStyles.localPanel}
+                >
+                  <LessonWorkspace
+                    key={lesson.id}
+                    courseId={courseId}
+                    lessonId={lesson.id}
+                  />
+                </div>
+                <div
+                  id="player-panel-gradebook"
+                  role="tabpanel"
+                  aria-labelledby="player-tab-gradebook"
+                  hidden={section !== "gradebook"}
+                  tabIndex={-1}
+                  className={playerStyles.localPanel}
+                >
+                  <StudentCourseGradebookPanel courseId={courseId} />
+                </div>
                 <AiTutorPanel courseId={courseId} lessonId={lesson.id} />
                 <div className={playerStyles.secondarySlot}>
                   <Action
