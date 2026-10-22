@@ -1,7 +1,8 @@
 import baseline from "../fixtures/ui-d01-13-admin-home-baseline.json";
+import { projectAssessmentOperationsSource } from "./assessment-operations-projection";
 // Exact reviewed UI13 seams only; absent, altered or duplicate hunks fail closed.
 export function projectAdminHomeSource(source: string, path = baseline.path) {
-  const original = source.replace(/\r\n/g, "\n");
+  const original = projectAssessmentOperationsSource(source, path);
   if (path !== baseline.path) return original;
   let result = original;
   for (const seam of baseline.seams) {

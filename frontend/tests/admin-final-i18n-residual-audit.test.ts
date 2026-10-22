@@ -7,6 +7,7 @@ import baseline from "./fixtures/admin-final-i18n-baseline.json";
 import { withoutFinalAdminAdditions } from "./helpers/admin-final-catalogue-projection";
 import { withoutSharedShellAdditions } from "./helpers/shared-shell-catalogue-projection";
 import { projectAdminStateSource } from "./helpers/admin-state-projection";
+import { projectAssessmentOperationsSource } from "./helpers/assessment-operations-projection";
 import {
   auditFile,
   catalogue,
@@ -23,7 +24,7 @@ const exceptions = baseline.exceptions as Record<string, Exception[]>;
 const project = (path: string, source: string) =>
   path.replaceAll("\\", "/").endsWith("/admin-area.tsx")
     ? projectAdminStateSource(source)
-    : source;
+    : projectAssessmentOperationsSource(source, path);
 const reports = wholeAudit(exceptions, project);
 const debt = (findings: (typeof reports)[number]["findings"]) =>
   findings.filter((f) =>

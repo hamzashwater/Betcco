@@ -1,5 +1,8 @@
 "use client";
 
+import operations from "./assessment-operations.module.css";
+import { assessmentRequestMessage } from "./assessment-operations-state";
+
 import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { academicText } from "@/lib/academic-localization";
@@ -248,12 +251,13 @@ export function AssessmentCoordinationQueue() {
 
   return (
     <section
-      className="mt-6 min-w-0 rounded-[1.25rem] border border-border p-4 sm:p-5"
+      id="assessment-coordination"
+      className={operations.panel}
       aria-label={t("assessmentCoordination.title")}
     >
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-xl font-black">
+          <h2 className="text-xl font-bold">
             {t("assessmentCoordination.title")}
           </h2>
           <p className="mt-1 text-sm text-muted">
@@ -304,21 +308,38 @@ export function AssessmentCoordinationQueue() {
         </div>
       </div>
 
+      {queue.isError && queue.data && (
+        <p className={operations.error} role="alert">
+          {assessmentRequestMessage(
+            queue.error,
+            t("assessmentCoordination.loadError"),
+            t,
+            Boolean(queue.data),
+          )}
+        </p>
+      )}
       {queue.isPending ? (
         <p className="mt-5 text-sm text-muted" aria-busy="true">
           {t("assessmentCoordination.loading")}
         </p>
-      ) : queue.isError ? (
+      ) : queue.isError && !queue.data ? (
         <p className="mt-5 text-sm text-red-600" role="alert">
-          {t("assessmentCoordination.loadError")}
+          {assessmentRequestMessage(
+            queue.error,
+            t("assessmentCoordination.loadError"),
+            t,
+            Boolean(queue.data),
+          )}
         </p>
       ) : queue.data.items.length === 0 ? (
         <p className="mt-5 text-sm text-muted">
-          {t("assessmentCoordination.empty")}
+          {status || expectedState
+            ? t("gradebook.empty")
+            : t("assessmentCoordination.empty")}
         </p>
       ) : (
         <>
-          <div className="mt-5 grid gap-3">
+          <div className={operations.rows}>
             {queue.data.items.map((item) => {
               const label = statuses.find(
                 (option) => option.value === item.status,
@@ -337,13 +358,10 @@ export function AssessmentCoordinationQueue() {
                       ? t("assessmentCoordination.stateChangedBlocker")
                       : null;
               return (
-                <article
-                  key={item.id}
-                  className="min-w-0 rounded-xl border border-border bg-surface-solid/60 p-4"
-                >
+                <article key={item.id} className={operations.coordinationRow}>
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <h3 className="font-black">
+                      <h3 className="font-bold">
                         {t("assessmentCoordination.request")}{" "}
                         {item.id.slice(0, 8)}
                       </h3>
@@ -424,7 +442,7 @@ export function AssessmentCoordinationQueue() {
                   )}
                   {editingId === item.id && (
                     <form
-                      className="mt-3 grid max-w-lg gap-3"
+                      className={operations.detail}
                       onSubmit={(event) => {
                         event.preventDefault();
                         void saveExpectedCompletion(item.id);
@@ -474,10 +492,10 @@ export function AssessmentCoordinationQueue() {
                     </form>
                   )}
                   {item.revisionDueAtUtc && (
-                    <div className="mt-4 rounded-xl border border-border p-3">
+                    <div className={operations.detail}>
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <div>
-                          <p className="text-sm font-black">
+                          <p className="text-sm font-bold">
                             {t("assessmentCoordination.revisionDeadline")}
                           </p>
                           <p className="mt-1 text-sm text-muted">
@@ -618,7 +636,7 @@ export function AssessmentCoordinationQueue() {
                                 </p>
                               )}
                               <div>
-                                <p className="text-sm font-black">
+                                <p className="text-sm font-bold">
                                   {t("assessmentCoordination.history")}
                                 </p>
                                 {adjustmentSummary.history.length === 0 ? (

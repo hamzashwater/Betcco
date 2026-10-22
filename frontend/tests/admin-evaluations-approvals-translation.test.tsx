@@ -147,7 +147,10 @@ describe.each(["ar", "en"] as const)(
             .getQueryCache()
             .find({ queryKey: ["under-review-evaluations"] })!;
           expect(query.isActive()).toBe(allowed);
-          const heading = screen.getByText(copy.evaluations.verificationTitle);
+          const heading = screen.getByRole("heading", {
+            name: copy.evaluations.verificationTitle,
+            hidden: true,
+          });
           if (allowed) expect(heading).toBeVisible();
           else expect(heading).not.toBeVisible();
         },

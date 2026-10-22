@@ -1,5 +1,8 @@
 "use client";
 
+import operations from "./assessment-operations.module.css";
+import { assessmentRequestMessage } from "./assessment-operations-state";
+
 import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
@@ -37,10 +40,11 @@ export function ResitCoordinationPanel() {
 
   return (
     <section
-      className="card mt-6 p-5"
+      id="assessment-resit"
+      className={`${operations.workspace} ${operations.panel}`}
       aria-label={t("resitCoordination.region")}
     >
-      <h2 className="text-lg font-black">{t("resitCoordination.title")}</h2>
+      <h2 className="text-lg font-bold">{t("resitCoordination.title")}</h2>
       <p className="mt-1 text-sm text-muted">
         {t("resitCoordination.description")}
       </p>
@@ -51,7 +55,12 @@ export function ResitCoordinationPanel() {
       )}
       {authorizations.isError && (
         <p className="mt-4 text-sm text-red-600" role="alert">
-          {t("resitCoordination.loadError")}
+          {assessmentRequestMessage(
+            authorizations.error,
+            t("resitCoordination.loadError"),
+            t,
+            Boolean(authorizations.data),
+          )}
         </p>
       )}
       {authorizations.data?.items.length === 0 && (
@@ -59,7 +68,7 @@ export function ResitCoordinationPanel() {
           {t("resitCoordination.empty")}
         </p>
       )}
-      <div className="mt-4 grid gap-3">
+      <div className={operations.rows}>
         {authorizations.data?.items.map((item) => {
           const state = item.revokedAtUtc
             ? t("resitCoordination.revoked")
@@ -67,10 +76,7 @@ export function ResitCoordinationPanel() {
               ? t("resitCoordination.activated")
               : t("resitCoordination.authorized");
           return (
-            <article
-              key={item.authorizationId}
-              className="min-w-0 rounded-xl border border-border p-4 text-sm"
-            >
+            <article key={item.authorizationId} className={operations.row}>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <strong>{state}</strong>
                 <span className="text-xs text-muted">

@@ -1,5 +1,8 @@
 "use client";
 
+import operations from "./assessment-operations.module.css";
+import { assessmentRequestMessage } from "./assessment-operations-state";
+
 /* The review cover endpoint is authenticated, so Next's image optimizer cannot request it. */
 /* eslint-disable @next/next/no-img-element */
 
@@ -1764,36 +1767,76 @@ function AdminEvaluations() {
     },
   });
   if (
-    currentUser.isPending ||
-    pending.isPending ||
-    (canVerify && underReview.isPending)
+    (currentUser.isPending && !currentUser.data) ||
+    (pending.isPending && !pending.data) ||
+    (canVerify && underReview.isPending && !underReview.data)
   )
     return (
-      <section className="shell py-10">
+      <section className={`shell py-10 ${operations.workspace}`}>
         <div className="card p-6" aria-busy>
           {t("shared.loadingIndicator")}
         </div>
       </section>
     );
   if (
-    currentUser.isError ||
-    pending.isError ||
-    (canVerify && underReview.isError)
+    (currentUser.isError && !currentUser.data) ||
+    (pending.isError && !pending.data) ||
+    (canVerify && underReview.isError && !underReview.data)
   )
     return (
-      <section className="shell py-10">
+      <section className={`shell py-10 ${operations.workspace}`}>
         <p className="card p-6" role="alert">
-          {t("evaluations.loadError")}
+          {assessmentRequestMessage(
+            currentUser.error ?? pending.error ?? underReview.error,
+            t("evaluations.loadError"),
+            t,
+            Boolean(
+              currentUser.data &&
+              pending.data &&
+              (!canVerify || underReview.data),
+            ),
+          )}
         </p>
       </section>
     );
   return (
-    <section className="shell py-10">
+    <section className={`shell py-10 ${operations.workspace}`}>
       <DashboardHeader
         eyebrow={t("evaluations.eyebrow")}
         title={t("evaluations.title")}
         description={t("evaluations.description")}
       />
+      <nav
+        className={operations.navigation}
+        aria-label={t("evaluations.title")}
+      >
+        <a href="#assessment-coordination">
+          {t("assessmentCoordination.title")}
+        </a>
+        <a href="#assessment-assignment">{t("evaluatorAssignment.title")}</a>
+        <a href="#assessment-resit">{t("resitCoordination.title")}</a>
+        {canVerify && (
+          <a href="#assessment-verification">
+            {t("evaluations.verificationTitle")}
+          </a>
+        )}
+      </nav>
+      {(currentUser.isError ||
+        pending.isError ||
+        (canVerify && underReview.isError)) && (
+        <p className={operations.error} role="alert">
+          {assessmentRequestMessage(
+            currentUser.error ?? pending.error ?? underReview.error,
+            t("evaluations.loadError"),
+            t,
+            Boolean(
+              currentUser.data &&
+              pending.data &&
+              (!canVerify || underReview.data),
+            ),
+          )}
+        </p>
+      )}
       <AssessmentCoordinationQueue />
       <ResitCoordinationPanel />
       {lastAssigned && (
@@ -1801,33 +1844,44 @@ function AdminEvaluations() {
           {t("evaluations.assigned")}
         </p>
       )}
-      <div className="mt-5 grid gap-4">
-        {pending.data?.map((evaluation) => (
-          <EligibleEvaluatorAssignment
-            key={evaluation.id}
-            evaluation={evaluation}
-            onAssigned={() => {
-              setLastAssigned(true);
-              client.invalidateQueries({ queryKey: ["pending-evaluations"] });
-              client.invalidateQueries({
-                queryKey: ["assessment-coordination"],
-              });
-              client.invalidateQueries({ queryKey: ["admin-dashboard"] });
-            }}
-          />
-        ))}
-        {!pending.data?.length && (
-          <div className="card p-6 text-sm leading-6 text-muted">
-            {t("evaluations.emptyPending")}
-          </div>
-        )}
-      </div>
-      <section className="mt-10" hidden={!canVerify}>
+      <section
+        id="assessment-assignment"
+        className={operations.panel}
+        aria-label={t("evaluatorAssignment.title")}
+      >
+        <h2>{t("evaluatorAssignment.title")}</h2>
+        <div className={operations.rows}>
+          {pending.data?.map((evaluation) => (
+            <EligibleEvaluatorAssignment
+              key={evaluation.id}
+              evaluation={evaluation}
+              onAssigned={() => {
+                setLastAssigned(true);
+                client.invalidateQueries({ queryKey: ["pending-evaluations"] });
+                client.invalidateQueries({
+                  queryKey: ["assessment-coordination"],
+                });
+                client.invalidateQueries({ queryKey: ["admin-dashboard"] });
+              }}
+            />
+          ))}
+          {!pending.data?.length && (
+            <div className="card p-6 text-sm leading-6 text-muted">
+              {t("evaluations.emptyPending")}
+            </div>
+          )}
+        </div>
+      </section>
+      <section
+        id="assessment-verification"
+        className={operations.panel}
+        hidden={!canVerify}
+      >
         <div className="mb-4">
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
             {t("evaluations.verificationEyebrow")}
           </p>
-          <h2 className="mt-1 text-2xl font-black">
+          <h2 className="mt-1 text-2xl font-bold">
             {t("evaluations.verificationTitle")}
           </h2>
           <p className="mt-2 text-sm text-muted">
@@ -1836,14 +1890,14 @@ function AdminEvaluations() {
         </div>
         <div className="grid gap-4">
           {underReview.data?.map((evaluation) => (
-            <article key={evaluation.id} className="card p-5">
+            <article key={evaluation.id} className={operations.row}>
               <div className="grid gap-5 lg:grid-cols-2">
                 <div>
                   <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
-                    <p className="text-xs font-black uppercase tracking-wide text-primary">
+                    <p className="text-xs font-bold uppercase tracking-wide text-primary">
                       {t("evaluations.calculatedResult")}
                     </p>
-                    <p className="mt-1 text-xl font-black text-foreground">
+                    <p className="mt-1 text-xl font-bold text-foreground">
                       {evaluation.calculatedGrade ?? t("shared.unavailable")}
                     </p>
                     <div className="mt-3 grid gap-2 sm:grid-cols-3">
@@ -1863,7 +1917,7 @@ function AdminEvaluations() {
                       ))}
                     </div>
                   </div>
-                  <h3 className="font-black">
+                  <h3 className="font-bold">
                     {t("evaluations.criterionOutcomes")}
                   </h3>
                   <ul className="mt-3 grid gap-2 text-sm">
@@ -1882,7 +1936,7 @@ function AdminEvaluations() {
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-black">
+                  <h3 className="font-bold">
                     {t("evaluations.studentEvidence")}
                   </h3>
                   <ul className="mt-3 grid gap-2 text-sm text-muted">
@@ -1936,7 +1990,7 @@ function AdminEvaluations() {
                     verify.mutate({ requestId: evaluation.id, approve: true })
                   }
                   disabled={verify.isPending}
-                  className="focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950"
+                  className="focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-slate-950"
                 >
                   {t("evaluations.approve")}
                 </button>
@@ -1953,7 +2007,7 @@ function AdminEvaluations() {
                     !(verificationNotes[evaluation.id] ?? "").trim() ||
                     !resubmissionDueDates[evaluation.id]
                   }
-                  className="focus-ring rounded-xl border border-amber-400/50 px-4 py-2.5 text-sm font-black text-amber-300 disabled:opacity-50"
+                  className="focus-ring rounded-xl border border-amber-400/50 px-4 py-2.5 text-sm font-bold text-amber-300 disabled:opacity-50"
                 >
                   {t("evaluations.requestResubmission")}
                 </button>

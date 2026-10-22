@@ -1,0 +1,3808 @@
+{
+  "classification": "MOCKED UI-CONTRACT EVIDENCE",
+  "base": "dd4ecf756716270b65312968d44e21fc2974010f",
+  "runtime": "Next.js 16.3.6 production build on isolated localhost:3025; intercepted synthetic API",
+  "rawArtifactRoot": "C:\\Users\\user\\Documents\\Codex\\2026-10-17\\files-pasted-by-the-user-device\\outputs\\UI-D01-14",
+  "scope": "UI-D01-14 only; no backend or production-readiness proof",
+  "hashNormalization": "source UTF-8 with LF; PNG raw bytes",
+  "sourceHashes": {
+    "src/features/admin/admin-area.tsx": "1d4139c8255ce9d0e1204883524dec0fb006e99b904693a44d9d8dc9331b6f4a",
+    "src/features/admin/assessment-coordination-queue.tsx": "9764c079db4c4150050bbb24e0ce6037bc3d593f9d134eb028dabee251fe06ed",
+    "src/features/admin/eligible-evaluator-assignment.tsx": "a060b8758fa1291086260f6338a7397df4a2dbe2c0398e7df144d2f6ba335203",
+    "src/features/admin/resit-coordination-panel.tsx": "71cb411ac6b581fb6a2886431c73f9d9f48ac5e64299332ffce01175a2c2e293",
+    "src/features/admin/internal-verification-plan-management.tsx": "4f9f51ea019fef3bb717fb4a2eba0921884aa5ab18d6b721c803e202915978e5",
+    "src/features/admin/evaluation-appeal-management.tsx": "7e87f493c0cdb1dc48eb54492ab75d769481d3ca2570e5dcf98807c2518005b9",
+    "src/features/admin/evaluator-specialism-management.tsx": "d9e6adb1e966c818f1f4419a004c2467259f25f4e2f038620a606e7a0a09d78e",
+    "src/features/admin/assessment-operations.module.css": "b9a65963ffdb73816871efecc449b2a15e09c03bf42b79e29b4e8f882ffef9e9",
+    "src/features/admin/assessment-operations-state.ts": "e34f8576c4ec297443d69e13d0977f33976cb06f4e9e5d41171354c34b15dee3",
+    "tests/e2e/assessment-operations.spec.ts": "9663270d654306837e7681aa92db002ab1fac0056f0bfe6435a11ca9aa941a10",
+    "tests/assessment-operations-state.test.tsx": "d88cdac78792266ee22385c3054fce03057ff42c1ca520469afd657efdd582fb",
+    "tests/assessment-operations-contract.test.ts": "5a8a74a8e5e9098c3e6694d9b9d994e5e997c43b51b3716ebe8deb7533a17056",
+    "../backend/src/Betcco.Api/Authorization/PlatformPermissionAuthorization.cs": "b71cdc952c0b66c0b78d05e84b15018a89e643b2b44739559b653080dba0abbc",
+    "../backend/src/Betcco.Api/Program.cs": "635b12f0623915691b5efd256221da29ac24e7063047d02aeebe51a6f96c9910"
+  },
+  "contactSheets": [
+    {
+      "path": "tests/evidence/ui-d01-14/coordination-matrix.png",
+      "sha256": "f867289256f11e70cb8aeca9bed9085800d03b02cbf370eaa59fd5dc1a9308a6",
+      "note": "Contact preview; raw complete PNG hashes and dimensions are in scenarios."
+    },
+    {
+      "path": "tests/evidence/ui-d01-14/selected-deadline-matrix.png",
+      "sha256": "061815cf1d19cc7d6bbeb9e63749b0d32be1afbe8106acee8528a019994aba66",
+      "note": "Contact preview; raw complete PNG hashes and dimensions are in scenarios."
+    },
+    {
+      "path": "tests/evidence/ui-d01-14/verification-plans-matrix.png",
+      "sha256": "601312e97ef18459d06906ad8843d0ff29a22e7952f1b85b329fb771a5bb51bd",
+      "note": "Contact preview; raw complete PNG hashes and dimensions are in scenarios."
+    },
+    {
+      "path": "tests/evidence/ui-d01-14/appeals-matrix.png",
+      "sha256": "27d3cbfbaa13dbe692b9cbde90e737b56a6a15a7c8f210c4cb0c4f10d648cb4e",
+      "note": "Contact preview; raw complete PNG hashes and dimensions are in scenarios."
+    },
+    {
+      "path": "tests/evidence/ui-d01-14/specialisms-matrix.png",
+      "sha256": "689605f4d2b5b034a7e89d8d1f9bf6d4b9dc863a4b9ba508cf5c997a24a22668",
+      "note": "Contact preview; raw complete PNG hashes and dimensions are in scenarios."
+    }
+  ],
+  "scenarios": [
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar 1440: coordinator-only restricted home retains exact eligible shell",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-ar-1440-coordin-e5d71-etains-exact-eligible-shell/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-ar-1440-coordin-e5d71-etains-exact-eligible-shell/restricted-shell.png",
+          "sha256": "19435b87bd7003e820a81a79919e6af12770c17a5f1985f5446538cb2f9daca8",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar 1440: LeadIV restricted home retains exact eligible shell",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-ar-1440-LeadIV--5da85-etains-exact-eligible-shell/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-ar-1440-LeadIV--5da85-etains-exact-eligible-shell/restricted-shell.png",
+          "sha256": "412c877fb938046718250c6dfc68c965b45b0b0eb168354b70f9f621fe0ad6fc",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar 390: coordinator-only restricted home retains exact eligible shell",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-ar-390-coordina-bc345-etains-exact-eligible-shell/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-ar-390-coordina-bc345-etains-exact-eligible-shell/restricted-shell.png",
+          "sha256": "1d6109387d5ee2a9b13de57fe410facfc30c9516a466dc54d6b28fabeddcee2b",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar 390: LeadIV restricted home retains exact eligible shell",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-ar-390-LeadIV-r-8d8f7-etains-exact-eligible-shell/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-ar-390-LeadIV-r-8d8f7-etains-exact-eligible-shell/restricted-shell.png",
+          "sha256": "2fa5ae7fa54e0077df50cf5f9f8119ece112f2e7f4f71e01cfa8a677ffe1aec7",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: 401 query state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-ar-401-query-state/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-ar-401-query-state/state.png",
+          "sha256": "cd8140a96e8a579aad1b25082f665da664f89ee970775bad2c8765ac166bca3c",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: 403 query state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-ar-403-query-state/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-ar-403-query-state/state.png",
+          "sha256": "3205ba3f79eaa39c249930fca5ffe4e026e7c2152d7d8d47aefc7a63f78f694e",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: cache refresh error preserves operation counts and every destination",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-ar-cache-refres-ee917-ounts-and-every-destination/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-ar-cache-refres-ee917-ounts-and-every-destination/cached-error.png",
+          "sha256": "4f20675eea35dbf914ab9add24d7d68d8b35b11f869bd3287ae2838e03522f18",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 1440: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-ar-dark-1440-Admin-populated-operational-home/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-ar-dark-1440-Admin-populated-operational-home/context.png",
+          "sha256": "653ae9c568e770d23ccea0bbcd77d5f1712eddcc755e3a5b11730dc97dd3b1af",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "path": "browser-verified/admin-home-ar-dark-1440-Admin-populated-operational-home/destinations.png",
+          "sha256": "e2baf85efa31cf05dd8b5b8aed7800a46929c2d83319a571c748464c892994aa",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "path": "browser-verified/admin-home-ar-dark-1440-Admin-populated-operational-home/operations.png",
+          "sha256": "a0ce0b58ad0056a34bc32c0cb86a25c842bf69a2efa25efc7436235d09667978",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "path": "browser-verified/admin-home-ar-dark-1440-Admin-populated-operational-home/period.png",
+          "sha256": "f0a39c2cb11b974f65229f64ec924efbc3a2a40cf60761d5970b4ce1d3018d64",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 390: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-ar-dark-390-Admin-populated-operational-home/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-ar-dark-390-Admin-populated-operational-home/context.png",
+          "sha256": "791382c8478f5f457c54b43cbe8fd9af951be654d7de39569cc0f93cb4c87717",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "browser-verified/admin-home-ar-dark-390-Admin-populated-operational-home/destinations.png",
+          "sha256": "29aaf32e90d36d9f200b5b89937c3bb2afc5893b05a1d6ad830f1f59dfa59d20",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "browser-verified/admin-home-ar-dark-390-Admin-populated-operational-home/operations.png",
+          "sha256": "7f7b40fc9d7c12afc9c0f9fc62ba8aee4d9bdbd8a140fb42318a97ab74c7ea03",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "browser-verified/admin-home-ar-dark-390-Admin-populated-operational-home/period.png",
+          "sha256": "2ce18ca1624fe1f011ee8f660929f812ce03e53049d77d1267caf647a3c75fb5",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 834: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-ar-dark-834-Admin-populated-operational-home/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-ar-dark-834-Admin-populated-operational-home/context.png",
+          "sha256": "880a14e3383cfdcf5f1188745889f87de98475978896ebb880387ee8f0a93e84",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-dark-834-Admin-populated-operational-home/destinations.png",
+          "sha256": "d2d72dfc86e018ca430283a04f18c8dc86bbda39130c26896c9d5418061df0f7",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-dark-834-Admin-populated-operational-home/operations.png",
+          "sha256": "67fb5949e0d8ab7ecdb41961a1503b0e12cde293683a77c5e5adcc9de1892363",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-dark-834-Admin-populated-operational-home/period.png",
+          "sha256": "ff72338fe4048bcd50a63567552d50797f77b38579e50c43121ab0de7f33e07f",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark: every period and editable invalid custom range",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/30d.png",
+          "sha256": "66a2680ac595b4d27e8068bb938d8484bf9f3660b1225f733f469e61cf658197",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/3m.png",
+          "sha256": "7d69f57f4ff87820e209a3515b909c88b3a47a6ed0af1999051b9b3b873d43d1",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/7d.png",
+          "sha256": "fc96ae8373cb6e15fe61c3005303a1e26dd97e6ebc526389f98c5839d3b66a54",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/all.png",
+          "sha256": "f1155e99ebccd95714159a8f0213ea71cee838575e7b6166742821f4931db2a6",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/custom.png",
+          "sha256": "4207b300f70edeaf8758cde423534b17b503cf6c0878315daf28202344c2d5bc",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/invalid-custom.png",
+          "sha256": "ad89482b2e6cd84c6f75b48b0b2f5b047d902c339123d556abe218506bf954a0",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/today.png",
+          "sha256": "281e664ca1881422e52112a96193d13cb20d3814e1aad5cb28cbfc3be430844b",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/year.png",
+          "sha256": "30366b1f8f49d1f88c5094eaab2e94f34df76e644cd8b252f0a76b9fa2f5d5e5",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: error query state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-ar-error-query-state/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-ar-error-query-state/state.png",
+          "sha256": "708e9f49230cf79aac8bdfc2a05d56468c5ebf0a0648ff762aa822d31a424db2",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: keyboard focus, reduced motion and 200 percent reflow proxy",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-ar-keyboard-foc-0db24-nd-200-percent-reflow-proxy/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-ar-keyboard-foc-0db24-nd-200-percent-reflow-proxy/keyboard-reflow.png",
+          "sha256": "297e9ed95427ce2b84af54c1eb05b4c3d81b780711d3b5fb8e549424b7a18040",
+          "width": 720,
+          "height": 450
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 1440: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-ar-light-1440-Admin-populated-operational-home/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-ar-light-1440-Admin-populated-operational-home/context.png",
+          "sha256": "0545ce3c689a0a197b336cd0c6ad68adb7b80f0eba219393515373ba10ea6aca",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "path": "browser-verified/admin-home-ar-light-1440-Admin-populated-operational-home/destinations.png",
+          "sha256": "9434de408a4c5bcdf5f1afb63de7e6a221d92dd841213e7ed13271498a6b64ff",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "path": "browser-verified/admin-home-ar-light-1440-Admin-populated-operational-home/operations.png",
+          "sha256": "bbf84e7c4352efa91b8c6c82d2da8107cca5cfc9aca03e93a705213ad0851332",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "path": "browser-verified/admin-home-ar-light-1440-Admin-populated-operational-home/period.png",
+          "sha256": "a9fc972eefa4889285b0fffe89ad5bb8c5f294a72afe2da86442b7b92b0e036d",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 390: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-ar-light-390-Admin-populated-operational-home/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-ar-light-390-Admin-populated-operational-home/context.png",
+          "sha256": "89f8bfc7a7a3d1de185c1d85c45fb717d773e5a99be06e256dad8ea22bbcf038",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "browser-verified/admin-home-ar-light-390-Admin-populated-operational-home/destinations.png",
+          "sha256": "478b750ace7b8912061964cdc0228ca8455cbf0a86def73f5bf5b5758921ee7a",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "browser-verified/admin-home-ar-light-390-Admin-populated-operational-home/operations.png",
+          "sha256": "4ed016b3638a7f261974ad2dcfc6294fe8860e57d4e7fa79949bdcb4b9193fd0",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "browser-verified/admin-home-ar-light-390-Admin-populated-operational-home/period.png",
+          "sha256": "2efd3f43eb17d6663ea81e6d0fdfc54c9cf139427530005ebf88f299805d01a3",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 834: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-ar-light-834-Admin-populated-operational-home/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-ar-light-834-Admin-populated-operational-home/context.png",
+          "sha256": "75852f6f3d84868c98968a9aa322f07272e0804be2419a8758a487c673eee833",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-light-834-Admin-populated-operational-home/destinations.png",
+          "sha256": "c5d2825ae303f3e976507c1fb55ec0c9ca3bfb131628962992257b92f45d757e",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-light-834-Admin-populated-operational-home/operations.png",
+          "sha256": "cb4eda7c53d5226f1a808844e91fbb76c41ca9955c3efb8b9df1a7eb3eae4777",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-light-834-Admin-populated-operational-home/period.png",
+          "sha256": "321876d941821156d9912a865d38bb801d1892e5f886720e8ae06c3a73d5a392",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light: every period and editable invalid custom range",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/30d.png",
+          "sha256": "22093a9b3aefffc009d88e650dca947f0665b71d27921a62f1b1889eb13a7f1d",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/3m.png",
+          "sha256": "916f56156df5026f6cc44280296498dcd1199bcbab78f2e1d7b31837fef0d909",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/7d.png",
+          "sha256": "ad34f0a2e707be7023515e8e4151cf2a849c5702872585b1565121b269a08b18",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/all.png",
+          "sha256": "1c699822d44ccd4db882d3f4be8493557a6186f9da550ebb455f79e8333b5599",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/custom.png",
+          "sha256": "87daa36fc403f1371a7fa339ce02123d86c4fac6a547c4577e29196831649f10",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/invalid-custom.png",
+          "sha256": "59716c63d1fec33e025c7932f0333a503c61a9302dede1c6b67aeab5daf32d4b",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/today.png",
+          "sha256": "6da98ffccaa7a411ee8dc0dd9ed803a26db7c46b8e0cea93e576aca94ed6b9d7",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/year.png",
+          "sha256": "af236f85f22c43c52109e975a24d49fb3b4f0984f7ef5646b81ddfa9841a22c3",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: pending query state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-ar-pending-query-state/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-ar-pending-query-state/state.png",
+          "sha256": "3734c114e334580d9e7130238eebb932274123bd62373f1d6f9efe35ac5408fc",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: zero query state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-ar-zero-query-state/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-ar-zero-query-state/state.png",
+          "sha256": "012e0a45cecd7790f5b1258628a415d2cf0f9a527b1553e37b1a4c7f1dd38f18",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "browser-verified/admin-home-ar-zero-query-state/zero-operations.png",
+          "sha256": "25947d596f1cca1716078e0376a94d48c5568d50ec510ae30f655bee48174e1f",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en 1440: coordinator-only restricted home retains exact eligible shell",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-en-1440-coordin-89700-etains-exact-eligible-shell/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-en-1440-coordin-89700-etains-exact-eligible-shell/restricted-shell.png",
+          "sha256": "db6aee91f421684253415e5d5e29ac1b4dbbbf02a76142c7eca7e91be72761ca",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en 1440: LeadIV restricted home retains exact eligible shell",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-en-1440-LeadIV--b40e4-etains-exact-eligible-shell/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-en-1440-LeadIV--b40e4-etains-exact-eligible-shell/restricted-shell.png",
+          "sha256": "50d7d38dc9d311e8cddab869106f767f99fc519f2fe527fc1222762ee9286734",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en 390: coordinator-only restricted home retains exact eligible shell",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-en-390-coordina-54ce8-etains-exact-eligible-shell/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-en-390-coordina-54ce8-etains-exact-eligible-shell/restricted-shell.png",
+          "sha256": "4885576103475cb88f2f3ee6dc96348305b9429e63ef5f32aeb3a11c4f153567",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en 390: LeadIV restricted home retains exact eligible shell",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-en-390-LeadIV-r-19b04-etains-exact-eligible-shell/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-en-390-LeadIV-r-19b04-etains-exact-eligible-shell/restricted-shell.png",
+          "sha256": "deaaf071515aaee71df3dbbd49165c61461357acb378b1fbfdbe8d2087aa5af4",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: 401 query state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-en-401-query-state/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-en-401-query-state/state.png",
+          "sha256": "bc1b5949b01f2efb98a13942de4bea66c96ee5e6773e1268fa5591e40ee16a5f",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: 403 query state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-en-403-query-state/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-en-403-query-state/state.png",
+          "sha256": "5ecc71143ac8c929c3be49d8b9c79ddf4ef3615ba2ac41c290cf82038a826d96",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: cache refresh error preserves operation counts and every destination",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-en-cache-refres-accfb-ounts-and-every-destination/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-en-cache-refres-accfb-ounts-and-every-destination/cached-error.png",
+          "sha256": "1e1c666babf4586ec1f48280eb104aa8d2926321adcb751d998dfb309e51613c",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 1440: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-en-dark-1440-Admin-populated-operational-home/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-en-dark-1440-Admin-populated-operational-home/context.png",
+          "sha256": "953f3130d380573af1ec808f39291178cfcd367e541c23ef1aaeef916a0cdcf3",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "path": "browser-verified/admin-home-en-dark-1440-Admin-populated-operational-home/destinations.png",
+          "sha256": "1a306b1ce3291cce03b1ee59ac9a00f22cdc75f262cf033b128a89f48a817144",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "path": "browser-verified/admin-home-en-dark-1440-Admin-populated-operational-home/operations.png",
+          "sha256": "7c1ba293b57668f35e532613c5aecb9b260f5171e76759b6b87c329cf4eaef4d",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "path": "browser-verified/admin-home-en-dark-1440-Admin-populated-operational-home/period.png",
+          "sha256": "2e220006979c520ff210516664796d8b32e93390cbd8d37df2ef12e91223a828",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 390: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-en-dark-390-Admin-populated-operational-home/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-en-dark-390-Admin-populated-operational-home/context.png",
+          "sha256": "f3305689b4eafc27d364997cd0ce4acc8301ebe0776333f3b651901cf554f5ff",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "browser-verified/admin-home-en-dark-390-Admin-populated-operational-home/destinations.png",
+          "sha256": "14e504fed5a93ef2446ba8b5a5b91e4f02b7f4f5288ee6c89aaab9326a70ba74",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "browser-verified/admin-home-en-dark-390-Admin-populated-operational-home/operations.png",
+          "sha256": "50af2c1d1d7f68d396df639fceca563a56690d075b9da4f7caf0c249bb4a572a",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "browser-verified/admin-home-en-dark-390-Admin-populated-operational-home/period.png",
+          "sha256": "bb1d087595888fb4f2c0ce8b5eee8e511841c4ec3459919e85a92e939bc6e8d7",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 834: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-en-dark-834-Admin-populated-operational-home/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-en-dark-834-Admin-populated-operational-home/context.png",
+          "sha256": "69946b4bacbe07e0236d51e2bb6d4927ce6190977d17b6091f76c2cda2ed138f",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-dark-834-Admin-populated-operational-home/destinations.png",
+          "sha256": "8330ff96f538f79d44ac12569cab429327090e80817b3a0c4919d87bd35216f6",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-dark-834-Admin-populated-operational-home/operations.png",
+          "sha256": "94576ba2aac50792b0c96e7afcd06953c6bc8eca05d06ea19afdeb244dec3e9b",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-dark-834-Admin-populated-operational-home/period.png",
+          "sha256": "4f84121d64a88b5b59c10627b45f7b8a966d84c4cbcf527c012eac739ab20a4a",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark: every period and editable invalid custom range",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/30d.png",
+          "sha256": "340ee7ce523a1fff3bc96ae8eb72006369acc20201cfc504329bc13a040f7ea0",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/3m.png",
+          "sha256": "dd7b9d9a20672bc7b495cf197a276ad8c099afae69689cd58bc71a696e5b4424",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/7d.png",
+          "sha256": "426cb67c7b621f025b2e77fa5185096f63cb25ce09fda54420ab2660e6ad9d14",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/all.png",
+          "sha256": "227d8a257dfee9a8a36c79389b6e16783ab609892fb82b1a59707547c9682c6f",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/custom.png",
+          "sha256": "fb77e52eaf8e1e851e336d73adfcbf509a21ba36d8174f7c310761a65189fb99",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/invalid-custom.png",
+          "sha256": "2b1f71888697a31cfb0643f18076965b13486c3ab4ac469d1d30dcd74fcbb9f2",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/today.png",
+          "sha256": "16b88a64b52b064b653f1b50f6500289bc03b345dccad78883b3f92aeeac501c",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/year.png",
+          "sha256": "74a3cc2d5e02807bbded02f8961fb2f344cb2fa6b3127ece930430d0ba165432",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: error query state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-en-error-query-state/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-en-error-query-state/state.png",
+          "sha256": "bf0902dfa43f949d79e8c43009cf3139d5829b2f77bf885284d1d85ebc122f4b",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: keyboard focus, reduced motion and 200 percent reflow proxy",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-en-keyboard-foc-891a2-nd-200-percent-reflow-proxy/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-en-keyboard-foc-891a2-nd-200-percent-reflow-proxy/keyboard-reflow.png",
+          "sha256": "22526b8938b9c09b2816eecc507afc46300b039f34742b38ea7ea057641ed494",
+          "width": 720,
+          "height": 450
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 1440: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-en-light-1440-Admin-populated-operational-home/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-en-light-1440-Admin-populated-operational-home/context.png",
+          "sha256": "ff0bc11a00a4ac01d4b185fa60cecdaf00a3449fd752b86d1f5839e77cb96b3c",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "path": "browser-verified/admin-home-en-light-1440-Admin-populated-operational-home/destinations.png",
+          "sha256": "aab715c3e865aafae7e417f385f8817a8567730b21f4dba2994f68dd826c45c1",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "path": "browser-verified/admin-home-en-light-1440-Admin-populated-operational-home/operations.png",
+          "sha256": "843adeddc019e447a3bd8bf9a309a7979c6dcb0b6aa2a5654b003f81ba92e3e3",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "path": "browser-verified/admin-home-en-light-1440-Admin-populated-operational-home/period.png",
+          "sha256": "edb8581778da815d15d4fe3b8cdaebf7a056e76a8face24cd818491a799c6046",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 390: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-en-light-390-Admin-populated-operational-home/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-en-light-390-Admin-populated-operational-home/context.png",
+          "sha256": "8b6748879368ee37219258223cadc8440015c9488c3b2f4a47fdcf993ebbed58",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "browser-verified/admin-home-en-light-390-Admin-populated-operational-home/destinations.png",
+          "sha256": "735e47724c4d1281a262d025ee6886fb4b79e959de6d4f50ef921451858b5d88",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "browser-verified/admin-home-en-light-390-Admin-populated-operational-home/operations.png",
+          "sha256": "07e6877af6adbe84854cd78d85ffd070a4e7dfa4f2a64c1e67cd4538a59166fd",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "browser-verified/admin-home-en-light-390-Admin-populated-operational-home/period.png",
+          "sha256": "83244390510a55a138dcfaf789c27c611fdb79214c269acbb54e4e766452402c",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 834: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-en-light-834-Admin-populated-operational-home/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-en-light-834-Admin-populated-operational-home/context.png",
+          "sha256": "0d81a09b0478ce5e153b4deaf82e96c6a7a3484fc40d1555fa38c5271eddb58d",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-light-834-Admin-populated-operational-home/destinations.png",
+          "sha256": "5d816480832f2fbffec3bf3a3a3e4060cd61e41be81475a5cdb6c34a6992e44c",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-light-834-Admin-populated-operational-home/operations.png",
+          "sha256": "77eb81c2fb00d9f8a0c0ef97bd6326a9f1cdfe76c08db438ef799dfba90fe2d7",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-light-834-Admin-populated-operational-home/period.png",
+          "sha256": "df3b833de52d934a8235fc3227f367a48c17a9c4b0dcb9c8aee5444071d37cb3",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light: every period and editable invalid custom range",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-en-light-every--5446d-itable-invalid-custom-range/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-en-light-every--5446d-itable-invalid-custom-range/30d.png",
+          "sha256": "6acdd1095946c56c1ff62372c28decb4b43e276f26d543d2e52f6dd0c8f68020",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-light-every--5446d-itable-invalid-custom-range/3m.png",
+          "sha256": "5386d29803997851d5f793aaa3d0492fd1eafe3a2c65d6534024c8359e7395f1",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-light-every--5446d-itable-invalid-custom-range/7d.png",
+          "sha256": "1a6772bdb2226d14c29fe7c39d4c38af5e0e3c6a61974869557881c7e614d7a4",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-light-every--5446d-itable-invalid-custom-range/all.png",
+          "sha256": "8e83ef15dce5c20542c3ca46ba5e3c4b4689b9660b1e34bcf9818204ac74b6ec",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-light-every--5446d-itable-invalid-custom-range/custom.png",
+          "sha256": "bb1b9cca3ec9b6bf5332e51884b204b408618f55c46866d9e8790f7687a201f0",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-light-every--5446d-itable-invalid-custom-range/invalid-custom.png",
+          "sha256": "2b6c473c89625b803b6780f5e9a93abd8582de8e64ab3eeb3d0a2620cf123513",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-light-every--5446d-itable-invalid-custom-range/today.png",
+          "sha256": "f3887681ceaa645158a433cacec56d47ea092456d196414a6c1ca5be220e4d2b",
+          "width": 834,
+          "height": 1112
+        },
+        {
+          "path": "browser-verified/admin-home-en-light-every--5446d-itable-invalid-custom-range/year.png",
+          "sha256": "130f65ff2ec3db8e11640bcd54159440cfd80bf441f727f8eeaea1e644e4799e",
+          "width": 834,
+          "height": 1112
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: pending query state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-en-pending-query-state/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-en-pending-query-state/state.png",
+          "sha256": "096554db741f2eee5824183cb0a955d6fb953d7fa494bf4098c411da76160a89",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: zero query state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/admin-home-en-zero-query-state/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/admin-home-en-zero-query-state/state.png",
+          "sha256": "1f579afb8c14f272a02eb9e70f12f585a7a66663c4dd3e2b90fba9a07c7e0be0",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "browser-verified/admin-home-en-zero-query-state/zero-operations.png",
+          "sha256": "a5bfa55e3e859ffc3bcd273948149b27881b0ae66c891b00bc6dd36a65096ef3",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar assignment expected-state conflict preserves candidate and request",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-a-ca75e-erves-candidate-and-request/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-a-ca75e-erves-candidate-and-request/expected-state-conflict.png",
+          "sha256": "87343b6b7b33302290f321ee2157b4453f1343c8b07830098dc824b48fea895d",
+          "width": 960,
+          "height": 330
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar cached refresh error preserves queue, candidate and verification draft",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-c-81903-date-and-verification-draft/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-c-81903-date-and-verification-draft/cached-error.png",
+          "sha256": "0b8d158566561b4c3ced1938594956f2acfc6a326cc58dbeb31e7a2b81d2c0fb",
+          "width": 1280,
+          "height": 5301
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 390 evaluations: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-d-25c19-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-d-25c19-ed-work-and-selected-detail/assignment.png",
+          "sha256": "7aa94dac36b3d54b99262dec48d66bd5ec6e2a3226e25b19dc7351680bde93b1",
+          "width": 358,
+          "height": 296
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-d-25c19-ed-work-and-selected-detail/queue.png",
+          "sha256": "0d836a4d83179a2e932fe6ab4fe7bbc602a470de39f8d03a8f7cff7c1f721ac9",
+          "width": 390,
+          "height": 6168
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-d-25c19-ed-work-and-selected-detail/resit-relationships.png",
+          "sha256": "cc324e5fc7dceca5dd6cd5118ccf1a9c1d5c03d129958bfbaafe81a39b7eb347",
+          "width": 358,
+          "height": 930
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-d-25c19-ed-work-and-selected-detail/selected-deadline-detail.png",
+          "sha256": "69c9b422134053067f1b4f500893ebb99d1715e3f7bf8b3f711427f7bbaaa1a9",
+          "width": 358,
+          "height": 1252
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-d-25c19-ed-work-and-selected-detail/verification.png",
+          "sha256": "5a61642079c51c377ba8e21ba5a219bb93e9cb8aa3242f272952c96307e25b63",
+          "width": 358,
+          "height": 1334
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 390 evaluator-specialisms: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-d-284a6-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-d-284a6-ed-work-and-selected-detail/specialism-and-history.png",
+          "sha256": "238f8d6a7c6aaef721c56bcb89b262f15134deccc871c97201eac0fc54a5d829",
+          "width": 390,
+          "height": 1862
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 1440 evaluations: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-d-71347-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-d-71347-ed-work-and-selected-detail/assignment.png",
+          "sha256": "a09d23429bcdae4b0a361299e7cd781ee49691d9b51f991dea6e196b8987abb1",
+          "width": 1120,
+          "height": 304
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-d-71347-ed-work-and-selected-detail/queue.png",
+          "sha256": "0c458c775714743aeaa7e42bbe37d6f3ed3395dc57127b41b462c92fc47a4b19",
+          "width": 1440,
+          "height": 5084
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-d-71347-ed-work-and-selected-detail/resit-relationships.png",
+          "sha256": "c1c54e3b73e8f314feae5ba13cda69b14ed74eaf10630e178220a3aac4e48484",
+          "width": 1120,
+          "height": 843
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-d-71347-ed-work-and-selected-detail/selected-deadline-detail.png",
+          "sha256": "03e53cdb57038364f14ced4cf54ddf0efca6c6d52cc7ee0187a3f4e53c90f525",
+          "width": 1120,
+          "height": 1175
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-d-71347-ed-work-and-selected-detail/verification.png",
+          "sha256": "3f3c5b74668589a68770dab5db6b94983a0fe62b838669d2503700bd7ab661f9",
+          "width": 1120,
+          "height": 1139
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 1440 evaluator-specialisms: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-d-72393-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-d-72393-ed-work-and-selected-detail/specialism-and-history.png",
+          "sha256": "ce34599903d5c4058e4cf2465a79c393b03b18ccc2967cefbbd7388b68efa739",
+          "width": 1440,
+          "height": 1288
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 390 internal-verification: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-d-76ce8-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-d-76ce8-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+          "sha256": "c57ced5888f438f6959c81e2bcccd1a8bbb37c376b06c811a61df8d12fb3443d",
+          "width": 390,
+          "height": 1990
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-d-76ce8-ed-work-and-selected-detail/selected-candidate.png",
+          "sha256": "5a204666487f2637160e4fe0720b7b66bce0b1f9aee9d574f395d9444e3aa1e3",
+          "width": 358,
+          "height": 522
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 834 evaluator-specialisms: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-d-7a1ee-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-d-7a1ee-ed-work-and-selected-detail/specialism-and-history.png",
+          "sha256": "c362ca7422596472c68edcc349f93bc1f8447a8e804527b7e1101fd978658385",
+          "width": 834,
+          "height": 1278
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 834 evaluations: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-d-7e276-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-d-7e276-ed-work-and-selected-detail/assignment.png",
+          "sha256": "2979b9a33abdff3b866c6cf3191adf1f64edf704a5f54108dc3e4dd591dd4bb4",
+          "width": 802,
+          "height": 305
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-d-7e276-ed-work-and-selected-detail/queue.png",
+          "sha256": "a4744726928ab4f1a2e2e2f5c16097197b931c696bfa2a11b2d40dc43143fb83",
+          "width": 834,
+          "height": 5225
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-d-7e276-ed-work-and-selected-detail/resit-relationships.png",
+          "sha256": "0db09023bbba7e6ab799d680bf2a170811d7234ee68c90d78c643034140af94e",
+          "width": 802,
+          "height": 842
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-d-7e276-ed-work-and-selected-detail/selected-deadline-detail.png",
+          "sha256": "c170192474ab7e483f4522c76fb00de8be80052db6727ec446cdba1843baa384",
+          "width": 802,
+          "height": 1176
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-d-7e276-ed-work-and-selected-detail/verification.png",
+          "sha256": "a66a87ffe53417b32b8d59c2e647412085cc095a102dfe4d9b7ce6d33f023997",
+          "width": 802,
+          "height": 1290
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 834 internal-verification: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-d-8060b-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-d-8060b-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+          "sha256": "dc30544a27d3ac043781b5e30998c0acfa16b53d94dd7534e7f679d09a30acf0",
+          "width": 834,
+          "height": 1483
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-d-8060b-ed-work-and-selected-detail/selected-candidate.png",
+          "sha256": "d054dfa37006610aa589db158feb879222feb4685a2a691b27023c1b0c729bab",
+          "width": 802,
+          "height": 505
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 390 evaluation-appeals: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-d-a50c1-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-d-a50c1-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+          "sha256": "e339363a87f389f40fb2b4de41adb702ab9b2415687f54059d63793d612bc41d",
+          "width": 390,
+          "height": 1801
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 834 evaluation-appeals: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-d-a85aa-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-d-a85aa-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+          "sha256": "4a3a0005d9a81abe67257550c4242d8331d03b79881cee73419c9aecbb993bf1",
+          "width": 834,
+          "height": 1212
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 1440 evaluation-appeals: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-d-c61ad-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-d-c61ad-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+          "sha256": "709617551fac2892cb7ef27504cd5fe2e2ba86e573874675223925b97370e343",
+          "width": 1440,
+          "height": 1223
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 1440 internal-verification: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-d-e4ee3-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-d-e4ee3-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+          "sha256": "a2481ae49dab380e030af6391fa19bf5cbc95dc7ca69b5f2bd88aa58b9322adb",
+          "width": 1440,
+          "height": 1208
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-d-e4ee3-ed-work-and-selected-detail/selected-candidate.png",
+          "sha256": "c52b75cf76885450e310a81e24e944f5460053e39d625dd7d65cb23e5305864d",
+          "width": 707,
+          "height": 505
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar evaluations 403: factual cold state without actions",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-e-59e5e--cold-state-without-actions/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-e-59e5e--cold-state-without-actions/state.png",
+          "sha256": "a838317706af77baca2de97451082c07a520ced8849c7916313250f2113615a6",
+          "width": 390,
+          "height": 1102
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar evaluations 401: factual cold state without actions",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-e-5ebfa--cold-state-without-actions/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-e-5ebfa--cold-state-without-actions/state.png",
+          "sha256": "ac799db0b742614e5be08e870ef540b7a8345eb1ad867266856b237960c42201",
+          "width": 390,
+          "height": 1102
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar evaluations empty: factual cold state without actions",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-e-67f60--cold-state-without-actions/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-e-67f60--cold-state-without-actions/state.png",
+          "sha256": "cff644040c7559914eb62271ee717326ebd6b3c3ea46c22c0a679bcf82c9fb8c",
+          "width": 390,
+          "height": 2195
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar evaluations pending: factual cold state without actions",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-e-abd36--cold-state-without-actions/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-e-abd36--cold-state-without-actions/state.png",
+          "sha256": "8067240ddd3d161e4a3d0543c9daed2bc4f0fdf39e66f67a4c26bd27d03cfa75",
+          "width": 390,
+          "height": 1102
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar evaluations error: factual cold state without actions",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-e-c9bd0--cold-state-without-actions/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-e-c9bd0--cold-state-without-actions/state.png",
+          "sha256": "83fbcb3791449b1f3e1121512b9ebbcb21ec19c780adc1049070493ec52fb8d2",
+          "width": 390,
+          "height": 1102
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar evaluator-specialisms empty: retains factual independent state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-e-d5539-s-factual-independent-state/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-e-d5539-s-factual-independent-state/state.png",
+          "sha256": "3195f2544f77357a940ac9e4fc9e4db197a5a127630eb2bd323ad94c8414f15d",
+          "width": 390,
+          "height": 1622
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar evaluator-specialisms error: retains factual independent state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-e-d84f3-s-factual-independent-state/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-e-d84f3-s-factual-independent-state/state.png",
+          "sha256": "04d2f84fdeb0b6f6ed64d611bee5c78e838f9479845994bb53df74d599fae493",
+          "width": 390,
+          "height": 1516
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar evaluation-appeals 403: retains factual independent state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-e-d9aca-s-factual-independent-state/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-e-d9aca-s-factual-independent-state/state.png",
+          "sha256": "bdb83ef57b80c29c2c3c3700473f7e88a3d34882d2572d44630a15c56ecc2458",
+          "width": 390,
+          "height": 1243
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar evaluation-appeals error: retains factual independent state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-e-dd730-s-factual-independent-state/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-e-dd730-s-factual-independent-state/state.png",
+          "sha256": "3c8c173b94c36c57d8626cfffe8285a587fb42ef659399654fde37e87232e170",
+          "width": 390,
+          "height": 1243
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar evaluation-appeals empty: retains factual independent state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-e-f2e34-s-factual-independent-state/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-e-f2e34-s-factual-independent-state/state.png",
+          "sha256": "40dc559aeacdbd84a81da401d4c58e1cc3915eaf5b2d0d72052290fedcedb540",
+          "width": 390,
+          "height": 1251
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar evaluator-specialisms 403: retains factual independent state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-e-f83d3-s-factual-independent-state/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-e-f83d3-s-factual-independent-state/state.png",
+          "sha256": "00e056723f391952f4c1fc24cf054cfef495ae411c81860232dfa747434dcc9b",
+          "width": 390,
+          "height": 1516
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar filtered no-match differs from successful empty",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-f-17fec-ffers-from-successful-empty/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-f-17fec-ffers-from-successful-empty/filtered-no-match.png",
+          "sha256": "a889ed967d8f91bd53da61f29ce927e70a11feeca0783e99c7b727e2238b59b0",
+          "width": 960,
+          "height": 147
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar internal-verification empty: retains factual independent state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-i-a73e6-s-factual-independent-state/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-i-a73e6-s-factual-independent-state/state.png",
+          "sha256": "a2380c43c8cc0d05938a4d4658634cc828f0b4308274cefb13a4eb0492a5c38b",
+          "width": 390,
+          "height": 1485
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar internal-verification 403: retains factual independent state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-i-c11f6-s-factual-independent-state/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-i-c11f6-s-factual-independent-state/state.png",
+          "sha256": "1482c0768ab78359ffd9ccc6a97886356fc88092740938328e09ceb0ff176882",
+          "width": 390,
+          "height": 1485
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar internal-verification error: retains factual independent state",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-i-e7a11-s-factual-independent-state/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-i-e7a11-s-factual-independent-state/state.png",
+          "sha256": "5b84c62696cb275eb3affc5ac45783f4a358e132522a82c10f71fb270dc39cd0",
+          "width": 390,
+          "height": 1485
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar keyboard, 44px controls, reduced motion and reflow proxy",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-k-829ab-ced-motion-and-reflow-proxy/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-k-829ab-ced-motion-and-reflow-proxy/keyboard-reflow.png",
+          "sha256": "0186699a19669b4775d72ea8e7d61b299469cf0620bb83861f4d7a8814ccea9b",
+          "width": 720,
+          "height": 5418
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 390 internal-verification: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-l-02382-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-l-02382-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+          "sha256": "8f939c268bd9d998633928c4750259ed90f762b73ca66e5af092b2c388bfe730",
+          "width": 390,
+          "height": 1990
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-l-02382-ed-work-and-selected-detail/selected-candidate.png",
+          "sha256": "76ce9ce8dda0f09b78146d56b6e00c5e146b8dd9d5ea7767fe76fbf4c806949f",
+          "width": 358,
+          "height": 522
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 1440 evaluation-appeals: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-l-1ab4d-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-l-1ab4d-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+          "sha256": "b3d016184587ef3a089672676ec120d2d0088cd53f681c02100775e2eca5e660",
+          "width": 1440,
+          "height": 1223
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 834 evaluator-specialisms: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-l-4f880-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-l-4f880-ed-work-and-selected-detail/specialism-and-history.png",
+          "sha256": "be740b104d6ca7558b4d66fc864cbc8c5af821d86631abc14bdbfcc1b14a9aa6",
+          "width": 834,
+          "height": 1278
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 390 evaluations: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-l-5a0cf-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-l-5a0cf-ed-work-and-selected-detail/assignment.png",
+          "sha256": "53bdb1c909d8c4db97debac6187ebf04893f59086adf5a14f8ecad8bf87674be",
+          "width": 358,
+          "height": 296
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-l-5a0cf-ed-work-and-selected-detail/queue.png",
+          "sha256": "5e3c9fe39e668548d08f4eb8ebeb458bb8ca902f97ad94b3c2bae8f65464072e",
+          "width": 390,
+          "height": 6168
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-l-5a0cf-ed-work-and-selected-detail/resit-relationships.png",
+          "sha256": "5a13bf1f5574596ca5739505d6c03e9b72fd33ab7934a93c0d31d416fc4016c4",
+          "width": 358,
+          "height": 930
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-l-5a0cf-ed-work-and-selected-detail/selected-deadline-detail.png",
+          "sha256": "8a52e2312bbe4b3fb70529cd67aab1474e8a568356cb4b7f40ea0a90b8848f1f",
+          "width": 358,
+          "height": 1252
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-l-5a0cf-ed-work-and-selected-detail/verification.png",
+          "sha256": "fcdc7ec2de439602b0d8344ad2b80e3e58627aef54c2f2816846424526f0e3ac",
+          "width": 358,
+          "height": 1334
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 834 evaluations: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-l-5a2bf-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-l-5a2bf-ed-work-and-selected-detail/assignment.png",
+          "sha256": "bbc257826ea61192cfc5e645de8566f914039d6b407a339075190c2d9562009a",
+          "width": 802,
+          "height": 305
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-l-5a2bf-ed-work-and-selected-detail/queue.png",
+          "sha256": "e96231fd796134a54076d671df385b49779a9c328081364fe89ef4c650bfc99f",
+          "width": 834,
+          "height": 5225
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-l-5a2bf-ed-work-and-selected-detail/resit-relationships.png",
+          "sha256": "3f4d87d2c6bbf5c6fe0f282e61b64a3c648cf9eb79ff554ee85a4b87966e4000",
+          "width": 802,
+          "height": 842
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-l-5a2bf-ed-work-and-selected-detail/selected-deadline-detail.png",
+          "sha256": "439d3993138080d0e750767d82440c7d33e8cc36c9855a4f2903dda2d7938438",
+          "width": 802,
+          "height": 1176
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-l-5a2bf-ed-work-and-selected-detail/verification.png",
+          "sha256": "51daf428f63ecfd6226fd9d21f66ad33e8860b196248312a466391d7522aa408",
+          "width": 802,
+          "height": 1290
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 1440 internal-verification: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-l-73298-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-l-73298-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+          "sha256": "ea9081961a38c71aeb656c35045ec5e8242d7dab2d7a64981c0ee3a1b35b1999",
+          "width": 1440,
+          "height": 1208
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-l-73298-ed-work-and-selected-detail/selected-candidate.png",
+          "sha256": "c0747cd72d0e56d8b4b9f343ca29ec438415f3e755287b554cb77fdb14379f02",
+          "width": 707,
+          "height": 505
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 834 internal-verification: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-l-8caf7-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-l-8caf7-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+          "sha256": "4bdf6c84e1824d69ff25f5cc0a813e355b2ed2478261efcfb540f0ec6f8e94c0",
+          "width": 834,
+          "height": 1483
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-l-8caf7-ed-work-and-selected-detail/selected-candidate.png",
+          "sha256": "68236b730f8c17f18e59022cc5ea7957d81af600b2378de08aa3322a5f1b2e40",
+          "width": 802,
+          "height": 505
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 390 evaluator-specialisms: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-l-9b76b-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-l-9b76b-ed-work-and-selected-detail/specialism-and-history.png",
+          "sha256": "bb2c0d6c64b57e54b79cf255c50e2ebc10eb27ef7f198f115ebe43430db465fc",
+          "width": 390,
+          "height": 1862
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 1440 evaluator-specialisms: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-l-a8a3c-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-l-a8a3c-ed-work-and-selected-detail/specialism-and-history.png",
+          "sha256": "6db47aa0f0ac5f357501b569db55a28b8e893fde3200a73c430e89c767deec49",
+          "width": 1440,
+          "height": 1288
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 390 evaluation-appeals: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-l-cd43f-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-l-cd43f-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+          "sha256": "e7b1c539649e78751ff360858a115e920c78d5e33e53b13d3d7d1f265bb93d66",
+          "width": 390,
+          "height": 1801
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 1440 evaluations: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-l-e3065-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-l-e3065-ed-work-and-selected-detail/assignment.png",
+          "sha256": "477bd5a011fa258d761c8fbc932ec029ba3d4c26513f59f021d54aa2d4d6d9a6",
+          "width": 1120,
+          "height": 304
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-l-e3065-ed-work-and-selected-detail/queue.png",
+          "sha256": "05d64842cdd87241f7041a3524bb2ffa3a0c84548669969e046ae70c415cb063",
+          "width": 1440,
+          "height": 5084
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-l-e3065-ed-work-and-selected-detail/resit-relationships.png",
+          "sha256": "43582d742ff71ce3d5069a0f0b59370c71d5d9d667e3b0eaedba3d43901a3a2b",
+          "width": 1120,
+          "height": 843
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-l-e3065-ed-work-and-selected-detail/selected-deadline-detail.png",
+          "sha256": "c8c58126872bcf1b7568164a88c34be94307224598bea7646320b5383dba7db7",
+          "width": 1120,
+          "height": 1175
+        },
+        {
+          "path": "browser-verified/assessment-operations-ar-l-e3065-ed-work-and-selected-detail/verification.png",
+          "sha256": "585256abfed2655f8a222d72924968dc8a7de8d62693acbe49284c1122ec69f3",
+          "width": 1120,
+          "height": 1139
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 834 evaluation-appeals: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-l-fb4ca-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-l-fb4ca-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+          "sha256": "a7f0354ac24a77c524af7b74a0ad5fee7cc8368055310acf2a82bca1c6ae3b6f",
+          "width": 834,
+          "height": 1212
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar no eligible evaluator exposes no assignment action",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-ar-n-1d24d-xposes-no-assignment-action/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-ar-n-1d24d-xposes-no-assignment-action/no-eligible-evaluator.png",
+          "sha256": "839879432d6446d631e9484dc598fb30a00c86e81fcbd668afc3b7120f04d925",
+          "width": 358,
+          "height": 249
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "coordinator capability does not acquire verification navigation",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-coor-c6d3d-ire-verification-navigation/scenario.json",
+      "captures": []
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en assignment expected-state conflict preserves candidate and request",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-a-0e593-erves-candidate-and-request/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-a-0e593-erves-candidate-and-request/expected-state-conflict.png",
+          "sha256": "c5f4ff1e1ee65cb5ff5919a3ea59089af01a113a8e772bcd9eab4bee744ad688",
+          "width": 960,
+          "height": 330
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en cached refresh error preserves queue, candidate and verification draft",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-c-26b2f-date-and-verification-draft/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-c-26b2f-date-and-verification-draft/cached-error.png",
+          "sha256": "6ea31b972e60f56ac2bb10c5e1e6e82a175b0d8f38e3db9bb26649769aec9e7c",
+          "width": 1280,
+          "height": 5345
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 390 internal-verification: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-d-0ae9b-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-d-0ae9b-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+          "sha256": "86aaa8994aa44bfecbe5babd6774f7e447ad5bdca63d358a4f1164d1bd95cc62",
+          "width": 390,
+          "height": 2130
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-d-0ae9b-ed-work-and-selected-detail/selected-candidate.png",
+          "sha256": "465bf8be295ecfa17c560b807726465346ef49c21d3a74e18b3b7f711ea2eb5a",
+          "width": 358,
+          "height": 546
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 390 evaluation-appeals: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-d-0b661-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-d-0b661-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+          "sha256": "b936507d1c0746218d76472ef711189d802b7939bc6d47f39b78debe3e1a3d6a",
+          "width": 390,
+          "height": 1925
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 1440 evaluation-appeals: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-d-11bec-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-d-11bec-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+          "sha256": "12557e64f861b7c16c69a9cc9ecd680571258a86b9983404a9f4057031361e5f",
+          "width": 1440,
+          "height": 1251
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 834 evaluations: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-d-3f66c-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-d-3f66c-ed-work-and-selected-detail/assignment.png",
+          "sha256": "edd8008733186b9948a03777f79a884813c7b0c737c1ce1f76760fb50c8967b7",
+          "width": 802,
+          "height": 304
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-d-3f66c-ed-work-and-selected-detail/queue.png",
+          "sha256": "5fd8bdb6013e3f90cc129be53178f2928d91b80da38e09a1ecb77b918b7342d8",
+          "width": 834,
+          "height": 5355
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-d-3f66c-ed-work-and-selected-detail/resit-relationships.png",
+          "sha256": "f637e70c3148af45691119d60ffacf5dbb5d7b509a214337363e00ded98ad6aa",
+          "width": 802,
+          "height": 843
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-d-3f66c-ed-work-and-selected-detail/selected-deadline-detail.png",
+          "sha256": "fb38f7571ec1b0ab10815eb57d5fca0f0d88fedf76bc03c852cf1deb71bb9ccc",
+          "width": 802,
+          "height": 1242
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-d-3f66c-ed-work-and-selected-detail/verification.png",
+          "sha256": "bdfb477c8de5a6b39eaff778179880a94019edb73db24e17026b96d39ae37637",
+          "width": 802,
+          "height": 1291
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 834 internal-verification: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-d-41003-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-d-41003-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+          "sha256": "25d585870f9126c38dfb55149e72acc8f876e7f993a0c4f2b9bf73bb824807ae",
+          "width": 834,
+          "height": 1519
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-d-41003-ed-work-and-selected-detail/selected-candidate.png",
+          "sha256": "4a69897e116bba81c647cc36403d15091fd9fe78d79ab80d446aa21eda4f694d",
+          "width": 802,
+          "height": 505
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 834 evaluation-appeals: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-d-77ec7-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-d-77ec7-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+          "sha256": "9323aafff092974b6295eb80f7ef5a784fd91feac11fa13e291fa0b70713adbd",
+          "width": 834,
+          "height": 1276
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 1440 evaluations: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-d-839b4-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-d-839b4-ed-work-and-selected-detail/assignment.png",
+          "sha256": "e876dde2bfdcc8d66be04c2737d59fca3eefdaec870020b03338388007d42705",
+          "width": 1120,
+          "height": 304
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-d-839b4-ed-work-and-selected-detail/queue.png",
+          "sha256": "dd5a00911a9c28f3d778c356d4c6eadbce2555a07763ebf4c4a6b3d16584c953",
+          "width": 1440,
+          "height": 5112
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-d-839b4-ed-work-and-selected-detail/resit-relationships.png",
+          "sha256": "4674b706e0f016395bc4f816a1822ddbf7c642b585cff8ea6ec09a1cac0132e4",
+          "width": 1120,
+          "height": 843
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-d-839b4-ed-work-and-selected-detail/selected-deadline-detail.png",
+          "sha256": "b97ed55aba0767fa8fcce04bddbd9c4612bf6ca2efff3114b8a3273082c0bcbb",
+          "width": 1120,
+          "height": 1175
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-d-839b4-ed-work-and-selected-detail/verification.png",
+          "sha256": "e2c38275a1c10b07314069520f2a4dd3b9a2b7671cac3ca7743ab4f2753c08c1",
+          "width": 1120,
+          "height": 1139
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 834 evaluator-specialisms: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-d-89537-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-d-89537-ed-work-and-selected-detail/specialism-and-history.png",
+          "sha256": "159c7d0d7faa4e47c2a8beb54a80c952024bea92ad32b50e19f07cd1167d50cb",
+          "width": 834,
+          "height": 1314
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 390 evaluations: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-d-9a0a3-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-d-9a0a3-ed-work-and-selected-detail/assignment.png",
+          "sha256": "2d3050c352206af9de5761520867987f401559c51054bd1291bc6c27bac7a2c8",
+          "width": 358,
+          "height": 297
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-d-9a0a3-ed-work-and-selected-detail/queue.png",
+          "sha256": "ccdebeae3b8f41198e96b8149e29d5746cbe596279d441aab5b529daba9b1209",
+          "width": 390,
+          "height": 6483
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-d-9a0a3-ed-work-and-selected-detail/resit-relationships.png",
+          "sha256": "96079e47346fee3b96ccb1808d5f472b4c7c1bf9359f5e1441a2cc09a7614d86",
+          "width": 358,
+          "height": 953
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-d-9a0a3-ed-work-and-selected-detail/selected-deadline-detail.png",
+          "sha256": "1aea2bfcca9b29bbf15608d6110e83db120fec318caffa604d42a60e33623a7e",
+          "width": 358,
+          "height": 1409
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-d-9a0a3-ed-work-and-selected-detail/verification.png",
+          "sha256": "d23121f895c7f645af7948f81a4f4028fd34480ffb3ba7169801cf99c4b47be6",
+          "width": 358,
+          "height": 1354
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 390 evaluator-specialisms: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-d-b5437-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-d-b5437-ed-work-and-selected-detail/specialism-and-history.png",
+          "sha256": "28e999e41c9b438d1418a7606b75cc91e114bc007982aa7e1de285fa2aa105e7",
+          "width": 390,
+          "height": 1914
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 1440 internal-verification: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-d-f01b6-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-d-f01b6-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+          "sha256": "ee3d19eda785eb4f8573732d9be41598e64a0ceb65e7577b1dab8c4165e3be1d",
+          "width": 1440,
+          "height": 1232
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-d-f01b6-ed-work-and-selected-detail/selected-candidate.png",
+          "sha256": "8500b2b080152f66788ff9f1c58f98bca22c4a115047c72054e9ced9d8766476",
+          "width": 707,
+          "height": 529
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 1440 evaluator-specialisms: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-d-ffbb7-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-d-ffbb7-ed-work-and-selected-detail/specialism-and-history.png",
+          "sha256": "b478d0782361cc567060379b4770662c54a5586a696ba0f6c102c46fb8bbb4df",
+          "width": 1440,
+          "height": 1288
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en evaluations 403: factual cold state without actions",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-e-23c75--cold-state-without-actions/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-e-23c75--cold-state-without-actions/state.png",
+          "sha256": "71f50b51707471cb267bd83aca08d496b3c0b50765f8e4813a0db69600031e94",
+          "width": 390,
+          "height": 1154
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en evaluations empty: factual cold state without actions",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-e-56df1--cold-state-without-actions/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-e-56df1--cold-state-without-actions/state.png",
+          "sha256": "274f6c89de1dd036497ccf226a5e071d244259f212856df6a720b8f10b8b2e57",
+          "width": 390,
+          "height": 2458
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en evaluations 401: factual cold state without actions",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-e-85098--cold-state-without-actions/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-e-85098--cold-state-without-actions/state.png",
+          "sha256": "12eb43adcabf2e3da681f20c34a1bbec5374075e1f194feb5529553ebfeaa7d6",
+          "width": 390,
+          "height": 1178
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en evaluations pending: factual cold state without actions",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-e-accb6--cold-state-without-actions/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-e-accb6--cold-state-without-actions/state.png",
+          "sha256": "e70da2c2cab74813b365f3d326d832a109fa274f0dade367a863b58ed26870e1",
+          "width": 390,
+          "height": 1154
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en evaluations error: factual cold state without actions",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-e-cdd9d--cold-state-without-actions/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-e-cdd9d--cold-state-without-actions/state.png",
+          "sha256": "06c4896a04aaeba590893557b6d03d2eca4f8ba738acfdb695c8b05129341f5c",
+          "width": 390,
+          "height": 1154
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en filtered no-match differs from successful empty",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-f-4e547-ffers-from-successful-empty/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-f-4e547-ffers-from-successful-empty/filtered-no-match.png",
+          "sha256": "ee3780bfe2556eaac0509fe205f67957e5e5175ffd4c13313a54a1492f4a0a17",
+          "width": 960,
+          "height": 147
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en keyboard, 44px controls, reduced motion and reflow proxy",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-k-3091a-ced-motion-and-reflow-proxy/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-k-3091a-ced-motion-and-reflow-proxy/keyboard-reflow.png",
+          "sha256": "75fd7d9816c1fc0f05fad9f801f7295f2bb955e294f8a246c49baace5c0d7aea",
+          "width": 720,
+          "height": 5617
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 834 evaluator-specialisms: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-l-0efdc-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-l-0efdc-ed-work-and-selected-detail/specialism-and-history.png",
+          "sha256": "d9e3a7aa1644ad9aecc308f81d87ee0c5ada0ec4ac04b065dd0e42b13109a89e",
+          "width": 834,
+          "height": 1314
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 1440 evaluation-appeals: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-l-201c3-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-l-201c3-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+          "sha256": "bd93eec822514f9a4add4e3b5abac849146cdf42cf670eba00b56e1f203e2f4a",
+          "width": 1440,
+          "height": 1251
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 1440 evaluator-specialisms: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-l-23feb-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-l-23feb-ed-work-and-selected-detail/specialism-and-history.png",
+          "sha256": "5e54d80fc31ae3664a3648247eed6769eeb9afcf169c8f74969b3b0bd3efaee2",
+          "width": 1440,
+          "height": 1288
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 390 evaluator-specialisms: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-l-26df6-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-l-26df6-ed-work-and-selected-detail/specialism-and-history.png",
+          "sha256": "5aea5b86c76faaee50bcb7e2f5a76de8369c1a48a3bca6ac87f7310b69618bd0",
+          "width": 390,
+          "height": 1914
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 834 internal-verification: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-l-30e30-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-l-30e30-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+          "sha256": "916abfe04ab483bd5781e84764ce238fcb3feeb67655e79a421fb873a705c42b",
+          "width": 834,
+          "height": 1519
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-l-30e30-ed-work-and-selected-detail/selected-candidate.png",
+          "sha256": "22735501d4558b3171270f57c215990a64f1bda46e77bdb237ecab50da35fb1b",
+          "width": 802,
+          "height": 505
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 834 evaluation-appeals: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-l-3c86d-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-l-3c86d-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+          "sha256": "c49078f8b601e50d82ad3a11be807c5b7e6f0af3e44e3cc43b757d0c8a1c4b06",
+          "width": 834,
+          "height": 1276
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 390 evaluations: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-l-4d60b-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-l-4d60b-ed-work-and-selected-detail/assignment.png",
+          "sha256": "d10f51329557d3d8c7d1dc6787b79d905ca0eae5b3ba254d31bc29ec443b3b2a",
+          "width": 358,
+          "height": 297
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-l-4d60b-ed-work-and-selected-detail/queue.png",
+          "sha256": "ba7667832a60e0deac527be3d1d15d850e12def124b57a07ac213eaf4c77df09",
+          "width": 390,
+          "height": 6483
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-l-4d60b-ed-work-and-selected-detail/resit-relationships.png",
+          "sha256": "43f56685ce6ac8d3254254e01c39923fafb47ab50981107a0c659f8a84a10bef",
+          "width": 358,
+          "height": 953
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-l-4d60b-ed-work-and-selected-detail/selected-deadline-detail.png",
+          "sha256": "caf09c02c8d933dd3812e022a3353ff33f64ae3c3d71d396bf5a0358968270ed",
+          "width": 358,
+          "height": 1409
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-l-4d60b-ed-work-and-selected-detail/verification.png",
+          "sha256": "e5799da08fa4751d2de9b0187e1094cc1794994b6fc518b594c7bc5561134ffc",
+          "width": 358,
+          "height": 1354
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 1440 evaluations: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-l-50cd7-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-l-50cd7-ed-work-and-selected-detail/assignment.png",
+          "sha256": "8bc65e1fdbde825e09de6ec803504527a4e226035412cfe3fba3343ddba9273b",
+          "width": 1120,
+          "height": 304
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-l-50cd7-ed-work-and-selected-detail/queue.png",
+          "sha256": "70c12e4402de1bbcaaee7710c9585229cd0ec772b1eb318af6436669e52821f5",
+          "width": 1440,
+          "height": 5112
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-l-50cd7-ed-work-and-selected-detail/resit-relationships.png",
+          "sha256": "82fcb14148679f4a4c8a28a86fd8aed796bc9d3ad231e56c6856b4f098408ab5",
+          "width": 1120,
+          "height": 843
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-l-50cd7-ed-work-and-selected-detail/selected-deadline-detail.png",
+          "sha256": "2d3faad9be49486d00e98f316b335903147fdaaa320a4182d44e8fb0c520788d",
+          "width": 1120,
+          "height": 1175
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-l-50cd7-ed-work-and-selected-detail/verification.png",
+          "sha256": "1c5f7bdd00e25032c9bea6145f07d8db3af9375262740af43c400391a3113fd6",
+          "width": 1120,
+          "height": 1139
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 1440 internal-verification: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-l-61fae-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-l-61fae-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+          "sha256": "0100fc00bdeda662763e2ccd4bd01a1ce0a054796dc1d682d3a6bf5e1971d694",
+          "width": 1440,
+          "height": 1232
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-l-61fae-ed-work-and-selected-detail/selected-candidate.png",
+          "sha256": "b8a81a5316efd621c4a92d53d198f83a347794d3acd59ac1a6fd462a55dd2ef1",
+          "width": 707,
+          "height": 529
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 390 evaluation-appeals: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-l-d2a1c-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-l-d2a1c-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+          "sha256": "2aca628c10cebe166af04de565a6c3cd49ba4250c754ac706f1f6c47ff50bbfa",
+          "width": 390,
+          "height": 1925
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 834 evaluations: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-l-eadbd-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-l-eadbd-ed-work-and-selected-detail/assignment.png",
+          "sha256": "c32461b28dbead2fbb9d71f80e5d2e4cbce953ff68394c8fad5560d3128f2aba",
+          "width": 802,
+          "height": 304
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-l-eadbd-ed-work-and-selected-detail/queue.png",
+          "sha256": "5c2fe07c91f58278afa1ad64ada8f573fb22b5f03ed68d516d05a0c2a12b1adb",
+          "width": 834,
+          "height": 5355
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-l-eadbd-ed-work-and-selected-detail/resit-relationships.png",
+          "sha256": "6a788375086e7d97b06010e130e45c8526e4f84051ee9507877f090fa0ca73eb",
+          "width": 802,
+          "height": 843
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-l-eadbd-ed-work-and-selected-detail/selected-deadline-detail.png",
+          "sha256": "d2bf377a3b019d41349d21770725033d12fd5064c142f2e5ff759648cfad756a",
+          "width": 802,
+          "height": 1242
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-l-eadbd-ed-work-and-selected-detail/verification.png",
+          "sha256": "13a05bbee81ea22afea175e958e3c38441c075c9bd352fed8e390151a6ab94f8",
+          "width": 802,
+          "height": 1291
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 390 internal-verification: populated work and selected detail",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-l-f1b0f-ed-work-and-selected-detail/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-l-f1b0f-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+          "sha256": "fc3d2afb2e5b42de1746ac858964f5e8cdfb9d1b0a4f6d3c2e090970b061595a",
+          "width": 390,
+          "height": 2130
+        },
+        {
+          "path": "browser-verified/assessment-operations-en-l-f1b0f-ed-work-and-selected-detail/selected-candidate.png",
+          "sha256": "d72153cb33d46167d8f41966d73b8e0838d0c3767df0108fa2e8651277773951",
+          "width": 358,
+          "height": 546
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en no eligible evaluator exposes no assignment action",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-verified/assessment-operations-en-n-e92d6-xposes-no-assignment-action/scenario.json",
+      "captures": [
+        {
+          "path": "browser-verified/assessment-operations-en-n-e92d6-xposes-no-assignment-action/no-eligible-evaluator.png",
+          "sha256": "aa7d3f5c7786b0a58f1d85e8813d1014aedf2cc6f3352aec4dbe62ac528ebbde",
+          "width": 358,
+          "height": 250
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: locale keeps query/hash; keyboard focus, reduced motion and 200 percent reflow proxy",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-protected-handoff/teacher-authoring-ar-local-9e25e-nd-200-percent-reflow-proxy/scenario.json",
+      "captures": [
+        {
+          "path": "browser-protected-handoff/teacher-authoring-ar-local-9e25e-nd-200-percent-reflow-proxy/keyboard-reflow.png",
+          "sha256": "0538abf7bf9b311bd75aa6147ff314018eba5605131dd2d4b08f3075667d1c26",
+          "width": 720,
+          "height": 450
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: unsaved fields and files survive hashes, Back and cached refresh error",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-protected-handoff/teacher-authoring-ar-unsav-1451d-ck-and-cached-refresh-error/scenario.json",
+      "captures": [
+        {
+          "path": "browser-protected-handoff/teacher-authoring-ar-unsav-1451d-ck-and-cached-refresh-error/cached-error.png",
+          "sha256": "46390841316654532bb6b7e164e9b14055e5beae6283a49044da724a50217859",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "browser-protected-handoff/teacher-authoring-ar-unsav-1451d-ck-and-cached-refresh-error/retained-file.png",
+          "sha256": "c089e13eee2145071248f25a3166130b3d4fe1153323c298515a54bb6fd91b71",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "browser-protected-handoff/teacher-authoring-ar-unsav-1451d-ck-and-cached-refresh-error/retained-title.png",
+          "sha256": "18e937e851be9ee4a7a0efeb752d4d017d3d8ba5c5774ff2a84844028af2f125",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: locale keeps query/hash; keyboard focus, reduced motion and 200 percent reflow proxy",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-protected-handoff/teacher-authoring-en-local-d3672-nd-200-percent-reflow-proxy/scenario.json",
+      "captures": [
+        {
+          "path": "browser-protected-handoff/teacher-authoring-en-local-d3672-nd-200-percent-reflow-proxy/keyboard-reflow.png",
+          "sha256": "569b1f37e4ab327f94a0d16d7a92d0aaeb804212e2c69a92afc838bc4fe84d25",
+          "width": 720,
+          "height": 450
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: unsaved fields and files survive hashes, Back and cached refresh error",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-protected-handoff/teacher-authoring-en-unsav-f871b-ck-and-cached-refresh-error/scenario.json",
+      "captures": [
+        {
+          "path": "browser-protected-handoff/teacher-authoring-en-unsav-f871b-ck-and-cached-refresh-error/cached-error.png",
+          "sha256": "f7c1fcf2ed0ef9c29d7a81634f4b0d0ff3239d37ce4e19ecf63a97537fcc655c",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "browser-protected-handoff/teacher-authoring-en-unsav-f871b-ck-and-cached-refresh-error/retained-file.png",
+          "sha256": "65a5d06d45b1eafe16f305e8f1c2e52766636eec3713c52e67d2ed84aa7d79f4",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "browser-protected-handoff/teacher-authoring-en-unsav-f871b-ck-and-cached-refresh-error/retained-title.png",
+          "sha256": "a3a823585dc783fd196735a0979e878f57ae2ba7ff9d95ca0895052f55b68c99",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar keyboard focus, reduced motion and 200 percent reflow proxy",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-protected-handoff/teacher-workload-ar-keyboa-89e6e-nd-200-percent-reflow-proxy/scenario.json",
+      "captures": [
+        {
+          "path": "browser-protected-handoff/teacher-workload-ar-keyboa-89e6e-nd-200-percent-reflow-proxy/follow-up-reflow.png",
+          "sha256": "ced4ae516a28cf1cb8b19e6fb7ee24c0c7e48ed8e7f4959e7238eda8a87443d8",
+          "width": 720,
+          "height": 450
+        },
+        {
+          "path": "browser-protected-handoff/teacher-workload-ar-keyboa-89e6e-nd-200-percent-reflow-proxy/keyboard-reflow.png",
+          "sha256": "46600d40a0ae5c2247c518095f06006a120eb1efdc396ee488429cc6a89972c4",
+          "width": 720,
+          "height": 450
+        }
+      ]
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en keyboard focus, reduced motion and 200 percent reflow proxy",
+      "status": "passed",
+      "expectedStatus": "passed",
+      "artifact": "browser-protected-handoff/teacher-workload-en-keyboa-8fc41-nd-200-percent-reflow-proxy/scenario.json",
+      "captures": [
+        {
+          "path": "browser-protected-handoff/teacher-workload-en-keyboa-8fc41-nd-200-percent-reflow-proxy/follow-up-reflow.png",
+          "sha256": "13e655c8ed3ff906169a618d4f9113f4c3488a584647ec5b6f69c2bd7fabe5f7",
+          "width": 720,
+          "height": 450
+        },
+        {
+          "path": "browser-protected-handoff/teacher-workload-en-keyboa-8fc41-nd-200-percent-reflow-proxy/keyboard-reflow.png",
+          "sha256": "c2cb37e65f0197eb2f61e87616e5136440ee4ee5cbeedb295a6486503a7ec217",
+          "width": 720,
+          "height": 450
+        }
+      ]
+    }
+  ],
+  "allCaptures": [
+    {
+      "path": "browser-verified/admin-assessment-coordinat-b8d77-MOCKED-UI-CONTRACT-EVIDENCE/adjustment-en.png",
+      "sha256": "7d70e71335274539158bf554a220b7a33acc0dbe82b14575b813fda535559e79"
+    },
+    {
+      "path": "browser-verified/admin-assessment-coordinat-b8d77-MOCKED-UI-CONTRACT-EVIDENCE/assignment-en.png",
+      "sha256": "f0c704c9be8535bbd6b55000d2ade6b7447cb97421e9ee0679c3b1add1e5329b"
+    },
+    {
+      "path": "browser-verified/admin-assessment-coordinat-b8d77-MOCKED-UI-CONTRACT-EVIDENCE/coordination-en-1280.png",
+      "sha256": "945882df0b3ab89c80bb623497bf3e2a623425a4d315ffe9acb4f242146916e6"
+    },
+    {
+      "path": "browser-verified/admin-assessment-coordinat-b8d77-MOCKED-UI-CONTRACT-EVIDENCE/resit-en.png",
+      "sha256": "add20047509b4033a28926634e8d11771b1a07661f4077b0a963da8c5e94be97"
+    },
+    {
+      "path": "browser-verified/admin-assessment-coordinat-b8d77-MOCKED-UI-CONTRACT-EVIDENCE/target-en.png",
+      "sha256": "c07c51576b676f6b5d16362b15f9d0c43c9440c0394a69269639837866f58e63"
+    },
+    {
+      "path": "browser-verified/admin-assessment-coordinat-c4f40-MOCKED-UI-CONTRACT-EVIDENCE/adjustment-ar.png",
+      "sha256": "3b385158ab9cb515a0239332a13dacf66058068141bf1b003d58496fe4f22b12"
+    },
+    {
+      "path": "browser-verified/admin-assessment-coordinat-c4f40-MOCKED-UI-CONTRACT-EVIDENCE/assignment-ar.png",
+      "sha256": "c88091af9f27bbfa2b7d801f6c41535d8f15d99a293e15afdf7db7d63b4ff04e"
+    },
+    {
+      "path": "browser-verified/admin-assessment-coordinat-c4f40-MOCKED-UI-CONTRACT-EVIDENCE/coordination-ar-390.png",
+      "sha256": "9799946e18208b887045efb1fe48bdf8257ff1a3b4be3bf9919d8406e499018f"
+    },
+    {
+      "path": "browser-verified/admin-assessment-coordinat-c4f40-MOCKED-UI-CONTRACT-EVIDENCE/resit-ar.png",
+      "sha256": "283480f8a8c34f65b22c5f5eec3fc70ecdaf668a5827faba6f8fab0d22536726"
+    },
+    {
+      "path": "browser-verified/admin-assessment-coordinat-c4f40-MOCKED-UI-CONTRACT-EVIDENCE/target-ar.png",
+      "sha256": "0bc0c5a39c8216f6759b4c610e0b5c1dd753c1244681abd2569838e7664fca8b"
+    },
+    {
+      "path": "browser-verified/admin-evaluations-approval-30713-MOCKED-UI-CONTRACT-EVIDENCE/approvals-ar-mobile-full.png",
+      "sha256": "d1cc67a6dde8dc877c57e7543eae9645c89932401fcd68c21849e014eb07f62f"
+    },
+    {
+      "path": "browser-verified/admin-evaluations-approval-30713-MOCKED-UI-CONTRACT-EVIDENCE/preview-ar-mobile.png",
+      "sha256": "cf469968710684d8cdc3098e6856d49ae9dbbe6dd3a7addeb52fc189e5de8029"
+    },
+    {
+      "path": "browser-verified/admin-evaluations-approval-f99ed-MOCKED-UI-CONTRACT-EVIDENCE/evaluations-en-desktop.png",
+      "sha256": "b2a53399a58ea87f8f468e69ffe1c8e994586609c0595ff31dbe5742792f4cc4"
+    },
+    {
+      "path": "browser-verified/admin-evaluations-approval-f99ed-MOCKED-UI-CONTRACT-EVIDENCE/verification-en-desktop.png",
+      "sha256": "f9ca86b83dc00f4989a695ac7f3f1be1b8db346bf72ff2bb54bb304ae8057426"
+    },
+    {
+      "path": "browser-verified/admin-evaluator-specialism-ce467-MOCKED-UI-CONTRACT-EVIDENCE/revoked-history-en.png",
+      "sha256": "53cfbaac58080805dcd02be92a92eeecd8fb85bae898055b9533245e8091ef9c"
+    },
+    {
+      "path": "browser-verified/admin-evaluator-specialism-ce467-MOCKED-UI-CONTRACT-EVIDENCE/specialisms-en-1280.png",
+      "sha256": "318777a3e60ebe11df5de71b6bf0f15ee2b83c615e4b127cc188e21611f3d91d"
+    },
+    {
+      "path": "browser-verified/admin-evaluator-specialism-df55b-MOCKED-UI-CONTRACT-EVIDENCE/revoked-history-ar.png",
+      "sha256": "2cbce0fae78ec7a6302e3d60811524c690637a36c6b4250d5fdaa123fa0366de"
+    },
+    {
+      "path": "browser-verified/admin-evaluator-specialism-df55b-MOCKED-UI-CONTRACT-EVIDENCE/specialisms-ar-390.png",
+      "sha256": "acb1246ba0433553f5190f9fcb785f2e0cac1bf4b76043223b1f4301a78d55e1"
+    },
+    {
+      "path": "browser-verified/admin-governance-gradebook-a082a-MOCKED-UI-CONTRACT-EVIDENCE/internal-verification-en.png",
+      "sha256": "492c0bf199d3e039523f92f03b1e7325bdb896febc49f9d5c553889eb3961160"
+    },
+    {
+      "path": "browser-verified/admin-governance-gradebook-cea1c-MOCKED-UI-CONTRACT-EVIDENCE/evaluation-appeals-ar.png",
+      "sha256": "37d7d0eae0dafdf5cdd1bc740ba532546ec3791455b3b836e9eb3933728e8fb4"
+    },
+    {
+      "path": "browser-verified/admin-governance-gradebook-d2370-MOCKED-UI-CONTRACT-EVIDENCE/gradebook-en.png",
+      "sha256": "14c90d425048d7d1a9259050b0149a771eaf10798dba82333b7fdf55c38421b7"
+    },
+    {
+      "path": "browser-verified/admin-governance-gradebook-e2e5e-MOCKED-UI-CONTRACT-EVIDENCE/qualification-registry-ar.png",
+      "sha256": "17beb29c218abb6de450872236574340af5a5049c0b4dee544804543d16ff081"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-1440-coordin-e5d71-etains-exact-eligible-shell/restricted-shell.png",
+      "sha256": "19435b87bd7003e820a81a79919e6af12770c17a5f1985f5446538cb2f9daca8"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-1440-LeadIV--5da85-etains-exact-eligible-shell/restricted-shell.png",
+      "sha256": "412c877fb938046718250c6dfc68c965b45b0b0eb168354b70f9f621fe0ad6fc"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-390-coordina-bc345-etains-exact-eligible-shell/restricted-shell.png",
+      "sha256": "1d6109387d5ee2a9b13de57fe410facfc30c9516a466dc54d6b28fabeddcee2b"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-390-LeadIV-r-8d8f7-etains-exact-eligible-shell/restricted-shell.png",
+      "sha256": "2fa5ae7fa54e0077df50cf5f9f8119ece112f2e7f4f71e01cfa8a677ffe1aec7"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-401-query-state/state.png",
+      "sha256": "cd8140a96e8a579aad1b25082f665da664f89ee970775bad2c8765ac166bca3c"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-403-query-state/state.png",
+      "sha256": "3205ba3f79eaa39c249930fca5ffe4e026e7c2152d7d8d47aefc7a63f78f694e"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-cache-refres-ee917-ounts-and-every-destination/cached-error.png",
+      "sha256": "4f20675eea35dbf914ab9add24d7d68d8b35b11f869bd3287ae2838e03522f18"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-1440-Admin-populated-operational-home/context.png",
+      "sha256": "653ae9c568e770d23ccea0bbcd77d5f1712eddcc755e3a5b11730dc97dd3b1af"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-1440-Admin-populated-operational-home/destinations.png",
+      "sha256": "e2baf85efa31cf05dd8b5b8aed7800a46929c2d83319a571c748464c892994aa"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-1440-Admin-populated-operational-home/operations.png",
+      "sha256": "a0ce0b58ad0056a34bc32c0cb86a25c842bf69a2efa25efc7436235d09667978"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-1440-Admin-populated-operational-home/period.png",
+      "sha256": "f0a39c2cb11b974f65229f64ec924efbc3a2a40cf60761d5970b4ce1d3018d64"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-390-Admin-populated-operational-home/context.png",
+      "sha256": "791382c8478f5f457c54b43cbe8fd9af951be654d7de39569cc0f93cb4c87717"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-390-Admin-populated-operational-home/destinations.png",
+      "sha256": "29aaf32e90d36d9f200b5b89937c3bb2afc5893b05a1d6ad830f1f59dfa59d20"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-390-Admin-populated-operational-home/operations.png",
+      "sha256": "7f7b40fc9d7c12afc9c0f9fc62ba8aee4d9bdbd8a140fb42318a97ab74c7ea03"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-390-Admin-populated-operational-home/period.png",
+      "sha256": "2ce18ca1624fe1f011ee8f660929f812ce03e53049d77d1267caf647a3c75fb5"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-834-Admin-populated-operational-home/context.png",
+      "sha256": "880a14e3383cfdcf5f1188745889f87de98475978896ebb880387ee8f0a93e84"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-834-Admin-populated-operational-home/destinations.png",
+      "sha256": "d2d72dfc86e018ca430283a04f18c8dc86bbda39130c26896c9d5418061df0f7"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-834-Admin-populated-operational-home/operations.png",
+      "sha256": "67fb5949e0d8ab7ecdb41961a1503b0e12cde293683a77c5e5adcc9de1892363"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-834-Admin-populated-operational-home/period.png",
+      "sha256": "ff72338fe4048bcd50a63567552d50797f77b38579e50c43121ab0de7f33e07f"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/30d.png",
+      "sha256": "66a2680ac595b4d27e8068bb938d8484bf9f3660b1225f733f469e61cf658197"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/3m.png",
+      "sha256": "7d69f57f4ff87820e209a3515b909c88b3a47a6ed0af1999051b9b3b873d43d1"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/7d.png",
+      "sha256": "fc96ae8373cb6e15fe61c3005303a1e26dd97e6ebc526389f98c5839d3b66a54"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/all.png",
+      "sha256": "f1155e99ebccd95714159a8f0213ea71cee838575e7b6166742821f4931db2a6"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/custom.png",
+      "sha256": "4207b300f70edeaf8758cde423534b17b503cf6c0878315daf28202344c2d5bc"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/invalid-custom.png",
+      "sha256": "ad89482b2e6cd84c6f75b48b0b2f5b047d902c339123d556abe218506bf954a0"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/today.png",
+      "sha256": "281e664ca1881422e52112a96193d13cb20d3814e1aad5cb28cbfc3be430844b"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/year.png",
+      "sha256": "30366b1f8f49d1f88c5094eaab2e94f34df76e644cd8b252f0a76b9fa2f5d5e5"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-error-query-state/state.png",
+      "sha256": "708e9f49230cf79aac8bdfc2a05d56468c5ebf0a0648ff762aa822d31a424db2"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-keyboard-foc-0db24-nd-200-percent-reflow-proxy/keyboard-reflow.png",
+      "sha256": "297e9ed95427ce2b84af54c1eb05b4c3d81b780711d3b5fb8e549424b7a18040"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-1440-Admin-populated-operational-home/context.png",
+      "sha256": "0545ce3c689a0a197b336cd0c6ad68adb7b80f0eba219393515373ba10ea6aca"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-1440-Admin-populated-operational-home/destinations.png",
+      "sha256": "9434de408a4c5bcdf5f1afb63de7e6a221d92dd841213e7ed13271498a6b64ff"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-1440-Admin-populated-operational-home/operations.png",
+      "sha256": "bbf84e7c4352efa91b8c6c82d2da8107cca5cfc9aca03e93a705213ad0851332"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-1440-Admin-populated-operational-home/period.png",
+      "sha256": "a9fc972eefa4889285b0fffe89ad5bb8c5f294a72afe2da86442b7b92b0e036d"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-390-Admin-populated-operational-home/context.png",
+      "sha256": "89f8bfc7a7a3d1de185c1d85c45fb717d773e5a99be06e256dad8ea22bbcf038"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-390-Admin-populated-operational-home/destinations.png",
+      "sha256": "478b750ace7b8912061964cdc0228ca8455cbf0a86def73f5bf5b5758921ee7a"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-390-Admin-populated-operational-home/operations.png",
+      "sha256": "4ed016b3638a7f261974ad2dcfc6294fe8860e57d4e7fa79949bdcb4b9193fd0"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-390-Admin-populated-operational-home/period.png",
+      "sha256": "2efd3f43eb17d6663ea81e6d0fdfc54c9cf139427530005ebf88f299805d01a3"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-834-Admin-populated-operational-home/context.png",
+      "sha256": "75852f6f3d84868c98968a9aa322f07272e0804be2419a8758a487c673eee833"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-834-Admin-populated-operational-home/destinations.png",
+      "sha256": "c5d2825ae303f3e976507c1fb55ec0c9ca3bfb131628962992257b92f45d757e"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-834-Admin-populated-operational-home/operations.png",
+      "sha256": "cb4eda7c53d5226f1a808844e91fbb76c41ca9955c3efb8b9df1a7eb3eae4777"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-834-Admin-populated-operational-home/period.png",
+      "sha256": "321876d941821156d9912a865d38bb801d1892e5f886720e8ae06c3a73d5a392"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/30d.png",
+      "sha256": "22093a9b3aefffc009d88e650dca947f0665b71d27921a62f1b1889eb13a7f1d"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/3m.png",
+      "sha256": "916f56156df5026f6cc44280296498dcd1199bcbab78f2e1d7b31837fef0d909"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/7d.png",
+      "sha256": "ad34f0a2e707be7023515e8e4151cf2a849c5702872585b1565121b269a08b18"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/all.png",
+      "sha256": "1c699822d44ccd4db882d3f4be8493557a6186f9da550ebb455f79e8333b5599"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/custom.png",
+      "sha256": "87daa36fc403f1371a7fa339ce02123d86c4fac6a547c4577e29196831649f10"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/invalid-custom.png",
+      "sha256": "59716c63d1fec33e025c7932f0333a503c61a9302dede1c6b67aeab5daf32d4b"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/today.png",
+      "sha256": "6da98ffccaa7a411ee8dc0dd9ed803a26db7c46b8e0cea93e576aca94ed6b9d7"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/year.png",
+      "sha256": "af236f85f22c43c52109e975a24d49fb3b4f0984f7ef5646b81ddfa9841a22c3"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-pending-query-state/state.png",
+      "sha256": "3734c114e334580d9e7130238eebb932274123bd62373f1d6f9efe35ac5408fc"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-zero-query-state/state.png",
+      "sha256": "012e0a45cecd7790f5b1258628a415d2cf0f9a527b1553e37b1a4c7f1dd38f18"
+    },
+    {
+      "path": "browser-verified/admin-home-ar-zero-query-state/zero-operations.png",
+      "sha256": "25947d596f1cca1716078e0376a94d48c5568d50ec510ae30f655bee48174e1f"
+    },
+    {
+      "path": "browser-verified/admin-home-en-1440-coordin-89700-etains-exact-eligible-shell/restricted-shell.png",
+      "sha256": "db6aee91f421684253415e5d5e29ac1b4dbbbf02a76142c7eca7e91be72761ca"
+    },
+    {
+      "path": "browser-verified/admin-home-en-1440-LeadIV--b40e4-etains-exact-eligible-shell/restricted-shell.png",
+      "sha256": "50d7d38dc9d311e8cddab869106f767f99fc519f2fe527fc1222762ee9286734"
+    },
+    {
+      "path": "browser-verified/admin-home-en-390-coordina-54ce8-etains-exact-eligible-shell/restricted-shell.png",
+      "sha256": "4885576103475cb88f2f3ee6dc96348305b9429e63ef5f32aeb3a11c4f153567"
+    },
+    {
+      "path": "browser-verified/admin-home-en-390-LeadIV-r-19b04-etains-exact-eligible-shell/restricted-shell.png",
+      "sha256": "deaaf071515aaee71df3dbbd49165c61461357acb378b1fbfdbe8d2087aa5af4"
+    },
+    {
+      "path": "browser-verified/admin-home-en-401-query-state/state.png",
+      "sha256": "bc1b5949b01f2efb98a13942de4bea66c96ee5e6773e1268fa5591e40ee16a5f"
+    },
+    {
+      "path": "browser-verified/admin-home-en-403-query-state/state.png",
+      "sha256": "5ecc71143ac8c929c3be49d8b9c79ddf4ef3615ba2ac41c290cf82038a826d96"
+    },
+    {
+      "path": "browser-verified/admin-home-en-cache-refres-accfb-ounts-and-every-destination/cached-error.png",
+      "sha256": "1e1c666babf4586ec1f48280eb104aa8d2926321adcb751d998dfb309e51613c"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-1440-Admin-populated-operational-home/context.png",
+      "sha256": "953f3130d380573af1ec808f39291178cfcd367e541c23ef1aaeef916a0cdcf3"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-1440-Admin-populated-operational-home/destinations.png",
+      "sha256": "1a306b1ce3291cce03b1ee59ac9a00f22cdc75f262cf033b128a89f48a817144"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-1440-Admin-populated-operational-home/operations.png",
+      "sha256": "7c1ba293b57668f35e532613c5aecb9b260f5171e76759b6b87c329cf4eaef4d"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-1440-Admin-populated-operational-home/period.png",
+      "sha256": "2e220006979c520ff210516664796d8b32e93390cbd8d37df2ef12e91223a828"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-390-Admin-populated-operational-home/context.png",
+      "sha256": "f3305689b4eafc27d364997cd0ce4acc8301ebe0776333f3b651901cf554f5ff"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-390-Admin-populated-operational-home/destinations.png",
+      "sha256": "14e504fed5a93ef2446ba8b5a5b91e4f02b7f4f5288ee6c89aaab9326a70ba74"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-390-Admin-populated-operational-home/operations.png",
+      "sha256": "50af2c1d1d7f68d396df639fceca563a56690d075b9da4f7caf0c249bb4a572a"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-390-Admin-populated-operational-home/period.png",
+      "sha256": "bb1d087595888fb4f2c0ce8b5eee8e511841c4ec3459919e85a92e939bc6e8d7"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-834-Admin-populated-operational-home/context.png",
+      "sha256": "69946b4bacbe07e0236d51e2bb6d4927ce6190977d17b6091f76c2cda2ed138f"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-834-Admin-populated-operational-home/destinations.png",
+      "sha256": "8330ff96f538f79d44ac12569cab429327090e80817b3a0c4919d87bd35216f6"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-834-Admin-populated-operational-home/operations.png",
+      "sha256": "94576ba2aac50792b0c96e7afcd06953c6bc8eca05d06ea19afdeb244dec3e9b"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-834-Admin-populated-operational-home/period.png",
+      "sha256": "4f84121d64a88b5b59c10627b45f7b8a966d84c4cbcf527c012eac739ab20a4a"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/30d.png",
+      "sha256": "340ee7ce523a1fff3bc96ae8eb72006369acc20201cfc504329bc13a040f7ea0"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/3m.png",
+      "sha256": "dd7b9d9a20672bc7b495cf197a276ad8c099afae69689cd58bc71a696e5b4424"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/7d.png",
+      "sha256": "426cb67c7b621f025b2e77fa5185096f63cb25ce09fda54420ab2660e6ad9d14"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/all.png",
+      "sha256": "227d8a257dfee9a8a36c79389b6e16783ab609892fb82b1a59707547c9682c6f"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/custom.png",
+      "sha256": "fb77e52eaf8e1e851e336d73adfcbf509a21ba36d8174f7c310761a65189fb99"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/invalid-custom.png",
+      "sha256": "2b1f71888697a31cfb0643f18076965b13486c3ab4ac469d1d30dcd74fcbb9f2"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/today.png",
+      "sha256": "16b88a64b52b064b653f1b50f6500289bc03b345dccad78883b3f92aeeac501c"
+    },
+    {
+      "path": "browser-verified/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/year.png",
+      "sha256": "74a3cc2d5e02807bbded02f8961fb2f344cb2fa6b3127ece930430d0ba165432"
+    },
+    {
+      "path": "browser-verified/admin-home-en-error-query-state/state.png",
+      "sha256": "bf0902dfa43f949d79e8c43009cf3139d5829b2f77bf885284d1d85ebc122f4b"
+    },
+    {
+      "path": "browser-verified/admin-home-en-keyboard-foc-891a2-nd-200-percent-reflow-proxy/keyboard-reflow.png",
+      "sha256": "22526b8938b9c09b2816eecc507afc46300b039f34742b38ea7ea057641ed494"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-1440-Admin-populated-operational-home/context.png",
+      "sha256": "ff0bc11a00a4ac01d4b185fa60cecdaf00a3449fd752b86d1f5839e77cb96b3c"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-1440-Admin-populated-operational-home/destinations.png",
+      "sha256": "aab715c3e865aafae7e417f385f8817a8567730b21f4dba2994f68dd826c45c1"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-1440-Admin-populated-operational-home/operations.png",
+      "sha256": "843adeddc019e447a3bd8bf9a309a7979c6dcb0b6aa2a5654b003f81ba92e3e3"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-1440-Admin-populated-operational-home/period.png",
+      "sha256": "edb8581778da815d15d4fe3b8cdaebf7a056e76a8face24cd818491a799c6046"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-390-Admin-populated-operational-home/context.png",
+      "sha256": "8b6748879368ee37219258223cadc8440015c9488c3b2f4a47fdcf993ebbed58"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-390-Admin-populated-operational-home/destinations.png",
+      "sha256": "735e47724c4d1281a262d025ee6886fb4b79e959de6d4f50ef921451858b5d88"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-390-Admin-populated-operational-home/operations.png",
+      "sha256": "07e6877af6adbe84854cd78d85ffd070a4e7dfa4f2a64c1e67cd4538a59166fd"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-390-Admin-populated-operational-home/period.png",
+      "sha256": "83244390510a55a138dcfaf789c27c611fdb79214c269acbb54e4e766452402c"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-834-Admin-populated-operational-home/context.png",
+      "sha256": "0d81a09b0478ce5e153b4deaf82e96c6a7a3484fc40d1555fa38c5271eddb58d"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-834-Admin-populated-operational-home/destinations.png",
+      "sha256": "5d816480832f2fbffec3bf3a3a3e4060cd61e41be81475a5cdb6c34a6992e44c"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-834-Admin-populated-operational-home/operations.png",
+      "sha256": "77eb81c2fb00d9f8a0c0ef97bd6326a9f1cdfe76c08db438ef799dfba90fe2d7"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-834-Admin-populated-operational-home/period.png",
+      "sha256": "df3b833de52d934a8235fc3227f367a48c17a9c4b0dcb9c8aee5444071d37cb3"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-every--5446d-itable-invalid-custom-range/30d.png",
+      "sha256": "6acdd1095946c56c1ff62372c28decb4b43e276f26d543d2e52f6dd0c8f68020"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-every--5446d-itable-invalid-custom-range/3m.png",
+      "sha256": "5386d29803997851d5f793aaa3d0492fd1eafe3a2c65d6534024c8359e7395f1"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-every--5446d-itable-invalid-custom-range/7d.png",
+      "sha256": "1a6772bdb2226d14c29fe7c39d4c38af5e0e3c6a61974869557881c7e614d7a4"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-every--5446d-itable-invalid-custom-range/all.png",
+      "sha256": "8e83ef15dce5c20542c3ca46ba5e3c4b4689b9660b1e34bcf9818204ac74b6ec"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-every--5446d-itable-invalid-custom-range/custom.png",
+      "sha256": "bb1b9cca3ec9b6bf5332e51884b204b408618f55c46866d9e8790f7687a201f0"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-every--5446d-itable-invalid-custom-range/invalid-custom.png",
+      "sha256": "2b6c473c89625b803b6780f5e9a93abd8582de8e64ab3eeb3d0a2620cf123513"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-every--5446d-itable-invalid-custom-range/today.png",
+      "sha256": "f3887681ceaa645158a433cacec56d47ea092456d196414a6c1ca5be220e4d2b"
+    },
+    {
+      "path": "browser-verified/admin-home-en-light-every--5446d-itable-invalid-custom-range/year.png",
+      "sha256": "130f65ff2ec3db8e11640bcd54159440cfd80bf441f727f8eeaea1e644e4799e"
+    },
+    {
+      "path": "browser-verified/admin-home-en-pending-query-state/state.png",
+      "sha256": "096554db741f2eee5824183cb0a955d6fb953d7fa494bf4098c411da76160a89"
+    },
+    {
+      "path": "browser-verified/admin-home-en-zero-query-state/state.png",
+      "sha256": "1f579afb8c14f272a02eb9e70f12f585a7a66663c4dd3e2b90fba9a07c7e0be0"
+    },
+    {
+      "path": "browser-verified/admin-home-en-zero-query-state/zero-operations.png",
+      "sha256": "a5bfa55e3e859ffc3bcd273948149b27881b0ae66c891b00bc6dd36a65096ef3"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-a-ca75e-erves-candidate-and-request/expected-state-conflict.png",
+      "sha256": "87343b6b7b33302290f321ee2157b4453f1343c8b07830098dc824b48fea895d"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-c-81903-date-and-verification-draft/cached-error.png",
+      "sha256": "0b8d158566561b4c3ced1938594956f2acfc6a326cc58dbeb31e7a2b81d2c0fb"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-25c19-ed-work-and-selected-detail/assignment.png",
+      "sha256": "7aa94dac36b3d54b99262dec48d66bd5ec6e2a3226e25b19dc7351680bde93b1"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-25c19-ed-work-and-selected-detail/queue.png",
+      "sha256": "0d836a4d83179a2e932fe6ab4fe7bbc602a470de39f8d03a8f7cff7c1f721ac9"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-25c19-ed-work-and-selected-detail/resit-relationships.png",
+      "sha256": "cc324e5fc7dceca5dd6cd5118ccf1a9c1d5c03d129958bfbaafe81a39b7eb347"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-25c19-ed-work-and-selected-detail/selected-deadline-detail.png",
+      "sha256": "69c9b422134053067f1b4f500893ebb99d1715e3f7bf8b3f711427f7bbaaa1a9"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-25c19-ed-work-and-selected-detail/verification.png",
+      "sha256": "5a61642079c51c377ba8e21ba5a219bb93e9cb8aa3242f272952c96307e25b63"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-284a6-ed-work-and-selected-detail/specialism-and-history.png",
+      "sha256": "238f8d6a7c6aaef721c56bcb89b262f15134deccc871c97201eac0fc54a5d829"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-71347-ed-work-and-selected-detail/assignment.png",
+      "sha256": "a09d23429bcdae4b0a361299e7cd781ee49691d9b51f991dea6e196b8987abb1"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-71347-ed-work-and-selected-detail/queue.png",
+      "sha256": "0c458c775714743aeaa7e42bbe37d6f3ed3395dc57127b41b462c92fc47a4b19"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-71347-ed-work-and-selected-detail/resit-relationships.png",
+      "sha256": "c1c54e3b73e8f314feae5ba13cda69b14ed74eaf10630e178220a3aac4e48484"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-71347-ed-work-and-selected-detail/selected-deadline-detail.png",
+      "sha256": "03e53cdb57038364f14ced4cf54ddf0efca6c6d52cc7ee0187a3f4e53c90f525"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-71347-ed-work-and-selected-detail/verification.png",
+      "sha256": "3f3c5b74668589a68770dab5db6b94983a0fe62b838669d2503700bd7ab661f9"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-72393-ed-work-and-selected-detail/specialism-and-history.png",
+      "sha256": "ce34599903d5c4058e4cf2465a79c393b03b18ccc2967cefbbd7388b68efa739"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-76ce8-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+      "sha256": "c57ced5888f438f6959c81e2bcccd1a8bbb37c376b06c811a61df8d12fb3443d"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-76ce8-ed-work-and-selected-detail/selected-candidate.png",
+      "sha256": "5a204666487f2637160e4fe0720b7b66bce0b1f9aee9d574f395d9444e3aa1e3"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-7a1ee-ed-work-and-selected-detail/specialism-and-history.png",
+      "sha256": "c362ca7422596472c68edcc349f93bc1f8447a8e804527b7e1101fd978658385"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-7e276-ed-work-and-selected-detail/assignment.png",
+      "sha256": "2979b9a33abdff3b866c6cf3191adf1f64edf704a5f54108dc3e4dd591dd4bb4"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-7e276-ed-work-and-selected-detail/queue.png",
+      "sha256": "a4744726928ab4f1a2e2e2f5c16097197b931c696bfa2a11b2d40dc43143fb83"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-7e276-ed-work-and-selected-detail/resit-relationships.png",
+      "sha256": "0db09023bbba7e6ab799d680bf2a170811d7234ee68c90d78c643034140af94e"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-7e276-ed-work-and-selected-detail/selected-deadline-detail.png",
+      "sha256": "c170192474ab7e483f4522c76fb00de8be80052db6727ec446cdba1843baa384"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-7e276-ed-work-and-selected-detail/verification.png",
+      "sha256": "a66a87ffe53417b32b8d59c2e647412085cc095a102dfe4d9b7ce6d33f023997"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-8060b-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+      "sha256": "dc30544a27d3ac043781b5e30998c0acfa16b53d94dd7534e7f679d09a30acf0"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-8060b-ed-work-and-selected-detail/selected-candidate.png",
+      "sha256": "d054dfa37006610aa589db158feb879222feb4685a2a691b27023c1b0c729bab"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-a50c1-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+      "sha256": "e339363a87f389f40fb2b4de41adb702ab9b2415687f54059d63793d612bc41d"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-a85aa-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+      "sha256": "4a3a0005d9a81abe67257550c4242d8331d03b79881cee73419c9aecbb993bf1"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-c61ad-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+      "sha256": "709617551fac2892cb7ef27504cd5fe2e2ba86e573874675223925b97370e343"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-e4ee3-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+      "sha256": "a2481ae49dab380e030af6391fa19bf5cbc95dc7ca69b5f2bd88aa58b9322adb"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-d-e4ee3-ed-work-and-selected-detail/selected-candidate.png",
+      "sha256": "c52b75cf76885450e310a81e24e944f5460053e39d625dd7d65cb23e5305864d"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-e-59e5e--cold-state-without-actions/state.png",
+      "sha256": "a838317706af77baca2de97451082c07a520ced8849c7916313250f2113615a6"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-e-5ebfa--cold-state-without-actions/state.png",
+      "sha256": "ac799db0b742614e5be08e870ef540b7a8345eb1ad867266856b237960c42201"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-e-67f60--cold-state-without-actions/state.png",
+      "sha256": "cff644040c7559914eb62271ee717326ebd6b3c3ea46c22c0a679bcf82c9fb8c"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-e-abd36--cold-state-without-actions/state.png",
+      "sha256": "8067240ddd3d161e4a3d0543c9daed2bc4f0fdf39e66f67a4c26bd27d03cfa75"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-e-c9bd0--cold-state-without-actions/state.png",
+      "sha256": "83fbcb3791449b1f3e1121512b9ebbcb21ec19c780adc1049070493ec52fb8d2"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-e-d5539-s-factual-independent-state/state.png",
+      "sha256": "3195f2544f77357a940ac9e4fc9e4db197a5a127630eb2bd323ad94c8414f15d"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-e-d84f3-s-factual-independent-state/state.png",
+      "sha256": "04d2f84fdeb0b6f6ed64d611bee5c78e838f9479845994bb53df74d599fae493"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-e-d9aca-s-factual-independent-state/state.png",
+      "sha256": "bdb83ef57b80c29c2c3c3700473f7e88a3d34882d2572d44630a15c56ecc2458"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-e-dd730-s-factual-independent-state/state.png",
+      "sha256": "3c8c173b94c36c57d8626cfffe8285a587fb42ef659399654fde37e87232e170"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-e-f2e34-s-factual-independent-state/state.png",
+      "sha256": "40dc559aeacdbd84a81da401d4c58e1cc3915eaf5b2d0d72052290fedcedb540"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-e-f83d3-s-factual-independent-state/state.png",
+      "sha256": "00e056723f391952f4c1fc24cf054cfef495ae411c81860232dfa747434dcc9b"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-f-17fec-ffers-from-successful-empty/filtered-no-match.png",
+      "sha256": "a889ed967d8f91bd53da61f29ce927e70a11feeca0783e99c7b727e2238b59b0"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-i-a73e6-s-factual-independent-state/state.png",
+      "sha256": "a2380c43c8cc0d05938a4d4658634cc828f0b4308274cefb13a4eb0492a5c38b"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-i-c11f6-s-factual-independent-state/state.png",
+      "sha256": "1482c0768ab78359ffd9ccc6a97886356fc88092740938328e09ceb0ff176882"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-i-e7a11-s-factual-independent-state/state.png",
+      "sha256": "5b84c62696cb275eb3affc5ac45783f4a358e132522a82c10f71fb270dc39cd0"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-k-829ab-ced-motion-and-reflow-proxy/keyboard-reflow.png",
+      "sha256": "0186699a19669b4775d72ea8e7d61b299469cf0620bb83861f4d7a8814ccea9b"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-02382-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+      "sha256": "8f939c268bd9d998633928c4750259ed90f762b73ca66e5af092b2c388bfe730"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-02382-ed-work-and-selected-detail/selected-candidate.png",
+      "sha256": "76ce9ce8dda0f09b78146d56b6e00c5e146b8dd9d5ea7767fe76fbf4c806949f"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-1ab4d-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+      "sha256": "b3d016184587ef3a089672676ec120d2d0088cd53f681c02100775e2eca5e660"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-4f880-ed-work-and-selected-detail/specialism-and-history.png",
+      "sha256": "be740b104d6ca7558b4d66fc864cbc8c5af821d86631abc14bdbfcc1b14a9aa6"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-5a0cf-ed-work-and-selected-detail/assignment.png",
+      "sha256": "53bdb1c909d8c4db97debac6187ebf04893f59086adf5a14f8ecad8bf87674be"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-5a0cf-ed-work-and-selected-detail/queue.png",
+      "sha256": "5e3c9fe39e668548d08f4eb8ebeb458bb8ca902f97ad94b3c2bae8f65464072e"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-5a0cf-ed-work-and-selected-detail/resit-relationships.png",
+      "sha256": "5a13bf1f5574596ca5739505d6c03e9b72fd33ab7934a93c0d31d416fc4016c4"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-5a0cf-ed-work-and-selected-detail/selected-deadline-detail.png",
+      "sha256": "8a52e2312bbe4b3fb70529cd67aab1474e8a568356cb4b7f40ea0a90b8848f1f"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-5a0cf-ed-work-and-selected-detail/verification.png",
+      "sha256": "fcdc7ec2de439602b0d8344ad2b80e3e58627aef54c2f2816846424526f0e3ac"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-5a2bf-ed-work-and-selected-detail/assignment.png",
+      "sha256": "bbc257826ea61192cfc5e645de8566f914039d6b407a339075190c2d9562009a"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-5a2bf-ed-work-and-selected-detail/queue.png",
+      "sha256": "e96231fd796134a54076d671df385b49779a9c328081364fe89ef4c650bfc99f"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-5a2bf-ed-work-and-selected-detail/resit-relationships.png",
+      "sha256": "3f4d87d2c6bbf5c6fe0f282e61b64a3c648cf9eb79ff554ee85a4b87966e4000"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-5a2bf-ed-work-and-selected-detail/selected-deadline-detail.png",
+      "sha256": "439d3993138080d0e750767d82440c7d33e8cc36c9855a4f2903dda2d7938438"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-5a2bf-ed-work-and-selected-detail/verification.png",
+      "sha256": "51daf428f63ecfd6226fd9d21f66ad33e8860b196248312a466391d7522aa408"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-73298-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+      "sha256": "ea9081961a38c71aeb656c35045ec5e8242d7dab2d7a64981c0ee3a1b35b1999"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-73298-ed-work-and-selected-detail/selected-candidate.png",
+      "sha256": "c0747cd72d0e56d8b4b9f343ca29ec438415f3e755287b554cb77fdb14379f02"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-8caf7-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+      "sha256": "4bdf6c84e1824d69ff25f5cc0a813e355b2ed2478261efcfb540f0ec6f8e94c0"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-8caf7-ed-work-and-selected-detail/selected-candidate.png",
+      "sha256": "68236b730f8c17f18e59022cc5ea7957d81af600b2378de08aa3322a5f1b2e40"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-9b76b-ed-work-and-selected-detail/specialism-and-history.png",
+      "sha256": "bb2c0d6c64b57e54b79cf255c50e2ebc10eb27ef7f198f115ebe43430db465fc"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-a8a3c-ed-work-and-selected-detail/specialism-and-history.png",
+      "sha256": "6db47aa0f0ac5f357501b569db55a28b8e893fde3200a73c430e89c767deec49"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-cd43f-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+      "sha256": "e7b1c539649e78751ff360858a115e920c78d5e33e53b13d3d7d1f265bb93d66"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-e3065-ed-work-and-selected-detail/assignment.png",
+      "sha256": "477bd5a011fa258d761c8fbc932ec029ba3d4c26513f59f021d54aa2d4d6d9a6"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-e3065-ed-work-and-selected-detail/queue.png",
+      "sha256": "05d64842cdd87241f7041a3524bb2ffa3a0c84548669969e046ae70c415cb063"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-e3065-ed-work-and-selected-detail/resit-relationships.png",
+      "sha256": "43582d742ff71ce3d5069a0f0b59370c71d5d9d667e3b0eaedba3d43901a3a2b"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-e3065-ed-work-and-selected-detail/selected-deadline-detail.png",
+      "sha256": "c8c58126872bcf1b7568164a88c34be94307224598bea7646320b5383dba7db7"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-e3065-ed-work-and-selected-detail/verification.png",
+      "sha256": "585256abfed2655f8a222d72924968dc8a7de8d62693acbe49284c1122ec69f3"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-l-fb4ca-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+      "sha256": "a7f0354ac24a77c524af7b74a0ad5fee7cc8368055310acf2a82bca1c6ae3b6f"
+    },
+    {
+      "path": "browser-verified/assessment-operations-ar-n-1d24d-xposes-no-assignment-action/no-eligible-evaluator.png",
+      "sha256": "839879432d6446d631e9484dc598fb30a00c86e81fcbd668afc3b7120f04d925"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-a-0e593-erves-candidate-and-request/expected-state-conflict.png",
+      "sha256": "c5f4ff1e1ee65cb5ff5919a3ea59089af01a113a8e772bcd9eab4bee744ad688"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-c-26b2f-date-and-verification-draft/cached-error.png",
+      "sha256": "6ea31b972e60f56ac2bb10c5e1e6e82a175b0d8f38e3db9bb26649769aec9e7c"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-0ae9b-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+      "sha256": "86aaa8994aa44bfecbe5babd6774f7e447ad5bdca63d358a4f1164d1bd95cc62"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-0ae9b-ed-work-and-selected-detail/selected-candidate.png",
+      "sha256": "465bf8be295ecfa17c560b807726465346ef49c21d3a74e18b3b7f711ea2eb5a"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-0b661-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+      "sha256": "b936507d1c0746218d76472ef711189d802b7939bc6d47f39b78debe3e1a3d6a"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-11bec-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+      "sha256": "12557e64f861b7c16c69a9cc9ecd680571258a86b9983404a9f4057031361e5f"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-3f66c-ed-work-and-selected-detail/assignment.png",
+      "sha256": "edd8008733186b9948a03777f79a884813c7b0c737c1ce1f76760fb50c8967b7"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-3f66c-ed-work-and-selected-detail/queue.png",
+      "sha256": "5fd8bdb6013e3f90cc129be53178f2928d91b80da38e09a1ecb77b918b7342d8"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-3f66c-ed-work-and-selected-detail/resit-relationships.png",
+      "sha256": "f637e70c3148af45691119d60ffacf5dbb5d7b509a214337363e00ded98ad6aa"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-3f66c-ed-work-and-selected-detail/selected-deadline-detail.png",
+      "sha256": "fb38f7571ec1b0ab10815eb57d5fca0f0d88fedf76bc03c852cf1deb71bb9ccc"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-3f66c-ed-work-and-selected-detail/verification.png",
+      "sha256": "bdfb477c8de5a6b39eaff778179880a94019edb73db24e17026b96d39ae37637"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-41003-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+      "sha256": "25d585870f9126c38dfb55149e72acc8f876e7f993a0c4f2b9bf73bb824807ae"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-41003-ed-work-and-selected-detail/selected-candidate.png",
+      "sha256": "4a69897e116bba81c647cc36403d15091fd9fe78d79ab80d446aa21eda4f694d"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-77ec7-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+      "sha256": "9323aafff092974b6295eb80f7ef5a784fd91feac11fa13e291fa0b70713adbd"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-839b4-ed-work-and-selected-detail/assignment.png",
+      "sha256": "e876dde2bfdcc8d66be04c2737d59fca3eefdaec870020b03338388007d42705"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-839b4-ed-work-and-selected-detail/queue.png",
+      "sha256": "dd5a00911a9c28f3d778c356d4c6eadbce2555a07763ebf4c4a6b3d16584c953"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-839b4-ed-work-and-selected-detail/resit-relationships.png",
+      "sha256": "4674b706e0f016395bc4f816a1822ddbf7c642b585cff8ea6ec09a1cac0132e4"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-839b4-ed-work-and-selected-detail/selected-deadline-detail.png",
+      "sha256": "b97ed55aba0767fa8fcce04bddbd9c4612bf6ca2efff3114b8a3273082c0bcbb"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-839b4-ed-work-and-selected-detail/verification.png",
+      "sha256": "e2c38275a1c10b07314069520f2a4dd3b9a2b7671cac3ca7743ab4f2753c08c1"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-89537-ed-work-and-selected-detail/specialism-and-history.png",
+      "sha256": "159c7d0d7faa4e47c2a8beb54a80c952024bea92ad32b50e19f07cd1167d50cb"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-9a0a3-ed-work-and-selected-detail/assignment.png",
+      "sha256": "2d3050c352206af9de5761520867987f401559c51054bd1291bc6c27bac7a2c8"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-9a0a3-ed-work-and-selected-detail/queue.png",
+      "sha256": "ccdebeae3b8f41198e96b8149e29d5746cbe596279d441aab5b529daba9b1209"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-9a0a3-ed-work-and-selected-detail/resit-relationships.png",
+      "sha256": "96079e47346fee3b96ccb1808d5f472b4c7c1bf9359f5e1441a2cc09a7614d86"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-9a0a3-ed-work-and-selected-detail/selected-deadline-detail.png",
+      "sha256": "1aea2bfcca9b29bbf15608d6110e83db120fec318caffa604d42a60e33623a7e"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-9a0a3-ed-work-and-selected-detail/verification.png",
+      "sha256": "d23121f895c7f645af7948f81a4f4028fd34480ffb3ba7169801cf99c4b47be6"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-b5437-ed-work-and-selected-detail/specialism-and-history.png",
+      "sha256": "28e999e41c9b438d1418a7606b75cc91e114bc007982aa7e1de285fa2aa105e7"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-f01b6-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+      "sha256": "ee3d19eda785eb4f8573732d9be41598e64a0ceb65e7577b1dab8c4165e3be1d"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-f01b6-ed-work-and-selected-detail/selected-candidate.png",
+      "sha256": "8500b2b080152f66788ff9f1c58f98bca22c4a115047c72054e9ced9d8766476"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-d-ffbb7-ed-work-and-selected-detail/specialism-and-history.png",
+      "sha256": "b478d0782361cc567060379b4770662c54a5586a696ba0f6c102c46fb8bbb4df"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-e-23c75--cold-state-without-actions/state.png",
+      "sha256": "71f50b51707471cb267bd83aca08d496b3c0b50765f8e4813a0db69600031e94"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-e-56df1--cold-state-without-actions/state.png",
+      "sha256": "274f6c89de1dd036497ccf226a5e071d244259f212856df6a720b8f10b8b2e57"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-e-85098--cold-state-without-actions/state.png",
+      "sha256": "12eb43adcabf2e3da681f20c34a1bbec5374075e1f194feb5529553ebfeaa7d6"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-e-accb6--cold-state-without-actions/state.png",
+      "sha256": "e70da2c2cab74813b365f3d326d832a109fa274f0dade367a863b58ed26870e1"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-e-cdd9d--cold-state-without-actions/state.png",
+      "sha256": "06c4896a04aaeba590893557b6d03d2eca4f8ba738acfdb695c8b05129341f5c"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-f-4e547-ffers-from-successful-empty/filtered-no-match.png",
+      "sha256": "ee3780bfe2556eaac0509fe205f67957e5e5175ffd4c13313a54a1492f4a0a17"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-k-3091a-ced-motion-and-reflow-proxy/keyboard-reflow.png",
+      "sha256": "75fd7d9816c1fc0f05fad9f801f7295f2bb955e294f8a246c49baace5c0d7aea"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-0efdc-ed-work-and-selected-detail/specialism-and-history.png",
+      "sha256": "d9e3a7aa1644ad9aecc308f81d87ee0c5ada0ec4ac04b065dd0e42b13109a89e"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-201c3-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+      "sha256": "bd93eec822514f9a4add4e3b5abac849146cdf42cf670eba00b56e1f203e2f4a"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-23feb-ed-work-and-selected-detail/specialism-and-history.png",
+      "sha256": "5e54d80fc31ae3664a3648247eed6769eeb9afcf169c8f74969b3b0bd3efaee2"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-26df6-ed-work-and-selected-detail/specialism-and-history.png",
+      "sha256": "5aea5b86c76faaee50bcb7e2f5a76de8369c1a48a3bca6ac87f7310b69618bd0"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-30e30-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+      "sha256": "916abfe04ab483bd5781e84764ce238fcb3feeb67655e79a421fb873a705c42b"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-30e30-ed-work-and-selected-detail/selected-candidate.png",
+      "sha256": "22735501d4558b3171270f57c215990a64f1bda46e77bdb237ecab50da35fb1b"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-3c86d-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+      "sha256": "c49078f8b601e50d82ad3a11be807c5b7e6f0af3e44e3cc43b757d0c8a1c4b06"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-4d60b-ed-work-and-selected-detail/assignment.png",
+      "sha256": "d10f51329557d3d8c7d1dc6787b79d905ca0eae5b3ba254d31bc29ec443b3b2a"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-4d60b-ed-work-and-selected-detail/queue.png",
+      "sha256": "ba7667832a60e0deac527be3d1d15d850e12def124b57a07ac213eaf4c77df09"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-4d60b-ed-work-and-selected-detail/resit-relationships.png",
+      "sha256": "43f56685ce6ac8d3254254e01c39923fafb47ab50981107a0c659f8a84a10bef"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-4d60b-ed-work-and-selected-detail/selected-deadline-detail.png",
+      "sha256": "caf09c02c8d933dd3812e022a3353ff33f64ae3c3d71d396bf5a0358968270ed"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-4d60b-ed-work-and-selected-detail/verification.png",
+      "sha256": "e5799da08fa4751d2de9b0187e1094cc1794994b6fc518b594c7bc5561134ffc"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-50cd7-ed-work-and-selected-detail/assignment.png",
+      "sha256": "8bc65e1fdbde825e09de6ec803504527a4e226035412cfe3fba3343ddba9273b"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-50cd7-ed-work-and-selected-detail/queue.png",
+      "sha256": "70c12e4402de1bbcaaee7710c9585229cd0ec772b1eb318af6436669e52821f5"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-50cd7-ed-work-and-selected-detail/resit-relationships.png",
+      "sha256": "82fcb14148679f4a4c8a28a86fd8aed796bc9d3ad231e56c6856b4f098408ab5"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-50cd7-ed-work-and-selected-detail/selected-deadline-detail.png",
+      "sha256": "2d3faad9be49486d00e98f316b335903147fdaaa320a4182d44e8fb0c520788d"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-50cd7-ed-work-and-selected-detail/verification.png",
+      "sha256": "1c5f7bdd00e25032c9bea6145f07d8db3af9375262740af43c400391a3113fd6"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-61fae-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+      "sha256": "0100fc00bdeda662763e2ccd4bd01a1ce0a054796dc1d682d3a6bf5e1971d694"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-61fae-ed-work-and-selected-detail/selected-candidate.png",
+      "sha256": "b8a81a5316efd621c4a92d53d198f83a347794d3acd59ac1a6fd462a55dd2ef1"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-d2a1c-ed-work-and-selected-detail/appeal-and-request-relationship.png",
+      "sha256": "2aca628c10cebe166af04de565a6c3cd49ba4250c754ac706f1f6c47ff50bbfa"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-eadbd-ed-work-and-selected-detail/assignment.png",
+      "sha256": "c32461b28dbead2fbb9d71f80e5d2e4cbce953ff68394c8fad5560d3128f2aba"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-eadbd-ed-work-and-selected-detail/queue.png",
+      "sha256": "5c2fe07c91f58278afa1ad64ada8f573fb22b5f03ed68d516d05a0c2a12b1adb"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-eadbd-ed-work-and-selected-detail/resit-relationships.png",
+      "sha256": "6a788375086e7d97b06010e130e45c8526e4f84051ee9507877f090fa0ca73eb"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-eadbd-ed-work-and-selected-detail/selected-deadline-detail.png",
+      "sha256": "d2bf377a3b019d41349d21770725033d12fd5064c142f2e5ff759648cfad756a"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-eadbd-ed-work-and-selected-detail/verification.png",
+      "sha256": "13a05bbee81ea22afea175e958e3c38441c075c9bd352fed8e390151a6ab94f8"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-f1b0f-ed-work-and-selected-detail/plan-and-selected-candidate.png",
+      "sha256": "fc3d2afb2e5b42de1746ac858964f5e8cdfb9d1b0a4f6d3c2e090970b061595a"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-l-f1b0f-ed-work-and-selected-detail/selected-candidate.png",
+      "sha256": "d72153cb33d46167d8f41966d73b8e0838d0c3767df0108fa2e8651277773951"
+    },
+    {
+      "path": "browser-verified/assessment-operations-en-n-e92d6-xposes-no-assignment-action/no-eligible-evaluator.png",
+      "sha256": "aa7d3f5c7786b0a58f1d85e8813d1014aedf2cc6f3352aec4dbe62ac528ebbde"
+    },
+    {
+      "path": "browser-protected-handoff/student-home-continuity-ar-e8154-nstead-of-the-resume-lesson/assignment-lesson.png",
+      "sha256": "ce207f41935ced1fc5ad9e25cf98801ec10de89876e33d87b4e2ec05f79327fe"
+    },
+    {
+      "path": "browser-protected-handoff/student-home-continuity-en-b393d-nstead-of-the-resume-lesson/assignment-lesson.png",
+      "sha256": "d12253ceee42d215a649f9bbfd4b29bca8c38a76fe1bbecdb187f645220de874"
+    },
+    {
+      "path": "browser-protected-handoff/teacher-authoring-ar-local-9e25e-nd-200-percent-reflow-proxy/keyboard-reflow.png",
+      "sha256": "0538abf7bf9b311bd75aa6147ff314018eba5605131dd2d4b08f3075667d1c26"
+    },
+    {
+      "path": "browser-protected-handoff/teacher-authoring-ar-unsav-1451d-ck-and-cached-refresh-error/cached-error.png",
+      "sha256": "46390841316654532bb6b7e164e9b14055e5beae6283a49044da724a50217859"
+    },
+    {
+      "path": "browser-protected-handoff/teacher-authoring-ar-unsav-1451d-ck-and-cached-refresh-error/retained-file.png",
+      "sha256": "c089e13eee2145071248f25a3166130b3d4fe1153323c298515a54bb6fd91b71"
+    },
+    {
+      "path": "browser-protected-handoff/teacher-authoring-ar-unsav-1451d-ck-and-cached-refresh-error/retained-title.png",
+      "sha256": "18e937e851be9ee4a7a0efeb752d4d017d3d8ba5c5774ff2a84844028af2f125"
+    },
+    {
+      "path": "browser-protected-handoff/teacher-authoring-en-local-d3672-nd-200-percent-reflow-proxy/keyboard-reflow.png",
+      "sha256": "569b1f37e4ab327f94a0d16d7a92d0aaeb804212e2c69a92afc838bc4fe84d25"
+    },
+    {
+      "path": "browser-protected-handoff/teacher-authoring-en-unsav-f871b-ck-and-cached-refresh-error/cached-error.png",
+      "sha256": "f7c1fcf2ed0ef9c29d7a81634f4b0d0ff3239d37ce4e19ecf63a97537fcc655c"
+    },
+    {
+      "path": "browser-protected-handoff/teacher-authoring-en-unsav-f871b-ck-and-cached-refresh-error/retained-file.png",
+      "sha256": "65a5d06d45b1eafe16f305e8f1c2e52766636eec3713c52e67d2ed84aa7d79f4"
+    },
+    {
+      "path": "browser-protected-handoff/teacher-authoring-en-unsav-f871b-ck-and-cached-refresh-error/retained-title.png",
+      "sha256": "a3a823585dc783fd196735a0979e878f57ae2ba7ff9d95ca0895052f55b68c99"
+    },
+    {
+      "path": "browser-protected-handoff/teacher-workload-ar-keyboa-89e6e-nd-200-percent-reflow-proxy/follow-up-reflow.png",
+      "sha256": "ced4ae516a28cf1cb8b19e6fb7ee24c0c7e48ed8e7f4959e7238eda8a87443d8"
+    },
+    {
+      "path": "browser-protected-handoff/teacher-workload-ar-keyboa-89e6e-nd-200-percent-reflow-proxy/keyboard-reflow.png",
+      "sha256": "46600d40a0ae5c2247c518095f06006a120eb1efdc396ee488429cc6a89972c4"
+    },
+    {
+      "path": "browser-protected-handoff/teacher-workload-en-keyboa-8fc41-nd-200-percent-reflow-proxy/follow-up-reflow.png",
+      "sha256": "13e655c8ed3ff906169a618d4f9113f4c3488a584647ec5b6f69c2bd7fabe5f7"
+    },
+    {
+      "path": "browser-protected-handoff/teacher-workload-en-keyboa-8fc41-nd-200-percent-reflow-proxy/keyboard-reflow.png",
+      "sha256": "c2cb37e65f0197eb2f61e87616e5136440ee4ee5cbeedb295a6486503a7ec217"
+    }
+  ],
+  "validation": {
+    "focusedExisting": "184/184 in 8 files",
+    "focusedContractsAndStates": "304/304 in 8 files",
+    "focusedGatingAndStates": "84/84 in 2 files",
+    "fullFrontend": "2954/2954 in 125 files",
+    "newAndAdminBrowserBatch": "126/126",
+    "protectedBrowserBatch": "8/8, including EN/AR Teacher workload keyboard cases; prior focus failure did not recur",
+    "format": "PASS",
+    "eslintZeroWarnings": "PASS",
+    "typecheck": "PASS",
+    "build": "PASS",
+    "diffCheck": "PASS",
+    "finalStateSource": "141/141 in 4 files",
+    "finalFilterState": "22/22 in 2 files"
+  },
+  "failuresRetained": [
+    "logs/focused-contracts.log: 7 new harness failures, corrected and full 304 batch passed",
+    "logs/full-tests.log: 6 role heading ambiguity failures, corrected and full 2948 batch passed",
+    "logs/build.log: new test catalogue/type errors, corrected; build-final.log passed",
+    "logs/browser-smoke.log: 3 overly exact nested label failures",
+    "logs/browser-matrix.log: 12 IV label failures and 2 missing antiforgery mock failures; corrected full browser-final.log 124 passed",
+    "logs/full-tests-handoff.log: 1 historical filtered-copy assertion; corrected without changing bounded API assertion; full-tests-verified.log 2954 passed",
+    "logs/browser-handoff.log: 2 new filter-clear cases assumed a refetch of a fresh cache key; corrected to assert cached rows and cold reload; browser-verified.log full 126 passed"
+  ],
+  "limits": [
+    "Synthetic responses do not establish server authorization, eligibility, persistence, payment, entitlement, database behavior or deployment.",
+    "Actual HTTP 401/403 have distinct existing catalogue copy; cached 401 retains usable data and factual refresh feedback; filtered no-match is distinct.",
+    "720x450 CSS viewport is a 200-percent reflow proxy, not native zoom.",
+    "Contact sheets crop long captures for legibility; complete raw screenshots are hashed in scenarios."
+  ]
+}

@@ -1,5 +1,8 @@
 "use client";
 
+import operations from "./assessment-operations.module.css";
+import { assessmentRequestMessage } from "./assessment-operations-state";
+
 import { ApiError, api } from "@/lib/api";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ClipboardCheck, UserRoundCheck } from "lucide-react";
@@ -52,10 +55,10 @@ export function EligibleEvaluatorAssignment({
     ].includes(assign.error.code ?? "");
 
   return (
-    <article className="card min-w-0 p-5">
+    <article className={operations.assignmentRow}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="flex items-center gap-2 text-sm font-black text-primary">
+          <p className="flex items-center gap-2 text-sm font-bold text-primary">
             <ClipboardCheck size={18} aria-hidden="true" />
             {t("evaluatorAssignment.title")}
           </p>
@@ -85,17 +88,32 @@ export function EligibleEvaluatorAssignment({
           {evaluation.status}
         </span>
       </div>
+      {candidates.isError && candidates.data && (
+        <p className={operations.error} role="alert">
+          {assessmentRequestMessage(
+            candidates.error,
+            t("evaluatorAssignment.loadError"),
+            t,
+            Boolean(candidates.data),
+          )}
+        </p>
+      )}
       {candidates.isPending ? (
         <p className="mt-5 text-sm text-muted" aria-busy>
           {t("evaluatorAssignment.loading")}
         </p>
-      ) : blocked ? (
+      ) : blocked && !candidates.data ? (
         <p className="mt-5 text-sm text-amber-600" role="alert">
           {t("evaluatorAssignment.mappingBlocker")}
         </p>
-      ) : candidates.isError ? (
+      ) : candidates.isError && !candidates.data ? (
         <p className="mt-5 text-sm text-red-600" role="alert">
-          {t("evaluatorAssignment.loadError")}
+          {assessmentRequestMessage(
+            candidates.error,
+            t("evaluatorAssignment.loadError"),
+            t,
+            Boolean(candidates.data),
+          )}
         </p>
       ) : candidates.data?.length === 0 ? (
         <p className="mt-5 text-sm text-muted">
@@ -120,7 +138,7 @@ export function EligibleEvaluatorAssignment({
             type="button"
             disabled={!selected || assign.isPending}
             onClick={() => assign.mutate()}
-            className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
+            className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <UserRoundCheck size={17} aria-hidden="true" />
             {assign.isPending

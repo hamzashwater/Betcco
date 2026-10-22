@@ -1,5 +1,8 @@
 "use client";
 
+import operations from "./assessment-operations.module.css";
+import { assessmentRequestMessage } from "./assessment-operations-state";
+
 import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -178,13 +181,13 @@ export function InternalVerificationPlanManagement() {
   const date = (value: string) => formatLocalizedDateTime(value, locale);
 
   return (
-    <section className="shell py-8 sm:py-10">
+    <section className={`shell py-8 sm:py-10 ${operations.workspace}`}>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="max-w-3xl">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
             {t("internalVerificationPlans.eyebrow")}
           </p>
-          <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
+          <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
             {t("internalVerificationPlans.title")}
           </h1>
           <p className="mt-3 leading-7 text-muted">
@@ -194,7 +197,7 @@ export function InternalVerificationPlanManagement() {
         <button
           type="button"
           onClick={() => setShowForm((open) => !open)}
-          className="focus-ring rounded-xl bg-primary px-4 py-3 font-black text-slate-950"
+          className="focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-slate-950"
         >
           {showForm
             ? t("internalVerificationPlans.hide")
@@ -204,13 +207,13 @@ export function InternalVerificationPlanManagement() {
 
       {showForm ? (
         <form
-          className="card mt-6 grid gap-4 p-5 sm:grid-cols-2 sm:p-6"
+          className={`${operations.panel} grid gap-4 sm:grid-cols-2`}
           onSubmit={(event) => {
             event.preventDefault();
             if (hasScope) create.mutate();
           }}
         >
-          <h2 className="text-lg font-black sm:col-span-2">
+          <h2 className="text-lg font-bold sm:col-span-2">
             {t("internalVerificationPlans.planScope")}
           </h2>
           <ScopeSelect
@@ -252,7 +255,7 @@ export function InternalVerificationPlanManagement() {
             options={taxonomy.data?.taskTypes ?? []}
             allLabel={t("internalVerificationPlans.all")}
           />
-          <label className="grid gap-2 text-sm font-black">
+          <label className="grid gap-2 text-sm font-bold">
             {t("internalVerificationPlans.outcome")}
             <select
               className="focus-ring rounded-xl border border-border bg-background px-3 py-2 text-foreground"
@@ -272,7 +275,7 @@ export function InternalVerificationPlanManagement() {
               ))}
             </select>
           </label>
-          <label className="grid gap-2 text-sm font-black sm:col-span-2">
+          <label className="grid gap-2 text-sm font-bold sm:col-span-2">
             {t("internalVerificationPlans.rationale")}
             <textarea
               className="focus-ring min-h-28 rounded-xl border border-border bg-background p-3 text-foreground"
@@ -288,7 +291,7 @@ export function InternalVerificationPlanManagement() {
               }
             />
           </label>
-          <label className="grid gap-2 text-sm font-black">
+          <label className="grid gap-2 text-sm font-bold">
             {t("internalVerificationPlans.activeUntil")}
             <input
               type="datetime-local"
@@ -306,7 +309,7 @@ export function InternalVerificationPlanManagement() {
             <button
               type="submit"
               disabled={create.isPending || !hasScope}
-              className="focus-ring rounded-xl bg-primary px-4 py-3 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+              className="focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {create.isPending
                 ? t("internalVerificationPlans.saving")
@@ -326,9 +329,9 @@ export function InternalVerificationPlanManagement() {
         </form>
       ) : null}
 
-      <div className="mt-7 grid gap-6 xl:grid-cols-[minmax(0,.78fr)_minmax(0,1.22fr)]">
-        <section className="card p-5 sm:p-6">
-          <h2 className="text-lg font-black">
+      <div className={operations.split}>
+        <section className={operations.panel}>
+          <h2 className="text-lg font-bold">
             {t("internalVerificationPlans.plans")}
           </h2>
           {plans.isPending ? (
@@ -339,7 +342,12 @@ export function InternalVerificationPlanManagement() {
           ) : null}
           {plans.isError ? (
             <p className="mt-5 text-sm text-danger" role="alert">
-              {plans.error.message}
+              {assessmentRequestMessage(
+                plans.error,
+                plans.error.message,
+                t,
+                Boolean(plans.data),
+              )}
             </p>
           ) : null}
           {plans.data?.length ? (
@@ -349,10 +357,12 @@ export function InternalVerificationPlanManagement() {
                   <button
                     type="button"
                     onClick={() => setSelectedPlanId(plan.id)}
-                    className={`focus-ring w-full rounded-2xl border p-4 text-start ${selectedPlanId === plan.id ? "border-primary bg-primary/10" : "border-border bg-surface-solid/45 hover:bg-surface"}`}
+                    aria-pressed={selectedPlanId === plan.id}
+                    aria-controls="iv-candidates"
+                    className={operations.selection}
                   >
                     <div className="flex flex-wrap justify-between gap-2">
-                      <span className="font-black">
+                      <span className="font-bold">
                         {plan.targetOutcome
                           ? t(
                               `internalVerificationPlans.outcomeLabels.${plan.targetOutcome}`,
@@ -381,8 +391,8 @@ export function InternalVerificationPlanManagement() {
           ) : null}
         </section>
 
-        <section className="card p-5 sm:p-6">
-          <h2 className="text-lg font-black">
+        <section id="iv-candidates" className={operations.panel}>
+          <h2 className="text-lg font-bold">
             {t("internalVerificationPlans.candidates")}
           </h2>
           {!selectedPlan ? (
@@ -398,7 +408,12 @@ export function InternalVerificationPlanManagement() {
           ) : null}
           {selectedPlan && candidates.isError ? (
             <p className="mt-5 text-sm text-danger" role="alert">
-              {candidates.error.message}
+              {assessmentRequestMessage(
+                candidates.error,
+                candidates.error.message,
+                t,
+                Boolean(candidates.data),
+              )}
             </p>
           ) : null}
           {selectedPlan && candidates.data?.length ? (
@@ -416,10 +431,10 @@ export function InternalVerificationPlanManagement() {
                 return (
                   <li
                     key={candidate.evaluationRequestId}
-                    className="rounded-2xl border border-border bg-surface-solid/45 p-4"
+                    className={operations.row}
                   >
                     <div className="flex flex-wrap justify-between gap-3 text-sm">
-                      <span className="font-black">
+                      <span className="font-bold">
                         {t("internalVerificationPlans.attempt")}{" "}
                         {candidate.submissionAttemptNumber}
                       </span>
@@ -435,7 +450,7 @@ export function InternalVerificationPlanManagement() {
                       {t("internalVerificationPlans.submitted")}:{" "}
                       {date(candidate.submittedForVerificationAtUtc)}
                     </p>
-                    <label className="mt-4 grid gap-2 text-sm font-black">
+                    <label className="mt-4 grid gap-2 text-sm font-bold">
                       {t("internalVerificationPlans.assignVerifier")}
                       <select
                         className="focus-ring rounded-xl border border-border bg-background px-3 py-2 text-foreground"
@@ -462,7 +477,7 @@ export function InternalVerificationPlanManagement() {
                           ))}
                       </select>
                     </label>
-                    <label className="mt-3 grid gap-2 text-sm font-black">
+                    <label className="mt-3 grid gap-2 text-sm font-bold">
                       {t("internalVerificationPlans.sampleReason")}
                       <textarea
                         className="focus-ring min-h-20 rounded-xl border border-border bg-background p-3 text-foreground"
@@ -487,7 +502,7 @@ export function InternalVerificationPlanManagement() {
                           rationale: reason,
                         })
                       }
-                      className="focus-ring mt-4 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="focus-ring mt-4 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {selectSample.isPending
                         ? t("internalVerificationPlans.selecting")
@@ -532,7 +547,7 @@ function ScopeSelect({
   allLabel: string;
 }) {
   return (
-    <label className="grid gap-2 text-sm font-black">
+    <label className="grid gap-2 text-sm font-bold">
       {label}
       <select
         className="focus-ring rounded-xl border border-border bg-background px-3 py-2 text-foreground"

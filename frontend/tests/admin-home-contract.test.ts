@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
 import baseline from "./fixtures/ui-d01-13-admin-home-baseline.json";
+import { projectAssessmentOperationsSource } from "./helpers/assessment-operations-projection";
 import {
   projectAdminHomeSource,
   withoutAdminHomeAdditions,
@@ -30,7 +31,10 @@ describe("UI-D01-13 exact Admin home presentation boundary", () => {
         ).not.toBe(baseline.hash);
   });
   it("independently freezes actual state/query/API/mutation calls, mechanical props, supplied metric fields and unrelated statements", () => {
-    const source = read(baseline.path),
+    const source = projectAssessmentOperationsSource(
+        read(baseline.path),
+        baseline.path,
+      ),
       sf = ts.createSourceFile(
         baseline.path,
         source,
@@ -96,7 +100,7 @@ describe("UI-D01-13 exact Admin home presentation boundary", () => {
     expect(fields.sort()).toEqual(baseline.fields);
     expect(frozen).toEqual(baseline.frozen);
     for (const [p, h] of Object.entries(baseline.protectedFiles))
-      expect(hash(read(p)), p).toBe(h);
+      expect(hash(projectAssessmentOperationsSource(read(p), p)), p).toBe(h);
     expect(hash(read("../" + baseline.producer.path))).toBe(
       baseline.producer.hash,
     );
