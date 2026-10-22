@@ -1,4 +1,5 @@
 import baseline from "../fixtures/ui-d01-12-authoring-baseline.json";
+import { withoutAdminHomeAdditions } from "./admin-home-projection";
 // Exact reviewed presentation seams only. Missing/altered/duplicate hunks
 // stay visible to all historical hash/behavior proofs; no old hash is replaced.
 export function projectTeacherAuthoringSource(source: string, path: string) {
@@ -15,6 +16,7 @@ export function projectTeacherAuthoringSource(source: string, path: string) {
 export function withoutTeacherAuthoringAdditions(
   value: Record<string, unknown>,
 ) {
+  withoutAdminHomeAdditions(value);
   if (!Object.hasOwn(value, "teacherAuthoringPresentation")) return value;
   if (
     !Object.values(baseline.additions).some(
