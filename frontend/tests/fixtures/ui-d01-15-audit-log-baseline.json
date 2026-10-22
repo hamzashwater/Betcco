@@ -1,0 +1,143 @@
+{
+  "base": "f361f5c79c41f547d690cad08815d26e7562c0a4",
+  "originalHash": "0c980febc4a513ad944f38bdb5e38a0ad143630eaa0d5860bb476a3b81664f96",
+  "seams": [
+    {
+      "previous": "import { formatLocalizedDateTime } from \"@/i18n/date-time\";\nimport { api } from \"@/lib/api\";\nimport { useQuery } from \"@tanstack/react-query\";\nimport {\n  ChevronLeft,\n  ChevronRight,\n  Download,\n  History,\n  Search,\n} from \"lucide-react\";\nimport { useLocale, useTranslations } from \"next-intl\";\nimport { useState } from \"react\";\n\ntype AuditLog = {\n  id: string;\n",
+      "approved": "import { formatLocalizedDateTime } from \"@/i18n/date-time\";\nimport { api } from \"@/lib/api\";\nimport { useQuery } from \"@tanstack/react-query\";\nimport { ChevronLeft, ChevronRight, Download, Search } from \"lucide-react\";\nimport { useLocale, useTranslations } from \"next-intl\";\nimport { useState } from \"react\";\nimport { QueryState } from \"@/components/ui/query-state\";\nimport styles from \"./audit-log.module.css\";\n\ntype AuditLog = {\n  id: string;\n"
+    },
+    {
+      "previous": "    ? Math.max(1, Math.ceil(values.totalCount / values.pageSize))\n    : 1;\n  return (\n    <section className=\"shell py-10\">\n      <header className=\"relative overflow-hidden rounded-3xl border border-border bg-[radial-gradient(circle_at_86%_14%,color-mix(in_srgb,var(--primary)_24%,transparent),transparent_38%),linear-gradient(125deg,color-mix(in_srgb,var(--surface)_92%,transparent),color-mix(in_srgb,var(--surface-solid)_72%,transparent))] p-6 shadow-[var(--shadow)] sm:p-8\">\n        <span className=\"grid size-11 place-items-center rounded-2xl bg-primary/15 text-primary\">\n          <History size={21} aria-hidden=\"true\" />\n        </span>\n        <h1 className=\"mt-4 text-3xl font-black tracking-tight sm:text-4xl\">\n          {t(\"title\")}\n        </h1>\n        <p className=\"mt-3 max-w-3xl text-sm leading-7 text-muted\">\n          {t(\"description\")}\n        </p>\n      </header>\n      <form\n        className=\"mt-6 grid gap-3 rounded-2xl border border-border bg-surface-solid/50 p-4 md:grid-cols-2 xl:grid-cols-3\"\n        onSubmit={(event) => {\n          event.preventDefault();\n          setPage(1);\n",
+      "approved": "    ? Math.max(1, Math.ceil(values.totalCount / values.pageSize))\n    : 1;\n  return (\n    <section className={`shell py-8 ${styles.workspace}`}>\n      <header className={styles.header}>\n        <h1>{t(\"title\")}</h1>\n        <p>{t(\"description\")}</p>\n      </header>\n      <form\n        className={styles.filters}\n        onSubmit={(event) => {\n          event.preventDefault();\n          setPage(1);\n"
+    },
+    {
+      "previous": "          });\n        }}\n      >\n        <label className=\"flex min-w-0 items-center gap-2 rounded-xl border border-border px-3 md:col-span-2 xl:col-span-3\">\n          <Search\n            size={17}\n            className=\"shrink-0 text-muted\"\n            aria-hidden=\"true\"\n          />\n          <input\n            value={draftFilters.search}\n            onChange={(event) =>\n",
+      "approved": "          });\n        }}\n      >\n        <label className={styles.search}>\n          <Search size={18} strokeWidth={2} aria-hidden=\"true\" />\n          <input\n            value={draftFilters.search}\n            onChange={(event) =>\n"
+    },
+    {
+      "previous": "              }))\n            }\n            placeholder={t(\"searchPlaceholder\")}\n            className=\"min-w-0 flex-1 border-0 bg-transparent py-2.5 text-sm text-foreground outline-none\"\n            aria-label={t(\"search\")}\n          />\n        </label>\n",
+      "approved": "              }))\n            }\n            placeholder={t(\"searchPlaceholder\")}\n            aria-label={t(\"search\")}\n          />\n        </label>\n"
+    },
+    {
+      "previous": "            setDraftFilters((current) => ({ ...current, entityType: value }))\n          }\n        />\n        <label className=\"grid gap-1.5 text-xs font-bold text-muted\">\n          {t(\"outcomeFilter\")}\n          <select\n            value={draftFilters.outcome}\n",
+      "approved": "            setDraftFilters((current) => ({ ...current, entityType: value }))\n          }\n        />\n        <label className={styles.field}>\n          {t(\"outcomeFilter\")}\n          <select\n            value={draftFilters.outcome}\n"
+    },
+    {
+      "previous": "                outcome: event.target.value,\n              }))\n            }\n            className=\"focus-ring rounded-xl border border-border bg-surface-solid px-3 py-2.5 text-sm text-foreground\"\n          >\n            <option value=\"\">{t(\"outcomeAll\")}</option>\n            <option value=\"Success\">{t(\"outcomeSuccess\")}</option>\n",
+      "approved": "                outcome: event.target.value,\n              }))\n            }\n          >\n            <option value=\"\">{t(\"outcomeAll\")}</option>\n            <option value=\"Success\">{t(\"outcomeSuccess\")}</option>\n"
+    },
+    {
+      "previous": "            setDraftFilters((current) => ({ ...current, toDate: value }))\n          }\n        />\n        <div className=\"flex items-end gap-2\">\n          <button\n            type=\"submit\"\n            className=\"focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950\"\n          >\n            {t(\"search\")}\n          </button>\n          <button\n            type=\"button\"\n            onClick={() => {\n",
+      "approved": "            setDraftFilters((current) => ({ ...current, toDate: value }))\n          }\n        />\n        <div className={styles.actions}>\n          <button type=\"submit\">{t(\"search\")}</button>\n          <button\n            type=\"button\"\n            onClick={() => {\n"
+    },
+    {
+      "previous": "              setFilters(emptyFilters);\n              setPage(1);\n            }}\n            className=\"focus-ring rounded-xl border border-border px-4 py-2.5 text-sm font-bold\"\n          >\n            {t(\"clearFilters\")}\n          </button>\n        </div>\n      </form>\n      <div className=\"mt-3 flex flex-wrap items-center gap-3\">\n        <button\n          type=\"button\"\n          onClick={exportCurrent}\n          disabled={isExporting}\n          className=\"focus-ring inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-bold disabled:opacity-50\"\n        >\n          <Download size={16} aria-hidden=\"true\" />\n          {isExporting ? t(\"exporting\") : t(\"exportCsv\")}\n        </button>\n        <p className=\"text-xs text-muted\">{t(\"exportHint\")}</p>\n      </div>\n      {exportError ? (\n        <p className=\"mt-3 text-sm text-red-500\" role=\"alert\">\n          {exportError}\n        </p>\n      ) : null}\n      {result.isPending ? (\n        <div className=\"card mt-6 p-6\" aria-busy>\n          {t(\"loading\")}\n        </div>\n      ) : result.isError ? (\n        <p className=\"card mt-6 p-6 text-sm text-red-500\" role=\"alert\">\n          {t(\"loadError\")}\n        </p>\n      ) : !values?.items.length ? (\n        <p className=\"card mt-6 p-6 text-sm text-muted\">{t(\"empty\")}</p>\n      ) : (\n        <>\n          <div className=\"mt-6 grid gap-3\">\n            {values.items.map((item) => (\n              <article\n                key={item.id}\n                className=\"card grid gap-3 p-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-start\"\n              >\n                <div className=\"min-w-0\">\n                  <div className=\"flex flex-wrap items-center gap-x-3 gap-y-1\">\n                    <p className=\"font-black text-foreground\">{item.action}</p>\n                    <span\n                      className={`rounded-full px-2.5 py-1 text-xs font-bold ${item.outcome === \"Success\" ? \"bg-emerald-400/15 text-emerald-300\" : \"bg-red-400/15 text-red-300\"}`}\n                    >\n                      {item.outcome}\n                    </span>\n                  </div>\n                  <p className=\"mt-2 text-sm text-muted\">\n                    {t(\"actor\")}:{\" \"}\n                    <span className=\"font-bold text-foreground\">\n                      {item.actorName}\n                    </span>\n                    <span className=\"px-2\">·</span>\n                    {t(\"entity\")}:{\" \"}\n                    <span className=\"font-bold text-foreground\">\n                      {item.entityType}\n                    </span>\n                    {item.entityId ? (\n                      <span className=\"break-all text-xs\">\n                        {\" \"}\n                        · {item.entityId}\n                      </span>\n                    ) : null}\n                  </p>\n                  {item.metadataJson ? (\n                    <details className=\"mt-3\">\n                      <summary className=\"cursor-pointer text-xs font-bold text-primary\">\n                        {t(\"details\")}\n                      </summary>\n                      <pre\n                        className=\"mt-2 overflow-x-auto rounded-lg border border-border bg-black/15 p-3 text-xs text-muted\"\n                        dir=\"ltr\"\n                      >\n                        {item.metadataJson}\n                      </pre>\n                    </details>\n                  ) : null}\n                  {item.oldValuesJson || item.newValuesJson ? (\n                    <details className=\"mt-3\">\n                      <summary className=\"cursor-pointer text-xs font-bold text-primary\">\n                        {t(\"changes\")}\n                      </summary>\n                      <div className=\"mt-2 grid gap-2 md:grid-cols-2\">\n                        {item.oldValuesJson ? (\n                          <AuditValue\n                            label={t(\"oldValue\")}\n",
+      "approved": "              setFilters(emptyFilters);\n              setPage(1);\n            }}\n          >\n            {t(\"clearFilters\")}\n          </button>\n        </div>\n      </form>\n      <div className={styles.export}>\n        <button\n          type=\"button\"\n          onClick={exportCurrent}\n          disabled={isExporting}\n          aria-busy={isExporting}\n        >\n          <Download size={18} strokeWidth={2} aria-hidden=\"true\" />\n          {isExporting ? t(\"exporting\") : t(\"exportCsv\")}\n        </button>\n        <p>{t(\"exportHint\")}</p>\n      </div>\n      {exportError ? (\n        <QueryState\n          kind=\"error\"\n          title={exportError}\n          className={styles.notice}\n        />\n      ) : null}\n      {result.isPending || result.isFetching ? (\n        <QueryState\n          kind=\"loading\"\n          title={t(\"loading\")}\n          className={styles.notice}\n        />\n      ) : null}\n      {result.isError ? (\n        <QueryState\n          kind=\"error\"\n          title={t(\"loadError\")}\n          className={styles.notice}\n        />\n      ) : null}\n      {values &&\n      !values.items.length &&\n      !result.isPlaceholderData &&\n      !result.isError ? (\n        <QueryState kind=\"empty\" title={t(\"empty\")} className={styles.notice} />\n      ) : null}\n      {values?.items.length ? (\n        <>\n          <div className={styles.ledger}>\n            {values.items.map((item) => (\n              <article key={item.id} className={styles.row}>\n                <div className={styles.facts}>\n                  <time className={styles.when} dateTime={item.createdAtUtc}>\n                    {formatLocalizedDateTime(item.createdAtUtc, locale)}\n                  </time>\n                  <p className={styles.actor}>\n                    <span className={styles.label}>{t(\"actor\")}</span>\n                    {item.actorName}\n                  </p>\n                  <p className={styles.action}>{item.action}</p>\n                  <p className={styles.entity}>\n                    <span className={styles.label}>{t(\"entity\")}</span>\n                    {item.entityType}\n                    {item.entityId ? (\n                      <bdi className={styles.identifier}>{item.entityId}</bdi>\n                    ) : null}\n                  </p>\n                  <span className={styles.outcome} data-outcome={item.outcome}>\n                    {item.outcome}\n                  </span>\n                </div>\n                <div className={styles.disclosures}>\n                  {item.metadataJson ||\n                  item.ipAddress ||\n                  item.userAgent ||\n                  item.correlationId ? (\n                    <details>\n                      <summary>{t(\"details\")}</summary>\n                      <div className={styles.detail}>\n                        {item.metadataJson ? (\n                          <pre className={styles.json} dir=\"ltr\">\n                            {item.metadataJson}\n                          </pre>\n                        ) : null}\n                        {item.ipAddress ||\n                        item.userAgent ||\n                        item.correlationId ? (\n                          <p dir=\"ltr\">\n                            {[\n                              item.ipAddress,\n                              item.userAgent,\n                              item.correlationId,\n                            ]\n                              .filter(Boolean)\n                              .join(\" · \")}\n                          </p>\n                        ) : null}\n                      </div>\n                    </details>\n                  ) : null}\n                  {item.oldValuesJson || item.newValuesJson ? (\n                    <details>\n                      <summary>{t(\"changes\")}</summary>\n                      <div className={`${styles.detail} ${styles.changes}`}>\n                        {item.oldValuesJson ? (\n                          <AuditValue\n                            label={t(\"oldValue\")}\n"
+    },
+    {
+      "previous": "                      </div>\n                    </details>\n                  ) : null}\n                  {item.ipAddress || item.userAgent || item.correlationId ? (\n                    <p className=\"mt-3 break-all text-xs text-muted\" dir=\"ltr\">\n                      {[item.ipAddress, item.userAgent, item.correlationId]\n                        .filter(Boolean)\n                        .join(\" · \")}\n                    </p>\n                  ) : null}\n                </div>\n                <p className=\"whitespace-nowrap text-xs text-muted\">\n                  {formatLocalizedDateTime(item.createdAtUtc, locale)}\n                </p>\n              </article>\n            ))}\n          </div>\n          <nav\n            className=\"mt-6 flex items-center justify-between gap-3\"\n            aria-label={t(\"pagination\")}\n          >\n            <p className=\"text-sm text-muted\">\n              {t(\"total\", { count: values.totalCount })}\n            </p>\n            <div className=\"flex items-center gap-2\">\n              <button\n                type=\"button\"\n                disabled={page <= 1 || result.isFetching}\n                onClick={() => setPage((current) => Math.max(1, current - 1))}\n                className=\"focus-ring inline-flex items-center gap-1 rounded-xl border border-border px-3 py-2 text-sm font-bold disabled:opacity-50\"\n              >\n                <ChevronLeft size={16} aria-hidden=\"true\" />\n                {t(\"previous\")}\n              </button>\n              <span className=\"text-sm font-bold text-muted\">\n                {t(\"page\", { page, pageCount })}\n              </span>\n              <button\n                type=\"button\"\n                disabled={page >= pageCount || result.isFetching}\n                onClick={() =>\n                  setPage((current) => Math.min(pageCount, current + 1))\n                }\n                className=\"focus-ring inline-flex items-center gap-1 rounded-xl border border-border px-3 py-2 text-sm font-bold disabled:opacity-50\"\n              >\n                {t(\"next\")}\n                <ChevronRight size={16} aria-hidden=\"true\" />\n              </button>\n            </div>\n          </nav>\n        </>\n      )}\n    </section>\n  );\n}\n",
+      "approved": "                      </div>\n                    </details>\n                  ) : null}\n                </div>\n              </article>\n            ))}\n          </div>\n          <nav className={styles.pagination} aria-label={t(\"pagination\")}>\n            <p>{t(\"total\", { count: values.totalCount })}</p>\n            <div className={styles.pages}>\n              <button\n                type=\"button\"\n                disabled={page <= 1 || result.isFetching}\n                onClick={() => setPage((current) => Math.max(1, current - 1))}\n              >\n                <ChevronLeft size={16} strokeWidth={2} aria-hidden=\"true\" />\n                {t(\"previous\")}\n              </button>\n              <span>{t(\"page\", { page, pageCount })}</span>\n              <button\n                type=\"button\"\n                disabled={page >= pageCount || result.isFetching}\n                onClick={() =>\n                  setPage((current) => Math.min(pageCount, current + 1))\n                }\n              >\n                {t(\"next\")}\n                <ChevronRight size={16} strokeWidth={2} aria-hidden=\"true\" />\n              </button>\n            </div>\n          </nav>\n        </>\n      ) : null}\n    </section>\n  );\n}\n"
+    },
+    {
+      "previous": "  onChange: (value: string) => void;\n}) {\n  return (\n    <label className=\"grid gap-1.5 text-xs font-bold text-muted\">\n      {label}\n      <input\n        value={value}\n        onChange={(event) => onChange(event.target.value)}\n        className=\"focus-ring rounded-xl border border-border bg-surface-solid px-3 py-2.5 text-sm text-foreground\"\n      />\n    </label>\n  );\n}\n",
+      "approved": "  onChange: (value: string) => void;\n}) {\n  return (\n    <label className={styles.field}>\n      {label}\n      <input value={value} onChange={(event) => onChange(event.target.value)} />\n    </label>\n  );\n}\n"
+    },
+    {
+      "previous": "  onChange: (value: string) => void;\n}) {\n  return (\n    <label className=\"grid gap-1.5 text-xs font-bold text-muted\">\n      {label}\n      <input\n        type=\"date\"\n        value={value}\n        onChange={(event) => onChange(event.target.value)}\n        className=\"focus-ring rounded-xl border border-border bg-surface-solid px-3 py-2.5 text-sm text-foreground\"\n      />\n    </label>\n  );\n",
+      "approved": "  onChange: (value: string) => void;\n}) {\n  return (\n    <label className={styles.field}>\n      {label}\n      <input\n        type=\"date\"\n        value={value}\n        onChange={(event) => onChange(event.target.value)}\n      />\n    </label>\n  );\n"
+    },
+    {
+      "previous": "function AuditValue({ label, value }: { label: string; value: string }) {\n  return (\n    <div>\n      <p className=\"text-xs font-bold text-muted\">{label}</p>\n      <pre\n        className=\"mt-1 overflow-x-auto rounded-lg border border-border bg-black/15 p-3 text-xs text-muted\"\n        dir=\"ltr\"\n      >\n        {value}\n      </pre>\n    </div>\n",
+      "approved": "function AuditValue({ label, value }: { label: string; value: string }) {\n  return (\n    <div>\n      <p>{label}</p>\n      <pre className={styles.json} dir=\"ltr\">\n        {value}\n      </pre>\n    </div>\n"
+    }
+  ],
+  "invariants": {
+    "setup": [
+      "const locale = useLocale();",
+      "const t = useTranslations(\"auditLog\");",
+      "const emptyFilters = { search: \"\", action: \"\", entityType: \"\", outcome: \"\", fromDate: \"\", toDate: \"\", };",
+      "const [draftFilters, setDraftFilters] = useState(emptyFilters);",
+      "const [filters, setFilters] = useState(emptyFilters);",
+      "const [page, setPage] = useState(1);",
+      "const [isExporting, setIsExporting] = useState(false);",
+      "const [exportError, setExportError] = useState<string>();",
+      "const result = useQuery({ queryKey: [\"admin-audit-logs\", filters, page], queryFn: () => { const params = new URLSearchParams({ page: String(page), pageSize: \"25\", }); if (filters.search) params.set(\"search\", filters.search); if (filters.action) params.set(\"action\", filters.action); if (filters.entityType) params.set(\"entityType\", filters.entityType); if (filters.outcome) params.set(\"outcome\", filters.outcome); if (filters.fromDate) params.set(\"fromUtc\", `${filters.fromDate}T00:00:00Z`); if (filters.toDate) params.set(\"toUtc\", `${filters.toDate}T23:59:59.999Z`); return api<AuditLogPage>(`/admin/audit-logs?${params.toString()}`); }, placeholderData: (previous) => previous, });",
+      "const exportCurrent = async () => { const params = new URLSearchParams(); if (filters.search) params.set(\"search\", filters.search); if (filters.action) params.set(\"action\", filters.action); if (filters.entityType) params.set(\"entityType\", filters.entityType); if (filters.outcome) params.set(\"outcome\", filters.outcome); if (filters.fromDate) params.set(\"fromUtc\", `${filters.fromDate}T00:00:00Z`); if (filters.toDate) params.set(\"toUtc\", `${filters.toDate}T23:59:59.999Z`); setExportError(undefined); setIsExporting(true); try { const response = await fetch( `/api/v1/admin/audit-logs/export?${params.toString()}`, { credentials: \"include\", cache: \"no-store\", }, ); if (!response.ok) { const body = (await response.json().catch(() => undefined)) as { message?: string } | undefined; throw new Error(body?.message ?? t(\"exportError\")); } const blob = await response.blob(); const fileName = response.headers .get(\"content-disposition\") ?.match(/filename=\"?([^\";]+)\"?/i)?.[1] ?? \"betcco-audit-log.csv\"; const url = URL.createObjectURL(blob); const anchor = document.createElement(\"a\"); anchor.href = url; anchor.download = fileName; document.body.appendChild(anchor); anchor.click(); anchor.remove(); URL.revokeObjectURL(url); } catch (error) { setExportError(error instanceof Error ? error.message : t(\"exportError\")); } finally { setIsExporting(false); } };",
+      "const values = result.data;",
+      "const pageCount = values ? Math.max(1, Math.ceil(values.totalCount / values.pageSize)) : 1;"
+    ],
+    "types": [
+      "type AuditLog = { id: string; actorUserId?: string; actorName: string; action: string; entityType: string; entityId?: string; correlationId?: string; ipAddress?: string; userAgent?: string; outcome: string; metadataJson?: string; oldValuesJson?: string; newValuesJson?: string; createdAtUtc: string; };",
+      "type AuditLogPage = { items: AuditLog[]; page: number; pageSize: number; totalCount: number; };"
+    ],
+    "props": [
+      "onSubmit={(event) => { event.preventDefault(); setPage(1); setFilters({ ...draftFilters, search: draftFilters.search.trim(), action: draftFilters.action.trim(), entityType: draftFilters.entityType.trim(), }); }}",
+      "value={draftFilters.search}",
+      "onChange={(event) => setDraftFilters((current) => ({ ...current, search: event.target.value, })) }",
+      "value={draftFilters.action}",
+      "onChange={(value) => setDraftFilters((current) => ({ ...current, action: value })) }",
+      "value={draftFilters.entityType}",
+      "onChange={(value) => setDraftFilters((current) => ({ ...current, entityType: value })) }",
+      "value={draftFilters.outcome}",
+      "onChange={(event) => setDraftFilters((current) => ({ ...current, outcome: event.target.value, })) }",
+      "value=\"\"",
+      "value=\"Success\"",
+      "value=\"Failure\"",
+      "value=\"RiskObserved\"",
+      "value={draftFilters.fromDate}",
+      "onChange={(value) => setDraftFilters((current) => ({ ...current, fromDate: value })) }",
+      "value={draftFilters.toDate}",
+      "onChange={(value) => setDraftFilters((current) => ({ ...current, toDate: value })) }",
+      "type=\"submit\"",
+      "type=\"button\"",
+      "onClick={() => { setDraftFilters(emptyFilters); setFilters(emptyFilters); setPage(1); }}",
+      "type=\"button\"",
+      "onClick={exportCurrent}",
+      "disabled={isExporting}",
+      "key={item.id}",
+      "value={item.oldValuesJson}",
+      "value={item.newValuesJson}",
+      "type=\"button\"",
+      "disabled={page <= 1 || result.isFetching}",
+      "onClick={() => setPage((current) => Math.max(1, current - 1))}",
+      "type=\"button\"",
+      "disabled={page >= pageCount || result.isFetching}",
+      "onClick={() => setPage((current) => Math.min(pageCount, current + 1)) }",
+      "value={value}",
+      "onChange={(event) => onChange(event.target.value)}",
+      "type=\"date\"",
+      "value={value}",
+      "onChange={(event) => onChange(event.target.value)}"
+    ]
+  },
+  "protected": {
+    "src/features/admin/admin-home.module.css": "ac79c0de856bbe49cf75c1d1efe84c2c022c28ec7dd18c82cb4806a8d1926882",
+    "src/components/site-navigation.tsx": "0de34aad9672812cec0fa8e77c6ea0e53a16ac3615f2cbec65501d12579bce2a",
+    "src/components/dashboard/dashboard-ui.tsx": "e5f68fc7bfc3a9c48727d8ab9ce039533732c73342a02059c0d0351c1dac65c6",
+    "src/features/admin/gradebook.tsx": "f70921c116ffa0880ce27803bc1911410c28ec56f008016b930846a4ed0e84e9",
+    "src/features/admin/retake-management.tsx": "0bb81eb909d3f8d58ed81440cc33e1bc74f7e826f6f1de705a7a8a2d96456c84",
+    "src/features/teacher/course-editor.tsx": "261f7f37db8e13bfdf177eacb08bec39e8dbf27d8467c33f11a0ca591a96037b",
+    "src/features/teacher/teacher-area.tsx": "e78441b27e96d46b8f1c429b5c33352b96313e3633f62ed1f3f56122c6a5bd43",
+    "src/features/student/student-area.tsx": "a0542eb7ebdd5608f23d4953f444f973ee06a8ce357894bbdf331e02496779e0",
+    "package.json": "38b49d24cd42cc223cb609364d2a30302095671503e1f351f91523a0e92a5609",
+    "pnpm-lock.yaml": "ad0f5192f977ad72ed3a364d7f6d6a3d6d04521dbfefff790a68af0b0f63e9c2",
+    "messages/en.json": "7936ffe20059bab5bccdf91e4e98acd30a0ae5c5657b8e17fb2747254bcdc386",
+    "messages/ar.json": "244dd814e33a5e596aa3d17577245337dd3b81bccb8b37c4aa950eff65238ba7",
+    "../backend/src/Betcco.Api/Controllers/AssessmentCoordinationController.cs": "50783ce247f38cf7cd6bc371d4fa27beb4e8284b0b4104b56aa8971c2a66476e",
+    "../backend/src/Betcco.Api/Controllers/EvaluationsController.cs": "8b02ff0e97921c74d4eba8c2eec93a9537044cf7ea91eb823787d016f095efd0",
+    "../backend/src/Betcco.Api/Controllers/InternalVerificationPlansController.cs": "f4d5dfbb3bb6e5072b033c9a284bbb8c7905933ee8c84904800e7d677f153ea9",
+    "../backend/src/Betcco.Api/Controllers/EvaluationAppealsController.cs": "2daa017c136ffc388e55c7a87568124acb97e5d64bdb490ea46ee8737f6e53ae",
+    "../backend/src/Betcco.Api/Controllers/AdminEvaluatorSpecialismsController.cs": "46bd5e58881cbbfbf48ef1b5dbe6e0b5008f8dcfd2b47969f55eb075bc69af68",
+    "../backend/src/Betcco.Api/Controllers/ResitsController.cs": "46c87feb421b4441e43c9f66ad0764a01faa5e563d237e984835cbc65998cfda",
+    "../backend/src/Betcco.Api/Controllers/AdminDashboardController.cs": "67355ff1ad7cf4b335108dca152e9e947e2d3c2c6be63fda785132766b3d0e03",
+    "src/features/admin/admin-area.tsx": "1d4139c8255ce9d0e1204883524dec0fb006e99b904693a44d9d8dc9331b6f4a",
+    "src/features/admin/assessment-coordination-queue.tsx": "9764c079db4c4150050bbb24e0ce6037bc3d593f9d134eb028dabee251fe06ed",
+    "src/features/admin/eligible-evaluator-assignment.tsx": "a060b8758fa1291086260f6338a7397df4a2dbe2c0398e7df144d2f6ba335203",
+    "src/features/admin/resit-coordination-panel.tsx": "71cb411ac6b581fb6a2886431c73f9d9f48ac5e64299332ffce01175a2c2e293",
+    "src/features/admin/internal-verification-plan-management.tsx": "4f9f51ea019fef3bb717fb4a2eba0921884aa5ab18d6b721c803e202915978e5",
+    "src/features/admin/evaluation-appeal-management.tsx": "7e87f493c0cdb1dc48eb54492ab75d769481d3ca2570e5dcf98807c2518005b9",
+    "src/features/admin/evaluator-specialism-management.tsx": "d9e6adb1e966c818f1f4419a004c2467259f25f4e2f038620a606e7a0a09d78e",
+    "src/features/admin/assessment-operations.module.css": "b9a65963ffdb73816871efecc449b2a15e09c03bf42b79e29b4e8f882ffef9e9",
+    "src/features/admin/assessment-operations-state.ts": "e34f8576c4ec297443d69e13d0977f33976cb06f4e9e5d41171354c34b15dee3"
+  }
+}

@@ -1,0 +1,1811 @@
+{
+  "classification": "MOCKED UI-CONTRACT EVIDENCE",
+  "task": "UI-D01-15 / Slice 1 — Governance Audit Log — Filterable List Archetype",
+  "parentRoadmapEntry": "UI-D01-15 — Refine reusable back-office archetypes",
+  "base": "f361f5c79c41f547d690cad08815d26e7562c0a4",
+  "generatedAtUtc": "2026-10-22T17:47:21.501393+00:00",
+  "headIdentity": "Containing commit. Source hashes are verified against committed Git HEAD after commit; no self-referential commit hash is embedded.",
+  "sourceHashAlgorithm": "SHA-256 of UTF-8 text normalized to LF",
+  "sourceHashes": {
+    "frontend/src/features/admin/audit-log.tsx": "54fd25156a73ca5f04ad83df46f729673e529cd7b730cabf45d288b5e045a75c",
+    "frontend/src/features/admin/audit-log.module.css": "959d18fbbe0c4d5482920e04fdb881f77b47cba4b846a61f548cccef4da6ddaf",
+    "frontend/tests/admin-final-i18n-residual-audit.test.ts": "1f5e424000368e4588f5702b76ee5520fbf52d156e8264e4b11aaf17e459cc6a",
+    "frontend/tests/audit-log-archetype.test.tsx": "0ceddf59f3d9ab46ffafc2b72c9f11c26a4977696ca42d5a12518eabc7947985",
+    "frontend/tests/audit-log-archetype-contract.test.ts": "494346714fa3184776f4024721c22e9ab7bfd5fe5e982db6e75ac5c3b3ddecd4",
+    "frontend/tests/e2e/audit-log-archetype.spec.ts": "8339012bf5a4c878bc97bfde28a6269ed42e47c5a54ab6a25d1f7e0f58b063d9",
+    "frontend/tests/fixtures/audit-log-archetype.ts": "bdbffedcf1a1bf0ae1fb92f38e9394ee2604f84ef87111e3f2323cf3aff5ecc2",
+    "frontend/tests/fixtures/ui-d01-15-audit-log-baseline.json": "9380faca74594c598ba7b06aab22c2e94faeb85587fc84be8d53f51c94902633",
+    "frontend/tests/helpers/audit-log-contracts.ts": "fedfe72bd526cfdfd9d0362bc250013a8fefa9fa4779799f2b40f81f703c06c2",
+    "frontend/tests/helpers/audit-log-projection.ts": "0f0ef216762d72fc69348bb3ed10e1a335da736b1385b0827c63a2469a5ac00b"
+  },
+  "buildId": "bsDjzHnn7owIs74x2fe5r",
+  "captureRoot": "C:\\Users\\user\\Documents\\Codex\\2026-10-17\\files-pasted-by-the-user-device\\outputs\\UI-D01-15-Slice1",
+  "captureCount": 168,
+  "scenarioCount": 12,
+  "captureKind": "full-page production browser rendering of intercepted synthetic HTTP responses",
+  "coverage": {
+    "longPopulatedListAndFourRawOutcomes": "01",
+    "successfulEmpty": "12",
+    "draftFilters": "03",
+    "appliedFilters": "05",
+    "exportPending": "06",
+    "exportError": "07",
+    "metadataOldNewForensicLongIDs": "02",
+    "serverPageTwo": "08",
+    "keyboardActionsAndDisclosures": "09",
+    "narrowReflowProxy": "10",
+    "cachedBackgroundRefetch": "11",
+    "initialPending": "13",
+    "coldError": "14",
+    "longArabicContent": "01 / 02 in every matrix combination"
+  },
+  "reflowNote": "Half original CSS viewport width, minimum 320px; a narrow-content proxy, not native 200 percent browser zoom.",
+  "validation": {
+    "focused": "137 passed across 4 focused files after final source change",
+    "fullFrontend": "2996 passed across 127 files; command pnpm test --maxWorkers=2",
+    "browser": "12 passed; EN/AR x light/dark x 1440x900, 834x1112, 390x844",
+    "build": "pnpm build passed on final production source",
+    "typecheck": "pnpm typecheck passed including final browser test",
+    "eslint": "pnpm exec eslint . --max-warnings 0 passed; no warnings",
+    "format": "final repository-wide check recorded at handoff",
+    "diffCheck": "final base-to-HEAD check recorded at handoff"
+  },
+  "originalFailures": [
+    {
+      "stage": "format",
+      "result": "First format check found formatting in the new local CSS; Prettier applied, full format check rerun successfully."
+    },
+    {
+      "stage": "initial browser",
+      "result": "1 failed: getByLabel exact Outcome could not locate nested select label. Corrected to role combobox; corrected scenario and two complete matrices rerun. Initial trace retained externally."
+    },
+    {
+      "stage": "first full frontend batch",
+      "result": "2 failed, 2993 passed. New fixture/projection tests read mixed cached and modified source/fixture versions because source was edited while the batch was running. Source and invariant files frozen, focused 137 passed, entire batch rerun: 2996 passed. No test assertion relaxed."
+    }
+  ],
+  "nonFatalDiagnostics": "Full unit suite emitted two jsdom navigation-not-implemented messages. Targeted browser scenarios recorded zero page errors. Local next start emitted a standalone-output warning; this is not deployment evidence.",
+  "limitations": [
+    "Synthetic intercepted API evidence only",
+    "No backend audit correctness, database completeness, authorization, export security, production readiness, deployment, or whole-site WCAG proof",
+    "Full originals are retained at captureRoot, hashes and dimensions included below; committed contact sheets are cropped previews"
+  ],
+  "previews": [
+    {
+      "file": "contact-en-light.png",
+      "sha256": "a6edca462b999881e35526cf84188da6e3f3e892f4f68aeca42f551dbdb788ae",
+      "bytes": 1112107,
+      "note": "Cropped previews; full original captures are external to Git to avoid committing approximately 150 MB of synthetic screenshots."
+    },
+    {
+      "file": "contact-en-dark.png",
+      "sha256": "9fa703ab5aacd6896da86f024c20d462c617debb802a48aacfc6d095d6889102",
+      "bytes": 1230325,
+      "note": "Cropped previews; full original captures are external to Git to avoid committing approximately 150 MB of synthetic screenshots."
+    },
+    {
+      "file": "contact-ar-light.png",
+      "sha256": "7bc97f8b3f5172162f8054fc9d08741bc1b0acbbfe889c8aae75057094bcd0ba",
+      "bytes": 1086537,
+      "note": "Cropped previews; full original captures are external to Git to avoid committing approximately 150 MB of synthetic screenshots."
+    },
+    {
+      "file": "contact-ar-dark.png",
+      "sha256": "cb37c7bc3f9ee6825d9e76430a438e1cf5ebb728a35998336f18c56a121a236c",
+      "bytes": 1202894,
+      "note": "Cropped previews; full original captures are external to Git to avoid committing approximately 150 MB of synthetic screenshots."
+    }
+  ],
+  "scenarios": [
+    {
+      "title": "ar dark 1440: Audit Log full archetype states and contracts",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "reads": [
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=2&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=1&pageSize=25&action=Keyboard.Applied",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&action=no-match-server",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25"
+        ],
+        "exports": [
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z"
+        ],
+        "outcomeColors": [
+          "rgb(252, 211, 77)",
+          "rgb(134, 239, 172)",
+          "rgb(253, 164, 175)",
+          "rgb(213, 228, 232)"
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "locale": "ar",
+        "theme": "dark",
+        "reflow": "Half viewport proxy, not native browser zoom"
+      },
+      "screenshots": [
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-1f896-hetype-states-and-contracts/01-populated-all-outcomes-long-arabic.png",
+          "sha256": "1a7b03dfbd6477966028e47c9a54df5c88472ab84a33a44d69a24b5eeb649e2e",
+          "width": 1440,
+          "height": 6892,
+          "bytes": 985001
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-1f896-hetype-states-and-contracts/02-expanded-metadata-changes-long-identifiers.png",
+          "sha256": "ace442e4eea32aba81289f8449a2d99964bbb701ef1f20f7c7874305db8dea2b",
+          "width": 1440,
+          "height": 7292,
+          "bytes": 1018773
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-1f896-hetype-states-and-contracts/03-draft-unapplied-filters.png",
+          "sha256": "ed1a33b002ed42f948dc08258d7207214366e993a162d40c53dfa1d65ada8308",
+          "width": 1440,
+          "height": 6892,
+          "bytes": 985622
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-1f896-hetype-states-and-contracts/04-placeholder-retained-during-applied-query.png",
+          "sha256": "95cfeb9c06da5a52914e2edff054bed1475011970d5d7a696df4f1e0e4fe8e3f",
+          "width": 1440,
+          "height": 6962,
+          "bytes": 987924
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-1f896-hetype-states-and-contracts/05-applied-filters.png",
+          "sha256": "6610169c1cc9f9fc8dfd42b372f860cb85be8ec126f84d181da2c7fac38bb961",
+          "width": 1440,
+          "height": 6892,
+          "bytes": 984559
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-1f896-hetype-states-and-contracts/06-export-pending-applied-not-draft.png",
+          "sha256": "9e789c9964ca16debaa39eacf2ff5712d64014bb38668f9a11fc2cc519cc919a",
+          "width": 1440,
+          "height": 6892,
+          "bytes": 984800
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-1f896-hetype-states-and-contracts/07-export-error-retains-ledger.png",
+          "sha256": "b4e824b4e8d66c3fca14c9b45488c15a031e4722542ccacf67900274ae9f1cbd",
+          "width": 1440,
+          "height": 6962,
+          "bytes": 990031
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-1f896-hetype-states-and-contracts/08-page-two-server-pagination.png",
+          "sha256": "122b18de865344ece76b2061af321e93a4f68f956cd8a578afa4968f96393c67",
+          "width": 1440,
+          "height": 6892,
+          "bytes": 984770
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-1f896-hetype-states-and-contracts/09-keyboard-focus-open-details.png",
+          "sha256": "2f5d6ae8f782b9ee1207ccd0d50ffc0d275e5315b0d601e5f79ea5dc102f3a94",
+          "width": 1440,
+          "height": 7192,
+          "bytes": 1011546
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-1f896-hetype-states-and-contracts/10-half-viewport-reflow-proxy.png",
+          "sha256": "7395f6027c345dab5cba18c7970330cad19e9a4bd1b1f64d152486ede9969a97",
+          "width": 720,
+          "height": 28913,
+          "bytes": 1246150
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-1f896-hetype-states-and-contracts/11-background-refetch-retained.png",
+          "sha256": "eeeb4db26671f0863227e76dda27b98301c6f68b6964dfba0089a80f984672b0",
+          "width": 1440,
+          "height": 6962,
+          "bytes": 988053
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-1f896-hetype-states-and-contracts/12-successful-empty-current-query.png",
+          "sha256": "f804bac3d75c0a1934ddf4b59299328580ca6c3ce9264cef400233c5c21d347b",
+          "width": 1440,
+          "height": 1026,
+          "bytes": 164805
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-1f896-hetype-states-and-contracts/13-initial-pending-no-data.png",
+          "sha256": "602d1faebd9bbbe7abf3d722ffb405b357c05fca7b392e7476fdbaae329f51c5",
+          "width": 1440,
+          "height": 1026,
+          "bytes": 163432
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-1f896-hetype-states-and-contracts/14-cold-error-no-invented-auth-message.png",
+          "sha256": "905a4e1bb6a4dfeb2c85238a18bb8b9c4bdb8191d759ea7a9cf496ad74a264bd",
+          "width": 1440,
+          "height": 1026,
+          "bytes": 163741
+        }
+      ]
+    },
+    {
+      "title": "ar dark 390: Audit Log full archetype states and contracts",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "reads": [
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=2&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=1&pageSize=25&action=Keyboard.Applied",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&action=no-match-server",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25"
+        ],
+        "exports": [
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z"
+        ],
+        "outcomeColors": [
+          "rgb(252, 211, 77)",
+          "rgb(134, 239, 172)",
+          "rgb(253, 164, 175)",
+          "rgb(213, 228, 232)"
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "locale": "ar",
+        "theme": "dark",
+        "reflow": "Half viewport proxy, not native browser zoom"
+      },
+      "screenshots": [
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-8beb2-hetype-states-and-contracts/01-populated-all-outcomes-long-arabic.png",
+          "sha256": "3c9c8c1e5014eb090426efc0c97f0c19818a1d6377814b5aa86080bc6c58a246",
+          "width": 390,
+          "height": 11822,
+          "bytes": 901994
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-8beb2-hetype-states-and-contracts/02-expanded-metadata-changes-long-identifiers.png",
+          "sha256": "e601ac7f1dc28d83b3c269f196e7ac7817cde4205954da3a88a59aedf99db6af",
+          "width": 390,
+          "height": 12748,
+          "bytes": 943914
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-8beb2-hetype-states-and-contracts/03-draft-unapplied-filters.png",
+          "sha256": "5afc7b019042f3230f324002812c36a4cc1ad6785ac9160e3657dd0aa77bf3ba",
+          "width": 390,
+          "height": 11822,
+          "bytes": 903021
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-8beb2-hetype-states-and-contracts/04-placeholder-retained-during-applied-query.png",
+          "sha256": "36900cb0bc2996052a50945579c94b4539698e13e185b550a48e1550e01ab481",
+          "width": 390,
+          "height": 11892,
+          "bytes": 907346
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-8beb2-hetype-states-and-contracts/05-applied-filters.png",
+          "sha256": "e30c004c805a39e9ddb55ab480aa5bdf83fe451165839b7d16f997947fac8c39",
+          "width": 390,
+          "height": 11822,
+          "bytes": 902301
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-8beb2-hetype-states-and-contracts/06-export-pending-applied-not-draft.png",
+          "sha256": "35c38e64a2b9bffd919d9069e87f93f04ed7326a730f79155468bdd6355bd6f0",
+          "width": 390,
+          "height": 11822,
+          "bytes": 902320
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-8beb2-hetype-states-and-contracts/07-export-error-retains-ledger.png",
+          "sha256": "c762d2f87a88a78806778f127e611847e11c2ee26b52793b8d7e5f0328e92fef",
+          "width": 390,
+          "height": 11918,
+          "bytes": 910915
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-8beb2-hetype-states-and-contracts/08-page-two-server-pagination.png",
+          "sha256": "85f55dbbdcf6bd514aea574a047581cc8ab2ffa947f92df2d6f12ecf8ea7cfee",
+          "width": 390,
+          "height": 11822,
+          "bytes": 902447
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-8beb2-hetype-states-and-contracts/09-keyboard-focus-open-details.png",
+          "sha256": "6cec08b827e14ee0643fb03f76eed366f552c8d09285157e99704aa801cc44c8",
+          "width": 390,
+          "height": 12512,
+          "bytes": 933211
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-8beb2-hetype-states-and-contracts/10-half-viewport-reflow-proxy.png",
+          "sha256": "e6a041d64e6982e7c0939d20132725aaf8ae0272bfa5f554f289055fd22fbf68",
+          "width": 320,
+          "height": 13526,
+          "bytes": 930123
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-8beb2-hetype-states-and-contracts/11-background-refetch-retained.png",
+          "sha256": "28595abeeae3f78e5a5b4fd62507dbc91bbf3fe6ad616bf2c6182849d50f044a",
+          "width": 390,
+          "height": 11892,
+          "bytes": 906523
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-8beb2-hetype-states-and-contracts/12-successful-empty-current-query.png",
+          "sha256": "009c41a3d698b89af62c67ecfc6fa91ff5a282934a7f39b7ba1519b11a9cbeae",
+          "width": 390,
+          "height": 1924,
+          "bytes": 130600
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-8beb2-hetype-states-and-contracts/13-initial-pending-no-data.png",
+          "sha256": "2bb24f17b708e4b5a645fadaaea84d1288632639524e51d8a859616597f12df6",
+          "width": 390,
+          "height": 1924,
+          "bytes": 128951
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-8beb2-hetype-states-and-contracts/14-cold-error-no-invented-auth-message.png",
+          "sha256": "b8eede1dbe63990bcad53d055eebd8f73ff339c92d4fab4cfdfe0730567a146d",
+          "width": 390,
+          "height": 1924,
+          "bytes": 129314
+        }
+      ]
+    },
+    {
+      "title": "ar dark 834: Audit Log full archetype states and contracts",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "dark",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "reads": [
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=2&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=1&pageSize=25&action=Keyboard.Applied",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&action=no-match-server",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25"
+        ],
+        "exports": [
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z"
+        ],
+        "outcomeColors": [
+          "rgb(252, 211, 77)",
+          "rgb(134, 239, 172)",
+          "rgb(253, 164, 175)",
+          "rgb(213, 228, 232)"
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "locale": "ar",
+        "theme": "dark",
+        "reflow": "Half viewport proxy, not native browser zoom"
+      },
+      "screenshots": [
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-d0230-hetype-states-and-contracts/01-populated-all-outcomes-long-arabic.png",
+          "sha256": "0b10ba052aab808568e609f313123e76ecbf735b1bfd86270e3067cce3fe5245",
+          "width": 834,
+          "height": 28722,
+          "bytes": 1040179
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-d0230-hetype-states-and-contracts/02-expanded-metadata-changes-long-identifiers.png",
+          "sha256": "b1eba38164e3bced2532ab5f1e92dc5b2c08fba8ffd0eb0ac498e6fee73ec8af",
+          "width": 834,
+          "height": 29226,
+          "bytes": 1077980
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-d0230-hetype-states-and-contracts/03-draft-unapplied-filters.png",
+          "sha256": "69fa0a0ab3532e8ce49227f650d77267d3957624456200456adafc3bd80537f0",
+          "width": 834,
+          "height": 28722,
+          "bytes": 1040888
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-d0230-hetype-states-and-contracts/04-placeholder-retained-during-applied-query.png",
+          "sha256": "041ead8b900d6c6fd57a2d4830e2a240810dca13c68d980f4bb0866a304c59b4",
+          "width": 834,
+          "height": 28792,
+          "bytes": 1041931
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-d0230-hetype-states-and-contracts/05-applied-filters.png",
+          "sha256": "5611a5cdf5e470f954e07cdfacfe6d9cd14a52296a14b07ce481f36462ddc8fd",
+          "width": 834,
+          "height": 28722,
+          "bytes": 1040131
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-d0230-hetype-states-and-contracts/06-export-pending-applied-not-draft.png",
+          "sha256": "8746024c7ea69ab1d24df4f5789f669bdde703d0315a52a2d2f0dd3b26d864c2",
+          "width": 834,
+          "height": 28722,
+          "bytes": 1040254
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-d0230-hetype-states-and-contracts/07-export-error-retains-ledger.png",
+          "sha256": "39a85e269517ec25e38b26cf067e85f84d91d1e04537a0e4c2d21aa100869c39",
+          "width": 834,
+          "height": 28792,
+          "bytes": 1043704
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-d0230-hetype-states-and-contracts/08-page-two-server-pagination.png",
+          "sha256": "e992258a3423553e18ab8e5eb126a50fa1530e0ffd64b6f346a59c27634e079f",
+          "width": 834,
+          "height": 28722,
+          "bytes": 1040377
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-d0230-hetype-states-and-contracts/09-keyboard-focus-open-details.png",
+          "sha256": "8c81ff281df35e4466f17bd4446f07cf5dc8baa0ef3474d4401f860583b2c18f",
+          "width": 834,
+          "height": 29100,
+          "bytes": 1069140
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-d0230-hetype-states-and-contracts/10-half-viewport-reflow-proxy.png",
+          "sha256": "51b20037c5886e868963a50b18bac33ea01b74c9003de845147645f28e82b242",
+          "width": 417,
+          "height": 11822,
+          "bytes": 950697
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-d0230-hetype-states-and-contracts/11-background-refetch-retained.png",
+          "sha256": "a19d531e25eca3bd2f654aacc88badc1a5ce4a440b296c51f39901b8dc8b6ff1",
+          "width": 834,
+          "height": 28792,
+          "bytes": 1041580
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-d0230-hetype-states-and-contracts/12-successful-empty-current-query.png",
+          "sha256": "037189fe0ca1be9b80b549805ba0d67870b1d24abedd710118d9b7bb18642e7a",
+          "width": 834,
+          "height": 1114,
+          "bytes": 133598
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-d0230-hetype-states-and-contracts/13-initial-pending-no-data.png",
+          "sha256": "ccb7ef2f81e0fbce8ea7ecd60e85bfc38b444a1f2673006db5338e80fe4a7a56",
+          "width": 834,
+          "height": 1114,
+          "bytes": 132167
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-dar-d0230-hetype-states-and-contracts/14-cold-error-no-invented-auth-message.png",
+          "sha256": "d5a69aa6281145d6b42dba40d286bf03788f4123a85ca4422042b605282e4ecc",
+          "width": 834,
+          "height": 1114,
+          "bytes": 132511
+        }
+      ]
+    },
+    {
+      "title": "ar light 390: Audit Log full archetype states and contracts",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "reads": [
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=2&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=1&pageSize=25&action=Keyboard.Applied",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&action=no-match-server",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25"
+        ],
+        "exports": [
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z"
+        ],
+        "outcomeColors": [
+          "rgb(133, 77, 14)",
+          "rgb(22, 101, 52)",
+          "rgb(159, 18, 57)",
+          "rgb(51, 79, 99)"
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "locale": "ar",
+        "theme": "light",
+        "reflow": "Half viewport proxy, not native browser zoom"
+      },
+      "screenshots": [
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-82a37-hetype-states-and-contracts/01-populated-all-outcomes-long-arabic.png",
+          "sha256": "88386ba6bd7973db7d7161db3295caf791c07dd832b479384a43adb7801074a4",
+          "width": 390,
+          "height": 11822,
+          "bytes": 906433
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-82a37-hetype-states-and-contracts/02-expanded-metadata-changes-long-identifiers.png",
+          "sha256": "e6923000dbdc3ae0012e03918d43fd18d944fe929efc9afc1c113133f645a513",
+          "width": 390,
+          "height": 12748,
+          "bytes": 951435
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-82a37-hetype-states-and-contracts/03-draft-unapplied-filters.png",
+          "sha256": "650f50a64104138b8ae62ac4434389388c54b78bece949793ac7b78ebf6a93e1",
+          "width": 390,
+          "height": 11822,
+          "bytes": 907273
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-82a37-hetype-states-and-contracts/04-placeholder-retained-during-applied-query.png",
+          "sha256": "23c625f149e833fdc52640acbca6ba466c2c0f9139632a9163c4e3b24501a7e4",
+          "width": 390,
+          "height": 11892,
+          "bytes": 910004
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-82a37-hetype-states-and-contracts/05-applied-filters.png",
+          "sha256": "c59e1ae90a690a55e8e4a93df431c38ae5b42e8d514155c2bca8977cc066e065",
+          "width": 390,
+          "height": 11822,
+          "bytes": 906369
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-82a37-hetype-states-and-contracts/06-export-pending-applied-not-draft.png",
+          "sha256": "3e701db11da24f811a7d49fcb0a605caacfc2fa970431fecb61d2c749c306437",
+          "width": 390,
+          "height": 11822,
+          "bytes": 906292
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-82a37-hetype-states-and-contracts/07-export-error-retains-ledger.png",
+          "sha256": "a20c226dfa0b1c488abb3d43bb8aa32b16527512595b7dbfe743b5282bf068c4",
+          "width": 390,
+          "height": 11918,
+          "bytes": 914489
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-82a37-hetype-states-and-contracts/08-page-two-server-pagination.png",
+          "sha256": "11e2c46be1328a367ac90dc2b44eb5c7a28e40c3ccc20b19030c20ccd0642fe7",
+          "width": 390,
+          "height": 11822,
+          "bytes": 906743
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-82a37-hetype-states-and-contracts/09-keyboard-focus-open-details.png",
+          "sha256": "05814b6c15507b78bebc720ba0a2164c8607cf049985c2e95a77957ecf0936e5",
+          "width": 390,
+          "height": 12512,
+          "bytes": 940576
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-82a37-hetype-states-and-contracts/10-half-viewport-reflow-proxy.png",
+          "sha256": "b896f653a85c63cc4f7d44f2bcdd2a71f1ee5bed5a4606063e6460f5bcc66e22",
+          "width": 320,
+          "height": 13526,
+          "bytes": 949253
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-82a37-hetype-states-and-contracts/11-background-refetch-retained.png",
+          "sha256": "9fdebcd98f49e9c93872e7b876f223b50b4b98aefa88197c2fce09c21ddaac35",
+          "width": 390,
+          "height": 11892,
+          "bytes": 909750
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-82a37-hetype-states-and-contracts/12-successful-empty-current-query.png",
+          "sha256": "9c07d16b6e9ca4e8dafbc2b853b71cd48ed1638ce3ef67852f0aebbefa6e1ab2",
+          "width": 390,
+          "height": 1924,
+          "bytes": 132042
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-82a37-hetype-states-and-contracts/13-initial-pending-no-data.png",
+          "sha256": "4c820d9bd628b8fde31d708af34bafe90448d21d2261b78b84a34ccb8673de8b",
+          "width": 390,
+          "height": 1924,
+          "bytes": 128935
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-82a37-hetype-states-and-contracts/14-cold-error-no-invented-auth-message.png",
+          "sha256": "8919b9a8d4d4d3123af96ad84a733c6111eca89d62b23ea2c9ab4b7e1ecb1298",
+          "width": 390,
+          "height": 1924,
+          "bytes": 129307
+        }
+      ]
+    },
+    {
+      "title": "ar light 1440: Audit Log full archetype states and contracts",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "reads": [
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=2&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=1&pageSize=25&action=Keyboard.Applied",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&action=no-match-server",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25"
+        ],
+        "exports": [
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z"
+        ],
+        "outcomeColors": [
+          "rgb(133, 77, 14)",
+          "rgb(22, 101, 52)",
+          "rgb(159, 18, 57)",
+          "rgb(51, 79, 99)"
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "locale": "ar",
+        "theme": "light",
+        "reflow": "Half viewport proxy, not native browser zoom"
+      },
+      "screenshots": [
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-b4a5d-hetype-states-and-contracts/01-populated-all-outcomes-long-arabic.png",
+          "sha256": "cf07543b8c7fda33bae0141e39673e43fb4fc8ca0abe44c3dc6059f225700b0a",
+          "width": 1440,
+          "height": 6892,
+          "bytes": 1095015
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-b4a5d-hetype-states-and-contracts/02-expanded-metadata-changes-long-identifiers.png",
+          "sha256": "7bafbdeda6597734f1916e435b317264913ed455d49a02397358a7a76d174c4f",
+          "width": 1440,
+          "height": 7292,
+          "bytes": 1137231
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-b4a5d-hetype-states-and-contracts/03-draft-unapplied-filters.png",
+          "sha256": "7d16bbd1fad2d202b009144ef5852cfc8fb183ef9cf1ec22a114f16901908bfe",
+          "width": 1440,
+          "height": 6892,
+          "bytes": 1095642
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-b4a5d-hetype-states-and-contracts/04-placeholder-retained-during-applied-query.png",
+          "sha256": "3fd62503923dc4dfa2744ebf189e39791407f1a3c8effc84684bb57436559f8c",
+          "width": 1440,
+          "height": 6962,
+          "bytes": 1098817
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-b4a5d-hetype-states-and-contracts/05-applied-filters.png",
+          "sha256": "508a0b49f5d6df83984751e4cace2e48c2e04f7b1c4918063c6afd898820ea85",
+          "width": 1440,
+          "height": 6892,
+          "bytes": 1094377
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-b4a5d-hetype-states-and-contracts/06-export-pending-applied-not-draft.png",
+          "sha256": "bdd62526076c14f8a8395eb643cc7d26bd0abe283992580bbd7721232c6b120d",
+          "width": 1440,
+          "height": 6892,
+          "bytes": 1094683
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-b4a5d-hetype-states-and-contracts/07-export-error-retains-ledger.png",
+          "sha256": "0f323fd6fc9daa73178d9efc36b90378ac95cd4787f541c6eed14f736ee49717",
+          "width": 1440,
+          "height": 6962,
+          "bytes": 1100763
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-b4a5d-hetype-states-and-contracts/08-page-two-server-pagination.png",
+          "sha256": "f14e349d68678d721a411bb94d9364012aa3985eaa9379917dfd6153d7ce0288",
+          "width": 1440,
+          "height": 6892,
+          "bytes": 1094700
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-b4a5d-hetype-states-and-contracts/09-keyboard-focus-open-details.png",
+          "sha256": "698f409dd683743dc4e86f3b070a4e3fe8fccb9e93bc91b256ba43e0d5b2e229",
+          "width": 1440,
+          "height": 7192,
+          "bytes": 1127639
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-b4a5d-hetype-states-and-contracts/10-half-viewport-reflow-proxy.png",
+          "sha256": "46ac396d1e4b73c3bd1d22c49b95b980e7e0770051080c38914b04b1c389abd0",
+          "width": 720,
+          "height": 28913,
+          "bytes": 1277152
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-b4a5d-hetype-states-and-contracts/11-background-refetch-retained.png",
+          "sha256": "5d3c50e2330fbc58081e4ec5142e268f992ac0667e228d748b43fdef03d745f4",
+          "width": 1440,
+          "height": 6962,
+          "bytes": 1099161
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-b4a5d-hetype-states-and-contracts/12-successful-empty-current-query.png",
+          "sha256": "accb6325ff2fac4c3b5436728b3748bb99388118ca568e8194ab80b8a4fa1b3a",
+          "width": 1440,
+          "height": 1026,
+          "bytes": 167249
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-b4a5d-hetype-states-and-contracts/13-initial-pending-no-data.png",
+          "sha256": "f8df97d706ec5e950556f809f7ecad19b96d783d930362bc8f8bd187d5ae7a06",
+          "width": 1440,
+          "height": 1026,
+          "bytes": 163372
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-b4a5d-hetype-states-and-contracts/14-cold-error-no-invented-auth-message.png",
+          "sha256": "13144b5d0309187709a51ba8d4e7dc9b8ff758310d8a1daafcd35488322ef7e1",
+          "width": 1440,
+          "height": 1026,
+          "bytes": 163724
+        }
+      ]
+    },
+    {
+      "title": "ar light 834: Audit Log full archetype states and contracts",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "light",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "reads": [
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=2&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=1&pageSize=25&action=Keyboard.Applied",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&action=no-match-server",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25"
+        ],
+        "exports": [
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z"
+        ],
+        "outcomeColors": [
+          "rgb(133, 77, 14)",
+          "rgb(22, 101, 52)",
+          "rgb(159, 18, 57)",
+          "rgb(51, 79, 99)"
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "locale": "ar",
+        "theme": "light",
+        "reflow": "Half viewport proxy, not native browser zoom"
+      },
+      "screenshots": [
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-d4ae3-hetype-states-and-contracts/01-populated-all-outcomes-long-arabic.png",
+          "sha256": "a7c29cfa9a2aa17ba25e26387c6fe8e8111770d12b30d7d012bc1a3f770200e3",
+          "width": 834,
+          "height": 28722,
+          "bytes": 1290338
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-d4ae3-hetype-states-and-contracts/02-expanded-metadata-changes-long-identifiers.png",
+          "sha256": "221b35694c1a480bbf0cce8186e5865930fde26164da07a7a199476b8fc0cdf7",
+          "width": 834,
+          "height": 29226,
+          "bytes": 1331861
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-d4ae3-hetype-states-and-contracts/03-draft-unapplied-filters.png",
+          "sha256": "3077d7ce88b9cb77edbff9d9f393c0fc1110b56f5cb2c70b88cac600ea3c72ab",
+          "width": 834,
+          "height": 28722,
+          "bytes": 1290986
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-d4ae3-hetype-states-and-contracts/04-placeholder-retained-during-applied-query.png",
+          "sha256": "ce1ab6e13be7db0423c9e7a17e232f6873e34239288d67431706f945a202bd14",
+          "width": 834,
+          "height": 28792,
+          "bytes": 1293265
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-d4ae3-hetype-states-and-contracts/05-applied-filters.png",
+          "sha256": "23e803e3711adca0f7803098ac460a48b5aae22258fb2c422c843365cda57a04",
+          "width": 834,
+          "height": 28722,
+          "bytes": 1290032
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-d4ae3-hetype-states-and-contracts/06-export-pending-applied-not-draft.png",
+          "sha256": "b17ed9c2250a0416dbc6e178bef4ce4768fa53b98a346caf1eae047e35c955bc",
+          "width": 834,
+          "height": 28722,
+          "bytes": 1290543
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-d4ae3-hetype-states-and-contracts/07-export-error-retains-ledger.png",
+          "sha256": "a89d73074dc51472a5a607c6f9e7cd4baee37dcf5c75c48493a73642477f366f",
+          "width": 834,
+          "height": 28792,
+          "bytes": 1295315
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-d4ae3-hetype-states-and-contracts/08-page-two-server-pagination.png",
+          "sha256": "9df1a6f57a05e691d7cfc0f173416e4c6e3b8770943288dba6cfd7bcdd05f314",
+          "width": 834,
+          "height": 28722,
+          "bytes": 1290520
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-d4ae3-hetype-states-and-contracts/09-keyboard-focus-open-details.png",
+          "sha256": "91fb07d79f4b06c1a3fd4e94bacbb5c9939bbb4e7e99f4341bd9b5bc12d9f137",
+          "width": 834,
+          "height": 29100,
+          "bytes": 1324289
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-d4ae3-hetype-states-and-contracts/10-half-viewport-reflow-proxy.png",
+          "sha256": "8e663dcda1341d52a4c648a82c8c134201198614702a1aa4442cc4d492b8725e",
+          "width": 417,
+          "height": 11822,
+          "bytes": 964505
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-d4ae3-hetype-states-and-contracts/11-background-refetch-retained.png",
+          "sha256": "1203d3172553ec843b5f00474fb03e8f88d13cac4579035a34a67fda8c012f2f",
+          "width": 834,
+          "height": 28792,
+          "bytes": 1293325
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-d4ae3-hetype-states-and-contracts/12-successful-empty-current-query.png",
+          "sha256": "6f7aae11f36df839bc962c9907ad22afe8a7a44dfd08f2983ffda5b603c14e27",
+          "width": 834,
+          "height": 1114,
+          "bytes": 133554
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-d4ae3-hetype-states-and-contracts/13-initial-pending-no-data.png",
+          "sha256": "da7952ba41b78ad85b9e7d152966b89b9c7da4c05f977f8b2c646eb2691064b9",
+          "width": 834,
+          "height": 1114,
+          "bytes": 132186
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-ar-lig-d4ae3-hetype-states-and-contracts/14-cold-error-no-invented-auth-message.png",
+          "sha256": "55e4e30a0095a2a1960012ba5be062a13723065769a662d43c542e074466640e",
+          "width": 834,
+          "height": 1114,
+          "bytes": 132547
+        }
+      ]
+    },
+    {
+      "title": "en dark 390: Audit Log full archetype states and contracts",
+      "status": "passed",
+      "locale": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "reads": [
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=2&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=1&pageSize=25&action=Keyboard.Applied",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&action=no-match-server",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25"
+        ],
+        "exports": [
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z"
+        ],
+        "outcomeColors": [
+          "rgb(252, 211, 77)",
+          "rgb(134, 239, 172)",
+          "rgb(253, 164, 175)",
+          "rgb(213, 228, 232)"
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "locale": "en",
+        "theme": "dark",
+        "reflow": "Half viewport proxy, not native browser zoom"
+      },
+      "screenshots": [
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-1d01e-hetype-states-and-contracts/01-populated-all-outcomes-long-arabic.png",
+          "sha256": "dede38a612adf728a6c5f74ddb6de9d5998dab46b1f18010b5f7feaa32165c18",
+          "width": 390,
+          "height": 11829,
+          "bytes": 837044
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-1d01e-hetype-states-and-contracts/02-expanded-metadata-changes-long-identifiers.png",
+          "sha256": "81886d810d707dd0a45eb9c6c2dd5635f7496d1458a1961d9ad174036dbadb16",
+          "width": 390,
+          "height": 12595,
+          "bytes": 878554
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-1d01e-hetype-states-and-contracts/03-draft-unapplied-filters.png",
+          "sha256": "b03ec81707a5c6f4daad83198b78e4e00e658d2b14c4d6440c00806705643705",
+          "width": 390,
+          "height": 11829,
+          "bytes": 840238
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-1d01e-hetype-states-and-contracts/04-placeholder-retained-during-applied-query.png",
+          "sha256": "b2d78bfedde20e9ed55034cb0d52f576d28dabe26727ee94496dc8cfc64dcdd3",
+          "width": 390,
+          "height": 11895,
+          "bytes": 841760
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-1d01e-hetype-states-and-contracts/05-applied-filters.png",
+          "sha256": "15a5e598dc5376f30291ef4b182174987585905a6b395f39e600df95e3778a11",
+          "width": 390,
+          "height": 11829,
+          "bytes": 839310
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-1d01e-hetype-states-and-contracts/06-export-pending-applied-not-draft.png",
+          "sha256": "f1330c91a63ef58217af5ff7f60da80bc64c296a8ac2849f25c1d942634e1c79",
+          "width": 390,
+          "height": 11829,
+          "bytes": 838976
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-1d01e-hetype-states-and-contracts/07-export-error-retains-ledger.png",
+          "sha256": "59cb84531a1da27257c33b3a04e22b5a67c6bbcbafa9f09e71700a73e0dd6685",
+          "width": 390,
+          "height": 11917,
+          "bytes": 846712
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-1d01e-hetype-states-and-contracts/08-page-two-server-pagination.png",
+          "sha256": "864a14eebbbbbf398efa1c5ca97b88fac1c247eede35d1a48543f8ed3dbd4ca3",
+          "width": 390,
+          "height": 11829,
+          "bytes": 839152
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-1d01e-hetype-states-and-contracts/09-keyboard-focus-open-details.png",
+          "sha256": "d811d705e0acacab8f48ea944e4e78a6462ebbb0c4a08dd694f9b6502348b4e6",
+          "width": 390,
+          "height": 12383,
+          "bytes": 870026
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-1d01e-hetype-states-and-contracts/10-half-viewport-reflow-proxy.png",
+          "sha256": "c0f3ef89d6bc7a443c4565233a43d1534521a26ecd0d1e27f57227faa5406bd4",
+          "width": 320,
+          "height": 12351,
+          "bytes": 881184
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-1d01e-hetype-states-and-contracts/11-background-refetch-retained.png",
+          "sha256": "eb27a4762df7552cac5cd18301e8ca14c5ee0632c918cc3b2e57be16316e63c0",
+          "width": 390,
+          "height": 11895,
+          "bytes": 839180
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-1d01e-hetype-states-and-contracts/12-successful-empty-current-query.png",
+          "sha256": "64d44fece4b2d4445775f51fd22f0c082bb87f00474990e53092c99ee5f40b40",
+          "width": 390,
+          "height": 1955,
+          "bytes": 101414
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-1d01e-hetype-states-and-contracts/13-initial-pending-no-data.png",
+          "sha256": "d47d7cb12301046ff971e1a9c95989f5e2749fe44c7ca94caedb6bc088823865",
+          "width": 390,
+          "height": 1955,
+          "bytes": 99331
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-1d01e-hetype-states-and-contracts/14-cold-error-no-invented-auth-message.png",
+          "sha256": "e0e6b2563e804c41d07c5d8306bdf7a98516a1751ac177e8e26f489a6b4b3af3",
+          "width": 390,
+          "height": 1955,
+          "bytes": 100494
+        }
+      ]
+    },
+    {
+      "title": "en dark 834: Audit Log full archetype states and contracts",
+      "status": "passed",
+      "locale": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "reads": [
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=2&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=1&pageSize=25&action=Keyboard.Applied",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&action=no-match-server",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25"
+        ],
+        "exports": [
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z"
+        ],
+        "outcomeColors": [
+          "rgb(252, 211, 77)",
+          "rgb(134, 239, 172)",
+          "rgb(253, 164, 175)",
+          "rgb(213, 228, 232)"
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "locale": "en",
+        "theme": "dark",
+        "reflow": "Half viewport proxy, not native browser zoom"
+      },
+      "screenshots": [
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-415f1-hetype-states-and-contracts/01-populated-all-outcomes-long-arabic.png",
+          "sha256": "1e3721aafab4cb24edccd79e5c5b92d2ab67b2fe097a43ed781f690194da0a4d",
+          "width": 834,
+          "height": 23216,
+          "bytes": 915193
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-415f1-hetype-states-and-contracts/02-expanded-metadata-changes-long-identifiers.png",
+          "sha256": "de38b8d1535f9fc264c374133f95e8257dca117b06f29b8a46592f0bd4f1618e",
+          "width": 834,
+          "height": 23664,
+          "bytes": 955713
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-415f1-hetype-states-and-contracts/03-draft-unapplied-filters.png",
+          "sha256": "e99eb260e6225e9bc358204de2c8f43b72c59d9a183241919aa0ee321b64ce1a",
+          "width": 834,
+          "height": 23216,
+          "bytes": 919307
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-415f1-hetype-states-and-contracts/04-placeholder-retained-during-applied-query.png",
+          "sha256": "1b33ffff8a5ba1e1829af90972d739657c88096805e593ac5e87b3a2fa132d96",
+          "width": 834,
+          "height": 23282,
+          "bytes": 922049
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-415f1-hetype-states-and-contracts/05-applied-filters.png",
+          "sha256": "48468a1c239acbcac46696b04511598130deb10f934ec384fc2898b137a38663",
+          "width": 834,
+          "height": 23216,
+          "bytes": 917853
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-415f1-hetype-states-and-contracts/06-export-pending-applied-not-draft.png",
+          "sha256": "29ac9fec5475837181452ae8cd3688e3c8c6e5b3b4fbc04e2f42ec65ad08a45e",
+          "width": 834,
+          "height": 23216,
+          "bytes": 917578
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-415f1-hetype-states-and-contracts/07-export-error-retains-ledger.png",
+          "sha256": "8f29b293f118f01a1f626e96bda1110aee898ea8df884fe2afb9b65a620e7eb2",
+          "width": 834,
+          "height": 23282,
+          "bytes": 925905
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-415f1-hetype-states-and-contracts/08-page-two-server-pagination.png",
+          "sha256": "d6f00c7708ab1d42a52d286847759931768f8846babe0d02840704d175394afc",
+          "width": 834,
+          "height": 23216,
+          "bytes": 918080
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-415f1-hetype-states-and-contracts/09-keyboard-focus-open-details.png",
+          "sha256": "5e0a2cb942f005a10ff9de10690f80d060b66067f5437181b3d2051463c4547b",
+          "width": 834,
+          "height": 23550,
+          "bytes": 950561
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-415f1-hetype-states-and-contracts/10-half-viewport-reflow-proxy.png",
+          "sha256": "ce6becf905e915ed9fcadb943a7b054e80a78d8b7d24cac17e2ea5448cd85d49",
+          "width": 417,
+          "height": 11659,
+          "bytes": 849686
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-415f1-hetype-states-and-contracts/11-background-refetch-retained.png",
+          "sha256": "c9ed38db5af0ed94bd24b1acc16930300a4dde98d497b4731b195daa064ad258",
+          "width": 834,
+          "height": 23282,
+          "bytes": 919190
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-415f1-hetype-states-and-contracts/12-successful-empty-current-query.png",
+          "sha256": "f996b761c293ea8069c50f38e87f7a136983c6359741110c8b62a001fbbeb959",
+          "width": 834,
+          "height": 1122,
+          "bytes": 108170
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-415f1-hetype-states-and-contracts/13-initial-pending-no-data.png",
+          "sha256": "5fb704205b8628dfe2a3055781f47cdc603ef927af4a5601331f6c8291330cf9",
+          "width": 834,
+          "height": 1122,
+          "bytes": 105638
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-415f1-hetype-states-and-contracts/14-cold-error-no-invented-auth-message.png",
+          "sha256": "bbfed9de26495ada9403d2fd11f9870bfdb9c9cea66c0c127c44a19e9f661c44",
+          "width": 834,
+          "height": 1122,
+          "bytes": 107027
+        }
+      ]
+    },
+    {
+      "title": "en dark 1440: Audit Log full archetype states and contracts",
+      "status": "passed",
+      "locale": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "reads": [
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=2&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=1&pageSize=25&action=Keyboard.Applied",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&action=no-match-server",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25"
+        ],
+        "exports": [
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z"
+        ],
+        "outcomeColors": [
+          "rgb(252, 211, 77)",
+          "rgb(134, 239, 172)",
+          "rgb(253, 164, 175)",
+          "rgb(213, 228, 232)"
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "locale": "en",
+        "theme": "dark",
+        "reflow": "Half viewport proxy, not native browser zoom"
+      },
+      "screenshots": [
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-7306d-hetype-states-and-contracts/01-populated-all-outcomes-long-arabic.png",
+          "sha256": "3863eb71a11e718d9566f554be28ee1575720ad07b3f61e1082aed57212ae794",
+          "width": 1440,
+          "height": 6172,
+          "bytes": 935919
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-7306d-hetype-states-and-contracts/02-expanded-metadata-changes-long-identifiers.png",
+          "sha256": "521eec333743f1f279d6423f95afbcc6c8444e53c9e2deb71f5f311b7e47fce3",
+          "width": 1440,
+          "height": 6532,
+          "bytes": 971063
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-7306d-hetype-states-and-contracts/03-draft-unapplied-filters.png",
+          "sha256": "70903c055c120e32e9536345ae1333e765462a25495f55554db77150922b73ca",
+          "width": 1440,
+          "height": 6172,
+          "bytes": 938385
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-7306d-hetype-states-and-contracts/04-placeholder-retained-during-applied-query.png",
+          "sha256": "70dd814b01ceec1097033ce938895b1a36981deaec9e69c5988334ce6e32f0f1",
+          "width": 1440,
+          "height": 6238,
+          "bytes": 940068
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-7306d-hetype-states-and-contracts/05-applied-filters.png",
+          "sha256": "52fea99e54b84e14bdc169d687c0798e2cef997498e737784d94acb655c23222",
+          "width": 1440,
+          "height": 6172,
+          "bytes": 937349
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-7306d-hetype-states-and-contracts/06-export-pending-applied-not-draft.png",
+          "sha256": "1970d40178ac3767fbab52b32b323e7d95602db50c3876026be5ab5a2bcb6ac9",
+          "width": 1440,
+          "height": 6172,
+          "bytes": 937207
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-7306d-hetype-states-and-contracts/07-export-error-retains-ledger.png",
+          "sha256": "311ca7fd6271b218c796031b335c8a31e13df0c19862908276d59642e6356486",
+          "width": 1440,
+          "height": 6238,
+          "bytes": 944586
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-7306d-hetype-states-and-contracts/08-page-two-server-pagination.png",
+          "sha256": "cf0307477136827e4dfb426be296ec03b04384919e63dc7363d85336058dbebe",
+          "width": 1440,
+          "height": 6172,
+          "bytes": 937359
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-7306d-hetype-states-and-contracts/09-keyboard-focus-open-details.png",
+          "sha256": "676ef005b29df38fd9713a1b075751becf57d012952938326bc5387bdad2e82a",
+          "width": 1440,
+          "height": 6440,
+          "bytes": 965008
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-7306d-hetype-states-and-contracts/10-half-viewport-reflow-proxy.png",
+          "sha256": "bd71a600f8f61f894baac00b52c7a39ecff80262ffdec80e0aa5496363ae1f02",
+          "width": 720,
+          "height": 23429,
+          "bytes": 1114316
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-7306d-hetype-states-and-contracts/11-background-refetch-retained.png",
+          "sha256": "6397ab0b00c426753bc271a090fe9c0e18459c0ece72e9ab5ae43c6fbc441e7d",
+          "width": 1440,
+          "height": 6238,
+          "bytes": 938133
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-7306d-hetype-states-and-contracts/12-successful-empty-current-query.png",
+          "sha256": "e154e5467aadba8240cee0bb7940fea323e49a995acd2142c46a38017e531aec",
+          "width": 1440,
+          "height": 1002,
+          "bytes": 150343
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-7306d-hetype-states-and-contracts/13-initial-pending-no-data.png",
+          "sha256": "7ed8c72da755758fa5f4440784b0467f3274c506211ab073c04d990df0e48596",
+          "width": 1440,
+          "height": 1002,
+          "bytes": 147608
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-dar-7306d-hetype-states-and-contracts/14-cold-error-no-invented-auth-message.png",
+          "sha256": "adf94e028d9268c1453de7c70f7762c0e404c3b72292e3a14d0b244d8ffde537",
+          "width": 1440,
+          "height": 1002,
+          "bytes": 149193
+        }
+      ]
+    },
+    {
+      "title": "en light 1440: Audit Log full archetype states and contracts",
+      "status": "passed",
+      "locale": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "reads": [
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=2&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=1&pageSize=25&action=Keyboard.Applied",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&action=no-match-server",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25"
+        ],
+        "exports": [
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z"
+        ],
+        "outcomeColors": [
+          "rgb(133, 77, 14)",
+          "rgb(22, 101, 52)",
+          "rgb(159, 18, 57)",
+          "rgb(51, 79, 99)"
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "locale": "en",
+        "theme": "light",
+        "reflow": "Half viewport proxy, not native browser zoom"
+      },
+      "screenshots": [
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-04f35-hetype-states-and-contracts/01-populated-all-outcomes-long-arabic.png",
+          "sha256": "771b69bc76d2700d05f77f28f1db45f8207b563c9e4c10f21a6d92c58cce162a",
+          "width": 1440,
+          "height": 6172,
+          "bytes": 1026898
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-04f35-hetype-states-and-contracts/02-expanded-metadata-changes-long-identifiers.png",
+          "sha256": "340c6ab613c023a0149cd51b7e434c09a2d9a34ed293ad780587623ec2011488",
+          "width": 1440,
+          "height": 6532,
+          "bytes": 1071246
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-04f35-hetype-states-and-contracts/03-draft-unapplied-filters.png",
+          "sha256": "01a0db341cf76dedc4b3c305007f93a297b47e7f84be2badba4ff3996a040114",
+          "width": 1440,
+          "height": 6172,
+          "bytes": 1029521
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-04f35-hetype-states-and-contracts/04-placeholder-retained-during-applied-query.png",
+          "sha256": "a7f5727a5c87ae4d42581ba5861240e79dfde00e169f7e67b6f9c5d0638ebc53",
+          "width": 1440,
+          "height": 6238,
+          "bytes": 1032914
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-04f35-hetype-states-and-contracts/05-applied-filters.png",
+          "sha256": "ab0d538c8b531470f8b55faef7bb4f854e1de974ca782dbf8ee08964f8da1c54",
+          "width": 1440,
+          "height": 6172,
+          "bytes": 1028156
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-04f35-hetype-states-and-contracts/06-export-pending-applied-not-draft.png",
+          "sha256": "eabaeb73065c8e6c095897da96b7cf1a79e35c5f5d0cd331e71a74b6f11de093",
+          "width": 1440,
+          "height": 6172,
+          "bytes": 1028100
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-04f35-hetype-states-and-contracts/07-export-error-retains-ledger.png",
+          "sha256": "fce6f5651a5772c9c5610a22d49bb0207bebdb20a4c9fa4e6cd1b07559b2ed18",
+          "width": 1440,
+          "height": 6238,
+          "bytes": 1037481
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-04f35-hetype-states-and-contracts/08-page-two-server-pagination.png",
+          "sha256": "46b9e342e0b3ab9f0b6396ca5e026a99428158c359b415b8da31d85e0997ea69",
+          "width": 1440,
+          "height": 6172,
+          "bytes": 1028469
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-04f35-hetype-states-and-contracts/09-keyboard-focus-open-details.png",
+          "sha256": "b5d9b50fe1d0eb3164000ac63a18f5a82c80885419d80a147961b95cb671342d",
+          "width": 1440,
+          "height": 6440,
+          "bytes": 1063719
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-04f35-hetype-states-and-contracts/10-half-viewport-reflow-proxy.png",
+          "sha256": "ebcaea22167ad98127768505731ae3bab7d127bb8a2177af463dcf8e2a48a200",
+          "width": 720,
+          "height": 23429,
+          "bytes": 1131581
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-04f35-hetype-states-and-contracts/11-background-refetch-retained.png",
+          "sha256": "ea86e9b482925d7fc376e3d9a345bd146b1ba670bc811618b2672cb841ea5787",
+          "width": 1440,
+          "height": 6238,
+          "bytes": 1031349
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-04f35-hetype-states-and-contracts/12-successful-empty-current-query.png",
+          "sha256": "43a336b9d472a1f8d8df5916d72e4f743c780dc14685a28e0769dc472b41adb8",
+          "width": 1440,
+          "height": 1002,
+          "bytes": 151594
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-04f35-hetype-states-and-contracts/13-initial-pending-no-data.png",
+          "sha256": "c1c29e18bbc073ee9a646b058620a3ce0a9582b9bc4742d1015af759af1afdea",
+          "width": 1440,
+          "height": 1002,
+          "bytes": 147553
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-04f35-hetype-states-and-contracts/14-cold-error-no-invented-auth-message.png",
+          "sha256": "3e9572b5f92d17f12c193d21b490e06fcedf145737c8927609304cea51ef1f9d",
+          "width": 1440,
+          "height": 1002,
+          "bytes": 149168
+        }
+      ]
+    },
+    {
+      "title": "en light 834: Audit Log full archetype states and contracts",
+      "status": "passed",
+      "locale": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "reads": [
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=2&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=1&pageSize=25&action=Keyboard.Applied",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&action=no-match-server",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25"
+        ],
+        "exports": [
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z"
+        ],
+        "outcomeColors": [
+          "rgb(133, 77, 14)",
+          "rgb(22, 101, 52)",
+          "rgb(159, 18, 57)",
+          "rgb(51, 79, 99)"
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "locale": "en",
+        "theme": "light",
+        "reflow": "Half viewport proxy, not native browser zoom"
+      },
+      "screenshots": [
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-c4dfb-hetype-states-and-contracts/01-populated-all-outcomes-long-arabic.png",
+          "sha256": "8dcdf2ca19316ecdbbbd56979d7de1565f17045598f549322f89bd1ae3e8ca1e",
+          "width": 834,
+          "height": 23216,
+          "bytes": 1127839
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-c4dfb-hetype-states-and-contracts/02-expanded-metadata-changes-long-identifiers.png",
+          "sha256": "b1c54574a333ec282925a0d09fdad20f0781bb6706672f96c80be718e98bb29a",
+          "width": 834,
+          "height": 23664,
+          "bytes": 1171461
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-c4dfb-hetype-states-and-contracts/03-draft-unapplied-filters.png",
+          "sha256": "b63d6576adefb18b940e5113e1f9d5f3819db43412c9d6861a04115c322fe520",
+          "width": 834,
+          "height": 23216,
+          "bytes": 1130873
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-c4dfb-hetype-states-and-contracts/04-placeholder-retained-during-applied-query.png",
+          "sha256": "a5dc1954b1e2fe05fe7202ff06a6b13b9d8a273874bc335be68fab66d52d8199",
+          "width": 834,
+          "height": 23282,
+          "bytes": 1133699
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-c4dfb-hetype-states-and-contracts/05-applied-filters.png",
+          "sha256": "334640bf9105cd2b5c292504916d3cd30007b37a8078857397b7951d5f43bce9",
+          "width": 834,
+          "height": 23216,
+          "bytes": 1129794
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-c4dfb-hetype-states-and-contracts/06-export-pending-applied-not-draft.png",
+          "sha256": "6ab7752e116d419cc0a5392892d3db14f2c814cecb371ea3a1e80e12dfa40e33",
+          "width": 834,
+          "height": 23216,
+          "bytes": 1129174
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-c4dfb-hetype-states-and-contracts/07-export-error-retains-ledger.png",
+          "sha256": "7ccf70315619507eaad7d6f4044830a8d2465d77dee1eb4264914cd604c7bef2",
+          "width": 834,
+          "height": 23282,
+          "bytes": 1137672
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-c4dfb-hetype-states-and-contracts/08-page-two-server-pagination.png",
+          "sha256": "7fffa7aa66a9ae1da3f639ee5e123b2405facb6c835fdeb9b75a32f85a1404c3",
+          "width": 834,
+          "height": 23216,
+          "bytes": 1129880
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-c4dfb-hetype-states-and-contracts/09-keyboard-focus-open-details.png",
+          "sha256": "9c2ac14a5b208f5feaa48626c1861e220b3b7178e059f964ef993251860695f6",
+          "width": 834,
+          "height": 23550,
+          "bytes": 1164981
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-c4dfb-hetype-states-and-contracts/10-half-viewport-reflow-proxy.png",
+          "sha256": "46b205d7c66987b6438539f441bd5e2c50b296c22c9470f150dc570a757b5e52",
+          "width": 417,
+          "height": 11659,
+          "bytes": 850626
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-c4dfb-hetype-states-and-contracts/11-background-refetch-retained.png",
+          "sha256": "6b19b0e53986ad1862b82df238a11964370ace1d67a1f5cd52778178df121938",
+          "width": 834,
+          "height": 23282,
+          "bytes": 1131838
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-c4dfb-hetype-states-and-contracts/12-successful-empty-current-query.png",
+          "sha256": "4efa9088f91511f51af2e784e09174e2394475963d432185e1f461e30900ace8",
+          "width": 834,
+          "height": 1122,
+          "bytes": 110652
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-c4dfb-hetype-states-and-contracts/13-initial-pending-no-data.png",
+          "sha256": "31cb2015619cf869dbb9f4343f44b2132e5b403223a4813c4291bb98d5aa0cc1",
+          "width": 834,
+          "height": 1122,
+          "bytes": 105748
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-c4dfb-hetype-states-and-contracts/14-cold-error-no-invented-auth-message.png",
+          "sha256": "e3ce7f74eecb8a2d2ecacc2b12af257312d76510dc69a798ad8552705fc0e17c",
+          "width": 834,
+          "height": 1122,
+          "bytes": 106942
+        }
+      ]
+    },
+    {
+      "title": "en light 390: Audit Log full archetype states and contracts",
+      "status": "passed",
+      "locale": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "reads": [
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=2&pageSize=25&search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?page=1&pageSize=25&action=Keyboard.Applied",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25&action=no-match-server",
+          "?page=1&pageSize=25",
+          "?page=1&pageSize=25"
+        ],
+        "exports": [
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z",
+          "?search=draft-no-local-match&action=Applied.Action&entityType=Record&outcome=RiskObserved&fromUtc=2026-10-20T00%3A00%3A00Z&toUtc=2026-10-22T23%3A59%3A59.999Z"
+        ],
+        "outcomeColors": [
+          "rgb(133, 77, 14)",
+          "rgb(22, 101, 52)",
+          "rgb(159, 18, 57)",
+          "rgb(51, 79, 99)"
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "locale": "en",
+        "theme": "light",
+        "reflow": "Half viewport proxy, not native browser zoom"
+      },
+      "screenshots": [
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-ddbea-hetype-states-and-contracts/01-populated-all-outcomes-long-arabic.png",
+          "sha256": "e454e7f54ac426f273eb5e2aeec848b0e00a84f5abf276feabe3de496ff3f159",
+          "width": 390,
+          "height": 11829,
+          "bytes": 842522
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-ddbea-hetype-states-and-contracts/02-expanded-metadata-changes-long-identifiers.png",
+          "sha256": "70d65f7314ad075d7e1dbf2882f469ef9870f1bdb8fdb0c9a2ced5479fe8a999",
+          "width": 390,
+          "height": 12595,
+          "bytes": 886525
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-ddbea-hetype-states-and-contracts/03-draft-unapplied-filters.png",
+          "sha256": "cc865bca5086cccbb3f01db9560b3f7a302de97733c3002005b3966097242c2f",
+          "width": 390,
+          "height": 11829,
+          "bytes": 845634
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-ddbea-hetype-states-and-contracts/04-placeholder-retained-during-applied-query.png",
+          "sha256": "b9065135775ef5696043ed143ed310f78e25b0db58b1ee2fe7458a04454d0309",
+          "width": 390,
+          "height": 11895,
+          "bytes": 848114
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-ddbea-hetype-states-and-contracts/05-applied-filters.png",
+          "sha256": "5517ad450cecef92dc6344f0af3f06e7171bab13749f395afa127b44adfa9e44",
+          "width": 390,
+          "height": 11829,
+          "bytes": 844641
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-ddbea-hetype-states-and-contracts/06-export-pending-applied-not-draft.png",
+          "sha256": "1db1cc22cad44ac64ad867752f688aad9b3bf64aec501325f86a56eea19d3692",
+          "width": 390,
+          "height": 11829,
+          "bytes": 844338
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-ddbea-hetype-states-and-contracts/07-export-error-retains-ledger.png",
+          "sha256": "7e1437a6d5378904e163bbeccb3e97c445d56087e72e0440d8ea8b58e460eedc",
+          "width": 390,
+          "height": 11917,
+          "bytes": 851686
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-ddbea-hetype-states-and-contracts/08-page-two-server-pagination.png",
+          "sha256": "26aa5c5e5119ad250d31c95bf04a55e7d79ddec3443ae542d5d29c4d52081144",
+          "width": 390,
+          "height": 11829,
+          "bytes": 844657
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-ddbea-hetype-states-and-contracts/09-keyboard-focus-open-details.png",
+          "sha256": "5c2174a4deea62a8fecec0ae44be02d4e471f98a11928060ca129a719c865673",
+          "width": 390,
+          "height": 12383,
+          "bytes": 877339
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-ddbea-hetype-states-and-contracts/10-half-viewport-reflow-proxy.png",
+          "sha256": "7eeefb7fd100c5b0dd651d1fee0f45ceff6e660ed794223faba8fc37cc65db6e",
+          "width": 320,
+          "height": 12351,
+          "bytes": 879244
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-ddbea-hetype-states-and-contracts/11-background-refetch-retained.png",
+          "sha256": "15b082890a58062516df6154b7fc5ce2e96f41fd35c77938117936b430ad5bb1",
+          "width": 390,
+          "height": 11895,
+          "bytes": 845808
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-ddbea-hetype-states-and-contracts/12-successful-empty-current-query.png",
+          "sha256": "a339c5e44d48f1e8a9d24f1f88af33625393488e9e97fea48b02900edf78e3f9",
+          "width": 390,
+          "height": 1955,
+          "bytes": 103441
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-ddbea-hetype-states-and-contracts/13-initial-pending-no-data.png",
+          "sha256": "9c8d2acbb2cdb3f6ce04b12849b4aea4b6c06c8c35022dabe1e328e4e245b955",
+          "width": 390,
+          "height": 1955,
+          "bytes": 99352
+        },
+        {
+          "file": "browser-contract-final/audit-log-archetype-en-lig-ddbea-hetype-states-and-contracts/14-cold-error-no-invented-auth-message.png",
+          "sha256": "62748f78b3ce2acf740114922dc57a1c9dee93ffa6077e645f9d0dedf283a62f",
+          "width": 390,
+          "height": 1955,
+          "bytes": 100574
+        }
+      ]
+    }
+  ],
+  "externalLogHashes": {
+    "full-tests.log": "76882518969aaf2040f96fc9accfa1b160a8a1e0049693d589e9e96e3445ee49",
+    "full-tests-contract-final.log": "7e779a5236188ecfb9c3f86792bd3936d6dce99da2ad60e64521a6699edb74f5",
+    "browser-matrix.log": "54caf4eff322af1270e813f9efd5882939b7de2aab7ca0ce4af1e575c6b08cad",
+    "browser-contract-final.log": "54d36e4efade00acbba5b42b48a66f2366f01db07105acad1f05b6d30e5237f9"
+  }
+}
