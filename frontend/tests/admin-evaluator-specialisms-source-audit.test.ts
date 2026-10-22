@@ -1,4 +1,5 @@
 import { withoutFinalAdminAdditions } from "./helpers/admin-final-catalogue-projection";
+import { projectAssessmentOperationsSource } from "./helpers/assessment-operations-projection";
 import { readFileSync } from "node:fs";
 import { createTranslator } from "next-intl";
 import { describe, expect, it } from "vitest";
@@ -10,9 +11,12 @@ import {
   contractHash,
   hash,
 } from "./helpers/admin-evaluator-specialisms-i18n-audit";
-const source = readFileSync(
+const source = projectAssessmentOperationsSource(
+  readFileSync(
+    "src/features/admin/evaluator-specialism-management.tsx",
+    "utf8",
+  ),
   "src/features/admin/evaluator-specialism-management.tsx",
-  "utf8",
 );
 describe("Evaluator specialism static copy and frozen base-main contracts", () => {
   it("has zero static bilingual, Arabic, English, inline bilingual or unclassified UI", () => {

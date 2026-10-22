@@ -1,4 +1,5 @@
 import { withoutFinalAdminAdditions } from "./helpers/admin-final-catalogue-projection";
+import { projectAssessmentOperationsSource } from "./helpers/assessment-operations-projection";
 import { readFileSync } from "node:fs";
 import ts from "typescript";
 import { createTranslator } from "next-intl";
@@ -21,7 +22,10 @@ const completed: File[] = files;
 const sources = Object.fromEntries(
   files.map((name) => [
     name,
-    readFileSync(`src/features/admin/${name}.tsx`, "utf8"),
+    projectAssessmentOperationsSource(
+      readFileSync(`src/features/admin/${name}.tsx`, "utf8"),
+      `src/features/admin/${name}.tsx`,
+    ),
   ]),
 ) as Record<File, string>;
 function leaves(value: unknown, prefix = ""): string[] {

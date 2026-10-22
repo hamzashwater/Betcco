@@ -1,4 +1,5 @@
 import { withoutFinalAdminAdditions } from "./helpers/admin-final-catalogue-projection";
+import { projectAssessmentOperationsSource } from "./helpers/assessment-operations-projection";
 import { readFileSync } from "node:fs";
 import { createTranslator } from "next-intl";
 import { describe, expect, it } from "vitest";
@@ -14,7 +15,10 @@ import {
 const sources = Object.fromEntries(
   files.map((name) => [
     name,
-    readFileSync(`src/features/admin/${name}.tsx`, "utf8"),
+    projectAssessmentOperationsSource(
+      readFileSync(`src/features/admin/${name}.tsx`, "utf8"),
+      `src/features/admin/${name}.tsx`,
+    ),
   ]),
 );
 describe("Admin assessment coordination static-copy and technical contract audit", () => {

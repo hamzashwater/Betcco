@@ -1,5 +1,8 @@
 "use client";
 
+import operations from "./assessment-operations.module.css";
+import { assessmentRequestMessage } from "./assessment-operations-state";
+
 import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -75,12 +78,12 @@ export function EvaluationAppealManagement() {
   const date = (value: string) => formatLocalizedDateTime(value, locale);
 
   return (
-    <section className="shell py-8 sm:py-10">
+    <section className={`shell py-8 sm:py-10 ${operations.workspace}`}>
       <div className="max-w-3xl">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
           BETCCO · {t("evaluationAppeals.eyebrow")}
         </p>
-        <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
+        <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
           {t("evaluationAppeals.title")}
         </h1>
         <p className="mt-3 leading-7 text-muted">
@@ -91,9 +94,14 @@ export function EvaluationAppealManagement() {
       {appeals.isPending ? <p className="mt-6 text-muted">…</p> : null}
       {appeals.isError ? (
         <p role="alert" className="card mt-6 p-4 text-red-500">
-          {appeals.error instanceof Error
-            ? appeals.error.message
-            : t("evaluationAppeals.loadError")}
+          {assessmentRequestMessage(
+            appeals.error,
+            appeals.error instanceof Error
+              ? appeals.error.message
+              : t("evaluationAppeals.loadError"),
+            t,
+            Boolean(appeals.data),
+          )}
         </p>
       ) : null}
       {appeals.isSuccess && appeals.data.length === 0 ? (
@@ -101,7 +109,7 @@ export function EvaluationAppealManagement() {
           {t("evaluationAppeals.empty")}
         </p>
       ) : null}
-      <div className="mt-6 grid gap-4">
+      <div className={operations.rows}>
         {appeals.data?.map((appeal) => {
           const draft = drafts[appeal.id] ?? {
             decision: "Rejected" as Decision,
@@ -109,9 +117,9 @@ export function EvaluationAppealManagement() {
           };
           const canReview = draft.rationale.trim().length >= 10;
           return (
-            <article key={appeal.id} className="card grid gap-4 p-5 sm:p-6">
+            <article key={appeal.id} className={`${operations.row} grid gap-4`}>
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-black text-primary">
+                <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-bold text-primary">
                   {appeal.status}
                 </span>
                 <time
@@ -121,8 +129,8 @@ export function EvaluationAppealManagement() {
                   {date(appeal.createdAtUtc)}
                 </time>
               </div>
-              <div className="rounded-xl border border-border bg-page/40 p-4">
-                <p className="text-xs font-black uppercase tracking-wide text-muted">
+              <div className={operations.detail}>
+                <p className="text-xs font-bold uppercase tracking-wide text-muted">
                   {t("evaluationAppeals.studentReason")}
                 </p>
                 <p className="mt-2 whitespace-pre-wrap leading-7">
@@ -131,20 +139,20 @@ export function EvaluationAppealManagement() {
               </div>
               <a
                 href={`/api/v1/assessment-audit-exports/${appeal.evaluationRequestId}`}
-                className="focus-ring justify-self-start rounded-xl border border-border px-4 py-2 text-sm font-black hover:border-primary"
+                className="focus-ring justify-self-start rounded-xl border border-border px-4 py-2 text-sm font-bold hover:border-primary"
               >
                 {t("evaluationAppeals.auditExport")}
               </a>
               {pdfReportStatus.data?.isConfigured ? (
                 <a
                   href={`/api/v1/assessment-pdf-reports/${appeal.evaluationRequestId}?locale=${locale}`}
-                  className="focus-ring justify-self-start rounded-xl border border-border px-4 py-2 text-sm font-black hover:border-primary"
+                  className="focus-ring justify-self-start rounded-xl border border-border px-4 py-2 text-sm font-bold hover:border-primary"
                 >
                   {t("evaluationAppeals.pdfReport")}
                 </a>
               ) : null}
               <div className="grid gap-3 sm:grid-cols-[12rem_1fr]">
-                <label className="grid gap-2 text-sm font-black">
+                <label className="grid gap-2 text-sm font-bold">
                   {t("evaluationAppeals.decision")}
                   <select
                     className="focus-ring rounded-xl border border-border bg-background px-3 py-3 text-foreground"
@@ -163,7 +171,7 @@ export function EvaluationAppealManagement() {
                     </option>
                   </select>
                 </label>
-                <label className="grid gap-2 text-sm font-black">
+                <label className="grid gap-2 text-sm font-bold">
                   {t("evaluationAppeals.rationale")}
                   <textarea
                     className="focus-ring min-h-28 rounded-xl border border-border bg-background px-3 py-3 text-foreground"
@@ -187,7 +195,7 @@ export function EvaluationAppealManagement() {
                 type="button"
                 onClick={() => review.mutate({ appealId: appeal.id, ...draft })}
                 disabled={!canReview || review.isPending}
-                className="focus-ring justify-self-start rounded-xl bg-primary px-5 py-3 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+                className="focus-ring justify-self-start rounded-xl bg-primary px-5 py-3 font-bold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {review.isPending
                   ? t("evaluationAppeals.recording")

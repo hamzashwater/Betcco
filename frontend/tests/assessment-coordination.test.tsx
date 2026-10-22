@@ -211,8 +211,13 @@ describe("Assessment coordination queue", () => {
       ),
     );
     expect(
-      await screen.findByText("No requests match this status."),
+      await screen.findByText(enMessages.adminWorkspace.gradebook.empty),
     ).toBeVisible();
+    expect(
+      screen.queryByText(
+        enMessages.adminWorkspace.assessmentCoordination.empty,
+      ),
+    ).not.toBeInTheDocument();
   });
 
   it("shows a localized mapping blocker in Arabic", async () => {

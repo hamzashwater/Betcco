@@ -1,5 +1,8 @@
 "use client";
 
+import operations from "./assessment-operations.module.css";
+import { assessmentRequestMessage } from "./assessment-operations-state";
+
 import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { academicText } from "@/lib/academic-localization";
@@ -88,12 +91,12 @@ export function EvaluatorSpecialismManagement() {
   });
 
   return (
-    <section className="shell py-10">
-      <h1 className="text-3xl font-black">{t("evaluatorSpecialisms.title")}</h1>
+    <section className={`shell py-8 sm:py-10 ${operations.workspace}`}>
+      <h1 className="text-3xl font-bold">{t("evaluatorSpecialisms.title")}</h1>
       <p className="mt-2 text-sm text-muted">
         {t("evaluatorSpecialisms.description")}
       </p>
-      <div className="card mt-6 grid gap-4 p-5 md:grid-cols-2">
+      <div className={`${operations.panel} grid gap-4 md:grid-cols-2`}>
         <label className="grid gap-2 text-sm font-bold">
           {t("evaluatorSpecialisms.evaluator")}
           <select
@@ -131,7 +134,7 @@ export function EvaluatorSpecialismManagement() {
         </label>
         <button
           type="button"
-          className="focus-ring rounded-xl bg-primary px-4 py-3 font-black text-slate-950 disabled:opacity-50 md:col-span-2"
+          className="focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-slate-950 disabled:opacity-50 md:col-span-2"
           disabled={!evaluatorUserId || !unitDefinitionId || grant.isPending}
           onClick={() => grant.mutate()}
         >
@@ -151,7 +154,16 @@ export function EvaluatorSpecialismManagement() {
         grant.isError ||
         revoke.isError) && (
         <p className="mt-4 text-sm text-red-600" role="alert">
-          {t("evaluatorSpecialisms.operationError")}
+          {assessmentRequestMessage(
+            staff.error ??
+              units.error ??
+              history.error ??
+              grant.error ??
+              revoke.error,
+            t("evaluatorSpecialisms.operationError"),
+            t,
+            Boolean(staff.data && units.data && history.data),
+          )}
         </p>
       )}
       {success && (
@@ -161,7 +173,7 @@ export function EvaluatorSpecialismManagement() {
             : t("evaluatorSpecialisms.revokeSuccess")}
         </p>
       )}
-      <h2 className="mt-10 text-2xl font-black">
+      <h2 className="mt-10 text-2xl font-bold">
         {t("evaluatorSpecialisms.history")}
       </h2>
       {!history.isPending && history.data?.items.length === 0 && (
@@ -169,9 +181,9 @@ export function EvaluatorSpecialismManagement() {
           {t("evaluatorSpecialisms.emptyHistory")}
         </p>
       )}
-      <div className="mt-4 grid gap-3">
+      <div className={operations.rows}>
         {history.data?.items.map((item) => (
-          <article key={item.id} className="card min-w-0 p-5">
+          <article key={item.id} className={operations.row}>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="font-bold">{item.evaluatorName}</p>

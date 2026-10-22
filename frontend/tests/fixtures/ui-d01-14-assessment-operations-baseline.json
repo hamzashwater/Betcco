@@ -1,0 +1,826 @@
+{
+  "base": "dd4ecf756716270b65312968d44e21fc2974010f",
+  "files": {
+    "src/features/admin/admin-area.tsx": {
+      "hash": "153b455caf771a3f37fd544d4cbb359d0f57edd969b30cc59ea50485c2e8fd5c",
+      "seams": [
+        {
+          "previous": "\"use client\";\n\n/* The review cover endpoint is authenticated, so Next's image optimizer cannot request it. */\n/* eslint-disable @next/next/no-img-element */\n",
+          "approved": "\"use client\";\n\nimport operations from \"./assessment-operations.module.css\";\nimport { assessmentRequestMessage } from \"./assessment-operations-state\";\n\n/* The review cover endpoint is authenticated, so Next's image optimizer cannot request it. */\n/* eslint-disable @next/next/no-img-element */\n"
+        },
+        {
+          "previous": "    },\n  });\n  if (\n    currentUser.isPending ||\n    pending.isPending ||\n    (canVerify && underReview.isPending)\n  )\n    return (\n      <section className=\"shell py-10\">\n        <div className=\"card p-6\" aria-busy>\n          {t(\"shared.loadingIndicator\")}\n        </div>\n      </section>\n    );\n  if (\n    currentUser.isError ||\n    pending.isError ||\n    (canVerify && underReview.isError)\n  )\n    return (\n      <section className=\"shell py-10\">\n        <p className=\"card p-6\" role=\"alert\">\n          {t(\"evaluations.loadError\")}\n        </p>\n      </section>\n    );\n  return (\n    <section className=\"shell py-10\">\n      <DashboardHeader\n        eyebrow={t(\"evaluations.eyebrow\")}\n        title={t(\"evaluations.title\")}\n        description={t(\"evaluations.description\")}\n      />\n      <AssessmentCoordinationQueue />\n      <ResitCoordinationPanel />\n      {lastAssigned && (\n",
+          "approved": "    },\n  });\n  if (\n    (currentUser.isPending && !currentUser.data) ||\n    (pending.isPending && !pending.data) ||\n    (canVerify && underReview.isPending && !underReview.data)\n  )\n    return (\n      <section className={`shell py-10 ${operations.workspace}`}>\n        <div className=\"card p-6\" aria-busy>\n          {t(\"shared.loadingIndicator\")}\n        </div>\n      </section>\n    );\n  if (\n    (currentUser.isError && !currentUser.data) ||\n    (pending.isError && !pending.data) ||\n    (canVerify && underReview.isError && !underReview.data)\n  )\n    return (\n      <section className={`shell py-10 ${operations.workspace}`}>\n        <p className=\"card p-6\" role=\"alert\">\n          {assessmentRequestMessage(\n            currentUser.error ?? pending.error ?? underReview.error,\n            t(\"evaluations.loadError\"),\n            t,\n            Boolean(\n              currentUser.data &&\n              pending.data &&\n              (!canVerify || underReview.data),\n            ),\n          )}\n        </p>\n      </section>\n    );\n  return (\n    <section className={`shell py-10 ${operations.workspace}`}>\n      <DashboardHeader\n        eyebrow={t(\"evaluations.eyebrow\")}\n        title={t(\"evaluations.title\")}\n        description={t(\"evaluations.description\")}\n      />\n      <nav\n        className={operations.navigation}\n        aria-label={t(\"evaluations.title\")}\n      >\n        <a href=\"#assessment-coordination\">\n          {t(\"assessmentCoordination.title\")}\n        </a>\n        <a href=\"#assessment-assignment\">{t(\"evaluatorAssignment.title\")}</a>\n        <a href=\"#assessment-resit\">{t(\"resitCoordination.title\")}</a>\n        {canVerify && (\n          <a href=\"#assessment-verification\">\n            {t(\"evaluations.verificationTitle\")}\n          </a>\n        )}\n      </nav>\n      {(currentUser.isError ||\n        pending.isError ||\n        (canVerify && underReview.isError)) && (\n        <p className={operations.error} role=\"alert\">\n          {assessmentRequestMessage(\n            currentUser.error ?? pending.error ?? underReview.error,\n            t(\"evaluations.loadError\"),\n            t,\n            Boolean(\n              currentUser.data &&\n              pending.data &&\n              (!canVerify || underReview.data),\n            ),\n          )}\n        </p>\n      )}\n      <AssessmentCoordinationQueue />\n      <ResitCoordinationPanel />\n      {lastAssigned && (\n"
+        },
+        {
+          "previous": "          {t(\"evaluations.assigned\")}\n        </p>\n      )}\n      <div className=\"mt-5 grid gap-4\">\n        {pending.data?.map((evaluation) => (\n          <EligibleEvaluatorAssignment\n            key={evaluation.id}\n            evaluation={evaluation}\n            onAssigned={() => {\n              setLastAssigned(true);\n              client.invalidateQueries({ queryKey: [\"pending-evaluations\"] });\n              client.invalidateQueries({\n                queryKey: [\"assessment-coordination\"],\n              });\n              client.invalidateQueries({ queryKey: [\"admin-dashboard\"] });\n            }}\n          />\n        ))}\n        {!pending.data?.length && (\n          <div className=\"card p-6 text-sm leading-6 text-muted\">\n            {t(\"evaluations.emptyPending\")}\n          </div>\n        )}\n      </div>\n      <section className=\"mt-10\" hidden={!canVerify}>\n        <div className=\"mb-4\">\n          <p className=\"text-xs font-black uppercase tracking-[0.16em] text-primary\">\n            {t(\"evaluations.verificationEyebrow\")}\n          </p>\n          <h2 className=\"mt-1 text-2xl font-black\">\n            {t(\"evaluations.verificationTitle\")}\n          </h2>\n          <p className=\"mt-2 text-sm text-muted\">\n",
+          "approved": "          {t(\"evaluations.assigned\")}\n        </p>\n      )}\n      <section\n        id=\"assessment-assignment\"\n        className={operations.panel}\n        aria-label={t(\"evaluatorAssignment.title\")}\n      >\n        <h2>{t(\"evaluatorAssignment.title\")}</h2>\n        <div className={operations.rows}>\n          {pending.data?.map((evaluation) => (\n            <EligibleEvaluatorAssignment\n              key={evaluation.id}\n              evaluation={evaluation}\n              onAssigned={() => {\n                setLastAssigned(true);\n                client.invalidateQueries({ queryKey: [\"pending-evaluations\"] });\n                client.invalidateQueries({\n                  queryKey: [\"assessment-coordination\"],\n                });\n                client.invalidateQueries({ queryKey: [\"admin-dashboard\"] });\n              }}\n            />\n          ))}\n          {!pending.data?.length && (\n            <div className=\"card p-6 text-sm leading-6 text-muted\">\n              {t(\"evaluations.emptyPending\")}\n            </div>\n          )}\n        </div>\n      </section>\n      <section\n        id=\"assessment-verification\"\n        className={operations.panel}\n        hidden={!canVerify}\n      >\n        <div className=\"mb-4\">\n          <p className=\"text-xs font-bold uppercase tracking-[0.16em] text-primary\">\n            {t(\"evaluations.verificationEyebrow\")}\n          </p>\n          <h2 className=\"mt-1 text-2xl font-bold\">\n            {t(\"evaluations.verificationTitle\")}\n          </h2>\n          <p className=\"mt-2 text-sm text-muted\">\n"
+        },
+        {
+          "previous": "        </div>\n        <div className=\"grid gap-4\">\n          {underReview.data?.map((evaluation) => (\n            <article key={evaluation.id} className=\"card p-5\">\n              <div className=\"grid gap-5 lg:grid-cols-2\">\n                <div>\n                  <div className=\"rounded-xl border border-primary/30 bg-primary/10 p-4\">\n                    <p className=\"text-xs font-black uppercase tracking-wide text-primary\">\n                      {t(\"evaluations.calculatedResult\")}\n                    </p>\n                    <p className=\"mt-1 text-xl font-black text-foreground\">\n                      {evaluation.calculatedGrade ?? t(\"shared.unavailable\")}\n                    </p>\n                    <div className=\"mt-3 grid gap-2 sm:grid-cols-3\">\n",
+          "approved": "        </div>\n        <div className=\"grid gap-4\">\n          {underReview.data?.map((evaluation) => (\n            <article key={evaluation.id} className={operations.row}>\n              <div className=\"grid gap-5 lg:grid-cols-2\">\n                <div>\n                  <div className=\"rounded-xl border border-primary/30 bg-primary/10 p-4\">\n                    <p className=\"text-xs font-bold uppercase tracking-wide text-primary\">\n                      {t(\"evaluations.calculatedResult\")}\n                    </p>\n                    <p className=\"mt-1 text-xl font-bold text-foreground\">\n                      {evaluation.calculatedGrade ?? t(\"shared.unavailable\")}\n                    </p>\n                    <div className=\"mt-3 grid gap-2 sm:grid-cols-3\">\n"
+        },
+        {
+          "previous": "                      ))}\n                    </div>\n                  </div>\n                  <h3 className=\"font-black\">\n                    {t(\"evaluations.criterionOutcomes\")}\n                  </h3>\n                  <ul className=\"mt-3 grid gap-2 text-sm\">\n",
+          "approved": "                      ))}\n                    </div>\n                  </div>\n                  <h3 className=\"font-bold\">\n                    {t(\"evaluations.criterionOutcomes\")}\n                  </h3>\n                  <ul className=\"mt-3 grid gap-2 text-sm\">\n"
+        },
+        {
+          "previous": "                  </ul>\n                </div>\n                <div>\n                  <h3 className=\"font-black\">\n                    {t(\"evaluations.studentEvidence\")}\n                  </h3>\n                  <ul className=\"mt-3 grid gap-2 text-sm text-muted\">\n",
+          "approved": "                  </ul>\n                </div>\n                <div>\n                  <h3 className=\"font-bold\">\n                    {t(\"evaluations.studentEvidence\")}\n                  </h3>\n                  <ul className=\"mt-3 grid gap-2 text-sm text-muted\">\n"
+        },
+        {
+          "previous": "                    verify.mutate({ requestId: evaluation.id, approve: true })\n                  }\n                  disabled={verify.isPending}\n                  className=\"focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950\"\n                >\n                  {t(\"evaluations.approve\")}\n                </button>\n",
+          "approved": "                    verify.mutate({ requestId: evaluation.id, approve: true })\n                  }\n                  disabled={verify.isPending}\n                  className=\"focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-slate-950\"\n                >\n                  {t(\"evaluations.approve\")}\n                </button>\n"
+        },
+        {
+          "previous": "                    !(verificationNotes[evaluation.id] ?? \"\").trim() ||\n                    !resubmissionDueDates[evaluation.id]\n                  }\n                  className=\"focus-ring rounded-xl border border-amber-400/50 px-4 py-2.5 text-sm font-black text-amber-300 disabled:opacity-50\"\n                >\n                  {t(\"evaluations.requestResubmission\")}\n                </button>\n",
+          "approved": "                    !(verificationNotes[evaluation.id] ?? \"\").trim() ||\n                    !resubmissionDueDates[evaluation.id]\n                  }\n                  className=\"focus-ring rounded-xl border border-amber-400/50 px-4 py-2.5 text-sm font-bold text-amber-300 disabled:opacity-50\"\n                >\n                  {t(\"evaluations.requestResubmission\")}\n                </button>\n"
+        }
+      ],
+      "invariants": {
+        "calls": [
+          "useState(\"30d\")",
+          "useState(() => DateInputValue(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)), )",
+          "useState(() => DateInputValue(new Date()))",
+          "useQuery({ queryKey: [\"admin-dashboard\", period, customFrom, customTo], queryFn: () => api<Dashboard>(dashboardQuery), enabled: period !== \"custom\" || customRangeIsValid, })",
+          "api<Dashboard>(dashboardQuery)",
+          "useQuery({ queryKey: [\"school-integration-status\"], queryFn: () => api<SchoolIntegrationStatus>(\"/admin/integrations/school/status\"), })",
+          "api<SchoolIntegrationStatus>(\"/admin/integrations/school/status\")",
+          "useMutation({ mutationFn: () => api<SchoolIntegrationStatus>( \"/admin/integrations/school/test-connection\", { method: \"POST\" }, ), })",
+          "api<SchoolIntegrationStatus>( \"/admin/integrations/school/test-connection\", { method: \"POST\" }, )",
+          "useQueryClient()",
+          "useState<Record<string, string>>({})",
+          "useQuery({ queryKey: [\"admin-wallet\"], queryFn: () => api<AdminWalletView>(\"/admin/wallet\"), })",
+          "api<AdminWalletView>(\"/admin/wallet\")",
+          "client.invalidateQueries({ queryKey: [\"admin-wallet\"] })",
+          "client.invalidateQueries({ queryKey: [\"admin-dashboard\"] })",
+          "useMutation({ mutationFn: (payoutId: string) => api(`/admin/wallet/payouts/${payoutId}/approve`, { method: \"POST\", body: JSON.stringify({ note: notes[payoutId] || null }), }), onSuccess: refresh, })",
+          "api(`/admin/wallet/payouts/${payoutId}/approve`, { method: \"POST\", body: JSON.stringify({ note: notes[payoutId] || null }), })",
+          "useMutation({ mutationFn: (payoutId: string) => api(`/admin/wallet/payouts/${payoutId}/reject`, { method: \"POST\", body: JSON.stringify({ note: notes[payoutId] || null }), }), onSuccess: refresh, })",
+          "api(`/admin/wallet/payouts/${payoutId}/reject`, { method: \"POST\", body: JSON.stringify({ note: notes[payoutId] || null }), })",
+          "useMutation({ mutationFn: (payoutId: string) => api(`/admin/wallet/payouts/${payoutId}/execute`, { method: \"POST\" }), onSuccess: refresh, })",
+          "api(`/admin/wallet/payouts/${payoutId}/execute`, { method: \"POST\" })",
+          "useMutation({ mutationFn: (payoutId: string) => api(`/admin/wallet/payouts/${payoutId}/settle`, { method: \"POST\" }), onSuccess: refresh, })",
+          "api(`/admin/wallet/payouts/${payoutId}/settle`, { method: \"POST\" })",
+          "useQueryClient()",
+          "useState(\"\")",
+          "useState<string[]>([])",
+          "useState<BulkStudentAction | null>(null)",
+          "useState<BulkStudentActionResult | null>(null)",
+          "useState<Student | null>(null)",
+          "useState<Student | null>(null)",
+          "useState(\"\")",
+          "useQuery({ queryKey: [\"admin-students\", search], queryFn: () => api<{ items: Student[] }>( `/admin/users?role=Student&pageSize=100&search=${encodeURIComponent(search)}`, ), })",
+          "api<{ items: Student[] }>( `/admin/users?role=Student&pageSize=100&search=${encodeURIComponent(search)}`, )",
+          "useMutation({ mutationFn: ({ userId, resetReason, }: { userId: string; resetReason: string; }) => api(`/admin/users/${userId}/reset-device`, { method: \"POST\", body: JSON.stringify({ reason: resetReason }), }), onSuccess: () => { client.invalidateQueries({ queryKey: [\"admin-students\"] }); setResetTarget(null); setReason(\"\"); }, })",
+          "api(`/admin/users/${userId}/reset-device`, { method: \"POST\", body: JSON.stringify({ reason: resetReason }), })",
+          "client.invalidateQueries({ queryKey: [\"admin-students\"] })",
+          "useMutation({ mutationFn: (userId: string) => api(`/admin/users/${userId}/approve`, { method: \"POST\" }), onSuccess: () => client.invalidateQueries({ queryKey: [\"admin-students\"] }), })",
+          "api(`/admin/users/${userId}/approve`, { method: \"POST\" })",
+          "client.invalidateQueries({ queryKey: [\"admin-students\"] })",
+          "useMutation({ mutationFn: ({ userId, frozen }: { userId: string; frozen: boolean }) => api(`/admin/users/${userId}/freeze`, { method: \"POST\", body: JSON.stringify({ frozen }), }), onSuccess: () => client.invalidateQueries({ queryKey: [\"admin-students\"] }), })",
+          "api(`/admin/users/${userId}/freeze`, { method: \"POST\", body: JSON.stringify({ frozen }), })",
+          "client.invalidateQueries({ queryKey: [\"admin-students\"] })",
+          "useMutation({ mutationFn: async ({ action, userIds, }: { action: BulkStudentAction; userIds: string[]; }): Promise<BulkStudentActionResult> => { const results = await Promise.all( userIds.map(async (userId) => { try { if (action === \"approve\") { await api(`/admin/users/${userId}/approve`, { method: \"POST\" }); } else if (action === \"delete\") { await api(`/admin/users/${userId}`, { method: \"DELETE\" }); } else { await api(`/admin/users/${userId}/freeze`, { method: \"POST\", body: JSON.stringify({ frozen: action === \"freeze\" }), }); } return { userId, succeeded: true }; } catch { return { userId, succeeded: false }; } }), ); return { action, succeededIds: results .filter((result) => result.succeeded) .map((result) => result.userId), failedIds: results .filter((result) => !result.succeeded) .map((result) => result.userId), }; }, onSuccess: (result) => { client.invalidateQueries({ queryKey: [\"admin-students\"] }); if (result.action === \"delete\") { client.invalidateQueries({ queryKey: [\"admin-dashboard\"] }); } setSelectedStudentIds(result.failedIds); setLastBulkResult(result); setPendingBulkAction(null); }, })",
+          "api(`/admin/users/${userId}/approve`, { method: \"POST\" })",
+          "api(`/admin/users/${userId}`, { method: \"DELETE\" })",
+          "api(`/admin/users/${userId}/freeze`, { method: \"POST\", body: JSON.stringify({ frozen: action === \"freeze\" }), })",
+          "client.invalidateQueries({ queryKey: [\"admin-students\"] })",
+          "client.invalidateQueries({ queryKey: [\"admin-dashboard\"] })",
+          "useMutation({ mutationFn: (userId: string) => api(`/admin/users/${userId}`, { method: \"DELETE\" }), onSuccess: () => { client.invalidateQueries({ queryKey: [\"admin-students\"] }); client.invalidateQueries({ queryKey: [\"admin-dashboard\"] }); setDeleteTarget(null); }, })",
+          "api(`/admin/users/${userId}`, { method: \"DELETE\" })",
+          "client.invalidateQueries({ queryKey: [\"admin-students\"] })",
+          "client.invalidateQueries({ queryKey: [\"admin-dashboard\"] })",
+          "useQueryClient()",
+          "useState(false)",
+          "useQuery({ queryKey: [\"current-user\"], queryFn: () => api<{ roles: string[] }>(\"/auth/me\"), retry: false, })",
+          "api<{ roles: string[] }>(\"/auth/me\")",
+          "useQuery({ queryKey: [\"pending-evaluations\"], queryFn: () => api<PendingEvaluation[]>(\"/evaluations/pending-assignment\"), })",
+          "api<PendingEvaluation[]>(\"/evaluations/pending-assignment\")",
+          "useQuery({ queryKey: [\"under-review-evaluations\"], queryFn: () => api<UnderReviewEvaluation[]>(\"/evaluations/under-review\"), refetchInterval: 10_000, enabled: canVerify, })",
+          "api<UnderReviewEvaluation[]>(\"/evaluations/under-review\")",
+          "useState< Record<string, string> >({})",
+          "useState< Record<string, string> >({})",
+          "useMutation({ mutationFn: ({ requestId, approve, }: { requestId: string; approve: boolean; }) => api(`/evaluations/${requestId}/internal-verification`, { method: \"POST\", body: JSON.stringify({ approve, comment: verificationNotes[requestId] || null, resubmissionDueAtUtc: approve ? null : resubmissionDueDates[requestId] ? new Date(resubmissionDueDates[requestId]).toISOString() : null, }), }), onSuccess: () => { client.invalidateQueries({ queryKey: [\"under-review-evaluations\"] }); client.invalidateQueries({ queryKey: [\"admin-dashboard\"] }); }, })",
+          "api(`/evaluations/${requestId}/internal-verification`, { method: \"POST\", body: JSON.stringify({ approve, comment: verificationNotes[requestId] || null, resubmissionDueAtUtc: approve ? null : resubmissionDueDates[requestId] ? new Date(resubmissionDueDates[requestId]).toISOString() : null, }), })",
+          "client.invalidateQueries({ queryKey: [\"under-review-evaluations\"] })",
+          "client.invalidateQueries({ queryKey: [\"admin-dashboard\"] })",
+          "client.invalidateQueries({ queryKey: [\"pending-evaluations\"] })",
+          "client.invalidateQueries({ queryKey: [\"assessment-coordination\"], })",
+          "client.invalidateQueries({ queryKey: [\"admin-dashboard\"] })",
+          "useQueryClient()",
+          "useState(\"\")",
+          "useState(\"\")",
+          "useState< Record<string, string> >({})",
+          "useQuery({ queryKey: [\"admin-teachers\"], queryFn: () => api<{ items: Teacher[]; totalCount: number }>( \"/admin/users?role=Teacher&pageSize=100\", ), })",
+          "api<{ items: Teacher[]; totalCount: number }>( \"/admin/users?role=Teacher&pageSize=100\", )",
+          "useQuery({ queryKey: [\"teacher-invitations\"], queryFn: () => api<{ items: TeacherInvitation[]; totalCount: number }>( \"/admin/users/teachers/invitations?pageSize=100\", ), })",
+          "api<{ items: TeacherInvitation[]; totalCount: number }>( \"/admin/users/teachers/invitations?pageSize=100\", )",
+          "client.invalidateQueries({ queryKey: [\"admin-dashboard\"] })",
+          "client.invalidateQueries({ queryKey: [\"admin-teachers\"] })",
+          "client.invalidateQueries({ queryKey: [\"teachers-for-evaluation\"] })",
+          "client.invalidateQueries({ queryKey: [\"teacher-invitations\"] })",
+          "useMutation({ mutationFn: () => api(\"/admin/users/teachers/invite\", { method: \"POST\", body: JSON.stringify({ displayName, email }), }), onSuccess: () => { setName(\"\"); setEmail(\"\"); refreshTeachers(); }, })",
+          "api(\"/admin/users/teachers/invite\", { method: \"POST\", body: JSON.stringify({ displayName, email }), })",
+          "useMutation({ mutationFn: ({ userId, frozen }: { userId: string; frozen: boolean }) => api(`/admin/users/${userId}/freeze`, { method: \"POST\", body: JSON.stringify({ frozen }), }), onSuccess: refreshTeachers, })",
+          "api(`/admin/users/${userId}/freeze`, { method: \"POST\", body: JSON.stringify({ frozen }), })",
+          "useMutation({ mutationFn: ({ invitationId, reason, }: { invitationId: string; reason: string; }) => api(`/admin/users/teachers/invitations/${invitationId}/revoke`, { method: \"POST\", body: JSON.stringify({ reason }), }), onSuccess: (_, { invitationId }) => { setRevocationReasons((current) => { const remaining = { ...current }; delete remaining[invitationId]; return remaining; }); refreshTeachers(); }, })",
+          "api(`/admin/users/teachers/invitations/${invitationId}/revoke`, { method: \"POST\", body: JSON.stringify({ reason }), })",
+          "useQueryClient()",
+          "useState<string>()",
+          "useState<Record<string, string>>({})",
+          "useQuery({ queryKey: [\"approvals\"], queryFn: () => api<Approval[]>(\"/admin/courses/approvals\"), })",
+          "api<Approval[]>(\"/admin/courses/approvals\")",
+          "useMutation({ mutationFn: ({ id, approved }: { id: string; approved: boolean }) => api(`/admin/courses/${id}/review`, { method: \"POST\", body: JSON.stringify({ approved, reason: approved ? null : reasons[id] || \"Needs revision\", }), }), onSuccess: () => { client.invalidateQueries({ queryKey: [\"approvals\"] }); client.invalidateQueries({ queryKey: [\"admin-dashboard\"] }); }, })",
+          "api(`/admin/courses/${id}/review`, { method: \"POST\", body: JSON.stringify({ approved, reason: approved ? null : reasons[id] || \"Needs revision\", }), })",
+          "client.invalidateQueries({ queryKey: [\"approvals\"] })",
+          "client.invalidateQueries({ queryKey: [\"admin-dashboard\"] })",
+          "useMutation({ mutationFn: (id: string) => api(`/admin/courses/${id}/publish`, { method: \"POST\" }), onSuccess: () => { client.invalidateQueries({ queryKey: [\"approvals\"] }); client.invalidateQueries({ queryKey: [\"admin-dashboard\"] }); setSelectedCourseId(undefined); }, })",
+          "api(`/admin/courses/${id}/publish`, { method: \"POST\" })",
+          "client.invalidateQueries({ queryKey: [\"approvals\"] })",
+          "client.invalidateQueries({ queryKey: [\"admin-dashboard\"] })",
+          "useQuery({ queryKey: [\"approval-course\", courseId], queryFn: () => api<ApprovalDetail>(`/admin/courses/${courseId}`), })",
+          "api<ApprovalDetail>(`/admin/courses/${courseId}`)"
+        ],
+        "props": [
+          "key={value}",
+          "type=\"button\"",
+          "onClick={() => setPeriod(value)}",
+          "type=\"date\"",
+          "value={customFrom}",
+          "max={customTo || undefined}",
+          "onChange={(event) => setCustomFrom(event.target.value)}",
+          "type=\"date\"",
+          "value={customTo}",
+          "min={customFrom || undefined}",
+          "max={DateInputValue(new Date())}",
+          "onChange={(event) => setCustomTo(event.target.value)}",
+          "value={result.data.students}",
+          "value={result.data.teachers}",
+          "value={result.data.activeTeachers}",
+          "value={result.data.courses}",
+          "value={result.data.publishedCourses}",
+          "value={result.data.units}",
+          "value={result.data.enrollments}",
+          "value={result.data.assignments}",
+          "value={formatLocalizedPercentage( result.data.completionRate, locale, )}",
+          "value={result.data.activeSubscriptions}",
+          "value={result.data.activeStudents}",
+          "value={formatLocalizedCurrency(result.data.revenue, \"JOD\", locale)}",
+          "value={result.data.orders}",
+          "value={result.data.refunds}",
+          "key={definition.key}",
+          "key={point.dateUtc}",
+          "type=\"button\"",
+          "onClick={() => test.mutate()}",
+          "disabled={!current?.isConfigured || test.isPending}",
+          "value={formatLocalizedCurrency( values.platformBalance, values.currency, locale, )}",
+          "value={formatLocalizedCurrency( values.confirmedPlatformCommission, values.currency, locale, )}",
+          "key={payout.id}",
+          "value={notes[payout.id] ?? payout.reviewNote ?? \"\"}",
+          "onChange={(event) => setNotes((current) => ({ ...current, [payout.id]: event.target.value, })) }",
+          "maxLength={1000}",
+          "type=\"button\"",
+          "disabled={pendingAction}",
+          "onClick={() => approve.mutate(payout.id)}",
+          "type=\"button\"",
+          "disabled={pendingAction}",
+          "onClick={() => reject.mutate(payout.id)}",
+          "type=\"button\"",
+          "disabled={pendingAction}",
+          "onClick={() => execute.mutate(payout.id)}",
+          "type=\"button\"",
+          "disabled={pendingAction}",
+          "onClick={() => settle.mutate(payout.id)}",
+          "key={sale.id}",
+          "value={search}",
+          "onChange={(event) => { setSearch(event.target.value); setSelectedStudentIds([]); setLastBulkResult(null); }}",
+          "type=\"checkbox\"",
+          "checked={allVisibleStudentsSelected}",
+          "onChange={toggleAllVisibleStudents}",
+          "type=\"button\"",
+          "onClick={() => setPendingBulkAction(\"approve\")}",
+          "type=\"button\"",
+          "onClick={() => setPendingBulkAction(\"freeze\")}",
+          "type=\"button\"",
+          "onClick={() => setPendingBulkAction(\"unfreeze\")}",
+          "type=\"button\"",
+          "onClick={() => setPendingBulkAction(\"delete\")}",
+          "type=\"button\"",
+          "onClick={() => setSelectedStudentIds([])}",
+          "key={student.id}",
+          "type=\"checkbox\"",
+          "checked={selectedStudentIds.includes(student.id)}",
+          "onChange={() => toggleStudentSelection(student.id)}",
+          "type=\"button\"",
+          "disabled={approveStudent.isPending}",
+          "onClick={() => approveStudent.mutate(student.id)}",
+          "type=\"button\"",
+          "disabled={freezeStudent.isPending}",
+          "onClick={() => freezeStudent.mutate({ userId: student.id, frozen: !student.isFrozen, }) }",
+          "type=\"button\"",
+          "disabled={student.isFrozen || resetDevice.isPending}",
+          "onClick={() => { setResetTarget(student); setReason(\"\"); }}",
+          "type=\"button\"",
+          "disabled={deleteStudent.isPending}",
+          "onClick={() => setDeleteTarget(student)}",
+          "onSubmit={(event) => { event.preventDefault(); bulkStudentAction.mutate({ action: pendingBulkAction, userIds: selectedVisibleStudentIds, }); }}",
+          "type=\"button\"",
+          "disabled={bulkStudentAction.isPending}",
+          "onClick={() => setPendingBulkAction(null)}",
+          "type=\"submit\"",
+          "disabled={bulkStudentAction.isPending}",
+          "onSubmit={(event) => { event.preventDefault(); resetDevice.mutate({ userId: resetTarget.id, resetReason: reason, }); }}",
+          "value={reason}",
+          "onChange={(event) => setReason(event.target.value)}",
+          "required",
+          "type=\"button\"",
+          "onClick={closeReset}",
+          "disabled={resetDevice.isPending}",
+          "type=\"submit\"",
+          "disabled={!reason.trim() || resetDevice.isPending}",
+          "onSubmit={(event) => { event.preventDefault(); deleteStudent.mutate(deleteTarget.id); }}",
+          "type=\"button\"",
+          "disabled={deleteStudent.isPending}",
+          "onClick={() => setDeleteTarget(null)}",
+          "type=\"submit\"",
+          "disabled={deleteStudent.isPending}",
+          "key={evaluation.id}",
+          "onAssigned={() => { setLastAssigned(true); client.invalidateQueries({ queryKey: [\"pending-evaluations\"] }); client.invalidateQueries({ queryKey: [\"assessment-coordination\"], }); client.invalidateQueries({ queryKey: [\"admin-dashboard\"] }); }}",
+          "hidden={!canVerify}",
+          "key={evaluation.id}",
+          "key={section.section}",
+          "key={result.criterionCode}",
+          "key={evidence.criterionCode}",
+          "value={verificationNotes[evaluation.id] ?? \"\"}",
+          "onChange={(event) => setVerificationNotes((current) => ({ ...current, [evaluation.id]: event.target.value, })) }",
+          "maxLength={4000}",
+          "type=\"datetime-local\"",
+          "value={resubmissionDueDates[evaluation.id] ?? \"\"}",
+          "onChange={(event) => setResubmissionDueDates((current) => ({ ...current, [evaluation.id]: event.target.value, })) }",
+          "type=\"button\"",
+          "onClick={() => verify.mutate({ requestId: evaluation.id, approve: true }) }",
+          "disabled={verify.isPending}",
+          "type=\"button\"",
+          "onClick={() => verify.mutate({ requestId: evaluation.id, approve: false, }) }",
+          "disabled={ verify.isPending || !(verificationNotes[evaluation.id] ?? \"\").trim() || !resubmissionDueDates[evaluation.id] }",
+          "onSubmit={(event) => { event.preventDefault(); invite.mutate(); }}",
+          "value={displayName}",
+          "onChange={(event) => setName(event.target.value)}",
+          "required",
+          "type=\"email\"",
+          "value={email}",
+          "onChange={(event) => setEmail(event.target.value)}",
+          "required",
+          "disabled={invite.isPending}",
+          "key={teacher.id}",
+          "type=\"button\"",
+          "disabled={freezeTeacher.isPending}",
+          "onClick={() => freezeTeacher.mutate({ userId: teacher.id, frozen: !teacher.isFrozen, }) }",
+          "key={invitation.id}",
+          "value={revocationReasons[invitation.id] ?? \"\"}",
+          "onChange={(event) => setRevocationReasons((current) => ({ ...current, [invitation.id]: event.target.value, })) }",
+          "maxLength={500}",
+          "type=\"button\"",
+          "disabled={ revokeInvitation.isPending || !revocationReasons[invitation.id]?.trim() }",
+          "onClick={() => revokeInvitation.mutate({ invitationId: invitation.id, reason: revocationReasons[invitation.id].trim(), }) }",
+          "key={course.id}",
+          "type=\"button\"",
+          "onClick={() => setSelectedCourseId((current) => current === course.id ? undefined : course.id, ) }",
+          "value={reasons[course.id] ?? \"\"}",
+          "onChange={(event) => setReasons((current) => ({ ...current, [course.id]: event.target.value, })) }",
+          "type=\"button\"",
+          "onClick={() => review.mutate({ id: course.id, approved: false }) }",
+          "type=\"button\"",
+          "onClick={() => review.mutate({ id: course.id, approved: true }) }",
+          "disabled={ selectedCourseId !== course.id || review.isPending }",
+          "type=\"button\"",
+          "onClick={() => publish.mutate(course.id)}",
+          "disabled={publish.isPending}",
+          "key={`${outcome.arabicText}-${outcome.englishText}`}",
+          "key={`${module.arabicTitle}-${module.englishTitle}`}",
+          "key={`${lesson.arabicTitle}-${lesson.englishTitle}`}",
+          "key={resource.id}",
+          "key={`${assignment.arabicTitle}-${assignment.englishTitle}`}",
+          "key={criterion.code}"
+        ]
+      }
+    },
+    "src/features/admin/assessment-coordination-queue.tsx": {
+      "hash": "efb320d844fa5008992acad776304efe75f13f84963fcd78213b5f45cd13e112",
+      "seams": [
+        {
+          "previous": "\"use client\";\n\nimport { formatLocalizedDateTime } from \"@/i18n/date-time\";\nimport { api } from \"@/lib/api\";\n",
+          "approved": "\"use client\";\n\nimport operations from \"./assessment-operations.module.css\";\nimport { assessmentRequestMessage } from \"./assessment-operations-state\";\n\nimport { formatLocalizedDateTime } from \"@/i18n/date-time\";\nimport { api } from \"@/lib/api\";\n"
+        },
+        {
+          "previous": "\n  return (\n    <section\n      className=\"mt-6 min-w-0 rounded-[1.25rem] border border-border p-4 sm:p-5\"\n      aria-label={t(\"assessmentCoordination.title\")}\n    >\n      <div className=\"flex flex-wrap items-end justify-between gap-3\">\n        <div>\n          <h2 className=\"text-xl font-black\">\n            {t(\"assessmentCoordination.title\")}\n          </h2>\n          <p className=\"mt-1 text-sm text-muted\">\n",
+          "approved": "\n  return (\n    <section\n      id=\"assessment-coordination\"\n      className={operations.panel}\n      aria-label={t(\"assessmentCoordination.title\")}\n    >\n      <div className=\"flex flex-wrap items-end justify-between gap-3\">\n        <div>\n          <h2 className=\"text-xl font-bold\">\n            {t(\"assessmentCoordination.title\")}\n          </h2>\n          <p className=\"mt-1 text-sm text-muted\">\n"
+        },
+        {
+          "previous": "        </div>\n      </div>\n\n      {queue.isPending ? (\n        <p className=\"mt-5 text-sm text-muted\" aria-busy=\"true\">\n          {t(\"assessmentCoordination.loading\")}\n        </p>\n      ) : queue.isError ? (\n        <p className=\"mt-5 text-sm text-red-600\" role=\"alert\">\n          {t(\"assessmentCoordination.loadError\")}\n        </p>\n      ) : queue.data.items.length === 0 ? (\n        <p className=\"mt-5 text-sm text-muted\">\n          {t(\"assessmentCoordination.empty\")}\n        </p>\n      ) : (\n        <>\n          <div className=\"mt-5 grid gap-3\">\n            {queue.data.items.map((item) => {\n              const label = statuses.find(\n                (option) => option.value === item.status,\n",
+          "approved": "        </div>\n      </div>\n\n      {queue.isError && queue.data && (\n        <p className={operations.error} role=\"alert\">\n          {assessmentRequestMessage(\n            queue.error,\n            t(\"assessmentCoordination.loadError\"),\n            t,\n            Boolean(queue.data),\n          )}\n        </p>\n      )}\n      {queue.isPending ? (\n        <p className=\"mt-5 text-sm text-muted\" aria-busy=\"true\">\n          {t(\"assessmentCoordination.loading\")}\n        </p>\n      ) : queue.isError && !queue.data ? (\n        <p className=\"mt-5 text-sm text-red-600\" role=\"alert\">\n          {assessmentRequestMessage(\n            queue.error,\n            t(\"assessmentCoordination.loadError\"),\n            t,\n            Boolean(queue.data),\n          )}\n        </p>\n      ) : queue.data.items.length === 0 ? (\n        <p className=\"mt-5 text-sm text-muted\">\n          {status || expectedState\n            ? t(\"gradebook.empty\")\n            : t(\"assessmentCoordination.empty\")}\n        </p>\n      ) : (\n        <>\n          <div className={operations.rows}>\n            {queue.data.items.map((item) => {\n              const label = statuses.find(\n                (option) => option.value === item.status,\n"
+        },
+        {
+          "previous": "                      ? t(\"assessmentCoordination.stateChangedBlocker\")\n                      : null;\n              return (\n                <article\n                  key={item.id}\n                  className=\"min-w-0 rounded-xl border border-border bg-surface-solid/60 p-4\"\n                >\n                  <div className=\"flex flex-wrap items-start justify-between gap-2\">\n                    <div className=\"min-w-0\">\n                      <h3 className=\"font-black\">\n                        {t(\"assessmentCoordination.request\")}{\" \"}\n                        {item.id.slice(0, 8)}\n                      </h3>\n",
+          "approved": "                      ? t(\"assessmentCoordination.stateChangedBlocker\")\n                      : null;\n              return (\n                <article key={item.id} className={operations.coordinationRow}>\n                  <div className=\"flex flex-wrap items-start justify-between gap-2\">\n                    <div className=\"min-w-0\">\n                      <h3 className=\"font-bold\">\n                        {t(\"assessmentCoordination.request\")}{\" \"}\n                        {item.id.slice(0, 8)}\n                      </h3>\n"
+        },
+        {
+          "previous": "                  )}\n                  {editingId === item.id && (\n                    <form\n                      className=\"mt-3 grid max-w-lg gap-3\"\n                      onSubmit={(event) => {\n                        event.preventDefault();\n                        void saveExpectedCompletion(item.id);\n",
+          "approved": "                  )}\n                  {editingId === item.id && (\n                    <form\n                      className={operations.detail}\n                      onSubmit={(event) => {\n                        event.preventDefault();\n                        void saveExpectedCompletion(item.id);\n"
+        },
+        {
+          "previous": "                    </form>\n                  )}\n                  {item.revisionDueAtUtc && (\n                    <div className=\"mt-4 rounded-xl border border-border p-3\">\n                      <div className=\"flex flex-wrap items-start justify-between gap-2\">\n                        <div>\n                          <p className=\"text-sm font-black\">\n                            {t(\"assessmentCoordination.revisionDeadline\")}\n                          </p>\n                          <p className=\"mt-1 text-sm text-muted\">\n",
+          "approved": "                    </form>\n                  )}\n                  {item.revisionDueAtUtc && (\n                    <div className={operations.detail}>\n                      <div className=\"flex flex-wrap items-start justify-between gap-2\">\n                        <div>\n                          <p className=\"text-sm font-bold\">\n                            {t(\"assessmentCoordination.revisionDeadline\")}\n                          </p>\n                          <p className=\"mt-1 text-sm text-muted\">\n"
+        },
+        {
+          "previous": "                                </p>\n                              )}\n                              <div>\n                                <p className=\"text-sm font-black\">\n                                  {t(\"assessmentCoordination.history\")}\n                                </p>\n                                {adjustmentSummary.history.length === 0 ? (\n",
+          "approved": "                                </p>\n                              )}\n                              <div>\n                                <p className=\"text-sm font-bold\">\n                                  {t(\"assessmentCoordination.history\")}\n                                </p>\n                                {adjustmentSummary.history.length === 0 ? (\n"
+        }
+      ],
+      "invariants": {
+        "calls": [
+          "useQueryClient()",
+          "useState<CoordinationStatus | \"\">(\"\")",
+          "useState< \"\" | CoordinationItem[\"expectedCompletionState\"] >(\"\")",
+          "useState(1)",
+          "useState<string | null>(null)",
+          "useState(\"\")",
+          "useState(\"\")",
+          "useState(false)",
+          "useState(false)",
+          "useState<string | null>(null)",
+          "useState<string | null>(null)",
+          "useState(\"\")",
+          "useState(\"\")",
+          "useState(false)",
+          "useState(false)",
+          "useState(false)",
+          "useState<DeadlineAdjustmentSummary | null>(null)",
+          "useQuery({ queryKey: [\"assessment-coordination\", status, expectedState, page], queryFn: () => api<CoordinationPage>( `/assessment-coordination/queue?page=${page}&pageSize=${pageSize}${status ? `&status=${status}` : \"\"}${expectedState ? `&expectedCompletionState=${expectedState}` : \"\"}`, ), refetchInterval: 60_000, retry: false, })",
+          "api<CoordinationPage>( `/assessment-coordination/queue?page=${page}&pageSize=${pageSize}${status ? `&status=${status}` : \"\"}${expectedState ? `&expectedCompletionState=${expectedState}` : \"\"}`, )",
+          "api<void>(`/assessment-coordination/${id}/expected-completion`, { method: \"PUT\", body: JSON.stringify({ expectedCompletionAtUtc: parsed.toISOString(), reason: reason.trim(), }), })",
+          "queryClient.invalidateQueries({ queryKey: [\"assessment-coordination\"], })",
+          "api<DeadlineAdjustmentSummary>( `/assessment-coordination/${id}/reasonable-adjustments/revision-deadline`, )",
+          "api<void>( `/assessment-coordination/${id}/reasonable-adjustments/revision-deadline`, { method: \"POST\", body: JSON.stringify({ extendedDueAtUtc: parsed.toISOString(), reason: adjustmentReason.trim(), }), }, )",
+          "queryClient.invalidateQueries({ queryKey: [\"assessment-coordination\"], })",
+          "api<void>( `/assessment-coordination/${id}/reasonable-adjustments/revision-deadline/${adjustmentId}/revoke`, { method: \"POST\", body: JSON.stringify({ reason: adjustmentReason.trim() || null, }), }, )",
+          "queryClient.invalidateQueries({ queryKey: [\"assessment-coordination\"], })"
+        ],
+        "props": [
+          "value={status}",
+          "onChange={(event) => { setStatus(event.target.value as CoordinationStatus | \"\"); setPage(1); }}",
+          "value=\"\"",
+          "key={option.value}",
+          "value={option.value}",
+          "value={expectedState}",
+          "onChange={(event) => { setExpectedState(event.target.value as typeof expectedState); setPage(1); }}",
+          "value=\"\"",
+          "value=\"NotSet\"",
+          "value=\"OnTrack\"",
+          "value=\"Overdue\"",
+          "key={item.id}",
+          "type=\"button\"",
+          "onClick={() => { setEditingId(editingId === item.id ? null : item.id); setTargetLocal(\"\"); setReason(\"\"); setSaveError(false); }}",
+          "onSubmit={(event) => { event.preventDefault(); void saveExpectedCompletion(item.id); }}",
+          "type=\"datetime-local\"",
+          "required",
+          "value={targetLocal}",
+          "onChange={(event) => setTargetLocal(event.target.value) }",
+          "required",
+          "maxLength={500}",
+          "value={reason}",
+          "onChange={(event) => setReason(event.target.value)}",
+          "type=\"submit\"",
+          "disabled={saving}",
+          "type=\"button\"",
+          "onClick={() => void toggleReasonableAdjustment(item.id) }",
+          "onSubmit={(event) => { event.preventDefault(); void revokeReasonableAdjustment( item.id, adjustmentSummary.activeAdjustmentId!, ); }}",
+          "maxLength={500}",
+          "value={adjustmentReason}",
+          "onChange={(event) => setAdjustmentReason(event.target.value) }",
+          "type=\"submit\"",
+          "disabled={adjustmentSaving}",
+          "onSubmit={(event) => { event.preventDefault(); void grantReasonableAdjustment(item.id); }}",
+          "type=\"datetime-local\"",
+          "required",
+          "value={adjustedDueLocal}",
+          "onChange={(event) => setAdjustedDueLocal(event.target.value) }",
+          "required",
+          "maxLength={500}",
+          "value={adjustmentReason}",
+          "onChange={(event) => setAdjustmentReason(event.target.value) }",
+          "type=\"submit\"",
+          "disabled={adjustmentSaving}",
+          "key={adjustment.id}",
+          "type=\"button\"",
+          "disabled={page <= 1}",
+          "onClick={() => setPage((value) => value - 1)}",
+          "type=\"button\"",
+          "disabled={page * queue.data.pageSize >= queue.data.totalCount}",
+          "onClick={() => setPage((value) => value + 1)}"
+        ]
+      }
+    },
+    "src/features/admin/eligible-evaluator-assignment.tsx": {
+      "hash": "c03f04956e88facf15edcda41e62d3a7cba45eb8f3466eebe934dbb52c59f2b3",
+      "seams": [
+        {
+          "previous": "\"use client\";\n\nimport { ApiError, api } from \"@/lib/api\";\nimport { useMutation, useQuery } from \"@tanstack/react-query\";\n",
+          "approved": "\"use client\";\n\nimport operations from \"./assessment-operations.module.css\";\nimport { assessmentRequestMessage } from \"./assessment-operations-state\";\n\nimport { ApiError, api } from \"@/lib/api\";\nimport { useMutation, useQuery } from \"@tanstack/react-query\";\n"
+        },
+        {
+          "previous": "    ].includes(assign.error.code ?? \"\");\n\n  return (\n    <article className=\"card min-w-0 p-5\">\n      <div className=\"flex flex-wrap items-start justify-between gap-4\">\n        <div className=\"min-w-0\">\n          <p className=\"flex items-center gap-2 text-sm font-black text-primary\">\n            <ClipboardCheck size={18} aria-hidden=\"true\" />\n            {t(\"evaluatorAssignment.title\")}\n          </p>\n",
+          "approved": "    ].includes(assign.error.code ?? \"\");\n\n  return (\n    <article className={operations.assignmentRow}>\n      <div className=\"flex flex-wrap items-start justify-between gap-4\">\n        <div className=\"min-w-0\">\n          <p className=\"flex items-center gap-2 text-sm font-bold text-primary\">\n            <ClipboardCheck size={18} aria-hidden=\"true\" />\n            {t(\"evaluatorAssignment.title\")}\n          </p>\n"
+        },
+        {
+          "previous": "          {evaluation.status}\n        </span>\n      </div>\n      {candidates.isPending ? (\n        <p className=\"mt-5 text-sm text-muted\" aria-busy>\n          {t(\"evaluatorAssignment.loading\")}\n        </p>\n      ) : blocked ? (\n        <p className=\"mt-5 text-sm text-amber-600\" role=\"alert\">\n          {t(\"evaluatorAssignment.mappingBlocker\")}\n        </p>\n      ) : candidates.isError ? (\n        <p className=\"mt-5 text-sm text-red-600\" role=\"alert\">\n          {t(\"evaluatorAssignment.loadError\")}\n        </p>\n      ) : candidates.data?.length === 0 ? (\n        <p className=\"mt-5 text-sm text-muted\">\n",
+          "approved": "          {evaluation.status}\n        </span>\n      </div>\n      {candidates.isError && candidates.data && (\n        <p className={operations.error} role=\"alert\">\n          {assessmentRequestMessage(\n            candidates.error,\n            t(\"evaluatorAssignment.loadError\"),\n            t,\n            Boolean(candidates.data),\n          )}\n        </p>\n      )}\n      {candidates.isPending ? (\n        <p className=\"mt-5 text-sm text-muted\" aria-busy>\n          {t(\"evaluatorAssignment.loading\")}\n        </p>\n      ) : blocked && !candidates.data ? (\n        <p className=\"mt-5 text-sm text-amber-600\" role=\"alert\">\n          {t(\"evaluatorAssignment.mappingBlocker\")}\n        </p>\n      ) : candidates.isError && !candidates.data ? (\n        <p className=\"mt-5 text-sm text-red-600\" role=\"alert\">\n          {assessmentRequestMessage(\n            candidates.error,\n            t(\"evaluatorAssignment.loadError\"),\n            t,\n            Boolean(candidates.data),\n          )}\n        </p>\n      ) : candidates.data?.length === 0 ? (\n        <p className=\"mt-5 text-sm text-muted\">\n"
+        },
+        {
+          "previous": "            type=\"button\"\n            disabled={!selected || assign.isPending}\n            onClick={() => assign.mutate()}\n            className=\"focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-50\"\n          >\n            <UserRoundCheck size={17} aria-hidden=\"true\" />\n            {assign.isPending\n",
+          "approved": "            type=\"button\"\n            disabled={!selected || assign.isPending}\n            onClick={() => assign.mutate()}\n            className=\"focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50\"\n          >\n            <UserRoundCheck size={17} aria-hidden=\"true\" />\n            {assign.isPending\n"
+        }
+      ],
+      "invariants": {
+        "calls": [
+          "useState(\"\")",
+          "useQuery({ queryKey: [\"eligible-evaluators\", evaluation.id], queryFn: () => api<Candidate[]>(`/evaluations/${evaluation.id}/eligible-evaluators`), retry: false, })",
+          "api<Candidate[]>(`/evaluations/${evaluation.id}/eligible-evaluators`)",
+          "useMutation({ mutationFn: () => api(`/evaluations/${evaluation.id}/assign`, { method: \"POST\", body: JSON.stringify({ teacherUserId: selected }), }), onSuccess: onAssigned, })",
+          "api(`/evaluations/${evaluation.id}/assign`, { method: \"POST\", body: JSON.stringify({ teacherUserId: selected }), })"
+        ],
+        "props": [
+          "value={selected}",
+          "onChange={(event) => setSelected(event.target.value)}",
+          "value=\"\"",
+          "key={candidate.id}",
+          "value={candidate.id}",
+          "type=\"button\"",
+          "disabled={!selected || assign.isPending}",
+          "onClick={() => assign.mutate()}"
+        ]
+      }
+    },
+    "src/features/admin/resit-coordination-panel.tsx": {
+      "hash": "70252ccd51a1b39197922d20f7728744500b35105513ac619c2bed4eb36f8d61",
+      "seams": [
+        {
+          "previous": "\"use client\";\n\nimport { formatLocalizedDateTime } from \"@/i18n/date-time\";\nimport { api } from \"@/lib/api\";\n",
+          "approved": "\"use client\";\n\nimport operations from \"./assessment-operations.module.css\";\nimport { assessmentRequestMessage } from \"./assessment-operations-state\";\n\nimport { formatLocalizedDateTime } from \"@/i18n/date-time\";\nimport { api } from \"@/lib/api\";\n"
+        },
+        {
+          "previous": "\n  return (\n    <section\n      className=\"card mt-6 p-5\"\n      aria-label={t(\"resitCoordination.region\")}\n    >\n      <h2 className=\"text-lg font-black\">{t(\"resitCoordination.title\")}</h2>\n      <p className=\"mt-1 text-sm text-muted\">\n        {t(\"resitCoordination.description\")}\n      </p>\n",
+          "approved": "\n  return (\n    <section\n      id=\"assessment-resit\"\n      className={`${operations.workspace} ${operations.panel}`}\n      aria-label={t(\"resitCoordination.region\")}\n    >\n      <h2 className=\"text-lg font-bold\">{t(\"resitCoordination.title\")}</h2>\n      <p className=\"mt-1 text-sm text-muted\">\n        {t(\"resitCoordination.description\")}\n      </p>\n"
+        },
+        {
+          "previous": "      )}\n      {authorizations.isError && (\n        <p className=\"mt-4 text-sm text-red-600\" role=\"alert\">\n          {t(\"resitCoordination.loadError\")}\n        </p>\n      )}\n      {authorizations.data?.items.length === 0 && (\n",
+          "approved": "      )}\n      {authorizations.isError && (\n        <p className=\"mt-4 text-sm text-red-600\" role=\"alert\">\n          {assessmentRequestMessage(\n            authorizations.error,\n            t(\"resitCoordination.loadError\"),\n            t,\n            Boolean(authorizations.data),\n          )}\n        </p>\n      )}\n      {authorizations.data?.items.length === 0 && (\n"
+        },
+        {
+          "previous": "          {t(\"resitCoordination.empty\")}\n        </p>\n      )}\n      <div className=\"mt-4 grid gap-3\">\n        {authorizations.data?.items.map((item) => {\n          const state = item.revokedAtUtc\n            ? t(\"resitCoordination.revoked\")\n",
+          "approved": "          {t(\"resitCoordination.empty\")}\n        </p>\n      )}\n      <div className={operations.rows}>\n        {authorizations.data?.items.map((item) => {\n          const state = item.revokedAtUtc\n            ? t(\"resitCoordination.revoked\")\n"
+        },
+        {
+          "previous": "              ? t(\"resitCoordination.activated\")\n              : t(\"resitCoordination.authorized\");\n          return (\n            <article\n              key={item.authorizationId}\n              className=\"min-w-0 rounded-xl border border-border p-4 text-sm\"\n            >\n              <div className=\"flex flex-wrap items-center justify-between gap-2\">\n                <strong>{state}</strong>\n                <span className=\"text-xs text-muted\">\n",
+          "approved": "              ? t(\"resitCoordination.activated\")\n              : t(\"resitCoordination.authorized\");\n          return (\n            <article key={item.authorizationId} className={operations.row}>\n              <div className=\"flex flex-wrap items-center justify-between gap-2\">\n                <strong>{state}</strong>\n                <span className=\"text-xs text-muted\">\n"
+        }
+      ],
+      "invariants": {
+        "calls": [
+          "useState(1)",
+          "useQuery({ queryKey: [\"resit-authorizations\", page], queryFn: () => api<AuthorizationPage>(`/resits/authorizations?page=${page}&pageSize=10`), })",
+          "api<AuthorizationPage>(`/resits/authorizations?page=${page}&pageSize=10`)"
+        ],
+        "props": [
+          "key={item.authorizationId}",
+          "type=\"button\"",
+          "disabled={page === 1 || authorizations.isFetching}",
+          "onClick={() => setPage((current) => current - 1)}",
+          "type=\"button\"",
+          "disabled={ !authorizations.data?.hasNextPage || authorizations.isFetching }",
+          "onClick={() => setPage((current) => current + 1)}"
+        ]
+      }
+    },
+    "src/features/admin/internal-verification-plan-management.tsx": {
+      "hash": "094bbdc8cf0ca4ab239cdb85997810b3d44a221bfddbffdfb219b8ace7a5e89b",
+      "seams": [
+        {
+          "previous": "\"use client\";\n\nimport { formatLocalizedDateTime } from \"@/i18n/date-time\";\nimport { api } from \"@/lib/api\";\n",
+          "approved": "\"use client\";\n\nimport operations from \"./assessment-operations.module.css\";\nimport { assessmentRequestMessage } from \"./assessment-operations-state\";\n\nimport { formatLocalizedDateTime } from \"@/i18n/date-time\";\nimport { api } from \"@/lib/api\";\n"
+        },
+        {
+          "previous": "  const date = (value: string) => formatLocalizedDateTime(value, locale);\n\n  return (\n    <section className=\"shell py-8 sm:py-10\">\n      <div className=\"flex flex-wrap items-end justify-between gap-4\">\n        <div className=\"max-w-3xl\">\n          <p className=\"text-xs font-black uppercase tracking-[0.18em] text-primary\">\n            {t(\"internalVerificationPlans.eyebrow\")}\n          </p>\n          <h1 className=\"mt-3 text-3xl font-black tracking-tight sm:text-4xl\">\n            {t(\"internalVerificationPlans.title\")}\n          </h1>\n          <p className=\"mt-3 leading-7 text-muted\">\n",
+          "approved": "  const date = (value: string) => formatLocalizedDateTime(value, locale);\n\n  return (\n    <section className={`shell py-8 sm:py-10 ${operations.workspace}`}>\n      <div className=\"flex flex-wrap items-end justify-between gap-4\">\n        <div className=\"max-w-3xl\">\n          <p className=\"text-xs font-bold uppercase tracking-[0.18em] text-primary\">\n            {t(\"internalVerificationPlans.eyebrow\")}\n          </p>\n          <h1 className=\"mt-3 text-3xl font-bold tracking-tight sm:text-4xl\">\n            {t(\"internalVerificationPlans.title\")}\n          </h1>\n          <p className=\"mt-3 leading-7 text-muted\">\n"
+        },
+        {
+          "previous": "        <button\n          type=\"button\"\n          onClick={() => setShowForm((open) => !open)}\n          className=\"focus-ring rounded-xl bg-primary px-4 py-3 font-black text-slate-950\"\n        >\n          {showForm\n            ? t(\"internalVerificationPlans.hide\")\n",
+          "approved": "        <button\n          type=\"button\"\n          onClick={() => setShowForm((open) => !open)}\n          className=\"focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-slate-950\"\n        >\n          {showForm\n            ? t(\"internalVerificationPlans.hide\")\n"
+        },
+        {
+          "previous": "\n      {showForm ? (\n        <form\n          className=\"card mt-6 grid gap-4 p-5 sm:grid-cols-2 sm:p-6\"\n          onSubmit={(event) => {\n            event.preventDefault();\n            if (hasScope) create.mutate();\n          }}\n        >\n          <h2 className=\"text-lg font-black sm:col-span-2\">\n            {t(\"internalVerificationPlans.planScope\")}\n          </h2>\n          <ScopeSelect\n",
+          "approved": "\n      {showForm ? (\n        <form\n          className={`${operations.panel} grid gap-4 sm:grid-cols-2`}\n          onSubmit={(event) => {\n            event.preventDefault();\n            if (hasScope) create.mutate();\n          }}\n        >\n          <h2 className=\"text-lg font-bold sm:col-span-2\">\n            {t(\"internalVerificationPlans.planScope\")}\n          </h2>\n          <ScopeSelect\n"
+        },
+        {
+          "previous": "            options={taxonomy.data?.taskTypes ?? []}\n            allLabel={t(\"internalVerificationPlans.all\")}\n          />\n          <label className=\"grid gap-2 text-sm font-black\">\n            {t(\"internalVerificationPlans.outcome\")}\n            <select\n              className=\"focus-ring rounded-xl border border-border bg-background px-3 py-2 text-foreground\"\n",
+          "approved": "            options={taxonomy.data?.taskTypes ?? []}\n            allLabel={t(\"internalVerificationPlans.all\")}\n          />\n          <label className=\"grid gap-2 text-sm font-bold\">\n            {t(\"internalVerificationPlans.outcome\")}\n            <select\n              className=\"focus-ring rounded-xl border border-border bg-background px-3 py-2 text-foreground\"\n"
+        },
+        {
+          "previous": "              ))}\n            </select>\n          </label>\n          <label className=\"grid gap-2 text-sm font-black sm:col-span-2\">\n            {t(\"internalVerificationPlans.rationale\")}\n            <textarea\n              className=\"focus-ring min-h-28 rounded-xl border border-border bg-background p-3 text-foreground\"\n",
+          "approved": "              ))}\n            </select>\n          </label>\n          <label className=\"grid gap-2 text-sm font-bold sm:col-span-2\">\n            {t(\"internalVerificationPlans.rationale\")}\n            <textarea\n              className=\"focus-ring min-h-28 rounded-xl border border-border bg-background p-3 text-foreground\"\n"
+        },
+        {
+          "previous": "              }\n            />\n          </label>\n          <label className=\"grid gap-2 text-sm font-black\">\n            {t(\"internalVerificationPlans.activeUntil\")}\n            <input\n              type=\"datetime-local\"\n",
+          "approved": "              }\n            />\n          </label>\n          <label className=\"grid gap-2 text-sm font-bold\">\n            {t(\"internalVerificationPlans.activeUntil\")}\n            <input\n              type=\"datetime-local\"\n"
+        },
+        {
+          "previous": "            <button\n              type=\"submit\"\n              disabled={create.isPending || !hasScope}\n              className=\"focus-ring rounded-xl bg-primary px-4 py-3 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60\"\n            >\n              {create.isPending\n                ? t(\"internalVerificationPlans.saving\")\n",
+          "approved": "            <button\n              type=\"submit\"\n              disabled={create.isPending || !hasScope}\n              className=\"focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60\"\n            >\n              {create.isPending\n                ? t(\"internalVerificationPlans.saving\")\n"
+        },
+        {
+          "previous": "        </form>\n      ) : null}\n\n      <div className=\"mt-7 grid gap-6 xl:grid-cols-[minmax(0,.78fr)_minmax(0,1.22fr)]\">\n        <section className=\"card p-5 sm:p-6\">\n          <h2 className=\"text-lg font-black\">\n            {t(\"internalVerificationPlans.plans\")}\n          </h2>\n          {plans.isPending ? (\n",
+          "approved": "        </form>\n      ) : null}\n\n      <div className={operations.split}>\n        <section className={operations.panel}>\n          <h2 className=\"text-lg font-bold\">\n            {t(\"internalVerificationPlans.plans\")}\n          </h2>\n          {plans.isPending ? (\n"
+        },
+        {
+          "previous": "          ) : null}\n          {plans.isError ? (\n            <p className=\"mt-5 text-sm text-danger\" role=\"alert\">\n              {plans.error.message}\n            </p>\n          ) : null}\n          {plans.data?.length ? (\n",
+          "approved": "          ) : null}\n          {plans.isError ? (\n            <p className=\"mt-5 text-sm text-danger\" role=\"alert\">\n              {assessmentRequestMessage(\n                plans.error,\n                plans.error.message,\n                t,\n                Boolean(plans.data),\n              )}\n            </p>\n          ) : null}\n          {plans.data?.length ? (\n"
+        },
+        {
+          "previous": "                  <button\n                    type=\"button\"\n                    onClick={() => setSelectedPlanId(plan.id)}\n                    className={`focus-ring w-full rounded-2xl border p-4 text-start ${selectedPlanId === plan.id ? \"border-primary bg-primary/10\" : \"border-border bg-surface-solid/45 hover:bg-surface\"}`}\n                  >\n                    <div className=\"flex flex-wrap justify-between gap-2\">\n                      <span className=\"font-black\">\n                        {plan.targetOutcome\n                          ? t(\n                              `internalVerificationPlans.outcomeLabels.${plan.targetOutcome}`,\n",
+          "approved": "                  <button\n                    type=\"button\"\n                    onClick={() => setSelectedPlanId(plan.id)}\n                    aria-pressed={selectedPlanId === plan.id}\n                    aria-controls=\"iv-candidates\"\n                    className={operations.selection}\n                  >\n                    <div className=\"flex flex-wrap justify-between gap-2\">\n                      <span className=\"font-bold\">\n                        {plan.targetOutcome\n                          ? t(\n                              `internalVerificationPlans.outcomeLabels.${plan.targetOutcome}`,\n"
+        },
+        {
+          "previous": "          ) : null}\n        </section>\n\n        <section className=\"card p-5 sm:p-6\">\n          <h2 className=\"text-lg font-black\">\n            {t(\"internalVerificationPlans.candidates\")}\n          </h2>\n          {!selectedPlan ? (\n",
+          "approved": "          ) : null}\n        </section>\n\n        <section id=\"iv-candidates\" className={operations.panel}>\n          <h2 className=\"text-lg font-bold\">\n            {t(\"internalVerificationPlans.candidates\")}\n          </h2>\n          {!selectedPlan ? (\n"
+        },
+        {
+          "previous": "          ) : null}\n          {selectedPlan && candidates.isError ? (\n            <p className=\"mt-5 text-sm text-danger\" role=\"alert\">\n              {candidates.error.message}\n            </p>\n          ) : null}\n          {selectedPlan && candidates.data?.length ? (\n",
+          "approved": "          ) : null}\n          {selectedPlan && candidates.isError ? (\n            <p className=\"mt-5 text-sm text-danger\" role=\"alert\">\n              {assessmentRequestMessage(\n                candidates.error,\n                candidates.error.message,\n                t,\n                Boolean(candidates.data),\n              )}\n            </p>\n          ) : null}\n          {selectedPlan && candidates.data?.length ? (\n"
+        },
+        {
+          "previous": "                return (\n                  <li\n                    key={candidate.evaluationRequestId}\n                    className=\"rounded-2xl border border-border bg-surface-solid/45 p-4\"\n                  >\n                    <div className=\"flex flex-wrap justify-between gap-3 text-sm\">\n                      <span className=\"font-black\">\n                        {t(\"internalVerificationPlans.attempt\")}{\" \"}\n                        {candidate.submissionAttemptNumber}\n                      </span>\n",
+          "approved": "                return (\n                  <li\n                    key={candidate.evaluationRequestId}\n                    className={operations.row}\n                  >\n                    <div className=\"flex flex-wrap justify-between gap-3 text-sm\">\n                      <span className=\"font-bold\">\n                        {t(\"internalVerificationPlans.attempt\")}{\" \"}\n                        {candidate.submissionAttemptNumber}\n                      </span>\n"
+        },
+        {
+          "previous": "                      {t(\"internalVerificationPlans.submitted\")}:{\" \"}\n                      {date(candidate.submittedForVerificationAtUtc)}\n                    </p>\n                    <label className=\"mt-4 grid gap-2 text-sm font-black\">\n                      {t(\"internalVerificationPlans.assignVerifier\")}\n                      <select\n                        className=\"focus-ring rounded-xl border border-border bg-background px-3 py-2 text-foreground\"\n",
+          "approved": "                      {t(\"internalVerificationPlans.submitted\")}:{\" \"}\n                      {date(candidate.submittedForVerificationAtUtc)}\n                    </p>\n                    <label className=\"mt-4 grid gap-2 text-sm font-bold\">\n                      {t(\"internalVerificationPlans.assignVerifier\")}\n                      <select\n                        className=\"focus-ring rounded-xl border border-border bg-background px-3 py-2 text-foreground\"\n"
+        },
+        {
+          "previous": "                          ))}\n                      </select>\n                    </label>\n                    <label className=\"mt-3 grid gap-2 text-sm font-black\">\n                      {t(\"internalVerificationPlans.sampleReason\")}\n                      <textarea\n                        className=\"focus-ring min-h-20 rounded-xl border border-border bg-background p-3 text-foreground\"\n",
+          "approved": "                          ))}\n                      </select>\n                    </label>\n                    <label className=\"mt-3 grid gap-2 text-sm font-bold\">\n                      {t(\"internalVerificationPlans.sampleReason\")}\n                      <textarea\n                        className=\"focus-ring min-h-20 rounded-xl border border-border bg-background p-3 text-foreground\"\n"
+        },
+        {
+          "previous": "                          rationale: reason,\n                        })\n                      }\n                      className=\"focus-ring mt-4 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60\"\n                    >\n                      {selectSample.isPending\n                        ? t(\"internalVerificationPlans.selecting\")\n",
+          "approved": "                          rationale: reason,\n                        })\n                      }\n                      className=\"focus-ring mt-4 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60\"\n                    >\n                      {selectSample.isPending\n                        ? t(\"internalVerificationPlans.selecting\")\n"
+        },
+        {
+          "previous": "  allLabel: string;\n}) {\n  return (\n    <label className=\"grid gap-2 text-sm font-black\">\n      {label}\n      <select\n        className=\"focus-ring rounded-xl border border-border bg-background px-3 py-2 text-foreground\"\n",
+          "approved": "  allLabel: string;\n}) {\n  return (\n    <label className=\"grid gap-2 text-sm font-bold\">\n      {label}\n      <select\n        className=\"focus-ring rounded-xl border border-border bg-background px-3 py-2 text-foreground\"\n"
+        }
+      ],
+      "invariants": {
+        "calls": [
+          "useQueryClient()",
+          "useState(false)",
+          "useState<string>()",
+          "useState< Record<string, string> >({})",
+          "useState<Record<string, string>>( {}, )",
+          "useState({ assessorUserId: \"\", gradeId: \"\", specializationId: \"\", taskTypeId: \"\", targetOutcome: \"\", selectionRationale: \"\", activeUntilUtc: \"\", })",
+          "useQuery({ queryKey: [\"internal-verification-plans\"], queryFn: () => api<Plan[]>(\"/internal-verification/plans\"), retry: false, })",
+          "api<Plan[]>(\"/internal-verification/plans\")",
+          "useQuery({ queryKey: [\"taxonomy\", locale], queryFn: () => api<Taxonomy>(`/taxonomy?locale=${locale}`), retry: false, })",
+          "api<Taxonomy>(`/taxonomy?locale=${locale}`)",
+          "useQuery({ queryKey: [\"internal-verification-eligible-staff\"], queryFn: () => api<Staff[]>(\"/internal-verification/plans/eligible-staff\"), retry: false, })",
+          "api<Staff[]>(\"/internal-verification/plans/eligible-staff\")",
+          "useQuery({ queryKey: [\"internal-verification-candidates\", selectedPlanId], queryFn: () => api<Candidate[]>( `/internal-verification/plans/${selectedPlanId}/candidates?take=100`, ), enabled: Boolean(selectedPlanId), retry: false, })",
+          "api<Candidate[]>( `/internal-verification/plans/${selectedPlanId}/candidates?take=100`, )",
+          "useMemo( () => (staff.data ?? []).filter((member) => member.roles.some((role) => [\"InternalVerifier\", \"LeadInternalVerifier\", \"Admin\"].includes(role), ), ), [staff.data], )",
+          "useMemo( () => (staff.data ?? []).filter((member) => member.roles.some((role) => [\"Teacher\", \"Assessor\"].includes(role)), ), [staff.data], )",
+          "useMutation({ mutationFn: () => api<Plan>(\"/internal-verification/plans\", { method: \"POST\", body: JSON.stringify({ assessorUserId: form.assessorUserId || null, gradeId: form.gradeId || null, specializationId: form.specializationId || null, taskTypeId: form.taskTypeId || null, targetOutcome: form.targetOutcome || null, selectionRationale: form.selectionRationale.trim(), activeUntilUtc: form.activeUntilUtc ? new Date(form.activeUntilUtc).toISOString() : null, }), }), onSuccess: (plan) => { setShowForm(false); setSelectedPlanId(plan.id); setForm({ assessorUserId: \"\", gradeId: \"\", specializationId: \"\", taskTypeId: \"\", targetOutcome: \"\", selectionRationale: \"\", activeUntilUtc: \"\", }); void client.invalidateQueries({ queryKey: [\"internal-verification-plans\"], }); }, })",
+          "api<Plan>(\"/internal-verification/plans\", { method: \"POST\", body: JSON.stringify({ assessorUserId: form.assessorUserId || null, gradeId: form.gradeId || null, specializationId: form.specializationId || null, taskTypeId: form.taskTypeId || null, targetOutcome: form.targetOutcome || null, selectionRationale: form.selectionRationale.trim(), activeUntilUtc: form.activeUntilUtc ? new Date(form.activeUntilUtc).toISOString() : null, }), })",
+          "client.invalidateQueries({ queryKey: [\"internal-verification-plans\"], })",
+          "useMutation({ mutationFn: ({ candidate, verifierId, rationale, }: { candidate: Candidate; verifierId: string; rationale: string; }) => api<void>(`/internal-verification/plans/${selectedPlanId}/samples`, { method: \"POST\", body: JSON.stringify({ evaluationRequestId: candidate.evaluationRequestId, assignedVerifierUserId: verifierId, selectionRationale: rationale.trim(), }), }), onSuccess: () => { setAssignedVerifiers({}); setSampleReasons({}); void client.invalidateQueries({ queryKey: [\"internal-verification-plans\"], }); void client.invalidateQueries({ queryKey: [\"internal-verification-candidates\", selectedPlanId], }); }, })",
+          "api<void>(`/internal-verification/plans/${selectedPlanId}/samples`, { method: \"POST\", body: JSON.stringify({ evaluationRequestId: candidate.evaluationRequestId, assignedVerifierUserId: verifierId, selectionRationale: rationale.trim(), }), })",
+          "client.invalidateQueries({ queryKey: [\"internal-verification-plans\"], })",
+          "client.invalidateQueries({ queryKey: [\"internal-verification-candidates\", selectedPlanId], })"
+        ],
+        "props": [
+          "type=\"button\"",
+          "onClick={() => setShowForm((open) => !open)}",
+          "onSubmit={(event) => { event.preventDefault(); if (hasScope) create.mutate(); }}",
+          "value={form.assessorUserId}",
+          "onChange={(value) => setForm((current) => ({ ...current, assessorUserId: value })) }",
+          "value={form.gradeId}",
+          "onChange={(value) => setForm((current) => ({ ...current, gradeId: value })) }",
+          "value={form.specializationId}",
+          "onChange={(value) => setForm((current) => ({ ...current, specializationId: value })) }",
+          "value={form.taskTypeId}",
+          "onChange={(value) => setForm((current) => ({ ...current, taskTypeId: value })) }",
+          "value={form.targetOutcome}",
+          "onChange={(event) => setForm((current) => ({ ...current, targetOutcome: event.target.value, })) }",
+          "value=\"\"",
+          "key={outcome}",
+          "value={outcome}",
+          "value={form.selectionRationale}",
+          "minLength={10}",
+          "maxLength={2000}",
+          "required",
+          "onChange={(event) => setForm((current) => ({ ...current, selectionRationale: event.target.value, })) }",
+          "type=\"datetime-local\"",
+          "value={form.activeUntilUtc}",
+          "onChange={(event) => setForm((current) => ({ ...current, activeUntilUtc: event.target.value, })) }",
+          "type=\"submit\"",
+          "disabled={create.isPending || !hasScope}",
+          "key={plan.id}",
+          "type=\"button\"",
+          "onClick={() => setSelectedPlanId(plan.id)}",
+          "key={candidate.evaluationRequestId}",
+          "value={verifierId}",
+          "onChange={(event) => setAssignedVerifiers((current) => ({ ...current, [candidate.evaluationRequestId]: event.target.value, })) }",
+          "value=\"\"",
+          "key={member.id}",
+          "value={member.id}",
+          "value={reason}",
+          "minLength={10}",
+          "maxLength={2000}",
+          "onChange={(event) => setSampleReasons((current) => ({ ...current, [candidate.evaluationRequestId]: event.target.value, })) }",
+          "type=\"button\"",
+          "disabled={!canSelect || selectSample.isPending}",
+          "onClick={() => selectSample.mutate({ candidate, verifierId, rationale: reason, }) }",
+          "value={value}",
+          "onChange={(event) => onChange(event.target.value)}",
+          "value=\"\"",
+          "key={option.id}",
+          "value={option.id}"
+        ]
+      }
+    },
+    "src/features/admin/evaluation-appeal-management.tsx": {
+      "hash": "1d27c3f8b6c34bc05718372c36e1f153d5f797803e4743318997c1e1593f7046",
+      "seams": [
+        {
+          "previous": "\"use client\";\n\nimport { formatLocalizedDateTime } from \"@/i18n/date-time\";\nimport { api } from \"@/lib/api\";\n",
+          "approved": "\"use client\";\n\nimport operations from \"./assessment-operations.module.css\";\nimport { assessmentRequestMessage } from \"./assessment-operations-state\";\n\nimport { formatLocalizedDateTime } from \"@/i18n/date-time\";\nimport { api } from \"@/lib/api\";\n"
+        },
+        {
+          "previous": "  const date = (value: string) => formatLocalizedDateTime(value, locale);\n\n  return (\n    <section className=\"shell py-8 sm:py-10\">\n      <div className=\"max-w-3xl\">\n        <p className=\"text-xs font-black uppercase tracking-[0.18em] text-primary\">\n          BETCCO · {t(\"evaluationAppeals.eyebrow\")}\n        </p>\n        <h1 className=\"mt-3 text-3xl font-black tracking-tight sm:text-4xl\">\n          {t(\"evaluationAppeals.title\")}\n        </h1>\n        <p className=\"mt-3 leading-7 text-muted\">\n",
+          "approved": "  const date = (value: string) => formatLocalizedDateTime(value, locale);\n\n  return (\n    <section className={`shell py-8 sm:py-10 ${operations.workspace}`}>\n      <div className=\"max-w-3xl\">\n        <p className=\"text-xs font-bold uppercase tracking-[0.18em] text-primary\">\n          BETCCO · {t(\"evaluationAppeals.eyebrow\")}\n        </p>\n        <h1 className=\"mt-3 text-3xl font-bold tracking-tight sm:text-4xl\">\n          {t(\"evaluationAppeals.title\")}\n        </h1>\n        <p className=\"mt-3 leading-7 text-muted\">\n"
+        },
+        {
+          "previous": "      {appeals.isPending ? <p className=\"mt-6 text-muted\">…</p> : null}\n      {appeals.isError ? (\n        <p role=\"alert\" className=\"card mt-6 p-4 text-red-500\">\n          {appeals.error instanceof Error\n            ? appeals.error.message\n            : t(\"evaluationAppeals.loadError\")}\n        </p>\n      ) : null}\n      {appeals.isSuccess && appeals.data.length === 0 ? (\n",
+          "approved": "      {appeals.isPending ? <p className=\"mt-6 text-muted\">…</p> : null}\n      {appeals.isError ? (\n        <p role=\"alert\" className=\"card mt-6 p-4 text-red-500\">\n          {assessmentRequestMessage(\n            appeals.error,\n            appeals.error instanceof Error\n              ? appeals.error.message\n              : t(\"evaluationAppeals.loadError\"),\n            t,\n            Boolean(appeals.data),\n          )}\n        </p>\n      ) : null}\n      {appeals.isSuccess && appeals.data.length === 0 ? (\n"
+        },
+        {
+          "previous": "          {t(\"evaluationAppeals.empty\")}\n        </p>\n      ) : null}\n      <div className=\"mt-6 grid gap-4\">\n        {appeals.data?.map((appeal) => {\n          const draft = drafts[appeal.id] ?? {\n            decision: \"Rejected\" as Decision,\n",
+          "approved": "          {t(\"evaluationAppeals.empty\")}\n        </p>\n      ) : null}\n      <div className={operations.rows}>\n        {appeals.data?.map((appeal) => {\n          const draft = drafts[appeal.id] ?? {\n            decision: \"Rejected\" as Decision,\n"
+        },
+        {
+          "previous": "          };\n          const canReview = draft.rationale.trim().length >= 10;\n          return (\n            <article key={appeal.id} className=\"card grid gap-4 p-5 sm:p-6\">\n              <div className=\"flex flex-wrap items-center justify-between gap-3\">\n                <span className=\"rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-black text-primary\">\n                  {appeal.status}\n                </span>\n                <time\n",
+          "approved": "          };\n          const canReview = draft.rationale.trim().length >= 10;\n          return (\n            <article key={appeal.id} className={`${operations.row} grid gap-4`}>\n              <div className=\"flex flex-wrap items-center justify-between gap-3\">\n                <span className=\"rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-bold text-primary\">\n                  {appeal.status}\n                </span>\n                <time\n"
+        },
+        {
+          "previous": "                  {date(appeal.createdAtUtc)}\n                </time>\n              </div>\n              <div className=\"rounded-xl border border-border bg-page/40 p-4\">\n                <p className=\"text-xs font-black uppercase tracking-wide text-muted\">\n                  {t(\"evaluationAppeals.studentReason\")}\n                </p>\n                <p className=\"mt-2 whitespace-pre-wrap leading-7\">\n",
+          "approved": "                  {date(appeal.createdAtUtc)}\n                </time>\n              </div>\n              <div className={operations.detail}>\n                <p className=\"text-xs font-bold uppercase tracking-wide text-muted\">\n                  {t(\"evaluationAppeals.studentReason\")}\n                </p>\n                <p className=\"mt-2 whitespace-pre-wrap leading-7\">\n"
+        },
+        {
+          "previous": "              </div>\n              <a\n                href={`/api/v1/assessment-audit-exports/${appeal.evaluationRequestId}`}\n                className=\"focus-ring justify-self-start rounded-xl border border-border px-4 py-2 text-sm font-black hover:border-primary\"\n              >\n                {t(\"evaluationAppeals.auditExport\")}\n              </a>\n              {pdfReportStatus.data?.isConfigured ? (\n                <a\n                  href={`/api/v1/assessment-pdf-reports/${appeal.evaluationRequestId}?locale=${locale}`}\n                  className=\"focus-ring justify-self-start rounded-xl border border-border px-4 py-2 text-sm font-black hover:border-primary\"\n                >\n                  {t(\"evaluationAppeals.pdfReport\")}\n                </a>\n              ) : null}\n              <div className=\"grid gap-3 sm:grid-cols-[12rem_1fr]\">\n                <label className=\"grid gap-2 text-sm font-black\">\n                  {t(\"evaluationAppeals.decision\")}\n                  <select\n                    className=\"focus-ring rounded-xl border border-border bg-background px-3 py-3 text-foreground\"\n",
+          "approved": "              </div>\n              <a\n                href={`/api/v1/assessment-audit-exports/${appeal.evaluationRequestId}`}\n                className=\"focus-ring justify-self-start rounded-xl border border-border px-4 py-2 text-sm font-bold hover:border-primary\"\n              >\n                {t(\"evaluationAppeals.auditExport\")}\n              </a>\n              {pdfReportStatus.data?.isConfigured ? (\n                <a\n                  href={`/api/v1/assessment-pdf-reports/${appeal.evaluationRequestId}?locale=${locale}`}\n                  className=\"focus-ring justify-self-start rounded-xl border border-border px-4 py-2 text-sm font-bold hover:border-primary\"\n                >\n                  {t(\"evaluationAppeals.pdfReport\")}\n                </a>\n              ) : null}\n              <div className=\"grid gap-3 sm:grid-cols-[12rem_1fr]\">\n                <label className=\"grid gap-2 text-sm font-bold\">\n                  {t(\"evaluationAppeals.decision\")}\n                  <select\n                    className=\"focus-ring rounded-xl border border-border bg-background px-3 py-3 text-foreground\"\n"
+        },
+        {
+          "previous": "                    </option>\n                  </select>\n                </label>\n                <label className=\"grid gap-2 text-sm font-black\">\n                  {t(\"evaluationAppeals.rationale\")}\n                  <textarea\n                    className=\"focus-ring min-h-28 rounded-xl border border-border bg-background px-3 py-3 text-foreground\"\n",
+          "approved": "                    </option>\n                  </select>\n                </label>\n                <label className=\"grid gap-2 text-sm font-bold\">\n                  {t(\"evaluationAppeals.rationale\")}\n                  <textarea\n                    className=\"focus-ring min-h-28 rounded-xl border border-border bg-background px-3 py-3 text-foreground\"\n"
+        },
+        {
+          "previous": "                type=\"button\"\n                onClick={() => review.mutate({ appealId: appeal.id, ...draft })}\n                disabled={!canReview || review.isPending}\n                className=\"focus-ring justify-self-start rounded-xl bg-primary px-5 py-3 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60\"\n              >\n                {review.isPending\n                  ? t(\"evaluationAppeals.recording\")\n",
+          "approved": "                type=\"button\"\n                onClick={() => review.mutate({ appealId: appeal.id, ...draft })}\n                disabled={!canReview || review.isPending}\n                className=\"focus-ring justify-self-start rounded-xl bg-primary px-5 py-3 font-bold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60\"\n              >\n                {review.isPending\n                  ? t(\"evaluationAppeals.recording\")\n"
+        }
+      ],
+      "invariants": {
+        "calls": [
+          "useQueryClient()",
+          "useState< Record<string, { decision: Decision; rationale: string }> >({})",
+          "useQuery({ queryKey: [\"evaluation-appeals\", \"review-queue\"], queryFn: () => api<Appeal[]>(\"/evaluation-appeals/review-queue\"), retry: false, })",
+          "api<Appeal[]>(\"/evaluation-appeals/review-queue\")",
+          "useQuery({ queryKey: [\"assessment-pdf-reports\", \"status\"], queryFn: () => api<PdfReportStatus>(\"/assessment-pdf-reports/status\"), retry: false, })",
+          "api<PdfReportStatus>(\"/assessment-pdf-reports/status\")",
+          "useMutation({ mutationFn: ({ appealId, decision, rationale, }: { appealId: string; decision: Decision; rationale: string; }) => api<void>(`/evaluation-appeals/${appealId}/review`, { method: \"POST\", body: JSON.stringify({ status: decision, decisionRationale: rationale.trim(), }), }), onSuccess: () => client.invalidateQueries({ queryKey: [\"evaluation-appeals\", \"review-queue\"], }), })",
+          "api<void>(`/evaluation-appeals/${appealId}/review`, { method: \"POST\", body: JSON.stringify({ status: decision, decisionRationale: rationale.trim(), }), })",
+          "client.invalidateQueries({ queryKey: [\"evaluation-appeals\", \"review-queue\"], })"
+        ],
+        "props": [
+          "key={appeal.id}",
+          "value={draft.decision}",
+          "onChange={(event) => update(appeal.id, { decision: event.target.value as Decision, }) }",
+          "value=\"Upheld\"",
+          "value=\"Rejected\"",
+          "value={draft.rationale}",
+          "minLength={10}",
+          "maxLength={4000}",
+          "onChange={(event) => update(appeal.id, { rationale: event.target.value }) }",
+          "type=\"button\"",
+          "onClick={() => review.mutate({ appealId: appeal.id, ...draft })}",
+          "disabled={!canReview || review.isPending}"
+        ]
+      }
+    },
+    "src/features/admin/evaluator-specialism-management.tsx": {
+      "hash": "30454b862e60574a0203a04e2e9f8d0d7711c4946287f773b90ae99911d94699",
+      "seams": [
+        {
+          "previous": "\"use client\";\n\nimport { formatLocalizedDateTime } from \"@/i18n/date-time\";\nimport { api } from \"@/lib/api\";\n",
+          "approved": "\"use client\";\n\nimport operations from \"./assessment-operations.module.css\";\nimport { assessmentRequestMessage } from \"./assessment-operations-state\";\n\nimport { formatLocalizedDateTime } from \"@/i18n/date-time\";\nimport { api } from \"@/lib/api\";\n"
+        },
+        {
+          "previous": "  });\n\n  return (\n    <section className=\"shell py-10\">\n      <h1 className=\"text-3xl font-black\">{t(\"evaluatorSpecialisms.title\")}</h1>\n      <p className=\"mt-2 text-sm text-muted\">\n        {t(\"evaluatorSpecialisms.description\")}\n      </p>\n      <div className=\"card mt-6 grid gap-4 p-5 md:grid-cols-2\">\n        <label className=\"grid gap-2 text-sm font-bold\">\n          {t(\"evaluatorSpecialisms.evaluator\")}\n          <select\n",
+          "approved": "  });\n\n  return (\n    <section className={`shell py-8 sm:py-10 ${operations.workspace}`}>\n      <h1 className=\"text-3xl font-bold\">{t(\"evaluatorSpecialisms.title\")}</h1>\n      <p className=\"mt-2 text-sm text-muted\">\n        {t(\"evaluatorSpecialisms.description\")}\n      </p>\n      <div className={`${operations.panel} grid gap-4 md:grid-cols-2`}>\n        <label className=\"grid gap-2 text-sm font-bold\">\n          {t(\"evaluatorSpecialisms.evaluator\")}\n          <select\n"
+        },
+        {
+          "previous": "        </label>\n        <button\n          type=\"button\"\n          className=\"focus-ring rounded-xl bg-primary px-4 py-3 font-black text-slate-950 disabled:opacity-50 md:col-span-2\"\n          disabled={!evaluatorUserId || !unitDefinitionId || grant.isPending}\n          onClick={() => grant.mutate()}\n        >\n",
+          "approved": "        </label>\n        <button\n          type=\"button\"\n          className=\"focus-ring rounded-xl bg-primary px-4 py-3 font-bold text-slate-950 disabled:opacity-50 md:col-span-2\"\n          disabled={!evaluatorUserId || !unitDefinitionId || grant.isPending}\n          onClick={() => grant.mutate()}\n        >\n"
+        },
+        {
+          "previous": "        grant.isError ||\n        revoke.isError) && (\n        <p className=\"mt-4 text-sm text-red-600\" role=\"alert\">\n          {t(\"evaluatorSpecialisms.operationError\")}\n        </p>\n      )}\n      {success && (\n",
+          "approved": "        grant.isError ||\n        revoke.isError) && (\n        <p className=\"mt-4 text-sm text-red-600\" role=\"alert\">\n          {assessmentRequestMessage(\n            staff.error ??\n              units.error ??\n              history.error ??\n              grant.error ??\n              revoke.error,\n            t(\"evaluatorSpecialisms.operationError\"),\n            t,\n            Boolean(staff.data && units.data && history.data),\n          )}\n        </p>\n      )}\n      {success && (\n"
+        },
+        {
+          "previous": "            : t(\"evaluatorSpecialisms.revokeSuccess\")}\n        </p>\n      )}\n      <h2 className=\"mt-10 text-2xl font-black\">\n        {t(\"evaluatorSpecialisms.history\")}\n      </h2>\n      {!history.isPending && history.data?.items.length === 0 && (\n",
+          "approved": "            : t(\"evaluatorSpecialisms.revokeSuccess\")}\n        </p>\n      )}\n      <h2 className=\"mt-10 text-2xl font-bold\">\n        {t(\"evaluatorSpecialisms.history\")}\n      </h2>\n      {!history.isPending && history.data?.items.length === 0 && (\n"
+        },
+        {
+          "previous": "          {t(\"evaluatorSpecialisms.emptyHistory\")}\n        </p>\n      )}\n      <div className=\"mt-4 grid gap-3\">\n        {history.data?.items.map((item) => (\n          <article key={item.id} className=\"card min-w-0 p-5\">\n            <div className=\"flex flex-wrap items-start justify-between gap-3\">\n              <div className=\"min-w-0\">\n                <p className=\"font-bold\">{item.evaluatorName}</p>\n",
+          "approved": "          {t(\"evaluatorSpecialisms.emptyHistory\")}\n        </p>\n      )}\n      <div className={operations.rows}>\n        {history.data?.items.map((item) => (\n          <article key={item.id} className={operations.row}>\n            <div className=\"flex flex-wrap items-start justify-between gap-3\">\n              <div className=\"min-w-0\">\n                <p className=\"font-bold\">{item.evaluatorName}</p>\n"
+        }
+      ],
+      "invariants": {
+        "calls": [
+          "useQueryClient()",
+          "useState(\"\")",
+          "useState(\"\")",
+          "useState(1)",
+          "useState<\"grant\" | \"revoke\" | null>(null)",
+          "useQuery({ queryKey: [\"evaluator-specialism-staff\"], queryFn: () => api<Staff[]>(\"/admin/evaluator-specialisms/staff\"), })",
+          "api<Staff[]>(\"/admin/evaluator-specialisms/staff\")",
+          "useQuery({ queryKey: [\"evaluator-specialism-units\"], queryFn: () => api<Unit[]>(\"/admin/evaluator-specialisms/units\"), })",
+          "api<Unit[]>(\"/admin/evaluator-specialisms/units\")",
+          "useQuery({ queryKey: [\"evaluator-specialism-history\", page], queryFn: () => api<GrantPage>(`/admin/evaluator-specialisms?page=${page}&pageSize=25`), })",
+          "api<GrantPage>(`/admin/evaluator-specialisms?page=${page}&pageSize=25`)",
+          "client.invalidateQueries({ queryKey: [\"evaluator-specialism-history\"] })",
+          "client.invalidateQueries({ queryKey: [\"eligible-evaluators\"] })",
+          "useMutation({ mutationFn: () => api(\"/admin/evaluator-specialisms\", { method: \"POST\", body: JSON.stringify({ evaluatorUserId, unitDefinitionId }), }), onSuccess: () => { setSuccess(\"grant\"); refresh(); }, onError: () => setSuccess(null), })",
+          "api(\"/admin/evaluator-specialisms\", { method: \"POST\", body: JSON.stringify({ evaluatorUserId, unitDefinitionId }), })",
+          "useMutation({ mutationFn: (id: string) => api(`/admin/evaluator-specialisms/${id}/revoke`, { method: \"POST\", body: JSON.stringify({ reason: null }), }), onSuccess: () => { setSuccess(\"revoke\"); refresh(); }, onError: () => setSuccess(null), })",
+          "api(`/admin/evaluator-specialisms/${id}/revoke`, { method: \"POST\", body: JSON.stringify({ reason: null }), })"
+        ],
+        "props": [
+          "value={evaluatorUserId}",
+          "onChange={(event) => setEvaluatorUserId(event.target.value)}",
+          "disabled={staff.isPending || staff.isError}",
+          "value=\"\"",
+          "key={item.id}",
+          "value={item.id}",
+          "value={unitDefinitionId}",
+          "onChange={(event) => setUnitDefinitionId(event.target.value)}",
+          "disabled={units.isPending || units.isError}",
+          "value=\"\"",
+          "key={item.id}",
+          "value={item.id}",
+          "type=\"button\"",
+          "disabled={!evaluatorUserId || !unitDefinitionId || grant.isPending}",
+          "onClick={() => grant.mutate()}",
+          "key={item.id}",
+          "type=\"button\"",
+          "disabled={revoke.isPending}",
+          "onClick={() => revoke.mutate(item.id)}",
+          "type=\"button\"",
+          "disabled={page <= 1}",
+          "onClick={() => setPage(page - 1)}",
+          "type=\"button\"",
+          "disabled={page * 25 >= (history.data?.totalCount ?? 0)}",
+          "onClick={() => setPage(page + 1)}"
+        ]
+      }
+    }
+  },
+  "protected": {
+    "src/features/admin/admin-home.module.css": "ac79c0de856bbe49cf75c1d1efe84c2c022c28ec7dd18c82cb4806a8d1926882",
+    "src/components/site-navigation.tsx": "0de34aad9672812cec0fa8e77c6ea0e53a16ac3615f2cbec65501d12579bce2a",
+    "src/components/dashboard/dashboard-ui.tsx": "e5f68fc7bfc3a9c48727d8ab9ce039533732c73342a02059c0d0351c1dac65c6",
+    "src/features/admin/gradebook.tsx": "f70921c116ffa0880ce27803bc1911410c28ec56f008016b930846a4ed0e84e9",
+    "src/features/admin/retake-management.tsx": "0bb81eb909d3f8d58ed81440cc33e1bc74f7e826f6f1de705a7a8a2d96456c84",
+    "src/features/teacher/course-editor.tsx": "261f7f37db8e13bfdf177eacb08bec39e8dbf27d8467c33f11a0ca591a96037b",
+    "src/features/teacher/teacher-area.tsx": "e78441b27e96d46b8f1c429b5c33352b96313e3633f62ed1f3f56122c6a5bd43",
+    "src/features/student/student-area.tsx": "a0542eb7ebdd5608f23d4953f444f973ee06a8ce357894bbdf331e02496779e0",
+    "package.json": "38b49d24cd42cc223cb609364d2a30302095671503e1f351f91523a0e92a5609",
+    "pnpm-lock.yaml": "ad0f5192f977ad72ed3a364d7f6d6a3d6d04521dbfefff790a68af0b0f63e9c2",
+    "messages/en.json": "7936ffe20059bab5bccdf91e4e98acd30a0ae5c5657b8e17fb2747254bcdc386",
+    "messages/ar.json": "244dd814e33a5e596aa3d17577245337dd3b81bccb8b37c4aa950eff65238ba7",
+    "../backend/src/Betcco.Api/Controllers/AssessmentCoordinationController.cs": "50783ce247f38cf7cd6bc371d4fa27beb4e8284b0b4104b56aa8971c2a66476e",
+    "../backend/src/Betcco.Api/Controllers/EvaluationsController.cs": "8b02ff0e97921c74d4eba8c2eec93a9537044cf7ea91eb823787d016f095efd0",
+    "../backend/src/Betcco.Api/Controllers/InternalVerificationPlansController.cs": "f4d5dfbb3bb6e5072b033c9a284bbb8c7905933ee8c84904800e7d677f153ea9",
+    "../backend/src/Betcco.Api/Controllers/EvaluationAppealsController.cs": "2daa017c136ffc388e55c7a87568124acb97e5d64bdb490ea46ee8737f6e53ae",
+    "../backend/src/Betcco.Api/Controllers/AdminEvaluatorSpecialismsController.cs": "46bd5e58881cbbfbf48ef1b5dbe6e0b5008f8dcfd2b47969f55eb075bc69af68",
+    "../backend/src/Betcco.Api/Controllers/ResitsController.cs": "46c87feb421b4441e43c9f66ad0764a01faa5e563d237e984835cbc65998cfda",
+    "../backend/src/Betcco.Api/Controllers/AdminDashboardController.cs": "67355ff1ad7cf4b335108dca152e9e947e2d3c2c6be63fda785132766b3d0e03"
+  }
+}
