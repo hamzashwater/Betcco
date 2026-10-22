@@ -3735,5 +3735,17 @@
   "teacherAuthoringPresentation": {
     "currentSection": "القسم الحالي: {section}",
     "loadError": "تعذر تحميل بيانات مساحة عمل الدورة."
+  },
+  "adminHomePresentation": {
+    "operations": "العمل التشغيلي",
+    "operationsHint": "أعداد حالية واردة من الخادم، مستقلة عن فترة التحليلات. مراجعة أعمال المقرر منفصلة عن التقييم الرسمي.",
+    "formalReviewContext": "طلبات تقييم رسمي قيد المراجعة حاليًا؛ هذا العدد لا يمثل مجموع النتائج الناجحة.",
+    "currentContext": "السياق الحالي للمنصة",
+    "currentContextHint": "إجماليات وحالات حسابات حالية؛ لا تُرشَّح هذه القيم بحسب فترة التحليلات.",
+    "periodActivity": "النشاط خلال الفترة المحددة",
+    "destinations": "وجهات الإدارة",
+    "destinationsHint": "افتح أقسام الإدارة الحالية. تظل وجهات الموظفين الأخرى متاحة في تنقل مساحة العمل.",
+    "legacyRetakes": "سجلات Retake التاريخية",
+    "legacyRetakesHint": "معلومات Retake التاريخية؛ يظل إنشاء Retake جديد معطلًا."
   }
 }

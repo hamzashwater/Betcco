@@ -57,7 +57,7 @@ for (const scenario of [
     await expect(
       area.getByRole("heading", { name: copy.analytics.paidOrders }),
     ).toBeVisible();
-    await expect(area.locator("a")).toHaveCount(18);
+    await expect(area.locator("a")).toHaveCount(20);
     for (const href of [
       "students",
       "integrations",

@@ -3735,5 +3735,17 @@
   "teacherAuthoringPresentation": {
     "currentSection": "Current section: {section}",
     "loadError": "Course workspace data could not be loaded."
+  },
+  "adminHomePresentation": {
+    "operations": "Operational work",
+    "operationsHint": "Current server-supplied counts, independent of the analytics period. Coursework review and formal evaluation remain separate.",
+    "formalReviewContext": "Formal evaluation requests currently under review; this count is not a passed-result total.",
+    "currentContext": "Current platform context",
+    "currentContextHint": "Current totals and account states; these values are not filtered by the analytics period.",
+    "periodActivity": "Activity in the selected period",
+    "destinations": "Administration destinations",
+    "destinationsHint": "Open the existing management areas. Other staff destinations remain available in workspace navigation.",
+    "legacyRetakes": "Historical Retake records",
+    "legacyRetakesHint": "Legacy Retake information; new Retake creation remains disabled."
   }
 }

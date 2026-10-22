@@ -1,0 +1,1001 @@
+{
+  "classification": "MOCKED UI-CONTRACT EVIDENCE",
+  "base": "03bdc8f84342309832e887c36376b95e379f83c5",
+  "branch": "fix/ui-d01-13-admin-operational-home",
+  "provenance": "Production build from this branch; production content unchanged after build/captures. Source hashes identify the reviewed bytes and are checked against the final commit.",
+  "server": "isolated localhost:3024; user port 3000 untouched",
+  "scenarioCount": 38,
+  "captureCount": 104,
+  "scenarios": [
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar 1440: coordinator-only restricted home retains exact eligible shell",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar 1440: LeadIV restricted home retains exact eligible shell",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar 390: coordinator-only restricted home retains exact eligible shell",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar 390: LeadIV restricted home retains exact eligible shell",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: 401 query state",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: 403 query state",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: cache refresh error preserves operation counts and every destination",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 1440: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 390: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 834: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: error query state",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: keyboard focus, reduced motion and 200 percent reflow proxy",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 1440: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 390: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 834: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: pending query state",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: zero query state",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en 1440: coordinator-only restricted home retains exact eligible shell",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en 1440: LeadIV restricted home retains exact eligible shell",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en 390: coordinator-only restricted home retains exact eligible shell",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en 390: LeadIV restricted home retains exact eligible shell",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: 401 query state",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: 403 query state",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: cache refresh error preserves operation counts and every destination",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 1440: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 390: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 834: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: error query state",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: keyboard focus, reduced motion and 200 percent reflow proxy",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 1440: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 390: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 834: Admin populated operational home",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: pending query state",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: zero query state",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark: every period and editable invalid custom range",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light: every period and editable invalid custom range",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark: every period and editable invalid custom range",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light: every period and editable invalid custom range",
+      "status": "passed",
+      "expectedStatus": "passed"
+    }
+  ],
+  "sourceHashes": {
+    "src/features/admin/admin-area.tsx": "153b455caf771a3f37fd544d4cbb359d0f57edd969b30cc59ea50485c2e8fd5c",
+    "src/features/admin/admin-home.module.css": "ac79c0de856bbe49cf75c1d1efe84c2c022c28ec7dd18c82cb4806a8d1926882",
+    "messages/en.json": "7936ffe20059bab5bccdf91e4e98acd30a0ae5c5657b8e17fb2747254bcdc386",
+    "messages/ar.json": "244dd814e33a5e596aa3d17577245337dd3b81bccb8b37c4aa950eff65238ba7",
+    "tests/admin-home-contract.test.ts": "29421ce91ebac1fc6328b6f3b4231dee45979f93d37b874c3a9fe578df0038d3",
+    "tests/admin-home.test.tsx": "e95d533b7080a408f26e5373aeb8c348ccdb8f6a58b7fa8173f9bcc6258f0898",
+    "tests/e2e/admin-home.spec.ts": "96f6fe86e3766ca80fe4f65ac6b4a7e0a249b791ab5d4e7c615a016931721a4f",
+    "tests/fixtures/ui-d01-13-admin-home-baseline.json": "7ceeb82ae4c255ffc1bf0ee4a2dc00a98b56caf9fef4cf8eb17394c98a8fdfe0",
+    "tests/helpers/admin-home-projection.ts": "ee2abe7b50ef20be885dcc915bd38d2185eb46fa4532c90c4e15be2923d73655",
+    "tests/helpers/admin-state-projection.ts": "18aee4499b0cc5ed642310f334618fe2a493c4689024800201921fb9ecd3baee",
+    "tests/helpers/teacher-authoring-projection.ts": "2c7aceff5de777ed239f44fd26f8f74b23710378316e7500ee9399a973338e02",
+    "tests/admin-dashboard-translation.test.tsx": "76a9e3b5c40cfbf187d0318daf1b6ea317dcc75e3490770af0d9f56249e62ebe",
+    "tests/e2e/admin-dashboard-translation.spec.ts": "f47784756e483983a0ad4becae3b320965dd3a742d3574fe936afc85d35882c9",
+    "tests/role-navigation-contract.test.ts": "b8a78f29adcc0687f253735e54dd870c6872ebf321d7f96b854ccef5c01b5d81",
+    "tests/translation-parity.test.ts": "e7f091a570e9e8bd789758be760502dc66b4a372fa930b5494300b48344c8e14"
+  },
+  "sheets": {
+    "context-and-destinations.png": "9b5665f4570fd282a5d5f0325b2d789d4807d7ecf6e6449b4ae6b1629980fbbb",
+    "home-matrix.png": "e2868cb9ba6d7cb1a98086b13780a00c3e0c9382f65bfb72538b359cb67b6eea",
+    "periods-and-validation.png": "b86f65337f34867d254111d06abf83b5ec671ad7184f43c3543a2f2880e5e246",
+    "states-and-roles.png": "ce4f70eb4916ab4bf502a9048d2ff8063692668237db9fc2a5a3aaf3624de6f5"
+  },
+  "captures": [
+    {
+      "scenario": "ar 1440: coordinator-only restricted home retains exact eligible shell",
+      "path": "browser/admin-home-ar-1440-coordin-e5d71-etains-exact-eligible-shell/restricted-shell.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "f544a6c6a8f6bd46fdef07c21386ae422437f9b48901c0d7e5dbd4c9cf3fb93e"
+    },
+    {
+      "scenario": "ar 1440: LeadIV restricted home retains exact eligible shell",
+      "path": "browser/admin-home-ar-1440-LeadIV--5da85-etains-exact-eligible-shell/restricted-shell.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "de4150dd93052d220c31f3660decf70307f1e22a38490e253d8aa8683425c729"
+    },
+    {
+      "scenario": "ar 390: coordinator-only restricted home retains exact eligible shell",
+      "path": "browser/admin-home-ar-390-coordina-bc345-etains-exact-eligible-shell/restricted-shell.png",
+      "width": 390,
+      "height": 900,
+      "sha256": "d6d889f843011fb0eb85812e9efa442f8d4f36188296bef1b3aa22da1362451b"
+    },
+    {
+      "scenario": "ar 390: LeadIV restricted home retains exact eligible shell",
+      "path": "browser/admin-home-ar-390-LeadIV-r-8d8f7-etains-exact-eligible-shell/restricted-shell.png",
+      "width": 390,
+      "height": 900,
+      "sha256": "77605be25975c3f78ba8ee3f142a6272c5f489c7c95aba3db19636b32a44870f"
+    },
+    {
+      "scenario": "ar: 401 query state",
+      "path": "browser/admin-home-ar-401-query-state/state.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "fb282615b0bed173cc7ee4c77c4955e1d25da4456aefb5665bcf8d835dec7a63"
+    },
+    {
+      "scenario": "ar: 403 query state",
+      "path": "browser/admin-home-ar-403-query-state/state.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "353680409a899bd9e351d7879427397b4afc5a1493c656e1c3d2fc471e98a29d"
+    },
+    {
+      "scenario": "ar: cache refresh error preserves operation counts and every destination",
+      "path": "browser/admin-home-ar-cache-refres-ee917-ounts-and-every-destination/cached-error.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "f0cb0fed84ce9860d7eb98b2ec3d81c1447ad83ec1da40da2f340f1a7e5c46b9"
+    },
+    {
+      "scenario": "ar dark 1440: Admin populated operational home",
+      "path": "browser/admin-home-ar-dark-1440-Admin-populated-operational-home/context.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4ad82ea5a0d7c5730e96b1e03db315b9961b74958f2c8e7ebaafd705fb8d46ee"
+    },
+    {
+      "scenario": "ar dark 1440: Admin populated operational home",
+      "path": "browser/admin-home-ar-dark-1440-Admin-populated-operational-home/destinations.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "0161a951bb027d9a7e34012d15a50dce49dd32fd39ed64bd782332d04dc33987"
+    },
+    {
+      "scenario": "ar dark 1440: Admin populated operational home",
+      "path": "browser/admin-home-ar-dark-1440-Admin-populated-operational-home/operations.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "a760e0faae4d3db9f78e09fe70542d2ec636929f2b984a5c049c0b7440b6c2ed"
+    },
+    {
+      "scenario": "ar dark 1440: Admin populated operational home",
+      "path": "browser/admin-home-ar-dark-1440-Admin-populated-operational-home/period.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "6c6abf04697cb62b96596f55a01d5523f6dce8b8e3ea27163c1e34ed259a0d28"
+    },
+    {
+      "scenario": "ar dark 390: Admin populated operational home",
+      "path": "browser/admin-home-ar-dark-390-Admin-populated-operational-home/context.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "db41588c8a566e464c36ae1f101a61508d90b1c39acbf191baca972443b4989e"
+    },
+    {
+      "scenario": "ar dark 390: Admin populated operational home",
+      "path": "browser/admin-home-ar-dark-390-Admin-populated-operational-home/destinations.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "806c83fd6751d196a13299ee185b6dd3d349dbe629b137ca9fd06c1d720719d4"
+    },
+    {
+      "scenario": "ar dark 390: Admin populated operational home",
+      "path": "browser/admin-home-ar-dark-390-Admin-populated-operational-home/operations.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "d6cba6aacf263b43b2d13b1b8b113ed0136cb364269f0d5d08c974b797da18d1"
+    },
+    {
+      "scenario": "ar dark 390: Admin populated operational home",
+      "path": "browser/admin-home-ar-dark-390-Admin-populated-operational-home/period.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "693a690f1741efd850f2dc1265ed97e5ab02f468ab3b089d9b80941522b94a4c"
+    },
+    {
+      "scenario": "ar dark 834: Admin populated operational home",
+      "path": "browser/admin-home-ar-dark-834-Admin-populated-operational-home/context.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "854824665d136794b6e5043055039cb9bcfab08a4dbf3a34c66f137a25379784"
+    },
+    {
+      "scenario": "ar dark 834: Admin populated operational home",
+      "path": "browser/admin-home-ar-dark-834-Admin-populated-operational-home/destinations.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "7c9f8527e546679f1b5de4e63279dc0e6a022d0a5ebb4fb382d9eb60360faae1"
+    },
+    {
+      "scenario": "ar dark 834: Admin populated operational home",
+      "path": "browser/admin-home-ar-dark-834-Admin-populated-operational-home/operations.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "03ad6a0f4fbead99ba73defbf4c64cde8e8fea8712013aafa537a4e985ef5ad3"
+    },
+    {
+      "scenario": "ar dark 834: Admin populated operational home",
+      "path": "browser/admin-home-ar-dark-834-Admin-populated-operational-home/period.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "1c34d65a60d52eb96a8b2cb69c767cbc9a87e8bc8e428497306284682b80ce16"
+    },
+    {
+      "scenario": "ar: error query state",
+      "path": "browser/admin-home-ar-error-query-state/state.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "ab68e2c799a1226d6b2f60d29ebe290171eb03e34741998e9f524aba0f4e06ef"
+    },
+    {
+      "scenario": "ar: keyboard focus, reduced motion and 200 percent reflow proxy",
+      "path": "browser/admin-home-ar-keyboard-foc-0db24-nd-200-percent-reflow-proxy/keyboard-reflow.png",
+      "width": 720,
+      "height": 450,
+      "sha256": "a6e1fbe719c98392586fcaabd59c161d6a86b68dc2e0ca42454c6999825261ff"
+    },
+    {
+      "scenario": "ar light 1440: Admin populated operational home",
+      "path": "browser/admin-home-ar-light-1440-Admin-populated-operational-home/context.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "20b2364fddf48f3c896ace4ac86a0facdf3d77a433b8fe63ffd29e7aa167ca42"
+    },
+    {
+      "scenario": "ar light 1440: Admin populated operational home",
+      "path": "browser/admin-home-ar-light-1440-Admin-populated-operational-home/destinations.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "d30793b91ee7082e31131bf32f462b9ab9592371b19bfacdbac09eb2527f7aae"
+    },
+    {
+      "scenario": "ar light 1440: Admin populated operational home",
+      "path": "browser/admin-home-ar-light-1440-Admin-populated-operational-home/operations.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4b3fbc74b1edfdf9208190d4d223f435c974f918338b80d5c9ae9dceea6a9be8"
+    },
+    {
+      "scenario": "ar light 1440: Admin populated operational home",
+      "path": "browser/admin-home-ar-light-1440-Admin-populated-operational-home/period.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "3b526562f8e18a1fb76a994bb0c0b549f3d05f257360c117d0fcc41a2ace576e"
+    },
+    {
+      "scenario": "ar light 390: Admin populated operational home",
+      "path": "browser/admin-home-ar-light-390-Admin-populated-operational-home/context.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "1ff9b868299b2d653b41180edf67418d0243773fe5895b9f627e106b17821653"
+    },
+    {
+      "scenario": "ar light 390: Admin populated operational home",
+      "path": "browser/admin-home-ar-light-390-Admin-populated-operational-home/destinations.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "3a2e7a5c9f9e20c60a2a35eee3aa53fd8aa8dc53dd07a451d9f1e95bdcc81661"
+    },
+    {
+      "scenario": "ar light 390: Admin populated operational home",
+      "path": "browser/admin-home-ar-light-390-Admin-populated-operational-home/operations.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "65e22d0a84b83a2b942e91eae0b5ebd470d28edf0338c18f430cf00c4e4b30ee"
+    },
+    {
+      "scenario": "ar light 390: Admin populated operational home",
+      "path": "browser/admin-home-ar-light-390-Admin-populated-operational-home/period.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "cc21b16d20680c48104ea6b5b5269428f832993598931863ccbd34c7add80feb"
+    },
+    {
+      "scenario": "ar light 834: Admin populated operational home",
+      "path": "browser/admin-home-ar-light-834-Admin-populated-operational-home/context.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "c5fe88dff0ed3795be14b55d3bfc14fd8756dee96aeed9197b1a3369c6be4949"
+    },
+    {
+      "scenario": "ar light 834: Admin populated operational home",
+      "path": "browser/admin-home-ar-light-834-Admin-populated-operational-home/destinations.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "cec05cc01d55578e4c6287c4f5c297c4e83f02e2d8720058767b5521a6b85176"
+    },
+    {
+      "scenario": "ar light 834: Admin populated operational home",
+      "path": "browser/admin-home-ar-light-834-Admin-populated-operational-home/operations.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "7c139d509273d60c008242e296406795258d2631857250108a31ba91e06220eb"
+    },
+    {
+      "scenario": "ar light 834: Admin populated operational home",
+      "path": "browser/admin-home-ar-light-834-Admin-populated-operational-home/period.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "c8302b5d8d622cb326e6371250771f9bb10b8a69283c5ad2efc3a176a463ecf9"
+    },
+    {
+      "scenario": "ar: pending query state",
+      "path": "browser/admin-home-ar-pending-query-state/state.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "8e983b3d12a5ee0fa0d03abdb45bd087e6461d2e66153c331b262426cb13c4f6"
+    },
+    {
+      "scenario": "ar: zero query state",
+      "path": "browser-zero/admin-home-ar-zero-query-state/state.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "dc9904593e703dbef75cf50d444c41947b4c0fc79196fbe5318a8e1daef91159"
+    },
+    {
+      "scenario": "ar: zero query state",
+      "path": "browser-zero/admin-home-ar-zero-query-state/zero-operations.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "5d053bbde238a3eb26c0a9e6cac6d67bf19a03e76aad95bb0e3e6da0b906ab2a"
+    },
+    {
+      "scenario": "en 1440: coordinator-only restricted home retains exact eligible shell",
+      "path": "browser/admin-home-en-1440-coordin-89700-etains-exact-eligible-shell/restricted-shell.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "f43eb3b15bf0425f00643d8f6ceba5cd692ba9442494cadcd1c8334053e11d59"
+    },
+    {
+      "scenario": "en 1440: LeadIV restricted home retains exact eligible shell",
+      "path": "browser/admin-home-en-1440-LeadIV--b40e4-etains-exact-eligible-shell/restricted-shell.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e18a3375a423d65945d9a50fa4d6f40b394b6124af6599093b3b52d13e3367b2"
+    },
+    {
+      "scenario": "en 390: coordinator-only restricted home retains exact eligible shell",
+      "path": "browser/admin-home-en-390-coordina-54ce8-etains-exact-eligible-shell/restricted-shell.png",
+      "width": 390,
+      "height": 900,
+      "sha256": "c78a53b31cddf692612b2eb48e37e9ca4410a3366b1a40997b3e8d0f268a84c3"
+    },
+    {
+      "scenario": "en 390: LeadIV restricted home retains exact eligible shell",
+      "path": "browser/admin-home-en-390-LeadIV-r-19b04-etains-exact-eligible-shell/restricted-shell.png",
+      "width": 390,
+      "height": 900,
+      "sha256": "39abb673eec44b1b671dfbe4ba658c14db3e9b41facea9804567c99589b5373d"
+    },
+    {
+      "scenario": "en: 401 query state",
+      "path": "browser/admin-home-en-401-query-state/state.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "d7181fe9950cee7f4d0814bdbbd2fbbdc2c038ae9d4983bd4ca95ef7446e9891"
+    },
+    {
+      "scenario": "en: 403 query state",
+      "path": "browser/admin-home-en-403-query-state/state.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "694d866feb86da64d7dbf788453e0bd0c6c24e07ae83cdacdeea6e5d35e59af2"
+    },
+    {
+      "scenario": "en: cache refresh error preserves operation counts and every destination",
+      "path": "browser/admin-home-en-cache-refres-accfb-ounts-and-every-destination/cached-error.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "b21d73e8a1f602fcf0e4d2cf3e38a6295e2e70cbd019f0804e3e04d027051656"
+    },
+    {
+      "scenario": "en dark 1440: Admin populated operational home",
+      "path": "browser/admin-home-en-dark-1440-Admin-populated-operational-home/context.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "07be892b9444b1d4fb5db88950a70408e26f5011c9d9962ebbb0edd41d5f874c"
+    },
+    {
+      "scenario": "en dark 1440: Admin populated operational home",
+      "path": "browser/admin-home-en-dark-1440-Admin-populated-operational-home/destinations.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "2249ce3d69cdb823be9271243a46604e103b47ee95be9f4a6554ffb04b4c4472"
+    },
+    {
+      "scenario": "en dark 1440: Admin populated operational home",
+      "path": "browser/admin-home-en-dark-1440-Admin-populated-operational-home/operations.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "a7811b5103b4de0bccf37c540b936532da807bc85f8ec84446e3da7f36f86d70"
+    },
+    {
+      "scenario": "en dark 1440: Admin populated operational home",
+      "path": "browser/admin-home-en-dark-1440-Admin-populated-operational-home/period.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "2b503ba23f87be5ecbc6694114a9ab48f929c4b607dd560aa8333eed8cd4ffac"
+    },
+    {
+      "scenario": "en dark 390: Admin populated operational home",
+      "path": "browser/admin-home-en-dark-390-Admin-populated-operational-home/context.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "560047ed4e8d5c7772feb2ddc59e2ddbe80f837a885607e08909ca75e3fe854d"
+    },
+    {
+      "scenario": "en dark 390: Admin populated operational home",
+      "path": "browser/admin-home-en-dark-390-Admin-populated-operational-home/destinations.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "b52364e669a97eb9c23aa15fc6747d4d16e514e8b5e63f414f69c62ab919e97c"
+    },
+    {
+      "scenario": "en dark 390: Admin populated operational home",
+      "path": "browser/admin-home-en-dark-390-Admin-populated-operational-home/operations.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "75850e4a18668819a2860e66b6e77c29bea9a1424f1a1c16423bce948ef593f0"
+    },
+    {
+      "scenario": "en dark 390: Admin populated operational home",
+      "path": "browser/admin-home-en-dark-390-Admin-populated-operational-home/period.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "7f01ce2da7d64f3b9da3ffdfc14c142986c91c6c6f98d6ed192fe00f64301bdd"
+    },
+    {
+      "scenario": "en dark 834: Admin populated operational home",
+      "path": "browser/admin-home-en-dark-834-Admin-populated-operational-home/context.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "32e95cd07ad50cf1cfe0b5b85b6122524e3147372e58fe010ee2845cce4fccdc"
+    },
+    {
+      "scenario": "en dark 834: Admin populated operational home",
+      "path": "browser/admin-home-en-dark-834-Admin-populated-operational-home/destinations.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "66bd836d63d9df2af0c541bb388169f1e9fcf0d6af6ceacfbcff8c6d1726605b"
+    },
+    {
+      "scenario": "en dark 834: Admin populated operational home",
+      "path": "browser/admin-home-en-dark-834-Admin-populated-operational-home/operations.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "76bba37c5062a66bdb3d796da7281aff9a0046b88d483490545ab24ab687737d"
+    },
+    {
+      "scenario": "en dark 834: Admin populated operational home",
+      "path": "browser/admin-home-en-dark-834-Admin-populated-operational-home/period.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "7233b71f88f35d11e1a3714f8d6240eb551770f5d603fc6f35fda1df78b87e3c"
+    },
+    {
+      "scenario": "en: error query state",
+      "path": "browser/admin-home-en-error-query-state/state.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "27bd900a60b6be7f65eefbb35dac5b24c97fa26229ee595af22e2f7d45096796"
+    },
+    {
+      "scenario": "en: keyboard focus, reduced motion and 200 percent reflow proxy",
+      "path": "browser/admin-home-en-keyboard-foc-891a2-nd-200-percent-reflow-proxy/keyboard-reflow.png",
+      "width": 720,
+      "height": 450,
+      "sha256": "5bbcb2a83e45af518f835db4dbcadf873bea136d719915c26ae431e0ad6b58cb"
+    },
+    {
+      "scenario": "en light 1440: Admin populated operational home",
+      "path": "browser/admin-home-en-light-1440-Admin-populated-operational-home/context.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "37d317a52d4032b367ac2e90cdf860a3aa1e3b9350c5563cb4d67a71573aba3e"
+    },
+    {
+      "scenario": "en light 1440: Admin populated operational home",
+      "path": "browser/admin-home-en-light-1440-Admin-populated-operational-home/destinations.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "2f5077fb21e93881d5860a8f69daef742c94ede192c8a0a39e9dee4ce58bf8f8"
+    },
+    {
+      "scenario": "en light 1440: Admin populated operational home",
+      "path": "browser/admin-home-en-light-1440-Admin-populated-operational-home/operations.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "354f4b84335b8bb18e40667410322a1f754917ce9c009bfc595b58d38584ae01"
+    },
+    {
+      "scenario": "en light 1440: Admin populated operational home",
+      "path": "browser/admin-home-en-light-1440-Admin-populated-operational-home/period.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "7601cfb5527292ca068598c67c6058f53e623e6bcd91c85c9a1f4b189350bec6"
+    },
+    {
+      "scenario": "en light 390: Admin populated operational home",
+      "path": "browser/admin-home-en-light-390-Admin-populated-operational-home/context.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "a5575f976c4d4fd5faada74cc61aadc9f264111464e0004414fe616f419765b5"
+    },
+    {
+      "scenario": "en light 390: Admin populated operational home",
+      "path": "browser/admin-home-en-light-390-Admin-populated-operational-home/destinations.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "90e14923bbe2ff34eddd2789b77947db0a6ac318f977eaa6e9787951272021fb"
+    },
+    {
+      "scenario": "en light 390: Admin populated operational home",
+      "path": "browser/admin-home-en-light-390-Admin-populated-operational-home/operations.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "751c647a69fedc4ed65c554cd6a3f0cdb3474ff5779457cbaa10befff935d83a"
+    },
+    {
+      "scenario": "en light 390: Admin populated operational home",
+      "path": "browser/admin-home-en-light-390-Admin-populated-operational-home/period.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "43f8b76235bee65cf10d820ae26a9c7e23151978acc0db2e115a1be858a4aca8"
+    },
+    {
+      "scenario": "en light 834: Admin populated operational home",
+      "path": "browser/admin-home-en-light-834-Admin-populated-operational-home/context.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "6ff3165640dc5c53bb7efdc2fa67e5654f20227dbb14c004727c172cfde7a706"
+    },
+    {
+      "scenario": "en light 834: Admin populated operational home",
+      "path": "browser/admin-home-en-light-834-Admin-populated-operational-home/destinations.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "7b978caf54498e7806ea5e5fd9fddc37117842ee8c35ca3a75ecb1d10f2dfb22"
+    },
+    {
+      "scenario": "en light 834: Admin populated operational home",
+      "path": "browser/admin-home-en-light-834-Admin-populated-operational-home/operations.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "46ab2605fbfcbfd4dc0e9059e30c0c4e00e4242a654db0820ecbda33f392cf49"
+    },
+    {
+      "scenario": "en light 834: Admin populated operational home",
+      "path": "browser/admin-home-en-light-834-Admin-populated-operational-home/period.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "1d027783e11cc8db808aaf4da7750b63ec22fcec115faa65db88fee094a9e775"
+    },
+    {
+      "scenario": "en: pending query state",
+      "path": "browser/admin-home-en-pending-query-state/state.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "7db442abe88469fee0eccbe56cfdea4b7dcbe3fb85f1041a7da0be880bfff623"
+    },
+    {
+      "scenario": "en: zero query state",
+      "path": "browser-zero/admin-home-en-zero-query-state/state.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "c498682350bebef5c558582e7f6d5fa61bcfcdb075ffa3f0ddc9993fa744e2e6"
+    },
+    {
+      "scenario": "en: zero query state",
+      "path": "browser-zero/admin-home-en-zero-query-state/zero-operations.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "3a7ea6158304b724fce49dc77d343a1c4749348b5e921cb52ed5efcd6c958b60"
+    },
+    {
+      "scenario": "ar dark: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/30d.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "69a4dfc0d2bb406f6722ad1427ab75c0ae53588fd3a56b9d7c076717031cd7b9"
+    },
+    {
+      "scenario": "ar dark: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/3m.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "4ce66c7b032e210b1324542e9c28d2b2285dcc4a56b6619d9fa7b536f0160d64"
+    },
+    {
+      "scenario": "ar dark: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/7d.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "0d38369033c5355ac5ba469a91e23f1c808d1e4c9379df1f5641e7b6bcaf3a17"
+    },
+    {
+      "scenario": "ar dark: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/all.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "1ae523e2d54a731289b7a4c5caa8cfdbe8b2dcf0c60de5521dd35f21fd46fdb2"
+    },
+    {
+      "scenario": "ar dark: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/custom.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "1f155493ed9e474d61c1bec01de62f3ec4f4703e0ff168c9b6cfe5de6cbd2b79"
+    },
+    {
+      "scenario": "ar dark: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/invalid-custom.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "4b79628057f08cc7d72afe1de1c47c3ba68e77b818c65b8cda0c916bd4ff28cd"
+    },
+    {
+      "scenario": "ar dark: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/today.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "04e4cd37c4fdf8386d741c2d73b7bc768247da27702ed78e0ca29aab4e0ce5fa"
+    },
+    {
+      "scenario": "ar dark: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-ar-dark-every-p-28559-itable-invalid-custom-range/year.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "ea6586a9ded9fbd94ec9e82661d66fdd873be5935c087dbca75e5fc60b9ad75d"
+    },
+    {
+      "scenario": "ar light: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/30d.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "5283fd8e7a8548ce893362ea24421cacc795550c9709b5c23038124045b53ade"
+    },
+    {
+      "scenario": "ar light: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/3m.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "504278dbf25fe22ddd606542ec78be355429234674eb90526aeef7029a4583b8"
+    },
+    {
+      "scenario": "ar light: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/7d.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "b88089851754e55de573b2c591ae86d42f9c94aa60a3e85beb27f33c4bf50ff3"
+    },
+    {
+      "scenario": "ar light: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/all.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "dc74ee5123656d585e2f070528e1c36feca0e48aa55abf0e15a7ba9b215c49b0"
+    },
+    {
+      "scenario": "ar light: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/custom.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "639ae5441842bc9951e9094ece4ac80bd1b85ad926aa67c2e2c214abac367902"
+    },
+    {
+      "scenario": "ar light: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/invalid-custom.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "ae8c460cf801b2c1c541b2a103b864727dd8282e2b5b4ef60bc419b85c2cfc4d"
+    },
+    {
+      "scenario": "ar light: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/today.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "9e38a2bd676667a78cf64b21c849fdb1822b431ee770955cfbde5c5f927cdb06"
+    },
+    {
+      "scenario": "ar light: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-ar-light-every--65f0e-itable-invalid-custom-range/year.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "78bc89e29d8e2e3147110b3c08e9726a66327bb61929a46085c0679c1c5a8963"
+    },
+    {
+      "scenario": "en dark: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/30d.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "150593e5ebb9cb23319d9c17811894b86a2b207c5903dbc3b2703afccf8c1185"
+    },
+    {
+      "scenario": "en dark: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/3m.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "5cdcaa55d00c254cf1496a33603968e234d4bf0761a7ccda197a9879e4848e8c"
+    },
+    {
+      "scenario": "en dark: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/7d.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "3d48c2e8548739848edb4e616fdc9965c4683239d5a0cfdbe437e37c72e66410"
+    },
+    {
+      "scenario": "en dark: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/all.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "fe80f3cd56474495bf9ce1ae24ef12fb6c1eb85aa6fa3c741562a111be9386d4"
+    },
+    {
+      "scenario": "en dark: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/custom.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "056ce463cebf6a0a00384ae48a7395b6f5cf189d822f5f2ed6de207c2ef5d84b"
+    },
+    {
+      "scenario": "en dark: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/invalid-custom.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "83bed24d2b58668f892ab4f9584dde3f2f5d935599f5af63bac3a2fefc9fa476"
+    },
+    {
+      "scenario": "en dark: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/today.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "67f76983b5a731f0da581dd24287df06fdf244f54926a8b2b89dea324dab0e0f"
+    },
+    {
+      "scenario": "en dark: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-en-dark-every-p-84ce4-itable-invalid-custom-range/year.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "2000090d0c2bde87271474d49c55b1a6e5a95d8b4c3cd5b6d005d29ca9ae74bf"
+    },
+    {
+      "scenario": "en light: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-en-light-every--5446d-itable-invalid-custom-range/30d.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "5337335babb3d07d1d74a971329d75cc37c24a912d862d795989515283f20c09"
+    },
+    {
+      "scenario": "en light: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-en-light-every--5446d-itable-invalid-custom-range/3m.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "e251e1f6f10db96dd89073c5f626c282f327dd73d493abd38e8b9476d780c0e6"
+    },
+    {
+      "scenario": "en light: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-en-light-every--5446d-itable-invalid-custom-range/7d.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "4bdfb33ccfb7ceff6953baf365cd64e44adc49f0a017503a963b04bd17a65fee"
+    },
+    {
+      "scenario": "en light: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-en-light-every--5446d-itable-invalid-custom-range/all.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "c6ce0d1dc702cf40aeb8490eb57bc634c57017ca4a9881943a1c83a450f2a22e"
+    },
+    {
+      "scenario": "en light: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-en-light-every--5446d-itable-invalid-custom-range/custom.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "4ed1265072e162b3295d9dc5a85d829494413828c5c59930e7a4f441cdf5e66f"
+    },
+    {
+      "scenario": "en light: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-en-light-every--5446d-itable-invalid-custom-range/invalid-custom.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "92074dbdaa78a434bc8d556fa5c1c706dba7ade51f3f955caaf03ac9f221378a"
+    },
+    {
+      "scenario": "en light: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-en-light-every--5446d-itable-invalid-custom-range/today.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "cc7ab6279d5302b416261f18f85f6d24a4a11d717cc9002f69e29d896cc5d884"
+    },
+    {
+      "scenario": "en light: every period and editable invalid custom range",
+      "path": "browser-periods/admin-home-en-light-every--5446d-itable-invalid-custom-range/year.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "f8e5bf45a853e7c43f2f5f3f5358b79d0816f006669c59a3a74f9675fdd90d7e"
+    }
+  ],
+  "validationNotes": [
+    "34 original matrix scenarios passed; four period cases revalidated after scoping alert assertions to main (excluding Next route announcer). Two zero cases have supplemental initial-operation captures. No production workaround.",
+    "Separate protected regressions: 113/114 passed on first run; unchanged Teacher EN keyboard case passed isolated recheck after an initial computed outline-offset mismatch. No timeout/assertion/source change."
+  ],
+  "limits": [
+    "Synthetic intercepted frontend evidence, not backend persistence, authorization, payments, entitlement, database, deployment or full WCAG proof.",
+    "LeadIV and coordinator-only dashboard responses are deliberately 403, matching the unchanged Admin-only producer contract; their original shell destination sets are retained.",
+    "720x450 is a CSS viewport reflow proxy, not native browser zoom."
+  ]
+}

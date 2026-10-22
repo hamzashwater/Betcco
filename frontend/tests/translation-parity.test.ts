@@ -21,6 +21,7 @@ const parityNamespaces = [
   "teacherStudentFollowUp",
   "teacherWorkloadPresentation",
   "teacherAuthoringPresentation",
+  "adminHomePresentation",
   "adminWorkspace",
 ] as const;
 

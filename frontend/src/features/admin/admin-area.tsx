@@ -52,7 +52,6 @@ import {
   WalletCards,
 } from "lucide-react";
 import {
-  ActionCard,
   DashboardHeader,
   MetricCard,
   QueryState,
@@ -60,6 +59,7 @@ import {
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
+import homeStyles from "./admin-home.module.css";
 
 type Dashboard = {
   period: string;
@@ -221,6 +221,7 @@ function AdminRequestFailure({
 
 function AdminDashboard() {
   const t = useTranslations("adminWorkspace");
+  const presentation = useTranslations("adminHomePresentation");
   const locale = useLocale();
   const academicT = useTranslations("academicCatalogue");
   const deliveryT = useTranslations("deliveryPlanning");
@@ -240,39 +241,10 @@ function AdminDashboard() {
     queryFn: () => api<Dashboard>(dashboardQuery),
     enabled: period !== "custom" || customRangeIsValid,
   });
-  if (result.isPending)
-    return (
-      <section className="shell py-10">
-        <QueryState kind="loading" title={t("shared.loadingIndicator")} />
-      </section>
-    );
-  if (!result.data)
-    return (
-      <section className="shell py-10">
-        <AdminRequestFailure
-          error={result.error}
-          signInTitle={t("dashboard.signIn")}
-          failureTitle={t("dashboard.requestError")}
-        />
-      </section>
-    );
-  return (
-    <section className="shell py-10">
-      {result.isError ? (
-        <AdminRequestFailure
-          error={result.error}
-          signInTitle={t("dashboard.signIn")}
-          failureTitle={t("dashboard.requestError")}
-          cached
-        />
-      ) : null}
-      <DashboardHeader
-        eyebrow={t("dashboard.eyebrow")}
-        title={t("dashboard.title")}
-        description={t("dashboard.description")}
-      />
+  const periodControls = (
+    <>
       <div
-        className="mt-5 flex flex-wrap gap-2"
+        className={homeStyles.periods}
         aria-label={t("dashboard.periodLabel")}
       >
         {[
@@ -289,14 +261,14 @@ function AdminDashboard() {
             type="button"
             onClick={() => setPeriod(value)}
             aria-pressed={period === value}
-            className={`focus-ring rounded-lg border px-3 py-2 text-xs font-bold ${period === value ? "border-primary/60 bg-primary/10 text-primary" : "border-border text-muted"}`}
+            className={`focus-ring rounded-lg border px-3 py-2 text-xs font-bold ${period === value ? "border-primary/60 bg-primary/10 text-text-link" : "border-border text-muted"}`}
           >
             {label}
           </button>
         ))}
       </div>
       {period === "custom" ? (
-        <div className="mt-4 flex flex-wrap items-end gap-3 rounded-2xl border border-border bg-surface/60 p-4">
+        <div className={homeStyles.range}>
           <label className="grid gap-1 text-sm font-bold">
             <span>{t("dashboard.from")}</span>
             <input
@@ -319,7 +291,10 @@ function AdminDashboard() {
             />
           </label>
           {!customRangeIsValid ? (
-            <p role="alert" className="pb-2 text-sm text-red-500">
+            <p
+              role="alert"
+              className="pb-2 text-sm text-state-danger-foreground"
+            >
               {t("dashboard.invalidRange")}
             </p>
           ) : null}
@@ -328,225 +303,313 @@ function AdminDashboard() {
       <p className="mt-3 text-xs text-muted">
         {t("dashboard.periodExplanation")}
       </p>
-      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <MetricCard
-          label={t("dashboard.metrics.students")}
-          value={result.data.students}
-          icon={UsersRound}
+    </>
+  );
+  if (period === "custom" && !customRangeIsValid && !result.data)
+    return (
+      <section className={`shell py-8 ${homeStyles.canvas}`}>
+        <header className={homeStyles.header}>
+          <p className="ui-type-meta text-text-secondary">
+            {t("dashboard.eyebrow")}
+          </p>
+          <h1>{t("dashboard.title")}</h1>
+          <p>{t("dashboard.description")}</p>
+        </header>
+        <section className={homeStyles.panel}>{periodControls}</section>
+      </section>
+    );
+  if (result.isPending)
+    return (
+      <section className="shell py-10">
+        <QueryState kind="loading" title={t("shared.loadingIndicator")} />
+      </section>
+    );
+  if (!result.data)
+    return (
+      <section className="shell py-10">
+        <AdminRequestFailure
+          error={result.error}
+          signInTitle={t("dashboard.signIn")}
+          failureTitle={t("dashboard.requestError")}
         />
-        <MetricCard
-          label={t("dashboard.metrics.activeStudents")}
-          value={result.data.activeStudents}
-          icon={UserRoundCheck}
-          tone="secondary"
+      </section>
+    );
+  return (
+    <section className={`shell py-8 ${homeStyles.canvas}`}>
+      <header className={homeStyles.header}>
+        <p className="ui-type-meta text-text-secondary">
+          {t("dashboard.eyebrow")}
+        </p>
+        <h1>{t("dashboard.title")}</h1>
+        <p>{t("dashboard.description")}</p>
+      </header>
+      {result.isError ? (
+        <AdminRequestFailure
+          error={result.error}
+          signInTitle={t("dashboard.signIn")}
+          failureTitle={t("dashboard.requestError")}
+          cached
         />
-        <MetricCard
-          label={t("dashboard.metrics.teachers")}
-          value={result.data.teachers}
-          icon={GraduationCap}
-          tone="secondary"
-        />
-        <MetricCard
-          label={t("dashboard.metrics.activeTeachers")}
-          value={result.data.activeTeachers}
-          icon={UserRoundCheck}
-          tone="accent"
-        />
-        <MetricCard
-          label={t("dashboard.metrics.courses")}
-          value={result.data.courses}
-          icon={BookOpenCheck}
-        />
-        <MetricCard
-          label={t("dashboard.metrics.publishedCourses")}
-          value={result.data.publishedCourses}
-          icon={BookOpenCheck}
-          tone="accent"
-        />
-        <MetricCard
-          label={t("dashboard.metrics.units")}
-          value={result.data.units}
-          icon={FileText}
-          tone="secondary"
-        />
-        <MetricCard
-          label={t("dashboard.metrics.enrollments")}
-          value={result.data.enrollments}
-          icon={UserRoundCheck}
-          tone="accent"
-        />
-        <MetricCard
-          label={t("dashboard.metrics.assignments")}
-          value={result.data.assignments}
-          icon={ClipboardCheck}
-          tone="warm"
-        />
-        <MetricCard
-          label={t("dashboard.metrics.pendingReviews")}
-          value={result.data.pendingReviews}
-          icon={ClipboardCheck}
-          tone="warm"
-        />
-        <MetricCard
-          label={t("dashboard.metrics.enrollmentCompletion")}
-          value={formatLocalizedPercentage(result.data.completionRate, locale)}
-          icon={BadgeCheck}
-          tone="secondary"
-        />
-        <MetricCard
-          label={t("dashboard.metrics.pendingApprovals")}
-          value={result.data.pendingApprovals}
-          icon={BadgeCheck}
-          tone="warm"
-        />
-        <MetricCard
-          label={t("dashboard.metrics.resultsAwaitingApproval")}
-          value={result.data.evaluationsAwaitingVerification}
-          icon={ClipboardCheck}
-          tone="secondary"
-        />
-        <MetricCard
-          label={t("dashboard.metrics.evaluationsAwaitingAssignment")}
-          value={result.data.pendingEvaluations}
-          icon={ClipboardCheck}
-          tone="warm"
-        />
-        <MetricCard
-          label={t("dashboard.metrics.confirmedRevenue")}
-          value={formatLocalizedCurrency(result.data.revenue, "JOD", locale)}
-          icon={WalletCards}
-          tone="secondary"
-        />
-        <MetricCard
-          label={t("dashboard.metrics.orders")}
-          value={result.data.orders}
-          icon={WalletCards}
-          tone="accent"
-        />
-        <MetricCard
-          label={t("dashboard.metrics.activeSubscriptions")}
-          value={result.data.activeSubscriptions}
-          icon={UserRoundCheck}
-          tone="secondary"
-        />
-        <MetricCard
-          label={t("dashboard.metrics.refunds")}
-          value={result.data.refunds}
-          icon={RotateCcw}
-          tone="warm"
-        />
-      </div>
-      <AdminAnalyticsTrend locale={locale} points={result.data.trend} />
-      <div className="mt-5 grid gap-4 md:grid-cols-3">
-        <AdminLink
-          href="students"
-          label={t("navigation.students.title")}
-          text={t("navigation.students.description")}
-          icon={UsersRound}
-        />
-        <AdminLink
-          href="teachers"
-          label={t("navigation.teachers.title")}
-          text={t("navigation.teachers.description")}
-          icon={UserRoundCheck}
-        />
-        <AdminLink
-          href="account-identities"
-          label={t("navigation.accountIdentities.title")}
-          text={t("navigation.accountIdentities.description")}
-          icon={UsersRound}
-        />
-        <AdminLink
-          href="course-approvals"
-          label={t("navigation.courseApprovals.title")}
-          text={t("navigation.courseApprovals.description")}
-          icon={BadgeCheck}
-        />
-        <AdminLink
-          href="evaluations"
-          label={t("navigation.evaluations.title")}
-          text={t("navigation.evaluations.description")}
-          icon={ClipboardCheck}
-        />
-        <AdminLink
-          href="internal-verification"
-          label={t("navigation.internalVerification.title")}
-          text={t("navigation.internalVerification.description")}
-          icon={ClipboardCheck}
-        />
-        <AdminLink
-          href="evaluation-appeals"
-          label={t("navigation.evaluationAppeals.title")}
-          text={t("navigation.evaluationAppeals.description")}
-          icon={FileText}
-        />
-        <AdminLink
-          href="qualification-registry"
-          label={t("navigation.qualificationRegistry.title")}
-          text={t("navigation.qualificationRegistry.description")}
-          icon={Network}
-        />
-        <AdminLink
-          href="academic-catalogue"
-          label={academicT("title")}
-          text={academicT("description")}
-          icon={BookOpenCheck}
-        />
-        <AdminLink
-          href="delivery-planning"
-          label={deliveryT("title")}
-          text={deliveryT("description")}
-          icon={Network}
-        />
-        <AdminLink
-          href="gradebook"
-          label={t("navigation.gradebook.title")}
-          text={t("navigation.gradebook.description")}
-          icon={BookOpenCheck}
-        />
-        <AdminLink
-          href="ratings"
-          label={t("navigation.ratings.title")}
-          text={t("navigation.ratings.description")}
-          icon={MessageSquareQuote}
-        />
-        <AdminLink
-          href="wallet"
-          label={t("navigation.wallet.title")}
-          text={t("navigation.wallet.description")}
-          icon={WalletCards}
-        />
-        <AdminLink
-          href="content"
-          label={t("navigation.content.title")}
-          text={t("navigation.content.description")}
-          icon={FileText}
-        />
-        <AdminLink
-          href="commerce"
-          label={t("navigation.commerce.title")}
-          text={t("navigation.commerce.description")}
-          icon={WalletCards}
-        />
-        <AdminLink
-          href="audit-logs"
-          label={t("navigation.auditLogs.title")}
-          text={t("navigation.auditLogs.description")}
-          icon={FileText}
-        />
-        <AdminLink
-          href="privacy"
-          label={t("navigation.privacy.title")}
-          text={t("navigation.privacy.description")}
-          icon={LockKeyhole}
-        />
-        <AdminLink
-          href="integrations"
-          label={t("navigation.integrations.title")}
-          text={t("navigation.integrations.description")}
-          icon={Network}
-        />
-      </div>
+      ) : null}
+      <section
+        className={homeStyles.panel}
+        aria-label={presentation("operations")}
+      >
+        <div>
+          <h2>{presentation("operations")}</h2>
+          <p className={homeStyles.hint}>{presentation("operationsHint")}</p>
+        </div>
+        <div className={homeStyles.operations}>
+          <AdminLink
+            href="course-approvals"
+            label={t("navigation.courseApprovals.title")}
+            text={t("navigation.courseApprovals.description")}
+            icon={BadgeCheck}
+            count={result.data.pendingApprovals}
+            metric={t("dashboard.metrics.pendingApprovals")}
+          />
+          <AdminLink
+            href="evaluations"
+            label={t("navigation.evaluations.title")}
+            text={t("navigation.evaluations.description")}
+            icon={ClipboardCheck}
+            count={result.data.pendingEvaluations}
+            metric={t("dashboard.metrics.evaluationsAwaitingAssignment")}
+          />
+          <AdminLink
+            href="evaluations"
+            label={t("dashboard.metrics.resultsAwaitingApproval")}
+            text={presentation("formalReviewContext")}
+            icon={ClipboardCheck}
+            count={result.data.evaluationsAwaitingVerification}
+          />
+          <AdminLink
+            href="gradebook"
+            label={t("navigation.gradebook.title")}
+            text={t("navigation.gradebook.description")}
+            icon={BookOpenCheck}
+            count={result.data.pendingReviews}
+            metric={t("dashboard.metrics.pendingReviews")}
+          />
+        </div>
+      </section>
+      <section
+        className={homeStyles.panel}
+        aria-label={presentation("currentContext")}
+      >
+        <div>
+          <h2>{presentation("currentContext")}</h2>
+          <p className={homeStyles.hint}>
+            {presentation("currentContextHint")}
+          </p>
+        </div>
+        <div className={homeStyles.metrics}>
+          {" "}
+          <MetricCard
+            label={t("dashboard.metrics.students")}
+            value={result.data.students}
+            icon={UsersRound}
+          />
+          <MetricCard
+            label={t("dashboard.metrics.teachers")}
+            value={result.data.teachers}
+            icon={GraduationCap}
+            tone="secondary"
+          />
+          <MetricCard
+            label={t("dashboard.metrics.activeTeachers")}
+            value={result.data.activeTeachers}
+            icon={UserRoundCheck}
+            tone="accent"
+          />
+          <MetricCard
+            label={t("dashboard.metrics.courses")}
+            value={result.data.courses}
+            icon={BookOpenCheck}
+          />
+          <MetricCard
+            label={t("dashboard.metrics.publishedCourses")}
+            value={result.data.publishedCourses}
+            icon={BookOpenCheck}
+            tone="accent"
+          />
+          <MetricCard
+            label={t("dashboard.metrics.units")}
+            value={result.data.units}
+            icon={FileText}
+            tone="secondary"
+          />
+          <MetricCard
+            label={t("dashboard.metrics.enrollments")}
+            value={result.data.enrollments}
+            icon={UserRoundCheck}
+            tone="accent"
+          />
+          <MetricCard
+            label={t("dashboard.metrics.assignments")}
+            value={result.data.assignments}
+            icon={ClipboardCheck}
+            tone="warm"
+          />
+          <MetricCard
+            label={t("dashboard.metrics.enrollmentCompletion")}
+            value={formatLocalizedPercentage(
+              result.data.completionRate,
+              locale,
+            )}
+            icon={BadgeCheck}
+            tone="secondary"
+          />
+          <MetricCard
+            label={t("dashboard.metrics.activeSubscriptions")}
+            value={result.data.activeSubscriptions}
+            icon={UserRoundCheck}
+            tone="secondary"
+          />
+        </div>
+      </section>
+      <section
+        className={homeStyles.panel}
+        aria-label={presentation("periodActivity")}
+      >
+        <h2>{presentation("periodActivity")}</h2>
+        {periodControls}
+        <div className={homeStyles.metrics}>
+          {" "}
+          <MetricCard
+            label={t("dashboard.metrics.activeStudents")}
+            value={result.data.activeStudents}
+            icon={UserRoundCheck}
+            tone="secondary"
+          />
+          <MetricCard
+            label={t("dashboard.metrics.confirmedRevenue")}
+            value={formatLocalizedCurrency(result.data.revenue, "JOD", locale)}
+            icon={WalletCards}
+            tone="secondary"
+          />
+          <MetricCard
+            label={t("dashboard.metrics.orders")}
+            value={result.data.orders}
+            icon={WalletCards}
+            tone="accent"
+          />
+          <MetricCard
+            label={t("dashboard.metrics.refunds")}
+            value={result.data.refunds}
+            icon={RotateCcw}
+            tone="warm"
+          />
+        </div>
+        <AdminAnalyticsTrend locale={locale} points={result.data.trend} />
+      </section>
+      <nav
+        className={homeStyles.panel}
+        aria-label={presentation("destinations")}
+      >
+        <div>
+          <h2>{presentation("destinations")}</h2>
+          <p className={homeStyles.hint}>{presentation("destinationsHint")}</p>
+        </div>
+        <div className={homeStyles.destinations}>
+          <AdminLink
+            href="students"
+            label={t("navigation.students.title")}
+            text={t("navigation.students.description")}
+            icon={UsersRound}
+          />
+          <AdminLink
+            href="teachers"
+            label={t("navigation.teachers.title")}
+            text={t("navigation.teachers.description")}
+            icon={UserRoundCheck}
+          />
+          <AdminLink
+            href="account-identities"
+            label={t("navigation.accountIdentities.title")}
+            text={t("navigation.accountIdentities.description")}
+            icon={UsersRound}
+          />
+          <AdminLink
+            href="internal-verification"
+            label={t("navigation.internalVerification.title")}
+            text={t("navigation.internalVerification.description")}
+            icon={ClipboardCheck}
+          />
+          <AdminLink
+            href="evaluation-appeals"
+            label={t("navigation.evaluationAppeals.title")}
+            text={t("navigation.evaluationAppeals.description")}
+            icon={FileText}
+          />
+          <AdminLink
+            href="qualification-registry"
+            label={t("navigation.qualificationRegistry.title")}
+            text={t("navigation.qualificationRegistry.description")}
+            icon={Network}
+          />
+          <AdminLink
+            href="academic-catalogue"
+            label={academicT("title")}
+            text={academicT("description")}
+            icon={BookOpenCheck}
+          />
+          <AdminLink
+            href="delivery-planning"
+            label={deliveryT("title")}
+            text={deliveryT("description")}
+            icon={Network}
+          />
+          <AdminLink
+            href="ratings"
+            label={t("navigation.ratings.title")}
+            text={t("navigation.ratings.description")}
+            icon={MessageSquareQuote}
+          />
+          <AdminLink
+            href="wallet"
+            label={t("navigation.wallet.title")}
+            text={t("navigation.wallet.description")}
+            icon={WalletCards}
+          />
+          <AdminLink
+            href="content"
+            label={t("navigation.content.title")}
+            text={t("navigation.content.description")}
+            icon={FileText}
+          />
+          <AdminLink
+            href="commerce"
+            label={t("navigation.commerce.title")}
+            text={t("navigation.commerce.description")}
+            icon={WalletCards}
+          />
+          <AdminLink
+            href="audit-logs"
+            label={t("navigation.auditLogs.title")}
+            text={t("navigation.auditLogs.description")}
+            icon={FileText}
+          />
+          <AdminLink
+            href="privacy"
+            label={t("navigation.privacy.title")}
+            text={t("navigation.privacy.description")}
+            icon={LockKeyhole}
+          />
+          <AdminLink
+            href="integrations"
+            label={t("navigation.integrations.title")}
+            text={t("navigation.integrations.description")}
+            icon={Network}
+          />
+          <AdminLink
+            href="retakes"
+            label={presentation("legacyRetakes")}
+            text={presentation("legacyRetakesHint")}
+            icon={RotateCcw}
+          />
+        </div>
+      </nav>
     </section>
   );
 }
@@ -580,9 +643,11 @@ function AdminAnalyticsTrend({
     },
   ];
   return (
-    <section className="card mt-5 p-5">
+    <section className={homeStyles.trend}>
       <div>
-        <h2 className="font-black text-foreground">{t("analytics.title")}</h2>
+        <h2 className="font-semibold text-foreground">
+          {t("analytics.title")}
+        </h2>
         <p className="mt-1 text-sm text-muted">{t("analytics.description")}</p>
       </div>
       {points.length ? (
@@ -599,7 +664,7 @@ function AdminAnalyticsTrend({
             return (
               <article key={definition.key}>
                 <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="text-sm font-black text-foreground">
+                  <h3 className="text-sm font-semibold text-foreground">
                     {definition.label}
                   </h3>
                   <span className="text-xs font-bold text-muted">
@@ -1568,26 +1633,37 @@ function AdminLink({
   href,
   label,
   text,
-  icon,
+  icon: Icon,
+  count,
+  metric,
 }: {
   href: string;
   label: string;
   text: string;
   icon: typeof ClipboardCheck;
+  count?: number;
+  metric?: string;
 }) {
   const t = useTranslations("adminWorkspace");
   const locale = useLocale();
   return (
     <Link
-      className="focus-ring block rounded-[1.25rem]"
+      className={`focus-ring ${homeStyles.destination}`}
       href={`/${locale}/admin/${href}`}
     >
-      <ActionCard title={label} description={text} icon={icon}>
-        <span className="mt-4 inline-flex items-center gap-1 text-sm font-black text-primary">
-          {t("shared.open")}
-          <ArrowLeft size={16} className="rtl:rotate-180" aria-hidden="true" />
-        </span>
-      </ActionCard>
+      <Icon size={20} aria-hidden="true" />
+      <div className={homeStyles.destinationText}>
+        <h3>{label}</h3>
+        <p>{text}</p>
+        {metric ? <p className={homeStyles.metricLabel}>{metric}</p> : null}
+      </div>
+      {count !== undefined ? (
+        <span className={homeStyles.count}>{count}</span>
+      ) : null}
+      <span className={homeStyles.open}>
+        {t("shared.open")}
+        <ArrowLeft size={16} className="rtl:rotate-180" aria-hidden="true" />
+      </span>
     </Link>
   );
 }

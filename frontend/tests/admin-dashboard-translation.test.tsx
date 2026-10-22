@@ -88,7 +88,7 @@ afterEach(() => {
 describe.each(["ar", "en"] as const)(
   "Admin Dashboard %s — mocked UI-contract evidence",
   (locale) => {
-    it("renders headers, every period, raw metric values, formatter output and all 18 navigation cards", async () => {
+    it("renders every period, exact metric values and every original destination in compact rows", async () => {
       const { copy, client, container, messages } = renderDashboard(locale);
       await screen.findByRole("heading", { name: copy.dashboard.title });
       expect(screen.getByText(copy.dashboard.description)).toBeVisible();
@@ -128,10 +128,15 @@ describe.each(["ar", "en"] as const)(
       Object.values(copy.dashboard.metrics).forEach((label, i) => {
         const card = screen
           .getAllByText(label, { exact: true })
-          .find((el) => el.closest("article")?.querySelector("p.mt-2"));
+          .find(
+            (el) =>
+              el.closest("article")?.querySelector("p.mt-2") || el.closest("a"),
+          );
         expect(card).toBeDefined();
         expect(
-          card!.closest("article")!.querySelector("p.mt-2")?.textContent,
+          card!.closest("article")?.querySelector("p.mt-2")?.textContent ??
+            card!.closest("a")?.querySelector(":scope > span:not(:last-child)")
+              ?.textContent,
         ).toBe(String(values[i]));
       });
       for (const [key, entry] of Object.entries(copy.navigation)) {
@@ -165,7 +170,10 @@ describe.each(["ar", "en"] as const)(
           within(link as HTMLElement).getByText(entry.description),
         ).toBeVisible();
       }
-      expect(container.querySelectorAll("a")).toHaveLength(18);
+      expect(container.querySelectorAll("a")).toHaveLength(20);
+      expect(
+        container.querySelector(`a[href="/${locale}/admin/retakes"]`),
+      ).toBeVisible();
     });
     it("localizes sign-in/error and loading states", async () => {
       apiMock.mockRejectedValue(new Error("RAW backend error"));
@@ -243,7 +251,7 @@ describe.each(["ar", "en"] as const)(
           ?.isDisabled(),
       ).toBe(true);
     });
-    it("preserves the existing pending state for an uncached invalid range without making a request", async () => {
+    it("keeps an uncached invalid range editable without a request or misleading loading state", async () => {
       const { copy, client, container } = renderDashboard(locale);
       await screen.findByRole("heading", { name: copy.dashboard.title });
       fireEvent.click(
@@ -252,7 +260,15 @@ describe.each(["ar", "en"] as const)(
       const start = await screen.findByLabelText(copy.dashboard.from);
       apiMock.mockClear();
       fireEvent.change(start, { target: { value: "2026-10-02" } });
-      expect(container.querySelector('[aria-busy="true"]')).toBeInTheDocument();
+      expect(
+        container.querySelector('[aria-busy="true"]'),
+      ).not.toBeInTheDocument();
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        copy.dashboard.invalidRange,
+      );
+      expect(screen.getByLabelText(copy.dashboard.from)).toHaveValue(
+        "2026-10-02",
+      );
       expect(apiMock).not.toHaveBeenCalled();
       expect(
         client
@@ -263,6 +279,14 @@ describe.each(["ar", "en"] as const)(
           })
           ?.isDisabled(),
       ).toBe(true);
+      fireEvent.change(screen.getByLabelText(copy.dashboard.from), {
+        target: { value: "2026-09-30" },
+      });
+      await waitFor(() =>
+        expect(apiMock).toHaveBeenCalledWith(
+          "/admin/dashboard?period=custom&fromUtc=2026-09-30T00%3A00%3A00.000Z&toUtc=2026-10-01T23%3A59%3A59.999Z",
+        ),
+      );
     });
     it("localizes analytics and preserves totals, date tooltips and bar calculations", async () => {
       const { copy } = renderDashboard(locale);
