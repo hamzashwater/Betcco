@@ -4,6 +4,8 @@ import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { QueryState, MutationOutcome } from "@/components/ui/query-state";
+import styles from "./account-identity-management.module.css";
 
 type ManagedUser = {
   id: string;
@@ -83,20 +85,11 @@ export function AccountIdentityManagement() {
   });
 
   return (
-    <section className="shell min-w-0 py-8">
-      <h1 className="text-3xl font-black">{t("accountIdentities.title")}</h1>
-      <p className="mt-2 text-sm text-muted">
-        {t("accountIdentities.description")}
-      </p>
-      {notice && (
-        <p
-          role="status"
-          className="mt-4 rounded-xl border border-emerald-500/35 p-3 text-sm text-emerald-700"
-        >
-          {notice}
-        </p>
-      )}
-      <div className="mt-6 flex flex-wrap gap-2">
+    <section className={`shell py-8 ${styles.workspace}`}>
+      <h1 className={styles.title}>{t("accountIdentities.title")}</h1>
+      <p className={styles.context}>{t("accountIdentities.description")}</p>
+      {notice && <MutationOutcome kind="success">{notice}</MutationOutcome>}
+      <div className={styles.roles}>
         {(["Teacher", "SupportAdmin"] as const).map((value) => (
           <button
             key={value}
@@ -106,7 +99,7 @@ export function AccountIdentityManagement() {
               setRole(value);
               setPage(1);
             }}
-            className="focus-ring rounded-xl border border-border px-4 py-2 text-sm font-bold aria-pressed:bg-primary aria-pressed:text-slate-950"
+            className={styles.roleControl}
           >
             {value === "Teacher"
               ? t("accountIdentities.teachers")
@@ -116,14 +109,14 @@ export function AccountIdentityManagement() {
       </div>
       {role === "SupportAdmin" && (
         <form
-          className="card mt-5 grid gap-3 p-5 sm:grid-cols-[1fr_1fr_auto]"
+          className={styles.invite}
           onSubmit={(event) => {
             event.preventDefault();
             setNotice("");
             invite.mutate();
           }}
         >
-          <label className="grid gap-1 text-sm font-bold">
+          <label className={styles.field}>
             <span>{t("accountIdentities.name")}</span>
             <input
               required
@@ -131,10 +124,9 @@ export function AccountIdentityManagement() {
               maxLength={160}
               value={displayName}
               onChange={(event) => setDisplayName(event.target.value)}
-              className="focus-ring min-w-0 rounded-xl border border-border bg-transparent px-3 py-2"
             />
           </label>
-          <label className="grid gap-1 text-sm font-bold">
+          <label className={styles.field}>
             <span>{t("accountIdentities.email")}</span>
             <input
               type="email"
@@ -142,85 +134,87 @@ export function AccountIdentityManagement() {
               maxLength={320}
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="focus-ring min-w-0 rounded-xl border border-border bg-transparent px-3 py-2"
             />
           </label>
           <button
             disabled={invite.isPending}
-            className="focus-ring self-end rounded-xl bg-primary px-4 py-2 text-sm font-bold text-slate-950 disabled:opacity-60"
+            aria-busy={invite.isPending}
+            className={styles.primary}
           >
             {t("accountIdentities.send")}
           </button>
           {invite.isError && (
-            <p role="alert" className="text-sm text-red-600 sm:col-span-3">
-              {t("accountIdentities.inviteError")}
-            </p>
+            <QueryState
+              kind="error"
+              title={t("accountIdentities.inviteError")}
+            />
           )}
         </form>
       )}
-      <div className="mt-5 grid gap-3">
+      <div className={styles.ledger}>
         {users.isPending ? (
-          <p aria-busy="true">{t("accountIdentities.loading")}</p>
+          <QueryState kind="loading" title={t("accountIdentities.loading")} />
         ) : users.isError ? (
-          <p role="alert" className="text-red-600">
-            {t("accountIdentities.loadError")}
-          </p>
+          <QueryState kind="error" title={t("accountIdentities.loadError")} />
         ) : users.data?.items.length ? (
           users.data.items.map((user) => (
-            <article key={user.id} className="card grid min-w-0 gap-3 p-5">
-              <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <h2 className="font-black">{user.displayName}</h2>
-                  <p className="break-all text-sm text-muted" dir="ltr">
-                    {user.email}
-                  </p>
-                  <p className="text-xs text-muted">
-                    {user.isFrozen
-                      ? t("accountIdentities.frozen")
-                      : !user.emailConfirmed
-                        ? t("accountIdentities.awaitingActivation")
-                        : t("accountIdentities.active")}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {role === "SupportAdmin" &&
-                    !user.emailConfirmed &&
-                    user.mustChangePassword && (
-                      <button
-                        type="button"
-                        disabled={resend.isPending}
-                        onClick={() => resend.mutate(user.id)}
-                        className="focus-ring rounded-xl border border-border px-3 py-2 text-sm font-bold"
-                      >
-                        {t("accountIdentities.resend")}
-                      </button>
-                    )}
-                  <button
-                    type="button"
-                    disabled={freeze.isPending}
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          user.isFrozen
-                            ? t("accountIdentities.reactivateConfirmation")
-                            : t("accountIdentities.freezeConfirmation"),
-                        )
+            <article key={user.id} className={styles.row}>
+              <div className={styles.identity}>
+                <h2 className={styles.name}>{user.displayName}</h2>
+                <p className={styles.email} dir="ltr">
+                  {user.email}
+                </p>
+              </div>
+              <p
+                className={`${styles.status} ${user.isFrozen ? styles.frozen : !user.emailConfirmed ? styles.awaiting : styles.active}`}
+              >
+                {user.isFrozen
+                  ? t("accountIdentities.frozen")
+                  : !user.emailConfirmed
+                    ? t("accountIdentities.awaitingActivation")
+                    : t("accountIdentities.active")}
+              </p>
+              <div className={styles.primaryActions}>
+                {role === "SupportAdmin" &&
+                  !user.emailConfirmed &&
+                  user.mustChangePassword && (
+                    <button
+                      type="button"
+                      disabled={resend.isPending}
+                      aria-busy={resend.isPending}
+                      onClick={() => resend.mutate(user.id)}
+                      className={styles.secondaryAction}
+                    >
+                      {t("accountIdentities.resend")}
+                    </button>
+                  )}
+                <button
+                  type="button"
+                  disabled={freeze.isPending}
+                  aria-busy={freeze.isPending}
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        user.isFrozen
+                          ? t("accountIdentities.reactivateConfirmation")
+                          : t("accountIdentities.freezeConfirmation"),
                       )
-                        freeze.mutate({ id: user.id, frozen: !user.isFrozen });
-                    }}
-                    className="focus-ring rounded-xl border border-border px-3 py-2 text-sm font-bold"
-                  >
-                    {user.isFrozen
-                      ? t("accountIdentities.reactivate")
-                      : t("accountIdentities.freeze")}
-                  </button>
-                </div>
+                    )
+                      freeze.mutate({ id: user.id, frozen: !user.isFrozen });
+                  }}
+                  className={styles.contextAction}
+                >
+                  {user.isFrozen
+                    ? t("accountIdentities.reactivate")
+                    : t("accountIdentities.freeze")}
+                </button>
               </div>
               {role === "SupportAdmin" && (
-                <div className="border-t border-border pt-3">
+                <div className={styles.revokeControl}>
                   <button
                     type="button"
                     disabled={revokeSupportAccess.isPending}
+                    aria-busy={revokeSupportAccess.isPending}
                     onClick={() => {
                       if (
                         window.confirm(
@@ -231,77 +225,77 @@ export function AccountIdentityManagement() {
                       )
                         revokeSupportAccess.mutate(user.id);
                     }}
-                    className="focus-ring rounded-xl border border-red-500/50 px-3 py-2 text-sm font-bold text-red-700 disabled:opacity-60"
+                    className={styles.danger}
                   >
                     {t("accountIdentities.revoke")}
                   </button>
                 </div>
               )}
-              <form
-                className="flex min-w-0 flex-wrap gap-2"
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  setNotice("");
-                  changeEmail.mutate(user.id);
-                }}
-              >
-                <label className="min-w-0 flex-1 text-sm font-bold">
-                  <span className="sr-only">
-                    {t("accountIdentities.newEmail")}
-                  </span>
-                  <input
-                    type="email"
-                    required
-                    disabled={user.mustChangePassword || !user.emailConfirmed}
-                    maxLength={320}
-                    value={newEmails[user.id] ?? ""}
-                    onChange={(event) =>
-                      setNewEmails((values) => ({
-                        ...values,
-                        [user.id]: event.target.value,
-                      }))
-                    }
-                    placeholder={t("accountIdentities.newEmail")}
-                    className="focus-ring w-full min-w-0 rounded-xl border border-border bg-transparent px-3 py-2"
-                  />
-                </label>
-                <button
-                  disabled={
-                    changeEmail.isPending ||
-                    user.mustChangePassword ||
-                    !user.emailConfirmed
-                  }
-                  className="focus-ring rounded-xl bg-primary px-4 py-2 text-sm font-bold text-slate-950 disabled:opacity-60"
+              <details className={styles.emailDetail}>
+                <summary>{t("accountIdentities.newEmail")}</summary>
+                <form
+                  className={styles.emailForm}
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    setNotice("");
+                    changeEmail.mutate(user.id);
+                  }}
                 >
-                  {t("accountIdentities.changeEmail")}
-                </button>
-              </form>
-              {(user.mustChangePassword || !user.emailConfirmed) && (
-                <p className="text-xs text-muted">
-                  {t("accountIdentities.activationRequired")}
-                </p>
-              )}
+                  <label className={styles.emailField}>
+                    <span className="sr-only">
+                      {t("accountIdentities.newEmail")}
+                    </span>
+                    <input
+                      type="email"
+                      required
+                      disabled={user.mustChangePassword || !user.emailConfirmed}
+                      maxLength={320}
+                      value={newEmails[user.id] ?? ""}
+                      onChange={(event) =>
+                        setNewEmails((values) => ({
+                          ...values,
+                          [user.id]: event.target.value,
+                        }))
+                      }
+                      placeholder={t("accountIdentities.newEmail")}
+                    />
+                  </label>
+                  <button
+                    disabled={
+                      changeEmail.isPending ||
+                      user.mustChangePassword ||
+                      !user.emailConfirmed
+                    }
+                    aria-busy={changeEmail.isPending}
+                    className={styles.primary}
+                  >
+                    {t("accountIdentities.changeEmail")}
+                  </button>
+                </form>
+                {(user.mustChangePassword || !user.emailConfirmed) && (
+                  <p className={styles.hint}>
+                    {t("accountIdentities.activationRequired")}
+                  </p>
+                )}
+              </details>
             </article>
           ))
         ) : (
-          <p className="text-sm text-muted">{t("accountIdentities.empty")}</p>
+          <QueryState kind="empty" title={t("accountIdentities.empty")} />
         )}
         {(changeEmail.isError ||
           freeze.isError ||
           resend.isError ||
           revokeSupportAccess.isError) && (
-          <p role="alert" className="text-sm text-red-600">
-            {t("accountIdentities.actionError")}
-          </p>
+          <QueryState kind="error" title={t("accountIdentities.actionError")} />
         )}
       </div>
       {users.data && (
-        <div className="mt-4 flex gap-3 text-sm">
+        <div className={styles.pagination}>
           <button
             type="button"
             disabled={page === 1}
             onClick={() => setPage(page - 1)}
-            className="focus-ring disabled:opacity-50"
           >
             {t("accountIdentities.previous")}
           </button>
@@ -310,7 +304,6 @@ export function AccountIdentityManagement() {
             type="button"
             disabled={page * 25 >= users.data.totalCount}
             onClick={() => setPage(page + 1)}
-            className="focus-ring disabled:opacity-50"
           >
             {t("accountIdentities.next")}
           </button>

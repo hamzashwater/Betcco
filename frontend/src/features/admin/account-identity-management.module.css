@@ -1,0 +1,285 @@
+.workspace {
+  min-width: 0;
+  background: var(--ui-surface-canvas);
+  color: var(--ui-text-primary);
+  overflow-wrap: anywhere;
+}
+.title {
+  font-size: var(--ui-type-page-size);
+  line-height: var(--ui-type-page-line);
+  font-weight: 700;
+}
+.context {
+  max-width: 52rem;
+  margin-block: 0.5rem 1rem;
+  color: var(--ui-text-secondary);
+  font-size: var(--ui-type-body-size);
+  line-height: var(--ui-type-body-line);
+}
+.roles,
+.primaryActions,
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.roles {
+  margin-block: 1rem;
+}
+.workspace button,
+.emailDetail summary {
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--ui-border-default);
+  border-radius: 8px;
+  background: var(--ui-action-secondary);
+  color: var(--ui-action-secondary-text);
+  font-size: var(--ui-type-label-size);
+  line-height: var(--ui-type-label-line);
+  font-weight: 500;
+  cursor: pointer;
+}
+.workspace button:hover:not(:disabled) {
+  background: var(--ui-action-secondary-hover);
+}
+.workspace button:active:not(:disabled) {
+  background: var(--ui-action-secondary-pressed);
+}
+.workspace .roleControl[aria-pressed="true"] {
+  border-color: var(--ui-border-selected);
+  border-block-end-width: 3px;
+  background: var(--ui-selection-surface);
+  color: var(--ui-selection-text);
+}
+.workspace .primary {
+  border-color: var(--ui-action-primary-surface);
+  background: var(--ui-action-primary-surface);
+  color: var(--ui-action-primary-foreground);
+}
+.workspace .secondaryAction {
+  border-color: transparent;
+  background: transparent;
+  color: var(--ui-text-link);
+}
+.workspace .secondaryAction:hover:not(:disabled),
+.workspace .secondaryAction:active:not(:disabled) {
+  background: var(--ui-action-quiet-hover);
+}
+.workspace .primary:hover:not(:disabled) {
+  background: var(--ui-action-primary-surface-hover);
+}
+.workspace .primary:active:not(:disabled) {
+  background: var(--ui-action-primary-surface-pressed);
+}
+.workspace .danger {
+  border-color: transparent;
+  background: var(--ui-surface-panel);
+  color: var(--ui-state-danger-foreground);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.workspace .danger:hover:not(:disabled),
+.workspace .danger:active:not(:disabled) {
+  background: var(--ui-state-danger-surface);
+}
+.workspace button:disabled,
+.workspace input:disabled {
+  border-color: var(--ui-action-disabled);
+  background: var(--ui-action-disabled);
+  color: var(--ui-action-disabled-text);
+  cursor: default;
+}
+.workspace :is(button, input, summary):focus-visible {
+  outline: 3px solid var(--ui-focus-ring);
+  outline-offset: 2px;
+}
+.invite {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  margin-block: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--ui-border-default);
+  border-radius: 12px;
+  background: var(--ui-surface-panel);
+}
+.field,
+.emailField {
+  display: grid;
+  min-width: 0;
+  gap: 0.375rem;
+  color: var(--ui-text-secondary);
+  font-size: var(--ui-type-label-size);
+  line-height: var(--ui-type-label-line);
+  font-weight: 500;
+}
+.workspace input {
+  min-width: 0;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--ui-border-control);
+  border-radius: 8px;
+  background: var(--ui-surface-inset);
+  color: var(--ui-text-primary);
+  font-size: var(--ui-type-data-size);
+  line-height: var(--ui-type-data-line);
+  font-weight: 400;
+}
+.invite button {
+  align-self: end;
+}
+.invite > [role="alert"] {
+  grid-column: 1 / -1;
+}
+.ledger {
+  min-width: 0;
+  margin-block-start: 1rem;
+  border: 1px solid var(--ui-border-default);
+  border-radius: 12px;
+  background: var(--ui-surface-panel);
+}
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  border-block-end: 1px solid var(--ui-border-subtle);
+}
+.row:last-child {
+  border-block-end: 0;
+}
+.identity {
+  min-width: 0;
+  grid-column: 1;
+  grid-row: 1;
+}
+.name {
+  font-size: var(--ui-type-item-size);
+  line-height: var(--ui-type-item-line);
+  font-weight: 600;
+}
+.email {
+  color: var(--ui-text-secondary);
+  font-size: var(--ui-type-meta-size);
+  line-height: var(--ui-type-meta-line);
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+.status {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: start;
+  max-width: 100%;
+  padding: 0.125rem 0.5rem;
+  border: 1px solid;
+  border-radius: 4px;
+  font-size: var(--ui-type-label-size);
+  line-height: var(--ui-type-label-line);
+  font-weight: 500;
+}
+.active {
+  border-color: var(--ui-state-success-border);
+  background: var(--ui-state-success-surface);
+  color: var(--ui-state-success-foreground);
+}
+.awaiting {
+  border-color: var(--ui-state-info-border);
+  background: var(--ui-state-info-surface);
+  color: var(--ui-state-info-foreground);
+}
+.frozen {
+  border-color: var(--ui-state-warning-border);
+  background: var(--ui-state-warning-surface);
+  color: var(--ui-state-warning-foreground);
+}
+.primaryActions {
+  grid-column: 1;
+  grid-row: 2;
+}
+.revokeControl {
+  min-width: 0;
+  grid-column: 1 / -1;
+  grid-row: 3;
+}
+.emailDetail {
+  min-width: 0;
+  grid-column: 2;
+  grid-row: 2;
+}
+.emailDetail[open] {
+  grid-column: 1 / -1;
+  grid-row: 4;
+}
+.emailDetail summary {
+  width: fit-content;
+  max-width: 100%;
+  align-content: center;
+  border-color: transparent;
+  background: transparent;
+  color: var(--ui-text-link);
+}
+.emailForm {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  min-width: 0;
+  max-width: 46rem;
+  padding-block: 0.5rem;
+}
+.hint {
+  color: var(--ui-text-secondary);
+  font-size: var(--ui-type-label-size);
+  line-height: var(--ui-type-label-line);
+}
+.pagination {
+  justify-content: end;
+  margin-block-start: 1rem;
+  color: var(--ui-text-secondary);
+  font-size: var(--ui-type-label-size);
+  line-height: var(--ui-type-label-line);
+}
+@media (min-width: 640px) {
+  .invite {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  }
+  .emailForm {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+@media (min-width: 1100px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) 9rem 16rem auto auto;
+    min-height: 64px;
+  }
+  .primaryActions {
+    grid-column: 3;
+    grid-row: 1;
+    justify-content: end;
+  }
+  .revokeControl {
+    grid-column: 4;
+    grid-row: 1;
+  }
+  .emailDetail {
+    grid-column: 5;
+    grid-row: 1;
+  }
+  .emailDetail[open] {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+@media (max-width: 639px) {
+  .title {
+    font-size: 24px;
+    line-height: 32px;
+  }
+  :global([dir="rtl"]) .title {
+    line-height: 38px;
+  }
+}

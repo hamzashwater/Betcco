@@ -430,6 +430,11 @@ describe("email confirmation and account administration", () => {
     );
     renderAccount(<AccountIdentityManagement />);
     const user = userEvent.setup();
+    await user.click(
+      (await screen.findByText("Teacher One"))
+        .closest("article")!
+        .querySelector("summary")!,
+    );
     await user.type(
       await screen.findByPlaceholderText("New email"),
       "new@example.com",

@@ -652,6 +652,9 @@ describe.each(["ar", "en"] as const)(
           screen.queryByRole("button", { name: c.revoke }),
         ).not.toBeInTheDocument();
         for (const [index, user] of identities.entries()) {
+          // The existing email workflow is now a native disclosure; open it
+          // before checking the same controls and protected eligibility rules.
+          fireEvent.click(card(user.displayName).querySelector("summary")!);
           const v = within(card(user.displayName));
           expect(v.getByLabelText(c.newEmail).matches(":disabled")).toBe(
             index !== 0,
@@ -711,6 +714,12 @@ describe.each(["ar", "en"] as const)(
         const c = copy.accountIdentities;
         await screen.findByText(identities[0].displayName);
         const first = within(card(identities[0].displayName));
+        fireEvent.click(
+          card(identities[0].displayName).querySelector("summary")!,
+        );
+        fireEvent.click(
+          card(identities[3].displayName).querySelector("summary")!,
+        );
         const input = first.getByLabelText(c.newEmail);
         expect(input).toHaveAttribute("maxLength", "320");
         fireEvent.change(input, { target: { value: "new@example.test" } });

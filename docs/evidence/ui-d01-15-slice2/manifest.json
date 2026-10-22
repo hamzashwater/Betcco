@@ -1,0 +1,4067 @@
+{
+  "classification": "MOCKED UI-CONTRACT EVIDENCE",
+  "task": "UI-D01-15 / Slice 2 — People Account Identity Management",
+  "parentRoadmapEntry": "UI-D01-15 — Refine reusable back-office archetypes",
+  "base": "27e0a502fb3efe810f76ee2c7f6d7797f04f0a0c",
+  "generatedAtUtc": "2026-10-22T23:16:33.873770+00:00",
+  "headIdentity": "Containing commit. Final source hashes are verified against committed HEAD after commit; no self-referential commit hash embedded.",
+  "sourceHashAlgorithm": "SHA-256 of UTF-8 text normalized to LF",
+  "sourceHashes": {
+    "frontend/src/features/admin/account-identity-management.tsx": "e3dc679208ccd3729ca48dd4bcf43349e1b510add02a157bb18e9d29443d4969",
+    "frontend/src/features/admin/account-identity-management.module.css": "28dde300f13454cda2927a7bf04fa975bf0ea23d39b451b594a335a399f6d876",
+    "frontend/tests/account-experience.test.tsx": "f6211f1af813275be351a2930ccc024ab5c0d5257c6210e4a1788495d969eb4b",
+    "frontend/tests/admin-users-translation.test.tsx": "6ee99ce7a116d18f76080eee1e3618646c60cf45860c1f684b953e7e1f67108f",
+    "frontend/tests/admin-users-source-audit.test.ts": "1ce47077586854d97f7172b7ec6d0b531d86186e53185b0e33d41759959dedf8",
+    "frontend/tests/admin-final-i18n-residual-audit.test.ts": "b967f52677d44e833fd16ad04fa82bdacab1c5e1e671eaf4c313e2f00aac0a49",
+    "frontend/tests/account-identity-archetype.test.tsx": "2757b22cafa810f158969be8ec9298dba5868e177612d2d3855575e5e0fc0ebd",
+    "frontend/tests/account-identity-archetype-contract.test.ts": "ed00f7aebff6c9d8f952521a437ee64b5014f8463047b35a485aeea671f49e5c",
+    "frontend/tests/e2e/account-identity-archetype.spec.ts": "bdb57cf5865d6ecb70187f72faea15d38fb1ac731bc4e36e2859011118c48f94",
+    "frontend/tests/fixtures/account-identity-archetype.ts": "64b6e9aa14cbbd8cd7ff70aaab3d78bcdd3d6718d30d2896e0d750a49913d8fd",
+    "frontend/tests/fixtures/ui-d01-15-account-identity-baseline.json": "baeb39c0af864e65cb9086ab56f9c2351f9b42e33404d6ff7762fc51375ba6ca",
+    "frontend/tests/helpers/account-identity-contracts.ts": "a1281f3e2c87dca1b8a4b69b019cc46edd8d381295639e0e1c8a79c067ea3edc",
+    "frontend/tests/helpers/account-identity-projection.ts": "ee7e860fe0f9c23c9fe98902df21ffe196b8c785d2f5878e5c5146483103d28f"
+  },
+  "buildId": "QU8L6FntDTMYsweGrDtAB",
+  "captureRoot": "C:\\Users\\user\\Documents\\Codex\\2026-10-17\\files-pasted-by-the-user-device\\outputs\\UI-D01-15-Slice2",
+  "captureCount": 264,
+  "scenarioCount": 12,
+  "scenarios": [
+    {
+      "title": "en light 390: People identities, exact actions and native confirmations",
+      "status": "passed",
+      "locale": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "en",
+        "theme": "light",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "rowHeight": 111,
+        "supportRowHeights": [163, 215, 215],
+        "reads": [
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=2",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1"
+        ],
+        "writes": [
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "events": [
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "kind": "confirm",
+            "message": "Freeze account and end sessions?",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "Freeze account and end sessions?",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "Reactivate account?",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "Revoke support access for Zed Operator? The account will remain, and all sessions will end.",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "Revoke support access for Zed Operator? The account will remain, and all sessions will end.",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "reflow": "Half CSS viewport width, minimum 320px. Not native browser zoom."
+      },
+      "screenshots": [
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/01-teacher-long-list-all-factual-statuses.png",
+          "sha256": "9dd00b323fd9e27e63aebff57095919e63f71a0e640e0cd393695b8e69a7e137",
+          "width": 390,
+          "height": 4524,
+          "bytes": 355297
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/02-per-user-drafts-and-mounted-disclosures.png",
+          "sha256": "2e5afc2d5d9d544db51ee3bb7004044d0ae984b086362c5cce19923078422ae5",
+          "width": 390,
+          "height": 4876,
+          "bytes": 369599
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/03-disabled-email-before-activation.png",
+          "sha256": "8e5de65f756acbc0db6fc1bd67b40fa9afdaf77fd435fcb55fc6bb8c36bcb143",
+          "width": 390,
+          "height": 5096,
+          "bytes": 378348
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/04-teacher-page-two.png",
+          "sha256": "3a24d0dabc834a8f2e2a4d5f742c66ebbe10693248060b418adbee5aacc330cf",
+          "width": 390,
+          "height": 4524,
+          "bytes": 354910
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/05-support-list-invite-resend-and-distinct-danger-action.png",
+          "sha256": "fa05c4daebe5f9a6763861732a8f56d77465d4df90924a37daf7893b924a128a",
+          "width": 390,
+          "height": 6398,
+          "bytes": 455634
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/06-invite-pending.png",
+          "sha256": "65e6d81146873fc348c2446585df27e8bf4a737a898ffdce1c02161474480eb4",
+          "width": 390,
+          "height": 6734,
+          "bytes": 471503
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/07-invite-error-retains-inputs.png",
+          "sha256": "8e288119a263f0c96f59ae4f6bef671beb24a6413df77709693e3fd19de4155f",
+          "width": 390,
+          "height": 6800,
+          "bytes": 475534
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/08-invite-success-retains-other-workflow-drafts.png",
+          "sha256": "884acac21c3dd7e14288c6169eefda86896fcdbdc3f874ab7cc87de6c118726f",
+          "width": 390,
+          "height": 6796,
+          "bytes": 473178
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/09-email-mutation-pending.png",
+          "sha256": "2c81e9a40b1fe69e91cf18365e6d5ba8c24ea5f89293ca6143fe407b2b59c3d5",
+          "width": 390,
+          "height": 6734,
+          "bytes": 469176
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/10-action-error-with-independent-drafts.png",
+          "sha256": "24ac395cc202e77a29d27a5803e82e2030304bdba9711a3ae105d6d8dc79a26c",
+          "width": 390,
+          "height": 6789,
+          "bytes": 473471
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/11-email-success-clears-only-target-draft.png",
+          "sha256": "0d934284e6709fa49b3228eec8fe1616f69dce60d48bb4197084d5a2be359474",
+          "width": 390,
+          "height": 6796,
+          "bytes": 473692
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/12-eligible-resend-activation.png",
+          "sha256": "e6600816bea091ea45f53548dbc292be40f30d5edb266713afda03d709c18bcc",
+          "width": 390,
+          "height": 6796,
+          "bytes": 472393
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/13-freeze-confirmation-cancelled-no-post.png",
+          "sha256": "ddabcff150db7453e992657060cb60c733e007e5dbf2081eb5538975d07a2d48",
+          "width": 390,
+          "height": 6796,
+          "bytes": 472393
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/14-freeze-confirmed-pending.png",
+          "sha256": "e385cdf7170ddaefca4a5fee79aebeb46c0afbceecfb90adfe69aebb42da08bf",
+          "width": 390,
+          "height": 6796,
+          "bytes": 469897
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/15-reactivate-confirmed-pending.png",
+          "sha256": "1f7d5629be8174e941213d2995395982adbd2552bc02be06b3fa2780c8114404",
+          "width": 390,
+          "height": 6796,
+          "bytes": 469839
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/16-distinct-revoke-confirmed-pending.png",
+          "sha256": "aad67d2a3129bc8c8d82e1e924cbbd5ca9264940084fe91924ebe84cda6660f0",
+          "width": 390,
+          "height": 6796,
+          "bytes": 481510
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/17-revoke-success-existing-account-retention-copy.png",
+          "sha256": "da30ee597241262887f42289fa0f5e7bde62f3edd9ff9964bf6f0308ffa89234",
+          "width": 390,
+          "height": 6818,
+          "bytes": 476334
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/18-keyboard-focus-and-disclosure.png",
+          "sha256": "dcf778948d9a6518c63aafd22b16dae9262594a3f6cc2b6e456cf1cf2a873b07",
+          "width": 390,
+          "height": 6818,
+          "bytes": 476886
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/19-half-viewport-reflow-proxy.png",
+          "sha256": "eb1e92657ba77f9afc8a7df92ee772a354e7b0d974ccb459523d13e19976487b",
+          "width": 320,
+          "height": 7582,
+          "bytes": 485304
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/20-successful-empty.png",
+          "sha256": "eb2f87b36a57f109946db79f3c84dabbe225c1f1c95965bd833ee3f26ae24d2a",
+          "width": 390,
+          "height": 1348,
+          "bytes": 72435
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/21-initial-pending.png",
+          "sha256": "25b74db32ae92c55cdd27824d5a72ec0da79a22de9900fb5e764d0642464116e",
+          "width": 390,
+          "height": 1288,
+          "bytes": 67946
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-0abd8-ns-and-native-confirmations/22-cold-load-error-generic-factual-copy.png",
+          "sha256": "82ac024c7aa34bb7164631bbcaeab72a05e56d8ce827d71673c3f1609674b59b",
+          "width": 390,
+          "height": 1288,
+          "bytes": 69272
+        }
+      ]
+    },
+    {
+      "title": "en dark 390: People identities, exact actions and native confirmations",
+      "status": "passed",
+      "locale": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "en",
+        "theme": "dark",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "rowHeight": 111,
+        "supportRowHeights": [163, 215, 215],
+        "reads": [
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=2",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1"
+        ],
+        "writes": [
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "events": [
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "kind": "confirm",
+            "message": "Freeze account and end sessions?",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "Freeze account and end sessions?",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "Reactivate account?",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "Revoke support access for Zed Operator? The account will remain, and all sessions will end.",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "Revoke support access for Zed Operator? The account will remain, and all sessions will end.",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "reflow": "Half CSS viewport width, minimum 320px. Not native browser zoom."
+      },
+      "screenshots": [
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/01-teacher-long-list-all-factual-statuses.png",
+          "sha256": "009e605b6136b039ad9bccffed7a49590179d51ca4d63b5f3eb34cfe2b1516a3",
+          "width": 390,
+          "height": 4524,
+          "bytes": 348671
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/02-per-user-drafts-and-mounted-disclosures.png",
+          "sha256": "ae33e693d4cc1a71c80d1b6614f1a578cab7265dc554f44eea8b4a09253ff4af",
+          "width": 390,
+          "height": 4876,
+          "bytes": 362521
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/03-disabled-email-before-activation.png",
+          "sha256": "8ebddbf84c58ebfe62492c346cd5038b1ac50aca8dad19773b721be3f22cce79",
+          "width": 390,
+          "height": 5096,
+          "bytes": 371816
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/04-teacher-page-two.png",
+          "sha256": "27d52e179d2e5f3187ecb87937f66cf57a0e06517e56c6be9d3ced82a7ca60bf",
+          "width": 390,
+          "height": 4524,
+          "bytes": 348371
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/05-support-list-invite-resend-and-distinct-danger-action.png",
+          "sha256": "79095cba4bfb82b3f1e8b2097bb3722bec3b54bdbed64ba94dbd7e5579e8c4b1",
+          "width": 390,
+          "height": 6398,
+          "bytes": 453912
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/06-invite-pending.png",
+          "sha256": "c0beec236d3ac489f4930045e18bef2e8ea3d9e928407fd2e703bae8ae5ddebe",
+          "width": 390,
+          "height": 6734,
+          "bytes": 469727
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/07-invite-error-retains-inputs.png",
+          "sha256": "69e07357296463527e6020c9a3b08f2a373f238b40ba9d85e4a791e8ab374395",
+          "width": 390,
+          "height": 6800,
+          "bytes": 475240
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/08-invite-success-retains-other-workflow-drafts.png",
+          "sha256": "ab207306584c4a2cbfc03e67aef7aa28efd5f2c3504e2658e32a7440902c5fb2",
+          "width": 390,
+          "height": 6796,
+          "bytes": 472298
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/09-email-mutation-pending.png",
+          "sha256": "deecde5f516b44c24584591e6798940b901e3b6a51750ba4d0aea6317a117556",
+          "width": 390,
+          "height": 6734,
+          "bytes": 467148
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/10-action-error-with-independent-drafts.png",
+          "sha256": "bdbf29b22708f6d6d1084f792c94c78362a9e49ce2eb59299292f66604d31cd6",
+          "width": 390,
+          "height": 6789,
+          "bytes": 471923
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/11-email-success-clears-only-target-draft.png",
+          "sha256": "9479cb6ac0b8b29c883048baf67107d1882ab73b51bcccf604c828b1ccf80623",
+          "width": 390,
+          "height": 6796,
+          "bytes": 472574
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/12-eligible-resend-activation.png",
+          "sha256": "a0ebdb44ca1f6381d82783d87666f2b2eac894949b9ef3bcb9809cfc3a3f30e2",
+          "width": 390,
+          "height": 6796,
+          "bytes": 471383
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/13-freeze-confirmation-cancelled-no-post.png",
+          "sha256": "c27b420d8c3c0deecbf64f01c1fba710e936ba126f2efc1ee43ded3db79060dc",
+          "width": 390,
+          "height": 6796,
+          "bytes": 471231
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/14-freeze-confirmed-pending.png",
+          "sha256": "4399c4405fecd8e6d3bd0633ac180e2735e05fb426290de2391354dbe8aac93b",
+          "width": 390,
+          "height": 6796,
+          "bytes": 468050
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/15-reactivate-confirmed-pending.png",
+          "sha256": "65d8952e4be910d3a66fa547a010b891f4a4ee5338fe7ffbfdf96ed709ef1097",
+          "width": 390,
+          "height": 6796,
+          "bytes": 468006
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/16-distinct-revoke-confirmed-pending.png",
+          "sha256": "e59713eed1d47de935dd430be9d87d83a825b0eef00b32ff1d181f1e4d5b7161",
+          "width": 390,
+          "height": 6796,
+          "bytes": 476290
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/17-revoke-success-existing-account-retention-copy.png",
+          "sha256": "45d12f10315a1da42c20e01749d0987b7b91feba78212bf1c1efa6589a4a965a",
+          "width": 390,
+          "height": 6818,
+          "bytes": 474701
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/18-keyboard-focus-and-disclosure.png",
+          "sha256": "5ce595b2f8303ca7636d8b35582bcab3e6f7fa8770d54c22e68867d602c7f652",
+          "width": 390,
+          "height": 6818,
+          "bytes": 475486
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/19-half-viewport-reflow-proxy.png",
+          "sha256": "98183b100e6427463d46d613e8335a0583ba5e4312b57f2a03389e08b0336324",
+          "width": 320,
+          "height": 7582,
+          "bytes": 481762
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/20-successful-empty.png",
+          "sha256": "4a11eabb04124414cbd75bce948192ff815c983fd345e09b1526e4de94f3457b",
+          "width": 390,
+          "height": 1348,
+          "bytes": 73673
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/21-initial-pending.png",
+          "sha256": "903b2c5838a7f7ec934335d7e3b888c16e3e3b1423d39a22052710fbba14615a",
+          "width": 390,
+          "height": 1288,
+          "bytes": 69304
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-416ff-ns-and-native-confirmations/22-cold-load-error-generic-factual-copy.png",
+          "sha256": "d6233bfbbe9c5dbdf9f8bcc16799849ef773b9411edf68a98f7aab83df2bdc70",
+          "width": 390,
+          "height": 1288,
+          "bytes": 70866
+        }
+      ]
+    },
+    {
+      "title": "en dark 834: People identities, exact actions and native confirmations",
+      "status": "passed",
+      "locale": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "en",
+        "theme": "dark",
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "rowHeight": 111,
+        "supportRowHeights": [163, 163, 163],
+        "reads": [
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=2",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1"
+        ],
+        "writes": [
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "events": [
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "kind": "confirm",
+            "message": "Freeze account and end sessions?",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "Freeze account and end sessions?",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "Reactivate account?",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "Revoke support access for Zed Operator? The account will remain, and all sessions will end.",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "Revoke support access for Zed Operator? The account will remain, and all sessions will end.",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "reflow": "Half CSS viewport width, minimum 320px. Not native browser zoom."
+      },
+      "screenshots": [
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/01-teacher-long-list-all-factual-statuses.png",
+          "sha256": "e4a1e87325d400b45ec4bdb20be6761640e4c7d5bad8a89267e28e126686da1b",
+          "width": 834,
+          "height": 3595,
+          "bytes": 332151
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/02-per-user-drafts-and-mounted-disclosures.png",
+          "sha256": "f12882ccf184d2b389e65b5de4e6e3d86bb783908052fe18f8b0e349136febaa",
+          "width": 834,
+          "height": 3835,
+          "bytes": 341707
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/03-disabled-email-before-activation.png",
+          "sha256": "91e8ff0ee669629c93d7826debc4fe5a5a7a69b511d720d8dcf6a09c525e1d00",
+          "width": 834,
+          "height": 3977,
+          "bytes": 348074
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/04-teacher-page-two.png",
+          "sha256": "cfb1afdaa3d3344c4bd528275023b9d8373fdf6dbc360757c7a1c3bfc0cee2b9",
+          "width": 834,
+          "height": 3595,
+          "bytes": 331796
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/05-support-list-invite-resend-and-distinct-danger-action.png",
+          "sha256": "49f55000c2367732475fb8e7a258e14cb5202dcb97c5bab9e9e3fb98883117ce",
+          "width": 834,
+          "height": 5017,
+          "bytes": 419539
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/06-invite-pending.png",
+          "sha256": "d995ad6aa46612e8a11d032b1c91bed4259e0fe13b0f49e1061f98422a17b381",
+          "width": 834,
+          "height": 5241,
+          "bytes": 430624
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/07-invite-error-retains-inputs.png",
+          "sha256": "6be665b9ac414ff9b01e06e4fd4d79bb916a17d44ab418858b6c92a627866104",
+          "width": 834,
+          "height": 5307,
+          "bytes": 435595
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/08-invite-success-retains-other-workflow-drafts.png",
+          "sha256": "b6aae25052b09c74f3ad225cec7cab134885804c300d504578044b00a6ec1fcd",
+          "width": 834,
+          "height": 5303,
+          "bytes": 432457
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/09-email-mutation-pending.png",
+          "sha256": "73ac2d6090a6f60fcad5fdb07c81ac35ed74ce573f3fb6d169f87ac5479e1134",
+          "width": 834,
+          "height": 5241,
+          "bytes": 428558
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/10-action-error-with-independent-drafts.png",
+          "sha256": "4d0f5e2854489790fe3b69afce0c90e2efde978d9c8398765ad521c6a2557ca7",
+          "width": 834,
+          "height": 5296,
+          "bytes": 432898
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/11-email-success-clears-only-target-draft.png",
+          "sha256": "0e5ae67b3b016233f9a3b56752d745a8d555958fa60251bf9732a85083976f08",
+          "width": 834,
+          "height": 5303,
+          "bytes": 433202
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/12-eligible-resend-activation.png",
+          "sha256": "e78986d4551dc2806f9f09c2a910ba56dd0f218e92582b5f0467706af91a6dbe",
+          "width": 834,
+          "height": 5303,
+          "bytes": 432360
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/13-freeze-confirmation-cancelled-no-post.png",
+          "sha256": "c2ad4e2ccfef3b6e1d0e905703487f8ab97e9561dfc26b64d1c474d94b5936db",
+          "width": 834,
+          "height": 5303,
+          "bytes": 431833
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/14-freeze-confirmed-pending.png",
+          "sha256": "50f1666c2b2ef51b14c671fc8e626598da989d0d37dec015c6dd1cd9d0987942",
+          "width": 834,
+          "height": 5303,
+          "bytes": 428833
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/15-reactivate-confirmed-pending.png",
+          "sha256": "42c48a4ef3ea47912bc3907205595b45892d27da6e670df4e5104de0959a8b96",
+          "width": 834,
+          "height": 5303,
+          "bytes": 428862
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/16-distinct-revoke-confirmed-pending.png",
+          "sha256": "c4500f829b6a4bb45ca0ce6ea49a8de999b7ae90f2b8ec9c88ff5e78af818310",
+          "width": 834,
+          "height": 5303,
+          "bytes": 436291
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/17-revoke-success-existing-account-retention-copy.png",
+          "sha256": "4d4fd094eccea6245082159aa14340a59cabceacd8b1d6df003efe2e5ed922b3",
+          "width": 834,
+          "height": 5303,
+          "bytes": 435855
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/18-keyboard-focus-and-disclosure.png",
+          "sha256": "13b75e0d138af9d4d87c15a05e075d79a693394bde3100eff42a0284d569c7cb",
+          "width": 834,
+          "height": 5303,
+          "bytes": 436579
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/19-half-viewport-reflow-proxy.png",
+          "sha256": "321de048e3dd8e90e66d641da8e784791b4dc79a25688127b47f6c7d3feeef40",
+          "width": 417,
+          "height": 6528,
+          "bytes": 474632
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/20-successful-empty.png",
+          "sha256": "ba0fa0736a027f778e8f633f4bffec07ea8d6c1c3d5382a801081660fc974f41",
+          "width": 834,
+          "height": 1112,
+          "bytes": 175875
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/21-initial-pending.png",
+          "sha256": "b898c735f52294f46bd0c65c1ba194e6c419e199970e31a45e255d75e7ca1fe9",
+          "width": 834,
+          "height": 1112,
+          "bytes": 193830
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-4c4b4-ns-and-native-confirmations/22-cold-load-error-generic-factual-copy.png",
+          "sha256": "c2b85ba978f3af717415ccf521811e475dbcbcbe9f3651904ab0d289d6747ef2",
+          "width": 834,
+          "height": 1112,
+          "bytes": 195462
+        }
+      ]
+    },
+    {
+      "title": "ar light 834: People identities, exact actions and native confirmations",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "light",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "ar",
+        "theme": "light",
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "rowHeight": 119,
+        "supportRowHeights": [171, 171, 171],
+        "reads": [
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=2",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1"
+        ],
+        "writes": [
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "events": [
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "kind": "confirm",
+            "message": "تجميد الحساب وإنهاء جلساته؟",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "تجميد الحساب وإنهاء جلساته؟",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "إعادة تفعيل الحساب؟",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "سحب صلاحيات مساعد الإدارة من Zed Operator؟ سيُحتفظ بالحساب وتنتهي جميع جلساته.",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "سحب صلاحيات مساعد الإدارة من Zed Operator؟ سيُحتفظ بالحساب وتنتهي جميع جلساته.",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "reflow": "Half CSS viewport width, minimum 320px. Not native browser zoom."
+      },
+      "screenshots": [
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/01-teacher-long-list-all-factual-statuses.png",
+          "sha256": "39747b3227888d75685912317d49c78f2c0cad101ded8519a79ea94d6f048239",
+          "width": 834,
+          "height": 3782,
+          "bytes": 401648
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/02-per-user-drafts-and-mounted-disclosures.png",
+          "sha256": "f866c17141789cfd07ac2d711fab827c89113e7e23bd5ff2f41c0786af199fa3",
+          "width": 834,
+          "height": 4022,
+          "bytes": 415235
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/03-disabled-email-before-activation.png",
+          "sha256": "11d1248c5ca8993cf5da80e7ca171df6641cffc9b843653233f3ed59c3b56985",
+          "width": 834,
+          "height": 4168,
+          "bytes": 424687
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/04-teacher-page-two.png",
+          "sha256": "52ba1a486682a5d97c92fe479e7515c7851f72f25f08009d6e0c5f60bd55c60d",
+          "width": 834,
+          "height": 3782,
+          "bytes": 401338
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/05-support-list-invite-resend-and-distinct-danger-action.png",
+          "sha256": "9eca8132bedbda0c4547207d0243664e865cd7bc1ff9f01f9167913b2d218ca8",
+          "width": 834,
+          "height": 5208,
+          "bytes": 512868
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/06-invite-pending.png",
+          "sha256": "ac6234d9d1bde833c2e6bfa636f252e183dea1d395629c33c695486e40692e09",
+          "width": 834,
+          "height": 5432,
+          "bytes": 528719
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/07-invite-error-retains-inputs.png",
+          "sha256": "2352ac560a6dcd167e6c5b7f3b102b6a1f66da82601ea5867719dad0249f4698",
+          "width": 834,
+          "height": 5502,
+          "bytes": 532874
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/08-invite-success-retains-other-workflow-drafts.png",
+          "sha256": "346a2185560615ad44c0fa17c3fb1c40fe60bc854b9925092f88977f46b49842",
+          "width": 834,
+          "height": 5498,
+          "bytes": 529522
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/09-email-mutation-pending.png",
+          "sha256": "0390f043d7309b63933478bcb870a11dff56e7562e28ae24abf5c673968b38a3",
+          "width": 834,
+          "height": 5432,
+          "bytes": 526392
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/10-action-error-with-independent-drafts.png",
+          "sha256": "3331ae0b45dbfb6360210e7be05eead461329be687cf78908fa3dca4e5c344af",
+          "width": 834,
+          "height": 5491,
+          "bytes": 529595
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/11-email-success-clears-only-target-draft.png",
+          "sha256": "bf8e70f28d9ab2eaddfbea5cded30ace9c2ec5b83ff9b02306eea57ce3d6d299",
+          "width": 834,
+          "height": 5498,
+          "bytes": 529434
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/12-eligible-resend-activation.png",
+          "sha256": "976d768d88eb6bbe7e5983848f8074f9af74fb64c6e7b750ec263687b124b1bf",
+          "width": 834,
+          "height": 5498,
+          "bytes": 529254
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/13-freeze-confirmation-cancelled-no-post.png",
+          "sha256": "9588f17986d8d7ec64b708976c6469c0a37b3d37b7597293680c95ba644c9229",
+          "width": 834,
+          "height": 5498,
+          "bytes": 528751
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/14-freeze-confirmed-pending.png",
+          "sha256": "273b10ff44fc97821545047554af23fc015c45e3881939360153bbf5f45c4782",
+          "width": 834,
+          "height": 5498,
+          "bytes": 524551
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/15-reactivate-confirmed-pending.png",
+          "sha256": "6837b5e8cd41a8851d833bd9228e4c4ca390cc244d5b73e6a5df574dbf5f06f9",
+          "width": 834,
+          "height": 5498,
+          "bytes": 524733
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/16-distinct-revoke-confirmed-pending.png",
+          "sha256": "343414b5945419e667a9f9efff3c0c3ae672c61bdd5347a9be8185f9db08b829",
+          "width": 834,
+          "height": 5498,
+          "bytes": 538430
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/17-revoke-success-existing-account-retention-copy.png",
+          "sha256": "d43cd123a9c1ddbf31bebbd1f6a469441882c4c37aa1fd793705c7ae01cabeb1",
+          "width": 834,
+          "height": 5498,
+          "bytes": 530701
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/18-keyboard-focus-and-disclosure.png",
+          "sha256": "bc3b98399da0c47a3339772217f901daa976264d9fac05e61f4be54528578e5c",
+          "width": 834,
+          "height": 5498,
+          "bytes": 531470
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/19-half-viewport-reflow-proxy.png",
+          "sha256": "b357878b9cb3e66fa3417d5433a71412b92d57c96893169687244e99f639b33d",
+          "width": 417,
+          "height": 6634,
+          "bytes": 523091
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/20-successful-empty.png",
+          "sha256": "6e8f669ecec50c8dcb3dfaf8424e955565e9bfc6c65c700efa717912d5eac003",
+          "width": 834,
+          "height": 1112,
+          "bytes": 183878
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/21-initial-pending.png",
+          "sha256": "91108ab80b15cb5d025cf472f25ca36962dd595886ca1f46bc5db7ffabb79b09",
+          "width": 834,
+          "height": 1112,
+          "bytes": 202072
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-585c8-ns-and-native-confirmations/22-cold-load-error-generic-factual-copy.png",
+          "sha256": "db2d03a46b49af0682241e2155459a794bf596795f3b0f1385ef38f6fe6fc71d",
+          "width": 834,
+          "height": 1112,
+          "bytes": 202548
+        }
+      ]
+    },
+    {
+      "title": "ar dark 390: People identities, exact actions and native confirmations",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "ar",
+        "theme": "dark",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "rowHeight": 119,
+        "supportRowHeights": [171, 171, 171],
+        "reads": [
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=2",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1"
+        ],
+        "writes": [
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "events": [
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "kind": "confirm",
+            "message": "تجميد الحساب وإنهاء جلساته؟",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "تجميد الحساب وإنهاء جلساته؟",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "إعادة تفعيل الحساب؟",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "سحب صلاحيات مساعد الإدارة من Zed Operator؟ سيُحتفظ بالحساب وتنتهي جميع جلساته.",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "سحب صلاحيات مساعد الإدارة من Zed Operator؟ سيُحتفظ بالحساب وتنتهي جميع جلساته.",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "reflow": "Half CSS viewport width, minimum 320px. Not native browser zoom."
+      },
+      "screenshots": [
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/01-teacher-long-list-all-factual-statuses.png",
+          "sha256": "4a30cd6de4534b73770559425560fdd2c991fff15e4a0115957864f7ef8e4ce2",
+          "width": 390,
+          "height": 4812,
+          "bytes": 391542
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/02-per-user-drafts-and-mounted-disclosures.png",
+          "sha256": "c9570eaff1edcbf66398c3c3091fa9d668e5364c90bb7efe9f69a52fec12324c",
+          "width": 390,
+          "height": 5164,
+          "bytes": 404446
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/03-disabled-email-before-activation.png",
+          "sha256": "ff449d46f3e0434d8ba9ab24e4a11c0749817ec82a5369505dc84c68c494e97a",
+          "width": 390,
+          "height": 5366,
+          "bytes": 414749
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/04-teacher-page-two.png",
+          "sha256": "fd046263d92668b19422e08b72b95fac469c51c1ddbde222088d1765644d02e4",
+          "width": 390,
+          "height": 4812,
+          "bytes": 391049
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/05-support-list-invite-resend-and-distinct-danger-action.png",
+          "sha256": "8a627068d1f8484b2b0e0b0ea8fffefa5081c198c87c0a9df028d2e9e5e5aed2",
+          "width": 390,
+          "height": 6382,
+          "bytes": 497007
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/06-invite-pending.png",
+          "sha256": "b7f1a7999ddfa028098b8c51ad7c97351de615ce46cf68a004b4dc62072c5ea7",
+          "width": 390,
+          "height": 6718,
+          "bytes": 512460
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/07-invite-error-retains-inputs.png",
+          "sha256": "f51cb9f7ef26e200ce434b9eb3f0f344e4d0d3d6725678e9b6f8e5b0f7820371",
+          "width": 390,
+          "height": 6788,
+          "bytes": 516785
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/08-invite-success-retains-other-workflow-drafts.png",
+          "sha256": "a597cd1a58a5e17b51e763d6142831f612bdb4a76dc0a34fdc29b7e148efec23",
+          "width": 390,
+          "height": 6784,
+          "bytes": 513886
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/09-email-mutation-pending.png",
+          "sha256": "deb8f11415230eed66ad5a7a2afc133ab2397da51bef4bc9076e2bf95779c273",
+          "width": 390,
+          "height": 6718,
+          "bytes": 509646
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/10-action-error-with-independent-drafts.png",
+          "sha256": "602502d334e3add9c18f21d315174ca9552a3f84a081db4140e1287e1923eaec",
+          "width": 390,
+          "height": 6777,
+          "bytes": 513200
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/11-email-success-clears-only-target-draft.png",
+          "sha256": "a2c0b62c38737b056a69aaa55d8023434ca3cca58f28f08251914bf162d78408",
+          "width": 390,
+          "height": 6784,
+          "bytes": 513956
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/12-eligible-resend-activation.png",
+          "sha256": "8f8e676a4a5e8595faf29243c1caa78aea214d17d9c3121bbdce7c937fad1095",
+          "width": 390,
+          "height": 6784,
+          "bytes": 513167
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/13-freeze-confirmation-cancelled-no-post.png",
+          "sha256": "964382c024e0e93b88069c111e34f174a19a331aaf1386e8f5cbda5c341d6b2d",
+          "width": 390,
+          "height": 6784,
+          "bytes": 513160
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/14-freeze-confirmed-pending.png",
+          "sha256": "90089d003dfe88746d56bb0d33f44d12d08c2e76be85129cc671a49e18000f71",
+          "width": 390,
+          "height": 6784,
+          "bytes": 511385
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/15-reactivate-confirmed-pending.png",
+          "sha256": "a5bcfd63d36ca8c41fc829e7a94fa44b8064c108629dc4895eb2a28e7593f0be",
+          "width": 390,
+          "height": 6784,
+          "bytes": 511490
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/16-distinct-revoke-confirmed-pending.png",
+          "sha256": "1bb9ae120fdf34b1a51d43f6cf1ba7c1384d66dfc70b4af0ef6fd71073e9caad",
+          "width": 390,
+          "height": 6784,
+          "bytes": 517025
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/17-revoke-success-existing-account-retention-copy.png",
+          "sha256": "f47beac03ccd675bc4b783ad24fc63af5c8d301f4bbc61be64512aece7e25b2a",
+          "width": 390,
+          "height": 6810,
+          "bytes": 516448
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/18-keyboard-focus-and-disclosure.png",
+          "sha256": "14ce976e9c3807290ef55d6d66a2f8d7406ed84dde1eb4ed290d43b7b66fbeb6",
+          "width": 390,
+          "height": 6810,
+          "bytes": 517338
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/19-half-viewport-reflow-proxy.png",
+          "sha256": "9be597d2e3c1873ca4b726ba478ed5374b615066c36b890c240a01b5e58ee018",
+          "width": 320,
+          "height": 8106,
+          "bytes": 542839
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/20-successful-empty.png",
+          "sha256": "c321ca019bc4109eea046e9e8cb14861e95f447027a89d64ee0e1e5111690e2b",
+          "width": 390,
+          "height": 1314,
+          "bytes": 94811
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/21-initial-pending.png",
+          "sha256": "ce313f43fcbf76b8fc47fd2eff1925a184abfd3034633f33aebe4af17fe1c78b",
+          "width": 390,
+          "height": 1254,
+          "bytes": 90877
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-65930-ns-and-native-confirmations/22-cold-load-error-generic-factual-copy.png",
+          "sha256": "5bedc84a206cc28c417fc4c91d34ec9110f1aeefe8fabe9318c6d649a8ff8838",
+          "width": 390,
+          "height": 1254,
+          "bytes": 91494
+        }
+      ]
+    },
+    {
+      "title": "ar dark 834: People identities, exact actions and native confirmations",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "dark",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "ar",
+        "theme": "dark",
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "rowHeight": 119,
+        "supportRowHeights": [171, 171, 171],
+        "reads": [
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=2",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1"
+        ],
+        "writes": [
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "events": [
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "kind": "confirm",
+            "message": "تجميد الحساب وإنهاء جلساته؟",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "تجميد الحساب وإنهاء جلساته؟",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "إعادة تفعيل الحساب؟",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "سحب صلاحيات مساعد الإدارة من Zed Operator؟ سيُحتفظ بالحساب وتنتهي جميع جلساته.",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "سحب صلاحيات مساعد الإدارة من Zed Operator؟ سيُحتفظ بالحساب وتنتهي جميع جلساته.",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "reflow": "Half CSS viewport width, minimum 320px. Not native browser zoom."
+      },
+      "screenshots": [
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/01-teacher-long-list-all-factual-statuses.png",
+          "sha256": "9dd0780062da24fca6e4ec1b79de746c767e84c1d21f5644309111c786592074",
+          "width": 834,
+          "height": 3782,
+          "bytes": 368066
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/02-per-user-drafts-and-mounted-disclosures.png",
+          "sha256": "b9d5005613ea532cf0dbaf80e7a86a5cf81579ed7eb98636c156df4bc2fb1a1d",
+          "width": 834,
+          "height": 4022,
+          "bytes": 378482
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/03-disabled-email-before-activation.png",
+          "sha256": "2d0cfc89498a1828f907af7e5b8d124ab43db705324530244b5eb2211b389a4c",
+          "width": 834,
+          "height": 4168,
+          "bytes": 386354
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/04-teacher-page-two.png",
+          "sha256": "19e1cce5dc8e4102bac41b89c9e07c9d6c66ac077021399b6c4d975967dad9cd",
+          "width": 834,
+          "height": 3782,
+          "bytes": 367779
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/05-support-list-invite-resend-and-distinct-danger-action.png",
+          "sha256": "4dcb829c54d472d6f994000e34354ebe153b19c6907bb6d8910d34f6807dde26",
+          "width": 834,
+          "height": 5208,
+          "bytes": 462220
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/06-invite-pending.png",
+          "sha256": "6bf5c355e58d4e5ee8d3c766c7c22c7bdf737e66e4e24b2fe853c7a9f55a794b",
+          "width": 834,
+          "height": 5432,
+          "bytes": 475018
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/07-invite-error-retains-inputs.png",
+          "sha256": "c8f747f3ff52972c2d7288fdd29da41ddec780cd89637f5055d34e37e896f751",
+          "width": 834,
+          "height": 5502,
+          "bytes": 477950
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/08-invite-success-retains-other-workflow-drafts.png",
+          "sha256": "4f923588b681d1c8a7190db4823dd491188d2cfcc4148c3b31434a5d225a1fe6",
+          "width": 834,
+          "height": 5498,
+          "bytes": 475481
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/09-email-mutation-pending.png",
+          "sha256": "d3b48ca69a257b4f466b2e1e44ae807ef9ecd8dfd5c14733c6ce60d4d4be723e",
+          "width": 834,
+          "height": 5432,
+          "bytes": 472668
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/10-action-error-with-independent-drafts.png",
+          "sha256": "e4958e06bd9a758885014b2148a788a55e01e6b51f6232a95166704e4e8c7838",
+          "width": 834,
+          "height": 5491,
+          "bytes": 475295
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/11-email-success-clears-only-target-draft.png",
+          "sha256": "1acc0c3d0c34e6e7d2970c1be63d77d3f336b5423eb60c495faf40a67427bb73",
+          "width": 834,
+          "height": 5498,
+          "bytes": 475333
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/12-eligible-resend-activation.png",
+          "sha256": "76f969ec2fda2182aeadf2d78914674bc66e98c1adab147932c6605e29fdbb05",
+          "width": 834,
+          "height": 5498,
+          "bytes": 475451
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/13-freeze-confirmation-cancelled-no-post.png",
+          "sha256": "ba475261081716ffd15e5e7719c41d5b63dc595300727698249a9b723bcc2a04",
+          "width": 834,
+          "height": 5498,
+          "bytes": 474979
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/14-freeze-confirmed-pending.png",
+          "sha256": "a2731ff30499a34708b920128ef5753eb25df90e9203d6d020f97056d3dc7396",
+          "width": 834,
+          "height": 5498,
+          "bytes": 473218
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/15-reactivate-confirmed-pending.png",
+          "sha256": "8d8c147108c1ef8b88f378b1abb67e6fef0d3d739673759b05e28ef100a33416",
+          "width": 834,
+          "height": 5498,
+          "bytes": 473177
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/16-distinct-revoke-confirmed-pending.png",
+          "sha256": "cdd64339876d72828f2a1dd8c1a4c0a4fdf5e6ff5b18b1853ee330c4d7121c69",
+          "width": 834,
+          "height": 5498,
+          "bytes": 477579
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/17-revoke-success-existing-account-retention-copy.png",
+          "sha256": "37650f623b1bf6adac7f6c7789f56e6a7983994f53d05691fed5b075e732c057",
+          "width": 834,
+          "height": 5498,
+          "bytes": 476499
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/18-keyboard-focus-and-disclosure.png",
+          "sha256": "366ae0f702c1807d490a2efb06062205dd25c4fbc87236f2d0902cb031be9d0c",
+          "width": 834,
+          "height": 5498,
+          "bytes": 477179
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/19-half-viewport-reflow-proxy.png",
+          "sha256": "dc004d1eefc2f410aa2484c24f2e30eff16a17b3d31ec1819a852568d9846e2c",
+          "width": 417,
+          "height": 6634,
+          "bytes": 520807
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/20-successful-empty.png",
+          "sha256": "f0a3719ddead4ee58d1f21d2c6fd28f3ac147a6059b9762bb81d8b073345eba8",
+          "width": 834,
+          "height": 1112,
+          "bytes": 202389
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/21-initial-pending.png",
+          "sha256": "18b3a21322fc38b4145026c2b0c090fd634bfe4adcea27b8f873e12e7069a96e",
+          "width": 834,
+          "height": 1112,
+          "bytes": 221953
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-662d9-ns-and-native-confirmations/22-cold-load-error-generic-factual-copy.png",
+          "sha256": "0b53e3feb641fa09cdd3bdf2bfe05ba7bd7f09bf3dc8b99df9593527da921052",
+          "width": 834,
+          "height": 1112,
+          "bytes": 222464
+        }
+      ]
+    },
+    {
+      "title": "en dark 1440: People identities, exact actions and native confirmations",
+      "status": "passed",
+      "locale": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "en",
+        "theme": "dark",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "rowHeight": 64,
+        "supportRowHeights": [64, 64, 64],
+        "reads": [
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=2",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1"
+        ],
+        "writes": [
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "events": [
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "kind": "confirm",
+            "message": "Freeze account and end sessions?",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "Freeze account and end sessions?",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "Reactivate account?",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "Revoke support access for Zed Operator? The account will remain, and all sessions will end.",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "Revoke support access for Zed Operator? The account will remain, and all sessions will end.",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "reflow": "Half CSS viewport width, minimum 320px. Not native browser zoom."
+      },
+      "screenshots": [
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/01-teacher-long-list-all-factual-statuses.png",
+          "sha256": "34585f75d32e253d6f4e185e66c2beccb2659116ff1f09b5ea1b9a4d832718c7",
+          "width": 1440,
+          "height": 2442,
+          "bytes": 387783
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/02-per-user-drafts-and-mounted-disclosures.png",
+          "sha256": "347b8c992a13217c3574c77e7350d82d3c9bda6220cd2ab6efe356140321d165",
+          "width": 1440,
+          "height": 2660,
+          "bytes": 398442
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/03-disabled-email-before-activation.png",
+          "sha256": "876727f2658d86ea810d98be689546240257fedf189a4c8592efa3c2f9275321",
+          "width": 1440,
+          "height": 2791,
+          "bytes": 405341
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/04-teacher-page-two.png",
+          "sha256": "a572ba208e1aff62517468e72093c0e522e6e6d14e21b11226573758fd699f59",
+          "width": 1440,
+          "height": 2442,
+          "bytes": 387537
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/05-support-list-invite-resend-and-distinct-danger-action.png",
+          "sha256": "c93334715806444a8502da33b40fe8444bacb114dfcab8e0838d659348de1bec",
+          "width": 1440,
+          "height": 2618,
+          "bytes": 471842
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/06-invite-pending.png",
+          "sha256": "b363099f0352b6a463e3d4b12e486003ff62db1c2109c571f20128fd7743c346",
+          "width": 1440,
+          "height": 2836,
+          "bytes": 485283
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/07-invite-error-retains-inputs.png",
+          "sha256": "c663de8eced2971518c8df237f013d87d7cd639dcf50ac8f9b3494d438417707",
+          "width": 1440,
+          "height": 2902,
+          "bytes": 491274
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/08-invite-success-retains-other-workflow-drafts.png",
+          "sha256": "f90a7f581dcbcffffc1c4c60feda089c0cfabd80db26864c6f95f5686b313b0f",
+          "width": 1440,
+          "height": 2898,
+          "bytes": 487538
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/09-email-mutation-pending.png",
+          "sha256": "8a11b393363ea016ca189d8c67bbad3b5c1a53fb551ba68bf38a29266de2c099",
+          "width": 1440,
+          "height": 2836,
+          "bytes": 483274
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/10-action-error-with-independent-drafts.png",
+          "sha256": "498e159e7c10258b5ba32dc3bb26755aef09e3923bef48c86174f25afcde7640",
+          "width": 1440,
+          "height": 2890,
+          "bytes": 487590
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/11-email-success-clears-only-target-draft.png",
+          "sha256": "c720d4dc5cf1cb50c40c1755611a9b0d3f70d07b5dda6026e2de3c21409189b3",
+          "width": 1440,
+          "height": 2898,
+          "bytes": 488250
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/12-eligible-resend-activation.png",
+          "sha256": "3ad9ac77d1d670666d4a1f4f089e305c22ef9b3d48f1e40db89f1fa337d9f2eb",
+          "width": 1440,
+          "height": 2898,
+          "bytes": 487376
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/13-freeze-confirmation-cancelled-no-post.png",
+          "sha256": "22b6f36834969333b859cf32d615c80f8e2e917b33f98a85cb2cdaa02ab70d22",
+          "width": 1440,
+          "height": 2898,
+          "bytes": 487001
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/14-freeze-confirmed-pending.png",
+          "sha256": "bb0195ecdee2b2fb03193c966f75c3a9ab2e5e08566fe30f7a491fd7235e228c",
+          "width": 1440,
+          "height": 2898,
+          "bytes": 484212
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/15-reactivate-confirmed-pending.png",
+          "sha256": "6e6ee9cdf5a3dbdab83301880fa9347a8222e8f4ecccb2a21230d0cf84c7157b",
+          "width": 1440,
+          "height": 2898,
+          "bytes": 484136
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/16-distinct-revoke-confirmed-pending.png",
+          "sha256": "fd7b4e49f2bee138440c41c6b2380d96fe653fbd8c2b49d71f1e63ec2e7fb427",
+          "width": 1440,
+          "height": 2898,
+          "bytes": 490895
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/17-revoke-success-existing-account-retention-copy.png",
+          "sha256": "9e7de22cc3d4ef1c6e2609bd0873f5452db51031e9b497bc2a340d47e43600dd",
+          "width": 1440,
+          "height": 2898,
+          "bytes": 491632
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/18-keyboard-focus-and-disclosure.png",
+          "sha256": "fc5ffe638c119a2a97e05ba42d0d4ee3a61501eafa4257cebea9a5cb22e63b0f",
+          "width": 1440,
+          "height": 2898,
+          "bytes": 492252
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/19-half-viewport-reflow-proxy.png",
+          "sha256": "9ea55ca687f7480755a694df1bf136d0cf05aa5226eb6e6bd1b9a11070744d96",
+          "width": 720,
+          "height": 5562,
+          "bytes": 479316
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/20-successful-empty.png",
+          "sha256": "d4a2999d64f88422444b019717423a9fe1bf6d107e7a4d21229f56ea2d47b200",
+          "width": 1440,
+          "height": 900,
+          "bytes": 176907
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/21-initial-pending.png",
+          "sha256": "6844c097e26331afbbf782ecad2da3bac11562d02d704989b6bcbb70f99c553c",
+          "width": 1440,
+          "height": 900,
+          "bytes": 209773
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-72ae6-ns-and-native-confirmations/22-cold-load-error-generic-factual-copy.png",
+          "sha256": "af183db4cef3c76e92882030183e222f5c353908f76882b20e0543c28b05b12c",
+          "width": 1440,
+          "height": 900,
+          "bytes": 211675
+        }
+      ]
+    },
+    {
+      "title": "en light 834: People identities, exact actions and native confirmations",
+      "status": "passed",
+      "locale": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "en",
+        "theme": "light",
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "rowHeight": 111,
+        "supportRowHeights": [163, 163, 163],
+        "reads": [
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=2",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1"
+        ],
+        "writes": [
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "events": [
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "kind": "confirm",
+            "message": "Freeze account and end sessions?",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "Freeze account and end sessions?",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "Reactivate account?",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "Revoke support access for Zed Operator? The account will remain, and all sessions will end.",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "Revoke support access for Zed Operator? The account will remain, and all sessions will end.",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "reflow": "Half CSS viewport width, minimum 320px. Not native browser zoom."
+      },
+      "screenshots": [
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/01-teacher-long-list-all-factual-statuses.png",
+          "sha256": "1cc89e206e0d647fdbab7e3b2485770769a5c9493cd7e7d79523d66b0a18458a",
+          "width": 834,
+          "height": 3595,
+          "bytes": 364640
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/02-per-user-drafts-and-mounted-disclosures.png",
+          "sha256": "1eb323d72733f27e0e7b92570080e3a7b1e022c19eabac885edff5e4a584d5fd",
+          "width": 834,
+          "height": 3835,
+          "bytes": 377455
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/03-disabled-email-before-activation.png",
+          "sha256": "85c91bba69bfea1c9d877ec0234e3982eebef5208c607a949e107a2e5f31a653",
+          "width": 834,
+          "height": 3977,
+          "bytes": 386255
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/04-teacher-page-two.png",
+          "sha256": "2c1debecbf9e26069afb79f124b9762e130cb207b1f37e26fd475287dc975b27",
+          "width": 834,
+          "height": 3595,
+          "bytes": 364325
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/05-support-list-invite-resend-and-distinct-danger-action.png",
+          "sha256": "d566b8f52664b9addd4898f50a1c78f3067d85308a984c20811d0caeb201fbcf",
+          "width": 834,
+          "height": 5017,
+          "bytes": 466846
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/06-invite-pending.png",
+          "sha256": "693da7141aebddb2a225e6a4c81f4dff1aa8748895d78af114d65fdf84e4ecea",
+          "width": 834,
+          "height": 5241,
+          "bytes": 482246
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/07-invite-error-retains-inputs.png",
+          "sha256": "70bd77af5c2280fa6a6657d79a56c9faabc32242ba4dc32c9886eb7fc57ad29f",
+          "width": 834,
+          "height": 5307,
+          "bytes": 487556
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/08-invite-success-retains-other-workflow-drafts.png",
+          "sha256": "861d133ce2117ff617e0b2cd97a165edc8f0baddffdfa2333e26267b49383603",
+          "width": 834,
+          "height": 5303,
+          "bytes": 485385
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/09-email-mutation-pending.png",
+          "sha256": "74631e23b5936696b45a69ef65404305fd8ff45bad66ad3d0434df0f126472cc",
+          "width": 834,
+          "height": 5241,
+          "bytes": 480423
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/10-action-error-with-independent-drafts.png",
+          "sha256": "ec0860fe37cb35feaca6f0fc58c14058b5ea6716cdcdb6a007067fc50b0d6432",
+          "width": 834,
+          "height": 5296,
+          "bytes": 485265
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/11-email-success-clears-only-target-draft.png",
+          "sha256": "41d2d93ed8aa1ee17f4a595eb7e72df00a1a21f7515022cfad5ede3c24e17478",
+          "width": 834,
+          "height": 5303,
+          "bytes": 486072
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/12-eligible-resend-activation.png",
+          "sha256": "d3f6d4c66c53f2c1f5b804536197f97f3425b484f256c1b37fbe0f0863b8a759",
+          "width": 834,
+          "height": 5303,
+          "bytes": 485607
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/13-freeze-confirmation-cancelled-no-post.png",
+          "sha256": "7203a7aff6bc78982bef819f5a11d521c61db49330d84487bc34dc682e460073",
+          "width": 834,
+          "height": 5303,
+          "bytes": 485010
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/14-freeze-confirmed-pending.png",
+          "sha256": "c2b1b1e4e567ca1facb01e48f290451ce368602e0720ce61a41cf33902aaa569",
+          "width": 834,
+          "height": 5303,
+          "bytes": 482857
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/15-reactivate-confirmed-pending.png",
+          "sha256": "4e26cf803645ebe607676d1d6980203b3407167612910ddf4e6a0380d8a6ccd9",
+          "width": 834,
+          "height": 5303,
+          "bytes": 482824
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/16-distinct-revoke-confirmed-pending.png",
+          "sha256": "0925930bb18759ebb20756e37f71eeaafa079e42f6c339574086a2096b4c4060",
+          "width": 834,
+          "height": 5303,
+          "bytes": 494364
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/17-revoke-success-existing-account-retention-copy.png",
+          "sha256": "2cf72e62b57cca14e63e033a7d09c5018a553a90f7e6ca9a75771f7a930fbc34",
+          "width": 834,
+          "height": 5303,
+          "bytes": 488787
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/18-keyboard-focus-and-disclosure.png",
+          "sha256": "ff9e1f4cf1573d32a3d0a992da91ff0a3dfe63dc466b698e4ed1e4b9ea03aed3",
+          "width": 834,
+          "height": 5303,
+          "bytes": 489424
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/19-half-viewport-reflow-proxy.png",
+          "sha256": "ade65978faefb65f323b2937b0fb42f420e4b0c9a7d50d0ba57546b23b8bd028",
+          "width": 417,
+          "height": 6528,
+          "bytes": 476688
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/20-successful-empty.png",
+          "sha256": "5781597f5c4aba335306da59f08f6e47c3d96bebc19cfec077a80383890d12c1",
+          "width": 834,
+          "height": 1112,
+          "bytes": 162376
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/21-initial-pending.png",
+          "sha256": "00454a03168d33a140b064abde31607893ae1575c9d480c0a25f2b68cdde9b16",
+          "width": 834,
+          "height": 1112,
+          "bytes": 180972
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-7882f-ns-and-native-confirmations/22-cold-load-error-generic-factual-copy.png",
+          "sha256": "2eb561f773979d8f839e61b78bfadfebccc59ed9a3a9fc59217d785f578c79f3",
+          "width": 834,
+          "height": 1112,
+          "bytes": 182657
+        }
+      ]
+    },
+    {
+      "title": "en light 1440: People identities, exact actions and native confirmations",
+      "status": "passed",
+      "locale": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "en",
+        "theme": "light",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "rowHeight": 64,
+        "supportRowHeights": [64, 64, 64],
+        "reads": [
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=2",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1"
+        ],
+        "writes": [
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "events": [
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "kind": "confirm",
+            "message": "Freeze account and end sessions?",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "Freeze account and end sessions?",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "Reactivate account?",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "Revoke support access for Zed Operator? The account will remain, and all sessions will end.",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "Revoke support access for Zed Operator? The account will remain, and all sessions will end.",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "reflow": "Half CSS viewport width, minimum 320px. Not native browser zoom."
+      },
+      "screenshots": [
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/01-teacher-long-list-all-factual-statuses.png",
+          "sha256": "060ea9b1f7daa7db0dcb870b439fb7c4e94d3484484eed46e49f2875315f08fb",
+          "width": 1440,
+          "height": 2442,
+          "bytes": 411057
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/02-per-user-drafts-and-mounted-disclosures.png",
+          "sha256": "314f1d42dc29c915c465eb2c41b91d653be036f0835e017391a486168cbc562e",
+          "width": 1440,
+          "height": 2660,
+          "bytes": 424755
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/03-disabled-email-before-activation.png",
+          "sha256": "c79686afd84e36b7b945b2721257b2d22b64db8b67c11d05b99f79853c0df695",
+          "width": 1440,
+          "height": 2791,
+          "bytes": 433732
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/04-teacher-page-two.png",
+          "sha256": "2668677c1ca567f3230d0bfebd1bffceb98ca5f1e0995ab565bfb7d7f677b2b4",
+          "width": 1440,
+          "height": 2442,
+          "bytes": 410804
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/05-support-list-invite-resend-and-distinct-danger-action.png",
+          "sha256": "7a0011b83b9a52ad707ac8aa73752129875318223928d55f643f4edab0b8839e",
+          "width": 1440,
+          "height": 2618,
+          "bytes": 491841
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/06-invite-pending.png",
+          "sha256": "461dc35484247758cd4e6103525dc070ea7b3c872ac268b1b6bd4dae00110a0f",
+          "width": 1440,
+          "height": 2836,
+          "bytes": 508309
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/07-invite-error-retains-inputs.png",
+          "sha256": "4fd23d1f850e05e5eeaa56d7149e49999ed342fdef200191aa34fbd5eb82e8b0",
+          "width": 1440,
+          "height": 2902,
+          "bytes": 514069
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/08-invite-success-retains-other-workflow-drafts.png",
+          "sha256": "0a6ba5eaa55f73600858dbd92df6142bd64f0babd4f7c14b1db852c8abfee805",
+          "width": 1440,
+          "height": 2898,
+          "bytes": 510966
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/09-email-mutation-pending.png",
+          "sha256": "2436b8ac95cf1ea9e674a0fd267a6c70be42caaebdd1e33436643e3dacfd0f06",
+          "width": 1440,
+          "height": 2836,
+          "bytes": 506905
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/10-action-error-with-independent-drafts.png",
+          "sha256": "42b15eff6654447bf29ec609ca964cde32a281336f67f03c200f95044c7ef518",
+          "width": 1440,
+          "height": 2890,
+          "bytes": 511593
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/11-email-success-clears-only-target-draft.png",
+          "sha256": "e4c0a274e55dcac77f483fd148c8097f22d4eef7c211307996888495671c0cf5",
+          "width": 1440,
+          "height": 2898,
+          "bytes": 511902
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/12-eligible-resend-activation.png",
+          "sha256": "a8811a842615494725c4c30e9479128ec23e9c2bdf9b57aa819cbacdad558a25",
+          "width": 1440,
+          "height": 2898,
+          "bytes": 511019
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/13-freeze-confirmation-cancelled-no-post.png",
+          "sha256": "b92f6fe48d6e29970bde4a619acdb8df28cd04b7d60a86c92d56b4f135155bb7",
+          "width": 1440,
+          "height": 2898,
+          "bytes": 510528
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/14-freeze-confirmed-pending.png",
+          "sha256": "7907a0d4bc613987944ef1fc9dde903e3dbcb7913cafb976697fdaca0f083592",
+          "width": 1440,
+          "height": 2898,
+          "bytes": 509147
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/15-reactivate-confirmed-pending.png",
+          "sha256": "fad09596057805362e621baece9ddbc1e3454406926fccd6e7ce1df333b8d7a0",
+          "width": 1440,
+          "height": 2898,
+          "bytes": 509250
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/16-distinct-revoke-confirmed-pending.png",
+          "sha256": "acd08efaeef30ec4499d045bfffb7e11916944d601512aa9376f19b9e0f12070",
+          "width": 1440,
+          "height": 2898,
+          "bytes": 520254
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/17-revoke-success-existing-account-retention-copy.png",
+          "sha256": "eba2327b1e9c4ab70e46e8f4d896ca850241d13191b0d81c5d8b4cdd3a548fb8",
+          "width": 1440,
+          "height": 2898,
+          "bytes": 514474
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/18-keyboard-focus-and-disclosure.png",
+          "sha256": "a03165ca838caf74d019f91f792cc65f29dd8078b8dcf88e7d94930245a25e24",
+          "width": 1440,
+          "height": 2898,
+          "bytes": 515546
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/19-half-viewport-reflow-proxy.png",
+          "sha256": "387def93ad79ff20bf0b2a5eca5233398c8bac894b9fca5e65052a1d15568e94",
+          "width": 720,
+          "height": 5562,
+          "bytes": 480930
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/20-successful-empty.png",
+          "sha256": "476ea171c05e34910dca96ad5e18551c74e6164371a0b70e87582bd6b432a55b",
+          "width": 1440,
+          "height": 900,
+          "bytes": 161855
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/21-initial-pending.png",
+          "sha256": "ae84e8779ed0d2e34b92a988a21b1939461b045b0173c3184d07dcfae1a71b47",
+          "width": 1440,
+          "height": 900,
+          "bytes": 191498
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-9d427-ns-and-native-confirmations/22-cold-load-error-generic-factual-copy.png",
+          "sha256": "0942134e9c0b619fca013374f559310569c56f8c33f357d1b5f7af80a48ce3b4",
+          "width": 1440,
+          "height": 900,
+          "bytes": 193735
+        }
+      ]
+    },
+    {
+      "title": "ar light 1440: People identities, exact actions and native confirmations",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "ar",
+        "theme": "light",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "rowHeight": 67,
+        "supportRowHeights": [67, 67, 67],
+        "reads": [
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=2",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1"
+        ],
+        "writes": [
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "events": [
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "kind": "confirm",
+            "message": "تجميد الحساب وإنهاء جلساته؟",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "تجميد الحساب وإنهاء جلساته؟",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "إعادة تفعيل الحساب؟",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "سحب صلاحيات مساعد الإدارة من Zed Operator؟ سيُحتفظ بالحساب وتنتهي جميع جلساته.",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "سحب صلاحيات مساعد الإدارة من Zed Operator؟ سيُحتفظ بالحساب وتنتهي جميع جلساته.",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "reflow": "Half CSS viewport width, minimum 320px. Not native browser zoom."
+      },
+      "screenshots": [
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/01-teacher-long-list-all-factual-statuses.png",
+          "sha256": "499c82282d6d68e2ae518020573d6b05411d360e10c65de13e252eb16d77dd9d",
+          "width": 1440,
+          "height": 2632,
+          "bytes": 429805
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/02-per-user-drafts-and-mounted-disclosures.png",
+          "sha256": "d7cd6bc8e57dc7ac26be5da8facb2e7457a6eddcf0e9d96e63717df3ad1a48b5",
+          "width": 1440,
+          "height": 2856,
+          "bytes": 443935
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/03-disabled-email-before-activation.png",
+          "sha256": "36568e196d31d7dc9aaeb4d53f6e9c9ac7bf5c90e8e907e0e8ec36cee3c82568",
+          "width": 1440,
+          "height": 2994,
+          "bytes": 454672
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/04-teacher-page-two.png",
+          "sha256": "3a7412d2ff92864642417c3476ef60f49baaa399578bfd1c4dd6e8f6e6d450d3",
+          "width": 1440,
+          "height": 2632,
+          "bytes": 429298
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/05-support-list-invite-resend-and-distinct-danger-action.png",
+          "sha256": "3269d67d1129b66f4e7d5a7a5cdd2939aab8c4aa1d45a7b19c26c9a7114905be",
+          "width": 1440,
+          "height": 2824,
+          "bytes": 520279
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/06-invite-pending.png",
+          "sha256": "6448251551c7ded44243102f29ac4bb165c56fe3b7521831ce73eab7517ef164",
+          "width": 1440,
+          "height": 3048,
+          "bytes": 536907
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/07-invite-error-retains-inputs.png",
+          "sha256": "f06e9a00dab0956d2d3833ec202b2854ac890c9560712df6d3c6a3ae52496a75",
+          "width": 1440,
+          "height": 3118,
+          "bytes": 540468
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/08-invite-success-retains-other-workflow-drafts.png",
+          "sha256": "d17643f963d2817d680d8e2c6c1d54648e8c6f23113dfadf30afe09d622de284",
+          "width": 1440,
+          "height": 3114,
+          "bytes": 538384
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/09-email-mutation-pending.png",
+          "sha256": "593ae8edc5339db5a1d67535010af756518d96e2b63cd9d29705c1d434225c0b",
+          "width": 1440,
+          "height": 3048,
+          "bytes": 534686
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/10-action-error-with-independent-drafts.png",
+          "sha256": "1f5023fcd571d727047107a7231209141fa84fe418bda98f106ce6df1b73061b",
+          "width": 1440,
+          "height": 3107,
+          "bytes": 538307
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/11-email-success-clears-only-target-draft.png",
+          "sha256": "41273feda54b0daff468b9ddc0e3aa9a5535175e41dd2e1f4492e13ad6db9f1c",
+          "width": 1440,
+          "height": 3114,
+          "bytes": 538193
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/12-eligible-resend-activation.png",
+          "sha256": "e71365c9033ce2fe5976bfeecb0e1b8dd478a57843aa3a9515989ce91ddb2a3d",
+          "width": 1440,
+          "height": 3114,
+          "bytes": 538229
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/13-freeze-confirmation-cancelled-no-post.png",
+          "sha256": "b5b24e914b5f1611fd4528c3c5098a4444f6eb812cb1a71e7333bfc2863c329c",
+          "width": 1440,
+          "height": 3114,
+          "bytes": 537690
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/14-freeze-confirmed-pending.png",
+          "sha256": "167a447d01b1b1bda6b3760cfbdc666b9db9fe87cb8dce6ce18bf309139e7d49",
+          "width": 1440,
+          "height": 3114,
+          "bytes": 534183
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/15-reactivate-confirmed-pending.png",
+          "sha256": "9bed1397515a65ff22e25bca21451087e4c1b6867be18d5d5170ed473743c807",
+          "width": 1440,
+          "height": 3114,
+          "bytes": 534282
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/16-distinct-revoke-confirmed-pending.png",
+          "sha256": "348f208c7600bc68bb110063144a641566e94926dafdda59e685084c01b5e99d",
+          "width": 1440,
+          "height": 3114,
+          "bytes": 545163
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/17-revoke-success-existing-account-retention-copy.png",
+          "sha256": "6773fd6e37d708bf85839278d58d4b556f9075dd2c5be8b5b8e555e66001c915",
+          "width": 1440,
+          "height": 3114,
+          "bytes": 539401
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/18-keyboard-focus-and-disclosure.png",
+          "sha256": "17c0b037f4e51076e14c5d62a4cd7b65aae278382beff9698ad8a8a09e104748",
+          "width": 1440,
+          "height": 3114,
+          "bytes": 540649
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/19-half-viewport-reflow-proxy.png",
+          "sha256": "68d4f406eaf4447e22a48d76676a6906995cc8a8a18344455d01408457191258",
+          "width": 720,
+          "height": 5839,
+          "bytes": 524030
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/20-successful-empty.png",
+          "sha256": "9cc2c97c6056a4141683b3ec1fcd991f01425655a67700201071e8bde723ed47",
+          "width": 1440,
+          "height": 900,
+          "bytes": 177299
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/21-initial-pending.png",
+          "sha256": "b46bfe48c9181abdaa005b86dbb4a06c7acbc46cbc47ac02f35be14fa4379b8e",
+          "width": 1440,
+          "height": 900,
+          "bytes": 198193
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-accb5-ns-and-native-confirmations/22-cold-load-error-generic-factual-copy.png",
+          "sha256": "0e9dae34f0d47605ec62c3027f81b8e48a65bbcd0ed7b8a1382d3b5adbfacd9d",
+          "width": 1440,
+          "height": 900,
+          "bytes": 200442
+        }
+      ]
+    },
+    {
+      "title": "ar light 390: People identities, exact actions and native confirmations",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "ar",
+        "theme": "light",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "rowHeight": 119,
+        "supportRowHeights": [171, 171, 171],
+        "reads": [
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=2",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1"
+        ],
+        "writes": [
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "events": [
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "kind": "confirm",
+            "message": "تجميد الحساب وإنهاء جلساته؟",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "تجميد الحساب وإنهاء جلساته؟",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "إعادة تفعيل الحساب؟",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "سحب صلاحيات مساعد الإدارة من Zed Operator؟ سيُحتفظ بالحساب وتنتهي جميع جلساته.",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "سحب صلاحيات مساعد الإدارة من Zed Operator؟ سيُحتفظ بالحساب وتنتهي جميع جلساته.",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "reflow": "Half CSS viewport width, minimum 320px. Not native browser zoom."
+      },
+      "screenshots": [
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/01-teacher-long-list-all-factual-statuses.png",
+          "sha256": "4d79903dead115d451ebbfb8934c10868dc48e4d5fa1204e7deaa60165c2d019",
+          "width": 390,
+          "height": 4812,
+          "bytes": 396735
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/02-per-user-drafts-and-mounted-disclosures.png",
+          "sha256": "cd2305f780457911e9bcc49b679c3a660ae0c6df269eff68c436fca930249287",
+          "width": 390,
+          "height": 5164,
+          "bytes": 409914
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/03-disabled-email-before-activation.png",
+          "sha256": "6c380c373bc7c6fa296c4b7f6cc6b66a2904549b857917d9919e0d58391d21b1",
+          "width": 390,
+          "height": 5366,
+          "bytes": 420869
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/04-teacher-page-two.png",
+          "sha256": "d090ef4d3251cc7d059de3a3725bd68e7c1c8ee3327ca90058b34ac913df5a70",
+          "width": 390,
+          "height": 4812,
+          "bytes": 396278
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/05-support-list-invite-resend-and-distinct-danger-action.png",
+          "sha256": "87e59c332dbcc33473e0eec534fd6f834e7108d7aa9b8f42e7e12c243ca05c59",
+          "width": 390,
+          "height": 6382,
+          "bytes": 497607
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/06-invite-pending.png",
+          "sha256": "14da45d0095cd817b89770f7256f28e9626829c8ec08524dcfa221961037290f",
+          "width": 390,
+          "height": 6718,
+          "bytes": 513501
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/07-invite-error-retains-inputs.png",
+          "sha256": "e884add7722d6e11db725527fcd51f30d3723f8886281a3fee6bfc6213c10df5",
+          "width": 390,
+          "height": 6788,
+          "bytes": 518037
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/08-invite-success-retains-other-workflow-drafts.png",
+          "sha256": "ca2d90a1bd52a93b55f4e691dc9b09150e02b1d4cf098cd84ea8127d25a8ba5b",
+          "width": 390,
+          "height": 6784,
+          "bytes": 515030
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/09-email-mutation-pending.png",
+          "sha256": "554eb780ae3ef2b99b39c5c4bea9738c48376409de5c96102c666077b44c9be8",
+          "width": 390,
+          "height": 6718,
+          "bytes": 510482
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/10-action-error-with-independent-drafts.png",
+          "sha256": "000db3bcdaaa9b1143b6c07ec5669d67f05f6ae81e30924e9f63260f4759ed54",
+          "width": 390,
+          "height": 6777,
+          "bytes": 515085
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/11-email-success-clears-only-target-draft.png",
+          "sha256": "0233dfe4bc64b8871885210680ce4c9d93c81cd6f2c83563b2ce41c4b0fdecb7",
+          "width": 390,
+          "height": 6784,
+          "bytes": 515163
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/12-eligible-resend-activation.png",
+          "sha256": "6bed4d2e42c7b18059bbea274d6f3eaedf23d4c0df9c7fbe21cb60c6044d03bb",
+          "width": 390,
+          "height": 6784,
+          "bytes": 514350
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/13-freeze-confirmation-cancelled-no-post.png",
+          "sha256": "8e97a5cb68226b44beac9dce1f224ace3ee1106ec19af4e8bf1aa6168bfde5c8",
+          "width": 390,
+          "height": 6784,
+          "bytes": 514311
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/14-freeze-confirmed-pending.png",
+          "sha256": "757caf3cc99c8fec1a796e7dd5e4acc9a539767c3c62b8db0bc9ec38f111419c",
+          "width": 390,
+          "height": 6784,
+          "bytes": 509716
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/15-reactivate-confirmed-pending.png",
+          "sha256": "75370a62cd14c370e02958ae2440afd308005aee3447d9746a4eeb4edebdd7c3",
+          "width": 390,
+          "height": 6784,
+          "bytes": 509786
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/16-distinct-revoke-confirmed-pending.png",
+          "sha256": "ce7ecf50968b46d884769843a884ef796e754d155bba5514bdc8a4166c775104",
+          "width": 390,
+          "height": 6784,
+          "bytes": 523417
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/17-revoke-success-existing-account-retention-copy.png",
+          "sha256": "b520452a49b64d9466eb998a08077fa42293549363aa9f5569800e0dafc6a4e0",
+          "width": 390,
+          "height": 6810,
+          "bytes": 517705
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/18-keyboard-focus-and-disclosure.png",
+          "sha256": "4bd96d0ccc91a3a80d93de18108e64033c2bb3034a2638b4aa41dd2c5abb214b",
+          "width": 390,
+          "height": 6810,
+          "bytes": 518726
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/19-half-viewport-reflow-proxy.png",
+          "sha256": "1ac79ce0438c3d7334bc527f4575e39a2c859e3fde401ce35824d71ad1f64346",
+          "width": 320,
+          "height": 8106,
+          "bytes": 544813
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/20-successful-empty.png",
+          "sha256": "2de0e3e5be094934d21d6949c24bac3a543e502f5b15d68938994c0fbafc3170",
+          "width": 390,
+          "height": 1314,
+          "bytes": 92325
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/21-initial-pending.png",
+          "sha256": "fa3349fe80f72f4a53dcf6dfd7c9b5e1a09768b4234b72f0cf14ff870435bd57",
+          "width": 390,
+          "height": 1254,
+          "bytes": 88448
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-d26fc-ns-and-native-confirmations/22-cold-load-error-generic-factual-copy.png",
+          "sha256": "a387b8de54b7e90920af1dbf199025705cc2bfbbef4df9afe9f45b43a657a308",
+          "width": 390,
+          "height": 1254,
+          "bytes": 88966
+        }
+      ]
+    },
+    {
+      "title": "ar dark 1440: People identities, exact actions and native confirmations",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "ar",
+        "theme": "dark",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "rowHeight": 67,
+        "supportRowHeights": [67, 67, 67],
+        "reads": [
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=2",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=SupportAdmin&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1",
+          "/admin/users?role=Teacher&page=1"
+        ],
+        "writes": [
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "events": [
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/invite",
+            "body": {
+              "displayName": "Synthetic Support",
+              "email": "invite@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "first.draft@example.test"
+            }
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-pending/resend-activation"
+          },
+          {
+            "kind": "confirm",
+            "message": "تجميد الحساب وإنهاء جلساته؟",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "تجميد الحساب وإنهاء جلساته؟",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/freeze",
+            "body": {
+              "frozen": true
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "إعادة تفعيل الحساب؟",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-frozen/freeze",
+            "body": {
+              "frozen": false
+            }
+          },
+          {
+            "kind": "confirm",
+            "message": "سحب صلاحيات مساعد الإدارة من Zed Operator؟ سيُحتفظ بالحساب وتنتهي جميع جلساته.",
+            "accepted": false
+          },
+          {
+            "kind": "confirm",
+            "message": "سحب صلاحيات مساعد الإدارة من Zed Operator؟ سيُحتفظ بالحساب وتنتهي جميع جلساته.",
+            "accepted": true
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/support-admins/identity-z/revoke-authority"
+          },
+          {
+            "kind": "POST",
+            "path": "/admin/users/identity-z/email-change/request",
+            "body": {
+              "newEmail": "keyboard.target@example.test"
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": [],
+        "reflow": "Half CSS viewport width, minimum 320px. Not native browser zoom."
+      },
+      "screenshots": [
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/01-teacher-long-list-all-factual-statuses.png",
+          "sha256": "fcf8ebbe4439209c22a32e1cfbeb8b42b7cd384675c464fa1e523eb657153695",
+          "width": 1440,
+          "height": 2632,
+          "bytes": 407974
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/02-per-user-drafts-and-mounted-disclosures.png",
+          "sha256": "395d43db765cbdbb6971c666ad61abdf6aeee23b9cdb81dd196f0a6d496bef00",
+          "width": 1440,
+          "height": 2856,
+          "bytes": 419248
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/03-disabled-email-before-activation.png",
+          "sha256": "ddc5437b5a473d9ce91a1fac1901996047bdefb5e253a924e18cc81466fb65bb",
+          "width": 1440,
+          "height": 2994,
+          "bytes": 427450
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/04-teacher-page-two.png",
+          "sha256": "7f6a96c16c584ca189951f1bb813bea0f7d6dd2ca62cde555a05a60dd4e0d87c",
+          "width": 1440,
+          "height": 2632,
+          "bytes": 407562
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/05-support-list-invite-resend-and-distinct-danger-action.png",
+          "sha256": "1a3d71aa314176e79114f4026c52b911c764d6fc05f7ef38c879d8b955650ac6",
+          "width": 1440,
+          "height": 2824,
+          "bytes": 500708
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/06-invite-pending.png",
+          "sha256": "40f9f9c11f2bfd2ac8f328503672dc57566d58b466d6f146a6694ab27953aff4",
+          "width": 1440,
+          "height": 3048,
+          "bytes": 514978
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/07-invite-error-retains-inputs.png",
+          "sha256": "c8719ec228538f76471fadf3f1181d95c3a163b3967b7509665294fc829fd365",
+          "width": 1440,
+          "height": 3118,
+          "bytes": 518456
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/08-invite-success-retains-other-workflow-drafts.png",
+          "sha256": "da1331b38699c2c8285ca5937948f6999b7badc0d7eed9badc72327d1264bec4",
+          "width": 1440,
+          "height": 3114,
+          "bytes": 515367
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/09-email-mutation-pending.png",
+          "sha256": "a9d582fc55d89f987af7aa0add48fa6565629d3cf6a77d5d9052266628a5b1d0",
+          "width": 1440,
+          "height": 3048,
+          "bytes": 512351
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/10-action-error-with-independent-drafts.png",
+          "sha256": "47df246fb7dafa93704c955bacff3c25d20a40574f103347e3a92d910b24082f",
+          "width": 1440,
+          "height": 3107,
+          "bytes": 515536
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/11-email-success-clears-only-target-draft.png",
+          "sha256": "b159d5778a656b04516e63d452bfa15625e6eb061252c78f9f2f767e3b16ed7f",
+          "width": 1440,
+          "height": 3114,
+          "bytes": 515044
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/12-eligible-resend-activation.png",
+          "sha256": "b2b99e4c9db564d2d68d609579d7e4a5a5029b65564c6cd379b0a8439c40fcd3",
+          "width": 1440,
+          "height": 3114,
+          "bytes": 514897
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/13-freeze-confirmation-cancelled-no-post.png",
+          "sha256": "81dee6a8b06c86c052612155a83243b44a8cb429c4a9a0b191acfbec2c898fa2",
+          "width": 1440,
+          "height": 3114,
+          "bytes": 514549
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/14-freeze-confirmed-pending.png",
+          "sha256": "ab9c8a00d30180acfde9b0a979d32fd9037305a2117a24a561fbbf8c0c5a9238",
+          "width": 1440,
+          "height": 3114,
+          "bytes": 512072
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/15-reactivate-confirmed-pending.png",
+          "sha256": "27930f5387083877c9af81675ceda8982a4963722d7feeff25db95bb6882d115",
+          "width": 1440,
+          "height": 3114,
+          "bytes": 512151
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/16-distinct-revoke-confirmed-pending.png",
+          "sha256": "741f168516e7cbfe47b5166142df1acd432b8102560b3adaa2df8e18063ff4fd",
+          "width": 1440,
+          "height": 3114,
+          "bytes": 518346
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/17-revoke-success-existing-account-retention-copy.png",
+          "sha256": "30bb17c5e1aeed43005297d1e2a1e59aded4ee903c77ca103dbb0bd7cbcb281b",
+          "width": 1440,
+          "height": 3114,
+          "bytes": 516078
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/18-keyboard-focus-and-disclosure.png",
+          "sha256": "34fe621f4f684c3517b43156e10f2e0fab6ae62dfd50ad699419131757d7fcb3",
+          "width": 1440,
+          "height": 3114,
+          "bytes": 517096
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/19-half-viewport-reflow-proxy.png",
+          "sha256": "10d1f91b2f0ed4c5a536a9e8e46f6afae07e8bb184ff5bac2ca204223f20bdaa",
+          "width": 720,
+          "height": 5839,
+          "bytes": 522393
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/20-successful-empty.png",
+          "sha256": "6ba8ed5593bbeedd95d765acc487477d116d85d881a89e3a08674d285cb88307",
+          "width": 1440,
+          "height": 900,
+          "bytes": 191167
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/21-initial-pending.png",
+          "sha256": "75d20dee07628c50c7710a7892d9cfbd37acf52646c2d7b59eec36e3e4f28c9e",
+          "width": 1440,
+          "height": 900,
+          "bytes": 214275
+        },
+        {
+          "file": "browser-verified/account-identity-archetype-f174f-ns-and-native-confirmations/22-cold-load-error-generic-factual-copy.png",
+          "sha256": "a000f18939b3c02cabb0fd38a9d0b8b5012ea981e49d0868449df7c2708d1f36",
+          "width": 1440,
+          "height": 900,
+          "bytes": 215010
+        }
+      ]
+    }
+  ],
+  "previews": [
+    {
+      "file": "contact-en-light.png",
+      "sha256": "c6d5333c74205a9987ebc5facc34a54a2dbe3fc9f6229ddc6aef7dcd489a7588",
+      "bytes": 1767004,
+      "note": "Cropped review previews; original full-page captures remain outside Git at captureRoot."
+    },
+    {
+      "file": "contact-en-dark.png",
+      "sha256": "272475bd96acd5371ff0ec7909d82c7cf35f659d34729cb7571e6ea3dba60cd4",
+      "bytes": 1941691,
+      "note": "Cropped review previews; original full-page captures remain outside Git at captureRoot."
+    },
+    {
+      "file": "contact-ar-light.png",
+      "sha256": "2cf181c950936698a5ba2f3153cf0c9f8a6e1eb460a42d0364482ff2c69af28b",
+      "bytes": 1739466,
+      "note": "Cropped review previews; original full-page captures remain outside Git at captureRoot."
+    },
+    {
+      "file": "contact-ar-dark.png",
+      "sha256": "553bc2f0bdb19a7451c55f464bc9f855ae512d2d0ace541ac2256787311ff823",
+      "bytes": 1942064,
+      "note": "Cropped review previews; original full-page captures remain outside Git at captureRoot."
+    }
+  ],
+  "coverage": {
+    "teacherPopulatedLongListRawStatus": "01",
+    "independentEmailDraftsNativeDisclosure": "02",
+    "disabledEmailBeforeActivation": "03",
+    "serverPageGreaterThanOne": "04",
+    "supportListInviteFormResendDanger": "05",
+    "invitePending": "06",
+    "inviteErrorRetainsFields": "07",
+    "inviteSuccessOnlyClearsOwnFields": "08",
+    "emailMutationPending": "09",
+    "actionErrorPreservesDrafts": "10",
+    "emailSuccessOnlyClearsTarget": "11",
+    "eligibleResend": "12",
+    "freezeCancellationNoPOST": "13",
+    "freezeNativeConfirmationBeforeTruePayload": "14",
+    "reactivateNativeConfirmationBeforeFalsePayload": "15",
+    "distinctRevokeNativeConfirmationBeforePOST": "16",
+    "revokeSuccessExistingAccountRetentionCopy": "17",
+    "keyboardAllActionTypesAndEmailEnter": "18",
+    "halfViewportReflowProxy": "19",
+    "successfulEmpty": "20",
+    "initialPending": "21",
+    "genericColdLoadError": "22",
+    "longArabicNamesAndEmails": "01/02/05 in each matrix case"
+  },
+  "nativeConfirmationEvidence": "Actual window.confirm dialog events accepted/dismissed through Playwright. Exact translated text and event ordering are recorded. Native modal pixels are not captured or replaced with an invented UI dialog.",
+  "reflowNote": "Half original CSS viewport width, minimum 320px; narrow-content proxy, not native browser zoom.",
+  "themeEvidence": "Every capture verifies the selected app data-theme, including after reload; existing theme behavior is not modified.",
+  "validation": {
+    "focused": "291 passed / 6 files on final production source",
+    "fullFrontend": "3075 passed / 129 files; pnpm test --maxWorkers=2",
+    "browser": "12 passed; EN/AR x light/dark x 1440x900, 834x1112, 390x844; 264 captures",
+    "format": "pnpm format:check passed",
+    "lint": "pnpm exec eslint . --max-warnings 0 passed",
+    "typecheck": "pnpm typecheck passed",
+    "build": "pnpm build passed on final production source",
+    "diffCheck": "Final complete base-to-HEAD check recorded at handoff"
+  },
+  "originalFailures": [],
+  "nonFatalDiagnostics": "Local next start emitted its standalone-output warning; Node emitted the NO_COLOR/FORCE_COLOR notice. Full frontend jsdom navigation diagnostics, if present, are preserved in its external log. No targeted browser page errors.",
+  "limitations": [
+    "Synthetic intercepted presentation/request contracts only",
+    "No backend user-mutation, email-delivery, authorization, account-security, deployment, production-readiness or whole-site WCAG proof",
+    "Original full-page PNGs remain external to Git; committed contact sheets are cropped previews"
+  ],
+  "externalLogHashes": {
+    "focused-verified.log": "5d9d89add9f25c88e4cfba850a9cfd9a4e4a3f301fd0506140811648d3db545f",
+    "full-tests-verified.log": "aecd233a8d133c2a39a182a4c691e9232f748b083965169b21314b3406f15b38",
+    "browser-pilot.log": "a744de03b870d4891863b27635e8fd986fbe4d287922ea1af32dd65d601dfc17",
+    "browser-verified.log": "7a8050d2ae37bd51aa5268ec0c7f8ea92c650002a674e653abb95c28224201d3"
+  }
+}
