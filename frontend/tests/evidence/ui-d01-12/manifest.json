@@ -1,0 +1,1452 @@
+{
+  "classification": "MOCKED UI-CONTRACT EVIDENCE",
+  "base": "4a24e9ad6fbea30b182cc02a6dbde8e41ee6a614",
+  "branch": "fix/ui-d01-12-teacher-authoring-density",
+  "provenance": "Built from this branch source; content hashes identify the tested source and are verified against the final commit. No production source changed after build/captures.",
+  "server": "isolated production Next.js on localhost:3023; user port 3000 untouched",
+  "verification": "28 unchanged scenarios passed in the matrix; 2 keyboard/locale scenarios revalidated after correcting test modality, global reduced-motion expectation and opening the mobile language menu. No production workaround.",
+  "scenarioCount": 30,
+  "captureCount": 176,
+  "scenarios": [
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 390: populated six-region authoring canvas",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 1440: populated six-region authoring canvas",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar dark 834: populated six-region authoring canvas",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: empty factual course state",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: error factual course state",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 390: populated six-region authoring canvas",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 1440: populated six-region authoring canvas",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar light 834: populated six-region authoring canvas",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: pending factual course state",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: Published existing edit guards",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: raw mutation feedback, upload failure and review validation order",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: Rejected existing edit guards",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: SubmittedForReview existing edit guards",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: unsaved fields and files survive hashes, Back and cached refresh error",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 1440: populated six-region authoring canvas",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 390: populated six-region authoring canvas",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en dark 834: populated six-region authoring canvas",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: empty factual course state",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: error factual course state",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 834: populated six-region authoring canvas",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 390: populated six-region authoring canvas",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en light 1440: populated six-region authoring canvas",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: pending factual course state",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: Published existing edit guards",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: raw mutation feedback, upload failure and review validation order",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: Rejected existing edit guards",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: SubmittedForReview existing edit guards",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: unsaved fields and files survive hashes, Back and cached refresh error",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "ar: locale keeps query/hash; keyboard focus, reduced motion and 200 percent reflow proxy",
+      "status": "passed",
+      "expectedStatus": "passed"
+    },
+    {
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "title": "en: locale keeps query/hash; keyboard focus, reduced motion and 200 percent reflow proxy",
+      "status": "passed",
+      "expectedStatus": "passed"
+    }
+  ],
+  "sourceHashes": {
+    "src/features/teacher/course-editor.tsx": "261f7f37db8e13bfdf177eacb08bec39e8dbf27d8467c33f11a0ca591a96037b",
+    "src/features/teacher/course-workspace-navigation.tsx": "4b487f58344135684c90ef0b0995aa9c06023cbe7b5715f5153d8cfdf623074a",
+    "src/features/teacher/course-authoring.module.css": "282d98e8a713b11ac78396b66960bd65c35c178ad41921e2fa2e04e89dded241",
+    "src/features/learning/learning-aim-practice.tsx": "b488c193ae3debc541d7b5b0c8228db718aa959614c77d40d0be71b02d49b29b",
+    "src/features/learning/comprehensive-practice.tsx": "bfadb647dfa432589eca619ad1f0eaaab999bc91f9ed8bc8ee4ed412d1baa27b",
+    "messages/en.json": "daf022444f08f399e47e066e9ab19b187aa9fa8e5d85c59c2b6e371d54864e15",
+    "messages/ar.json": "cf2a9b8318b80a607597f5c0808c856bc60e10d5cd9bc4f7acd655147a40e6b7",
+    "tests/e2e/teacher-authoring.spec.ts": "2a767162cd3cecc04e7931a76ac8023b6d07fe32ec220ec71e84c4612d297c84",
+    "tests/teacher-authoring.test.tsx": "a7772cd50237d5ce46e5e619a29eb6f156e43f1051990e45650ed77bf65489b4",
+    "tests/teacher-authoring-contract.test.ts": "b9cb2e071bd9b2d2bb03fe878000760fcac42bdd612df753871f07945cd60353",
+    "tests/fixtures/teacher-authoring.ts": "ab8cc602d18f726b9ad71cd73bc02c6b493159ff53cf8860eb0480330660039b",
+    "tests/fixtures/ui-d01-12-authoring-baseline.json": "1bde477b02d30db9f785001eb3eeb9e3b06d16db37b039404ec6ff374ae5287f",
+    "tests/helpers/teacher-authoring-projection.ts": "f38d601fd50bb522e9c7dce84b3eaf094096e7cc8bb0ca346feca649f0a4e262"
+  },
+  "sheets": {
+    "authoring-regions.png": "51c596d3b275e6982da9519a8af56380d2f4ae48a0bcedf262c1cc761e2aa307",
+    "canvas-matrix.png": "b40f0801137d804d6fd881344a7273f7f2bc617991f32dc476908e9e7cffa981",
+    "states-and-retention.png": "a325cf70caf83f06f4f0c846d7c63f20ae2b13704be86c14bfafc34465403872"
+  },
+  "captures": [
+    {
+      "scenario": "ar dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--a6b6b-six-region-authoring-canvas/access.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "2bca12cc3336025687028bfebab20d59eac25601e775185da838fabd4090f40b"
+    },
+    {
+      "scenario": "ar dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--a6b6b-six-region-authoring-canvas/announcements.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "0e922a509bfb49210fd09f9ffa6ded9dc41bc9825c547c0f50ac95c391664ed8"
+    },
+    {
+      "scenario": "ar dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--a6b6b-six-region-authoring-canvas/assignments.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "92175936b7cc7ebc7a54f731f1678d1d2ebb27c35863f8ed0aa40038fc9fa5c4"
+    },
+    {
+      "scenario": "ar dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--a6b6b-six-region-authoring-canvas/AssignmentSubmissionCard.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "2ba3b2c28ba6961381f0c6dc95fa546cec3f00e294bc954b605a69c1303005b0"
+    },
+    {
+      "scenario": "ar dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--a6b6b-six-region-authoring-canvas/CourseworkDeadlineExtensionPanel.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "c7b871100879acac3f605b98241895f424622a0e683b6ff0ad97c8d3b18e9515"
+    },
+    {
+      "scenario": "ar dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--a6b6b-six-region-authoring-canvas/curriculum.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "52bbfee60b3cc074e13cc34717a83e0d58e1a5d79ea7b7d6d19d7e1f161723c8"
+    },
+    {
+      "scenario": "ar dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--a6b6b-six-region-authoring-canvas/details.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "15ca74ff06ea423ce68393d4cfac937821eaaf7dddc0df933611a2a597ee6654"
+    },
+    {
+      "scenario": "ar dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--a6b6b-six-region-authoring-canvas/LearningAimEditor.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "6509ad8fc9d1438672c3f398e4db66a35272bc6197024fe144b769277172ba3f"
+    },
+    {
+      "scenario": "ar dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--a6b6b-six-region-authoring-canvas/LessonEditor.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "81da0a586bf4f65eb922d9ce916856a5e5c5d4b6684521c0dcf968b23ba4090e"
+    },
+    {
+      "scenario": "ar dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--a6b6b-six-region-authoring-canvas/review.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "892047ccfdc0a68d06a6df53798b5cdda872d7a2fa7d7a3a7268253e961479e2"
+    },
+    {
+      "scenario": "ar dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--a6b6b-six-region-authoring-canvas/TeacherComprehensiveReview.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "fae911c83b2606e2cf8bb9b98d1b4bc5d99bac9477d183199a33aced24520bee"
+    },
+    {
+      "scenario": "ar dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--a6b6b-six-region-authoring-canvas/TeacherPracticeReview.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "5c5f3c036e16d6bb816d702c013113e5de72b6e0aecd95d9e22e85c8f6c5ead2"
+    },
+    {
+      "scenario": "ar dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--c6e5e-six-region-authoring-canvas/access.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "3ab6d90d753239d71ab307e06458178deff6d04277b6a43d7b78715ef0453190"
+    },
+    {
+      "scenario": "ar dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--c6e5e-six-region-authoring-canvas/announcements.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "f8fc8460ec53c93a89e48f9ac5b31a69ed43d3e6ba4bd2e8fbd5d2292278ce8d"
+    },
+    {
+      "scenario": "ar dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--c6e5e-six-region-authoring-canvas/assignments.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "adb9f51914a9a1699bfa80ca82d72a562437fb41d2c528443590890ebdb91074"
+    },
+    {
+      "scenario": "ar dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--c6e5e-six-region-authoring-canvas/AssignmentSubmissionCard.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "db41ee0a36c66bf74514ca3ea78c3a7d935904401ecd87df2be5bcee49023dc2"
+    },
+    {
+      "scenario": "ar dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--c6e5e-six-region-authoring-canvas/CourseworkDeadlineExtensionPanel.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "bc377894e4258b498fd883cd5aba6657e42245abde8cf507c8a183459509fd02"
+    },
+    {
+      "scenario": "ar dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--c6e5e-six-region-authoring-canvas/curriculum.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "785aabf608d0e16467e33cc33f1988b86e9f32af198a065afade13148630b6f0"
+    },
+    {
+      "scenario": "ar dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--c6e5e-six-region-authoring-canvas/details.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "5f01d1b9c41be561063fff52a4796e26f25a17ed8c2f9e21de7e92ee53de997f"
+    },
+    {
+      "scenario": "ar dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--c6e5e-six-region-authoring-canvas/LearningAimEditor.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "a2e04893dfc8469685b8a6c3871c5736531f3a978d52db1ff602afe2d0ac2ffe"
+    },
+    {
+      "scenario": "ar dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--c6e5e-six-region-authoring-canvas/LessonEditor.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ce1e5b694f09fe522f0135473e4a200c0a122645086f45dadb3ea7f836f0d8ed"
+    },
+    {
+      "scenario": "ar dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--c6e5e-six-region-authoring-canvas/review.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "428c577b1186cdba8ea87d3a5b3ade3b7c81e429c9d75fa55656e61201619a17"
+    },
+    {
+      "scenario": "ar dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--c6e5e-six-region-authoring-canvas/TeacherComprehensiveReview.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "88251c814181de858f4043aeed2d60dcfedeb7ca2e20015b699782d6340e357f"
+    },
+    {
+      "scenario": "ar dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--c6e5e-six-region-authoring-canvas/TeacherPracticeReview.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "96e98e0905d56bb29dcd25b8e16c3d4e1b04a0015cf3252c33baf8274d3912a3"
+    },
+    {
+      "scenario": "ar dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--e460c-six-region-authoring-canvas/access.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "fee68587708b903e7dcc40e3dc04a97de706ee3b4670b4d2538d856e60cd121f"
+    },
+    {
+      "scenario": "ar dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--e460c-six-region-authoring-canvas/announcements.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "6a488590eb8f2e8c48b2a01ef10557f963779af5dbac344837eaaf8a7e52d194"
+    },
+    {
+      "scenario": "ar dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--e460c-six-region-authoring-canvas/assignments.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "b8d0c8e8c7f666773bd08a313160b448c2b1b29559996def7b54a692dcfc15af"
+    },
+    {
+      "scenario": "ar dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--e460c-six-region-authoring-canvas/AssignmentSubmissionCard.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "12ad12b145088b81de83592224118762e3f3f5f0275b1bcd433fca715de7926d"
+    },
+    {
+      "scenario": "ar dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--e460c-six-region-authoring-canvas/CourseworkDeadlineExtensionPanel.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "9088a22a3c74e145cc8737274564546e1e4147e063f4a80b37a69b3cccbe1156"
+    },
+    {
+      "scenario": "ar dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--e460c-six-region-authoring-canvas/curriculum.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "35758aaa4c46c78be43d26e23344e0ed672ca7fcbbca7e091ebfe39971d7c774"
+    },
+    {
+      "scenario": "ar dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--e460c-six-region-authoring-canvas/details.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "ff66bfb4cc4f851b358b454cce04a995704c9fdee9d161807906dfa1bf5e8cff"
+    },
+    {
+      "scenario": "ar dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--e460c-six-region-authoring-canvas/LearningAimEditor.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "e195f0ef18864eea57161519ecd95e3464a8c2391a90512dee3c27733a578694"
+    },
+    {
+      "scenario": "ar dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--e460c-six-region-authoring-canvas/LessonEditor.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "30446df692787eab2515f677c7587b2469dcc5a1c296b26d20d960e630d9d967"
+    },
+    {
+      "scenario": "ar dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--e460c-six-region-authoring-canvas/review.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "6e25f8936e548d79b84b1b548261e18a1a25c7646a022038824c53f57a039e32"
+    },
+    {
+      "scenario": "ar dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--e460c-six-region-authoring-canvas/TeacherComprehensiveReview.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "9ff754f6bd25c57b0ec7c065e9c4afa2b9b991ac5cde1c3b9e6b1fac115fcf9f"
+    },
+    {
+      "scenario": "ar dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-dark--e460c-six-region-authoring-canvas/TeacherPracticeReview.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "a46f044e9fb6293954ad3a506511c4f170b76d88dec8d8bc9cebd746a9d08fbd"
+    },
+    {
+      "scenario": "ar: empty factual course state",
+      "path": "browser/teacher-authoring-ar-empty-factual-course-state/state.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "ff35665a627f098d8da3e1e0c3de6943e6424ca2716f815a280a33c107e426f0"
+    },
+    {
+      "scenario": "ar: error factual course state",
+      "path": "browser/teacher-authoring-ar-error-factual-course-state/state.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "ff98301a3f38455aa6f00c949b90fff7ea83d495e32254bbc5a6af55c2da2ff9"
+    },
+    {
+      "scenario": "ar light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-07091-six-region-authoring-canvas/access.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "05d72b8ca5ee69a86cea87e05953e318a5fa3c8b9d3aca2ca362ac0ebcf2978e"
+    },
+    {
+      "scenario": "ar light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-07091-six-region-authoring-canvas/announcements.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "b7ba5e20341fdcacd698d1dd5159c0b37945fb6a530a038d148e57a39cfc0beb"
+    },
+    {
+      "scenario": "ar light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-07091-six-region-authoring-canvas/assignments.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "ff3ccf41adf363c43b2963293412adc547b377211d8aed990bc36ae9330e3a0c"
+    },
+    {
+      "scenario": "ar light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-07091-six-region-authoring-canvas/AssignmentSubmissionCard.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "d5989853dfdc29567ac430b6aa58b0d89d02114f290a4fdf92d214cf8894320c"
+    },
+    {
+      "scenario": "ar light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-07091-six-region-authoring-canvas/CourseworkDeadlineExtensionPanel.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "b12a58baf155a5dc53184e8f7a1622e41a721807805907bafe636867ff20a652"
+    },
+    {
+      "scenario": "ar light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-07091-six-region-authoring-canvas/curriculum.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "6ee1c10b4caf5d0c605eb5b672ce23c6a3f324a6fc9c8a292709b090711fc5c0"
+    },
+    {
+      "scenario": "ar light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-07091-six-region-authoring-canvas/details.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "6c7287d222a4cfba4658cf94793f27ed337e3726bdb20b1ea572f47b5d53bd7b"
+    },
+    {
+      "scenario": "ar light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-07091-six-region-authoring-canvas/LearningAimEditor.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "d1c09a831e87680fe275d997d32907b65755d982b692ff8adcf6dc407d94cb91"
+    },
+    {
+      "scenario": "ar light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-07091-six-region-authoring-canvas/LessonEditor.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "d0891705789123f12afccfc716f5e32829dd04f5eea71cb14ba846914ad8557b"
+    },
+    {
+      "scenario": "ar light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-07091-six-region-authoring-canvas/review.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "d2afae8ea7bb1b7d3bf3a9d999732f4de27ad743104c03a5551ba923209367f6"
+    },
+    {
+      "scenario": "ar light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-07091-six-region-authoring-canvas/TeacherComprehensiveReview.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "321d63e70754eefd8352ac49f0af8a31d30ea3c19567eb7d89c3c61c4071051c"
+    },
+    {
+      "scenario": "ar light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-07091-six-region-authoring-canvas/TeacherPracticeReview.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "3b416eaede102f636b84c27861fd0e0e9294e51ca7475bfa2a55f87c55396075"
+    },
+    {
+      "scenario": "ar light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-b7492-six-region-authoring-canvas/access.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "1d7315b7d7ebc7cd7bbf9d6a402206ab98f86c8d1614e34b2b943047803fe6f8"
+    },
+    {
+      "scenario": "ar light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-b7492-six-region-authoring-canvas/announcements.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "c90de36e3dc2c84dca8335d23f226ba7197d03869515c1150453adcc3af02b99"
+    },
+    {
+      "scenario": "ar light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-b7492-six-region-authoring-canvas/assignments.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b3320f636182bff1d4be1f61cd31c7963d8ef78ac8ac9979aa295b587cb95144"
+    },
+    {
+      "scenario": "ar light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-b7492-six-region-authoring-canvas/AssignmentSubmissionCard.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "7c661562ea1f65c7099df9028915054a976632bb881e2cd24db85aa2861477de"
+    },
+    {
+      "scenario": "ar light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-b7492-six-region-authoring-canvas/CourseworkDeadlineExtensionPanel.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "c8d49f8cdbae485bef68b2ec80fad5ab76a501cd82599967dca07cf069bdbb24"
+    },
+    {
+      "scenario": "ar light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-b7492-six-region-authoring-canvas/curriculum.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "a42e0646e0c3726d6a98576943cfb98a69ffd8c2ce53c2af22b28c1379e34f7a"
+    },
+    {
+      "scenario": "ar light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-b7492-six-region-authoring-canvas/details.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "7ded7c4b3e0ac9ac72f00df3a524f6f352f5fa495763c640a708077878fd0b22"
+    },
+    {
+      "scenario": "ar light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-b7492-six-region-authoring-canvas/LearningAimEditor.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "af60945c8278659d4c9cf46ea1c2cc3f988f914a8236de79805f027af26b2e42"
+    },
+    {
+      "scenario": "ar light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-b7492-six-region-authoring-canvas/LessonEditor.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "91732917d4755b5c24d634829b782f3684a3c715acf414c1e26608ff20c25edc"
+    },
+    {
+      "scenario": "ar light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-b7492-six-region-authoring-canvas/review.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "9c27ef80db9379ccb8cc34f9983a53474b3f01419f245a327c0a3a7134612490"
+    },
+    {
+      "scenario": "ar light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-b7492-six-region-authoring-canvas/TeacherComprehensiveReview.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "227c6f8e64d011931c92cfc01bb2ffbc289a17e1c59fe77191763f032e8e301a"
+    },
+    {
+      "scenario": "ar light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-b7492-six-region-authoring-canvas/TeacherPracticeReview.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "45037ae89e72bf35aecf6d26a749a47d50d0b6f2fd688c3893ba323aeb9e72d8"
+    },
+    {
+      "scenario": "ar light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-eacc4-six-region-authoring-canvas/access.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "286237176e2f80f1f714b4a429ebb2b6266d5395aa768c607ce07c1f73fa68c9"
+    },
+    {
+      "scenario": "ar light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-eacc4-six-region-authoring-canvas/announcements.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "4fc0e00f34ac665befc6e314f3c1e5b8d7a1d0ac866c3dfa7998c63b4ad80edd"
+    },
+    {
+      "scenario": "ar light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-eacc4-six-region-authoring-canvas/assignments.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "c8ff272f5ed5af4e27c8eaa94df2f3adee6f26ce1ace67215ecb12e8bc10de9c"
+    },
+    {
+      "scenario": "ar light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-eacc4-six-region-authoring-canvas/AssignmentSubmissionCard.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "669ec37cd9ee68123c7897f57483d0f3081b39028c860ffa655f03e2bf6683c8"
+    },
+    {
+      "scenario": "ar light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-eacc4-six-region-authoring-canvas/CourseworkDeadlineExtensionPanel.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "17cde83c5c3af3af4d3330ed433dba39ad9df9349a803d847575149e294bf42e"
+    },
+    {
+      "scenario": "ar light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-eacc4-six-region-authoring-canvas/curriculum.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "546cd63a191b7611c3046d41b03ebf84b3a6f80b10da10f5ba73e4bbb7da142c"
+    },
+    {
+      "scenario": "ar light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-eacc4-six-region-authoring-canvas/details.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "0c8fc96fd7287a186d8f04267878fb6a7b6bc9035e0d0f3b05b5239e85a58710"
+    },
+    {
+      "scenario": "ar light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-eacc4-six-region-authoring-canvas/LearningAimEditor.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "27d0deb4309da9b8dd9ff6a946676af9dbc00b7484544db31be7092a3759a97f"
+    },
+    {
+      "scenario": "ar light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-eacc4-six-region-authoring-canvas/LessonEditor.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "fd343b74bee917504c255b095bdf340b7e6c91e9290c531e7bf4774596ac908a"
+    },
+    {
+      "scenario": "ar light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-eacc4-six-region-authoring-canvas/review.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "98dff235a59b569ade69216b596be46fbf2f66be41dcf84883b3606274d52fb3"
+    },
+    {
+      "scenario": "ar light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-eacc4-six-region-authoring-canvas/TeacherComprehensiveReview.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "0c2ae1d1fd0263866f226a19817643af4cfd4b2530cb6c95b5ff53899fa2faa1"
+    },
+    {
+      "scenario": "ar light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-ar-light-eacc4-six-region-authoring-canvas/TeacherPracticeReview.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "585c9e3e6784fa54ab8f1b3d232fcccec2ef05e3b96ed36e978ff8c2e1c4d809"
+    },
+    {
+      "scenario": "ar: pending factual course state",
+      "path": "browser/teacher-authoring-ar-pending-factual-course-state/state.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "2b2fab546455f0161898a89b5a667b38910a0b90b4865eacd0bbf8f84d9a649c"
+    },
+    {
+      "scenario": "ar: Published existing edit guards",
+      "path": "browser/teacher-authoring-ar-Published-existing-edit-guards/locked-context.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "f0657ec370ea9ba558ae56ad59535fe810de507694f41916dcbdbb079d3b9a40"
+    },
+    {
+      "scenario": "ar: Published existing edit guards",
+      "path": "browser/teacher-authoring-ar-Published-existing-edit-guards/review-guard.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "b60b9c988705faacf2d2fcdc6b1a1561997499f41fee8ed883916aff4ed70dc0"
+    },
+    {
+      "scenario": "ar: raw mutation feedback, upload failure and review validation order",
+      "path": "browser/teacher-authoring-ar-raw-m-7eb4e-and-review-validation-order/concurrency.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "461676539f57bbb555d6538c74a897a4d706742ed929152855aeeab156e9dbaf"
+    },
+    {
+      "scenario": "ar: raw mutation feedback, upload failure and review validation order",
+      "path": "browser/teacher-authoring-ar-raw-m-7eb4e-and-review-validation-order/upload-error.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "0ddc5e10af13a80b14da6931bb11b44b1c0b8150f1004da53cdc914dae7056e6"
+    },
+    {
+      "scenario": "ar: raw mutation feedback, upload failure and review validation order",
+      "path": "browser/teacher-authoring-ar-raw-m-7eb4e-and-review-validation-order/validation.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "03bb9704fa1fc63a38a3fef43774164a8e9b330b670724649d848e7e5975fef6"
+    },
+    {
+      "scenario": "ar: Rejected existing edit guards",
+      "path": "browser/teacher-authoring-ar-Rejected-existing-edit-guards/locked-context.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "cd68cfaf70aa2352e42a533e6c3a7074b5c328123727ba3b1253d6fbebe49627"
+    },
+    {
+      "scenario": "ar: Rejected existing edit guards",
+      "path": "browser/teacher-authoring-ar-Rejected-existing-edit-guards/review-guard.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "e0f3876010f6a4bd762aed708310c475abfac56885728dc054237526434af6b2"
+    },
+    {
+      "scenario": "ar: SubmittedForReview existing edit guards",
+      "path": "browser/teacher-authoring-ar-SubmittedForReview-existing-edit-guards/locked-context.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "2da8cbc40c60f8a19a06955bb2767c27555688a431246313234199a96cbd9fd3"
+    },
+    {
+      "scenario": "ar: SubmittedForReview existing edit guards",
+      "path": "browser/teacher-authoring-ar-SubmittedForReview-existing-edit-guards/review-guard.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "a92281653a6e621e49b7da61226fd8de71330109085208e2cb74d9470d8014f4"
+    },
+    {
+      "scenario": "ar: unsaved fields and files survive hashes, Back and cached refresh error",
+      "path": "browser/teacher-authoring-ar-unsav-1451d-ck-and-cached-refresh-error/cached-error.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "ff2238776bbf068f2569a8dc4b8f8c4551180a5ef8b0338d24867f668129b48f"
+    },
+    {
+      "scenario": "ar: unsaved fields and files survive hashes, Back and cached refresh error",
+      "path": "browser/teacher-authoring-ar-unsav-1451d-ck-and-cached-refresh-error/retained-file.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "983c12957c8bfe8635370efd3babbed864c14a357e50d196d2604c54586fe072"
+    },
+    {
+      "scenario": "ar: unsaved fields and files survive hashes, Back and cached refresh error",
+      "path": "browser/teacher-authoring-ar-unsav-1451d-ck-and-cached-refresh-error/retained-title.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "282f3dd51c39db05fe31ef5498092f47190a9d2770e11a870af9c026b1438693"
+    },
+    {
+      "scenario": "en dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--44ce8-six-region-authoring-canvas/access.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "1349702e791a7254762033d6e148eeddc75e0513406cdb520c8e2a6669245ba0"
+    },
+    {
+      "scenario": "en dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--44ce8-six-region-authoring-canvas/announcements.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "3a123e8697f4c74f321b27cc66a4627fb06f34802640b75e7a557c4dc7a5ed17"
+    },
+    {
+      "scenario": "en dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--44ce8-six-region-authoring-canvas/assignments.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "495d867be5be6612b29e4392af7b5b97bf2537a96221a58fff5e573af0e3085f"
+    },
+    {
+      "scenario": "en dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--44ce8-six-region-authoring-canvas/AssignmentSubmissionCard.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "5c038e064c7bc7805508ca3469358be1b54abfed42a1b3990b03e7768c77ce2c"
+    },
+    {
+      "scenario": "en dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--44ce8-six-region-authoring-canvas/CourseworkDeadlineExtensionPanel.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "aa16a8b2811e1e3cf2cb748dbac8cf728db9c78d3bd9bc0f0901ee1cf60b330f"
+    },
+    {
+      "scenario": "en dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--44ce8-six-region-authoring-canvas/curriculum.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "1d539985372da9b5a3d9ab421bd8fb1d7a88480600313c509d4cabff930ee1e9"
+    },
+    {
+      "scenario": "en dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--44ce8-six-region-authoring-canvas/details.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ad2e38117e0334f37573b2424c7ba439df8f0d11941be03f11c3949f917101a7"
+    },
+    {
+      "scenario": "en dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--44ce8-six-region-authoring-canvas/LearningAimEditor.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "cbddbdb3261dc42f625ffe36b7d585e0622675c7ced8fc327dc3e322e2138b2e"
+    },
+    {
+      "scenario": "en dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--44ce8-six-region-authoring-canvas/LessonEditor.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "11d78f5d819fbc236c3763d3c5e39022bda46eebf029a6455c372e4638bd6219"
+    },
+    {
+      "scenario": "en dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--44ce8-six-region-authoring-canvas/review.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "cd90dde3023ad2a91be305f7750bc1cac8fcf0690fa8337e22f90d6ff4cd4b84"
+    },
+    {
+      "scenario": "en dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--44ce8-six-region-authoring-canvas/TeacherComprehensiveReview.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "0499c0786b89afd9e4271f4eb3ca5abab495603b6350e2c6487e38673609636e"
+    },
+    {
+      "scenario": "en dark 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--44ce8-six-region-authoring-canvas/TeacherPracticeReview.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "1a9e60180901d3af91302d7cbb4c59c6710ab4a3715b07571cbad469357c3252"
+    },
+    {
+      "scenario": "en dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--c1ecf-six-region-authoring-canvas/access.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "f930f42fe79fd53686ba6533fd1d5c83c299a3e8c5e06cf55ae5a5b9699a0a8a"
+    },
+    {
+      "scenario": "en dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--c1ecf-six-region-authoring-canvas/announcements.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "1bab89a5ea09f5dbf3b716b52b458f6d360ca1506f69352711c173e64ac94cb9"
+    },
+    {
+      "scenario": "en dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--c1ecf-six-region-authoring-canvas/assignments.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "042b1a6e46758a197e58414fb74acef91e2ab5338872bd4ece9ba3614534a78a"
+    },
+    {
+      "scenario": "en dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--c1ecf-six-region-authoring-canvas/AssignmentSubmissionCard.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "2a2199284f7f807c6db2fde2f7f4880b7d0572fdf6e2d51d07e2c5c3c3c5230f"
+    },
+    {
+      "scenario": "en dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--c1ecf-six-region-authoring-canvas/CourseworkDeadlineExtensionPanel.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "27b8168cecbe4e3dd72aed7bb2c819fb3a10b54cadffe57a435578df3f408ec7"
+    },
+    {
+      "scenario": "en dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--c1ecf-six-region-authoring-canvas/curriculum.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "52758712c516749ae342b101ac0119dd0adb12f05822080819652ddd63d1e4cf"
+    },
+    {
+      "scenario": "en dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--c1ecf-six-region-authoring-canvas/details.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "03fb8dc026e0a6648597d15c4b699c9b400d827723b1207b378eabde2da57a5f"
+    },
+    {
+      "scenario": "en dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--c1ecf-six-region-authoring-canvas/LearningAimEditor.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "3ef2651393602be4cc672e384c15c0cec89c357ef9971064bb90777df64d3d81"
+    },
+    {
+      "scenario": "en dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--c1ecf-six-region-authoring-canvas/LessonEditor.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "957e270f4dcd52e92abbba2509b09ab6724daf3b14b8a16fdb9688b586566cfc"
+    },
+    {
+      "scenario": "en dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--c1ecf-six-region-authoring-canvas/review.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "d56f4146371e916bc1f165e87ab8c358646916697caa4108d42bdb0d55c92a7f"
+    },
+    {
+      "scenario": "en dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--c1ecf-six-region-authoring-canvas/TeacherComprehensiveReview.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "a7fc079d0aba5a122ac6e790012957850faf52f0e513852a987bffd2716a36ef"
+    },
+    {
+      "scenario": "en dark 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--c1ecf-six-region-authoring-canvas/TeacherPracticeReview.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "d4f771963f91c0301afccf0935948c865aed9877e11bc6d270fbb20b31e5f275"
+    },
+    {
+      "scenario": "en dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--d0c19-six-region-authoring-canvas/access.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "12d60b9be2fb53fb43d13857a352cc69e324367f8a5b4a0d5f6bca404336ba24"
+    },
+    {
+      "scenario": "en dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--d0c19-six-region-authoring-canvas/announcements.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "1fac3b3b90af9cff10f53078d625a83c72894ede4f71524da6d4766bf85216d6"
+    },
+    {
+      "scenario": "en dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--d0c19-six-region-authoring-canvas/assignments.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "05fba5325977a951e9f19d8f5f2a902566844350790b9c5b341d833d758f78e5"
+    },
+    {
+      "scenario": "en dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--d0c19-six-region-authoring-canvas/AssignmentSubmissionCard.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "2331846f4f96da0694157c4349563aca3fd3268307a93cb5603dbadf4d6c298b"
+    },
+    {
+      "scenario": "en dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--d0c19-six-region-authoring-canvas/CourseworkDeadlineExtensionPanel.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "d25d2024f87e6615c796dc6e1d0271ef342ce9e5878ead36db63eaafa046eff1"
+    },
+    {
+      "scenario": "en dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--d0c19-six-region-authoring-canvas/curriculum.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "499db4ee090b5bf15b499f26694a271a4efbd9b6c63b3b5fe7eb0feb359f6e13"
+    },
+    {
+      "scenario": "en dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--d0c19-six-region-authoring-canvas/details.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "07d7e791f540a31808032bbf001f4e1de44ba7645ec2853bedec5b4718999b07"
+    },
+    {
+      "scenario": "en dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--d0c19-six-region-authoring-canvas/LearningAimEditor.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "e029699efa178f5ae1466cb3dc85b40a2f84fd3a116f98cb2bdf6ac15e467b13"
+    },
+    {
+      "scenario": "en dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--d0c19-six-region-authoring-canvas/LessonEditor.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "d549a15a9001d7bb8f7c1e73803703867580266d8a273ae7e844dea5673c64ca"
+    },
+    {
+      "scenario": "en dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--d0c19-six-region-authoring-canvas/review.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "12f9a7b8e2f744ee53bc19d352268fddea35e138909845f914117feba2b1b1b8"
+    },
+    {
+      "scenario": "en dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--d0c19-six-region-authoring-canvas/TeacherComprehensiveReview.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "28e4013d6c3fd5416638b68498d715a6b6d7af645eaa00c39cc84f0e1b99fdbe"
+    },
+    {
+      "scenario": "en dark 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-dark--d0c19-six-region-authoring-canvas/TeacherPracticeReview.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "e07b925938b1d820753c8814b611a433aa563172ba28eb4dd997e395f797d96b"
+    },
+    {
+      "scenario": "en: empty factual course state",
+      "path": "browser/teacher-authoring-en-empty-factual-course-state/state.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "a8f5da4972c43d95eee56965b08bd9da572b5a080b9107a0341ea4511a4f966e"
+    },
+    {
+      "scenario": "en: error factual course state",
+      "path": "browser/teacher-authoring-en-error-factual-course-state/state.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "d9ae34ff758694821ae7e9c3a04fae1172da95f6c52d23109d80f31932511544"
+    },
+    {
+      "scenario": "en light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dccbd-six-region-authoring-canvas/access.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "36437c4dcab03dc0e6ca0109fd54fdf0b81a324582c7f72fbf0789d427d8c3a5"
+    },
+    {
+      "scenario": "en light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dccbd-six-region-authoring-canvas/announcements.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "4390823aa73df2e4c5e5e99beefafcd67e0fae650ffbe8c4f9febfa8dd258f58"
+    },
+    {
+      "scenario": "en light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dccbd-six-region-authoring-canvas/assignments.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "9263a6d99ecd0288f6f5487ce16b8c69cdeced9ce8e75d84ca94da329e96cade"
+    },
+    {
+      "scenario": "en light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dccbd-six-region-authoring-canvas/AssignmentSubmissionCard.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "010330c367884af8d3d0d5f033da83a6dcae3074568c5a6349620083fc8ec18b"
+    },
+    {
+      "scenario": "en light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dccbd-six-region-authoring-canvas/CourseworkDeadlineExtensionPanel.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "ba35bbfe79dbf7c6eadc76f00c783f10920455cb08946779208725eedd3c634f"
+    },
+    {
+      "scenario": "en light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dccbd-six-region-authoring-canvas/curriculum.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "da3ee9b1aa964e663ac5e9b69623cd6e1f6f74a0f4365630facf1556b88fec93"
+    },
+    {
+      "scenario": "en light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dccbd-six-region-authoring-canvas/details.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "b873721c53c70628e61949436cdfee54aca8144304cfff3a3b2c9f10c953c694"
+    },
+    {
+      "scenario": "en light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dccbd-six-region-authoring-canvas/LearningAimEditor.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "7483730a59bb6c43d59bb8b3f51c0082ea3c1645a7f255b53e5fa05d46955574"
+    },
+    {
+      "scenario": "en light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dccbd-six-region-authoring-canvas/LessonEditor.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "4bedb196b32b2b997506f5d096e2d5aaf3ba909da3ff095411903886b22e6562"
+    },
+    {
+      "scenario": "en light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dccbd-six-region-authoring-canvas/review.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "3f0f4fe6d3f667a4dfd6b4c57178b245fba5a3f383432582ede4fdd318f779ce"
+    },
+    {
+      "scenario": "en light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dccbd-six-region-authoring-canvas/TeacherComprehensiveReview.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "6448866b1d49240740de9ae951aa5eae064b59f288c4f791a18d24f674e9abb1"
+    },
+    {
+      "scenario": "en light 834: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dccbd-six-region-authoring-canvas/TeacherPracticeReview.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "fb010a36aee98b621ff9df74a44a57987e346935126abf7bd4ce1dbb0f1f46a2"
+    },
+    {
+      "scenario": "en light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dd219-six-region-authoring-canvas/access.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "55334cbc842b0ee1230f7f878eb9f370536ff486dabb5af8bc31f6db540a630f"
+    },
+    {
+      "scenario": "en light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dd219-six-region-authoring-canvas/announcements.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "9de2a116cdf4654dcbd372b41f48b3a76cac6bcf5aa1a5383e9f525487136965"
+    },
+    {
+      "scenario": "en light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dd219-six-region-authoring-canvas/assignments.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "107ae622089c8e871d710a36a89affca2418539b47712f858dbe4b8bf99f0022"
+    },
+    {
+      "scenario": "en light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dd219-six-region-authoring-canvas/AssignmentSubmissionCard.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "756d5ee8673d73518a03e9371a9f65cc00f87c5bc26b9b4ebb6e37f1fcc9d4df"
+    },
+    {
+      "scenario": "en light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dd219-six-region-authoring-canvas/CourseworkDeadlineExtensionPanel.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "83c3ce39afa358c4e5c8247d5b87a89e1d916c40187e7dcfe6f29d0474e3cc96"
+    },
+    {
+      "scenario": "en light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dd219-six-region-authoring-canvas/curriculum.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "234e9ece28b85fdeb2e2ae61c2938c488fb1fe96c739636f56db787fea68cfed"
+    },
+    {
+      "scenario": "en light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dd219-six-region-authoring-canvas/details.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "06cf04f479c9ebc1f77579f159f1577e0ddf89ac0c3ec445866ba1af715e4c5e"
+    },
+    {
+      "scenario": "en light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dd219-six-region-authoring-canvas/LearningAimEditor.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "f31cee4191317485c50d1d4bf5779b51be1cdebf82a54a5f45a35b289bf7fc83"
+    },
+    {
+      "scenario": "en light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dd219-six-region-authoring-canvas/LessonEditor.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "f6288f122301452e643df009abcbff2f0e9cd2ffa024371e9a6865e2c65175ae"
+    },
+    {
+      "scenario": "en light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dd219-six-region-authoring-canvas/review.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "da78bb5fe654758eae062e7fcc1d3414c5eed61bcb5a4b0bcfb868a7c83670c5"
+    },
+    {
+      "scenario": "en light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dd219-six-region-authoring-canvas/TeacherComprehensiveReview.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "f7c1c293876ddd17a69e031930899ab6461b49e8b175cbdd9e055c4b83fad768"
+    },
+    {
+      "scenario": "en light 390: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-dd219-six-region-authoring-canvas/TeacherPracticeReview.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "b187161f8468220d71958a3f2f95028bed8b56338ec67baa31c84b6c98e2d59e"
+    },
+    {
+      "scenario": "en light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-e324b-six-region-authoring-canvas/access.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "81bd102375660f763a1a91ae0b74dcf4aa838446dca75f9b179a7157a178ac31"
+    },
+    {
+      "scenario": "en light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-e324b-six-region-authoring-canvas/announcements.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "cbea0b453e38ef31a40c97de2a28b86dab9d4d456f189ff16812387a487287e4"
+    },
+    {
+      "scenario": "en light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-e324b-six-region-authoring-canvas/assignments.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "1450bf1c91580a3a396f7583ef71fada0a2aaa1b13ad12daf2fcad48c038b9a9"
+    },
+    {
+      "scenario": "en light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-e324b-six-region-authoring-canvas/AssignmentSubmissionCard.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "19877c5182a9af536144c746520eb2a144ef98b35a3a7f51cc550504e8bebfca"
+    },
+    {
+      "scenario": "en light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-e324b-six-region-authoring-canvas/CourseworkDeadlineExtensionPanel.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "210f5889c9ef53fa78b2bec7bf9ba347ee5472bd845c75d05027cbaab5993c0e"
+    },
+    {
+      "scenario": "en light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-e324b-six-region-authoring-canvas/curriculum.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "2b326e4ccf5d6948529c0f7aa46eb04e03773ea787b34da3944ce750ca5b961f"
+    },
+    {
+      "scenario": "en light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-e324b-six-region-authoring-canvas/details.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "d575f17d7c479129c86b0e70a4a7c156cbd8a6a76bd7e0f5be212e384ca260d7"
+    },
+    {
+      "scenario": "en light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-e324b-six-region-authoring-canvas/LearningAimEditor.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "bfa564fd593a59c6d69189821da7b209bfbdb77ceba43a94c17b40c45f87559a"
+    },
+    {
+      "scenario": "en light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-e324b-six-region-authoring-canvas/LessonEditor.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "2146e207401b549ffdbbc7d6767da8fcc7d5490bca80632c41dd1793b29e93c7"
+    },
+    {
+      "scenario": "en light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-e324b-six-region-authoring-canvas/review.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "d27c8554509e3e26446a02ec6ff14ddd8995fa71edba49fe4ca900bf8fc3e1a1"
+    },
+    {
+      "scenario": "en light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-e324b-six-region-authoring-canvas/TeacherComprehensiveReview.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "052831a7574b329e29f629b919a64001258e996f24c71a255026661e2b3391b8"
+    },
+    {
+      "scenario": "en light 1440: populated six-region authoring canvas",
+      "path": "browser/teacher-authoring-en-light-e324b-six-region-authoring-canvas/TeacherPracticeReview.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "8ad5e0dd3d76f8b99aec878ef4e8f5a2a16120a8244c6fab377096345aede745"
+    },
+    {
+      "scenario": "en: pending factual course state",
+      "path": "browser/teacher-authoring-en-pending-factual-course-state/state.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "75160565ba00a2107beb9fedc1cb25d9ba3e0d65177a1538aad59992019c28ba"
+    },
+    {
+      "scenario": "en: Published existing edit guards",
+      "path": "browser/teacher-authoring-en-Published-existing-edit-guards/locked-context.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "b817f63e0475feddab9c1619b3ea850b04d5f100540f38db4bc8cbb8538b8231"
+    },
+    {
+      "scenario": "en: Published existing edit guards",
+      "path": "browser/teacher-authoring-en-Published-existing-edit-guards/review-guard.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "24b26d1efb9ae0b4db3688d201564a845cdb3ea97586e90fe6ce460d79d34633"
+    },
+    {
+      "scenario": "en: raw mutation feedback, upload failure and review validation order",
+      "path": "browser/teacher-authoring-en-raw-m-92c0a-and-review-validation-order/concurrency.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "7e08b330da8b2ca87c4c5dbd49fdd3f5e7f5d44066be12c77bb06b007a689ca4"
+    },
+    {
+      "scenario": "en: raw mutation feedback, upload failure and review validation order",
+      "path": "browser/teacher-authoring-en-raw-m-92c0a-and-review-validation-order/upload-error.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "9e4b4b7d507fc216a18b33462ac61832e9e7247f221f6ae04a686e8c03638278"
+    },
+    {
+      "scenario": "en: raw mutation feedback, upload failure and review validation order",
+      "path": "browser/teacher-authoring-en-raw-m-92c0a-and-review-validation-order/validation.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "584ae3a52b477ca61dfec5fc0bbc95344f1d78c2185858e27632055c6be14bee"
+    },
+    {
+      "scenario": "en: Rejected existing edit guards",
+      "path": "browser/teacher-authoring-en-Rejected-existing-edit-guards/locked-context.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "0725bb800cfa7f317133c734cc2299becbe6de43aa5e05ad0e2ff3ebb701ad81"
+    },
+    {
+      "scenario": "en: Rejected existing edit guards",
+      "path": "browser/teacher-authoring-en-Rejected-existing-edit-guards/review-guard.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "28999a089b502664420f8926a2f957803a338d1465ab64a5d7052467f3c79afe"
+    },
+    {
+      "scenario": "en: SubmittedForReview existing edit guards",
+      "path": "browser/teacher-authoring-en-SubmittedForReview-existing-edit-guards/locked-context.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "664e2b1fd074461ab667a0a9309909eec74023007fd44e3ef8da1e92d65617a9"
+    },
+    {
+      "scenario": "en: SubmittedForReview existing edit guards",
+      "path": "browser/teacher-authoring-en-SubmittedForReview-existing-edit-guards/review-guard.png",
+      "width": 834,
+      "height": 1112,
+      "sha256": "a8906bddeadad28cba2f6d5bc5cef9c752227d8406477f4309a6c6a921025d83"
+    },
+    {
+      "scenario": "en: unsaved fields and files survive hashes, Back and cached refresh error",
+      "path": "browser/teacher-authoring-en-unsav-f871b-ck-and-cached-refresh-error/cached-error.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "64b6247a6aa50a151d27b08d62ae995034802a01f25edda34feaf528618fefa3"
+    },
+    {
+      "scenario": "en: unsaved fields and files survive hashes, Back and cached refresh error",
+      "path": "browser/teacher-authoring-en-unsav-f871b-ck-and-cached-refresh-error/retained-file.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "7f0e31d75353a575138c1a131977c9a698f0e760488b4068f37071e85790f09f"
+    },
+    {
+      "scenario": "en: unsaved fields and files survive hashes, Back and cached refresh error",
+      "path": "browser/teacher-authoring-en-unsav-f871b-ck-and-cached-refresh-error/retained-title.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "8f1796fa8d8d25c14d02850d2ef0dee951db52cf2bdfe701d122f77b8d2ff389"
+    },
+    {
+      "scenario": "ar: locale keeps query/hash; keyboard focus, reduced motion and 200 percent reflow proxy",
+      "path": "browser-keyboard-verified/teacher-authoring-ar-local-9e25e-nd-200-percent-reflow-proxy/keyboard-reflow.png",
+      "width": 720,
+      "height": 450,
+      "sha256": "47edb65bfb1be97d987933c2530cff8774065b45f99839a5ce79ddfb40671c51"
+    },
+    {
+      "scenario": "en: locale keeps query/hash; keyboard focus, reduced motion and 200 percent reflow proxy",
+      "path": "browser-keyboard-verified/teacher-authoring-en-local-d3672-nd-200-percent-reflow-proxy/keyboard-reflow.png",
+      "width": 720,
+      "height": 450,
+      "sha256": "37f793985138fcc97dcfd2c2a0f13ad1a35362c1dea43d54e2ca7bfb6f68361f"
+    }
+  ],
+  "limits": [
+    "Intercepted synthetic responses only; no backend persistence, authorization, payment, entitlement, database, deployment or whole-site WCAG proof.",
+    "720x450 CSS viewport is a 200 percent reflow proxy, not native browser zoom.",
+    "Unsaved state is preserved for local hash/Back navigation and cached refresh. A full locale reload keeps URL context, not an invented cross-reload draft persistence.",
+    "Cold child-panel states retain their existing behavior; only the course-owner cached refresh display guard changed."
+  ]
+}

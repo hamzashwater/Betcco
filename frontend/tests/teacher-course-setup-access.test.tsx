@@ -801,7 +801,8 @@ describe.each(["en", "ar"] as const)(
       );
       await act(async () => reject(new Error("unavailable")));
       expect(await screen.findByRole("alert")).toHaveTextContent(
-        m.courseEditor.unavailable,
+        (locale === "ar" ? arMessages : enMessages).teacherAuthoringPresentation
+          .loadError,
       );
     });
 

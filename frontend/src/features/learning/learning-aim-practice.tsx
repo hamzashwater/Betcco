@@ -1,5 +1,7 @@
 "use client";
 
+import authoringStyles from "@/features/teacher/course-authoring.module.css";
+
 import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { Action } from "@/components/ui/action";
 import { QueryState, MutationOutcome } from "@/components/ui/query-state";
@@ -793,9 +795,12 @@ export function TeacherLearningAimPractice({
     );
   if (!aims.length) return null;
   return (
-    <section className="grid gap-4 rounded-2xl border border-primary/25 p-4">
+    <section
+      className={authoringStyles.practice}
+      data-authoring-region="TeacherLearningAimPractice"
+    >
       <div>
-        <h3 className="text-lg font-black">
+        <h3 className="text-lg font-semibold">
           {t("practice.learningAimPracticeActivities")}
         </h3>
         <p className="mt-1 text-sm text-muted">
@@ -847,7 +852,7 @@ export function TeacherLearningAimPractice({
                 onClick={() =>
                   setForm((current) => ({ ...current, learningAimId: aim.id }))
                 }
-                className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 text-sm font-bold text-primary"
+                className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 text-sm font-bold text-text-link"
               >
                 {t("practice.addPracticeActivity")}
               </button>
@@ -946,7 +951,10 @@ function TeacherPracticeAttemptLimit({
     onSuccess: onChanged,
   });
   return (
-    <div className="flex flex-wrap items-end gap-2 text-sm">
+    <div
+      className={authoringStyles.controls}
+      data-authoring-region="TeacherPracticeAttemptLimit"
+    >
       <label className="grid gap-1">
         {t("practice.maximumAttempts")}
         <input
@@ -962,7 +970,7 @@ function TeacherPracticeAttemptLimit({
         type="button"
         disabled={update.isPending}
         onClick={() => update.mutate()}
-        className="focus-ring rounded-lg border border-primary/40 px-3 py-2 font-bold text-primary disabled:opacity-50"
+        className="focus-ring rounded-lg border border-primary/40 px-3 py-2 font-bold text-text-link disabled:opacity-50"
       >
         {t("practice.saveAttemptLimit")}
       </button>
@@ -999,7 +1007,10 @@ function TeacherPracticeReview({
     onSuccess: onChanged,
   });
   return (
-    <article className="grid gap-2 rounded-lg bg-white/5 p-3 text-sm">
+    <article
+      className={authoringStyles.submission}
+      data-authoring-region="TeacherPracticeReview"
+    >
       <p>
         {t("practice.learner")}: {submission.studentUserId} ·{" "}
         {submission.status}
@@ -1012,7 +1023,7 @@ function TeacherPracticeReview({
         <a
           key={file.id}
           href={`/api/v1/assignments/submissions/${submission.id}/files/${file.id}`}
-          className="focus-ring text-primary underline"
+          className="focus-ring text-text-link underline"
         >
           {file.originalFileName}
         </a>
@@ -1061,7 +1072,7 @@ function TeacherPracticeReview({
                       <a
                         key={file.id}
                         href={`/api/v1/assignments/submissions/${submission.id}/files/${file.id}`}
-                        className="focus-ring text-primary underline"
+                        className="focus-ring text-text-link underline"
                       >
                         {file.originalFileName}
                       </a>

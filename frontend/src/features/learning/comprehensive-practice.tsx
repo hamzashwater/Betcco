@@ -1,5 +1,7 @@
 "use client";
 
+import authoringStyles from "@/features/teacher/course-authoring.module.css";
+
 import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { Action } from "@/components/ui/action";
 import { QueryState, MutationOutcome } from "@/components/ui/query-state";
@@ -593,11 +595,12 @@ export function TeacherComprehensivePractice({
   if (!units.length) return null;
   return (
     <section
-      className="grid gap-4 rounded-2xl border border-primary/25 p-4"
+      className={authoringStyles.practice}
+      data-authoring-region="TeacherComprehensivePractice"
       aria-label={t("practice.finalUnitPractice")}
     >
       <div>
-        <h3 className="text-lg font-black">
+        <h3 className="text-lg font-semibold">
           {t("practice.finalUnitPractice")}
         </h3>
         <p className="text-sm text-muted">
@@ -660,7 +663,7 @@ export function TeacherComprehensivePractice({
               <button
                 type="button"
                 onClick={() => setModuleId(unit.id)}
-                className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 text-sm font-bold text-primary"
+                className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 text-sm font-bold text-text-link"
               >
                 {t("practice.createUnitPractice")}
               </button>
@@ -784,7 +787,10 @@ function TeacherComprehensiveAuthoring({
     onSuccess: onChanged,
   });
   return (
-    <div className="grid gap-3 rounded-lg border border-border p-3">
+    <div
+      className={authoringStyles.subsection}
+      data-authoring-region="TeacherComprehensiveAuthoring"
+    >
       <p className="text-sm text-muted">
         {t(
           "practice.finishTheTaskResourcesAndCriteriaBeforePublishingForLearners",
@@ -835,13 +841,13 @@ function TeacherComprehensiveAuthoring({
         <button
           type="submit"
           disabled={update.isPending || publish.isPending}
-          className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 font-bold text-primary disabled:opacity-50"
+          className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 font-bold text-text-link disabled:opacity-50"
         >
           {t("courseDetails.save")}
         </button>
       </form>
       {update.isSuccess ? (
-        <p role="status" className="text-sm text-primary">
+        <p role="status" className="text-sm text-text-link">
           {t("practice.changesSaved")}
         </p>
       ) : null}
@@ -894,13 +900,16 @@ function TeacherComprehensiveResources({
     },
   });
   return (
-    <div className="grid gap-2 text-sm">
+    <div
+      className={authoringStyles.subsection}
+      data-authoring-region="TeacherComprehensiveResources"
+    >
       <p className="font-bold">{t("practice.supportingMaterials")}</p>
       {practice.resources.map((resource) => (
         <a
           key={resource.id}
           href={`/api/v1/assignments/${practice.id}/resources/${resource.id}`}
-          className="focus-ring w-fit text-primary underline"
+          className="focus-ring w-fit text-text-link underline"
         >
           {resource.displayName}
         </a>
@@ -920,7 +929,7 @@ function TeacherComprehensiveResources({
         type="button"
         disabled={!files.length || upload.isPending}
         onClick={() => upload.mutate()}
-        className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 font-bold text-primary disabled:opacity-50"
+        className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 font-bold text-text-link disabled:opacity-50"
       >
         {t("practice.uploadResources")}
       </button>
@@ -965,7 +974,10 @@ function TeacherComprehensiveCriteria({
       !practice.criteria.some((link) => link.btecCriterionId === criterion.id),
   );
   return (
-    <div className="grid gap-2 text-sm">
+    <div
+      className={authoringStyles.subsection}
+      data-authoring-region="TeacherComprehensiveCriteria"
+    >
       <p className="font-bold">
         {t("practice.unitCriteriaForTrainingContext")}
       </p>
@@ -998,7 +1010,7 @@ function TeacherComprehensiveCriteria({
             type="button"
             disabled={!criterionId || add.isPending}
             onClick={() => add.mutate()}
-            className="focus-ring self-end rounded-lg border border-primary/40 px-3 py-2 font-bold text-primary disabled:opacity-50"
+            className="focus-ring self-end rounded-lg border border-primary/40 px-3 py-2 font-bold text-text-link disabled:opacity-50"
           >
             {t("assignmentCard.attachCriterion")}
           </button>
@@ -1040,7 +1052,10 @@ function TeacherComprehensiveReview({
     onSuccess: onChanged,
   });
   return (
-    <article className="grid gap-2 rounded-lg bg-white/5 p-3 text-sm">
+    <article
+      className={authoringStyles.submission}
+      data-authoring-region="TeacherComprehensiveReview"
+    >
       <p>
         {t("practice.learner")}: {submission.studentUserId} ·{" "}
         {unitPracticeStatus(submission.status, t)}
@@ -1049,7 +1064,7 @@ function TeacherComprehensiveReview({
         <a
           key={file.id}
           href={`/api/v1/assignments/submissions/${submission.id}/files/${file.id}`}
-          className="focus-ring w-fit text-primary underline"
+          className="focus-ring w-fit text-text-link underline"
         >
           {file.originalFileName}
         </a>

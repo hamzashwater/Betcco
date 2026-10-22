@@ -9,6 +9,7 @@ import {
 } from "./helpers/practice-clarity-projection";
 import en from "../messages/en.json";
 import ar from "../messages/ar.json";
+import { projectTeacherAuthoringSource } from "./helpers/teacher-authoring-projection";
 const hash = (s: string) => createHash("sha256").update(s).digest("hex");
 describe("UI-D01-09 exact presentation scope", () => {
   it("pins the independent main baseline and exact reviewed seams", () => {
@@ -24,6 +25,7 @@ describe("UI-D01-09 exact presentation scope", () => {
     (path, file) => {
       const source = readFileSync(path, "utf8");
       expect(hash(projectPracticeClaritySource(source, path))).toBe(file.hash);
+      const practiceSource = projectTeacherAuthoringSource(source, path);
       for (const seam of file.seams)
         for (const replacement of [
           "",
@@ -33,7 +35,7 @@ describe("UI-D01-09 exact presentation scope", () => {
           expect(
             hash(
               projectPracticeClaritySource(
-                source.replace(seam.approved, replacement),
+                practiceSource.replace(seam.approved, replacement),
                 path,
               ),
             ),

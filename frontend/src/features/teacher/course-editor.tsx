@@ -1,5 +1,7 @@
 "use client";
 
+import authoringStyles from "./course-authoring.module.css";
+
 /* The cover endpoint is authenticated, so Next's image optimizer cannot request it. */
 /* eslint-disable @next/next/no-img-element */
 
@@ -14,6 +16,7 @@ import {
   CourseWorkspaceSection,
 } from "@/features/teacher/course-workspace-navigation";
 import { api } from "@/lib/api";
+import { QueryState } from "@/components/ui/query-state";
 import { academicText } from "@/lib/academic-localization";
 import { defaultBrand } from "@/lib/brand";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -815,6 +818,7 @@ function TeacherSubjectCreator({
 }
 
 function ExistingCourseEditor({ courseId }: { courseId: string }) {
+  const presentation = useTranslations("teacherAuthoringPresentation");
   const locale = useLocale();
   const t = useTranslations("teacherWorkspace");
   const course = useQuery({
@@ -829,11 +833,11 @@ function ExistingCourseEditor({ courseId }: { courseId: string }) {
         </div>
       </section>
     );
-  if (course.isError || !course.data)
+  if (!course.data)
     return (
       <section className="shell py-10">
         <p className="card p-6" role="alert">
-          {t("courseEditor.unavailable")}
+          {presentation("loadError")}
         </p>
       </section>
     );
@@ -846,20 +850,23 @@ function ExistingCourseEditor({ courseId }: { courseId: string }) {
     "Published",
   ].includes(course.data.status);
   return (
-    <section className="shell py-10">
+    <section
+      className={`shell py-8 ${authoringStyles.canvas}`}
+      data-authoring-region="ExistingCourseEditor"
+    >
       <Link
         href={`/${locale}/teacher/courses`}
-        className="focus-ring inline-flex items-center gap-2 text-sm font-bold text-primary"
+        className="focus-ring inline-flex items-center gap-2 text-sm font-bold text-text-link"
       >
         <ArrowLeft size={17} className="rtl:rotate-180" aria-hidden="true" />
         {t("courseEditor.back")}
       </Link>
       <div className="mt-5 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="font-bold text-primary">
+          <p className="font-bold text-text-link">
             {t("courseEditor.eyebrow", { brand: defaultBrand.BrandName })}
           </p>
-          <h1 className="mt-1 text-3xl font-black">
+          <h1 className="mt-1 text-3xl font-semibold">
             {locale === "ar"
               ? course.data.arabicTitle
               : course.data.englishTitle}
@@ -868,12 +875,15 @@ function ExistingCourseEditor({ courseId }: { courseId: string }) {
             {editable ? t("courseEditor.editable") : t("courseEditor.locked")}
           </p>
         </div>
-        <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-sm font-black text-primary">
+        <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-sm font-semibold text-text-link">
           {statusLabel(course.data.status, t)}
         </span>
       </div>
+      {course.isError ? (
+        <QueryState kind="error" title={presentation("loadError")} />
+      ) : null}
       <CourseWorkspaceNavigation />
-      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className={authoringStyles.layout}>
         <div className="grid min-w-0 gap-6">
           <CourseWorkspaceSection id="details">
             <CourseDetailsForm course={course.data} disabled={!editable} />
@@ -1000,10 +1010,13 @@ function CourseAnnouncementsEditor({
         : [...current.selectedStudentIds, id],
     }));
   return (
-    <section className="card grid gap-4 p-5">
+    <section
+      className={authoringStyles.panel}
+      data-authoring-region="CourseAnnouncementsEditor"
+    >
       <div>
-        <h2 className="flex items-center gap-2 text-xl font-black">
-          <FileText size={20} className="text-primary" aria-hidden="true" />
+        <h2 className="flex items-center gap-2 text-xl font-semibold">
+          <FileText size={20} className="text-text-link" aria-hidden="true" />
           {t("announcements.title")}
         </h2>
         <p className="mt-1 text-sm leading-6 text-muted">
@@ -1018,7 +1031,7 @@ function CourseAnnouncementsEditor({
               className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border p-3"
             >
               <div>
-                <p className="font-black">
+                <p className="font-semibold">
                   {locale === "ar"
                     ? announcement.arabicTitle
                     : announcement.englishTitle}
@@ -1034,7 +1047,7 @@ function CourseAnnouncementsEditor({
                 </p>
               </div>
               {announcement.isPublished ? (
-                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-black text-primary">
+                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-text-link">
                   {t("announcements.published")}
                 </span>
               ) : (
@@ -1043,7 +1056,7 @@ function CourseAnnouncementsEditor({
                     type="button"
                     disabled={disabled || publish.isPending}
                     onClick={() => publish.mutate(announcement.id)}
-                    className="focus-ring rounded-lg border border-primary/45 px-3 py-1.5 text-xs font-black text-primary disabled:opacity-50"
+                    className="focus-ring rounded-lg border border-primary/45 px-3 py-1.5 text-xs font-semibold text-text-link disabled:opacity-50"
                   >
                     {t("announcements.publish")}
                   </button>
@@ -1051,7 +1064,7 @@ function CourseAnnouncementsEditor({
                     type="button"
                     disabled={disabled || remove.isPending}
                     onClick={() => remove.mutate(announcement.id)}
-                    className="focus-ring rounded-lg border border-red-500/45 px-3 py-1.5 text-xs font-black text-red-400 disabled:opacity-50"
+                    className="focus-ring rounded-lg border border-red-500/45 px-3 py-1.5 text-xs font-semibold text-red-400 disabled:opacity-50"
                   >
                     {t("announcements.delete")}
                   </button>
@@ -1069,7 +1082,7 @@ function CourseAnnouncementsEditor({
             create.mutate();
           }}
         >
-          <h3 className="font-black">{t("announcements.new")}</h3>
+          <h3 className="font-semibold">{t("announcements.new")}</h3>
           <div className="grid gap-3 md:grid-cols-2">
             <input
               required
@@ -1218,7 +1231,7 @@ function CourseAnnouncementsEditor({
           </label>
           <button
             disabled={create.isPending}
-            className="focus-ring w-fit rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
+            className="focus-ring w-fit rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50"
           >
             {form.publish
               ? t("announcements.submit")
@@ -1273,10 +1286,11 @@ function CourseDetailsForm({
         event.preventDefault();
         save.mutate();
       }}
-      className="card grid gap-4 p-5"
+      className={authoringStyles.panel}
+      data-authoring-region="CourseDetailsForm"
     >
-      <h2 className="flex items-center gap-2 text-xl font-black">
-        <PencilLine size={20} className="text-primary" aria-hidden="true" />
+      <h2 className="flex items-center gap-2 text-xl font-semibold">
+        <PencilLine size={20} className="text-text-link" aria-hidden="true" />
         {t("courseDetails.title")}
       </h2>
       <div className="grid gap-4 md:grid-cols-2">
@@ -1345,12 +1359,12 @@ function CourseDetailsForm({
       </label>
       <button
         disabled={disabled || save.isPending}
-        className="focus-ring w-fit rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
+        className="focus-ring w-fit rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50"
       >
         {t("courseDetails.save")}
       </button>
       {save.isSuccess ? (
-        <p role="status" className="text-sm font-bold text-primary">
+        <p role="status" className="text-sm font-bold text-text-link">
           {t("courseDetails.saved")}
         </p>
       ) : null}
@@ -1495,10 +1509,13 @@ function LearningAccessEditor({
       )
     : [];
   return (
-    <section className="card grid gap-4 p-5">
+    <section
+      className={authoringStyles.panel}
+      data-authoring-region="LearningAccessEditor"
+    >
       <div>
-        <h2 className="flex items-center gap-2 text-xl font-black">
-          <Clock3 size={20} className="text-primary" aria-hidden="true" />
+        <h2 className="flex items-center gap-2 text-xl font-semibold">
+          <Clock3 size={20} className="text-text-link" aria-hidden="true" />
           {t("learningAccess.title")}
         </h2>
         <p className="mt-1 text-sm leading-6 text-muted">
@@ -1618,7 +1635,7 @@ function LearningAccessEditor({
                     !previousKey)
                 }
                 onClick={() => saveRelease.mutate()}
-                className="focus-ring w-fit rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
+                className="focus-ring w-fit rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50"
               >
                 {selectedRule
                   ? t("learningAccess.updateRelease")
@@ -1629,7 +1646,7 @@ function LearningAccessEditor({
                 error={saveRelease.error}
               />
               <div className="border-t border-border pt-4">
-                <h3 className="font-black text-foreground">
+                <h3 className="font-semibold text-foreground">
                   {t("learningAccess.additionalPrerequisites")}
                 </h3>
                 <p className="mt-1 text-xs leading-5 text-muted">
@@ -1659,7 +1676,7 @@ function LearningAccessEditor({
                       disabled || !requiredKey || addPrerequisite.isPending
                     }
                     onClick={() => addPrerequisite.mutate()}
-                    className="focus-ring rounded-xl border border-primary/40 px-4 py-2 text-sm font-black text-primary disabled:opacity-50"
+                    className="focus-ring rounded-xl border border-primary/40 px-4 py-2 text-sm font-semibold text-text-link disabled:opacity-50"
                   >
                     {t("learningAccess.addPrerequisite")}
                   </button>
@@ -1765,9 +1782,12 @@ function CoverManager({
     },
   });
   return (
-    <section className="card grid gap-4 p-5">
-      <h2 className="flex items-center gap-2 text-lg font-black">
-        <ImageIcon size={19} className="text-primary" aria-hidden="true" />
+    <section
+      className={authoringStyles.panel}
+      data-authoring-region="CoverManager"
+    >
+      <h2 className="flex items-center gap-2 text-lg font-semibold">
+        <ImageIcon size={19} className="text-text-link" aria-hidden="true" />
         {t("cover.title")}
       </h2>
       {course.hasCover ? (
@@ -1799,7 +1819,7 @@ function CoverManager({
         type="button"
         disabled={disabled || !files.length || upload.isPending}
         onClick={() => upload.mutate()}
-        className="focus-ring inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
+        className="focus-ring inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50"
       >
         <Upload size={17} aria-hidden="true" />
         {t("cover.upload")}
@@ -1841,8 +1861,11 @@ function OutcomesEditor({
     },
   });
   return (
-    <section className="card p-5">
-      <h2 className="text-lg font-black">{t("outcomes.title")}</h2>
+    <section
+      className={authoringStyles.panel}
+      data-authoring-region="OutcomesEditor"
+    >
+      <h2 className="text-lg font-semibold">{t("outcomes.title")}</h2>
       <ul className="mt-3 grid gap-2 text-sm text-muted">
         {course.outcomes.map((outcome) => (
           <li key={outcome.id} className="rounded-xl border border-border p-3">
@@ -1873,7 +1896,7 @@ function OutcomesEditor({
               !arabicText.trim() || !englishText.trim() || add.isPending
             }
             onClick={() => add.mutate()}
-            className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 text-sm font-bold text-primary disabled:opacity-50"
+            className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 text-sm font-bold text-text-link disabled:opacity-50"
           >
             {t("outcomes.add")}
           </button>
@@ -1934,13 +1957,16 @@ export function CurriculumEditor({
     },
   });
   return (
-    <section className="card p-5">
+    <section
+      className={authoringStyles.panel}
+      data-authoring-region="CurriculumEditor"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="flex items-center gap-2 text-xl font-black">
+          <h2 className="flex items-center gap-2 text-xl font-semibold">
             <BookOpenCheck
               size={20}
-              className="text-primary"
+              className="text-text-link"
               aria-hidden="true"
             />
             {t("curriculum.title")}
@@ -1978,8 +2004,12 @@ export function CurriculumEditor({
       ) : null}
       {!disabled && (!course.isBtecFocused || course.deliveryPlanId) ? (
         <div className="mt-5 rounded-2xl border border-primary/20 bg-primary/5 p-4">
-          <h3 className="flex items-center gap-2 font-black">
-            <FolderPlus size={18} className="text-primary" aria-hidden="true" />
+          <h3 className="flex items-center gap-2 font-semibold">
+            <FolderPlus
+              size={18}
+              className="text-text-link"
+              aria-hidden="true"
+            />
             {t("curriculum.newModule")}
           </h3>
           <div className="mt-3 grid gap-3 md:grid-cols-2">
@@ -2051,7 +2081,7 @@ export function CurriculumEditor({
                 ? !deliveryPlanEntryId
                 : !arabicTitle.trim())
             }
-            className="focus-ring mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
+            className="focus-ring mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50"
           >
             <Plus size={17} aria-hidden="true" />
             {t("curriculum.add")}
@@ -2183,9 +2213,12 @@ function ModuleEditor({
     },
   });
   return (
-    <article className="rounded-2xl border border-border bg-black/5 p-4">
+    <article
+      className={authoringStyles.unit}
+      data-authoring-region="ModuleEditor"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="font-black">
+        <h3 className="font-semibold">
           {academicText(locale, module.arabicTitle, module.englishTitle)}
         </h3>
         {!disabled ? (
@@ -2194,7 +2227,7 @@ function ModuleEditor({
               type="button"
               onClick={() => save.mutate()}
               disabled={save.isPending}
-              className="focus-ring rounded-lg border border-primary/40 px-3 py-2 text-xs font-bold text-primary"
+              className="focus-ring rounded-lg border border-primary/40 px-3 py-2 text-xs font-bold text-text-link"
             >
               {t("module.save")}
             </button>
@@ -2437,7 +2470,7 @@ function ModuleEditor({
       </div>
       {!disabled ? (
         <div className="mt-4 rounded-xl border border-border bg-surface-solid/35 p-4">
-          <h4 className="font-black">{t("module.newLesson")}</h4>
+          <h4 className="font-semibold">{t("module.newLesson")}</h4>
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             <input
               value={lesson.arabicTitle}
@@ -2537,7 +2570,7 @@ function ModuleEditor({
             type="button"
             onClick={() => addLesson.mutate()}
             disabled={!lesson.arabicTitle.trim() || addLesson.isPending}
-            className="focus-ring mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
+            className="focus-ring mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50"
           >
             <Plus size={17} aria-hidden="true" />
             {t("module.addLesson")}
@@ -2645,11 +2678,14 @@ function BtecStructureEditor({
   });
 
   return (
-    <section className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
+    <section
+      className={authoringStyles.structure}
+      data-authoring-region="BtecStructureEditor"
+    >
       <div className="flex items-center gap-2">
-        <Target size={18} className="text-primary" aria-hidden="true" />
+        <Target size={18} className="text-text-link" aria-hidden="true" />
         <div>
-          <h4 className="font-black">{t("btecStructure.title")}</h4>
+          <h4 className="font-semibold">{t("btecStructure.title")}</h4>
           <p className="mt-1 text-xs leading-5 text-muted">
             {t("btecStructure.description")}
           </p>
@@ -2711,7 +2747,7 @@ function BtecStructureEditor({
               !aim.englishTitle.trim() ||
               addAim.isPending
             }
-            className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
+            className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50"
           >
             <Plus size={16} aria-hidden="true" />
             {t("btecStructure.addAim")}
@@ -2741,7 +2777,7 @@ function BtecStructureEditor({
         </div>
       ) : null}
       <div className="mt-4 border-t border-border pt-4">
-        <h5 className="font-black">{t("btecStructure.criteria")}</h5>
+        <h5 className="font-semibold">{t("btecStructure.criteria")}</h5>
         {module.criteria.length ? (
           <div className="mt-3 grid gap-3">
             {module.criteria.map((item) => (
@@ -2836,7 +2872,7 @@ function BtecStructureEditor({
                 !criterion.englishDescription.trim() ||
                 addCriterion.isPending
               }
-              className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
+              className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50"
             >
               <Plus size={16} aria-hidden="true" />
               {t("btecStructure.addCriterion")}
@@ -2920,9 +2956,12 @@ function LearningAimEditor({
     },
   });
   return (
-    <article className="rounded-xl border border-border bg-surface-solid/45 p-3">
+    <article
+      className={authoringStyles.aim}
+      data-authoring-region="LearningAimEditor"
+    >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="font-black">
+        <p className="font-semibold">
           {aim.code} — {locale === "ar" ? aim.arabicTitle : aim.englishTitle}
         </p>
         {!disabled && !academicLocked ? (
@@ -2930,7 +2969,7 @@ function LearningAimEditor({
             <button
               type="button"
               onClick={() => save.mutate()}
-              className="focus-ring rounded-lg border border-primary/40 px-2.5 py-1.5 text-xs font-bold text-primary"
+              className="focus-ring rounded-lg border border-primary/40 px-2.5 py-1.5 text-xs font-bold text-text-link"
             >
               {t("shared.save")}
             </button>
@@ -3036,7 +3075,7 @@ function LearningAimEditor({
               !topic.englishTitle.trim() ||
               addTopic.isPending
             }
-            className="focus-ring inline-flex items-center justify-center gap-1 rounded-lg border border-primary/40 px-2 py-2 text-xs font-bold text-primary"
+            className="focus-ring inline-flex items-center justify-center gap-1 rounded-lg border border-primary/40 px-2 py-2 text-xs font-bold text-text-link"
           >
             <Plus size={14} aria-hidden="true" />
             {t("topic.add")}
@@ -3094,7 +3133,7 @@ function TopicEditor({
     onSuccess: refresh,
   });
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border p-2 text-sm">
+    <div className={authoringStyles.topic} data-authoring-region="TopicEditor">
       <span className="font-bold">
         • {locale === "ar" ? topic.arabicTitle : topic.englishTitle}
       </span>
@@ -3138,7 +3177,7 @@ function TopicEditor({
           <button
             type="button"
             onClick={() => save.mutate()}
-            className="focus-ring text-xs font-bold text-primary"
+            className="focus-ring text-xs font-bold text-text-link"
           >
             {t("shared.save")}
           </button>
@@ -3203,9 +3242,12 @@ function CriterionEditor({
     onSuccess: refresh,
   });
   return (
-    <article className="rounded-lg border border-border p-3">
+    <article
+      className={authoringStyles.criterion}
+      data-authoring-region="CriterionEditor"
+    >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="font-black">
+        <p className="font-semibold">
           {criterion.code} · {criterion.band}
         </p>
         {!disabled ? (
@@ -3213,7 +3255,7 @@ function CriterionEditor({
             <button
               type="button"
               onClick={() => save.mutate()}
-              className="focus-ring text-xs font-bold text-primary"
+              className="focus-ring text-xs font-bold text-text-link"
             >
               {t("shared.save")}
             </button>
@@ -3431,10 +3473,13 @@ function LessonEditor({
     onSuccess: refresh,
   });
   return (
-    <article className="rounded-xl border border-border bg-surface-solid/45 p-4">
+    <article
+      className={authoringStyles.lesson}
+      data-authoring-region="LessonEditor"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h4 className="font-black">
+          <h4 className="font-semibold">
             {locale === "ar" ? lesson.arabicTitle : lesson.englishTitle}
           </h4>
           <p className="mt-1 text-xs text-muted">
@@ -3448,7 +3493,7 @@ function LessonEditor({
               type="button"
               onClick={() => save.mutate()}
               disabled={save.isPending}
-              className="focus-ring rounded-lg border border-primary/40 px-3 py-2 text-xs font-bold text-primary"
+              className="focus-ring rounded-lg border border-primary/40 px-3 py-2 text-xs font-bold text-text-link"
             >
               {t("lesson.save")}
             </button>
@@ -3745,7 +3790,7 @@ function LessonEditor({
                 uploadVideo.isPending ||
                 removeVideo.isPending
               }
-              className="focus-ring mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
+              className="focus-ring mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50"
             >
               <Upload size={17} aria-hidden="true" />
               {uploadVideo.isPending
@@ -3755,7 +3800,7 @@ function LessonEditor({
                   : t("lesson.attachVideo")}
             </button>
             {uploadVideo.isSuccess ? (
-              <p role="status" className="mt-2 text-xs text-primary">
+              <p role="status" className="mt-2 text-xs text-text-link">
                 {t("lesson.videoSaved")}
               </p>
             ) : null}
@@ -3765,8 +3810,8 @@ function LessonEditor({
             />
           </div>
         ) : null}
-        <p className="flex items-center gap-2 text-sm font-black">
-          <FileText size={16} className="text-primary" aria-hidden="true" />
+        <p className="flex items-center gap-2 text-sm font-semibold">
+          <FileText size={16} className="text-text-link" aria-hidden="true" />
           {t("lesson.resources")}
         </p>
         {lesson.resources.filter((resource) => resource.id !== lesson.video?.id)
@@ -3786,7 +3831,7 @@ function LessonEditor({
                     }
                     target={resource.externalUrl ? "_blank" : undefined}
                     rel={resource.externalUrl ? "noreferrer" : undefined}
-                    className="min-w-0 truncate font-bold text-primary underline"
+                    className="min-w-0 truncate font-bold text-text-link underline"
                   >
                     {resource.displayName}
                   </a>
@@ -3816,7 +3861,7 @@ function LessonEditor({
               type="button"
               onClick={() => upload.mutate()}
               disabled={!files.length || upload.isPending}
-              className="focus-ring mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
+              className="focus-ring mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50"
             >
               <Upload size={17} aria-hidden="true" />
               {t("lesson.uploadResources")}
@@ -3862,7 +3907,7 @@ function LessonEditor({
                   !resourceLink.externalUrl.trim() ||
                   addResourceLink.isPending
                 }
-                className="focus-ring rounded-xl border border-primary/45 px-4 py-2.5 text-sm font-black text-primary disabled:opacity-50"
+                className="focus-ring rounded-xl border border-primary/45 px-4 py-2.5 text-sm font-semibold text-text-link disabled:opacity-50"
               >
                 {t("lesson.addLink")}
               </button>
@@ -3998,7 +4043,10 @@ function CourseAssignmentsEditor({
   );
 
   return (
-    <section className="card grid gap-5 p-5">
+    <section
+      className={authoringStyles.panel}
+      data-authoring-region="CourseAssignmentsEditor"
+    >
       <TeacherLearningAimPractice
         courseId={course.id}
         modules={course.modules}
@@ -4008,8 +4056,8 @@ function CourseAssignmentsEditor({
         modules={course.modules}
       />
       <div>
-        <h2 className="flex items-center gap-2 text-xl font-black">
-          <FileText size={20} className="text-primary" aria-hidden="true" />
+        <h2 className="flex items-center gap-2 text-xl font-semibold">
+          <FileText size={20} className="text-text-link" aria-hidden="true" />
           {t("assignments.title")}
         </h2>
         <p className="mt-1 text-sm leading-6 text-muted">
@@ -4048,7 +4096,7 @@ function CourseAssignmentsEditor({
             create.mutate();
           }}
         >
-          <h3 className="font-black">{t("assignments.new")}</h3>
+          <h3 className="font-semibold">{t("assignments.new")}</h3>
           <div className="grid gap-3 md:grid-cols-3">
             <select
               value={form.moduleId}
@@ -4264,7 +4312,7 @@ function CourseAssignmentsEditor({
           />
           <button
             disabled={create.isPending || !form.allowedFileExtensions.length}
-            className="focus-ring inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
+            className="focus-ring inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50"
           >
             <Plus size={17} aria-hidden="true" />
             {t("assignments.create")}
@@ -4277,7 +4325,7 @@ function CourseAssignmentsEditor({
       ) : null}
 
       <div className="border-t border-border pt-5">
-        <h3 className="font-black">{t("assignments.submissions")}</h3>
+        <h3 className="font-semibold">{t("assignments.submissions")}</h3>
         {submissions.data?.length ? (
           <div className="mt-3 grid gap-3">
             {submissions.data.map((submission) => {
@@ -4357,13 +4405,16 @@ function TeacherCourseGradebook({ course }: { course: CourseEditorData }) {
     return Object.hasOwn(labels, grade) ? labels[grade] : grade;
   };
   return (
-    <section className="card grid gap-4 p-5">
+    <section
+      className={authoringStyles.panel}
+      data-authoring-region="TeacherCourseGradebook"
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-secondary">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
             BETCCO BTEC
           </p>
-          <h2 className="mt-1 flex items-center gap-2 text-xl font-black">
+          <h2 className="mt-1 flex items-center gap-2 text-xl font-semibold">
             <BookOpenCheck
               size={20}
               className="text-secondary"
@@ -4375,7 +4426,7 @@ function TeacherCourseGradebook({ course }: { course: CourseEditorData }) {
             {t("gradebook.description")}
           </p>
         </div>
-        <span className="rounded-full border border-secondary/35 bg-secondary/10 px-3 py-1.5 text-sm font-black text-secondary">
+        <span className="rounded-full border border-secondary/35 bg-secondary/10 px-3 py-1.5 text-sm font-semibold text-secondary">
           {gradebook.data?.totalStudents ?? "—"} {t("gradebook.students")}
         </span>
       </div>
@@ -4395,16 +4446,16 @@ function TeacherCourseGradebook({ course }: { course: CourseEditorData }) {
           <table className="min-w-full text-sm">
             <thead className="bg-page/60 text-start text-xs text-muted">
               <tr>
-                <th className="px-3 py-3 font-black">
+                <th className="px-3 py-3 font-semibold">
                   {t("gradebook.student")}
                 </th>
-                <th className="px-3 py-3 font-black">
+                <th className="px-3 py-3 font-semibold">
                   {t("gradebook.lessons")}
                 </th>
-                <th className="px-3 py-3 font-black">
+                <th className="px-3 py-3 font-semibold">
                   {t("gradebook.coursework")}
                 </th>
-                <th className="px-3 py-3 font-black">
+                <th className="px-3 py-3 font-semibold">
                   {t("gradebook.predictedGrade")}
                 </th>
               </tr>
@@ -4425,7 +4476,7 @@ function TeacherCourseGradebook({ course }: { course: CourseEditorData }) {
                   <td className="px-3 py-3 text-muted">
                     {student.assignmentsCompleted}/{student.assignmentsTotal}
                   </td>
-                  <td className="px-3 py-3 font-black text-secondary">
+                  <td className="px-3 py-3 font-semibold text-secondary">
                     {gradeLabel(student.predictedGrade.predictedGrade)}
                   </td>
                 </tr>
@@ -4514,12 +4565,15 @@ export function CourseworkDeadlineExtensionPanel({
     onSuccess: () => client.invalidateQueries({ queryKey: historyKey }),
   });
   return (
-    <section className="mt-4 rounded-xl border border-border p-3">
+    <section
+      className={authoringStyles.subsection}
+      data-authoring-region="CourseworkDeadlineExtensionPanel"
+    >
       <button
         type="button"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className="focus-ring text-sm font-bold text-primary"
+        className="focus-ring text-sm font-bold text-text-link"
       >
         {t("deadlineExtensions.title")}
       </button>
@@ -4657,7 +4711,7 @@ export function CourseworkDeadlineExtensionPanel({
             </form>
           ) : null}
           {grant.isSuccess || revoke.isSuccess ? (
-            <p role="status" className="text-sm text-primary">
+            <p role="status" className="text-sm text-text-link">
               {t("deadlineExtensions.saved")}
             </p>
           ) : null}
@@ -4827,17 +4881,20 @@ function CourseAssignmentCard({
     ),
   );
   return (
-    <article className="rounded-2xl border border-border bg-surface-solid/45 p-4">
+    <article
+      className={authoringStyles.assignment}
+      data-authoring-region="CourseAssignmentCard"
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-black">
+            <h3 className="font-semibold">
               {locale === "ar"
                 ? assignment.arabicTitle
                 : assignment.englishTitle}
             </h3>
             <span
-              className={`rounded-full px-2.5 py-1 text-xs font-bold ${assignment.isPublished ? "bg-primary/15 text-primary" : "bg-black/10 text-muted"}`}
+              className={`rounded-full px-2.5 py-1 text-xs font-bold ${assignment.isPublished ? "bg-primary/15 text-text-link" : "bg-black/10 text-muted"}`}
             >
               {assignment.isPublished
                 ? t("courseEditor.status.published")
@@ -4864,7 +4921,7 @@ function CourseAssignmentCard({
               <button
                 type="button"
                 onClick={() => setEditing((value) => !value)}
-                className="focus-ring rounded-lg border border-border px-3 py-2 text-xs font-bold text-muted hover:border-primary/50 hover:text-primary"
+                className="focus-ring rounded-lg border border-border px-3 py-2 text-xs font-bold text-muted hover:border-primary/50 hover:text-text-link"
               >
                 {editing
                   ? t("assignmentCard.closeEditor")
@@ -4875,7 +4932,7 @@ function CourseAssignmentCard({
               type="button"
               onClick={() => publish.mutate()}
               disabled={publish.isPending}
-              className="focus-ring rounded-lg border border-primary/40 px-3 py-2 text-xs font-bold text-primary"
+              className="focus-ring rounded-lg border border-primary/40 px-3 py-2 text-xs font-bold text-text-link"
             >
               {assignment.isPublished
                 ? t("assignmentCard.unpublish")
@@ -4940,7 +4997,7 @@ function CourseAssignmentCard({
             {assignment.resources.map((resource) => (
               <span
                 key={resource.id}
-                className="inline-flex items-center gap-2 rounded-lg border border-primary/35 px-2.5 py-2 text-xs font-bold text-primary"
+                className="inline-flex items-center gap-2 rounded-lg border border-primary/35 px-2.5 py-2 text-xs font-bold text-text-link"
               >
                 <a
                   href={`/api/v1/assignments/${assignment.id}/resources/${resource.id}`}
@@ -4983,7 +5040,7 @@ function CourseAssignmentCard({
               type="button"
               onClick={() => uploadResources.mutate()}
               disabled={!resourceFiles.length || uploadResources.isPending}
-              className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 text-xs font-bold text-primary disabled:opacity-50"
+              className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 text-xs font-bold text-text-link disabled:opacity-50"
             >
               {t("assignmentCard.uploadResources")}
             </button>
@@ -5006,7 +5063,7 @@ function CourseAssignmentCard({
             update.mutate();
           }}
         >
-          <h4 className="font-black">{t("assignmentCard.editDetails")}</h4>
+          <h4 className="font-semibold">{t("assignmentCard.editDetails")}</h4>
           <div className="grid gap-3 md:grid-cols-2">
             <input
               required
@@ -5158,7 +5215,7 @@ function CourseAssignmentCard({
           <div className="flex flex-wrap gap-2">
             <button
               disabled={update.isPending || !draft.allowedFileExtensions.length}
-              className="focus-ring rounded-lg bg-primary px-4 py-2 text-sm font-black text-slate-950 disabled:opacity-50"
+              className="focus-ring rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50"
             >
               {t("assignmentCard.save")}
             </button>
@@ -5211,7 +5268,7 @@ function CourseAssignmentCard({
                 className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-2.5 text-sm"
               >
                 <span>
-                  <strong className="text-primary">{criterion.code}</strong> ·{" "}
+                  <strong className="text-text-link">{criterion.code}</strong> ·{" "}
                   {locale === "ar"
                     ? criterion.arabicDescription
                     : criterion.englishDescription}
@@ -5267,7 +5324,7 @@ function CourseAssignmentCard({
                   onClick={() =>
                     createCriterion.mutate({ btecCriterionId: criterionId })
                   }
-                  className="focus-ring rounded-lg border border-primary/40 px-3 py-2 text-sm font-bold text-primary disabled:opacity-50"
+                  className="focus-ring rounded-lg border border-primary/40 px-3 py-2 text-sm font-bold text-text-link disabled:opacity-50"
                 >
                   {t("assignmentCard.attachCriterion")}
                 </button>
@@ -5333,7 +5390,7 @@ function CourseAssignmentCard({
                 createCriterion.isPending
               }
               onClick={() => createCriterion.mutate(custom)}
-              className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 text-sm font-bold text-primary disabled:opacity-50"
+              className="focus-ring w-fit rounded-lg border border-primary/40 px-3 py-2 text-sm font-bold text-text-link disabled:opacity-50"
             >
               {t("assignmentCard.addCustomCriterion")}
             </button>
@@ -5409,10 +5466,13 @@ function AssignmentSubmissionCard({
   });
   const canReview = submission.status === "Submitted" && !disabled;
   return (
-    <article className="rounded-xl border border-border bg-surface-solid/40 p-4">
+    <article
+      className={authoringStyles.submission}
+      data-authoring-region="AssignmentSubmissionCard"
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="font-black">
+          <p className="font-semibold">
             {locale === "ar" ? assignment.arabicTitle : assignment.englishTitle}
           </p>
           <p className="mt-1 text-sm text-muted">
@@ -5421,7 +5481,7 @@ function AssignmentSubmissionCard({
           </p>
         </div>
         {submission.calculatedGrade ? (
-          <span className="rounded-full bg-primary/15 px-3 py-1 text-sm font-black text-primary">
+          <span className="rounded-full bg-primary/15 px-3 py-1 text-sm font-semibold text-text-link">
             {submission.calculatedGrade}
           </span>
         ) : null}
@@ -5432,7 +5492,7 @@ function AssignmentSubmissionCard({
             <a
               key={file.id}
               href={`/api/v1/assignments/submissions/${submission.id}/files/${file.id}`}
-              className="focus-ring inline-flex items-center gap-1 rounded-lg border border-primary/35 px-2.5 py-2 text-xs font-bold text-primary"
+              className="focus-ring inline-flex items-center gap-1 rounded-lg border border-primary/35 px-2.5 py-2 text-xs font-bold text-text-link"
             >
               <FileText size={14} aria-hidden="true" /> {file.originalFileName}
             </a>
@@ -5444,7 +5504,7 @@ function AssignmentSubmissionCard({
           {submission.feedback.map((item) => (
             <p
               key={`${item.createdAtUtc}-${item.body}`}
-              className={`rounded-lg p-2.5 ${item.isPrivate ? "border border-amber-400/35 bg-amber-400/10 text-amber-200" : "bg-page/50 text-muted"}`}
+              className={`rounded-lg p-2.5 ${item.isPrivate ? "border border-amber-400/35 bg-amber-400/10 text-state-warning-foreground" : "bg-page/50 text-muted"}`}
             >
               {item.isPrivate ? t("submissionReview.privatePrefix") : ""}
               {item.requestsResubmission ? "↻ " : ""}
@@ -5463,7 +5523,7 @@ function AssignmentSubmissionCard({
             >
               <div className="grid gap-2 md:grid-cols-[1fr_12rem] md:items-center">
                 <span>
-                  <strong className="text-primary">{criterion.code}</strong> —{" "}
+                  <strong className="text-text-link">{criterion.code}</strong> —{" "}
                   {locale === "ar"
                     ? criterion.arabicDescription
                     : criterion.englishDescription}
@@ -5526,7 +5586,7 @@ function AssignmentSubmissionCard({
               type="button"
               onClick={() => grade.mutate()}
               disabled={grade.isPending}
-              className="focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
+              className="focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-50"
             >
               {t("submissionReview.save")}
             </button>
@@ -5534,7 +5594,7 @@ function AssignmentSubmissionCard({
               type="button"
               onClick={() => revision.mutate()}
               disabled={!feedback.trim() || revision.isPending}
-              className="focus-ring rounded-xl border border-primary/40 px-4 py-2.5 text-sm font-bold text-primary disabled:opacity-50"
+              className="focus-ring rounded-xl border border-primary/40 px-4 py-2.5 text-sm font-bold text-text-link disabled:opacity-50"
             >
               {t("submissionReview.revision")}
             </button>
@@ -5572,9 +5632,12 @@ function ReviewSubmission({
       client.invalidateQueries({ queryKey: ["teacher-course", course.id] }),
   });
   return (
-    <section className="card p-5">
-      <h2 className="flex items-center gap-2 text-lg font-black">
-        <CheckCircle2 size={19} className="text-primary" aria-hidden="true" />
+    <section
+      className={authoringStyles.panel}
+      data-authoring-region="ReviewSubmission"
+    >
+      <h2 className="flex items-center gap-2 text-lg font-semibold">
+        <CheckCircle2 size={19} className="text-text-link" aria-hidden="true" />
         {t("reviewSubmission.title")}
       </h2>
       <p className="mt-2 text-sm leading-6 text-muted">
@@ -5584,13 +5647,13 @@ function ReviewSubmission({
         type="button"
         disabled={disabled || submit.isPending}
         onClick={() => submit.mutate()}
-        className="focus-ring mt-4 w-full rounded-xl bg-primary px-4 py-3 text-sm font-black text-slate-950 disabled:opacity-50"
+        className="focus-ring mt-4 w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-slate-950 disabled:opacity-50"
       >
         {t("reviewSubmission.submit")}
       </button>
       {submit.data ? (
         <div
-          className={`mt-3 rounded-xl p-3 text-sm ${submit.data.passed ? "bg-primary/10 text-primary" : "bg-red-500/10 text-red-300"}`}
+          className={`mt-3 rounded-xl p-3 text-sm ${submit.data.passed ? "bg-primary/10 text-text-link" : "bg-red-500/10 text-red-300"}`}
         >
           {submit.data.passed ? (
             t("reviewSubmission.success")

@@ -1,0 +1,200 @@
+.canvas,
+.practice {
+  min-width: 0;
+  color: var(--ui-text-primary);
+  overflow-wrap: anywhere;
+}
+.canvas h1 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  line-height: 1.5;
+}
+.canvas h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.7;
+}
+.canvas h3,
+.canvas h4,
+.practice h3,
+.practice h4 {
+  font-weight: 600;
+  line-height: 1.7;
+}
+:is(.canvas, .practice) :is(:global(.font-black), :global(.font-extrabold)) {
+  font-weight: 600;
+}
+:is(.canvas, .practice) :is(:global(.text-red-300), :global(.text-red-400)) {
+  color: var(--ui-state-danger-foreground);
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  margin-block-start: 1.25rem;
+}
+.panel {
+  display: grid;
+  min-width: 0;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--ui-border-default);
+  border-radius: 12px;
+  background: var(--ui-surface-content);
+}
+.unit {
+  min-width: 0;
+  margin-block-start: 1.25rem;
+  padding-block-start: 1.25rem;
+  border-block-start: 2px solid var(--ui-border-default);
+}
+.structure,
+.subsection {
+  display: grid;
+  min-width: 0;
+  gap: 0.75rem;
+  margin-block-start: 1rem;
+  padding-block-start: 0.75rem;
+  border-block-start: 1px solid var(--ui-border-subtle);
+}
+.aim {
+  min-width: 0;
+  margin-block-start: 1rem;
+  padding-inline-start: 0.75rem;
+  padding-block: 0.5rem;
+  border-inline-start: 3px solid var(--ui-text-link);
+}
+.topic {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding-block: 0.75rem;
+  border-block-end: 1px solid var(--ui-border-subtle);
+  font-size: 0.875rem;
+}
+.criterion {
+  min-width: 0;
+  padding-block: 0.75rem;
+  border-block-end: 1px solid var(--ui-border-subtle);
+}
+.lesson {
+  min-width: 0;
+  margin-block-start: 1rem;
+  padding: 1rem;
+  border-inline-start: 2px solid var(--ui-border-default);
+  background: var(--ui-surface-muted);
+}
+.assignment {
+  min-width: 0;
+  padding-block: 1rem;
+  border-block-start: 2px solid var(--ui-border-default);
+}
+.submission {
+  display: grid;
+  min-width: 0;
+  gap: 0.75rem;
+  padding-block: 1rem;
+  padding-inline-start: 0.75rem;
+  border-inline-start: 3px solid var(--ui-border-default);
+  border-block-end: 1px solid var(--ui-border-subtle);
+}
+.practice {
+  display: grid;
+  gap: 1rem;
+  margin-block-start: 1rem;
+  padding-block-start: 1rem;
+  border-block-start: 1px solid var(--ui-border-default);
+}
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+}
+.navigation {
+  position: sticky;
+  top: 5rem;
+  z-index: 30;
+  min-width: 0;
+  margin-block-start: 1.5rem;
+  padding: 0.5rem;
+  border-block: 1px solid var(--ui-border-default);
+  background: var(--ui-surface-content);
+}
+.currentSection {
+  margin-block-start: 0.5rem;
+  padding-inline: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ui-text-link);
+}
+.anchor {
+  min-width: 0;
+  scroll-margin-block-start: 13rem;
+}
+:is(.canvas, .practice)
+  :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    select,
+    textarea
+  ) {
+  min-width: 0;
+  max-width: 100%;
+  min-height: 2.75rem;
+  border-color: var(--ui-border-control);
+  border-radius: 8px;
+  background: var(--ui-surface-content);
+  color: var(--ui-text-primary);
+}
+:is(.canvas, .practice) textarea {
+  min-height: 5.5rem;
+}
+:is(.canvas, .practice) :is(button, a) {
+  min-height: 2.75rem;
+}
+:is(.canvas, .practice) button {
+  min-width: 2.75rem;
+}
+:is(.canvas, .practice) label:has(input[type="checkbox"]) {
+  min-height: 2.75rem;
+  align-items: center;
+}
+:is(.canvas, .practice)
+  :is(a, button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 3px;
+}
+:is(.canvas, .practice) button:global(.bg-primary) {
+  border-radius: 8px;
+  background: var(--ui-action-primary-surface);
+  color: var(--ui-action-primary-foreground);
+}
+:is(.canvas, .practice) button:global(.bg-primary):not(:disabled):hover {
+  background: var(--ui-action-primary-surface-hover);
+}
+:is(.canvas, .practice) button:global(.bg-primary):not(:disabled):active {
+  background: var(--ui-action-primary-surface-pressed);
+}
+@media (min-width: 1280px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+  }
+}
+@media (min-width: 1024px) {
+  .currentSection {
+    display: none;
+  }
+}
+@media (max-width: 767px) {
+  .panel,
+  .lesson {
+    padding: 0.875rem;
+  }
+  .aim,
+  .submission {
+    padding-inline-start: 0.5rem;
+  }
+}

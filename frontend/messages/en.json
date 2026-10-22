@@ -3731,5 +3731,9 @@
     "noMatches": "No loaded assigned requests match these local filters.",
     "followUpScope": "Search, attention, reason and sorting are sent to the server. Results are paged in groups of 10; the supplied priority remains server-owned.",
     "courseScope": "Search, status and sorting apply locally to the loaded course list."
+  },
+  "teacherAuthoringPresentation": {
+    "currentSection": "Current section: {section}",
+    "loadError": "Course workspace data could not be loaded."
   }
 }
