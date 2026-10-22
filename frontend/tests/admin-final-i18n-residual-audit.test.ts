@@ -9,6 +9,7 @@ import { withoutSharedShellAdditions } from "./helpers/shared-shell-catalogue-pr
 import { projectAdminStateSource } from "./helpers/admin-state-projection";
 import { projectAssessmentOperationsSource } from "./helpers/assessment-operations-projection";
 import { projectAuditLogSource } from "./helpers/audit-log-projection";
+import { projectAccountIdentitySource } from "./helpers/account-identity-projection";
 import {
   auditFile,
   catalogue,
@@ -26,7 +27,7 @@ const project = (path: string, source: string) =>
   path.replaceAll("\\", "/").endsWith("/admin-area.tsx")
     ? projectAdminStateSource(source)
     : projectAssessmentOperationsSource(
-        projectAuditLogSource(source, path),
+        projectAuditLogSource(projectAccountIdentitySource(source, path), path),
         path,
       );
 const reports = wholeAudit(exceptions, project);

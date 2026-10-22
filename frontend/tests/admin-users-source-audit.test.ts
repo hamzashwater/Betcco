@@ -12,10 +12,11 @@ import messages from "../messages/en.json";
 import arabicMessages from "../messages/ar.json";
 import copyBaseline from "./fixtures/admin-users-copy-baseline.json";
 import { withoutAdminStateAdditions } from "./helpers/admin-state-projection";
+import { projectAccountIdentitySource } from "./helpers/account-identity-projection";
 const files = Object.entries(scopes).map(([path, names]) => ({
   path,
   names,
-  source: readFileSync(path, "utf8"),
+  source: projectAccountIdentitySource(readFileSync(path, "utf8"), path),
 }));
 function leaves(v: unknown, prefix = ""): string[] {
   return v && typeof v === "object"
