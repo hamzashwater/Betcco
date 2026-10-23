@@ -5,6 +5,11 @@ import { describe, expect, it } from "vitest";
 import baseline from "./fixtures/ui-d01-15-account-identity-baseline.json";
 import { accountIdentityContracts } from "./helpers/account-identity-contracts";
 import { projectAccountIdentitySource } from "./helpers/account-identity-projection";
+import {
+  projectQualificationRegistryCopy,
+  projectQualificationRegistrySource,
+  projectQualificationRegistryGuard,
+} from "./helpers/qualification-registry-projection";
 
 const path = "src/features/admin/account-identity-management.tsx";
 const read = (p: string) => readFileSync(p, "utf8").replace(/\r\n/g, "\n");
@@ -85,7 +90,18 @@ describe("Account Identity independently frozen presentation boundary", () => {
   it.each(Object.entries(baseline.protected))(
     "preserves frozen owner %s",
     (p, expected) => {
-      expect(hash(read(p)), p).toBe(expected);
+      expect(
+        hash(
+          projectQualificationRegistryGuard(
+            projectQualificationRegistrySource(
+              projectQualificationRegistryCopy(read(p), p),
+              p,
+            ),
+            p,
+          ),
+        ),
+        p,
+      ).toBe(expected);
     },
   );
   it("keeps native mounted disclosure, live copy and DC03/roles local", () => {

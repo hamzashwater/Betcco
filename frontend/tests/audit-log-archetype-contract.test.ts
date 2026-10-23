@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import baseline from "./fixtures/ui-d01-15-audit-log-baseline.json";
 import { auditLogContracts } from "./helpers/audit-log-contracts";
 import { projectAuditLogSource } from "./helpers/audit-log-projection";
+import { projectQualificationRegistryCopy } from "./helpers/qualification-registry-projection";
 
 const read = (path: string) =>
   readFileSync(path, "utf8").replace(/\r\n/g, "\n");
@@ -66,7 +67,10 @@ describe("UI-D01-15 / Slice 1 independent Audit Log presentation boundary", () =
   it.each(Object.entries(baseline.protected))(
     "preserves frozen producer/shared/catalogue/dependency owner %s",
     (file, expected) => {
-      expect(hash(read(file)), file).toBe(expected);
+      expect(
+        hash(projectQualificationRegistryCopy(read(file), file)),
+        file,
+      ).toBe(expected);
     },
   );
   it("keeps DC03 weights and known semantic roles local, with neutral raw fallback", () => {

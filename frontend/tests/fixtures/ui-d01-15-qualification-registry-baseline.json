@@ -1,0 +1,238 @@
+{
+  "base": "e94a2b216c18f293869573768dcdf83fda42dd67",
+  "path": "src/features/admin/qualification-registry-management.tsx",
+  "originalHash": "80b3ad41dd106f8ad139e8d528a2cdc678de1f8aef096cfa42514accf1e29366",
+  "invariants": {
+    "setup": [
+      "const locale = useLocale();",
+      "const t = useTranslations(\"adminWorkspace\");",
+      "const ar = locale === \"ar\";",
+      "const client = useQueryClient();",
+      "const [qualificationForm, setQualificationForm] = useState({ code: \"\", arabicName: \"\", englishName: \"\", });",
+      "const [versionForm, setVersionForm] = useState({ qualificationId: \"\", versionCode: \"\", sourceReference: \"\", effectiveFromUtc: \"\", effectiveUntilUtc: \"\", });",
+      "const [rubricVersions, setRubricVersions] = useState<Record<string, string>>( {}, );",
+      "const qualifications = useQuery({ queryKey: [\"qualification-registry\"], queryFn: () => api<Qualification[]>(\"/qualification-registry\"), retry: false, });",
+      "const rubrics = useQuery({ queryKey: [\"qualification-registry\", \"rubrics\"], queryFn: () => api<Rubric[]>(\"/qualification-registry/rubrics\"), retry: false, });",
+      "const versions = useMemo( () => (qualifications.data ?? []).flatMap((qualification) => qualification.versions.map((version) => ({ ...version, qualificationCode: qualification.code, })), ), [qualifications.data], );",
+      "const createQualification = useMutation({ mutationFn: () => api<Qualification>(\"/qualification-registry/qualifications\", { method: \"POST\", body: JSON.stringify(qualificationForm), }), onSuccess: () => { setQualificationForm({ code: \"\", arabicName: \"\", englishName: \"\" }); void client.invalidateQueries({ queryKey: [\"qualification-registry\"] }); }, });",
+      "const createVersion = useMutation({ mutationFn: () => api<QualificationVersion>(\"/qualification-registry/versions\", { method: \"POST\", body: JSON.stringify({ qualificationId: versionForm.qualificationId, versionCode: versionForm.versionCode, sourceReference: versionForm.sourceReference, effectiveFromUtc: new Date( `${versionForm.effectiveFromUtc}T00:00:00.000Z`, ).toISOString(), effectiveUntilUtc: versionForm.effectiveUntilUtc ? new Date( `${versionForm.effectiveUntilUtc}T00:00:00.000Z`, ).toISOString() : null, }), }), onSuccess: () => { setVersionForm({ qualificationId: \"\", versionCode: \"\", sourceReference: \"\", effectiveFromUtc: \"\", effectiveUntilUtc: \"\", }); void client.invalidateQueries({ queryKey: [\"qualification-registry\"] }); }, });",
+      "const assign = useMutation({ mutationFn: ({ rubricTemplateId, qualificationVersionId, }: { rubricTemplateId: string; qualificationVersionId: string; }) => api<void>( `/qualification-registry/rubrics/${rubricTemplateId}/qualification-version/${qualificationVersionId}`, { method: \"POST\" }, ), onSuccess: () => { setRubricVersions({}); void client.invalidateQueries({ queryKey: [\"qualification-registry\", \"rubrics\"], }); }, });",
+      "const canCreateQualification = qualificationForm.code.trim().length >= 2 && qualificationForm.arabicName.trim().length >= 2 && qualificationForm.englishName.trim().length >= 2;",
+      "const canCreateVersion = Boolean(versionForm.qualificationId) && versionForm.versionCode.trim().length >= 2 && versionForm.sourceReference.trim().length >= 10 && Boolean(versionForm.effectiveFromUtc);",
+      "const date = (value: string) => formatLocalizedDate(value, locale, { dateStyle: \"medium\", timeZone: \"UTC\", });",
+      "const error = createQualification.error ?? createVersion.error ?? assign.error ?? null;"
+    ],
+    "types": [
+      "type QualificationVersion = { id: string; versionCode: string; sourceReference: string; effectiveFromUtc: string; effectiveUntilUtc: string | null; isActive: boolean; };",
+      "type Qualification = { id: string; code: string; arabicName: string; englishName: string; isActive: boolean; versions: QualificationVersion[]; };",
+      "type Rubric = { rubricTemplateId: string; arabicTitle: string; englishTitle: string; qualificationVersionId: string | null; qualificationCode: string | null; qualificationVersionCode: string | null; };"
+    ],
+    "props": [
+      "onSubmit={(event) => { event.preventDefault(); if (canCreateQualification) createQualification.mutate(); }}",
+      "value={qualificationForm.code}",
+      "onChange={(value) => setQualificationForm((current) => ({ ...current, code: value })) }",
+      "value={qualificationForm.arabicName}",
+      "onChange={(value) => setQualificationForm((current) => ({ ...current, arabicName: value, })) }",
+      "value={qualificationForm.englishName}",
+      "onChange={(value) => setQualificationForm((current) => ({ ...current, englishName: value, })) }",
+      "pending={createQualification.isPending}",
+      "disabled={!canCreateQualification}",
+      "onSubmit={(event) => { event.preventDefault(); if (canCreateVersion) createVersion.mutate(); }}",
+      "value={versionForm.qualificationId}",
+      "onChange={(event) => setVersionForm((current) => ({ ...current, qualificationId: event.target.value, })) }",
+      "required",
+      "value=\"\"",
+      "key={qualification.id}",
+      "value={qualification.id}",
+      "value={versionForm.versionCode}",
+      "onChange={(value) => setVersionForm((current) => ({ ...current, versionCode: value })) }",
+      "value={versionForm.sourceReference}",
+      "onChange={(value) => setVersionForm((current) => ({ ...current, sourceReference: value, })) }",
+      "value={versionForm.effectiveFromUtc}",
+      "onChange={(value) => setVersionForm((current) => ({ ...current, effectiveFromUtc: value, })) }",
+      "required",
+      "value={versionForm.effectiveUntilUtc}",
+      "onChange={(value) => setVersionForm((current) => ({ ...current, effectiveUntilUtc: value, })) }",
+      "pending={createVersion.isPending}",
+      "disabled={!canCreateVersion}",
+      "key={qualification.id}",
+      "key={version.id}",
+      "key={rubric.rubricTemplateId}",
+      "value={selected}",
+      "onChange={(event) => setRubricVersions((current) => ({ ...current, [rubric.rubricTemplateId]: event.target.value, })) }",
+      "value=\"\"",
+      "key={version.id}",
+      "value={version.id}",
+      "type=\"button\"",
+      "disabled={ !selected || assign.isPending || selected === rubric.qualificationVersionId }",
+      "onClick={() => assign.mutate({ rubricTemplateId: rubric.rubricTemplateId, qualificationVersionId: selected, }) }",
+      "value={value}",
+      "onChange={(event) => onChange(event.target.value)}",
+      "required",
+      "type=\"date\"",
+      "value={value}",
+      "onChange={(event) => onChange(event.target.value)}",
+      "required={required}",
+      "type=\"submit\"",
+      "disabled={pending || disabled}"
+    ],
+    "identities": [
+      "qualification.versions.map:(version)",
+      "qualifications.data?.map:(qualification)",
+      "ar ? qualification.arabicName : qualification.englishName",
+      "qualifications.data?.map:(qualification)",
+      "ar ? qualification.arabicName : qualification.englishName",
+      "qualification.versions.map:(version)",
+      "rubrics.data?.map:(rubric)",
+      "selected = rubricVersions[rubric.rubricTemplateId] ?? rubric.qualificationVersionId ?? \"\"",
+      "ar ? rubric.arabicTitle : rubric.englishTitle",
+      "rubric.qualificationCode && rubric.qualificationVersionCode ? `${rubric.qualificationCode} · ${rubric.qualificationVersionCode}` : t(\"qualificationRegistry.unbound\")",
+      "versions.map:(version)"
+    ]
+  },
+  "protected": {
+    "src/features/admin/admin-home.module.css": "ac79c0de856bbe49cf75c1d1efe84c2c022c28ec7dd18c82cb4806a8d1926882",
+    "src/components/site-navigation.tsx": "0de34aad9672812cec0fa8e77c6ea0e53a16ac3615f2cbec65501d12579bce2a",
+    "src/components/dashboard/dashboard-ui.tsx": "e5f68fc7bfc3a9c48727d8ab9ce039533732c73342a02059c0d0351c1dac65c6",
+    "src/features/admin/gradebook.tsx": "f70921c116ffa0880ce27803bc1911410c28ec56f008016b930846a4ed0e84e9",
+    "src/features/admin/retake-management.tsx": "0bb81eb909d3f8d58ed81440cc33e1bc74f7e826f6f1de705a7a8a2d96456c84",
+    "src/features/teacher/course-editor.tsx": "261f7f37db8e13bfdf177eacb08bec39e8dbf27d8467c33f11a0ca591a96037b",
+    "src/features/teacher/teacher-area.tsx": "e78441b27e96d46b8f1c429b5c33352b96313e3633f62ed1f3f56122c6a5bd43",
+    "src/features/student/student-area.tsx": "a0542eb7ebdd5608f23d4953f444f973ee06a8ce357894bbdf331e02496779e0",
+    "package.json": "38b49d24cd42cc223cb609364d2a30302095671503e1f351f91523a0e92a5609",
+    "pnpm-lock.yaml": "ad0f5192f977ad72ed3a364d7f6d6a3d6d04521dbfefff790a68af0b0f63e9c2",
+    "../backend/src/Betcco.Api/Controllers/AssessmentCoordinationController.cs": "50783ce247f38cf7cd6bc371d4fa27beb4e8284b0b4104b56aa8971c2a66476e",
+    "../backend/src/Betcco.Api/Controllers/EvaluationsController.cs": "8b02ff0e97921c74d4eba8c2eec93a9537044cf7ea91eb823787d016f095efd0",
+    "../backend/src/Betcco.Api/Controllers/InternalVerificationPlansController.cs": "f4d5dfbb3bb6e5072b033c9a284bbb8c7905933ee8c84904800e7d677f153ea9",
+    "../backend/src/Betcco.Api/Controllers/EvaluationAppealsController.cs": "2daa017c136ffc388e55c7a87568124acb97e5d64bdb490ea46ee8737f6e53ae",
+    "../backend/src/Betcco.Api/Controllers/AdminEvaluatorSpecialismsController.cs": "46bd5e58881cbbfbf48ef1b5dbe6e0b5008f8dcfd2b47969f55eb075bc69af68",
+    "../backend/src/Betcco.Api/Controllers/ResitsController.cs": "46c87feb421b4441e43c9f66ad0764a01faa5e563d237e984835cbc65998cfda",
+    "../backend/src/Betcco.Api/Controllers/AdminDashboardController.cs": "67355ff1ad7cf4b335108dca152e9e947e2d3c2c6be63fda785132766b3d0e03",
+    "src/features/admin/admin-area.tsx": "1d4139c8255ce9d0e1204883524dec0fb006e99b904693a44d9d8dc9331b6f4a",
+    "src/features/admin/assessment-coordination-queue.tsx": "9764c079db4c4150050bbb24e0ce6037bc3d593f9d134eb028dabee251fe06ed",
+    "src/features/admin/eligible-evaluator-assignment.tsx": "a060b8758fa1291086260f6338a7397df4a2dbe2c0398e7df144d2f6ba335203",
+    "src/features/admin/resit-coordination-panel.tsx": "71cb411ac6b581fb6a2886431c73f9d9f48ac5e64299332ffce01175a2c2e293",
+    "src/features/admin/internal-verification-plan-management.tsx": "4f9f51ea019fef3bb717fb4a2eba0921884aa5ab18d6b721c803e202915978e5",
+    "src/features/admin/evaluation-appeal-management.tsx": "7e87f493c0cdb1dc48eb54492ab75d769481d3ca2570e5dcf98807c2518005b9",
+    "src/features/admin/evaluator-specialism-management.tsx": "d9e6adb1e966c818f1f4419a004c2467259f25f4e2f038620a606e7a0a09d78e",
+    "src/features/admin/assessment-operations.module.css": "b9a65963ffdb73816871efecc449b2a15e09c03bf42b79e29b4e8f882ffef9e9",
+    "src/features/admin/assessment-operations-state.ts": "e34f8576c4ec297443d69e13d0977f33976cb06f4e9e5d41171354c34b15dee3",
+    "src/features/admin/academic-catalogue.tsx": "18548cd5a6568b46916ebebbcef29401427054fb95b1e983690f33206b4b6334",
+    "src/features/admin/academic-catalog-management.tsx": "7b798f2c3a9d6ca819b13af7a97d436f0124cf33b8a1d5862c763641dff603d4",
+    "src/features/admin/delivery-planning.tsx": "0460f2f7e2fc7d0dd7b395c7ec4b0d9d7c4d7af82e3da07daa5448491c191d0c",
+    "src/features/admin/audit-log.tsx": "54fd25156a73ca5f04ad83df46f729673e529cd7b730cabf45d288b5e045a75c",
+    "src/features/admin/privacy-request-management.tsx": "45fdbf0ff5ee245d5eb1391b413455c4b72026d351bbe4e9812a4a55a0c90a4d",
+    "src/features/admin/security-incident-management.tsx": "79c8597d99c75a70285182840791225dde66c516420ce3353a2414cbff4da31c",
+    "src/features/admin/content-studio.tsx": "b708d05cd53733c8dca5731170323959ac9d3ba5c530b9d3714c1fb8c4aa8721",
+    "src/features/admin/platform-rating-moderation.tsx": "3f9243790c04ee03ba309c6676b4404095b124b471eea5471e9e7c333d8557c1",
+    "src/features/admin/commission-settings.tsx": "0438d0e301a2f8cd775286e5baacc618b0cce5a6c90e308b3dac2c95da5d5f45",
+    "src/features/admin/audit-log.module.css": "959d18fbbe0c4d5482920e04fdb881f77b47cba4b846a61f548cccef4da6ddaf",
+    "../backend/src/Betcco.Api/Controllers/AdminUsersController.cs": "39d697dc29fa5c1ca9f83241a26e633ff61367200cd167887f89421a5c7e611e",
+    "tests/audit-log.test.tsx": "17d7dccfb80d96f28bc605fef56d057cdc3d66cadf38319a08bae3ba0cdb26ce",
+    "tests/audit-log-archetype.test.tsx": "0ceddf59f3d9ab46ffafc2b72c9f11c26a4977696ca42d5a12518eabc7947985",
+    "tests/audit-log-archetype-contract.test.ts": "494346714fa3184776f4024721c22e9ab7bfd5fe5e982db6e75ac5c3b3ddecd4",
+    "tests/e2e/audit-log-archetype.spec.ts": "8339012bf5a4c878bc97bfde28a6269ed42e47c5a54ab6a25d1f7e0f58b063d9",
+    "tests/fixtures/ui-d01-15-audit-log-baseline.json": "9380faca74594c598ba7b06aab22c2e94faeb85587fc84be8d53f51c94902633",
+    "src/features/admin/account-identity-management.tsx": "e3dc679208ccd3729ca48dd4bcf43349e1b510add02a157bb18e9d29443d4969",
+    "src/features/admin/account-identity-management.module.css": "28dde300f13454cda2927a7bf04fa975bf0ea23d39b451b594a335a399f6d876",
+    "../backend/src/Betcco.Api/Controllers/QualificationRegistryController.cs": "9ec874c6a2896f074a9c6e1359db5f7dcad079a81deb63714766682123248b54",
+    "../backend/src/Betcco.Application/Evaluations/QualificationRegistryContracts.cs": "8a6c50cc53e51c0d5a5be205fa55f9ebcf8c09768e1524fad294cbd9a7a09fec",
+    "../backend/src/Betcco.Infrastructure/Services/QualificationRegistryService.cs": "181289da5f52709abc3c995d33d5ea713faa5801ce5b2265a8252341cf47bf34"
+  },
+  "messageHashes": {
+    "en": "7936ffe20059bab5bccdf91e4e98acd30a0ae5c5657b8e17fb2747254bcdc386",
+    "ar": "244dd814e33a5e596aa3d17577245337dd3b81bccb8b37c4aa950eff65238ba7"
+  },
+  "additions": {
+    "en": {
+      "loadingQualifications": "Loading qualifications…",
+      "qualificationError": "The qualification registry request failed.",
+      "loadingRubrics": "Loading rubric bindings…",
+      "rubricsError": "The rubric bindings request failed.",
+      "emptyRubrics": "No assessment rubrics were returned."
+    },
+    "ar": {
+      "loadingQualifications": "جارٍ تحميل المؤهلات…",
+      "qualificationError": "تعذر إتمام طلب سجل المؤهلات.",
+      "loadingRubrics": "جارٍ تحميل ارتباطات الروبرك…",
+      "rubricsError": "تعذر إتمام طلب ارتباطات الروبرك.",
+      "emptyRubrics": "لم تُرجع الاستجابة أي روبرك تقييم."
+    }
+  },
+  "seams": [
+    {
+      "previous": "import { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\nimport { useLocale, useTranslations } from \"next-intl\";\nimport { useMemo, useState } from \"react\";\n\ntype QualificationVersion = {\n  id: string;\n",
+      "approved": "import { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\nimport { useLocale, useTranslations } from \"next-intl\";\nimport { useMemo, useState } from \"react\";\nimport { QueryState, MutationOutcome } from \"@/components/ui/query-state\";\nimport styles from \"./qualification-registry-management.module.css\";\n\ntype QualificationVersion = {\n  id: string;\n"
+    },
+    {
+      "previous": "    createQualification.error ?? createVersion.error ?? assign.error ?? null;\n\n  return (\n    <section className=\"shell py-8 sm:py-10\">\n      <div className=\"max-w-4xl\">\n        <p className=\"text-xs font-black uppercase tracking-[0.18em] text-primary\">\n          BETCCO · {t(\"qualificationRegistry.eyebrow\")}\n        </p>\n        <h1 className=\"mt-3 text-3xl font-black tracking-tight sm:text-4xl\">\n          {t(\"qualificationRegistry.title\")}\n        </h1>\n        <p className=\"mt-3 leading-7 text-muted\">\n          {t(\"qualificationRegistry.description\")}\n        </p>\n      </div>\n\n      <div className=\"mt-6 grid gap-5 xl:grid-cols-2\">\n        <form\n          className=\"card grid gap-4 p-5\"\n          onSubmit={(event) => {\n            event.preventDefault();\n            if (canCreateQualification) createQualification.mutate();\n          }}\n        >\n          <h2 className=\"text-lg font-black\">\n            {t(\"qualificationRegistry.addQualification\")}\n          </h2>\n          <RegistryInput\n",
+      "approved": "    createQualification.error ?? createVersion.error ?? assign.error ?? null;\n\n  return (\n    <section className={`shell py-8 ${styles.workspace}`}>\n      <header className={styles.header}>\n        <p className={styles.eyebrow}>\n          BETCCO · {t(\"qualificationRegistry.eyebrow\")}\n        </p>\n        <h1 className={styles.title}>{t(\"qualificationRegistry.title\")}</h1>\n        <p className={styles.description}>\n          {t(\"qualificationRegistry.description\")}\n        </p>\n      </header>\n\n      <div className={styles.forms}>\n        <form\n          className={styles.qualificationForm}\n          onSubmit={(event) => {\n            event.preventDefault();\n            if (canCreateQualification) createQualification.mutate();\n          }}\n        >\n          <h2 className={styles.sectionTitle}>\n            {t(\"qualificationRegistry.addQualification\")}\n          </h2>\n          <RegistryInput\n"
+    },
+    {
+      "previous": "        </form>\n\n        <form\n          className=\"card grid gap-4 p-5\"\n          onSubmit={(event) => {\n            event.preventDefault();\n            if (canCreateVersion) createVersion.mutate();\n          }}\n        >\n          <h2 className=\"text-lg font-black\">\n            {t(\"qualificationRegistry.addVersion\")}\n          </h2>\n          <label className=\"grid gap-2 text-sm font-black\">\n            {t(\"qualificationRegistry.qualification\")}\n            <select\n              className=\"focus-ring rounded-xl border border-border bg-background px-3 py-3 text-foreground\"\n              value={versionForm.qualificationId}\n              onChange={(event) =>\n                setVersionForm((current) => ({\n",
+      "approved": "        </form>\n\n        <form\n          className={styles.versionForm}\n          onSubmit={(event) => {\n            event.preventDefault();\n            if (canCreateVersion) createVersion.mutate();\n          }}\n        >\n          <h2 className={styles.sectionTitle}>\n            {t(\"qualificationRegistry.addVersion\")}\n          </h2>\n          <label className={styles.field}>\n            {t(\"qualificationRegistry.qualification\")}\n            <select\n              value={versionForm.qualificationId}\n              onChange={(event) =>\n                setVersionForm((current) => ({\n"
+    },
+    {
+      "previous": "            }\n            placeholder={t(\"qualificationRegistry.sourcePlaceholder\")}\n          />\n          <div className=\"grid gap-3 sm:grid-cols-2\">\n            <DateInput\n              label={t(\"qualificationRegistry.effectiveFrom\")}\n              value={versionForm.effectiveFromUtc}\n",
+      "approved": "            }\n            placeholder={t(\"qualificationRegistry.sourcePlaceholder\")}\n          />\n          <div className={styles.dates}>\n            <DateInput\n              label={t(\"qualificationRegistry.effectiveFrom\")}\n              value={versionForm.effectiveFromUtc}\n"
+    },
+    {
+      "previous": "      </div>\n\n      {error ? (\n        <p role=\"alert\" className=\"mt-4 text-sm text-red-500\">\n          {error instanceof Error\n            ? error.message\n            : t(\"qualificationRegistry.saveError\")}\n        </p>\n      ) : null}\n\n      <div className=\"mt-8 grid gap-5 xl:grid-cols-[1fr_1.1fr]\">\n        <div>\n          <h2 className=\"text-xl font-black\">\n            {t(\"qualificationRegistry.registered\")}\n          </h2>\n          <div className=\"mt-4 grid gap-3\">\n            {qualifications.data?.map((qualification) => (\n              <article key={qualification.id} className=\"card p-4\">\n                <h3 className=\"font-black\">\n                  {qualification.code} ·{\" \"}\n                  {ar ? qualification.arabicName : qualification.englishName}\n                </h3>\n                {qualification.versions.length === 0 ? (\n                  <p className=\"mt-2 text-sm text-muted\">\n                    {t(\"qualificationRegistry.noVersion\")}\n                  </p>\n                ) : (\n                  <ul className=\"mt-3 grid gap-2 text-sm\">\n                    {qualification.versions.map((version) => (\n                      <li\n                        key={version.id}\n                        className=\"rounded-lg border border-border bg-page/40 p-3\"\n                      >\n                        <strong>{version.versionCode}</strong> ·{\" \"}\n                        {date(version.effectiveFromUtc)}\n                        <span className=\"mt-1 block break-words text-muted\">\n                          {version.sourceReference}\n                        </span>\n                      </li>\n",
+      "approved": "      </div>\n\n      {error ? (\n        <MutationOutcome kind=\"error\">\n          {error instanceof Error\n            ? error.message\n            : t(\"qualificationRegistry.saveError\")}\n        </MutationOutcome>\n      ) : null}\n\n      <div className={styles.regions}>\n        <section aria-labelledby=\"qualification-registry-heading\">\n          <h2\n            id=\"qualification-registry-heading\"\n            className={styles.sectionTitle}\n          >\n            {t(\"qualificationRegistry.registered\")}\n          </h2>\n          <div className={styles.ledger}>\n            {qualifications.isPending ? (\n              <QueryState\n                kind=\"loading\"\n                title={t(\"qualificationRegistry.loadingQualifications\")}\n              />\n            ) : null}\n            {qualifications.isError ? (\n              <QueryState\n                kind=\"error\"\n                title={t(\"qualificationRegistry.qualificationError\")}\n              />\n            ) : null}\n            {qualifications.data?.map((qualification) => (\n              <article key={qualification.id} className={styles.qualification}>\n                <h3 className={styles.entityTitle}>\n                  <bdi>{qualification.code}</bdi> ·{\" \"}\n                  {ar ? qualification.arabicName : qualification.englishName}\n                </h3>\n                {qualification.versions.length === 0 ? (\n                  <p className={styles.noVersion}>\n                    {t(\"qualificationRegistry.noVersion\")}\n                  </p>\n                ) : (\n                  <ul className={styles.versions}>\n                    {qualification.versions.map((version) => (\n                      <li key={version.id} className={styles.version}>\n                        <strong dir=\"auto\">{version.versionCode}</strong>\n                        <time dateTime={version.effectiveFromUtc}>\n                          {date(version.effectiveFromUtc)}\n                        </time>\n                        <span className={styles.reference}>\n                          {version.sourceReference}\n                        </span>\n                      </li>\n"
+    },
+    {
+      "previous": "              </article>\n            ))}\n            {qualifications.isSuccess && qualifications.data.length === 0 ? (\n              <p className=\"card p-4 text-muted\">\n                {t(\"qualificationRegistry.empty\")}\n              </p>\n            ) : null}\n          </div>\n        </div>\n\n        <div>\n          <h2 className=\"text-xl font-black\">\n            {t(\"qualificationRegistry.bindTitle\")}\n          </h2>\n          <p className=\"mt-2 text-sm leading-6 text-muted\">\n            {t(\"qualificationRegistry.bindingPolicy\")}\n          </p>\n          <div className=\"mt-4 grid gap-3\">\n            {rubrics.data?.map((rubric) => {\n              const selected =\n                rubricVersions[rubric.rubricTemplateId] ??\n",
+      "approved": "              </article>\n            ))}\n            {qualifications.isSuccess && qualifications.data.length === 0 ? (\n              <QueryState\n                kind=\"empty\"\n                title={t(\"qualificationRegistry.empty\")}\n              />\n            ) : null}\n          </div>\n        </section>\n\n        <section aria-labelledby=\"rubric-binding-heading\">\n          <h2 id=\"rubric-binding-heading\" className={styles.sectionTitle}>\n            {t(\"qualificationRegistry.bindTitle\")}\n          </h2>\n          <p className={styles.policy}>\n            {t(\"qualificationRegistry.bindingPolicy\")}\n          </p>\n          <div className={styles.ledger}>\n            {rubrics.isPending ? (\n              <QueryState\n                kind=\"loading\"\n                title={t(\"qualificationRegistry.loadingRubrics\")}\n              />\n            ) : null}\n            {rubrics.isError ? (\n              <QueryState\n                kind=\"error\"\n                title={t(\"qualificationRegistry.rubricsError\")}\n              />\n            ) : null}\n            {rubrics.isSuccess && rubrics.data.length === 0 ? (\n              <QueryState\n                kind=\"empty\"\n                title={t(\"qualificationRegistry.emptyRubrics\")}\n              />\n            ) : null}\n            {rubrics.data?.map((rubric) => {\n              const selected =\n                rubricVersions[rubric.rubricTemplateId] ??\n"
+    },
+    {
+      "previous": "              return (\n                <article\n                  key={rubric.rubricTemplateId}\n                  className=\"card grid gap-3 p-4\"\n                >\n                  <div>\n                    <h3 className=\"font-black\">\n                      {ar ? rubric.arabicTitle : rubric.englishTitle}\n                    </h3>\n                    <p className=\"mt-1 text-sm text-muted\">\n                      {rubric.qualificationCode &&\n                      rubric.qualificationVersionCode\n                        ? `${rubric.qualificationCode} · ${rubric.qualificationVersionCode}`\n                        : t(\"qualificationRegistry.unbound\")}\n                    </p>\n                  </div>\n                  <div className=\"flex flex-wrap gap-2\">\n                    <select\n                      className=\"focus-ring min-w-56 flex-1 rounded-xl border border-border bg-background px-3 py-2 text-foreground\"\n                      value={selected}\n                      onChange={(event) =>\n                        setRubricVersions((current) => ({\n",
+      "approved": "              return (\n                <article\n                  key={rubric.rubricTemplateId}\n                  className={styles.rubric}\n                >\n                  <div>\n                    <h3 className={styles.entityTitle}>\n                      {ar ? rubric.arabicTitle : rubric.englishTitle}\n                    </h3>\n                    <p className={styles.binding}>\n                      {rubric.qualificationCode &&\n                      rubric.qualificationVersionCode\n                        ? `${rubric.qualificationCode} · ${rubric.qualificationVersionCode}`\n                        : t(\"qualificationRegistry.unbound\")}\n                    </p>\n                  </div>\n                  <div className={styles.bindingControls}>\n                    <select\n                      aria-label={t(\"qualificationRegistry.chooseVersion\")}\n                      value={selected}\n                      onChange={(event) =>\n                        setRubricVersions((current) => ({\n"
+    },
+    {
+      "previous": "                          qualificationVersionId: selected,\n                        })\n                      }\n                      className=\"focus-ring rounded-xl bg-primary px-4 py-2 text-sm font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60\"\n                    >\n                      {t(\"qualificationRegistry.bind\")}\n                    </button>\n",
+      "approved": "                          qualificationVersionId: selected,\n                        })\n                      }\n                      aria-busy={assign.isPending}\n                    >\n                      {t(\"qualificationRegistry.bind\")}\n                    </button>\n"
+    },
+    {
+      "previous": "              );\n            })}\n          </div>\n        </div>\n      </div>\n    </section>\n  );\n",
+      "approved": "              );\n            })}\n          </div>\n        </section>\n      </div>\n    </section>\n  );\n"
+    },
+    {
+      "previous": "  placeholder?: string;\n}) {\n  return (\n    <label className=\"grid gap-2 text-sm font-black\">\n      {label}\n      <input\n        className=\"focus-ring rounded-xl border border-border bg-background px-3 py-3 text-foreground\"\n        value={value}\n        onChange={(event) => onChange(event.target.value)}\n        placeholder={placeholder}\n",
+      "approved": "  placeholder?: string;\n}) {\n  return (\n    <label className={styles.field}>\n      {label}\n      <input\n        value={value}\n        onChange={(event) => onChange(event.target.value)}\n        placeholder={placeholder}\n"
+    },
+    {
+      "previous": "  required?: boolean;\n}) {\n  return (\n    <label className=\"grid gap-2 text-sm font-black\">\n      {label}\n      <input\n        type=\"date\"\n        className=\"focus-ring rounded-xl border border-border bg-background px-3 py-3 text-foreground\"\n        value={value}\n        onChange={(event) => onChange(event.target.value)}\n        required={required}\n",
+      "approved": "  required?: boolean;\n}) {\n  return (\n    <label className={styles.field}>\n      {label}\n      <input\n        type=\"date\"\n        value={value}\n        onChange={(event) => onChange(event.target.value)}\n        required={required}\n"
+    },
+    {
+      "previous": "  pendingLabel: string;\n}) {\n  return (\n    <button\n      type=\"submit\"\n      disabled={pending || disabled}\n      className=\"focus-ring justify-self-start rounded-xl bg-primary px-5 py-3 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60\"\n    >\n      {pending ? pendingLabel : label}\n    </button>\n  );\n",
+      "approved": "  pendingLabel: string;\n}) {\n  return (\n    <button type=\"submit\" disabled={pending || disabled} aria-busy={pending}>\n      {pending ? pendingLabel : label}\n    </button>\n  );\n"
+    }
+  ],
+  "messageSeams": {
+    "en": [
+      {
+        "previous": "      \"bindingPolicy\": \"This binding affects new evaluations only; existing evaluation requests retain their source snapshot.\",\n      \"unbound\": \"No qualification version bound\",\n      \"chooseVersion\": \"Choose a sourced version\",\n      \"bind\": \"Bind\"\n    },\n    \"gradebook\": {\n      \"title\": \"Central gradebook\",\n",
+        "approved": "      \"bindingPolicy\": \"This binding affects new evaluations only; existing evaluation requests retain their source snapshot.\",\n      \"unbound\": \"No qualification version bound\",\n      \"chooseVersion\": \"Choose a sourced version\",\n      \"bind\": \"Bind\",\n      \"loadingQualifications\": \"Loading qualifications…\",\n      \"qualificationError\": \"The qualification registry request failed.\",\n      \"loadingRubrics\": \"Loading rubric bindings…\",\n      \"rubricsError\": \"The rubric bindings request failed.\",\n      \"emptyRubrics\": \"No assessment rubrics were returned.\"\n    },\n    \"gradebook\": {\n      \"title\": \"Central gradebook\",\n"
+      }
+    ],
+    "ar": [
+      {
+        "previous": "      \"bindingPolicy\": \"يؤثر الربط في التقييمات الجديدة فقط؛ طلبات التقييم السابقة تحتفظ بنسخة مصدرها.\",\n      \"unbound\": \"غير مربوط بإصدار مؤهل\",\n      \"chooseVersion\": \"اختر إصدارًا موثقًا\",\n      \"bind\": \"ربط\"\n    },\n    \"gradebook\": {\n      \"title\": \"دفتر الدرجات المركزي\",\n",
+        "approved": "      \"bindingPolicy\": \"يؤثر الربط في التقييمات الجديدة فقط؛ طلبات التقييم السابقة تحتفظ بنسخة مصدرها.\",\n      \"unbound\": \"غير مربوط بإصدار مؤهل\",\n      \"chooseVersion\": \"اختر إصدارًا موثقًا\",\n      \"bind\": \"ربط\",\n      \"loadingQualifications\": \"جارٍ تحميل المؤهلات…\",\n      \"qualificationError\": \"تعذر إتمام طلب سجل المؤهلات.\",\n      \"loadingRubrics\": \"جارٍ تحميل ارتباطات الروبرك…\",\n      \"rubricsError\": \"تعذر إتمام طلب ارتباطات الروبرك.\",\n      \"emptyRubrics\": \"لم تُرجع الاستجابة أي روبرك تقييم.\"\n    },\n    \"gradebook\": {\n      \"title\": \"دفتر الدرجات المركزي\",\n"
+      }
+    ]
+  },
+  "guardSeams": {
+    "tests/audit-log-archetype-contract.test.ts": [
+      {
+        "previous": "import baseline from \"./fixtures/ui-d01-15-audit-log-baseline.json\";\nimport { auditLogContracts } from \"./helpers/audit-log-contracts\";\nimport { projectAuditLogSource } from \"./helpers/audit-log-projection\";\n\nconst read = (path: string) =>\n  readFileSync(path, \"utf8\").replace(/\\r\\n/g, \"\\n\");\n",
+        "approved": "import baseline from \"./fixtures/ui-d01-15-audit-log-baseline.json\";\nimport { auditLogContracts } from \"./helpers/audit-log-contracts\";\nimport { projectAuditLogSource } from \"./helpers/audit-log-projection\";\nimport { projectQualificationRegistryCopy } from \"./helpers/qualification-registry-projection\";\n\nconst read = (path: string) =>\n  readFileSync(path, \"utf8\").replace(/\\r\\n/g, \"\\n\");\n"
+      },
+      {
+        "previous": "  it.each(Object.entries(baseline.protected))(\n    \"preserves frozen producer/shared/catalogue/dependency owner %s\",\n    (file, expected) => {\n      expect(hash(read(file)), file).toBe(expected);\n    },\n  );\n  it(\"keeps DC03 weights and known semantic roles local, with neutral raw fallback\", () => {\n",
+        "approved": "  it.each(Object.entries(baseline.protected))(\n    \"preserves frozen producer/shared/catalogue/dependency owner %s\",\n    (file, expected) => {\n      expect(\n        hash(projectQualificationRegistryCopy(read(file), file)),\n        file,\n      ).toBe(expected);\n    },\n  );\n  it(\"keeps DC03 weights and known semantic roles local, with neutral raw fallback\", () => {\n"
+      }
+    ]
+  }
+}

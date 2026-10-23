@@ -1,5 +1,6 @@
 import { withoutFinalAdminAdditions } from "./helpers/admin-final-catalogue-projection";
 import { projectAssessmentOperationsSource } from "./helpers/assessment-operations-projection";
+import { projectQualificationRegistrySource } from "./helpers/qualification-registry-projection";
 import { readFileSync } from "node:fs";
 import ts from "typescript";
 import { createTranslator } from "next-intl";
@@ -23,7 +24,10 @@ const sources = Object.fromEntries(
   files.map((name) => [
     name,
     projectAssessmentOperationsSource(
-      readFileSync(`src/features/admin/${name}.tsx`, "utf8"),
+      projectQualificationRegistrySource(
+        readFileSync(`src/features/admin/${name}.tsx`, "utf8"),
+        `src/features/admin/${name}.tsx`,
+      ),
       `src/features/admin/${name}.tsx`,
     ),
   ]),

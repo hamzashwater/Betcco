@@ -5,6 +5,8 @@ import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
+import { QueryState, MutationOutcome } from "@/components/ui/query-state";
+import styles from "./qualification-registry-management.module.css";
 
 type QualificationVersion = {
   id: string;
@@ -150,28 +152,26 @@ export function QualificationRegistryManagement() {
     createQualification.error ?? createVersion.error ?? assign.error ?? null;
 
   return (
-    <section className="shell py-8 sm:py-10">
-      <div className="max-w-4xl">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+    <section className={`shell py-8 ${styles.workspace}`}>
+      <header className={styles.header}>
+        <p className={styles.eyebrow}>
           BETCCO · {t("qualificationRegistry.eyebrow")}
         </p>
-        <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
-          {t("qualificationRegistry.title")}
-        </h1>
-        <p className="mt-3 leading-7 text-muted">
+        <h1 className={styles.title}>{t("qualificationRegistry.title")}</h1>
+        <p className={styles.description}>
           {t("qualificationRegistry.description")}
         </p>
-      </div>
+      </header>
 
-      <div className="mt-6 grid gap-5 xl:grid-cols-2">
+      <div className={styles.forms}>
         <form
-          className="card grid gap-4 p-5"
+          className={styles.qualificationForm}
           onSubmit={(event) => {
             event.preventDefault();
             if (canCreateQualification) createQualification.mutate();
           }}
         >
-          <h2 className="text-lg font-black">
+          <h2 className={styles.sectionTitle}>
             {t("qualificationRegistry.addQualification")}
           </h2>
           <RegistryInput
@@ -211,19 +211,18 @@ export function QualificationRegistryManagement() {
         </form>
 
         <form
-          className="card grid gap-4 p-5"
+          className={styles.versionForm}
           onSubmit={(event) => {
             event.preventDefault();
             if (canCreateVersion) createVersion.mutate();
           }}
         >
-          <h2 className="text-lg font-black">
+          <h2 className={styles.sectionTitle}>
             {t("qualificationRegistry.addVersion")}
           </h2>
-          <label className="grid gap-2 text-sm font-black">
+          <label className={styles.field}>
             {t("qualificationRegistry.qualification")}
             <select
-              className="focus-ring rounded-xl border border-border bg-background px-3 py-3 text-foreground"
               value={versionForm.qualificationId}
               onChange={(event) =>
                 setVersionForm((current) => ({
@@ -263,7 +262,7 @@ export function QualificationRegistryManagement() {
             }
             placeholder={t("qualificationRegistry.sourcePlaceholder")}
           />
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className={styles.dates}>
             <DateInput
               label={t("qualificationRegistry.effectiveFrom")}
               value={versionForm.effectiveFromUtc}
@@ -296,39 +295,53 @@ export function QualificationRegistryManagement() {
       </div>
 
       {error ? (
-        <p role="alert" className="mt-4 text-sm text-red-500">
+        <MutationOutcome kind="error">
           {error instanceof Error
             ? error.message
             : t("qualificationRegistry.saveError")}
-        </p>
+        </MutationOutcome>
       ) : null}
 
-      <div className="mt-8 grid gap-5 xl:grid-cols-[1fr_1.1fr]">
-        <div>
-          <h2 className="text-xl font-black">
+      <div className={styles.regions}>
+        <section aria-labelledby="qualification-registry-heading">
+          <h2
+            id="qualification-registry-heading"
+            className={styles.sectionTitle}
+          >
             {t("qualificationRegistry.registered")}
           </h2>
-          <div className="mt-4 grid gap-3">
+          <div className={styles.ledger}>
+            {qualifications.isPending ? (
+              <QueryState
+                kind="loading"
+                title={t("qualificationRegistry.loadingQualifications")}
+              />
+            ) : null}
+            {qualifications.isError ? (
+              <QueryState
+                kind="error"
+                title={t("qualificationRegistry.qualificationError")}
+              />
+            ) : null}
             {qualifications.data?.map((qualification) => (
-              <article key={qualification.id} className="card p-4">
-                <h3 className="font-black">
-                  {qualification.code} ·{" "}
+              <article key={qualification.id} className={styles.qualification}>
+                <h3 className={styles.entityTitle}>
+                  <bdi>{qualification.code}</bdi> ·{" "}
                   {ar ? qualification.arabicName : qualification.englishName}
                 </h3>
                 {qualification.versions.length === 0 ? (
-                  <p className="mt-2 text-sm text-muted">
+                  <p className={styles.noVersion}>
                     {t("qualificationRegistry.noVersion")}
                   </p>
                 ) : (
-                  <ul className="mt-3 grid gap-2 text-sm">
+                  <ul className={styles.versions}>
                     {qualification.versions.map((version) => (
-                      <li
-                        key={version.id}
-                        className="rounded-lg border border-border bg-page/40 p-3"
-                      >
-                        <strong>{version.versionCode}</strong> ·{" "}
-                        {date(version.effectiveFromUtc)}
-                        <span className="mt-1 block break-words text-muted">
+                      <li key={version.id} className={styles.version}>
+                        <strong dir="auto">{version.versionCode}</strong>
+                        <time dateTime={version.effectiveFromUtc}>
+                          {date(version.effectiveFromUtc)}
+                        </time>
+                        <span className={styles.reference}>
                           {version.sourceReference}
                         </span>
                       </li>
@@ -338,21 +351,40 @@ export function QualificationRegistryManagement() {
               </article>
             ))}
             {qualifications.isSuccess && qualifications.data.length === 0 ? (
-              <p className="card p-4 text-muted">
-                {t("qualificationRegistry.empty")}
-              </p>
+              <QueryState
+                kind="empty"
+                title={t("qualificationRegistry.empty")}
+              />
             ) : null}
           </div>
-        </div>
+        </section>
 
-        <div>
-          <h2 className="text-xl font-black">
+        <section aria-labelledby="rubric-binding-heading">
+          <h2 id="rubric-binding-heading" className={styles.sectionTitle}>
             {t("qualificationRegistry.bindTitle")}
           </h2>
-          <p className="mt-2 text-sm leading-6 text-muted">
+          <p className={styles.policy}>
             {t("qualificationRegistry.bindingPolicy")}
           </p>
-          <div className="mt-4 grid gap-3">
+          <div className={styles.ledger}>
+            {rubrics.isPending ? (
+              <QueryState
+                kind="loading"
+                title={t("qualificationRegistry.loadingRubrics")}
+              />
+            ) : null}
+            {rubrics.isError ? (
+              <QueryState
+                kind="error"
+                title={t("qualificationRegistry.rubricsError")}
+              />
+            ) : null}
+            {rubrics.isSuccess && rubrics.data.length === 0 ? (
+              <QueryState
+                kind="empty"
+                title={t("qualificationRegistry.emptyRubrics")}
+              />
+            ) : null}
             {rubrics.data?.map((rubric) => {
               const selected =
                 rubricVersions[rubric.rubricTemplateId] ??
@@ -361,22 +393,22 @@ export function QualificationRegistryManagement() {
               return (
                 <article
                   key={rubric.rubricTemplateId}
-                  className="card grid gap-3 p-4"
+                  className={styles.rubric}
                 >
                   <div>
-                    <h3 className="font-black">
+                    <h3 className={styles.entityTitle}>
                       {ar ? rubric.arabicTitle : rubric.englishTitle}
                     </h3>
-                    <p className="mt-1 text-sm text-muted">
+                    <p className={styles.binding}>
                       {rubric.qualificationCode &&
                       rubric.qualificationVersionCode
                         ? `${rubric.qualificationCode} · ${rubric.qualificationVersionCode}`
                         : t("qualificationRegistry.unbound")}
                     </p>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className={styles.bindingControls}>
                     <select
-                      className="focus-ring min-w-56 flex-1 rounded-xl border border-border bg-background px-3 py-2 text-foreground"
+                      aria-label={t("qualificationRegistry.chooseVersion")}
                       value={selected}
                       onChange={(event) =>
                         setRubricVersions((current) => ({
@@ -407,7 +439,7 @@ export function QualificationRegistryManagement() {
                           qualificationVersionId: selected,
                         })
                       }
-                      className="focus-ring rounded-xl bg-primary px-4 py-2 text-sm font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+                      aria-busy={assign.isPending}
                     >
                       {t("qualificationRegistry.bind")}
                     </button>
@@ -416,7 +448,7 @@ export function QualificationRegistryManagement() {
               );
             })}
           </div>
-        </div>
+        </section>
       </div>
     </section>
   );
@@ -434,10 +466,9 @@ function RegistryInput({
   placeholder?: string;
 }) {
   return (
-    <label className="grid gap-2 text-sm font-black">
+    <label className={styles.field}>
       {label}
       <input
-        className="focus-ring rounded-xl border border-border bg-background px-3 py-3 text-foreground"
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
@@ -459,11 +490,10 @@ function DateInput({
   required?: boolean;
 }) {
   return (
-    <label className="grid gap-2 text-sm font-black">
+    <label className={styles.field}>
       {label}
       <input
         type="date"
-        className="focus-ring rounded-xl border border-border bg-background px-3 py-3 text-foreground"
         value={value}
         onChange={(event) => onChange(event.target.value)}
         required={required}
@@ -484,11 +514,7 @@ function SubmitButton({
   pendingLabel: string;
 }) {
   return (
-    <button
-      type="submit"
-      disabled={pending || disabled}
-      className="focus-ring justify-self-start rounded-xl bg-primary px-5 py-3 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
-    >
+    <button type="submit" disabled={pending || disabled} aria-busy={pending}>
       {pending ? pendingLabel : label}
     </button>
   );

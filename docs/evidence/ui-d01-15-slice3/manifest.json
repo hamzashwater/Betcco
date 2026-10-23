@@ -1,0 +1,4378 @@
+{
+  "classification": "MOCKED UI-CONTRACT EVIDENCE",
+  "task": "UI-D01-15 / Slice 3 — Academic Qualification Registry",
+  "parentRoadmapEntry": "UI-D01-15 — Refine reusable back-office archetypes",
+  "base": "e94a2b216c18f293869573768dcdf83fda42dd67",
+  "generatedAtUtc": "2026-10-23T00:17:08.668072+00:00",
+  "headIdentity": "Containing commit; final source hashes checked against committed HEAD without embedding a self-referential SHA.",
+  "sourceHashAlgorithm": "SHA-256 of UTF-8 text normalized to LF",
+  "sourceHashes": {
+    "frontend/src/features/admin/qualification-registry-management.tsx": "9c2737e6ea09c854ff8640752caabc7cdbcff450217331b925a88af1f42c8cec",
+    "frontend/src/features/admin/qualification-registry-management.module.css": "72c501048b620dd4d9d069dc70d18fae87bf07426fb4f1dcceffaaf425ff9a86",
+    "frontend/messages/en.json": "922d912fe0a9290b248435d0af7dcc52755ca21cda24a8c4656d60e31a327c1b",
+    "frontend/messages/ar.json": "fa52bdd10d590a72e0d5fe8fd2dc2fb293ebbd24c450798ee1db42d9f4dfd487",
+    "frontend/tests/qualification-registry-archetype.test.tsx": "7d1de9dbb1d25b88fcc1706a4cc7581e595ddd66e2cf8fbebdc53ea737ebf456",
+    "frontend/tests/qualification-registry-archetype-contract.test.ts": "b237fd6bdff6954949b3d3f86bd6c1157010812992596600ba33e04f270097a8",
+    "frontend/tests/e2e/qualification-registry-archetype.spec.ts": "baddae05ce439ba2cf321ca7d150bcdf89c36cf76d529a4d46976c3fe9f14387",
+    "frontend/tests/fixtures/qualification-registry-archetype.ts": "d53ef1abc1dd2ebfd1e3582e76b68daab515d59e23e502d8d1e1a3c7c59f2c42",
+    "frontend/tests/fixtures/ui-d01-15-qualification-registry-baseline.json": "b7d9c6d0ea872f8e33db472145932f71c2284305e1500fede98b5cbe7e3881a8",
+    "frontend/tests/helpers/qualification-registry-contracts.ts": "06d336afb555b52acbe53b2729a5ac3d37f37feb93fc77e4233a2ddf55113de8",
+    "frontend/tests/helpers/qualification-registry-projection.ts": "04127e9161d2372ffe58ee39f79c88f56aaf054b8b5e49f7bfd76407ba158490",
+    "frontend/tests/account-identity-archetype-contract.test.ts": "6b0a7ea84f2e8974f482d695d2bdca356ac1c1f76e700aa55b554451af2f3814",
+    "frontend/tests/admin-final-i18n-residual-audit.test.ts": "ad99a266a92072b82a8ef07fbdade6c602e91d01190df9267b6436fb5c195831",
+    "frontend/tests/admin-governance-gradebook-source-audit.test.ts": "019ea4dfec6e84265b039e519544218480aca8ef83f92fbd4432f0280ae8f6d6",
+    "frontend/tests/assessment-operations-contract.test.ts": "066631bbbee011de1f8defb8dde0b9cadb676709c44d862d17c8c9eae1e0dabd",
+    "frontend/tests/audit-log-archetype-contract.test.ts": "4f4c802eb94959eb616c6548dd4d7354941f7399e65419a58cbb4199dcbda5bd",
+    "frontend/tests/helpers/admin-home-projection.ts": "d700cf04fdab9aeadaeb257a743efde9d977c222eba52c3bcf2325cf7cacf65a"
+  },
+  "buildId": "Iru1__wn6hgBXnuXbLxuM",
+  "captureRoot": "C:\\Users\\user\\Documents\\Codex\\2026-10-17\\files-pasted-by-the-user-device\\outputs\\UI-D01-15-Slice3",
+  "captureCount": 324,
+  "scenarioCount": 12,
+  "scenarios": [
+    {
+      "title": "en dark 1440: Academic qualification/version/binding workspace",
+      "status": "passed",
+      "locale": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "en",
+        "theme": "dark",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "reflowWidth": 720,
+        "captures": [
+          "01-populated-lineage-long-content",
+          "02-invalid-qualification",
+          "03-valid-qualification-independent-version-draft",
+          "04-qualification-pending",
+          "05-qualification-error-drafts-retained",
+          "06-version-valid-optional-end-empty",
+          "07-version-pending",
+          "08-version-error-drafts-retained",
+          "09-local-selection-isolated-from-server-binding",
+          "10-binding-pending",
+          "11-binding-error-local-draft-retained",
+          "12-keyboard-qualification-form",
+          "13-keyboard-version-form",
+          "14-keyboard-version-selector",
+          "15-keyboard-bind-action",
+          "16-200-percent-reflow-proxy",
+          "17-qualification-success-only-own-form-cleared",
+          "18-version-optional-end-supplied",
+          "19-version-success-only-own-form-cleared",
+          "20-binding-success-map-reset-only-rubrics-refetched",
+          "21-qualification-cached-refresh-error",
+          "22-rubrics-cached-refresh-error",
+          "23-successful-empty-registry-and-rubrics",
+          "24-qualification-cold-pending",
+          "25-qualification-cold-error",
+          "26-rubrics-cold-pending",
+          "27-rubrics-cold-error"
+        ],
+        "reads": [
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics"
+        ],
+        "writes": [
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": null
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": "2027-02-01T00:00:00.000Z"
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/01-populated-lineage-long-content.png",
+          "sha256": "9e820e21403c01c99435bf95e9f0085882ca6af6b24a6d1a5faffd02fd1a4699",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 258331
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/02-invalid-qualification.png",
+          "sha256": "4b9618677d0ac60605bcbaa7f1b377f42cf3789ee7d02a5f3d551d7a9a0ee75a",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 268495
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/03-valid-qualification-independent-version-draft.png",
+          "sha256": "ad86eabe68230556590c904ed1396815394d118ec6e7f2c2bb598a98f35a60a4",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 261434
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/04-qualification-pending.png",
+          "sha256": "b761a3e0a12599a3afe4d592ef9cd37c82042b0f5c1ebb8978c7ea45ab68b5e4",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 259211
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/05-qualification-error-drafts-retained.png",
+          "sha256": "67d7223c8bc4a62938556b28e0864743a1c290f68ffa2b0b510bdcfa23b02fd5",
+          "width": 1440,
+          "height": 1928,
+          "bytes": 264660
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/06-version-valid-optional-end-empty.png",
+          "sha256": "4ecc81322e8aca3a4c4d5732753151787f89591ed68901d80ac4a504704b7058",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 261444
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/07-version-pending.png",
+          "sha256": "64aa7a6d16497f1ca81cf02d60fa5f7f7fcc518cdb1e326c16bca8b1ef1b07ca",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 259366
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/08-version-error-drafts-retained.png",
+          "sha256": "ab083c43c1966215ab106edfea40a8ac9f9857a47ff8c272cce61ecf84a61463",
+          "width": 1440,
+          "height": 1928,
+          "bytes": 264436
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/09-local-selection-isolated-from-server-binding.png",
+          "sha256": "ff260456d540f41b04316075c9ba208bd5d8f7653674be8c0fb4b0b6a91ae3d2",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 261844
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/10-binding-pending.png",
+          "sha256": "300f03e31b0de9be5c877127b68efd7df23b554571d861d7b717a6f16f251264",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 260318
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/11-binding-error-local-draft-retained.png",
+          "sha256": "c5cfdded2e7906fc7ca230f8fb1575ec120c063dd7f3d9f90e80e086b07ccd21",
+          "width": 1440,
+          "height": 1928,
+          "bytes": 264947
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/12-keyboard-qualification-form.png",
+          "sha256": "62de430053ea3949535b44eb9f980c2b41cb4dc4c792bc355d6155e5dfa04d2d",
+          "width": 1440,
+          "height": 1928,
+          "bytes": 265972
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/13-keyboard-version-form.png",
+          "sha256": "60ec28d04cdec592ca304f50e88508c035096a23442b54df37cca79d1230d080",
+          "width": 1440,
+          "height": 1928,
+          "bytes": 265995
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/14-keyboard-version-selector.png",
+          "sha256": "b12a0f48d74120670effcd80f61930df3314fc75fc3f05db9ba3c19bc9556674",
+          "width": 1440,
+          "height": 1928,
+          "bytes": 266000
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/15-keyboard-bind-action.png",
+          "sha256": "b0c48bd6930d99afe52738ecacf09baea80819a34e1613b6c5a1584cf9837adb",
+          "width": 1440,
+          "height": 1928,
+          "bytes": 265923
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/16-200-percent-reflow-proxy.png",
+          "sha256": "2c31edd2e054d7132339b32f7ef66a52a0a6b534841897ed8b1aaa3571a6de09",
+          "width": 720,
+          "height": 2865,
+          "bytes": 226982
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/17-qualification-success-only-own-form-cleared.png",
+          "sha256": "942ffefe5ec720f5c80b923f7ceecdd43e3bdc94ed3bfab1ab4110c2283d695a",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 258255
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/18-version-optional-end-supplied.png",
+          "sha256": "9aaa3cdb8b77e82b62cc653f5f39472496bda7d89c9e4b150d958aea6bdd0854",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 261028
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/19-version-success-only-own-form-cleared.png",
+          "sha256": "4077c0ebd4402741f25f0e97e3bccd8ca29d23a9b60ba0165e5566e6ca9a29a6",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 259713
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/20-binding-success-map-reset-only-rubrics-refetched.png",
+          "sha256": "5a2bc26c7a7cf4c9afd620d85260163906207a657ddadda17d8e7dae726b9b17",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 259930
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/21-qualification-cached-refresh-error.png",
+          "sha256": "ced67f99eee026795ba995b5a4ed6a362e4f0b4461caeb09de2461cb0982856b",
+          "width": 1440,
+          "height": 1936,
+          "bytes": 264292
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/22-rubrics-cached-refresh-error.png",
+          "sha256": "493ae727af74ece44299fe3a2858d853e9876cc1862b8fa38cc1b4e444b2944a",
+          "width": 1440,
+          "height": 1990,
+          "bytes": 268045
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/23-successful-empty-registry-and-rubrics.png",
+          "sha256": "5078f6cfe7801a03b2dd9c89b15f65393ffd5e4dda7bfc73b477b820434133f4",
+          "width": 1440,
+          "height": 1268,
+          "bytes": 190403
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/24-qualification-cold-pending.png",
+          "sha256": "1345bd49e95fb03f13d2e8a8d1fd1275a003dd0d622faf954ab412d02c8bb7da",
+          "width": 1440,
+          "height": 1521,
+          "bytes": 220644
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/25-qualification-cold-error.png",
+          "sha256": "7bd25cf00213b6f3442641a2da149c2b47ad87be444c69cdbedbaabd7fdebed2",
+          "width": 1440,
+          "height": 1521,
+          "bytes": 222517
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/26-rubrics-cold-pending.png",
+          "sha256": "627d2349d4945f5d786a5a8cbba3338bcccf617eed116e7ab78c787a7b23d6fd",
+          "width": 1440,
+          "height": 1629,
+          "bytes": 224237
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-0eddd-n-version-binding-workspace/27-rubrics-cold-error.png",
+          "sha256": "6e23e93e8985bc1ae5021f45535fc07af9ad9a458396644ac44b9b73281709d7",
+          "width": 1440,
+          "height": 1629,
+          "bytes": 225525
+        }
+      ]
+    },
+    {
+      "title": "en light 1440: Academic qualification/version/binding workspace",
+      "status": "passed",
+      "locale": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "en",
+        "theme": "light",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "reflowWidth": 720,
+        "captures": [
+          "01-populated-lineage-long-content",
+          "02-invalid-qualification",
+          "03-valid-qualification-independent-version-draft",
+          "04-qualification-pending",
+          "05-qualification-error-drafts-retained",
+          "06-version-valid-optional-end-empty",
+          "07-version-pending",
+          "08-version-error-drafts-retained",
+          "09-local-selection-isolated-from-server-binding",
+          "10-binding-pending",
+          "11-binding-error-local-draft-retained",
+          "12-keyboard-qualification-form",
+          "13-keyboard-version-form",
+          "14-keyboard-version-selector",
+          "15-keyboard-bind-action",
+          "16-200-percent-reflow-proxy",
+          "17-qualification-success-only-own-form-cleared",
+          "18-version-optional-end-supplied",
+          "19-version-success-only-own-form-cleared",
+          "20-binding-success-map-reset-only-rubrics-refetched",
+          "21-qualification-cached-refresh-error",
+          "22-rubrics-cached-refresh-error",
+          "23-successful-empty-registry-and-rubrics",
+          "24-qualification-cold-pending",
+          "25-qualification-cold-error",
+          "26-rubrics-cold-pending",
+          "27-rubrics-cold-error"
+        ],
+        "reads": [
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics"
+        ],
+        "writes": [
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": null
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": "2027-02-01T00:00:00.000Z"
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/01-populated-lineage-long-content.png",
+          "sha256": "5193316f2e812ef85946278e2dec6336bdfd7a31611154063494bb3fb7b30196",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 273525
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/02-invalid-qualification.png",
+          "sha256": "748cfa7e15866a070b865531551f85d722b348a78fbf7dbdc1ae4a31711068da",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 282595
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/03-valid-qualification-independent-version-draft.png",
+          "sha256": "7038b5998b9bc2a6a9375e01d14672ac37f642982164bcfcd0fa2adcc44041c7",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 276485
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/04-qualification-pending.png",
+          "sha256": "fd6f146e86a60c1765991d5b028d7e90ccef111b198af9febaf2bf6a8df9a2a9",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 273902
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/05-qualification-error-drafts-retained.png",
+          "sha256": "6e897556d97c72c3232a0cbb316b961f3c9ad3108ce994300cd6f2da2b5a8c97",
+          "width": 1440,
+          "height": 1928,
+          "bytes": 280278
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/06-version-valid-optional-end-empty.png",
+          "sha256": "dafda64f8d30ac993d9048f2c8159fe85f09a11c9c5ec55e26692cf271f1876b",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 276501
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/07-version-pending.png",
+          "sha256": "768df425936914918174245a7262aedecac6f338f7a189178d6848e9df4884b1",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 274045
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/08-version-error-drafts-retained.png",
+          "sha256": "64d11a2b55bb2e2671e7dafbd72df5104beb72b3641bff8296d9e6aab5dd582c",
+          "width": 1440,
+          "height": 1928,
+          "bytes": 280262
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/09-local-selection-isolated-from-server-binding.png",
+          "sha256": "14fdd04ece6afd11ebe32fbdd9c56f4bf9da7f3df5f6cbcdc772fa718fa6a598",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 276990
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/10-binding-pending.png",
+          "sha256": "7854328560e8c2d577bc14c742453e6ce02f6eda4de2fac34047df56ca35a734",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 275360
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/11-binding-error-local-draft-retained.png",
+          "sha256": "6a1788eb06236e3f304ca35113d4fb5c218774be018d99f319fa3075a9b579ea",
+          "width": 1440,
+          "height": 1928,
+          "bytes": 280683
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/12-keyboard-qualification-form.png",
+          "sha256": "40b93acf2e552e86d9d86c3a4fd83517e4da759ac8ca796c3b2904f43b9b5034",
+          "width": 1440,
+          "height": 1928,
+          "bytes": 281712
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/13-keyboard-version-form.png",
+          "sha256": "5fe37920c1584b1ce99c8d1127669f5f8007468a1f676b7fe2c06e3fbeb70af8",
+          "width": 1440,
+          "height": 1928,
+          "bytes": 281848
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/14-keyboard-version-selector.png",
+          "sha256": "7487604eaf74d3d68841aaf0b00075b141ee8124b332f2689c37e6604815e15a",
+          "width": 1440,
+          "height": 1928,
+          "bytes": 281610
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/15-keyboard-bind-action.png",
+          "sha256": "5af728db1cdb5248ba81388a10f07e3e5f1225e72cdc116fce4862a2e09bb9e6",
+          "width": 1440,
+          "height": 1928,
+          "bytes": 281606
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/16-200-percent-reflow-proxy.png",
+          "sha256": "10c3f025ad34a36329914e46561f3acb35fb483d6aff2ac3c7318c9ac773131d",
+          "width": 720,
+          "height": 2865,
+          "bytes": 233799
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/17-qualification-success-only-own-form-cleared.png",
+          "sha256": "6bcd4e58c41af4f4d06660a0864c7c016827d1e132bb805c1623ccfeff6ea7ca",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 273170
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/18-version-optional-end-supplied.png",
+          "sha256": "3c6a6d897b8592bf81faa95552d3f0888bcd63600905da4f6006c2377fb9cba4",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 276079
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/19-version-success-only-own-form-cleared.png",
+          "sha256": "6ea8e2e718ca8d904ab484511eef984dd291cd16f89873c7f181160f1f663ec5",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 274858
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/20-binding-success-map-reset-only-rubrics-refetched.png",
+          "sha256": "91da705e57c462ab0827fcca8425c58b6649f8e01b3195f5c52be1b0c3b251b1",
+          "width": 1440,
+          "height": 1882,
+          "bytes": 274834
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/21-qualification-cached-refresh-error.png",
+          "sha256": "77ced223b135aba24b3896f85ad5a817dcca5a4e28255d078c2f6eb527cb07e0",
+          "width": 1440,
+          "height": 1936,
+          "bytes": 280051
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/22-rubrics-cached-refresh-error.png",
+          "sha256": "34833dd8ff2b53f14ee301969ba4548a2d6ea7bac342717224b140f64d59d833",
+          "width": 1440,
+          "height": 1990,
+          "bytes": 285051
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/23-successful-empty-registry-and-rubrics.png",
+          "sha256": "5a8c1c4fc8d1ab94bf7c368dced624759345d2340e8b30d442e3511c4e87d5b0",
+          "width": 1440,
+          "height": 1268,
+          "bytes": 193128
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/24-qualification-cold-pending.png",
+          "sha256": "c5fac205713c630cf34b5686ba607ee3ac7742b5fcda93370f5351894d1a897c",
+          "width": 1440,
+          "height": 1521,
+          "bytes": 229497
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/25-qualification-cold-error.png",
+          "sha256": "aff932e778debf1f81dfe2252a6967e0371526120c6747bd0357186c634f3b64",
+          "width": 1440,
+          "height": 1521,
+          "bytes": 231493
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/26-rubrics-cold-pending.png",
+          "sha256": "cdff3e5e0897bfa423dd84b3181c2b66e18133b3aeac6f2cc01563a0d71124cb",
+          "width": 1440,
+          "height": 1629,
+          "bytes": 236228
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-24544-n-version-binding-workspace/27-rubrics-cold-error.png",
+          "sha256": "a9ee643e4a95c559c47eccaff6d80523019456870fd97c680a7dc39c96ded504",
+          "width": 1440,
+          "height": 1629,
+          "bytes": 237273
+        }
+      ]
+    },
+    {
+      "title": "ar light 390: Academic qualification/version/binding workspace",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "ar",
+        "theme": "light",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "reflowWidth": 320,
+        "captures": [
+          "01-populated-lineage-long-content",
+          "02-invalid-qualification",
+          "03-valid-qualification-independent-version-draft",
+          "04-qualification-pending",
+          "05-qualification-error-drafts-retained",
+          "06-version-valid-optional-end-empty",
+          "07-version-pending",
+          "08-version-error-drafts-retained",
+          "09-local-selection-isolated-from-server-binding",
+          "10-binding-pending",
+          "11-binding-error-local-draft-retained",
+          "12-keyboard-qualification-form",
+          "13-keyboard-version-form",
+          "14-keyboard-version-selector",
+          "15-keyboard-bind-action",
+          "16-200-percent-reflow-proxy",
+          "17-qualification-success-only-own-form-cleared",
+          "18-version-optional-end-supplied",
+          "19-version-success-only-own-form-cleared",
+          "20-binding-success-map-reset-only-rubrics-refetched",
+          "21-qualification-cached-refresh-error",
+          "22-rubrics-cached-refresh-error",
+          "23-successful-empty-registry-and-rubrics",
+          "24-qualification-cold-pending",
+          "25-qualification-cold-error",
+          "26-rubrics-cold-pending",
+          "27-rubrics-cold-error"
+        ],
+        "reads": [
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics"
+        ],
+        "writes": [
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": null
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": "2027-02-01T00:00:00.000Z"
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/01-populated-lineage-long-content.png",
+          "sha256": "c7f32e6189e8af6bbd2802f19b9389dc18d1f55de01b13a1b78b746f198bc00b",
+          "width": 390,
+          "height": 4113,
+          "bytes": 333394
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/02-invalid-qualification.png",
+          "sha256": "14ad63382451be5d5d8627249e5dcbaed917a451d2ab30f027da1a8e9066d98f",
+          "width": 390,
+          "height": 4113,
+          "bytes": 333656
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/03-valid-qualification-independent-version-draft.png",
+          "sha256": "df8678f6ea3975b2c8767c330abc378cc18322bf3cb9e0a552ee87c9e53c0ce2",
+          "width": 390,
+          "height": 4113,
+          "bytes": 338089
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/04-qualification-pending.png",
+          "sha256": "7c824b56580844776308f49adb17f9552cbd94151f4320c4b2684b3e4d737125",
+          "width": 390,
+          "height": 4113,
+          "bytes": 336547
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/05-qualification-error-drafts-retained.png",
+          "sha256": "ff5dcd616610383d6d139d588145ea2c307650328e50144b3cdbcd6e097006ad",
+          "width": 390,
+          "height": 4163,
+          "bytes": 341111
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/06-version-valid-optional-end-empty.png",
+          "sha256": "023efd2a41ec35a47569c76f6297324c485eb1e851772906a0d920d1ada29e7e",
+          "width": 390,
+          "height": 4113,
+          "bytes": 338091
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/07-version-pending.png",
+          "sha256": "f8eeb131b6ec3d9ef9b4b1d2180b551e8374028d860668caaaf682c6e31b28d0",
+          "width": 390,
+          "height": 4113,
+          "bytes": 336648
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/08-version-error-drafts-retained.png",
+          "sha256": "c30c1173df232bafd526906d757527628458caac86b2c298c74e1054570c0723",
+          "width": 390,
+          "height": 4163,
+          "bytes": 341129
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/09-local-selection-isolated-from-server-binding.png",
+          "sha256": "0fc84481d4f5655c8c821ae02c9693d05eb76cb64a945fb6a7663ee9a49f7bac",
+          "width": 390,
+          "height": 4113,
+          "bytes": 337991
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/10-binding-pending.png",
+          "sha256": "7c34cf19aae42a7aaf2fed3d1ad35b179b9df462eb2a8709528b3ff2d70d9c5e",
+          "width": 390,
+          "height": 4113,
+          "bytes": 336651
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/11-binding-error-local-draft-retained.png",
+          "sha256": "f9e52f87ebec82805cf1cc621b177c853720bc249f7bff63cc6b53aad2270f01",
+          "width": 390,
+          "height": 4163,
+          "bytes": 339970
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/12-keyboard-qualification-form.png",
+          "sha256": "d4491bfdf2f921150a1343713217672ba760051ff463adc90d2c61024014750f",
+          "width": 390,
+          "height": 4163,
+          "bytes": 340849
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/13-keyboard-version-form.png",
+          "sha256": "f797b45a991068a2640a39a300b863f9137c14550cd32ff82fe2c831d9fc82c3",
+          "width": 390,
+          "height": 4163,
+          "bytes": 340861
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/14-keyboard-version-selector.png",
+          "sha256": "c82c7c90c8de84129b5b54f484d3d07876a378096e5f85d1256fdc51d6bfee24",
+          "width": 390,
+          "height": 4163,
+          "bytes": 340863
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/15-keyboard-bind-action.png",
+          "sha256": "994affa5018e8ba306ec7f660d7a311fd4902506e8dc7cc4233b095afa239a4a",
+          "width": 390,
+          "height": 4163,
+          "bytes": 340860
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/16-200-percent-reflow-proxy.png",
+          "sha256": "c7c4c9a6e4260a0c99d8d2ac3604a46939729f331eb90e94ba860f6a77a3cafd",
+          "width": 320,
+          "height": 4370,
+          "bytes": 332781
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/17-qualification-success-only-own-form-cleared.png",
+          "sha256": "508be35b900da14452fd25bacbe52fcd76ed56c80287e7c2b35c51321d91593d",
+          "width": 390,
+          "height": 4113,
+          "bytes": 334569
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/18-version-optional-end-supplied.png",
+          "sha256": "70acbf7947ddc5e449da57e08f88021a66571f5fcaaffc27ca00a0ca0d83c9af",
+          "width": 390,
+          "height": 4113,
+          "bytes": 338211
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/19-version-success-only-own-form-cleared.png",
+          "sha256": "1d9859668f76e286e2ac69facfa9adb8bf91dc81121dbb002afd0ba0887d6769",
+          "width": 390,
+          "height": 4113,
+          "bytes": 334825
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/20-binding-success-map-reset-only-rubrics-refetched.png",
+          "sha256": "426e1d97ab346f40223b04de53e3f6366d1f2e437aa2c1f878baaae1d9eea695",
+          "width": 390,
+          "height": 4113,
+          "bytes": 336698
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/21-qualification-cached-refresh-error.png",
+          "sha256": "ac23ac6464d6d17e0d2358d75660ef5168e285e296e84b52c4a11623904d8a7d",
+          "width": 390,
+          "height": 4171,
+          "bytes": 337966
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/22-rubrics-cached-refresh-error.png",
+          "sha256": "3742714670f7d8b51709d7385effab48422b05900345e67cb3b5d9e12b591304",
+          "width": 390,
+          "height": 4229,
+          "bytes": 341720
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/23-successful-empty-registry-and-rubrics.png",
+          "sha256": "9f69acdf0502d18d3a5b87f38bc16e34ca02ba8b3465a6c3a479314186d66828",
+          "width": 390,
+          "height": 2505,
+          "bytes": 177737
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/24-qualification-cold-pending.png",
+          "sha256": "cddbe7b0aefdc77caf06d73e307ccf09d77d2d37703a16b535a0ab51b2207584",
+          "width": 390,
+          "height": 3182,
+          "bytes": 259115
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/25-qualification-cold-error.png",
+          "sha256": "d6efab535379b43453c5f44eaab448443a1528ba016bae7510ca1b34d86b49c4",
+          "width": 390,
+          "height": 3182,
+          "bytes": 259868
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/26-rubrics-cold-pending.png",
+          "sha256": "8d494991f9b8871a6bbcb601add78c7849986179d238489403e03991bcc89676",
+          "width": 390,
+          "height": 3436,
+          "bytes": 255887
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-6e283-n-version-binding-workspace/27-rubrics-cold-error.png",
+          "sha256": "6eaece8e96f6ebe0504e8a074d0b4857dffad6da9a9594625e7526f5ac0f6ba3",
+          "width": 390,
+          "height": 3436,
+          "bytes": 256179
+        }
+      ]
+    },
+    {
+      "title": "ar light 834: Academic qualification/version/binding workspace",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "light",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "ar",
+        "theme": "light",
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "reflowWidth": 417,
+        "captures": [
+          "01-populated-lineage-long-content",
+          "02-invalid-qualification",
+          "03-valid-qualification-independent-version-draft",
+          "04-qualification-pending",
+          "05-qualification-error-drafts-retained",
+          "06-version-valid-optional-end-empty",
+          "07-version-pending",
+          "08-version-error-drafts-retained",
+          "09-local-selection-isolated-from-server-binding",
+          "10-binding-pending",
+          "11-binding-error-local-draft-retained",
+          "12-keyboard-qualification-form",
+          "13-keyboard-version-form",
+          "14-keyboard-version-selector",
+          "15-keyboard-bind-action",
+          "16-200-percent-reflow-proxy",
+          "17-qualification-success-only-own-form-cleared",
+          "18-version-optional-end-supplied",
+          "19-version-success-only-own-form-cleared",
+          "20-binding-success-map-reset-only-rubrics-refetched",
+          "21-qualification-cached-refresh-error",
+          "22-rubrics-cached-refresh-error",
+          "23-successful-empty-registry-and-rubrics",
+          "24-qualification-cold-pending",
+          "25-qualification-cold-error",
+          "26-rubrics-cold-pending",
+          "27-rubrics-cold-error"
+        ],
+        "reads": [
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics"
+        ],
+        "writes": [
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": null
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": "2027-02-01T00:00:00.000Z"
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/01-populated-lineage-long-content.png",
+          "sha256": "d27344c583dd42373cf71dc9fc34cfe1a68c5717aa563e85a1202c6c300ca473",
+          "width": 834,
+          "height": 2746,
+          "bytes": 319358
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/02-invalid-qualification.png",
+          "sha256": "04333d90878544a6fa6cc0428e0384deb2720176d8747f014deaa759e5c56d88",
+          "width": 834,
+          "height": 2746,
+          "bytes": 319877
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/03-valid-qualification-independent-version-draft.png",
+          "sha256": "4d95ced5a0bb53d616d42ea6b9bd2ab301434bef5cc24d3da9eaebffe84f4453",
+          "width": 834,
+          "height": 2746,
+          "bytes": 326130
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/04-qualification-pending.png",
+          "sha256": "7e198e4499eea731b984b21554154fcf03cdb2aa865881c61565961d55db782d",
+          "width": 834,
+          "height": 2746,
+          "bytes": 324472
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/05-qualification-error-drafts-retained.png",
+          "sha256": "855f49c3c941467da2433a6e899ff0b1b8e1e9c031b401603873e8c437b63961",
+          "width": 834,
+          "height": 2796,
+          "bytes": 328452
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/06-version-valid-optional-end-empty.png",
+          "sha256": "e9da9d2d8b6ba91d965f7c8e00539f6b9be3421d3f232bf293fcba915fcfa041",
+          "width": 834,
+          "height": 2746,
+          "bytes": 326149
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/07-version-pending.png",
+          "sha256": "fa3cc6b1e7875036e5bb825ce47283b2721b49a6f9c7be2629a77c27fffe46ea",
+          "width": 834,
+          "height": 2746,
+          "bytes": 324578
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/08-version-error-drafts-retained.png",
+          "sha256": "a8071e3b18c8fb2807eebcc24dafd1e5c480d30307df19fef5a368186694bad4",
+          "width": 834,
+          "height": 2796,
+          "bytes": 328592
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/09-local-selection-isolated-from-server-binding.png",
+          "sha256": "61fc0964c701366dfc17726746c9691a6168c69388665d9be1ce9e30ab718d95",
+          "width": 834,
+          "height": 2746,
+          "bytes": 326256
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/10-binding-pending.png",
+          "sha256": "411fdf326dad188ecaa08d3b6072a58c3a05bbe38ae5be77e90f3a39cb17be1b",
+          "width": 834,
+          "height": 2746,
+          "bytes": 324825
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/11-binding-error-local-draft-retained.png",
+          "sha256": "1dda2d628462529bb70a21971b6ff5f3368a36ba61c784d96b4509a462edf300",
+          "width": 834,
+          "height": 2796,
+          "bytes": 328467
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/12-keyboard-qualification-form.png",
+          "sha256": "1435c645be57c4338802e72dbedfb88e828c2bcbaca8e9486323a10ab7d038fa",
+          "width": 834,
+          "height": 2796,
+          "bytes": 329504
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/13-keyboard-version-form.png",
+          "sha256": "e6ad58882af77f5f21850677f129cbd4f94e2715aeb42febe1d8c27b295342e5",
+          "width": 834,
+          "height": 2796,
+          "bytes": 329493
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/14-keyboard-version-selector.png",
+          "sha256": "646f9e8f9341a8766a3003299454f406b6a1ad558c56cb981ef3afa0d9c27507",
+          "width": 834,
+          "height": 2796,
+          "bytes": 329365
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/15-keyboard-bind-action.png",
+          "sha256": "4f62981682747c10de61a544bff7aad02826b05da33cb04ae20467fc2670e3d0",
+          "width": 834,
+          "height": 2796,
+          "bytes": 329325
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/16-200-percent-reflow-proxy.png",
+          "sha256": "b41b93e954a06baa3f6ecf5cbd704e67eb76849d35334065ff7df8f798a0dc83",
+          "width": 417,
+          "height": 4031,
+          "bytes": 357670
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/17-qualification-success-only-own-form-cleared.png",
+          "sha256": "12c037be63059419c25bfad3f30691e2883dbe04037ed9bcc8ffa49c1a56dcdd",
+          "width": 834,
+          "height": 2746,
+          "bytes": 322758
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/18-version-optional-end-supplied.png",
+          "sha256": "5b2204eabdd908dbb47cffbc4d2ca1beebc76dc6b2bca92bb0110b88625314be",
+          "width": 834,
+          "height": 2746,
+          "bytes": 325887
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/19-version-success-only-own-form-cleared.png",
+          "sha256": "3a3017859299151f2739f2e921764756fe9d8d5a8bde3a498f4ade07377a7de3",
+          "width": 834,
+          "height": 2746,
+          "bytes": 321382
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/20-binding-success-map-reset-only-rubrics-refetched.png",
+          "sha256": "0438dbcedb2e7d3429e66e267be79e70367a426b681497a5721b3335d66c6b5f",
+          "width": 834,
+          "height": 2746,
+          "bytes": 324765
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/21-qualification-cached-refresh-error.png",
+          "sha256": "37a5f785daa80f82de8c501a8cb34baf8551104ff23ccfd35302f60ce2451674",
+          "width": 834,
+          "height": 2804,
+          "bytes": 326443
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/22-rubrics-cached-refresh-error.png",
+          "sha256": "39dc51057e1d758811908edd7cfa8258eda410be8e825fa0c42cd6aac79175ff",
+          "width": 834,
+          "height": 2862,
+          "bytes": 330330
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/23-successful-empty-registry-and-rubrics.png",
+          "sha256": "32a5788950cd6f29cce5341401bf9c90c629981a0c2a39f89f440f8de68a2004",
+          "width": 834,
+          "height": 1642,
+          "bytes": 178518
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/24-qualification-cold-pending.png",
+          "sha256": "ec26fe2df4ef8a3ad7e812a57c42ddf9167934339cc2c159f19b9454509c4b43",
+          "width": 834,
+          "height": 2235,
+          "bytes": 245783
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/25-qualification-cold-error.png",
+          "sha256": "22af591d03e978b6d4c0eca76b353e2386f5f5c37bd03f39f04bf99629705349",
+          "width": 834,
+          "height": 2235,
+          "bytes": 246398
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/26-rubrics-cold-pending.png",
+          "sha256": "e99d70c9ceebeca8f2256c73212a465f155576416fa3f83000d172017649eb68",
+          "width": 834,
+          "height": 2153,
+          "bytes": 251458
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-80d9a-n-version-binding-workspace/27-rubrics-cold-error.png",
+          "sha256": "e4929511625a8fed594842d753fe9aa57c4c321a6f29543b9fc402b8abd6e515",
+          "width": 834,
+          "height": 2153,
+          "bytes": 251919
+        }
+      ]
+    },
+    {
+      "title": "en dark 390: Academic qualification/version/binding workspace",
+      "status": "passed",
+      "locale": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "en",
+        "theme": "dark",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "reflowWidth": 320,
+        "captures": [
+          "01-populated-lineage-long-content",
+          "02-invalid-qualification",
+          "03-valid-qualification-independent-version-draft",
+          "04-qualification-pending",
+          "05-qualification-error-drafts-retained",
+          "06-version-valid-optional-end-empty",
+          "07-version-pending",
+          "08-version-error-drafts-retained",
+          "09-local-selection-isolated-from-server-binding",
+          "10-binding-pending",
+          "11-binding-error-local-draft-retained",
+          "12-keyboard-qualification-form",
+          "13-keyboard-version-form",
+          "14-keyboard-version-selector",
+          "15-keyboard-bind-action",
+          "16-200-percent-reflow-proxy",
+          "17-qualification-success-only-own-form-cleared",
+          "18-version-optional-end-supplied",
+          "19-version-success-only-own-form-cleared",
+          "20-binding-success-map-reset-only-rubrics-refetched",
+          "21-qualification-cached-refresh-error",
+          "22-rubrics-cached-refresh-error",
+          "23-successful-empty-registry-and-rubrics",
+          "24-qualification-cold-pending",
+          "25-qualification-cold-error",
+          "26-rubrics-cold-pending",
+          "27-rubrics-cold-error"
+        ],
+        "reads": [
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics"
+        ],
+        "writes": [
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": null
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": "2027-02-01T00:00:00.000Z"
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/01-populated-lineage-long-content.png",
+          "sha256": "66261e07716715968ea1bdc9efa16da7a539c99d8e0f91b656f589542744fd45",
+          "width": 390,
+          "height": 3697,
+          "bytes": 222838
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/02-invalid-qualification.png",
+          "sha256": "3decffffdc969b806214f761f674be0bee42c367796441ec5567fd4012d3447e",
+          "width": 390,
+          "height": 3697,
+          "bytes": 223526
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/03-valid-qualification-independent-version-draft.png",
+          "sha256": "1d6887e25d3237d00d4cfb3573e653b9858914eaeab52418db63abb7df489d17",
+          "width": 390,
+          "height": 3697,
+          "bytes": 225898
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/04-qualification-pending.png",
+          "sha256": "ec97296ff4608c762700f4dd1d23ebe6cc5aadb946cbe2e0cf3ba925d8460e57",
+          "width": 390,
+          "height": 3697,
+          "bytes": 223988
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/05-qualification-error-drafts-retained.png",
+          "sha256": "c9521b6ccaf7b0211381d06fef07da85c7c9a3762dab692d1fc1e15ef8f4dfec",
+          "width": 390,
+          "height": 3743,
+          "bytes": 228429
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/06-version-valid-optional-end-empty.png",
+          "sha256": "6a63d227a3fc47571dab3d55817bc65064d7e7d3e00c09cd3c52254433728836",
+          "width": 390,
+          "height": 3697,
+          "bytes": 225927
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/07-version-pending.png",
+          "sha256": "2621d5dfc589718cb75667c75a2f89d79c2ce183f6e5d7205f465cd462ac7945",
+          "width": 390,
+          "height": 3697,
+          "bytes": 224564
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/08-version-error-drafts-retained.png",
+          "sha256": "15f2dd5281c45c526f38f122a9b9747328abe192763fe20352e435ba507d86ed",
+          "width": 390,
+          "height": 3743,
+          "bytes": 228391
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/09-local-selection-isolated-from-server-binding.png",
+          "sha256": "8277e85140af8cb07037152581afbade1b2dc3721fd7f0078487586214b549db",
+          "width": 390,
+          "height": 3697,
+          "bytes": 226309
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/10-binding-pending.png",
+          "sha256": "2623e1a02c13d3e9b30fafcafdb503a292574ebfab30420ecfd3b411b26403a6",
+          "width": 390,
+          "height": 3697,
+          "bytes": 224929
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/11-binding-error-local-draft-retained.png",
+          "sha256": "d379a601aad51ce1f0253960247db4961bf8b083647e487abce2eaca72dc270b",
+          "width": 390,
+          "height": 3743,
+          "bytes": 228773
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/12-keyboard-qualification-form.png",
+          "sha256": "741d64c0cc0be20703d3145f367ab212384f74ea68ed55a44043550b385967b8",
+          "width": 390,
+          "height": 3743,
+          "bytes": 229738
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/13-keyboard-version-form.png",
+          "sha256": "8be2c553c5df66962e4f573201e27034358f5c6c089b57c753180e71ab5eae55",
+          "width": 390,
+          "height": 3743,
+          "bytes": 229691
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/14-keyboard-version-selector.png",
+          "sha256": "5407683e3011aaafe1cf6b8354dc1cdbec9f136cd42e061f6cb19a9147b23d75",
+          "width": 390,
+          "height": 3743,
+          "bytes": 229693
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/15-keyboard-bind-action.png",
+          "sha256": "3cbbab795bace6392102650751336274c3c5eaf3e39b3bdbe10481423555a354",
+          "width": 390,
+          "height": 3743,
+          "bytes": 229647
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/16-200-percent-reflow-proxy.png",
+          "sha256": "dd880ad294a4a3e134f085b07688d2eae201b2b91e9df3c290fe53454e6f50c8",
+          "width": 320,
+          "height": 4053,
+          "bytes": 234146
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/17-qualification-success-only-own-form-cleared.png",
+          "sha256": "bf7f30e3f34b6dba56140176fd1d5d5b7ff5bd2726298826c4d69e2c17bec4dc",
+          "width": 390,
+          "height": 3697,
+          "bytes": 222825
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/18-version-optional-end-supplied.png",
+          "sha256": "9e11f434f5ef168266581ce6ebe2c4d09e4e0de08619188414204e09662fe950",
+          "width": 390,
+          "height": 3697,
+          "bytes": 225918
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/19-version-success-only-own-form-cleared.png",
+          "sha256": "65bd962417ea3ec48cd7f3004dc2fd8104bc0a3f6a6a19a1408a324eb794944b",
+          "width": 390,
+          "height": 3697,
+          "bytes": 224402
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/20-binding-success-map-reset-only-rubrics-refetched.png",
+          "sha256": "c37493d14502cfc9be8bc7421136496fa3d422dfec9669b3755a180d0650b9fc",
+          "width": 390,
+          "height": 3697,
+          "bytes": 224589
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/21-qualification-cached-refresh-error.png",
+          "sha256": "2a09221ca5dd84c67d81d9851ee1f2a7e00a9308a9268b9137faea5d37de31b3",
+          "width": 390,
+          "height": 3751,
+          "bytes": 226970
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/22-rubrics-cached-refresh-error.png",
+          "sha256": "b22c4a13ec6808043b27bdedbc36bd5d7167bfad833029884f351cb55cc7fe47",
+          "width": 390,
+          "height": 3805,
+          "bytes": 230724
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/23-successful-empty-registry-and-rubrics.png",
+          "sha256": "de3b669ef1bcc10cf64b7eaecaa34263ed18a450b90773ab454b940c59c0a451",
+          "width": 390,
+          "height": 2525,
+          "bytes": 141694
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/24-qualification-cold-pending.png",
+          "sha256": "97ba807590e52b6eb087a03ef89c3407f09341fb2f4986a284419f057d802021",
+          "width": 390,
+          "height": 3046,
+          "bytes": 178880
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/25-qualification-cold-error.png",
+          "sha256": "bef0362a10399db2eff54c594e7c1190fa702a3fe86e12ebe1b3e91041ef419f",
+          "width": 390,
+          "height": 3046,
+          "bytes": 179816
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/26-rubrics-cold-pending.png",
+          "sha256": "f6f89211f271f5cbf508f340f0be0d315221c47c2b645fa414aee0e193cebf35",
+          "width": 390,
+          "height": 3176,
+          "bytes": 184133
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0020-n-version-binding-workspace/27-rubrics-cold-error.png",
+          "sha256": "a12fe3f2a5d3d74559a6e88f9f923f307851fd9b6883a7293f2e7a3935f13023",
+          "width": 390,
+          "height": 3176,
+          "bytes": 185193
+        }
+      ]
+    },
+    {
+      "title": "ar dark 1440: Academic qualification/version/binding workspace",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "ar",
+        "theme": "dark",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "reflowWidth": 720,
+        "captures": [
+          "01-populated-lineage-long-content",
+          "02-invalid-qualification",
+          "03-valid-qualification-independent-version-draft",
+          "04-qualification-pending",
+          "05-qualification-error-drafts-retained",
+          "06-version-valid-optional-end-empty",
+          "07-version-pending",
+          "08-version-error-drafts-retained",
+          "09-local-selection-isolated-from-server-binding",
+          "10-binding-pending",
+          "11-binding-error-local-draft-retained",
+          "12-keyboard-qualification-form",
+          "13-keyboard-version-form",
+          "14-keyboard-version-selector",
+          "15-keyboard-bind-action",
+          "16-200-percent-reflow-proxy",
+          "17-qualification-success-only-own-form-cleared",
+          "18-version-optional-end-supplied",
+          "19-version-success-only-own-form-cleared",
+          "20-binding-success-map-reset-only-rubrics-refetched",
+          "21-qualification-cached-refresh-error",
+          "22-rubrics-cached-refresh-error",
+          "23-successful-empty-registry-and-rubrics",
+          "24-qualification-cold-pending",
+          "25-qualification-cold-error",
+          "26-rubrics-cold-pending",
+          "27-rubrics-cold-error"
+        ],
+        "reads": [
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics"
+        ],
+        "writes": [
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": null
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": "2027-02-01T00:00:00.000Z"
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/01-populated-lineage-long-content.png",
+          "sha256": "da285787d29c47fd3cf08bc6b674084f20687b2d69b76aaf61b828063a73abd6",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 339179
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/02-invalid-qualification.png",
+          "sha256": "0ec4d47f57de3046fb7b5c0b454f5e68f172a68049bb9b42fdb334a135155c0a",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 339579
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/03-valid-qualification-independent-version-draft.png",
+          "sha256": "653e72713e317af2bc564df76d8113650174decd292b5a09ea8062cea0af4378",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 341741
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/04-qualification-pending.png",
+          "sha256": "ee784a0a8a9a684d37a0a6407c326c89869c10aaa1c72072ed843cb3a75b6551",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 340412
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/05-qualification-error-drafts-retained.png",
+          "sha256": "59eeac65e8a90619b3b99f03ee57090c9a2bb34c056bfa7b2056ede8449bf1b6",
+          "width": 1440,
+          "height": 2113,
+          "bytes": 343784
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/06-version-valid-optional-end-empty.png",
+          "sha256": "20994292c6438762b7c5a3b3dd02fb144e28e3d3e7c18bc6b4cd316b69f689fd",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 341764
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/07-version-pending.png",
+          "sha256": "6abb1e43bcf13ecfc3a6e0c18e0b0792881f7770a8d3c32e2756ecbc17f59148",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 340158
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/08-version-error-drafts-retained.png",
+          "sha256": "81befa6c730ea1f3737770a0a994f207a1ef1e0ebe90c00e1ac2f0a34068c2a2",
+          "width": 1440,
+          "height": 2113,
+          "bytes": 343808
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/09-local-selection-isolated-from-server-binding.png",
+          "sha256": "a8a58407fa01d1d8aa65e2dbfc459a149610024299ef9d3d04e220795741c721",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 341929
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/10-binding-pending.png",
+          "sha256": "2fdf97dcb1b50e4ac965e8176511ccbc65626b810eeeb378db214552f4dc1d24",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 340379
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/11-binding-error-local-draft-retained.png",
+          "sha256": "1bd7dd5d015130c03270a80ce7dff8886248ffc1398be47bfc05a044791312da",
+          "width": 1440,
+          "height": 2113,
+          "bytes": 343961
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/12-keyboard-qualification-form.png",
+          "sha256": "563f9f1a78cf8cf7caa9ff5b78603b8dcbc2c7f3764ba5650260bafb6054d5cb",
+          "width": 1440,
+          "height": 2113,
+          "bytes": 344994
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/13-keyboard-version-form.png",
+          "sha256": "e51d99a4ead8dc27263737121015b019dae66242cc9b5054ed791409ce5469d4",
+          "width": 1440,
+          "height": 2113,
+          "bytes": 344806
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/14-keyboard-version-selector.png",
+          "sha256": "590c3206b5085d42f5c67ac0ed6f85319ff18bdd2b20154a105137ce5674dc68",
+          "width": 1440,
+          "height": 2113,
+          "bytes": 345068
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/15-keyboard-bind-action.png",
+          "sha256": "0ce098deead64b5fc2206335f8f069dfa26c948f1b2a04e2661f9163a85ba913",
+          "width": 1440,
+          "height": 2113,
+          "bytes": 345025
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/16-200-percent-reflow-proxy.png",
+          "sha256": "cdf2f71de4c8afcd95175b44e29b169a177e36553b72634169ad93aef8b926ed",
+          "width": 720,
+          "height": 3067,
+          "bytes": 327334
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/17-qualification-success-only-own-form-cleared.png",
+          "sha256": "b241b26b40e2011aa780d0646b1d999d5f89de6961be882ff4bfe24cdfac7f1d",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 338298
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/18-version-optional-end-supplied.png",
+          "sha256": "ada074f3d3633e3b8bae94c5f8738f9a7290c7ebf86ab4132d5da3a7b9d83d4f",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 341760
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/19-version-success-only-own-form-cleared.png",
+          "sha256": "7be4524b7f1b4caf62870a78d6d9f20ca500af140be1aa73fe0138dcab87e3c4",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 340620
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/20-binding-success-map-reset-only-rubrics-refetched.png",
+          "sha256": "ca00b5e9225ddc3fc3d885edeae2513457c155e7fc181942e2fa246d879fe90a",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 340146
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/21-qualification-cached-refresh-error.png",
+          "sha256": "f43c166c39a217218717dc13ac9e85ae69df8d3d458d757eb9beb32b09ddaf89",
+          "width": 1440,
+          "height": 2121,
+          "bytes": 342345
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/22-rubrics-cached-refresh-error.png",
+          "sha256": "344f3af41ef6694566bdc6a223bd78a8d5f24a7d9b7a3d5ca572057da33595d6",
+          "width": 1440,
+          "height": 2179,
+          "bytes": 345428
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/23-successful-empty-registry-and-rubrics.png",
+          "sha256": "b3b1b8edace56515b1be4df8c978bdef1852f84b5ad8b3e1195c31fe0647ed47",
+          "width": 1440,
+          "height": 1293,
+          "bytes": 206758
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/24-qualification-cold-pending.png",
+          "sha256": "87b3113a55f9d462a5c2e1392cb8b8bf6d4b261a33620bffb9fa212b041ae51d",
+          "width": 1440,
+          "height": 1630,
+          "bytes": 271598
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/25-qualification-cold-error.png",
+          "sha256": "11a11d2c139264bd0d9a1c93364a8a0c22a35b695fe27fdc7294c3ba1d7a3f34",
+          "width": 1440,
+          "height": 1630,
+          "bytes": 272325
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/26-rubrics-cold-pending.png",
+          "sha256": "11232f0854756b012a2a48e012f18751ccd40b61b750da1e56a96ce9dfd94017",
+          "width": 1440,
+          "height": 1726,
+          "bytes": 272414
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a0b60-n-version-binding-workspace/27-rubrics-cold-error.png",
+          "sha256": "05bc4a2d1aad4f9caa40d00e3704512e53589798158cb5e742155c5271ba94f6",
+          "width": 1440,
+          "height": 1726,
+          "bytes": 272761
+        }
+      ]
+    },
+    {
+      "title": "ar light 1440: Academic qualification/version/binding workspace",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "ar",
+        "theme": "light",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "reflowWidth": 720,
+        "captures": [
+          "01-populated-lineage-long-content",
+          "02-invalid-qualification",
+          "03-valid-qualification-independent-version-draft",
+          "04-qualification-pending",
+          "05-qualification-error-drafts-retained",
+          "06-version-valid-optional-end-empty",
+          "07-version-pending",
+          "08-version-error-drafts-retained",
+          "09-local-selection-isolated-from-server-binding",
+          "10-binding-pending",
+          "11-binding-error-local-draft-retained",
+          "12-keyboard-qualification-form",
+          "13-keyboard-version-form",
+          "14-keyboard-version-selector",
+          "15-keyboard-bind-action",
+          "16-200-percent-reflow-proxy",
+          "17-qualification-success-only-own-form-cleared",
+          "18-version-optional-end-supplied",
+          "19-version-success-only-own-form-cleared",
+          "20-binding-success-map-reset-only-rubrics-refetched",
+          "21-qualification-cached-refresh-error",
+          "22-rubrics-cached-refresh-error",
+          "23-successful-empty-registry-and-rubrics",
+          "24-qualification-cold-pending",
+          "25-qualification-cold-error",
+          "26-rubrics-cold-pending",
+          "27-rubrics-cold-error"
+        ],
+        "reads": [
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics"
+        ],
+        "writes": [
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": null
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": "2027-02-01T00:00:00.000Z"
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/01-populated-lineage-long-content.png",
+          "sha256": "11bd094a3f41e5e6a7441ebc35ee615ba19eb1ee8a7fb8edc4d4377eaa15bf02",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 353049
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/02-invalid-qualification.png",
+          "sha256": "33cda350f5fa281f4be57d763c50a4d9455f914b452501535253cf49b4b3ec2c",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 353823
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/03-valid-qualification-independent-version-draft.png",
+          "sha256": "fb7a0c2bd0d4d56f2b0226b99dcd69ed36dab862ab6d668d9c4319dde13ff13f",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 356555
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/04-qualification-pending.png",
+          "sha256": "286752609b98d8d9255f65f105157359c6507c51827bd3e0c62e58e99fcca17d",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 354894
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/05-qualification-error-drafts-retained.png",
+          "sha256": "cc2623c010642463c73638cab9bf29fed74225bac436bf337ef8e3ecd2224842",
+          "width": 1440,
+          "height": 2113,
+          "bytes": 359109
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/06-version-valid-optional-end-empty.png",
+          "sha256": "a82d44afe1053e91f7ee622b8b3e2447e9b4acaff9f90ec63a758a94cde12d1d",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 356596
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/07-version-pending.png",
+          "sha256": "5c8db86372f3e3615cd27fc55b47699d56ddb61749bfe7e321fd5cf2f4f05b84",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 354603
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/08-version-error-drafts-retained.png",
+          "sha256": "537f32b19c6e3cca5c46c160d2bb93df000c2ceb0a1a06d0fc72dfdb8b1c73ed",
+          "width": 1440,
+          "height": 2113,
+          "bytes": 359150
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/09-local-selection-isolated-from-server-binding.png",
+          "sha256": "3304c26b4bc0c985fce0b9af64a92daa221a548ad5251fd700615cb6e205f563",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 356802
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/10-binding-pending.png",
+          "sha256": "a725c8dece9fd84e4ea40607140137c7a27ce0e4e4f9a1e7722b855d8d06bdad",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 354949
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/11-binding-error-local-draft-retained.png",
+          "sha256": "c1d627b2d7a041f433f09c27e72e47feb3841d022add442b7878d00740786cc4",
+          "width": 1440,
+          "height": 2113,
+          "bytes": 359184
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/12-keyboard-qualification-form.png",
+          "sha256": "93510a6e19625d474ccc1593998d9a4cb4d120a9fcedda876154f71aa1360180",
+          "width": 1440,
+          "height": 2113,
+          "bytes": 360323
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/13-keyboard-version-form.png",
+          "sha256": "6aa02d17018163b2bf39b9dfd5d8628a2048454a3399d5d25b2abcdb09714dda",
+          "width": 1440,
+          "height": 2113,
+          "bytes": 360075
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/14-keyboard-version-selector.png",
+          "sha256": "d68d43a10155682a483632bbd69589b1519036d96f931641a7b78bad866a7895",
+          "width": 1440,
+          "height": 2113,
+          "bytes": 360173
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/15-keyboard-bind-action.png",
+          "sha256": "7778e24ca4929b347c74d051e34b7fb0ee533d339021488cae3c3a190b0b3df2",
+          "width": 1440,
+          "height": 2113,
+          "bytes": 360201
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/16-200-percent-reflow-proxy.png",
+          "sha256": "c662d8567868a4bb7e1b5abfddb2d4fc70747c27e81b71e12adc0e387a874d8a",
+          "width": 720,
+          "height": 3067,
+          "bytes": 331329
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/17-qualification-success-only-own-form-cleared.png",
+          "sha256": "5a93c200f011f8393820dd65e6f99284b79b698b82e0242ea18687bde1e1b4c7",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 352553
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/18-version-optional-end-supplied.png",
+          "sha256": "cc69095ebb330a22903b8c8a0be68f99103ea362d4fc18bf012f0c8abeb5420c",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 356578
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/19-version-success-only-own-form-cleared.png",
+          "sha256": "4dda17a6471369f850bdddbc43e886a6a06e43821d86855d39856dc3805e077d",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 354767
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/20-binding-success-map-reset-only-rubrics-refetched.png",
+          "sha256": "adfe27dc4b8821e8d3293056f06cb43ad10a49f2cb41cf0ae05bca747394d171",
+          "width": 1440,
+          "height": 2063,
+          "bytes": 354784
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/21-qualification-cached-refresh-error.png",
+          "sha256": "7ec0c3e8cbba1fdd353111d7a3d8a23ce74e576510d8b06333a156046b6eb15f",
+          "width": 1440,
+          "height": 2121,
+          "bytes": 357056
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/22-rubrics-cached-refresh-error.png",
+          "sha256": "77463fb10859fb9d41a4a256ba24e5cc5419e1c26f3b66335f7b17566c1fc466",
+          "width": 1440,
+          "height": 2179,
+          "bytes": 361453
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/23-successful-empty-registry-and-rubrics.png",
+          "sha256": "4d8f6f7fef6c81d024aee52380276fd162dadeed6b82a09f03b830d1779a293f",
+          "width": 1440,
+          "height": 1293,
+          "bytes": 208391
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/24-qualification-cold-pending.png",
+          "sha256": "6ef3cbf01db89663857c2143c149ab32ab4d55e1682596d8e513cd115b728d97",
+          "width": 1440,
+          "height": 1630,
+          "bytes": 280491
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/25-qualification-cold-error.png",
+          "sha256": "9bc90048efbd77b7e78b79acabd74534499eb14d62ef62a37ca159e0a73115d2",
+          "width": 1440,
+          "height": 1630,
+          "bytes": 281244
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/26-rubrics-cold-pending.png",
+          "sha256": "e1daa3ec97624fd60544b7d88d8f3d268d8b624e2da26a259bcbb80f5c9b96da",
+          "width": 1440,
+          "height": 1726,
+          "bytes": 282712
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-a68ff-n-version-binding-workspace/27-rubrics-cold-error.png",
+          "sha256": "b666ec7cfd5238897b9c87e1b570be6da8f5311720708d9e76642d1daf3c6993",
+          "width": 1440,
+          "height": 1726,
+          "bytes": 283137
+        }
+      ]
+    },
+    {
+      "title": "en dark 834: Academic qualification/version/binding workspace",
+      "status": "passed",
+      "locale": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "en",
+        "theme": "dark",
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "reflowWidth": 417,
+        "captures": [
+          "01-populated-lineage-long-content",
+          "02-invalid-qualification",
+          "03-valid-qualification-independent-version-draft",
+          "04-qualification-pending",
+          "05-qualification-error-drafts-retained",
+          "06-version-valid-optional-end-empty",
+          "07-version-pending",
+          "08-version-error-drafts-retained",
+          "09-local-selection-isolated-from-server-binding",
+          "10-binding-pending",
+          "11-binding-error-local-draft-retained",
+          "12-keyboard-qualification-form",
+          "13-keyboard-version-form",
+          "14-keyboard-version-selector",
+          "15-keyboard-bind-action",
+          "16-200-percent-reflow-proxy",
+          "17-qualification-success-only-own-form-cleared",
+          "18-version-optional-end-supplied",
+          "19-version-success-only-own-form-cleared",
+          "20-binding-success-map-reset-only-rubrics-refetched",
+          "21-qualification-cached-refresh-error",
+          "22-rubrics-cached-refresh-error",
+          "23-successful-empty-registry-and-rubrics",
+          "24-qualification-cold-pending",
+          "25-qualification-cold-error",
+          "26-rubrics-cold-pending",
+          "27-rubrics-cold-error"
+        ],
+        "reads": [
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics"
+        ],
+        "writes": [
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": null
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": "2027-02-01T00:00:00.000Z"
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/01-populated-lineage-long-content.png",
+          "sha256": "dc4cdc19c6b46ed527e0287aeec578d01627775211eec9f22a9cb4abb0044115",
+          "width": 834,
+          "height": 2536,
+          "bytes": 210604
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/02-invalid-qualification.png",
+          "sha256": "da5dc16edad459e370a1eaf1d22c571c504264bb4d3c4ad23fb27ff9d6a9c783",
+          "width": 834,
+          "height": 2536,
+          "bytes": 211497
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/03-valid-qualification-independent-version-draft.png",
+          "sha256": "60f9543ba27763caf4b4cb369904ba12cc3b9030ff9f06856ae1739fe0acfa16",
+          "width": 834,
+          "height": 2536,
+          "bytes": 214001
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/04-qualification-pending.png",
+          "sha256": "531f3fb1302e05d8c89ea2e2c568b98e4bf52332d6c291e31d7aaf8eca628010",
+          "width": 834,
+          "height": 2536,
+          "bytes": 211958
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/05-qualification-error-drafts-retained.png",
+          "sha256": "351d49193917e6dd8159ba6b263eb47869c10e27f58050bbd25871b579637070",
+          "width": 834,
+          "height": 2582,
+          "bytes": 217179
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/06-version-valid-optional-end-empty.png",
+          "sha256": "35801b67d9e72a36de3d0e0764c6e387ff994c296ed9e93dfc3f62d669beb6c5",
+          "width": 834,
+          "height": 2536,
+          "bytes": 214017
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/07-version-pending.png",
+          "sha256": "7197d4727b7b82ce5dce348974952863a4fdd3f3b7013422b5b2eb6042c8da0d",
+          "width": 834,
+          "height": 2536,
+          "bytes": 212462
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/08-version-error-drafts-retained.png",
+          "sha256": "430ce169fa8070567b11b59e2e1b9979a401318a01b44d49d2ca91528bd2ac3b",
+          "width": 834,
+          "height": 2582,
+          "bytes": 217329
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/09-local-selection-isolated-from-server-binding.png",
+          "sha256": "7db585c1b4c32fa2df3f86afcd4af7d821d2e5d9847d3ed5990dd85936e123a8",
+          "width": 834,
+          "height": 2536,
+          "bytes": 214430
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/10-binding-pending.png",
+          "sha256": "23b433f88f3879cb03dbb573c61308b24d02876f36b9e6921db46e6be7deee75",
+          "width": 834,
+          "height": 2536,
+          "bytes": 213064
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/11-binding-error-local-draft-retained.png",
+          "sha256": "59f3c9d58d94176a1c8516783c089c1366b65f145f4524df88205dacb2014c1e",
+          "width": 834,
+          "height": 2582,
+          "bytes": 217654
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/12-keyboard-qualification-form.png",
+          "sha256": "83dcc1217fb605d79b632d29d7eedea8547e51a7b97c8eefb1bb79c29b0060b5",
+          "width": 834,
+          "height": 2582,
+          "bytes": 218508
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/13-keyboard-version-form.png",
+          "sha256": "daf2b0224490e8ada9f5fcf3a55b64cc9d1713cee8833ad85d5eca364566dc43",
+          "width": 834,
+          "height": 2582,
+          "bytes": 218583
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/14-keyboard-version-selector.png",
+          "sha256": "61b559f8cb56b76ba1c4479f4ea5c977c8e75757ba85d1350beb3a4bc5d9baef",
+          "width": 834,
+          "height": 2582,
+          "bytes": 218500
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/15-keyboard-bind-action.png",
+          "sha256": "34378cdf98acd3dc3c986e98f00c373986ef6c73b044239311c87369485e77eb",
+          "width": 834,
+          "height": 2582,
+          "bytes": 218492
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/16-200-percent-reflow-proxy.png",
+          "sha256": "91de3904f7be3a71c3d64e32772ef443bb57b64e3d4cfcd0914b3e3bce18c5e6",
+          "width": 417,
+          "height": 3701,
+          "bytes": 236823
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/17-qualification-success-only-own-form-cleared.png",
+          "sha256": "e9f27038e3113e8a66d4544cfe3d8888eadb7035b4e8fdd5f303b6f1609f5638",
+          "width": 834,
+          "height": 2536,
+          "bytes": 211124
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/18-version-optional-end-supplied.png",
+          "sha256": "b6a50e5e8a9e1930a07d0a90a379b67fc003d61d43188c19f4dc74e7f7f20e47",
+          "width": 834,
+          "height": 2536,
+          "bytes": 213572
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/19-version-success-only-own-form-cleared.png",
+          "sha256": "d5036a6c5882a42c67687d25d1bf81045e2d81476c8fd7e34a133618196c30ab",
+          "width": 834,
+          "height": 2536,
+          "bytes": 211930
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/20-binding-success-map-reset-only-rubrics-refetched.png",
+          "sha256": "5c999ac3be0431b3557b46d1aa81bd48466622ed6c4ca72bd0844cee0879765d",
+          "width": 834,
+          "height": 2536,
+          "bytes": 212693
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/21-qualification-cached-refresh-error.png",
+          "sha256": "bd63edc39c2ff98508b985dc0ea2339b3a19dccd310cb15ab9a50db24307a2f9",
+          "width": 834,
+          "height": 2590,
+          "bytes": 216515
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/22-rubrics-cached-refresh-error.png",
+          "sha256": "1b35adc4fc70fd4917d54d4c1a2f40929936b2f3d2f0abab57bb19922f3972e4",
+          "width": 834,
+          "height": 2644,
+          "bytes": 221004
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/23-successful-empty-registry-and-rubrics.png",
+          "sha256": "9cb96836c9d1f723d431a2a298fdb0e512b6d7b6575f9a378dfd7f86d253bf7d",
+          "width": 834,
+          "height": 1612,
+          "bytes": 141805
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/24-qualification-cold-pending.png",
+          "sha256": "18c156f5be935c7d7bb660395017036d66b733b278f82936106218e17503cac6",
+          "width": 834,
+          "height": 2109,
+          "bytes": 171759
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/25-qualification-cold-error.png",
+          "sha256": "67132a8c6c6a82259ce35159370418acabff1a5387f94d1ca4bd2c819c47f584",
+          "width": 834,
+          "height": 2109,
+          "bytes": 173584
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/26-rubrics-cold-pending.png",
+          "sha256": "dd9df0f45aab93d4e025b41a46839552f13c3ebefd5925c98d28d77bf33aad45",
+          "width": 834,
+          "height": 2039,
+          "bytes": 176291
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-bfdfc-n-version-binding-workspace/27-rubrics-cold-error.png",
+          "sha256": "2c223e90012250357f5851704e78c66647724b7c6a33b7c4984cb419a0be72c1",
+          "width": 834,
+          "height": 2039,
+          "bytes": 177514
+        }
+      ]
+    },
+    {
+      "title": "en light 390: Academic qualification/version/binding workspace",
+      "status": "passed",
+      "locale": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "en",
+        "theme": "light",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "reflowWidth": 320,
+        "captures": [
+          "01-populated-lineage-long-content",
+          "02-invalid-qualification",
+          "03-valid-qualification-independent-version-draft",
+          "04-qualification-pending",
+          "05-qualification-error-drafts-retained",
+          "06-version-valid-optional-end-empty",
+          "07-version-pending",
+          "08-version-error-drafts-retained",
+          "09-local-selection-isolated-from-server-binding",
+          "10-binding-pending",
+          "11-binding-error-local-draft-retained",
+          "12-keyboard-qualification-form",
+          "13-keyboard-version-form",
+          "14-keyboard-version-selector",
+          "15-keyboard-bind-action",
+          "16-200-percent-reflow-proxy",
+          "17-qualification-success-only-own-form-cleared",
+          "18-version-optional-end-supplied",
+          "19-version-success-only-own-form-cleared",
+          "20-binding-success-map-reset-only-rubrics-refetched",
+          "21-qualification-cached-refresh-error",
+          "22-rubrics-cached-refresh-error",
+          "23-successful-empty-registry-and-rubrics",
+          "24-qualification-cold-pending",
+          "25-qualification-cold-error",
+          "26-rubrics-cold-pending",
+          "27-rubrics-cold-error"
+        ],
+        "reads": [
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics"
+        ],
+        "writes": [
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": null
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": "2027-02-01T00:00:00.000Z"
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/01-populated-lineage-long-content.png",
+          "sha256": "eafe7c3d6b4e24830241940b074f119aefd28de0f9d68c6b5a54979b9096ab2b",
+          "width": 390,
+          "height": 3697,
+          "bytes": 230965
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/02-invalid-qualification.png",
+          "sha256": "c744594e61569f643db723e615aba683c7e17a1eeb8ceee4750ffe227b82e5d2",
+          "width": 390,
+          "height": 3697,
+          "bytes": 231546
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/03-valid-qualification-independent-version-draft.png",
+          "sha256": "9ca8163ce38e4ca1f07edde44f8a5ae209f361eea6a5bceb0e5f0c8b432ee14c",
+          "width": 390,
+          "height": 3697,
+          "bytes": 233922
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/04-qualification-pending.png",
+          "sha256": "5281313f52bde40a65c9e4a9fdc7f5dee1a0e52e96c1018d19a4e5db87a9f65e",
+          "width": 390,
+          "height": 3697,
+          "bytes": 232070
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/05-qualification-error-drafts-retained.png",
+          "sha256": "f2bf1ccbe2f60e8e7223bdafc45504be0b9afa016f8a25f5802d68072a42ec92",
+          "width": 390,
+          "height": 3743,
+          "bytes": 236494
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/06-version-valid-optional-end-empty.png",
+          "sha256": "4d3bda3a3afa7ab20382f6fc9ef5f2aa69eda2e7c3af14678e845ff2e34df82a",
+          "width": 390,
+          "height": 3697,
+          "bytes": 233936
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/07-version-pending.png",
+          "sha256": "e4b8c6d121898f4647809fda7e296080511e53b559981dee297d02220ba663ab",
+          "width": 390,
+          "height": 3697,
+          "bytes": 232533
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/08-version-error-drafts-retained.png",
+          "sha256": "ca27042f77fd4613e6ab10d0b0897c0d93c451eb3ffc971c28c5793a9f13dac8",
+          "width": 390,
+          "height": 3743,
+          "bytes": 236335
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/09-local-selection-isolated-from-server-binding.png",
+          "sha256": "ce64c68d44da0d9b3354a4d564fa25af98eef63560aefc2a1893fc2d4867a004",
+          "width": 390,
+          "height": 3697,
+          "bytes": 234387
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/10-binding-pending.png",
+          "sha256": "8f1cf1ae50e14255be86f15ccad4d24161266010678f477801e2b1a2ba031e53",
+          "width": 390,
+          "height": 3697,
+          "bytes": 232995
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/11-binding-error-local-draft-retained.png",
+          "sha256": "d367693173e2997a586cbd854c7cc0bb19a23a5c07fdd201a6b5c62002ce5232",
+          "width": 390,
+          "height": 3743,
+          "bytes": 236836
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/12-keyboard-qualification-form.png",
+          "sha256": "1b8eb4d002bfc018505889080016e3f5290458a38d1100699338a7bca214d1c2",
+          "width": 390,
+          "height": 3743,
+          "bytes": 237794
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/13-keyboard-version-form.png",
+          "sha256": "ca029955317d1372be59cf295d9c45b7cf7bae5e4af4c1ddfd29295bdce7e796",
+          "width": 390,
+          "height": 3743,
+          "bytes": 237804
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/14-keyboard-version-selector.png",
+          "sha256": "1cf50f6a5ff3a4b50413e9e2f63db5335e985c3efe34321ee8d605d5b069dcae",
+          "width": 390,
+          "height": 3743,
+          "bytes": 237726
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/15-keyboard-bind-action.png",
+          "sha256": "6d2e6057d285ac3ed712a954bef57971901a4c8955f7f529f498209a63b08c7b",
+          "width": 390,
+          "height": 3743,
+          "bytes": 237781
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/16-200-percent-reflow-proxy.png",
+          "sha256": "4324c91635a1979f3074df207a7ec540079ca4d556d37c6760d1a37577b887a6",
+          "width": 320,
+          "height": 4053,
+          "bytes": 239444
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/17-qualification-success-only-own-form-cleared.png",
+          "sha256": "a7bf3d42ba53ae812b7b3629d705a0dbf0d56920356e05b9a7ea31670bf91a1b",
+          "width": 390,
+          "height": 3697,
+          "bytes": 231009
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/18-version-optional-end-supplied.png",
+          "sha256": "eed6f4c1f06a20cf8f69c06d15b3fdfbf2ff256f2193db69df85c48cb9e8de81",
+          "width": 390,
+          "height": 3697,
+          "bytes": 234024
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/19-version-success-only-own-form-cleared.png",
+          "sha256": "f2abcc87b22e64bce2036d378db5b22c2e7b7fd7ef2ebbe42bbf3b47bd3739b6",
+          "width": 390,
+          "height": 3697,
+          "bytes": 232391
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/20-binding-success-map-reset-only-rubrics-refetched.png",
+          "sha256": "64714c6583d16339af06449046cc20381f19011a8bc51edd583ff107904e1432",
+          "width": 390,
+          "height": 3697,
+          "bytes": 232662
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/21-qualification-cached-refresh-error.png",
+          "sha256": "65127230762de22528bec10bd3a2a35e861dca505b58b6da215b6d247bcc4bb8",
+          "width": 390,
+          "height": 3751,
+          "bytes": 235509
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/22-rubrics-cached-refresh-error.png",
+          "sha256": "b822be8fff30b55aeacb20df977bb954b44d1f6f4c42349a16c44aa549cd327a",
+          "width": 390,
+          "height": 3805,
+          "bytes": 239739
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/23-successful-empty-registry-and-rubrics.png",
+          "sha256": "0096740de528f133dff095c3b6f2bbd48f05a3d5d19ffc79e66c0ad8c812fc45",
+          "width": 390,
+          "height": 2525,
+          "bytes": 146030
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/24-qualification-cold-pending.png",
+          "sha256": "310f4f962b6b41ab3c29c5a9bc8f7f3810449a470a402ee1a50910d61e42c872",
+          "width": 390,
+          "height": 3046,
+          "bytes": 186387
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/25-qualification-cold-error.png",
+          "sha256": "968953db556decea06610d9cb06607b6173f6b4b2aa52f0ed13818818a2ce840",
+          "width": 390,
+          "height": 3046,
+          "bytes": 187494
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/26-rubrics-cold-pending.png",
+          "sha256": "125cbb2782656c15a6e269a06a21d963477f927353a65e2dc5eb1df81e648fd8",
+          "width": 390,
+          "height": 3176,
+          "bytes": 191256
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-c35d9-n-version-binding-workspace/27-rubrics-cold-error.png",
+          "sha256": "4699b83a4f495faaefaef1d810d823e3ad0d3a109695c0f7af0aea8a73293fbf",
+          "width": 390,
+          "height": 3176,
+          "bytes": 192105
+        }
+      ]
+    },
+    {
+      "title": "en light 834: Academic qualification/version/binding workspace",
+      "status": "passed",
+      "locale": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "en",
+        "theme": "light",
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "reflowWidth": 417,
+        "captures": [
+          "01-populated-lineage-long-content",
+          "02-invalid-qualification",
+          "03-valid-qualification-independent-version-draft",
+          "04-qualification-pending",
+          "05-qualification-error-drafts-retained",
+          "06-version-valid-optional-end-empty",
+          "07-version-pending",
+          "08-version-error-drafts-retained",
+          "09-local-selection-isolated-from-server-binding",
+          "10-binding-pending",
+          "11-binding-error-local-draft-retained",
+          "12-keyboard-qualification-form",
+          "13-keyboard-version-form",
+          "14-keyboard-version-selector",
+          "15-keyboard-bind-action",
+          "16-200-percent-reflow-proxy",
+          "17-qualification-success-only-own-form-cleared",
+          "18-version-optional-end-supplied",
+          "19-version-success-only-own-form-cleared",
+          "20-binding-success-map-reset-only-rubrics-refetched",
+          "21-qualification-cached-refresh-error",
+          "22-rubrics-cached-refresh-error",
+          "23-successful-empty-registry-and-rubrics",
+          "24-qualification-cold-pending",
+          "25-qualification-cold-error",
+          "26-rubrics-cold-pending",
+          "27-rubrics-cold-error"
+        ],
+        "reads": [
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics"
+        ],
+        "writes": [
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": null
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": "2027-02-01T00:00:00.000Z"
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/01-populated-lineage-long-content.png",
+          "sha256": "ae117dfea39221d5a8b7b770ad16bf2de3a425bb5f9748d8b622b317ed11753f",
+          "width": 834,
+          "height": 2536,
+          "bytes": 228604
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/02-invalid-qualification.png",
+          "sha256": "97e769edd349dcc91c6a31bbffc2d8537ac8370c441ba5d9842ca443d055a6c0",
+          "width": 834,
+          "height": 2536,
+          "bytes": 229654
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/03-valid-qualification-independent-version-draft.png",
+          "sha256": "c5724529612c071fe809a51f468debfc0bc0da23eaf6c382ed8b2f3c5fb69485",
+          "width": 834,
+          "height": 2536,
+          "bytes": 232523
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/04-qualification-pending.png",
+          "sha256": "d3b1dcdd2a535991425fe3b4e95d34a6a53ee0f659b9a375c407bac5f26470ca",
+          "width": 834,
+          "height": 2536,
+          "bytes": 230176
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/05-qualification-error-drafts-retained.png",
+          "sha256": "bfbdaf6000a8a46c9e14762d66b5f1751ebcadd9dccfd73f9fea8579c6197bac",
+          "width": 834,
+          "height": 2582,
+          "bytes": 236519
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/06-version-valid-optional-end-empty.png",
+          "sha256": "c679764e0a79ca6c69c675b3509a8273b5f72fc3424d2c0174370618edec60da",
+          "width": 834,
+          "height": 2536,
+          "bytes": 232537
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/07-version-pending.png",
+          "sha256": "0d8fe1bd96f4eb9886c05f76fd0911acff2faad0360ac63db342c9f02bcd51a5",
+          "width": 834,
+          "height": 2536,
+          "bytes": 230665
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/08-version-error-drafts-retained.png",
+          "sha256": "90ce5eeb8a5d272c9abf17a9280432cc1f079da461b56c67c6495498035cf73c",
+          "width": 834,
+          "height": 2582,
+          "bytes": 236449
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/09-local-selection-isolated-from-server-binding.png",
+          "sha256": "065e71aefa00f525b1051ed5ef614c596e55cad33fc63f33b4ddf98189bb9c89",
+          "width": 834,
+          "height": 2536,
+          "bytes": 232927
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/10-binding-pending.png",
+          "sha256": "25453297dce7ab1bd01b6e1e22eeb0f9fbc837eae25fb41ba56f873fc7c24669",
+          "width": 834,
+          "height": 2536,
+          "bytes": 231489
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/11-binding-error-local-draft-retained.png",
+          "sha256": "0b2ca1cdf2d7bcc119d95eaf4dcf1a081766fc709afc13ff22bb1ab56b0d9dcb",
+          "width": 834,
+          "height": 2582,
+          "bytes": 236937
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/12-keyboard-qualification-form.png",
+          "sha256": "7a3e04a611fb7a1c836e20f3f63774d74cb4f6d4e84576d56d5f45c3736bd400",
+          "width": 834,
+          "height": 2582,
+          "bytes": 237793
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/13-keyboard-version-form.png",
+          "sha256": "e045adc0a9418ff45a446d0ca99f37c932f12cc70f0d61a5b5fb480d3b508ee6",
+          "width": 834,
+          "height": 2582,
+          "bytes": 237845
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/14-keyboard-version-selector.png",
+          "sha256": "aea65d1eb510c91eeb63055c707922c46b4d6e4184d7dda05f28dfe07e78737d",
+          "width": 834,
+          "height": 2582,
+          "bytes": 237735
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/15-keyboard-bind-action.png",
+          "sha256": "829ea62b7026d8ae864b42ec79a5ab8abb42fe7bab75a6233b32bbbac6a93466",
+          "width": 834,
+          "height": 2582,
+          "bytes": 237723
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/16-200-percent-reflow-proxy.png",
+          "sha256": "3e5bcab7e835e52fe64e94e37f9be3b2e3852cf3f442002a91653b210a0887f4",
+          "width": 417,
+          "height": 3701,
+          "bytes": 247293
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/17-qualification-success-only-own-form-cleared.png",
+          "sha256": "a84d18a4a5966734aa7cc68d863d7e8a1e440be2e9adba09f275daad60a36043",
+          "width": 834,
+          "height": 2536,
+          "bytes": 229400
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/18-version-optional-end-supplied.png",
+          "sha256": "7f271e06ae97a80512d9c51256a95d10d56377117917cfbf20ff81b86b6d6597",
+          "width": 834,
+          "height": 2536,
+          "bytes": 232090
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/19-version-success-only-own-form-cleared.png",
+          "sha256": "86b4d34e0cb329fdb7d0e41aa67282d5747ade12abf1c3c85166eb3abfa15c69",
+          "width": 834,
+          "height": 2536,
+          "bytes": 229963
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/20-binding-success-map-reset-only-rubrics-refetched.png",
+          "sha256": "a4bfbe2bf4d1a02c538b498f95657dc989058e7ee80a7404007f17d18fe8a3a8",
+          "width": 834,
+          "height": 2536,
+          "bytes": 231084
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/21-qualification-cached-refresh-error.png",
+          "sha256": "251cea806787250e65a45537064b327e59f3f7e6189645ebbb3371e83d4baa8d",
+          "width": 834,
+          "height": 2590,
+          "bytes": 235835
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/22-rubrics-cached-refresh-error.png",
+          "sha256": "f1ae5babedbae2883a781fc48e6afa4a454f9d52e36dfad4cebf5e79eb5083f1",
+          "width": 834,
+          "height": 2644,
+          "bytes": 239703
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/23-successful-empty-registry-and-rubrics.png",
+          "sha256": "6b70c668ef490b37351e1e5b6c23774ec3ae9257087f40fab12af1e32e2d4c3f",
+          "width": 834,
+          "height": 1612,
+          "bytes": 148032
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/24-qualification-cold-pending.png",
+          "sha256": "1e56acf8cc1ce80f8e4819c45977032559a1cc7b521280086ecf8644b67546b7",
+          "width": 834,
+          "height": 2109,
+          "bytes": 185093
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/25-qualification-cold-error.png",
+          "sha256": "513593489069c91a95205d1bfab7f064b2686a21239b376dafb97f7e7480d6ed",
+          "width": 834,
+          "height": 2109,
+          "bytes": 186962
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/26-rubrics-cold-pending.png",
+          "sha256": "3b9b037415602e8676d8f0f326a0513504718f66fee1ef855f02d8da3bd96857",
+          "width": 834,
+          "height": 2039,
+          "bytes": 188078
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-d2122-n-version-binding-workspace/27-rubrics-cold-error.png",
+          "sha256": "2431a2ed02a210ad5e8061c06030aa320cf489fb007abc1780055ea10a58b59e",
+          "width": 834,
+          "height": 2039,
+          "bytes": 189121
+        }
+      ]
+    },
+    {
+      "title": "ar dark 390: Academic qualification/version/binding workspace",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "ar",
+        "theme": "dark",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "reflowWidth": 320,
+        "captures": [
+          "01-populated-lineage-long-content",
+          "02-invalid-qualification",
+          "03-valid-qualification-independent-version-draft",
+          "04-qualification-pending",
+          "05-qualification-error-drafts-retained",
+          "06-version-valid-optional-end-empty",
+          "07-version-pending",
+          "08-version-error-drafts-retained",
+          "09-local-selection-isolated-from-server-binding",
+          "10-binding-pending",
+          "11-binding-error-local-draft-retained",
+          "12-keyboard-qualification-form",
+          "13-keyboard-version-form",
+          "14-keyboard-version-selector",
+          "15-keyboard-bind-action",
+          "16-200-percent-reflow-proxy",
+          "17-qualification-success-only-own-form-cleared",
+          "18-version-optional-end-supplied",
+          "19-version-success-only-own-form-cleared",
+          "20-binding-success-map-reset-only-rubrics-refetched",
+          "21-qualification-cached-refresh-error",
+          "22-rubrics-cached-refresh-error",
+          "23-successful-empty-registry-and-rubrics",
+          "24-qualification-cold-pending",
+          "25-qualification-cold-error",
+          "26-rubrics-cold-pending",
+          "27-rubrics-cold-error"
+        ],
+        "reads": [
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics"
+        ],
+        "writes": [
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": null
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": "2027-02-01T00:00:00.000Z"
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/01-populated-lineage-long-content.png",
+          "sha256": "7412303778fdcdec371b24c9612fa2d647cd9d4bcdc388a46f7b574ff6925de9",
+          "width": 390,
+          "height": 4113,
+          "bytes": 329159
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/02-invalid-qualification.png",
+          "sha256": "8294cd9c312e879530e66bdf219823839cef2d5f538e3ed0eebadc6e5ebf425f",
+          "width": 390,
+          "height": 4113,
+          "bytes": 329487
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/03-valid-qualification-independent-version-draft.png",
+          "sha256": "9df2a4b992bf981e0a7804ca53a5d26ba45ce56097cbe89e0c5ff6ca264a6f7b",
+          "width": 390,
+          "height": 4113,
+          "bytes": 333603
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/04-qualification-pending.png",
+          "sha256": "ed346e16af7a4053a87275c0750b5cc4a84696211b9b33e461b93bcfe33b04de",
+          "width": 390,
+          "height": 4113,
+          "bytes": 332033
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/05-qualification-error-drafts-retained.png",
+          "sha256": "72e088b610fdf400f81fdf1da8203189b682fcd99b23779ddcc752a2b447b509",
+          "width": 390,
+          "height": 4163,
+          "bytes": 336682
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/06-version-valid-optional-end-empty.png",
+          "sha256": "9c7f6fe1fbe06b34ad55a9b9d818674860137901ac809addd1a0cce854067d6c",
+          "width": 390,
+          "height": 4113,
+          "bytes": 333759
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/07-version-pending.png",
+          "sha256": "1c968156626ccd868059d704bb2630fc6a74d7829b269216471ba42a58ab8c61",
+          "width": 390,
+          "height": 4113,
+          "bytes": 332277
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/08-version-error-drafts-retained.png",
+          "sha256": "3add5eee5ac2b131122aac57ba922e4de4005b2e678ac744a8226a025e195f32",
+          "width": 390,
+          "height": 4163,
+          "bytes": 336745
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/09-local-selection-isolated-from-server-binding.png",
+          "sha256": "f7ef8413ae3eb23d2a0047c59e3b9efe8bfdd403a7cfdadef9b6348d01f4c3f6",
+          "width": 390,
+          "height": 4113,
+          "bytes": 333530
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/10-binding-pending.png",
+          "sha256": "445a08a199120044fd1dcbf5ff22d78f79da1c30d457340b2a5f6ee8b0f19882",
+          "width": 390,
+          "height": 4113,
+          "bytes": 332228
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/11-binding-error-local-draft-retained.png",
+          "sha256": "e39eaa0cbbd8f1a0d429ef63a96acae80a9a6a0ba6f9eab3a21109456869ac12",
+          "width": 390,
+          "height": 4163,
+          "bytes": 335675
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/12-keyboard-qualification-form.png",
+          "sha256": "88513c0d84cd696b28cbabf61ea2c14f7bb07549af5f86a9bc6a59198d96e924",
+          "width": 390,
+          "height": 4163,
+          "bytes": 336447
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/13-keyboard-version-form.png",
+          "sha256": "18a5c358b418a5a4dbe8ec00fc5283fded30a0f81b5532e27c759f1dd08e78a2",
+          "width": 390,
+          "height": 4163,
+          "bytes": 336490
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/14-keyboard-version-selector.png",
+          "sha256": "8a692595c4d01f7fd6681d9e263748d3f9d096a67bf5c3c981ff81856b0daad0",
+          "width": 390,
+          "height": 4163,
+          "bytes": 336431
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/15-keyboard-bind-action.png",
+          "sha256": "fad5a16049b9c63d6d5602fcef0676c6eeefef20f80bfb7b56602b7b381bfbbc",
+          "width": 390,
+          "height": 4163,
+          "bytes": 336501
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/16-200-percent-reflow-proxy.png",
+          "sha256": "0e9a4ce256deded57836d83334605a967473a0beb203507c8d636caeda6ed045",
+          "width": 320,
+          "height": 4370,
+          "bytes": 328260
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/17-qualification-success-only-own-form-cleared.png",
+          "sha256": "02f46a7ba213de52c04b60e8e5fbeace86c0f3069576cd338a7834ba486ce6f8",
+          "width": 390,
+          "height": 4113,
+          "bytes": 330199
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/18-version-optional-end-supplied.png",
+          "sha256": "36ff94f2e25e499b4370c1b6757b4cc2056cd15911ce163ebf90765076da3a43",
+          "width": 390,
+          "height": 4113,
+          "bytes": 333705
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/19-version-success-only-own-form-cleared.png",
+          "sha256": "a932e31338c1eab4815cabd88f5439be677fa807079e0ef7251f4766b9951ac2",
+          "width": 390,
+          "height": 4113,
+          "bytes": 330585
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/20-binding-success-map-reset-only-rubrics-refetched.png",
+          "sha256": "a117afb043ee1eb8528bb83fdce388776539e06b294cd02f1d9b2eaf1d33f982",
+          "width": 390,
+          "height": 4113,
+          "bytes": 332299
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/21-qualification-cached-refresh-error.png",
+          "sha256": "b54978193a6a0daf597c154857a5ff52237ceb835ab649704f07a7c2a4cb9f3c",
+          "width": 390,
+          "height": 4171,
+          "bytes": 333962
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/22-rubrics-cached-refresh-error.png",
+          "sha256": "f04ef7dae46ce3c061ebb5fada41401b4712a5ed2aafeec40e968787d1985534",
+          "width": 390,
+          "height": 4229,
+          "bytes": 337434
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/23-successful-empty-registry-and-rubrics.png",
+          "sha256": "357fcd18b3a4c3dd18577d5e5014ff38594f30831a46127d8a42d06610012a20",
+          "width": 390,
+          "height": 2505,
+          "bytes": 177557
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/24-qualification-cold-pending.png",
+          "sha256": "9da3eb9232227c0cf65398c240b51ab9734395bf2e7b5fbc4f25e4a0abac2529",
+          "width": 390,
+          "height": 3182,
+          "bytes": 255067
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/25-qualification-cold-error.png",
+          "sha256": "16c36444877e5a930203c6310e58381a47e37587c220fdf977b4d12cc381694a",
+          "width": 390,
+          "height": 3182,
+          "bytes": 255764
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/26-rubrics-cold-pending.png",
+          "sha256": "6753892b7640b3a9eceef3645558a38f98aec15abc3362c911b844b7c6bb8ce6",
+          "width": 390,
+          "height": 3436,
+          "bytes": 251035
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e0da0-n-version-binding-workspace/27-rubrics-cold-error.png",
+          "sha256": "66f5feec57a128e0127e1d6a2f8dcebf1d6f3175137eea3f8c1d6b57a7e4a5e9",
+          "width": 390,
+          "height": 3436,
+          "bytes": 251501
+        }
+      ]
+    },
+    {
+      "title": "ar dark 834: Academic qualification/version/binding workspace",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "dark",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "ar",
+        "theme": "dark",
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "reflowWidth": 417,
+        "captures": [
+          "01-populated-lineage-long-content",
+          "02-invalid-qualification",
+          "03-valid-qualification-independent-version-draft",
+          "04-qualification-pending",
+          "05-qualification-error-drafts-retained",
+          "06-version-valid-optional-end-empty",
+          "07-version-pending",
+          "08-version-error-drafts-retained",
+          "09-local-selection-isolated-from-server-binding",
+          "10-binding-pending",
+          "11-binding-error-local-draft-retained",
+          "12-keyboard-qualification-form",
+          "13-keyboard-version-form",
+          "14-keyboard-version-selector",
+          "15-keyboard-bind-action",
+          "16-200-percent-reflow-proxy",
+          "17-qualification-success-only-own-form-cleared",
+          "18-version-optional-end-supplied",
+          "19-version-success-only-own-form-cleared",
+          "20-binding-success-map-reset-only-rubrics-refetched",
+          "21-qualification-cached-refresh-error",
+          "22-rubrics-cached-refresh-error",
+          "23-successful-empty-registry-and-rubrics",
+          "24-qualification-cold-pending",
+          "25-qualification-cold-error",
+          "26-rubrics-cold-pending",
+          "27-rubrics-cold-error"
+        ],
+        "reads": [
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics",
+          "/qualification-registry",
+          "/qualification-registry/rubrics"
+        ],
+        "writes": [
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": null
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/versions",
+            "body": {
+              "qualificationId": "qualification-z",
+              "versionCode": "  V2  ",
+              "sourceReference": "  Source reference raw  ",
+              "effectiveFromUtc": "2026-10-23T00:00:00.000Z",
+              "effectiveUntilUtc": "2027-02-01T00:00:00.000Z"
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          },
+          {
+            "path": "/qualification-registry/qualifications",
+            "body": {
+              "code": "  QC  ",
+              "arabicName": "  مؤهل خام  ",
+              "englishName": "  Raw qualification  "
+            }
+          },
+          {
+            "path": "/qualification-registry/rubrics/rubric-a/qualification-version/version-third",
+            "body": null
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/01-populated-lineage-long-content.png",
+          "sha256": "1c06fe1bc196f1b5f1fdcd303f16118708db99bfc873ce0ef3a12303d74f19c3",
+          "width": 834,
+          "height": 2746,
+          "bytes": 303002
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/02-invalid-qualification.png",
+          "sha256": "71dcd1e21dd8d6618ca908d82c4d86efdb2e4864b3d1ee2aab6540f3366940e2",
+          "width": 834,
+          "height": 2746,
+          "bytes": 303649
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/03-valid-qualification-independent-version-draft.png",
+          "sha256": "38489bc9b44f885f3a2ed7aef352467807ca4aae9985a7042fb7e2a9715e40e7",
+          "width": 834,
+          "height": 2746,
+          "bytes": 309698
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/04-qualification-pending.png",
+          "sha256": "41c6f424689c4e12119e49fa47512eac37323a4a471c08d1372c9f85541718e5",
+          "width": 834,
+          "height": 2746,
+          "bytes": 307928
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/05-qualification-error-drafts-retained.png",
+          "sha256": "c30680c291b0ba54e7727026a710fee9697cc747f67bd4fb809121fc9433f713",
+          "width": 834,
+          "height": 2796,
+          "bytes": 311138
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/06-version-valid-optional-end-empty.png",
+          "sha256": "acb0504c882ec4aa4bacdd64e872fdcad67d9401ef6b0ad5069d476e83f377c0",
+          "width": 834,
+          "height": 2746,
+          "bytes": 309584
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/07-version-pending.png",
+          "sha256": "083f270899cdcc09d06393af15c753e1d189a15be6c0b6745aba0b1244b13c7d",
+          "width": 834,
+          "height": 2746,
+          "bytes": 307866
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/08-version-error-drafts-retained.png",
+          "sha256": "5305a521b41782ba0f4fddba1791796f0d019e96f978f4a8e77356f0f589a276",
+          "width": 834,
+          "height": 2796,
+          "bytes": 311243
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/09-local-selection-isolated-from-server-binding.png",
+          "sha256": "c2ca2af70ad7e17dca29fe961d2b111863e579b33a8b89bb819e7c09258d93ab",
+          "width": 834,
+          "height": 2746,
+          "bytes": 309726
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/10-binding-pending.png",
+          "sha256": "132a0a5927609e1b7e753fcbff5f557d38a32b76097390e35ede0809c773ac86",
+          "width": 834,
+          "height": 2746,
+          "bytes": 308394
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/11-binding-error-local-draft-retained.png",
+          "sha256": "65d5901e4a0eb826740e3d346614ee5d5d27be698b198406ebeff4d31e7d7832",
+          "width": 834,
+          "height": 2796,
+          "bytes": 311283
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/12-keyboard-qualification-form.png",
+          "sha256": "6277d67de9347234740bd28ac73d4f9dad3e472353ab1cfb5acdedd082888c0f",
+          "width": 834,
+          "height": 2796,
+          "bytes": 312224
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/13-keyboard-version-form.png",
+          "sha256": "fcb040da88c7b8c879f3fc0c27b83e3deee788733739f5599d86a6c61dedf164",
+          "width": 834,
+          "height": 2796,
+          "bytes": 312313
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/14-keyboard-version-selector.png",
+          "sha256": "a356666b6cc07b5eb117524a13174941008a064139e2a419136afdeca1648623",
+          "width": 834,
+          "height": 2796,
+          "bytes": 312136
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/15-keyboard-bind-action.png",
+          "sha256": "98db5455375c74f4f1185486bd33eff8c5dacc218b957203c7e423d49454c249",
+          "width": 834,
+          "height": 2796,
+          "bytes": 312148
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/16-200-percent-reflow-proxy.png",
+          "sha256": "8f7553d423d6568ab9b69d1b63ed42e869b57d2a7a4fc3c11897eadc126c6387",
+          "width": 417,
+          "height": 4031,
+          "bytes": 352295
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/17-qualification-success-only-own-form-cleared.png",
+          "sha256": "3933f81e185c552fd6ce25dfd2cfe70c35708da052194866469fa5e884787f7e",
+          "width": 834,
+          "height": 2746,
+          "bytes": 306099
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/18-version-optional-end-supplied.png",
+          "sha256": "5e0a4a20f62942932f85e814b79106ebb7f3dba13a12808bb1d04a4d5facdd8d",
+          "width": 834,
+          "height": 2746,
+          "bytes": 309400
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/19-version-success-only-own-form-cleared.png",
+          "sha256": "3d4e9ceb52804fcffb61223229572154a1c99928bee6ea9e1a8e52917a119881",
+          "width": 834,
+          "height": 2746,
+          "bytes": 305072
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/20-binding-success-map-reset-only-rubrics-refetched.png",
+          "sha256": "3ac0e0d5ae5d950fc9aa41146d832e0a793dd9edec9bfe4c2f72cacc6cf9017f",
+          "width": 834,
+          "height": 2746,
+          "bytes": 308275
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/21-qualification-cached-refresh-error.png",
+          "sha256": "f7689a48d2785a0e5d9aa6581f8dedaeb9cfce2ea8dd68b39f15ccd6e0243d4b",
+          "width": 834,
+          "height": 2804,
+          "bytes": 309431
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/22-rubrics-cached-refresh-error.png",
+          "sha256": "5eaad392b19c7aecc370e4b333309970b78c3e501f564fc1754b02d8a1a19b5a",
+          "width": 834,
+          "height": 2862,
+          "bytes": 312621
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/23-successful-empty-registry-and-rubrics.png",
+          "sha256": "b51e99371642e553108b26a81d0547c2fdcd1c8c8ac9a733c71f55100a53bd9b",
+          "width": 834,
+          "height": 1642,
+          "bytes": 173141
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/24-qualification-cold-pending.png",
+          "sha256": "8af980976a64a7fccd03105bf38603ecf5ca4533c8db2949a928feb2e6c9bc4e",
+          "width": 834,
+          "height": 2235,
+          "bytes": 234083
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/25-qualification-cold-error.png",
+          "sha256": "e7c37e498597f7c60f5b7ee2c4dd47008eeed5464b60a65d3b4c93d7105bd747",
+          "width": 834,
+          "height": 2235,
+          "bytes": 234878
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/26-rubrics-cold-pending.png",
+          "sha256": "7aa6881563cbf1e62971d50f045b61fc6b279cb41af95d29fa8157a3f550f3d7",
+          "width": 834,
+          "height": 2153,
+          "bytes": 240836
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/qualification-registry-arc-e29eb-n-version-binding-workspace/27-rubrics-cold-error.png",
+          "sha256": "22d182041f736c1ac11789698de1d815b4277a8250049922db38dc235c379565",
+          "width": 834,
+          "height": 2153,
+          "bytes": 241240
+        }
+      ]
+    }
+  ],
+  "previews": [
+    {
+      "file": "contact-en-light.png",
+      "sha256": "01aef8db772da8561d6db0f033d2e4810a505259703b190eb293eb176f38278d",
+      "bytes": 1716368,
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "note": "Selected cropped previews; originals external to Git at captureRoot."
+    },
+    {
+      "file": "contact-en-dark.png",
+      "sha256": "18c2dc9dfdf7b65b4b67588ab206a05fd2822baf0a95dddc0f6764514ffb5b9b",
+      "bytes": 1890495,
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "note": "Selected cropped previews; originals external to Git at captureRoot."
+    },
+    {
+      "file": "contact-ar-light.png",
+      "sha256": "568e8612a55ad186948371954b25d0e646c940665c6be1900190603e79ad9db5",
+      "bytes": 1506973,
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "note": "Selected cropped previews; originals external to Git at captureRoot."
+    },
+    {
+      "file": "contact-ar-dark.png",
+      "sha256": "ce5e14f776f4c4b3b4fe2545752cb1776065dc6b56aec561b2f7508e70f18e12",
+      "bytes": 1690347,
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "note": "Selected cropped previews; originals external to Git at captureRoot."
+    }
+  ],
+  "coverage": {
+    "01-populated-lineage-long-content": "01-populated-lineage-long-content.png",
+    "02-invalid-qualification": "02-invalid-qualification.png",
+    "03-valid-qualification-independent-version-draft": "03-valid-qualification-independent-version-draft.png",
+    "04-qualification-pending": "04-qualification-pending.png",
+    "05-qualification-error-drafts-retained": "05-qualification-error-drafts-retained.png",
+    "06-version-valid-optional-end-empty": "06-version-valid-optional-end-empty.png",
+    "07-version-pending": "07-version-pending.png",
+    "08-version-error-drafts-retained": "08-version-error-drafts-retained.png",
+    "09-local-selection-isolated-from-server-binding": "09-local-selection-isolated-from-server-binding.png",
+    "10-binding-pending": "10-binding-pending.png",
+    "11-binding-error-local-draft-retained": "11-binding-error-local-draft-retained.png",
+    "12-keyboard-qualification-form": "12-keyboard-qualification-form.png",
+    "13-keyboard-version-form": "13-keyboard-version-form.png",
+    "14-keyboard-version-selector": "14-keyboard-version-selector.png",
+    "15-keyboard-bind-action": "15-keyboard-bind-action.png",
+    "16-200-percent-reflow-proxy": "16-200-percent-reflow-proxy.png",
+    "17-qualification-success-only-own-form-cleared": "17-qualification-success-only-own-form-cleared.png",
+    "18-version-optional-end-supplied": "18-version-optional-end-supplied.png",
+    "19-version-success-only-own-form-cleared": "19-version-success-only-own-form-cleared.png",
+    "20-binding-success-map-reset-only-rubrics-refetched": "20-binding-success-map-reset-only-rubrics-refetched.png",
+    "21-qualification-cached-refresh-error": "21-qualification-cached-refresh-error.png",
+    "22-rubrics-cached-refresh-error": "22-rubrics-cached-refresh-error.png",
+    "23-successful-empty-registry-and-rubrics": "23-successful-empty-registry-and-rubrics.png",
+    "24-qualification-cold-pending": "24-qualification-cold-pending.png",
+    "25-qualification-cold-error": "25-qualification-cold-error.png",
+    "26-rubrics-cold-pending": "26-rubrics-cold-pending.png",
+    "27-rubrics-cold-error": "27-rubrics-cold-error.png"
+  },
+  "queryEvidence": "Two independent actual intercepted GET paths with no params; cold loading/error/empty distinct; cached rows retained through actual mutation-driven React Query invalidation/refetch errors.",
+  "academicContracts": "Original setup/types/interaction props/selected identity/bilingual rules compared directly with pre-edit main, independently of the exact owner DOM projection. Original baseline hashes retained.",
+  "mutationEvidence": "Actual intercepted POST paths and bodies, bodyless binding, untrimmed inputs, UTC start/end/null, success clearing boundaries and binding-only rubric refetch recorded per scenario. Synthetic responses do not persist data.",
+  "reflowNote": "Half CSS viewport width with 320px minimum (720/417/320); proxy, not native browser zoom.",
+  "themeEvidence": "Every capture verifies app data-theme, including reloads. Theme behavior unchanged.",
+  "validation": {
+    "baselineFocused": "234 passed / 5 files",
+    "focused": "408 passed / 9 files after documented test-harness corrections",
+    "fullFrontend": "3189 passed / 131 files; pnpm test --maxWorkers=2",
+    "browser": "12 passed; EN/AR x light/dark x 1440x900, 834x1112, 390x844; 324 captures",
+    "format": "pnpm format:check passed",
+    "lint": "pnpm exec eslint . --max-warnings 0 passed",
+    "typecheck": "pnpm typecheck passed",
+    "build": "pnpm build passed on unchanged final production sources",
+    "diffCheck": "git diff --check passed; final base-to-HEAD check at handoff"
+  },
+  "originalFailures": [
+    {
+      "run": "focused-first.log",
+      "result": "42 failed / 366 passed in 9 files; 8 historical files passed",
+      "cause": "New-test beforeEach returned a mock function, interpreted by Vitest as cleanup; ambiguous binding text matched paragraph and option.",
+      "correction": "Block-body beforeEach with no returned cleanup; binding text scoped to paragraph. All 9 files rerun together: 408/408 passed."
+    },
+    {
+      "run": "browser-pilot.log",
+      "result": "2 pilot cases failed after 23 captures each",
+      "cause": "New-test global status locator matched both independent loading regions immediately after reload.",
+      "correction": "Scope status to the named registry/binding region and await the other query rows. Entire 12-case matrix passed after correction; no production edit."
+    },
+    {
+      "run": "format-verified.log",
+      "result": "Full format check failed for the new private CSS file only",
+      "cause": "Prettier whitespace normalization remained in that file.",
+      "correction": "Formatted it; direct comparison confirmed identical non-whitespace CSS. Final format/focused checks and build passed; complete browser matrix captured again against the final build."
+    },
+    {
+      "run": "freeze-baseline.mjs initial execution",
+      "result": "Tooling failure before fixture generation",
+      "cause": "Windows absolute ESM import lacked file URL scheme.",
+      "correction": "Use file:/// URL; fixture generator then passed."
+    },
+    {
+      "run": "finalize-handoff.py syntax check",
+      "result": "Tooling syntax check failed before handoff generation",
+      "cause": "Quoted dictionary keys were escaped inside a nested f-string expression.",
+      "correction": "Use str.format; syntax checked before executing the final handoff generator."
+    }
+  ],
+  "nonFatalDiagnostics": "Local next start emitted its standalone-output warning; Node emitted NO_COLOR/FORCE_COLOR notice. Any full frontend jsdom diagnostics remain in its external log. No target browser page errors.",
+  "limitations": [
+    "Synthetic intercepted UI/request evidence only; no real backend writes",
+    "No database persistence, Pearson correctness, accreditation, authorization, production deployment or full WCAG proof",
+    "Existing backend CreateQualification requires SpecializationId, absent from the frozen frontend payload; left unchanged and not proven operational by mocked success",
+    "Original full PNGs external to Git; committed contact sheets are cropped previews"
+  ],
+  "externalLogHashes": {
+    "baseline-focused.log": "3783991900c32c3505ddb9c9f2d33d57f88df980bf55a224508933490a4723a5",
+    "browser-final.log": "f4296571e93fc65dce865e0618f404b354d4b20c39f762a04392b3d15ed10e6d",
+    "browser-pilot.log": "f0d1c04ea41fdfc83d8699de63bd809e2eaefd30bfedadde8e85edecb0e7ce04",
+    "browser-verified.log": "53ece38f770d9b822478189ef070bb26d673a94fa0f14c443d89424baa240e40",
+    "build-final.log": "9455dfece14bc1380dceaaf165796be6f2da2d4bcb2c70c749328b56cf4807cf",
+    "build-first.log": "6e78ce1e762066d0ebf4026b0665cb77089c6b0b9338c45059556fcad4b571f0",
+    "focused-corrected.log": "b86a19bfe439936eac3369fe57cdb09f9b90e3bd00fce079fc50bad58a5e9891",
+    "focused-final.log": "90d287e75cbffeec2dd82eae78d26e611634b868e89899db9e4ad46311b408e7",
+    "focused-first.log": "7d69d0c0ebbb03adbc871c0dca6ffadd5f3f19a17df39a6bd76780dbc115e28e",
+    "format-final.log": "0b95efe7a1df96aa81440f70658e5c8169546d284587f7ba2e8d268fd1aaea15",
+    "format-verified.log": "cecff25e2378efee7b914aefb72db5ce505d9483eeb7f0bd4b2b081677f09b1c",
+    "full-tests-verified.log": "2b3f3516bdf1c350a567aea16b32fc77bb7e9907f4774b7d82fab1aaf1cbe04a",
+    "lint-first.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lint-verified.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck-first.log": "3dd115a54d9decc15d9b6f1babec63f20d21966a914759ea6530c5b714007d15",
+    "typecheck-verified.log": "3dd115a54d9decc15d9b6f1babec63f20d21966a914759ea6530c5b714007d15"
+  }
+}
