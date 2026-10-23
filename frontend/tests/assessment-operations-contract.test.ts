@@ -4,6 +4,7 @@ import ts from "typescript";
 import { describe, expect, it } from "vitest";
 import baseline from "./fixtures/ui-d01-14-assessment-operations-baseline.json";
 import { projectAssessmentOperationsSource } from "./helpers/assessment-operations-projection";
+import { projectQualificationRegistryCopy } from "./helpers/qualification-registry-projection";
 const read = (p: string) => readFileSync(p, "utf8").replace(/\r\n/g, "\n");
 const hash = (s: string) => createHash("sha256").update(s).digest("hex");
 function contracts(source: string) {
@@ -79,7 +80,7 @@ describe("UI-D01-14 exact presentation boundary", () => {
   it.each(Object.entries(baseline.protected))(
     "preserves %s including home, roles, formative and legacy routes, backend producers, dependencies and all catalogue values",
     (p, expected) => {
-      expect(hash(read(p))).toBe(expected);
+      expect(hash(projectQualificationRegistryCopy(read(p), p))).toBe(expected);
     },
   );
   it("uses defined semantic tokens and local CSS classes with DC03 weights", () => {

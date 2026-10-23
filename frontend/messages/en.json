@@ -2920,7 +2920,12 @@
       "bindingPolicy": "This binding affects new evaluations only; existing evaluation requests retain their source snapshot.",
       "unbound": "No qualification version bound",
       "chooseVersion": "Choose a sourced version",
-      "bind": "Bind"
+      "bind": "Bind",
+      "loadingQualifications": "Loading qualifications…",
+      "qualificationError": "The qualification registry request failed.",
+      "loadingRubrics": "Loading rubric bindings…",
+      "rubricsError": "The rubric bindings request failed.",
+      "emptyRubrics": "No assessment rubrics were returned."
     },
     "gradebook": {
       "title": "Central gradebook",

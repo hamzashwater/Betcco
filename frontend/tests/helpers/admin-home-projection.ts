@@ -1,5 +1,6 @@
 import baseline from "../fixtures/ui-d01-13-admin-home-baseline.json";
 import { projectAssessmentOperationsSource } from "./assessment-operations-projection";
+import { withoutQualificationRegistryAdditions } from "./qualification-registry-projection";
 // Exact reviewed UI13 seams only; absent, altered or duplicate hunks fail closed.
 export function projectAdminHomeSource(source: string, path = baseline.path) {
   const original = projectAssessmentOperationsSource(source, path);
@@ -12,6 +13,7 @@ export function projectAdminHomeSource(source: string, path = baseline.path) {
   return result;
 }
 export function withoutAdminHomeAdditions(value: Record<string, unknown>) {
+  withoutQualificationRegistryAdditions(value);
   if (!Object.hasOwn(value, "adminHomePresentation")) return value;
   if (
     !Object.values(baseline.additions).some(
