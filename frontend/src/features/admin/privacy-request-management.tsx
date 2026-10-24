@@ -1,5 +1,8 @@
 "use client";
 
+import { MutationOutcome, QueryState } from "@/components/ui/query-state";
+import { Check, Save } from "lucide-react";
+import styles from "./privacy-request-management.module.css";
 import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { api } from "@/lib/api";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -122,31 +125,28 @@ export function PrivacyRequestManagement() {
     : false;
 
   return (
-    <section className="shell py-8 sm:py-10">
-      <div className="max-w-6xl">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+    <section className={`shell py-8 sm:py-10 ${styles.workspace}`}>
+      <header className={styles.header}>
+        <p className={styles.eyebrow}>
           {t("privacyRequests.bETCCOPrivacyOperations")}
         </p>
-        <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
-          {t("privacyRequests.privacyRequests")}
-        </h1>
-        <p className="mt-3 max-w-3xl leading-7 text-muted">
+        <h1 className={styles.title}>{t("privacyRequests.privacyRequests")}</h1>
+        <p className={styles.description}>
           {t(
             "privacyRequests.aHumanreviewQueueDoNotEraseOrExportDataFromThisScreenBeforeIdenti",
           )}
         </p>
-      </div>
-      <div className="mt-7 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,.7fr)]">
-        <div className="card p-5 sm:p-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-lg font-black">
+      </header>
+      <div className={styles.columns}>
+        <section className={styles.queue} aria-labelledby="privacy-queue-title">
+          <div className={styles.queueHeader}>
+            <h2 id="privacy-queue-title" className={styles.sectionTitle}>
               {t("privacyRequests.reviewQueue")}
-              {query.data ? ` (${query.data.totalCount})` : ""}
             </h2>
-            <label className="text-sm font-black">
-              <span className="sr-only">{t("privacyRequests.status")}</span>
+            <label className={styles.field}>
+              <span>{t("privacyRequests.status")}</span>
               <select
-                className="focus-ring rounded-xl border border-border bg-background px-3 py-2 text-foreground"
+                className={styles.control}
                 value={status}
                 onChange={(event) =>
                   setStatus(event.target.value as PrivacyRequestStatus | "")
@@ -161,144 +161,209 @@ export function PrivacyRequestManagement() {
               </select>
             </label>
           </div>
-          {query.isPending ? (
-            <div
-              className="mt-5 h-56 animate-pulse rounded-2xl bg-surface-solid"
-              aria-busy
-            />
-          ) : query.isError ? (
-            <p
-              className="mt-5 rounded-xl border border-danger/30 bg-danger/10 p-4 text-sm text-danger"
-              role="alert"
-            >
-              {query.error.message}
-            </p>
-          ) : query.data?.items.length ? (
-            <ul className="mt-5 grid gap-3">
+          <div className={styles.queueContext}>
+            <p>{t("privacyRequests.loadedScope")}</p>
+            {query.data ? (
+              <p>
+                {t("privacyRequests.matchingTotal", {
+                  count: query.data.totalCount,
+                })}
+              </p>
+            ) : null}
+            {query.isPending && query.data === undefined ? (
+              <QueryState
+                kind="loading"
+                title={t("privacyRequests.loadingRequests")}
+              />
+            ) : null}
+            {query.isError ? (
+              <QueryState kind="error" title={query.error.message} />
+            ) : null}
+            {!query.isPending &&
+            !query.isError &&
+            query.data?.items.length === 0 ? (
+              <QueryState
+                kind="empty"
+                title={t("privacyRequests.thereAreNoRequestsWithThisStatus")}
+              />
+            ) : null}
+          </div>
+          {query.data?.items.length ? (
+            <ul className={styles.rows}>
               {query.data.items.map((item) => (
                 <li key={item.id}>
                   <button
                     type="button"
                     onClick={() => selectRequest(item)}
-                    className={`focus-ring w-full rounded-2xl border p-4 text-start transition ${selected?.id === item.id ? "border-primary bg-primary/10" : "border-border bg-surface-solid/45 hover:bg-surface"}`}
+                    className={styles.row}
+                    aria-pressed={selected?.id === item.id}
                   >
-                    <div className="flex flex-wrap justify-between gap-2">
-                      <span className="font-black">
-                        {typeLabel(item.requestType)}
-                      </span>
-                      <span className="text-sm text-primary">
-                        {statusLabel(item.status)}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-sm text-muted">
+                    <span className={styles.rowTitle}>
+                      {typeLabel(item.requestType)}
+                    </span>
+                    <span className={styles.status} data-status={item.status}>
+                      {statusLabel(item.status)}
+                    </span>
+                    <span className={styles.date}>
                       {date(item.createdAtUtc)}
-                    </p>
+                    </span>
+                    {selected?.id === item.id ? (
+                      <span className={styles.selected}>
+                        <Check size={16} strokeWidth={2} aria-hidden="true" />
+                        {t("privacyRequests.selectedRequest")}
+                      </span>
+                    ) : null}
                   </button>
                 </li>
               ))}
             </ul>
-          ) : (
-            <p className="mt-5 rounded-xl border border-dashed border-border p-4 text-sm text-muted">
-              {t("privacyRequests.thereAreNoRequestsWithThisStatus")}
-            </p>
-          )}
-        </div>
-        <aside className="card h-fit p-5 sm:p-6" aria-live="polite">
+          ) : null}
+        </section>
+        <aside
+          className={styles.detail}
+          aria-live="polite"
+          aria-label={t("privacyRequests.requestFacts")}
+        >
           {!selected ? (
-            <p className="text-muted">
+            <p className={styles.description}>
               {t("privacyRequests.selectARequestFromTheQueueToReviewIt")}
             </p>
           ) : (
             <form
-              className="grid gap-4"
+              className={styles.reviewForm}
               onSubmit={(event) => {
                 event.preventDefault();
                 review.mutate();
               }}
             >
-              <div>
-                <p className="font-black">{typeLabel(selected.requestType)}</p>
-                <p className="mt-1 text-sm text-muted">
-                  {statusLabel(selected.status)} · {date(selected.createdAtUtc)}
+              <div className={styles.facts}>
+                <h2 className={styles.sectionTitle}>
+                  {t("privacyRequests.requestFacts")}
+                </h2>
+                <p className={styles.itemTitle}>
+                  {typeLabel(selected.requestType)}
                 </p>
+                <p className={styles.status} data-status={selected.status}>
+                  {statusLabel(selected.status)}
+                </p>
+                <p className={styles.date}>
+                  {t("privacyRequests.createdOn")} {date(selected.createdAtUtc)}
+                </p>
+                {selected.description && (
+                  <div className={styles.rawText}>{selected.description}</div>
+                )}
               </div>
-              {selected.description && (
-                <div className="rounded-xl border border-border bg-surface-solid/50 p-3 text-sm leading-6 text-muted">
-                  {selected.description}
-                </div>
-              )}
-              <label className="grid gap-2 text-sm font-black">
-                {t("privacyRequests.reviewStatus")}
-                <select
-                  className="focus-ring min-h-11 rounded-xl border border-border bg-background px-3 text-foreground"
-                  value={nextStatus}
-                  disabled={isFinal}
-                  onChange={(event) =>
-                    setNextStatus(event.target.value as PrivacyRequestStatus)
-                  }
-                >
-                  {reviewStatuses.map((item) => (
-                    <option key={item} value={item}>
-                      {statusLabel(item)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="grid gap-2 text-sm font-black">
-                {t("privacyRequests.userfacingReviewNote")}
-                <textarea
-                  className="focus-ring min-h-28 rounded-xl border border-border bg-background p-3 text-foreground"
-                  value={resolutionSummary}
-                  maxLength={2000}
-                  disabled={isFinal}
-                  onChange={(event) => setResolutionSummary(event.target.value)}
-                  placeholder={t(
-                    "privacyRequests.requiredForCompletionOrRejectionDoNotPutSensitiveInternalNotesHer",
-                  )}
-                />
-              </label>
-              <label className="flex items-start gap-3 text-sm leading-6 text-muted">
-                <input
-                  type="checkbox"
-                  className="mt-1 size-4 accent-primary"
-                  checked={identityVerified}
-                  disabled={isFinal || Boolean(selected.identityVerifiedAtUtc)}
-                  onChange={(event) =>
-                    setIdentityVerified(event.target.checked)
-                  }
-                />
-                <span>
+              <div className={styles.draft}>
+                <h3 className={styles.sectionTitle}>
+                  {t("privacyRequests.reviewDraft")}
+                </h3>
+                <p className={styles.hint}>
                   {t(
-                    "privacyRequests.theRequestersIdentityWasVerifiedUnderTheApprovedOperationalProced",
+                    isFinal
+                      ? "privacyRequests.finalLocked"
+                      : "privacyRequests.draftHint",
                   )}
-                </span>
-              </label>
-              {selected.identityVerifiedAtUtc && (
-                <p className="text-sm text-muted">
-                  {t("privacyRequests.verificationRecorded")}{" "}
-                  {date(selected.identityVerifiedAtUtc)}
                 </p>
-              )}
+                <label className={styles.field}>
+                  {t("privacyRequests.reviewStatus")}
+                  <select
+                    className={styles.control}
+                    value={nextStatus}
+                    disabled={isFinal}
+                    hidden={isFinal}
+                    onChange={(event) =>
+                      setNextStatus(event.target.value as PrivacyRequestStatus)
+                    }
+                  >
+                    {reviewStatuses.map((item) => (
+                      <option key={item} value={item}>
+                        {statusLabel(item)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {isFinal ? (
+                  <p
+                    className={styles.finalStatus}
+                    data-final-status={selected.status}
+                  >
+                    {statusLabel(selected.status)}
+                  </p>
+                ) : null}
+                <label className={styles.field}>
+                  {t("privacyRequests.userfacingReviewNote")}
+                  <textarea
+                    className={styles.control}
+                    value={resolutionSummary}
+                    maxLength={2000}
+                    disabled={isFinal}
+                    onChange={(event) =>
+                      setResolutionSummary(event.target.value)
+                    }
+                    placeholder={t(
+                      "privacyRequests.requiredForCompletionOrRejectionDoNotPutSensitiveInternalNotesHer",
+                    )}
+                  />
+                </label>
+                <label className={styles.checkbox}>
+                  <input
+                    type="checkbox"
+                    checked={identityVerified}
+                    disabled={
+                      isFinal || Boolean(selected.identityVerifiedAtUtc)
+                    }
+                    onChange={(event) =>
+                      setIdentityVerified(event.target.checked)
+                    }
+                  />
+                  <span>
+                    {t(
+                      "privacyRequests.theRequestersIdentityWasVerifiedUnderTheApprovedOperationalProced",
+                    )}
+                  </span>
+                </label>
+              </div>
+              <div className={styles.recorded}>
+                <h3 className={styles.sectionTitle}>
+                  {t("privacyRequests.recordedFacts")}
+                </h3>
+                {selected.identityVerifiedAtUtc ? (
+                  <p>
+                    {t("privacyRequests.verificationRecorded")}{" "}
+                    {date(selected.identityVerifiedAtUtc)}
+                  </p>
+                ) : (
+                  <p>{t("privacyRequests.verificationNotRecorded")}</p>
+                )}
+                {selected.resolvedAtUtc ? (
+                  <p>
+                    {t("privacyRequests.resolvedOn")}{" "}
+                    {date(selected.resolvedAtUtc)}
+                  </p>
+                ) : null}
+              </div>
               {!isFinal && (
                 <button
                   type="submit"
-                  className="focus-ring rounded-xl bg-primary px-4 py-3 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+                  className={styles.save}
                   disabled={review.isPending}
+                  aria-busy={review.isPending}
                 >
+                  <Save size={16} strokeWidth={2} aria-hidden="true" />
                   {review.isPending
                     ? t("privacyRequests.saving")
                     : t("privacyRequests.saveReviewDecision")}
                 </button>
               )}
               {review.isError && (
-                <p className="text-sm text-danger" role="alert">
+                <MutationOutcome kind="error">
                   {review.error.message}
-                </p>
+                </MutationOutcome>
               )}
               {review.isSuccess && (
-                <p className="text-sm text-emerald-600" role="status">
+                <MutationOutcome kind="success">
                   {t("privacyRequests.reviewDecisionSaved")}
-                </p>
+                </MutationOutcome>
               )}
             </form>
           )}

@@ -1,4 +1,8 @@
 import baseline from "../fixtures/ui-d01-15-commission-baseline.json";
+import {
+  projectPrivacyRequestBoundary,
+  withoutPrivacyRequestAdditions,
+} from "./privacy-request-projection";
 function reverse(
   source: string,
   seams: { approved: string; previous: string }[],
@@ -14,6 +18,7 @@ function reverse(
 // Exact reviewed owner/copy/guard seams; absent, altered, duplicated or unknown
 // seams fail closed. Historical fixtures and every financial rule stay frozen.
 export function projectCommissionBoundary(source: string, path: string) {
+  source = projectPrivacyRequestBoundary(source, path);
   const key = path.replaceAll("\\", "/");
   if (/(?:^|\/)src\/features\/admin\/commission-settings\.tsx$/.test(key))
     return reverse(source, baseline.seams);
@@ -24,6 +29,7 @@ export function projectCommissionBoundary(source: string, path: string) {
   return seams ? reverse(source, seams) : source;
 }
 export function withoutCommissionAdditions(value: Record<string, unknown>) {
+  withoutPrivacyRequestAdditions(value);
   const target = value.commerceCatalog as Record<string, unknown> | undefined;
   if (
     !target ||

@@ -3043,7 +3043,19 @@
       "verificationRecorded": "Verification recorded:",
       "saving": "Saving…",
       "saveReviewDecision": "Save review decision",
-      "reviewDecisionSaved": "Review decision saved."
+      "reviewDecisionSaved": "Review decision saved.",
+      "loadedScope": "This queue shows one page of up to 50 requests.",
+      "matchingTotal": "Matching requests: {count}",
+      "loadingRequests": "Loading privacy requests…",
+      "selectedRequest": "Selected",
+      "requestFacts": "Request facts",
+      "createdOn": "Created:",
+      "reviewDraft": "Review draft",
+      "draftHint": "These changes remain a draft until the server accepts the review decision.",
+      "finalLocked": "Final request. Review controls are locked.",
+      "recordedFacts": "Recorded facts",
+      "verificationNotRecorded": "No identity verification is recorded for this request.",
+      "resolvedOn": "Resolved:"
     },
     "securityIncidents": {
       "low": "Low",
