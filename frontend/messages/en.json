@@ -671,7 +671,18 @@
     "salesTaxSave": "Save sales tax",
     "taxUpdated": "The sales tax for future payments was updated.",
     "taxConfirm": "Update the sales tax for future payments?",
-    "requestFailed": "The request could not be completed."
+    "requestFailed": "The request could not be completed.",
+    "financeSettings": "Finance settings",
+    "currentServerValue": "Current server value",
+    "localDraft": "Local draft · not saved",
+    "derivedPreview": "Derived preview",
+    "previewHint": "Preview only. Teacher share is not saved separately.",
+    "confirmationRequired": "Saving requires confirmation. Changes apply only after the server accepts the update.",
+    "commissionLoading": "Loading the current commission…",
+    "commissionUnavailable": "The current commission could not be refreshed.",
+    "taxLoading": "Loading the current sales tax…",
+    "taxUnavailable": "The current sales tax could not be refreshed.",
+    "invalidPercentage": "Enter a finite percentage between 0 and 100."
   },
   "teacherCoursesManagement": {
     "title": "My courses",

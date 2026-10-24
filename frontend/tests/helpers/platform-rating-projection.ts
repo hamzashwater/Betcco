@@ -1,4 +1,8 @@
 import baseline from "../fixtures/ui-d01-15-platform-rating-baseline.json";
+import {
+  projectCommissionBoundary,
+  withoutCommissionAdditions,
+} from "./commission-projection";
 function reverse(
   source: string,
   seams: { approved: string; previous: string }[],
@@ -14,6 +18,7 @@ function reverse(
 // Exact owner/copy and test-guard alignment seams only. No baseline rewrite,
 // wildcard omission or projection of unknown/missing/duplicate/changed seams.
 export function projectPlatformRatingBoundary(source: string, path: string) {
+  source = projectCommissionBoundary(source, path);
   const key = path.replaceAll("\\", "/");
   if (
     /(?:^|\/)src\/features\/admin\/platform-rating-moderation\.tsx$/.test(key)
@@ -26,6 +31,7 @@ export function projectPlatformRatingBoundary(source: string, path: string) {
   return seams ? reverse(source, seams) : source;
 }
 export function withoutPlatformRatingAdditions(value: Record<string, unknown>) {
+  withoutCommissionAdditions(value);
   const workspace = value.adminWorkspace as
       Record<string, Record<string, unknown>> | undefined,
     target = workspace?.platformRatingModeration;

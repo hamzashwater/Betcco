@@ -671,7 +671,18 @@
     "salesTaxSave": "حفظ ضريبة المبيعات",
     "taxUpdated": "تم تحديث ضريبة المبيعات للدفعات القادمة.",
     "taxConfirm": "هل تريد تحديث ضريبة المبيعات للدفعات القادمة؟",
-    "requestFailed": "تعذر تنفيذ الطلب."
+    "requestFailed": "تعذر تنفيذ الطلب.",
+    "financeSettings": "الإعدادات المالية",
+    "currentServerValue": "القيمة الحالية من الخادم",
+    "localDraft": "مسودة محلية · غير محفوظة",
+    "derivedPreview": "معاينة مشتقة",
+    "previewHint": "معاينة فقط. لا تُحفظ حصة المعلم بشكل مستقل.",
+    "confirmationRequired": "يتطلب الحفظ تأكيدًا. لا تُطبّق التغييرات إلا بعد قبول الخادم للتحديث.",
+    "commissionLoading": "جارٍ تحميل العمولة الحالية…",
+    "commissionUnavailable": "تعذر تحديث بيانات العمولة الحالية.",
+    "taxLoading": "جارٍ تحميل ضريبة المبيعات الحالية…",
+    "taxUnavailable": "تعذر تحديث بيانات ضريبة المبيعات الحالية.",
+    "invalidPercentage": "أدخل نسبة مئوية محدودة بين 0 و100."
   },
   "teacherCoursesManagement": {
     "title": "دوراتي",
