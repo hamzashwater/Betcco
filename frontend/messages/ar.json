@@ -3043,7 +3043,19 @@
       "verificationRecorded": "تم توثيق التحقق:",
       "saving": "جارٍ الحفظ…",
       "saveReviewDecision": "حفظ قرار المراجعة",
-      "reviewDecisionSaved": "تم حفظ قرار المراجعة."
+      "reviewDecisionSaved": "تم حفظ قرار المراجعة.",
+      "loadedScope": "تعرض هذه القائمة صفحة واحدة تضم حتى 50 طلبًا.",
+      "matchingTotal": "الطلبات المطابقة: {count}",
+      "loadingRequests": "جارٍ تحميل طلبات الخصوصية…",
+      "selectedRequest": "محدد",
+      "requestFacts": "بيانات الطلب",
+      "createdOn": "تاريخ الإنشاء:",
+      "reviewDraft": "مسودة المراجعة",
+      "draftHint": "تبقى هذه التغييرات مسودة حتى يقبل الخادم قرار المراجعة.",
+      "finalLocked": "طلب نهائي. عناصر المراجعة مقفلة.",
+      "recordedFacts": "البيانات المسجلة",
+      "verificationNotRecorded": "لم يُسجّل التحقق من الهوية لهذا الطلب.",
+      "resolvedOn": "تاريخ إغلاق الطلب:"
     },
     "securityIncidents": {
       "low": "منخفض",
