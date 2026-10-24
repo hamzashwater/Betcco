@@ -1,3 +1,4 @@
+import { projectPlatformRatingBoundary } from "./helpers/platform-rating-projection";
 import { readFileSync } from "node:fs";
 import ts from "typescript";
 import { createTranslator } from "next-intl";
@@ -25,7 +26,10 @@ const source = (name: Scope) =>
     ? projectAdminStateSource(
         readFileSync(`src/features/admin/${scopes[name][0]}.tsx`, "utf8"),
       )
-    : readFileSync(`src/features/admin/${scopes[name][0]}.tsx`, "utf8");
+    : projectPlatformRatingBoundary(
+        readFileSync(`src/features/admin/${scopes[name][0]}.tsx`, "utf8"),
+        `src/features/admin/${scopes[name][0]}.tsx`,
+      );
 function leaves(v: unknown, prefix = ""): string[] {
   return typeof v === "string"
     ? [prefix]

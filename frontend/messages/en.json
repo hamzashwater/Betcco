@@ -3103,7 +3103,16 @@
       "publishReview": "Publish review",
       "noDisplayConsent": "No display consent",
       "noReviewsHaveBeenSubmittedYet": "No reviews have been submitted yet.",
-      "reviewStatusCouldNotBeUpdated": "Review status could not be updated."
+      "reviewStatusCouldNotBeUpdated": "Review status could not be updated.",
+      "published": "Published",
+      "notPublished": "Not published",
+      "consentGranted": "Public display consent granted",
+      "loadingReviews": "Loading reviews…",
+      "loadingSummary": "Loading rating summary…",
+      "summaryUnavailable": "The rating summary request failed. Review data is handled separately.",
+      "moderating": "Updating review…",
+      "loadedScope": "Reviews are shown in server order, up to 200 entries. Platform totals come from the separate summary.",
+      "emptyLoaded": "No reviews were returned."
     },
     "wallet": {
       "bETCCOPlatformWallet": "BETCCO Platform Wallet",

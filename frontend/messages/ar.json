@@ -3103,7 +3103,16 @@
       "publishReview": "نشر المراجعة",
       "noDisplayConsent": "لا توجد موافقة للعرض",
       "noReviewsHaveBeenSubmittedYet": "لا توجد مراجعات مرسلة حتى الآن.",
-      "reviewStatusCouldNotBeUpdated": "تعذر تحديث حالة المراجعة."
+      "reviewStatusCouldNotBeUpdated": "تعذر تحديث حالة المراجعة.",
+      "published": "منشور",
+      "notPublished": "غير منشور",
+      "consentGranted": "موافقة على العرض العام",
+      "loadingReviews": "جارٍ تحميل المراجعات…",
+      "loadingSummary": "جارٍ تحميل ملخص التقييمات…",
+      "summaryUnavailable": "تعذر إتمام طلب ملخص التقييمات. بيانات المراجعات مستقلة عنه.",
+      "moderating": "جارٍ تحديث المراجعة…",
+      "loadedScope": "تُعرض المراجعات بترتيب الخادم، بحد أقصى 200 مراجعة. إجماليات المنصة تأتي من الملخص المستقل.",
+      "emptyLoaded": "لم تُرجع الاستجابة أي مراجعات."
     },
     "wallet": {
       "bETCCOPlatformWallet": "محفظة منصة BETCCO",

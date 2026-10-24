@@ -1,3 +1,5 @@
+import enMessages from "../messages/en.json";
+import arMessages from "../messages/ar.json";
 import { PlatformRatingModeration } from "@/features/admin/platform-rating-moderation";
 import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { formatLocalizedNumber } from "@/i18n/number-format";
@@ -45,6 +47,8 @@ beforeEach(() => {
   );
 });
 for (const locale of ["ar", "en"] as const) {
+  const newCopy = (locale === "ar" ? arMessages : enMessages).adminWorkspace
+    .platformRatingModeration;
   const copy = (en: string) =>
     baseline.scopes.platformRatingModeration.cases.find((c) => c.en === en)![
       locale
@@ -78,11 +82,18 @@ for (const locale of ["ar", "en"] as const) {
             e.textContent === formatLocalizedDateTime(timestamp, locale),
         ),
       ).toBeVisible();
+      const summaryRegion = screen.getByRole("region", {
+        name: copy("Learner experience summary"),
+      });
       expect(
-        screen.getByText(
+        within(summaryRegion).getByText(copy("Awaiting moderation"))
+          .parentElement,
+      ).toHaveTextContent(String(summary.awaitingModerationCount));
+      expect(
+        screen.queryByText(
           copy("{count} awaiting review").replace("{count}", "1"),
         ),
-      ).toBeVisible();
+      ).not.toBeInTheDocument();
       expect(
         screen.getByLabelText(
           copy("Reason for keeping private / internal note"),
@@ -217,11 +228,12 @@ for (const locale of ["ar", "en"] as const) {
           : Promise.resolve([{ ...rating, isPublished: true, comment: null }]),
       );
       await ready();
+      expect(screen.getByText(newCopy.published)).toBeVisible();
       expect(
-        screen.getByText(
+        screen.queryByText(
           copy("{count} awaiting review").replace("{count}", "0"),
         ),
-      ).toBeVisible();
+      ).not.toBeInTheDocument();
       expect(
         screen.getByText(copy("The learner did not add a written comment.")),
       ).toBeVisible();
@@ -234,9 +246,7 @@ for (const locale of ["ar", "en"] as const) {
         Promise.resolve(p.endsWith("/summary") ? summary : []),
       );
       mount(locale, <PlatformRatingModeration />);
-      expect(
-        await screen.findByText(copy("No reviews have been submitted yet.")),
-      ).toBeVisible();
+      expect(await screen.findByText(newCopy.emptyLoaded)).toBeVisible();
       expect(
         within(
           screen.getByRole("region", {

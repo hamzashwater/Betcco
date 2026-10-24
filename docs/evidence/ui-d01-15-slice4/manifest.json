@@ -1,0 +1,4077 @@
+{
+  "classification": "MOCKED UI-CONTRACT EVIDENCE",
+  "task": "UI-D01-15 / Slice 4 — Governance Platform Rating Moderation",
+  "parentRoadmapEntry": "UI-D01-15 — Refine reusable back-office archetypes",
+  "base": "30322f0d73f6ad390025cb4b5e29447d336288dd",
+  "generatedAtUtc": "2026-10-24T07:41:22.078960+00:00",
+  "headIdentity": "Containing commit; final source hashes verified against committed HEAD without embedding a self-referential SHA.",
+  "sourceHashAlgorithm": "SHA-256 of UTF-8 text normalized to LF",
+  "sourceHashes": {
+    "frontend/messages/ar.json": "9695251635f085688d8be22065ef286cd33d372b8b3df403d37e91467ca5c7c1",
+    "frontend/messages/en.json": "ec166f1f666349dac40ac91d6b4545fe0e40512274a205f628dcd806b49bc910",
+    "frontend/src/features/admin/platform-rating-moderation.module.css": "6910aa8778799ce4990d472276d690f31b5d4e7ae59865759d5a87962f4a5674",
+    "frontend/src/features/admin/platform-rating-moderation.tsx": "3c262fb3f204ab6b095d0d54f2f07ffb009eb0525821835606b87a5a66d5116b",
+    "frontend/tests/account-identity-archetype-contract.test.ts": "3742654228840a50607943eb6f27ee7ad0e961ef4191176355e51b32b5d48a01",
+    "frontend/tests/admin-a5-5-10-15-source-audit.test.ts": "c91d4343aa68b378bcf256b9d13c34e8ecca1538d1a4d4f9814daa084a87b590",
+    "frontend/tests/admin-final-i18n-residual-audit.test.ts": "caafd1d809657d17ada348bf723f44f0580b93daa2684224c3b55318ee673204",
+    "frontend/tests/admin-platform-rating-moderation-translation.test.tsx": "a51fc35b3c2a5751f7cb2191c5ff45b65e311411f207bdeead7f4decf1cfe5b6",
+    "frontend/tests/assessment-operations-contract.test.ts": "2d017763ee109fd8a2c4fc78f1840a7c0b54934c354dea33faad7a6aaf8e4a31",
+    "frontend/tests/audit-log-archetype-contract.test.ts": "61863ee44cd559411147362d114b4ff9b2211c50cbff8639dcd180c7e356ad8b",
+    "frontend/tests/e2e/platform-rating-archetype.spec.ts": "7beb205643c73235f13bf043f5773bab35811f8844339d0bd9ebc01c8c0ac37b",
+    "frontend/tests/fixtures/platform-rating-archetype.ts": "7fedb04c150ed414caace7c97e6306366ca5e0163dc1172eed0a802e6a1712c4",
+    "frontend/tests/fixtures/ui-d01-15-platform-rating-baseline.json": "a2244a66da0a34f2d93590eeed9d64c1038fcaa8e22c531278b3205618755bc5",
+    "frontend/tests/helpers/admin-home-projection.ts": "f1dcb1340ad6c64f01e1e376edeb5cf914e14004c05e664346e623393ba98de9",
+    "frontend/tests/helpers/platform-rating-contracts.ts": "6e6d35cc071670d947defb7b7eb70acb954f23a9e64ce88c4589c2fea7817a09",
+    "frontend/tests/helpers/platform-rating-projection.ts": "0ea69431a4a9be7b71b8f09be6c2a83028e4a61519646e32f0648a74c1970e4e",
+    "frontend/tests/platform-rating-archetype-contract.test.ts": "f6830d6634a077a566f11e7a2a9ba88076a7aeee5f087ffc3aa8cb5f64e3cd03",
+    "frontend/tests/platform-rating-archetype.test.tsx": "848d8958fc1bfc6e16ea740a647561c8ae83772f223a37caa5abd981e5c8ad85",
+    "frontend/tests/qualification-registry-archetype-contract.test.ts": "c55eee31aa8a364fa03ff6368e19445f0172dc38b1d524a1abed692be31cfd00"
+  },
+  "buildId": "iKIIaI1E6j_Z5VmLb-Pzd",
+  "captureRoot": "C:\\Users\\user\\Documents\\Codex\\2026-10-17\\files-pasted-by-the-user-device\\outputs\\UI-D01-15-Slice4",
+  "captureCount": 300,
+  "scenarioCount": 12,
+  "scenarios": [
+    {
+      "title": "ar dark 1440: Consent-aware moderation workspace",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "ar",
+        "theme": "dark",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "reflowWidth": 720,
+        "captures": [
+          "01-populated-summary-consent-publication-score-comment-facts",
+          "02-long-server-ordered-list",
+          "03-independent-reason-drafts-long-arabic",
+          "04-whitespace-reason-private-action-available",
+          "05-global-moderation-pending",
+          "06-moderation-error-drafts-retained",
+          "07-keep-private-success-without-consent",
+          "08-consented-unpublished-publish-enabled",
+          "09-publish-pending-global-guard",
+          "10-publish-error-retains-reasons",
+          "11-publish-success-exact-local-reason",
+          "12-published-with-consent-action-mechanics-retained",
+          "13-inconsistent-published-no-consent-truthful-facts",
+          "14-keyboard-reason-focus",
+          "15-keyboard-keep-private-focus",
+          "16-keyboard-publish-focus",
+          "17-200-percent-reflow-proxy",
+          "18-summary-pending-usable-reviews",
+          "19-summary-cold-error-usable-reviews",
+          "20-zero-summary-does-not-empty-loaded-reviews",
+          "21-ratings-cold-loading-no-actions",
+          "22-ratings-cold-error-not-empty",
+          "23-successful-empty-loaded-list-nonzero-summary",
+          "24-ratings-cached-refresh-error-actions-preserved",
+          "25-summary-cached-refresh-error-independent-context"
+        ],
+        "reads": [
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary"
+        ],
+        "writes": [
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/01-populated-summary-consent-publication-score-comment-facts.png",
+          "sha256": "67457d718124bcff1c43ba6f4ae6adb5cec207cd1699bbb75da2885112f3c835",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 359955
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/02-long-server-ordered-list.png",
+          "sha256": "5f82d689b7f7ae49b40b6a76758227b13ca8ab07b88d1a92a8b16ec43ae0a67c",
+          "width": 1440,
+          "height": 4783,
+          "bytes": 765922
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/03-independent-reason-drafts-long-arabic.png",
+          "sha256": "78b8b1d9c8885d07204e9b32573590cb20be392aa1f6c1c67804fe4849175557",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 362212
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/04-whitespace-reason-private-action-available.png",
+          "sha256": "39e5961e2b8d43848fb87b98fbc87cf32a83ec915ac15b18fdd169fee52fd86b",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 361133
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/05-global-moderation-pending.png",
+          "sha256": "56409d1d2c0879b97133df9ad00c5a7df9bee9c751654269bef2524048c2a77c",
+          "width": 1440,
+          "height": 2177,
+          "bytes": 360522
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/06-moderation-error-drafts-retained.png",
+          "sha256": "d8712fecf08d0bb922874deedaac52fc57f276280b08e59ea62ca9290de7f697",
+          "width": 1440,
+          "height": 2169,
+          "bytes": 363116
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/07-keep-private-success-without-consent.png",
+          "sha256": "cbb9afc1406669eba57108f1cafc43bed18ed40fca8c905cb46f07370c3957eb",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 359763
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/08-consented-unpublished-publish-enabled.png",
+          "sha256": "802b0f74481337e31cfe6db5a1ba3184f06258812ba249af161c463488e2d4f2",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 359758
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/09-publish-pending-global-guard.png",
+          "sha256": "857f75c0d761258cdafd42e756770b13f12d11bf21cc6a06e911d3295b7dd8da",
+          "width": 1440,
+          "height": 2177,
+          "bytes": 360402
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/10-publish-error-retains-reasons.png",
+          "sha256": "5399d19c0b9c9d39149d12cfec570f8c0d52d04e06ae5fe845bed1765fb4d33a",
+          "width": 1440,
+          "height": 2169,
+          "bytes": 363006
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/11-publish-success-exact-local-reason.png",
+          "sha256": "a15ac2ea02187f503d1c6d913ca1f1f61d339b08ab2e1865a73b2dca8c0e5708",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 359720
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/12-published-with-consent-action-mechanics-retained.png",
+          "sha256": "e8cc3d9356d162972a918e2eea82565d9bf104c499d943dd0debbcda71a8236e",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 359654
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/13-inconsistent-published-no-consent-truthful-facts.png",
+          "sha256": "e9dda52a11963f3ff0707da9a9d84c92bf1b8c89b01dc8f59b7373d8955ab4b6",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 359882
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/14-keyboard-reason-focus.png",
+          "sha256": "669d3066291b384536bd84f132a195db5e340a119eb40fb0b5b79bda3ac5ddc3",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 360661
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/15-keyboard-keep-private-focus.png",
+          "sha256": "891a801b65a2e6b62766354a86f89ae39b686331d573a2a5be748e012dc4628c",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 360904
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/16-keyboard-publish-focus.png",
+          "sha256": "783c775f376b281e9c1cd774ff5a6d0ce6b5dbb6cbcd36c91c4af6af1a94d174",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 360818
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/17-200-percent-reflow-proxy.png",
+          "sha256": "1868e6b61bf260341764998fb6b9361e3f5e9ac6d5145d4b98557a29f1d7d195",
+          "width": 720,
+          "height": 2818,
+          "bytes": 333575
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/18-summary-pending-usable-reviews.png",
+          "sha256": "04a88733f6647dd2ba48141aefddb2fe22ab38985335f0c41bc984a075aa9be5",
+          "width": 1440,
+          "height": 2097,
+          "bytes": 351627
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/19-summary-cold-error-usable-reviews.png",
+          "sha256": "50742afb7454aaa8fd937a211e92dc873e8abaadfb5eef4d727adf8d09654426",
+          "width": 1440,
+          "height": 2097,
+          "bytes": 353001
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/20-zero-summary-does-not-empty-loaded-reviews.png",
+          "sha256": "aa0c9c39aec03135f4c1480639a710ec740573a3ae7e1630a450f1f1cd79bd6a",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 357694
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/21-ratings-cold-loading-no-actions.png",
+          "sha256": "5053816ccb2a83199ca09ac20aa5682f8b4f05b443bee5ddfbbd45e163de9c1d",
+          "width": 1440,
+          "height": 900,
+          "bytes": 180366
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/22-ratings-cold-error-not-empty.png",
+          "sha256": "7d8d1b95cd279bb3b77afd219382ebb724e4fe56d5f5236cc71a31222f9f329a",
+          "width": 1440,
+          "height": 900,
+          "bytes": 181002
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/23-successful-empty-loaded-list-nonzero-summary.png",
+          "sha256": "191f4926477927ce9cd730df558549fbf0f70e2a42a90b01d252ea56d18619d9",
+          "width": 1440,
+          "height": 900,
+          "bytes": 180987
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/24-ratings-cached-refresh-error-actions-preserved.png",
+          "sha256": "626d28a705403cb7c8ef352fa97946d86e0397781d3ef254587a0676bca48d31",
+          "width": 1440,
+          "height": 2177,
+          "bytes": 364759
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--08c5d--aware-moderation-workspace/25-summary-cached-refresh-error-independent-context.png",
+          "sha256": "5a4da63770c45210cab0579647a3459ba924445185bdd3d784da3cf0edfeb3a1",
+          "width": 1440,
+          "height": 2243,
+          "bytes": 369777
+        }
+      ]
+    },
+    {
+      "title": "ar dark 834: Consent-aware moderation workspace",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "dark",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "ar",
+        "theme": "dark",
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "reflowWidth": 417,
+        "captures": [
+          "01-populated-summary-consent-publication-score-comment-facts",
+          "02-long-server-ordered-list",
+          "03-independent-reason-drafts-long-arabic",
+          "04-whitespace-reason-private-action-available",
+          "05-global-moderation-pending",
+          "06-moderation-error-drafts-retained",
+          "07-keep-private-success-without-consent",
+          "08-consented-unpublished-publish-enabled",
+          "09-publish-pending-global-guard",
+          "10-publish-error-retains-reasons",
+          "11-publish-success-exact-local-reason",
+          "12-published-with-consent-action-mechanics-retained",
+          "13-inconsistent-published-no-consent-truthful-facts",
+          "14-keyboard-reason-focus",
+          "15-keyboard-keep-private-focus",
+          "16-keyboard-publish-focus",
+          "17-200-percent-reflow-proxy",
+          "18-summary-pending-usable-reviews",
+          "19-summary-cold-error-usable-reviews",
+          "20-zero-summary-does-not-empty-loaded-reviews",
+          "21-ratings-cold-loading-no-actions",
+          "22-ratings-cold-error-not-empty",
+          "23-successful-empty-loaded-list-nonzero-summary",
+          "24-ratings-cached-refresh-error-actions-preserved",
+          "25-summary-cached-refresh-error-independent-context"
+        ],
+        "reads": [
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary"
+        ],
+        "writes": [
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/01-populated-summary-consent-publication-score-comment-facts.png",
+          "sha256": "2114bf36a14d88165d7e5273b16e44a90f63c4bd4f5755d1ec6126540704c61a",
+          "width": 834,
+          "height": 2598,
+          "bytes": 329551
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/02-long-server-ordered-list.png",
+          "sha256": "50cf557bd3f2c61d185f75e2aec4d0e49ec6a0603a6568ac3f41ea21e8dacc10",
+          "width": 834,
+          "height": 6220,
+          "bytes": 739716
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/03-independent-reason-drafts-long-arabic.png",
+          "sha256": "a82bf02bcced7b1238b98069c8f565cc154e36257d704368c20e956f76de3828",
+          "width": 834,
+          "height": 2598,
+          "bytes": 331067
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/04-whitespace-reason-private-action-available.png",
+          "sha256": "890c3463a96b30dbfdd03012ee86a4c3b98e1cddcf350b09ab51cf6bca1cbd5b",
+          "width": 834,
+          "height": 2598,
+          "bytes": 329909
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/05-global-moderation-pending.png",
+          "sha256": "1e01302f6975b9617ebd0a2c167fb28c177dd390c106a4cdfb883a6208e2609b",
+          "width": 834,
+          "height": 2656,
+          "bytes": 328862
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/06-moderation-error-drafts-retained.png",
+          "sha256": "3317e62c051e5dd2392059b885b8fd2b9bd0ac3229ddee232348a642675d34fb",
+          "width": 834,
+          "height": 2648,
+          "bytes": 331568
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/07-keep-private-success-without-consent.png",
+          "sha256": "013f7fa1df415b12b383fba51d156df17ef077f284761728804e059c328a3e68",
+          "width": 834,
+          "height": 2598,
+          "bytes": 328500
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/08-consented-unpublished-publish-enabled.png",
+          "sha256": "d2191d5c096c11952875d09f7c7333087cc92ac99d501e695dfcfd98528a3f81",
+          "width": 834,
+          "height": 2598,
+          "bytes": 328579
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/09-publish-pending-global-guard.png",
+          "sha256": "494d20e61bcdf0a36809d961a408a7b4950f1497db9395aa48f642f7f35d6c63",
+          "width": 834,
+          "height": 2656,
+          "bytes": 328921
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/10-publish-error-retains-reasons.png",
+          "sha256": "faab2f15e4c60d2a02f517e311fc8af13fb02b6e135d2fdb1c1cece542ed2e4c",
+          "width": 834,
+          "height": 2648,
+          "bytes": 331621
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/11-publish-success-exact-local-reason.png",
+          "sha256": "2f854bd79f62e4b287f559b1255ddc1922cc695812c4691381b94640aedb6571",
+          "width": 834,
+          "height": 2598,
+          "bytes": 328617
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/12-published-with-consent-action-mechanics-retained.png",
+          "sha256": "d32cc7461787192f30be96213731ff5fb817209098bdd5dfb09a3a074d417a5a",
+          "width": 834,
+          "height": 2598,
+          "bytes": 328534
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/13-inconsistent-published-no-consent-truthful-facts.png",
+          "sha256": "5cf9fbfaea01a704133ac6d891d0405d281fee1f0a6b57802ba8fab02ac3b7b9",
+          "width": 834,
+          "height": 2598,
+          "bytes": 328622
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/14-keyboard-reason-focus.png",
+          "sha256": "b5913245d02c5190c4ff6c22f3acbb01fb25ae792291ff760e030cea348a6036",
+          "width": 834,
+          "height": 2598,
+          "bytes": 329543
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/15-keyboard-keep-private-focus.png",
+          "sha256": "4593532dcc334c07b236eb38e0c513bfd7b7686f9455f8da5c7f6a51486b7e5a",
+          "width": 834,
+          "height": 2598,
+          "bytes": 329507
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/16-keyboard-publish-focus.png",
+          "sha256": "fae9697f191c102bd2905f3a2a06d63a9ed3dc3aace0013583132a35083767db",
+          "width": 834,
+          "height": 2598,
+          "bytes": 329434
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/17-200-percent-reflow-proxy.png",
+          "sha256": "b160b2912544e75b69d1633e9912de818248ed995d0c54031f2dcc4340be1c20",
+          "width": 417,
+          "height": 3726,
+          "bytes": 355707
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/18-summary-pending-usable-reviews.png",
+          "sha256": "1ada78ecc327d620e69fb1a005d2ba8e789d8a3d11d4007ba652d0b61e77f45a",
+          "width": 834,
+          "height": 2576,
+          "bytes": 320762
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/19-summary-cold-error-usable-reviews.png",
+          "sha256": "0c17ce8adc43f9e115250064f619f2107af43c49881d275dfe8b6e7b73542a2f",
+          "width": 834,
+          "height": 2576,
+          "bytes": 322139
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/20-zero-summary-does-not-empty-loaded-reviews.png",
+          "sha256": "49b1289698c706fd8f0b4dee9cf42d8976066e5ef0d202a0b166db7fd40fc515",
+          "width": 834,
+          "height": 2598,
+          "bytes": 327173
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/21-ratings-cold-loading-no-actions.png",
+          "sha256": "905c49026957baea47b49de8b364004b1780473a333356c13a9a0b4f5d6f7a24",
+          "width": 834,
+          "height": 1112,
+          "bytes": 206167
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/22-ratings-cold-error-not-empty.png",
+          "sha256": "83c79be975c31241a802966f49392b4d1723776afd16615a5442ba1ea17de9d3",
+          "width": 834,
+          "height": 1112,
+          "bytes": 206930
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/23-successful-empty-loaded-list-nonzero-summary.png",
+          "sha256": "3f2a32f561d30ca3bb1392752f2daa643f9d92b59dcb8121d62e387f98b95183",
+          "width": 834,
+          "height": 1112,
+          "bytes": 206866
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/24-ratings-cached-refresh-error-actions-preserved.png",
+          "sha256": "5fed061fe4331036fb1f88d77876f01fe7fddeb8eb88b3821b4c9976a556a878",
+          "width": 834,
+          "height": 2656,
+          "bytes": 333054
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1e69b--aware-moderation-workspace/25-summary-cached-refresh-error-independent-context.png",
+          "sha256": "68ab0aaed66fa91367145e39a70b750ed7c0d69bc8e391515a838dd367f8521b",
+          "width": 834,
+          "height": 2722,
+          "bytes": 337536
+        }
+      ]
+    },
+    {
+      "title": "ar light 834: Consent-aware moderation workspace",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "light",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "ar",
+        "theme": "light",
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "reflowWidth": 417,
+        "captures": [
+          "01-populated-summary-consent-publication-score-comment-facts",
+          "02-long-server-ordered-list",
+          "03-independent-reason-drafts-long-arabic",
+          "04-whitespace-reason-private-action-available",
+          "05-global-moderation-pending",
+          "06-moderation-error-drafts-retained",
+          "07-keep-private-success-without-consent",
+          "08-consented-unpublished-publish-enabled",
+          "09-publish-pending-global-guard",
+          "10-publish-error-retains-reasons",
+          "11-publish-success-exact-local-reason",
+          "12-published-with-consent-action-mechanics-retained",
+          "13-inconsistent-published-no-consent-truthful-facts",
+          "14-keyboard-reason-focus",
+          "15-keyboard-keep-private-focus",
+          "16-keyboard-publish-focus",
+          "17-200-percent-reflow-proxy",
+          "18-summary-pending-usable-reviews",
+          "19-summary-cold-error-usable-reviews",
+          "20-zero-summary-does-not-empty-loaded-reviews",
+          "21-ratings-cold-loading-no-actions",
+          "22-ratings-cold-error-not-empty",
+          "23-successful-empty-loaded-list-nonzero-summary",
+          "24-ratings-cached-refresh-error-actions-preserved",
+          "25-summary-cached-refresh-error-independent-context"
+        ],
+        "reads": [
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary"
+        ],
+        "writes": [
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/01-populated-summary-consent-publication-score-comment-facts.png",
+          "sha256": "1eb18912e20a5436d96438406d816eb1a5ef472a4cc3462e2fa02d976a3de41e",
+          "width": 834,
+          "height": 2598,
+          "bytes": 343711
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/02-long-server-ordered-list.png",
+          "sha256": "90dcbb5784670f39b194f3aabda03c3da51e42d48528faf15fa9b3ad4b947b2b",
+          "width": 834,
+          "height": 6220,
+          "bytes": 800736
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/03-independent-reason-drafts-long-arabic.png",
+          "sha256": "727d2296e91f2f6a835ecdecfc9fc25adc02a8da9417df07a0837a693983de8a",
+          "width": 834,
+          "height": 2598,
+          "bytes": 345185
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/04-whitespace-reason-private-action-available.png",
+          "sha256": "a04b097f3021b6481d349d4be9268c746ba5e1aee748abc333cc8b26956de288",
+          "width": 834,
+          "height": 2598,
+          "bytes": 343769
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/05-global-moderation-pending.png",
+          "sha256": "f27fbcfb8030b9ba1f49e5204a02fc4b583f6a621e43898d40921c0f7c9c5f31",
+          "width": 834,
+          "height": 2656,
+          "bytes": 343396
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/06-moderation-error-drafts-retained.png",
+          "sha256": "944268ad646b787abfe3cdbda079247dcd2d4acfc9b2034b7de463805f3b8042",
+          "width": 834,
+          "height": 2648,
+          "bytes": 346711
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/07-keep-private-success-without-consent.png",
+          "sha256": "e80d604476cda70de2ddb0a037c462d292065cbe20b97a78b5bd9d1c8b2ed757",
+          "width": 834,
+          "height": 2598,
+          "bytes": 342505
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/08-consented-unpublished-publish-enabled.png",
+          "sha256": "69a6ae027dde73b044391f0e0ec47d9215019838752515d5344b42bf6df46de9",
+          "width": 834,
+          "height": 2598,
+          "bytes": 342571
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/09-publish-pending-global-guard.png",
+          "sha256": "d38aa36e4f06abe238a797fe33657da755b8d13025498fa18c4f7134df91e400",
+          "width": 834,
+          "height": 2656,
+          "bytes": 343281
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/10-publish-error-retains-reasons.png",
+          "sha256": "f9c5f3c906aebd1b51f0cf28d8ce8247984b0ebf75b7e5ebfa30d4aa688ec459",
+          "width": 834,
+          "height": 2648,
+          "bytes": 346624
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/11-publish-success-exact-local-reason.png",
+          "sha256": "8abe8c9a3c403316a992581e5b5617206caa7aaf6a41a35a23b319749856f8ab",
+          "width": 834,
+          "height": 2598,
+          "bytes": 342454
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/12-published-with-consent-action-mechanics-retained.png",
+          "sha256": "8b7651d3acdf71dc213cf10db9eb5ce939fd39f0a4a57ae3aee05011bf93a183",
+          "width": 834,
+          "height": 2598,
+          "bytes": 342465
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/13-inconsistent-published-no-consent-truthful-facts.png",
+          "sha256": "243d115452931a7d883ec65daf0df6670a478dd0d40b0ed2a6b509a045bd78df",
+          "width": 834,
+          "height": 2598,
+          "bytes": 342566
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/14-keyboard-reason-focus.png",
+          "sha256": "31f34cce5c749af8218c699765c7339a0f2340d3899484d5f57bd159ccd7178a",
+          "width": 834,
+          "height": 2598,
+          "bytes": 343418
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/15-keyboard-keep-private-focus.png",
+          "sha256": "9e99ed39e2a180c169753adb63348cb2a92019eb779526d798ef8bb1b58c1998",
+          "width": 834,
+          "height": 2598,
+          "bytes": 343343
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/16-keyboard-publish-focus.png",
+          "sha256": "9c38050570694fecd16941771df3dbf20a303d6aad0d394c0a5f06092f12edcc",
+          "width": 834,
+          "height": 2598,
+          "bytes": 343278
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/17-200-percent-reflow-proxy.png",
+          "sha256": "da862e8d113a7400710b7434e77e4a893c2c28b84b4297a639f0df274ddb7b73",
+          "width": 417,
+          "height": 3726,
+          "bytes": 359619
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/18-summary-pending-usable-reviews.png",
+          "sha256": "f134371f12bf6c3a524e96c5cc16521a9c1e587d012ab1865b14da6b35f5b785",
+          "width": 834,
+          "height": 2576,
+          "bytes": 335036
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/19-summary-cold-error-usable-reviews.png",
+          "sha256": "afe30a0615b21cac54b8a0b4c34b34ab83f32bc8ed58e925015e2c0be872032f",
+          "width": 834,
+          "height": 2576,
+          "bytes": 336385
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/20-zero-summary-does-not-empty-loaded-reviews.png",
+          "sha256": "7f3eca052dd98d2e3b2dcc8b5bc1c947d7656801831fbd6a0576222df011aef9",
+          "width": 834,
+          "height": 2598,
+          "bytes": 341347
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/21-ratings-cold-loading-no-actions.png",
+          "sha256": "c5bc58208f7dc4aad60d9ad23acd87281173126323b0466591e51e9071249a04",
+          "width": 834,
+          "height": 1112,
+          "bytes": 186758
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/22-ratings-cold-error-not-empty.png",
+          "sha256": "c6c5b2a766ba2ab3f0cb78cf49cec2df94010977c4ee2d5fdb20d4f83caed068",
+          "width": 834,
+          "height": 1112,
+          "bytes": 187489
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/23-successful-empty-loaded-list-nonzero-summary.png",
+          "sha256": "23c8db215a489a26f72d80d82376f9e90572b4fb82c332e67b34203e76ff52ef",
+          "width": 834,
+          "height": 1112,
+          "bytes": 187338
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/24-ratings-cached-refresh-error-actions-preserved.png",
+          "sha256": "3126023b326cf1ba6aae36dfd12bd20c9732926ecb3cc592e3446bbcf47c0c03",
+          "width": 834,
+          "height": 2656,
+          "bytes": 348028
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--1f9f6--aware-moderation-workspace/25-summary-cached-refresh-error-independent-context.png",
+          "sha256": "aaff0e522d5f3d0e058d35171cebcc446031e04e415dd7c054215728def0eba8",
+          "width": 834,
+          "height": 2722,
+          "bytes": 353602
+        }
+      ]
+    },
+    {
+      "title": "en light 834: Consent-aware moderation workspace",
+      "status": "passed",
+      "locale": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "en",
+        "theme": "light",
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "reflowWidth": 417,
+        "captures": [
+          "01-populated-summary-consent-publication-score-comment-facts",
+          "02-long-server-ordered-list",
+          "03-independent-reason-drafts-long-arabic",
+          "04-whitespace-reason-private-action-available",
+          "05-global-moderation-pending",
+          "06-moderation-error-drafts-retained",
+          "07-keep-private-success-without-consent",
+          "08-consented-unpublished-publish-enabled",
+          "09-publish-pending-global-guard",
+          "10-publish-error-retains-reasons",
+          "11-publish-success-exact-local-reason",
+          "12-published-with-consent-action-mechanics-retained",
+          "13-inconsistent-published-no-consent-truthful-facts",
+          "14-keyboard-reason-focus",
+          "15-keyboard-keep-private-focus",
+          "16-keyboard-publish-focus",
+          "17-200-percent-reflow-proxy",
+          "18-summary-pending-usable-reviews",
+          "19-summary-cold-error-usable-reviews",
+          "20-zero-summary-does-not-empty-loaded-reviews",
+          "21-ratings-cold-loading-no-actions",
+          "22-ratings-cold-error-not-empty",
+          "23-successful-empty-loaded-list-nonzero-summary",
+          "24-ratings-cached-refresh-error-actions-preserved",
+          "25-summary-cached-refresh-error-independent-context"
+        ],
+        "reads": [
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary"
+        ],
+        "writes": [
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/01-populated-summary-consent-publication-score-comment-facts.png",
+          "sha256": "a2ed3ba9c872937e06710ac89c7ac7febed8a52b0b8349cfc331569e3ad881e3",
+          "width": 834,
+          "height": 2481,
+          "bytes": 307011
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/02-long-server-ordered-list.png",
+          "sha256": "b25d8ade96ad7437baefa4dedefc0b989ed9ffa5cea1b2de3538b058d2c2ba6f",
+          "width": 834,
+          "height": 5795,
+          "bytes": 735790
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/03-independent-reason-drafts-long-arabic.png",
+          "sha256": "57e23ea577ad9487bc7f1424e2595b5553ecc953b59cc58e97ed6e0040bcabd6",
+          "width": 834,
+          "height": 2481,
+          "bytes": 310777
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/04-whitespace-reason-private-action-available.png",
+          "sha256": "f3c67bfe0a72fb9313f75882b17cc42b0f5922a60cd2441559e9e59010dc5c07",
+          "width": 834,
+          "height": 2481,
+          "bytes": 309681
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/05-global-moderation-pending.png",
+          "sha256": "b4893e416258731c1ea52f8de16a2bbaa93b70bfb2ec80d0010e89539bf71f01",
+          "width": 834,
+          "height": 2535,
+          "bytes": 310905
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/06-moderation-error-drafts-retained.png",
+          "sha256": "e3d6205f8ce4fec55e4fe9bec772abdb3ba57cdb140f0e89c1f2f618d00471a1",
+          "width": 834,
+          "height": 2527,
+          "bytes": 314576
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/07-keep-private-success-without-consent.png",
+          "sha256": "693e49ec3f824947e1e22adcb71da95dbd00d8ebc82d52977d5542688b238628",
+          "width": 834,
+          "height": 2481,
+          "bytes": 308346
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/08-consented-unpublished-publish-enabled.png",
+          "sha256": "3414a9cbee4e350169e7753186b76d922311fc05d3c943b69be48b5065252391",
+          "width": 834,
+          "height": 2481,
+          "bytes": 308399
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/09-publish-pending-global-guard.png",
+          "sha256": "324b4fc5c2fc4e6a1138301b1d4ccdca8544a46e8c841d2cee44bc05d383f4fb",
+          "width": 834,
+          "height": 2535,
+          "bytes": 310914
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/10-publish-error-retains-reasons.png",
+          "sha256": "bc18d534258d44b8e619db10bd8b021623771efc9628d14c505709b65b597075",
+          "width": 834,
+          "height": 2527,
+          "bytes": 314616
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/11-publish-success-exact-local-reason.png",
+          "sha256": "d444d6d923c1dc427c8f66832bfb0ff15aacc9cdaffb5a1566e68aad4413f012",
+          "width": 834,
+          "height": 2481,
+          "bytes": 308440
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/12-published-with-consent-action-mechanics-retained.png",
+          "sha256": "376e333004e6edb69b64dcd50cc634e460d5c78dfacf055b1c85c3bae8ca56b5",
+          "width": 834,
+          "height": 2481,
+          "bytes": 308393
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/13-inconsistent-published-no-consent-truthful-facts.png",
+          "sha256": "ee6aa9985be5d7b3a872be9c572e36be1e81dfd78fbfe7b36402858ba8d5ac77",
+          "width": 834,
+          "height": 2481,
+          "bytes": 308506
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/14-keyboard-reason-focus.png",
+          "sha256": "5fce5d77cc748853d97ba9aff128ac41b91635829e9fb551f1bba2f6b012f877",
+          "width": 834,
+          "height": 2481,
+          "bytes": 309313
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/15-keyboard-keep-private-focus.png",
+          "sha256": "952c5a0f4029681eed8777370364c724012a5e9e981135d24d8fe19d44138c2e",
+          "width": 834,
+          "height": 2481,
+          "bytes": 309280
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/16-keyboard-publish-focus.png",
+          "sha256": "7b0f9f1fb43adbc34bda5473153f3ad1615dd45beba026711ab0f174f455eb5b",
+          "width": 834,
+          "height": 2481,
+          "bytes": 309281
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/17-200-percent-reflow-proxy.png",
+          "sha256": "9c69d1523ee31f4d8146e9fdf7d2c212a9bef1f2e8010f9b6206acdf569ae930",
+          "width": 417,
+          "height": 3640,
+          "bytes": 320610
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/18-summary-pending-usable-reviews.png",
+          "sha256": "b66b58f8df472669285bdd0f2dc8cae2dfc74c440bc3fa0a21ca0aa1a6ad0616",
+          "width": 834,
+          "height": 2463,
+          "bytes": 300218
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/19-summary-cold-error-usable-reviews.png",
+          "sha256": "8499bfaabf5496c9475bb9685f841fc850d7de367af0dabde316166cae1ef4bd",
+          "width": 834,
+          "height": 2463,
+          "bytes": 302879
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/20-zero-summary-does-not-empty-loaded-reviews.png",
+          "sha256": "f5d838895a3f6669101bc2bb50dc6dd0182b147161c8432a70d25da3b1134fe0",
+          "width": 834,
+          "height": 2481,
+          "bytes": 305216
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/21-ratings-cold-loading-no-actions.png",
+          "sha256": "fff27cbcb44d303fe6581e2d204af00fb2292c1d2ef0406266d165c4cd0a3459",
+          "width": 834,
+          "height": 1112,
+          "bytes": 156374
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/22-ratings-cold-error-not-empty.png",
+          "sha256": "86fe9da643be186a2a6563525b60905e55733202c86e0c80d696b7149394974a",
+          "width": 834,
+          "height": 1112,
+          "bytes": 158137
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/23-successful-empty-loaded-list-nonzero-summary.png",
+          "sha256": "e2a1f3fa40c0ef58186ed7a1191f8e67273faa958de9cb3febe06dee4ac8c127",
+          "width": 834,
+          "height": 1112,
+          "bytes": 157132
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/24-ratings-cached-refresh-error-actions-preserved.png",
+          "sha256": "e677d9e1b943480d9c3eea543c9326d7ab4a5601e3ebd1a814d90ed516927d0d",
+          "width": 834,
+          "height": 2535,
+          "bytes": 315934
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--6002c--aware-moderation-workspace/25-summary-cached-refresh-error-independent-context.png",
+          "sha256": "ec1e1589bed55c08186c174e96b705a14b46c86eacfa3867546ef1c8f6c7ebc9",
+          "width": 834,
+          "height": 2597,
+          "bytes": 323596
+        }
+      ]
+    },
+    {
+      "title": "en dark 1440: Consent-aware moderation workspace",
+      "status": "passed",
+      "locale": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "en",
+        "theme": "dark",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "reflowWidth": 720,
+        "captures": [
+          "01-populated-summary-consent-publication-score-comment-facts",
+          "02-long-server-ordered-list",
+          "03-independent-reason-drafts-long-arabic",
+          "04-whitespace-reason-private-action-available",
+          "05-global-moderation-pending",
+          "06-moderation-error-drafts-retained",
+          "07-keep-private-success-without-consent",
+          "08-consented-unpublished-publish-enabled",
+          "09-publish-pending-global-guard",
+          "10-publish-error-retains-reasons",
+          "11-publish-success-exact-local-reason",
+          "12-published-with-consent-action-mechanics-retained",
+          "13-inconsistent-published-no-consent-truthful-facts",
+          "14-keyboard-reason-focus",
+          "15-keyboard-keep-private-focus",
+          "16-keyboard-publish-focus",
+          "17-200-percent-reflow-proxy",
+          "18-summary-pending-usable-reviews",
+          "19-summary-cold-error-usable-reviews",
+          "20-zero-summary-does-not-empty-loaded-reviews",
+          "21-ratings-cold-loading-no-actions",
+          "22-ratings-cold-error-not-empty",
+          "23-successful-empty-loaded-list-nonzero-summary",
+          "24-ratings-cached-refresh-error-actions-preserved",
+          "25-summary-cached-refresh-error-independent-context"
+        ],
+        "reads": [
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary"
+        ],
+        "writes": [
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/01-populated-summary-consent-publication-score-comment-facts.png",
+          "sha256": "aee67649c54dba66548e0f26810992d35fbf93ee541f4f8d5e055da625795b53",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 342345
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/02-long-server-ordered-list.png",
+          "sha256": "3c7ad03a20d28b10b1d04466042ade7c882834e1ff9ecba9f927820399ad05fb",
+          "width": 1440,
+          "height": 4445,
+          "bytes": 736614
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/03-independent-reason-drafts-long-arabic.png",
+          "sha256": "b4e71b7f0c86fb3f05a68a907a32384d9fd681082f2b6e12028588b9a0d47ae3",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 346677
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/04-whitespace-reason-private-action-available.png",
+          "sha256": "057c870e1535feea927f2c58388fd43c40f08f7b54083176c0b49a60d7c1c782",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 345821
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/05-global-moderation-pending.png",
+          "sha256": "9b19945389391623d51ea082972046bb7f6a1e51057510cf570ed484ed2ada56",
+          "width": 1440,
+          "height": 2061,
+          "bytes": 345929
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/06-moderation-error-drafts-retained.png",
+          "sha256": "638063f40c29c9c018431fdea5b9fb33582bdaa9e290b64e6935415287e47ce2",
+          "width": 1440,
+          "height": 2053,
+          "bytes": 349450
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/07-keep-private-success-without-consent.png",
+          "sha256": "9d9fcbcc834ae3bec6d1ac9c1802b67b462abf61cfbb2c106807ff3f01abbd45",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 344396
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/08-consented-unpublished-publish-enabled.png",
+          "sha256": "5c4c766c3cfa3ea856c83acddd35b83152cef1ee191f7a7d49b9f7ad0ba3d25a",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 344419
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/09-publish-pending-global-guard.png",
+          "sha256": "47742238d95e946d780f2d956c762a71df550f38bcae13320700d01a4fb1df45",
+          "width": 1440,
+          "height": 2061,
+          "bytes": 346049
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/10-publish-error-retains-reasons.png",
+          "sha256": "3c702dc4c2a6d9352c3affe4ab162510eb298e7dde39a49ade19be817e0c376d",
+          "width": 1440,
+          "height": 2053,
+          "bytes": 349430
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/11-publish-success-exact-local-reason.png",
+          "sha256": "e05dc1273b7b13d4559698cb1630a37041defdbf52aa5fbd140fafb322211208",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 344536
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/12-published-with-consent-action-mechanics-retained.png",
+          "sha256": "4695751397e9878109db5f242505cda0c507b9e62c14928f1298202dd765cbd3",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 344472
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/13-inconsistent-published-no-consent-truthful-facts.png",
+          "sha256": "8997b6f210ec72222419e8369c8f1ef556abbd4a5ffe1df820acef00799e8695",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 344464
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/14-keyboard-reason-focus.png",
+          "sha256": "807fe0d75d9857462f4bfd55fdea0ef8422be3bfdbfd2de5025f726cf1ca0dca",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 345297
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/15-keyboard-keep-private-focus.png",
+          "sha256": "2ef7207daf9f0a93cb4558e41d67fdba6bf1297b9326fb4f5f7a3de6116ed9f9",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 345277
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/16-keyboard-publish-focus.png",
+          "sha256": "25ed1e714a40a6fbdebb9a86456a203b38f5105aecdf5d0c4713d88217849ead",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 345233
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/17-200-percent-reflow-proxy.png",
+          "sha256": "b61a14cbf76f31271ec410fd42001a2bf969d0e88d902a548065211a16b2ee1f",
+          "width": 720,
+          "height": 2668,
+          "bytes": 295529
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/18-summary-pending-usable-reviews.png",
+          "sha256": "bac9ffba256695b72e10b2538c8e5dd9282df812fe0ead45deffa14c03b775a1",
+          "width": 1440,
+          "height": 1989,
+          "bytes": 336456
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/19-summary-cold-error-usable-reviews.png",
+          "sha256": "7e9ea163b2052b257ae9997abae3fb6a4707c0a377c1504c014735ee4dd93d64",
+          "width": 1440,
+          "height": 1989,
+          "bytes": 339263
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/20-zero-summary-does-not-empty-loaded-reviews.png",
+          "sha256": "d43f124ce48114cdb89f1108cc46e96be57e22de8cb8f043e90eca8c41cdbb06",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 340796
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/21-ratings-cold-loading-no-actions.png",
+          "sha256": "b4bc11767d438b71c7bcbd1aa81f55a8b0233a2a80749933ef08a1411d3e9fff",
+          "width": 1440,
+          "height": 900,
+          "bytes": 156858
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/22-ratings-cold-error-not-empty.png",
+          "sha256": "fdaaa566da8a6810b29abf03b56dd248c92d55bc32a6ebb76b80e1fa8404f4eb",
+          "width": 1440,
+          "height": 900,
+          "bytes": 158745
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/23-successful-empty-loaded-list-nonzero-summary.png",
+          "sha256": "b61702141bfb5951f9e1ad09ccc823b5d8cb8b0a063070c8acc753c6f96f3ed8",
+          "width": 1440,
+          "height": 900,
+          "bytes": 157446
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/24-ratings-cached-refresh-error-actions-preserved.png",
+          "sha256": "8295b49c01956f2f151b3b830bc030cd050e0509cef77d4ce6f61a51566b6da1",
+          "width": 1440,
+          "height": 2061,
+          "bytes": 351509
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--9d68e--aware-moderation-workspace/25-summary-cached-refresh-error-independent-context.png",
+          "sha256": "2dabe3fa67937d319af949bc867cc3a6e8163ed426cc2829edbb7b81f00f9ad7",
+          "width": 1440,
+          "height": 2123,
+          "bytes": 358894
+        }
+      ]
+    },
+    {
+      "title": "en dark 834: Consent-aware moderation workspace",
+      "status": "passed",
+      "locale": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "en",
+        "theme": "dark",
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "reflowWidth": 417,
+        "captures": [
+          "01-populated-summary-consent-publication-score-comment-facts",
+          "02-long-server-ordered-list",
+          "03-independent-reason-drafts-long-arabic",
+          "04-whitespace-reason-private-action-available",
+          "05-global-moderation-pending",
+          "06-moderation-error-drafts-retained",
+          "07-keep-private-success-without-consent",
+          "08-consented-unpublished-publish-enabled",
+          "09-publish-pending-global-guard",
+          "10-publish-error-retains-reasons",
+          "11-publish-success-exact-local-reason",
+          "12-published-with-consent-action-mechanics-retained",
+          "13-inconsistent-published-no-consent-truthful-facts",
+          "14-keyboard-reason-focus",
+          "15-keyboard-keep-private-focus",
+          "16-keyboard-publish-focus",
+          "17-200-percent-reflow-proxy",
+          "18-summary-pending-usable-reviews",
+          "19-summary-cold-error-usable-reviews",
+          "20-zero-summary-does-not-empty-loaded-reviews",
+          "21-ratings-cold-loading-no-actions",
+          "22-ratings-cold-error-not-empty",
+          "23-successful-empty-loaded-list-nonzero-summary",
+          "24-ratings-cached-refresh-error-actions-preserved",
+          "25-summary-cached-refresh-error-independent-context"
+        ],
+        "reads": [
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary"
+        ],
+        "writes": [
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/01-populated-summary-consent-publication-score-comment-facts.png",
+          "sha256": "fb4daccb05def530a2e817cf22f794e0c6d2e7609e55fba65f8ffedb6e8bb133",
+          "width": 834,
+          "height": 2481,
+          "bytes": 293853
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/02-long-server-ordered-list.png",
+          "sha256": "2ea355779b8bef6e3578377377306a803d42474699c90ab67189f18b65d5bb9b",
+          "width": 834,
+          "height": 5795,
+          "bytes": 679911
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/03-independent-reason-drafts-long-arabic.png",
+          "sha256": "8776479b81925e4997345807cb51be6f11475a1233168116c8b2b561cc288160",
+          "width": 834,
+          "height": 2481,
+          "bytes": 297839
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/04-whitespace-reason-private-action-available.png",
+          "sha256": "ceb44486901fd513c02fa3eae01d3ce58f44198a24f07ab8eece13bce2542a2f",
+          "width": 834,
+          "height": 2481,
+          "bytes": 296511
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/05-global-moderation-pending.png",
+          "sha256": "b43616cd2a7ec069d4e7e2e43dd08f8fbff9af199feb99af245d4236c76d877a",
+          "width": 834,
+          "height": 2535,
+          "bytes": 297177
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/06-moderation-error-drafts-retained.png",
+          "sha256": "b83213197f04db94b6bc49bd5cd4f77aa9af34098fa3eecfdb504f3a327e9084",
+          "width": 834,
+          "height": 2527,
+          "bytes": 300017
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/07-keep-private-success-without-consent.png",
+          "sha256": "174cd3d6f9f545be6f55b3e2a4ee0cd2dfd872c4b84e351b0e73a960fe5acc47",
+          "width": 834,
+          "height": 2481,
+          "bytes": 295206
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/08-consented-unpublished-publish-enabled.png",
+          "sha256": "3ddc4c2f96613300551d1855185f79c2b126ea86e4e8064da55d88a7ba1ddd84",
+          "width": 834,
+          "height": 2481,
+          "bytes": 295220
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/09-publish-pending-global-guard.png",
+          "sha256": "1b1e1cd719f1130a6017ae875d64018e36e745a908e8e6aaaa693fd4a661e376",
+          "width": 834,
+          "height": 2535,
+          "bytes": 297170
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/10-publish-error-retains-reasons.png",
+          "sha256": "75c5f5cda5591a6a762201d76a026df45a9b1af893ec7cf49d3b25d1c3237236",
+          "width": 834,
+          "height": 2527,
+          "bytes": 300053
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/11-publish-success-exact-local-reason.png",
+          "sha256": "9885392f986adb1dcdfdc0032ca7e8067c9989e2f81f73bc1dc2c20c5471b173",
+          "width": 834,
+          "height": 2481,
+          "bytes": 295269
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/12-published-with-consent-action-mechanics-retained.png",
+          "sha256": "b5a144995a61e510246debd2392a933c555d1b9d9299518e86dd6eac11a45e7a",
+          "width": 834,
+          "height": 2481,
+          "bytes": 295249
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/13-inconsistent-published-no-consent-truthful-facts.png",
+          "sha256": "1baea30ceb73fd4d3b75ca39de5e675374743ce72f0c1950a5662398c5fdb238",
+          "width": 834,
+          "height": 2481,
+          "bytes": 295235
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/14-keyboard-reason-focus.png",
+          "sha256": "642195130b4cd03a164f02bd435f21c471818a6c087cdf0667d5128400b8c0af",
+          "width": 834,
+          "height": 2481,
+          "bytes": 296373
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/15-keyboard-keep-private-focus.png",
+          "sha256": "0d5537b1fa4b961ea5b293159232f9c2fae858f4662fdfd28824b34c44a4b966",
+          "width": 834,
+          "height": 2481,
+          "bytes": 296129
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/16-keyboard-publish-focus.png",
+          "sha256": "bb98c68d7ee20c39fef1eaf4920da25334e792edd81ee294c5a15de73c45a5f0",
+          "width": 834,
+          "height": 2481,
+          "bytes": 296110
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/17-200-percent-reflow-proxy.png",
+          "sha256": "67aaafd13622f5351181f7add17ebd06b0f9189894d1565b887eb4e3966d05a1",
+          "width": 417,
+          "height": 3640,
+          "bytes": 313859
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/18-summary-pending-usable-reviews.png",
+          "sha256": "8f19fc58aa610791970f6b6f3dbec5f39c8d7e67bcdcf2bac83080c8d9424685",
+          "width": 834,
+          "height": 2463,
+          "bytes": 287468
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/19-summary-cold-error-usable-reviews.png",
+          "sha256": "df5812a61476d674be6121755b1f1e630f0aae338a098cb478862936fc0687c8",
+          "width": 834,
+          "height": 2463,
+          "bytes": 290305
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/20-zero-summary-does-not-empty-loaded-reviews.png",
+          "sha256": "e30655f2a4902ad17bb1c9c19dce6827879a383affaffbfbf84406cdba84a7e9",
+          "width": 834,
+          "height": 2481,
+          "bytes": 292219
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/21-ratings-cold-loading-no-actions.png",
+          "sha256": "b0f04c47f6b0c3360483469f4a3de5ea3eed0afc18dc04164dbc09c0a8c99611",
+          "width": 834,
+          "height": 1112,
+          "bytes": 172425
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/22-ratings-cold-error-not-empty.png",
+          "sha256": "c7f25084e43756aa0939a8bf1e0a6734c494270e5452fd63ba2f733cab31f985",
+          "width": 834,
+          "height": 1112,
+          "bytes": 174331
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/23-successful-empty-loaded-list-nonzero-summary.png",
+          "sha256": "051b3c630b8c76b82761a21b30d3b27c7dabe067eb0fcfdaea35504a655a6f27",
+          "width": 834,
+          "height": 1112,
+          "bytes": 173213
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/24-ratings-cached-refresh-error-actions-preserved.png",
+          "sha256": "64fa46c3f1d20fc13012a025afea8b79ec7d137252d5fdd4095321739c7c10ba",
+          "width": 834,
+          "height": 2535,
+          "bytes": 302243
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--a9097--aware-moderation-workspace/25-summary-cached-refresh-error-independent-context.png",
+          "sha256": "7aba458b8b6d6548df1426ce8db09c95c1834af4f2a0d24e312a05e6291a842b",
+          "width": 834,
+          "height": 2597,
+          "bytes": 309236
+        }
+      ]
+    },
+    {
+      "title": "en light 390: Consent-aware moderation workspace",
+      "status": "passed",
+      "locale": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "en",
+        "theme": "light",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "reflowWidth": 320,
+        "captures": [
+          "01-populated-summary-consent-publication-score-comment-facts",
+          "02-long-server-ordered-list",
+          "03-independent-reason-drafts-long-arabic",
+          "04-whitespace-reason-private-action-available",
+          "05-global-moderation-pending",
+          "06-moderation-error-drafts-retained",
+          "07-keep-private-success-without-consent",
+          "08-consented-unpublished-publish-enabled",
+          "09-publish-pending-global-guard",
+          "10-publish-error-retains-reasons",
+          "11-publish-success-exact-local-reason",
+          "12-published-with-consent-action-mechanics-retained",
+          "13-inconsistent-published-no-consent-truthful-facts",
+          "14-keyboard-reason-focus",
+          "15-keyboard-keep-private-focus",
+          "16-keyboard-publish-focus",
+          "17-200-percent-reflow-proxy",
+          "18-summary-pending-usable-reviews",
+          "19-summary-cold-error-usable-reviews",
+          "20-zero-summary-does-not-empty-loaded-reviews",
+          "21-ratings-cold-loading-no-actions",
+          "22-ratings-cold-error-not-empty",
+          "23-successful-empty-loaded-list-nonzero-summary",
+          "24-ratings-cached-refresh-error-actions-preserved",
+          "25-summary-cached-refresh-error-independent-context"
+        ],
+        "reads": [
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary"
+        ],
+        "writes": [
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/01-populated-summary-consent-publication-score-comment-facts.png",
+          "sha256": "6971ae62a936820b5bfae8b68916f6b7774a6ef917b3d69043eda8cfa2982746",
+          "width": 390,
+          "height": 3754,
+          "bytes": 305480
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/02-long-server-ordered-list.png",
+          "sha256": "2412c4934c3ee978a82c94470627fd78c95a0bdf0bca5b14a030e4ec90d00490",
+          "width": 390,
+          "height": 8348,
+          "bytes": 716194
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/03-independent-reason-drafts-long-arabic.png",
+          "sha256": "0ad199f38a2262e8ff69bfadb1d3e0dba43cc01c43af661a505d4a4dd679090a",
+          "width": 390,
+          "height": 3754,
+          "bytes": 306722
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/04-whitespace-reason-private-action-available.png",
+          "sha256": "42a260d7248eec803763ddd21c5fd9f0af069736a8b1962cb2acbcd4c82dbf48",
+          "width": 390,
+          "height": 3754,
+          "bytes": 305599
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/05-global-moderation-pending.png",
+          "sha256": "06ab90c38184e2f807bffca8b49536b4cd5419453214965d13fbf97514d7a96d",
+          "width": 390,
+          "height": 3808,
+          "bytes": 305435
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/06-moderation-error-drafts-retained.png",
+          "sha256": "ce2ab916538d6ae20459da483424f0bbb51ae2d15e476aca892930f2be2b0909",
+          "width": 390,
+          "height": 3800,
+          "bytes": 308917
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/07-keep-private-success-without-consent.png",
+          "sha256": "f56e0966d509a4408ec83e6d0585d500c84a5171963c839d9f27ca0dff721567",
+          "width": 390,
+          "height": 3754,
+          "bytes": 304528
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/08-consented-unpublished-publish-enabled.png",
+          "sha256": "9051ec651dc6aa667f03e4af0c896939f52db7b8ad4dd8c202536adc3d76b32d",
+          "width": 390,
+          "height": 3754,
+          "bytes": 304560
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/09-publish-pending-global-guard.png",
+          "sha256": "43017b7e9ddf7ef3a1ccdf4db1101cbe961c870d4b73e200b45cdaedb52855aa",
+          "width": 390,
+          "height": 3808,
+          "bytes": 305461
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/10-publish-error-retains-reasons.png",
+          "sha256": "f508e5a8d457c4569fbd8299fb81fd26fb1e3f66f40d9d9f654f13d4d6a13fd4",
+          "width": 390,
+          "height": 3800,
+          "bytes": 308849
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/11-publish-success-exact-local-reason.png",
+          "sha256": "0c30763dabfe3018c0b5eb44abc2576df48222155e634a495bad9772e1e0dcb5",
+          "width": 390,
+          "height": 3754,
+          "bytes": 304549
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/12-published-with-consent-action-mechanics-retained.png",
+          "sha256": "a82c59eeecd3eebffb9d9ae1fc66c22c29d715c7209e9d2c9a2f4d44599303f9",
+          "width": 390,
+          "height": 3754,
+          "bytes": 304531
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/13-inconsistent-published-no-consent-truthful-facts.png",
+          "sha256": "2f8ce3cbc7cb127aca22b195dac09262b17bc1249f1c5c2c00aa199b1dd893d6",
+          "width": 390,
+          "height": 3754,
+          "bytes": 304557
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/14-keyboard-reason-focus.png",
+          "sha256": "ce13f6f514aa3163412575ed4a8ee648fe906200aa7cb75de71553025dea0422",
+          "width": 390,
+          "height": 3754,
+          "bytes": 305366
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/15-keyboard-keep-private-focus.png",
+          "sha256": "37e8262850a1a1ee9e41c2cef73feed36e39e04ad57e62674d60c4a84ac2a94c",
+          "width": 390,
+          "height": 3754,
+          "bytes": 305361
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/16-keyboard-publish-focus.png",
+          "sha256": "c46c93a3fb13fae4c4279bb856d77e186b1a46d8bd58e83bf9a606f9c670d318",
+          "width": 390,
+          "height": 3754,
+          "bytes": 305313
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/17-200-percent-reflow-proxy.png",
+          "sha256": "732566cf1f02db9f22da8db85545e30deb93b912ffea676985287cd8154a8761",
+          "width": 320,
+          "height": 4434,
+          "bytes": 318301
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/18-summary-pending-usable-reviews.png",
+          "sha256": "13ff2b76593ae7ff0174f572fb7d3f76a8d224a65c27b61b217ae2561b83b020",
+          "width": 390,
+          "height": 3678,
+          "bytes": 296012
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/19-summary-cold-error-usable-reviews.png",
+          "sha256": "9dfb8bc837e18c3633132b55b845749df373bd77aef7be1135c8c3c8aa0d9e81",
+          "width": 390,
+          "height": 3700,
+          "bytes": 299396
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/20-zero-summary-does-not-empty-loaded-reviews.png",
+          "sha256": "3d925c8c036e35412be8a806696bbda02db250617e4c1f26968cfe6c00d47843",
+          "width": 390,
+          "height": 3754,
+          "bytes": 304163
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/21-ratings-cold-loading-no-actions.png",
+          "sha256": "cf70f33b73fe367f595324e2e50532559b6006d62d97c9bd2ff2e556dcea4e45",
+          "width": 390,
+          "height": 1512,
+          "bytes": 88929
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/22-ratings-cold-error-not-empty.png",
+          "sha256": "5335fc29b09c13d1520c261d90295c3d03587e956f9b36d0782b46d030ef8238",
+          "width": 390,
+          "height": 1512,
+          "bytes": 90411
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/23-successful-empty-loaded-list-nonzero-summary.png",
+          "sha256": "981ae6ff9fc8f4e47468130906e6aab328bf12dbfa8220e309a1e4c9520841a3",
+          "width": 390,
+          "height": 1512,
+          "bytes": 89510
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/24-ratings-cached-refresh-error-actions-preserved.png",
+          "sha256": "9e252ef0989a6022f43adec1f398d361cf7957cddfd2cdd937f513da4a4c7bbd",
+          "width": 390,
+          "height": 3808,
+          "bytes": 310664
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b21f1--aware-moderation-workspace/25-summary-cached-refresh-error-independent-context.png",
+          "sha256": "d9fd785a18477d98464cae1e17c9692a99f52dac1cb62cc3b1c958e6500f0c3e",
+          "width": 390,
+          "height": 3892,
+          "bytes": 318058
+        }
+      ]
+    },
+    {
+      "title": "en light 1440: Consent-aware moderation workspace",
+      "status": "passed",
+      "locale": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "en",
+        "theme": "light",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "reflowWidth": 720,
+        "captures": [
+          "01-populated-summary-consent-publication-score-comment-facts",
+          "02-long-server-ordered-list",
+          "03-independent-reason-drafts-long-arabic",
+          "04-whitespace-reason-private-action-available",
+          "05-global-moderation-pending",
+          "06-moderation-error-drafts-retained",
+          "07-keep-private-success-without-consent",
+          "08-consented-unpublished-publish-enabled",
+          "09-publish-pending-global-guard",
+          "10-publish-error-retains-reasons",
+          "11-publish-success-exact-local-reason",
+          "12-published-with-consent-action-mechanics-retained",
+          "13-inconsistent-published-no-consent-truthful-facts",
+          "14-keyboard-reason-focus",
+          "15-keyboard-keep-private-focus",
+          "16-keyboard-publish-focus",
+          "17-200-percent-reflow-proxy",
+          "18-summary-pending-usable-reviews",
+          "19-summary-cold-error-usable-reviews",
+          "20-zero-summary-does-not-empty-loaded-reviews",
+          "21-ratings-cold-loading-no-actions",
+          "22-ratings-cold-error-not-empty",
+          "23-successful-empty-loaded-list-nonzero-summary",
+          "24-ratings-cached-refresh-error-actions-preserved",
+          "25-summary-cached-refresh-error-independent-context"
+        ],
+        "reads": [
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary"
+        ],
+        "writes": [
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/01-populated-summary-consent-publication-score-comment-facts.png",
+          "sha256": "6b6b19701aeeecf321f3a5d778fe3265b616d9f7d28c387edfc766a8d85f8e60",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 357845
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/02-long-server-ordered-list.png",
+          "sha256": "a60b132a89516b03487b1ce6bf362c37c7446136cc28db916081cc7d2d95cc93",
+          "width": 1440,
+          "height": 4445,
+          "bytes": 790687
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/03-independent-reason-drafts-long-arabic.png",
+          "sha256": "9e36c163f2c1f85124ae9d3905acd5c33c6b19cf1b5abfca56f1d0f8434d104e",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 362034
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/04-whitespace-reason-private-action-available.png",
+          "sha256": "228c0fd94b29075c6cbda872cc875156aa25d37dbcca231cbd34b246ea3b99b2",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 360761
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/05-global-moderation-pending.png",
+          "sha256": "f771f8435801ce5197f9a628f97f23dc01e40cc2d79c75e7f38bb27d69a9ed0b",
+          "width": 1440,
+          "height": 2061,
+          "bytes": 362255
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/06-moderation-error-drafts-retained.png",
+          "sha256": "fa97511fd6b52199bac5c7ecc6e9859b178f1641f261978886a4e44768123e76",
+          "width": 1440,
+          "height": 2053,
+          "bytes": 365323
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/07-keep-private-success-without-consent.png",
+          "sha256": "f0571e57d85aaac34a47287bed4702344a3f8e989acb2d3a2037444251eb0f82",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 360022
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/08-consented-unpublished-publish-enabled.png",
+          "sha256": "a89ae153ab01101392900fab9fe08f249dba5038b2eec057de1fcd17d27b0ca6",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 359999
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/09-publish-pending-global-guard.png",
+          "sha256": "4ce16fd397c05347cb1bf8fd3c83732918eef217e17aec4821f3ae03ac412c39",
+          "width": 1440,
+          "height": 2061,
+          "bytes": 362159
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/10-publish-error-retains-reasons.png",
+          "sha256": "8f7834e1da2cff1c077fd0106dc502949c772a4affd01568e1945e08228599be",
+          "width": 1440,
+          "height": 2053,
+          "bytes": 365289
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/11-publish-success-exact-local-reason.png",
+          "sha256": "397d6cfd7a76756c688e3103528d3bacf0037ada7a814f39c095727a36e113b2",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 359849
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/12-published-with-consent-action-mechanics-retained.png",
+          "sha256": "b0d298094f97966eaa7ea2b52fb129ec6f7acb16d3a025b322b764a185aeaeaa",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 359801
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/13-inconsistent-published-no-consent-truthful-facts.png",
+          "sha256": "422524e085da8c2ef9fcc2037f9407c0c6702b274ec4cc458389451277f5e679",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 359845
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/14-keyboard-reason-focus.png",
+          "sha256": "aa6b648fd2e9e9eda30f388458038993ee0190a91d236081b7a6bb0fcb4f65d8",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 360679
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/15-keyboard-keep-private-focus.png",
+          "sha256": "7a3ffbfbfc9ed8e4c425a852973e7d1cf94a1f04ba30ee8135160f22e3116874",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 360687
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/16-keyboard-publish-focus.png",
+          "sha256": "42d36606678a726de291aff1048017a66cf669ef3934a4b54e1793c27d64d5f1",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 360766
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/17-200-percent-reflow-proxy.png",
+          "sha256": "b6d6f69862bd3a1ef703e04a91e16eae4f15d1d51c805dbcb90a97c0d79cc304",
+          "width": 720,
+          "height": 2668,
+          "bytes": 297146
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/18-summary-pending-usable-reviews.png",
+          "sha256": "b3a53257d39e251cf3637e5814be3fdfe2694cca924cb7653f3369550c048937",
+          "width": 1440,
+          "height": 1989,
+          "bytes": 350982
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/19-summary-cold-error-usable-reviews.png",
+          "sha256": "4792afe80deb171467486a91527aadeda9ee7f915948e758e9bac7a8140660bd",
+          "width": 1440,
+          "height": 1989,
+          "bytes": 354044
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/20-zero-summary-does-not-empty-loaded-reviews.png",
+          "sha256": "0086e58e45004c4bed798a77ba0efae6ae26aeb541f37ed3611eb9c175cf46f8",
+          "width": 1440,
+          "height": 2007,
+          "bytes": 356280
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/21-ratings-cold-loading-no-actions.png",
+          "sha256": "39da6db23e19e13603f6b736984fd65f62931183e1ac61f6488af8604fb843b0",
+          "width": 1440,
+          "height": 900,
+          "bytes": 149687
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/22-ratings-cold-error-not-empty.png",
+          "sha256": "31ec99b9824019258fa78de6d9322d8770267e7ce33371f05c6ad57cb0e36286",
+          "width": 1440,
+          "height": 900,
+          "bytes": 151381
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/23-successful-empty-loaded-list-nonzero-summary.png",
+          "sha256": "8cf199e35682848f153586de9a43de4aec38525addd072dcc34603f3ab339541",
+          "width": 1440,
+          "height": 900,
+          "bytes": 150254
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/24-ratings-cached-refresh-error-actions-preserved.png",
+          "sha256": "6af4324ed4398ed27384b685881b88f5620cc028af5d7f30f19efa2f9ee9d637",
+          "width": 1440,
+          "height": 2061,
+          "bytes": 367608
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b692f--aware-moderation-workspace/25-summary-cached-refresh-error-independent-context.png",
+          "sha256": "f234dbc083dfed54a7761cfb778a84ddd94cd5dfeb5b2509ce4208b1c010ab52",
+          "width": 1440,
+          "height": 2123,
+          "bytes": 376753
+        }
+      ]
+    },
+    {
+      "title": "ar light 1440: Consent-aware moderation workspace",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "ar",
+        "theme": "light",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "reflowWidth": 720,
+        "captures": [
+          "01-populated-summary-consent-publication-score-comment-facts",
+          "02-long-server-ordered-list",
+          "03-independent-reason-drafts-long-arabic",
+          "04-whitespace-reason-private-action-available",
+          "05-global-moderation-pending",
+          "06-moderation-error-drafts-retained",
+          "07-keep-private-success-without-consent",
+          "08-consented-unpublished-publish-enabled",
+          "09-publish-pending-global-guard",
+          "10-publish-error-retains-reasons",
+          "11-publish-success-exact-local-reason",
+          "12-published-with-consent-action-mechanics-retained",
+          "13-inconsistent-published-no-consent-truthful-facts",
+          "14-keyboard-reason-focus",
+          "15-keyboard-keep-private-focus",
+          "16-keyboard-publish-focus",
+          "17-200-percent-reflow-proxy",
+          "18-summary-pending-usable-reviews",
+          "19-summary-cold-error-usable-reviews",
+          "20-zero-summary-does-not-empty-loaded-reviews",
+          "21-ratings-cold-loading-no-actions",
+          "22-ratings-cold-error-not-empty",
+          "23-successful-empty-loaded-list-nonzero-summary",
+          "24-ratings-cached-refresh-error-actions-preserved",
+          "25-summary-cached-refresh-error-independent-context"
+        ],
+        "reads": [
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary"
+        ],
+        "writes": [
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/01-populated-summary-consent-publication-score-comment-facts.png",
+          "sha256": "08cef5c035cc67647180fa3670f5938d7356fc8a974a798471fc860ccad10ad3",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 375631
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/02-long-server-ordered-list.png",
+          "sha256": "7d0a0ca581bc2649780d6603e2ed6505d7fd25a64b1d99f5be121da36ced4e6b",
+          "width": 1440,
+          "height": 4783,
+          "bytes": 821734
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/03-independent-reason-drafts-long-arabic.png",
+          "sha256": "88c71f6919bff64f52040ff034fa48c0ce19510f9fbb29dbc58e0bb311863c4e",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 377945
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/04-whitespace-reason-private-action-available.png",
+          "sha256": "7c52b6634ae9fdbd3c75b83c678c6d3295fdfda826ec940d9e76066e99146260",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 376718
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/05-global-moderation-pending.png",
+          "sha256": "55e85fa8e65f85c3c73c1639e388d2a0288dfc25e00e2f67b6378d5acaa30c13",
+          "width": 1440,
+          "height": 2177,
+          "bytes": 376713
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/06-moderation-error-drafts-retained.png",
+          "sha256": "0047bb76e03a8297cf73e60ada36e409fe8b4cb4419add4f2af373523e260b75",
+          "width": 1440,
+          "height": 2169,
+          "bytes": 379183
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/07-keep-private-success-without-consent.png",
+          "sha256": "5e67430491c14f6a2bb855ca9055a15d703fea395f0e39ec723b1fa6c4467c0b",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 375628
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/08-consented-unpublished-publish-enabled.png",
+          "sha256": "09079ae18b5f89f6089bed763d8527483c7de34901b14a3c3b6aa2ef72ae2f8b",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 375625
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/09-publish-pending-global-guard.png",
+          "sha256": "a63dea70fc7007eb68dcc17d39b2e85d879e3e2723438bb3b35247ad2a41e84b",
+          "width": 1440,
+          "height": 2177,
+          "bytes": 376554
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/10-publish-error-retains-reasons.png",
+          "sha256": "4805d55c31ac665395d3ebd8923e60648627c25815d8d31fa2071e25ccf87f40",
+          "width": 1440,
+          "height": 2169,
+          "bytes": 379038
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/11-publish-success-exact-local-reason.png",
+          "sha256": "2736046c5cac3a73514eb35f1e87ae89bf3243ecda46f975a4ddd153960c13c5",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 375499
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/12-published-with-consent-action-mechanics-retained.png",
+          "sha256": "edb77376ac910520c8b769d97c32471169cfb280c369d369663f846de5dba64d",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 375505
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/13-inconsistent-published-no-consent-truthful-facts.png",
+          "sha256": "8f003f34e712ef3b90883af84f2a5919421166b456ccbe54a47babc2095f6872",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 375354
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/14-keyboard-reason-focus.png",
+          "sha256": "ca0b3f756b04d0f6807f74d952e360fd3b43af3d0e5b93605847d2f249db9b12",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 376347
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/15-keyboard-keep-private-focus.png",
+          "sha256": "be767474fe38c89b6dfe5b6698bc42882cbc0c43dcfbb8cf73df136f9b27db31",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 376348
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/16-keyboard-publish-focus.png",
+          "sha256": "8448c5d92d886afba78f596732206969aeae70ce37a45fbdde7214d249cfe2fb",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 376366
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/17-200-percent-reflow-proxy.png",
+          "sha256": "1bbc24a91ada0ba8302f92e3ff75f5ba93bc93b4590b50c8aeb901e5d5dc387c",
+          "width": 720,
+          "height": 2818,
+          "bytes": 333609
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/18-summary-pending-usable-reviews.png",
+          "sha256": "f6d0612f04c9cdf2f3706b0e3cea3ea28055be92d80f218891252ba10e8af728",
+          "width": 1440,
+          "height": 2097,
+          "bytes": 366859
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/19-summary-cold-error-usable-reviews.png",
+          "sha256": "3cbdf0da2369acb8648b32e517c4f0c71f701a9437e96ec963c4607d2ca9a8d1",
+          "width": 1440,
+          "height": 2097,
+          "bytes": 368322
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/20-zero-summary-does-not-empty-loaded-reviews.png",
+          "sha256": "fa81fee1afaa6af4e71b818ff4dfb57587ed8c733fe888cc7736c2477cd7495f",
+          "width": 1440,
+          "height": 2119,
+          "bytes": 373303
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/21-ratings-cold-loading-no-actions.png",
+          "sha256": "c16b113b394d5a6ef96f8996066e38eeb79bc4ac94d066e435e848d035e4ad2b",
+          "width": 1440,
+          "height": 900,
+          "bytes": 172562
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/22-ratings-cold-error-not-empty.png",
+          "sha256": "f713393082bcdfef396b06a1c76c273a4aa6287035d4cd31a92301dd19632fd1",
+          "width": 1440,
+          "height": 900,
+          "bytes": 173350
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/23-successful-empty-loaded-list-nonzero-summary.png",
+          "sha256": "1007bfc293194c27dc162f4dfbd9ee2a04cd2401aacbb07bd3f3ea253e2ae2b2",
+          "width": 1440,
+          "height": 900,
+          "bytes": 173259
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/24-ratings-cached-refresh-error-actions-preserved.png",
+          "sha256": "b1dd5c0e561b94c315d0dfd69bcb02c674946d67928ff56622a7d2b1c6691eed",
+          "width": 1440,
+          "height": 2177,
+          "bytes": 381166
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--b7eef--aware-moderation-workspace/25-summary-cached-refresh-error-independent-context.png",
+          "sha256": "6d1e87b9bd24e4c46c80cc7ad442181a0a34d2ab36c52f679e8917dc516eea4e",
+          "width": 1440,
+          "height": 2243,
+          "bytes": 387441
+        }
+      ]
+    },
+    {
+      "title": "ar dark 390: Consent-aware moderation workspace",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "ar",
+        "theme": "dark",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "reflowWidth": 320,
+        "captures": [
+          "01-populated-summary-consent-publication-score-comment-facts",
+          "02-long-server-ordered-list",
+          "03-independent-reason-drafts-long-arabic",
+          "04-whitespace-reason-private-action-available",
+          "05-global-moderation-pending",
+          "06-moderation-error-drafts-retained",
+          "07-keep-private-success-without-consent",
+          "08-consented-unpublished-publish-enabled",
+          "09-publish-pending-global-guard",
+          "10-publish-error-retains-reasons",
+          "11-publish-success-exact-local-reason",
+          "12-published-with-consent-action-mechanics-retained",
+          "13-inconsistent-published-no-consent-truthful-facts",
+          "14-keyboard-reason-focus",
+          "15-keyboard-keep-private-focus",
+          "16-keyboard-publish-focus",
+          "17-200-percent-reflow-proxy",
+          "18-summary-pending-usable-reviews",
+          "19-summary-cold-error-usable-reviews",
+          "20-zero-summary-does-not-empty-loaded-reviews",
+          "21-ratings-cold-loading-no-actions",
+          "22-ratings-cold-error-not-empty",
+          "23-successful-empty-loaded-list-nonzero-summary",
+          "24-ratings-cached-refresh-error-actions-preserved",
+          "25-summary-cached-refresh-error-independent-context"
+        ],
+        "reads": [
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary"
+        ],
+        "writes": [
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/01-populated-summary-consent-publication-score-comment-facts.png",
+          "sha256": "aa16cc3682b3825bd10fa70a170582c1600d22fa272b0f6df9201178cab125b1",
+          "width": 390,
+          "height": 3767,
+          "bytes": 343840
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/02-long-server-ordered-list.png",
+          "sha256": "9e388fa4bb45510c78c5a67ce90b3bf1d71e0af2f64ac48bb65be214b8e43ae5",
+          "width": 390,
+          "height": 8457,
+          "bytes": 792168
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/03-independent-reason-drafts-long-arabic.png",
+          "sha256": "3e22d517976b1169f9c3249568bc87657d7f051b198876c214d5bc2be91ac0ac",
+          "width": 390,
+          "height": 3767,
+          "bytes": 344907
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/04-whitespace-reason-private-action-available.png",
+          "sha256": "53923aa00cd01cb26dc65742e3b9e9fe064e183c0a98b4a7c1c8ee5c35a83562",
+          "width": 390,
+          "height": 3767,
+          "bytes": 343682
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/05-global-moderation-pending.png",
+          "sha256": "471e2780685eaa896119af66106cd329ff2365fea5c926662be3d314b0c97db4",
+          "width": 390,
+          "height": 3825,
+          "bytes": 343511
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/06-moderation-error-drafts-retained.png",
+          "sha256": "eb5c63cdf1b37abf7ffa8129fe461701cab21221718facbc59cd1af698edba4f",
+          "width": 390,
+          "height": 3817,
+          "bytes": 347312
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/07-keep-private-success-without-consent.png",
+          "sha256": "574992d53828a4d0a3e571ede3098d73d3cfe915703ad433b0555b8db8fcd010",
+          "width": 390,
+          "height": 3767,
+          "bytes": 342500
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/08-consented-unpublished-publish-enabled.png",
+          "sha256": "a89d36a9cc512b05de19649b7f9735c40a5c08b4dd2af20023bcc109f779d357",
+          "width": 390,
+          "height": 3767,
+          "bytes": 342481
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/09-publish-pending-global-guard.png",
+          "sha256": "f937e89a3172c59faeefb11d008d8662b8a93f3e1cf22ba4371a72b0074192a0",
+          "width": 390,
+          "height": 3825,
+          "bytes": 343579
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/10-publish-error-retains-reasons.png",
+          "sha256": "09812f0cd8b1f4e45a1a040596af7eefea435e9c0c3b7f781a9d712ecf05000c",
+          "width": 390,
+          "height": 3817,
+          "bytes": 347422
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/11-publish-success-exact-local-reason.png",
+          "sha256": "b6f1cb8c3613ed5d5fdeaf6f6cd038cff0609d8e84fb093578131e408e87ad74",
+          "width": 390,
+          "height": 3767,
+          "bytes": 342465
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/12-published-with-consent-action-mechanics-retained.png",
+          "sha256": "e67950ba24f5d42f358e03cc7f8f487ba59448ea1361393b28f5b537e0a5b238",
+          "width": 390,
+          "height": 3767,
+          "bytes": 342468
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/13-inconsistent-published-no-consent-truthful-facts.png",
+          "sha256": "978705e95d5c908cbc4e77fcc72dfaab9ace36dc152bc7cbd418ddd23ebd8f8f",
+          "width": 390,
+          "height": 3767,
+          "bytes": 342526
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/14-keyboard-reason-focus.png",
+          "sha256": "474a5823fa791f5f07f6a99773bc412b2c2988d22cc257796bde44d51892033a",
+          "width": 390,
+          "height": 3767,
+          "bytes": 343399
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/15-keyboard-keep-private-focus.png",
+          "sha256": "a1a0918ecf5f3dbe91ba466a178f76f66f3f7147d76a9a931898b92138101cf4",
+          "width": 390,
+          "height": 3767,
+          "bytes": 343385
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/16-keyboard-publish-focus.png",
+          "sha256": "2e991070005acf8ad0d6b1b875d48729f67b983280717b4beb8ee34f3a570693",
+          "width": 390,
+          "height": 3767,
+          "bytes": 343386
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/17-200-percent-reflow-proxy.png",
+          "sha256": "1aad06763a20b661950129c0a98d7fbd4989c49905b3ae7eb75c3c79e198ec64",
+          "width": 320,
+          "height": 4290,
+          "bytes": 340342
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/18-summary-pending-usable-reviews.png",
+          "sha256": "118ccda62b65f1444c9c552c6f897509f2186cb4b35ee7d7b474614f40765b74",
+          "width": 390,
+          "height": 3679,
+          "bytes": 334414
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/19-summary-cold-error-usable-reviews.png",
+          "sha256": "9183a1d4efa5427abf8dc29865a250d034adaa978b294abaa086f89557056962",
+          "width": 390,
+          "height": 3705,
+          "bytes": 335208
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/20-zero-summary-does-not-empty-loaded-reviews.png",
+          "sha256": "9425cc02c0e78600d566cb7021922e79ebd3f7ccb7397317246dfe3f7c70a2a1",
+          "width": 390,
+          "height": 3767,
+          "bytes": 341442
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/21-ratings-cold-loading-no-actions.png",
+          "sha256": "dc12ac76775d3b5e57f832eafec2477416a6efaebe38ac6f04e9c775e43d760b",
+          "width": 390,
+          "height": 1481,
+          "bytes": 115994
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/22-ratings-cold-error-not-empty.png",
+          "sha256": "514c6166c115378380e513ade07186ac9561de3887311da1c7067c8fbc9a77ad",
+          "width": 390,
+          "height": 1481,
+          "bytes": 117005
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/23-successful-empty-loaded-list-nonzero-summary.png",
+          "sha256": "23b0ed745dee454937b4ef57b57b0bf5488ad6506dd8976a6423cf7227b69322",
+          "width": 390,
+          "height": 1481,
+          "bytes": 117024
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/24-ratings-cached-refresh-error-actions-preserved.png",
+          "sha256": "0dd4d51a3ad0f9e9d8468b0e40c8325747f2d4488feda1ab3842fd617ddd422f",
+          "width": 390,
+          "height": 3825,
+          "bytes": 347859
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--ec7ba--aware-moderation-workspace/25-summary-cached-refresh-error-independent-context.png",
+          "sha256": "f1cb021bf13781cc59ead364e0fb0692c385031cc7e24cb746979256c8c826bb",
+          "width": 390,
+          "height": 3917,
+          "bytes": 353734
+        }
+      ]
+    },
+    {
+      "title": "en dark 390: Consent-aware moderation workspace",
+      "status": "passed",
+      "locale": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "en",
+        "theme": "dark",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "reflowWidth": 320,
+        "captures": [
+          "01-populated-summary-consent-publication-score-comment-facts",
+          "02-long-server-ordered-list",
+          "03-independent-reason-drafts-long-arabic",
+          "04-whitespace-reason-private-action-available",
+          "05-global-moderation-pending",
+          "06-moderation-error-drafts-retained",
+          "07-keep-private-success-without-consent",
+          "08-consented-unpublished-publish-enabled",
+          "09-publish-pending-global-guard",
+          "10-publish-error-retains-reasons",
+          "11-publish-success-exact-local-reason",
+          "12-published-with-consent-action-mechanics-retained",
+          "13-inconsistent-published-no-consent-truthful-facts",
+          "14-keyboard-reason-focus",
+          "15-keyboard-keep-private-focus",
+          "16-keyboard-publish-focus",
+          "17-200-percent-reflow-proxy",
+          "18-summary-pending-usable-reviews",
+          "19-summary-cold-error-usable-reviews",
+          "20-zero-summary-does-not-empty-loaded-reviews",
+          "21-ratings-cold-loading-no-actions",
+          "22-ratings-cold-error-not-empty",
+          "23-successful-empty-loaded-list-nonzero-summary",
+          "24-ratings-cached-refresh-error-actions-preserved",
+          "25-summary-cached-refresh-error-independent-context"
+        ],
+        "reads": [
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary"
+        ],
+        "writes": [
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/01-populated-summary-consent-publication-score-comment-facts.png",
+          "sha256": "b0bfada19464a06c8085c7ec8042e1a4550687711446586cc13d4faa8c8e1fa5",
+          "width": 390,
+          "height": 3754,
+          "bytes": 301503
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/02-long-server-ordered-list.png",
+          "sha256": "888afb35f5e6fe3918b7adef978adae69cd9c6e2c1add1ea06ea04ac410d5926",
+          "width": 390,
+          "height": 8348,
+          "bytes": 719964
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/03-independent-reason-drafts-long-arabic.png",
+          "sha256": "3f0401ee8fac4514f7025ada1f5d9264d4bf4e47f723d62f3996e981f9187146",
+          "width": 390,
+          "height": 3754,
+          "bytes": 303121
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/04-whitespace-reason-private-action-available.png",
+          "sha256": "1d92829882386eb490c3b011349e16a69a8253a540dc6b5560425244777a3ccc",
+          "width": 390,
+          "height": 3754,
+          "bytes": 302076
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/05-global-moderation-pending.png",
+          "sha256": "d8932f3a529290fce209af37fc1a953668492d6bf1f6bbdfa876b68fcab72bc8",
+          "width": 390,
+          "height": 3808,
+          "bytes": 301814
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/06-moderation-error-drafts-retained.png",
+          "sha256": "bc1c16435451d12bd3403186fd5cd88f26787a304014a3af6092e8b91a045f2b",
+          "width": 390,
+          "height": 3800,
+          "bytes": 306023
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/07-keep-private-success-without-consent.png",
+          "sha256": "0fcc415c71b88eaef8443e0ecd43c2f4b9936b39f4cda8a4cfecd5953833f110",
+          "width": 390,
+          "height": 3754,
+          "bytes": 300768
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/08-consented-unpublished-publish-enabled.png",
+          "sha256": "9820e83205c7c4847da32c7479dc49f83c6d64c77bac23aa84afbbf15febd3d8",
+          "width": 390,
+          "height": 3754,
+          "bytes": 300770
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/09-publish-pending-global-guard.png",
+          "sha256": "afc4dfe775156e13757d525c4db760cfcbc4e8739e8fa19024b17ec5089e988b",
+          "width": 390,
+          "height": 3808,
+          "bytes": 301732
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/10-publish-error-retains-reasons.png",
+          "sha256": "2813fe280d0e2809a52622b69571ce7d3823a9c28ccf4b476fed233a1da6237f",
+          "width": 390,
+          "height": 3800,
+          "bytes": 305793
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/11-publish-success-exact-local-reason.png",
+          "sha256": "3e5cb734ee783bb7a8f52d6e9351b6c0cdba28016622ffc7af6a8f30c48c6311",
+          "width": 390,
+          "height": 3754,
+          "bytes": 300713
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/12-published-with-consent-action-mechanics-retained.png",
+          "sha256": "a061cde1b6d27a135aad16d9affeffefc1494c7d0057847bd1812d8ac9d62791",
+          "width": 390,
+          "height": 3754,
+          "bytes": 300786
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/13-inconsistent-published-no-consent-truthful-facts.png",
+          "sha256": "8a31cba1eafac70ebd25ff1af83d912604c46b4bde013804e60fc6393be7a50e",
+          "width": 390,
+          "height": 3754,
+          "bytes": 300717
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/14-keyboard-reason-focus.png",
+          "sha256": "c213884902c2528d806d83345c30ae6130fe3256b037d302fec65780ee66f21b",
+          "width": 390,
+          "height": 3754,
+          "bytes": 301748
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/15-keyboard-keep-private-focus.png",
+          "sha256": "75c7af2aa627112a01f47a3545d0606188f644996fe71222cfed3f154168056e",
+          "width": 390,
+          "height": 3754,
+          "bytes": 301660
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/16-keyboard-publish-focus.png",
+          "sha256": "63b5ff888bbc5dc66d664f51a4938802f133d4c72a0dbf9312fce56e8916bfee",
+          "width": 390,
+          "height": 3754,
+          "bytes": 301629
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/17-200-percent-reflow-proxy.png",
+          "sha256": "b174a2fd6e32fb1a2c0b8fa37ec1bcc160ea7f49880e468da961d312f4527e69",
+          "width": 320,
+          "height": 4434,
+          "bytes": 312472
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/18-summary-pending-usable-reviews.png",
+          "sha256": "f5690dc9f4eec59022540ba82c72aada02fa95bb4e9094a722c8b5f1f1e1eb21",
+          "width": 390,
+          "height": 3678,
+          "bytes": 292093
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/19-summary-cold-error-usable-reviews.png",
+          "sha256": "ab5b9dec50b1a99cd6235158d08a0d786aecb5d42034edd5b7ac73ac0784a1ae",
+          "width": 390,
+          "height": 3700,
+          "bytes": 295519
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/20-zero-summary-does-not-empty-loaded-reviews.png",
+          "sha256": "9ec6e4264761f01747fdfb8ee9ecf31ee4b58fb41d600cf08886514562d11d9d",
+          "width": 390,
+          "height": 3754,
+          "bytes": 300030
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/21-ratings-cold-loading-no-actions.png",
+          "sha256": "eaee89b098d9ba6ce7b1e58b17826b047235554b60568f11d7c5be87f1a87438",
+          "width": 390,
+          "height": 1512,
+          "bytes": 90214
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/22-ratings-cold-error-not-empty.png",
+          "sha256": "eae7627e8f86622eb668407810fa530acf9403c6870b5d8d171c7264e8cc2946",
+          "width": 390,
+          "height": 1512,
+          "bytes": 91912
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/23-successful-empty-loaded-list-nonzero-summary.png",
+          "sha256": "b4fc9ce05fceac673d0e3e5c22a7862d4dd93745c8d0430e6d73ef207f9609a1",
+          "width": 390,
+          "height": 1512,
+          "bytes": 90829
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/24-ratings-cached-refresh-error-actions-preserved.png",
+          "sha256": "4c39e7b8ed72bef84abd34d8d1de20fb2a5b9caf7daee82957bbed85621b9811",
+          "width": 390,
+          "height": 3808,
+          "bytes": 307080
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fa81c--aware-moderation-workspace/25-summary-cached-refresh-error-independent-context.png",
+          "sha256": "39dcb00250c664e8d6bec32aca25964a8747017fddda3db01b14ab782a905482",
+          "width": 390,
+          "height": 3892,
+          "bytes": 315019
+        }
+      ]
+    },
+    {
+      "title": "ar light 390: Consent-aware moderation workspace",
+      "status": "passed",
+      "locale": "ar",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "contracts": {
+        "classification": "MOCKED UI-CONTRACT EVIDENCE",
+        "locale": "ar",
+        "theme": "light",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "reflowWidth": 320,
+        "captures": [
+          "01-populated-summary-consent-publication-score-comment-facts",
+          "02-long-server-ordered-list",
+          "03-independent-reason-drafts-long-arabic",
+          "04-whitespace-reason-private-action-available",
+          "05-global-moderation-pending",
+          "06-moderation-error-drafts-retained",
+          "07-keep-private-success-without-consent",
+          "08-consented-unpublished-publish-enabled",
+          "09-publish-pending-global-guard",
+          "10-publish-error-retains-reasons",
+          "11-publish-success-exact-local-reason",
+          "12-published-with-consent-action-mechanics-retained",
+          "13-inconsistent-published-no-consent-truthful-facts",
+          "14-keyboard-reason-focus",
+          "15-keyboard-keep-private-focus",
+          "16-keyboard-publish-focus",
+          "17-200-percent-reflow-proxy",
+          "18-summary-pending-usable-reviews",
+          "19-summary-cold-error-usable-reviews",
+          "20-zero-summary-does-not-empty-loaded-reviews",
+          "21-ratings-cold-loading-no-actions",
+          "22-ratings-cold-error-not-empty",
+          "23-successful-empty-loaded-list-nonzero-summary",
+          "24-ratings-cached-refresh-error-actions-preserved",
+          "25-summary-cached-refresh-error-independent-context"
+        ],
+        "reads": [
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary",
+          "/admin/platform-ratings",
+          "/admin/platform-ratings/summary"
+        ],
+        "writes": [
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-a/moderation",
+            "body": {
+              "publish": true,
+              "reason": "ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر. ملاحظة محلية طويلة خاصة بالمراجعة ولا تمثل موافقة على النشر."
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          },
+          {
+            "path": "/admin/platform-ratings/rating-z/moderation",
+            "body": {
+              "publish": false,
+              "reason": null
+            }
+          }
+        ],
+        "unexpected": [],
+        "pageErrors": []
+      },
+      "screenshots": [
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/01-populated-summary-consent-publication-score-comment-facts.png",
+          "sha256": "feb690ce49c03696e1f9de2fe5b5be0d23a6acc384b29460e01ba6cf65ab1b7c",
+          "width": 390,
+          "height": 3767,
+          "bytes": 346325
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/02-long-server-ordered-list.png",
+          "sha256": "17e6d666eb353176506afbce2e4e816ac1e384b21e229f74bc7ba5d6ce3afeef",
+          "width": 390,
+          "height": 8457,
+          "bytes": 787655
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/03-independent-reason-drafts-long-arabic.png",
+          "sha256": "ae47abec7c9fa3a2ec3ea15c15f97708f30e7895316adb10a8b014cbc482e423",
+          "width": 390,
+          "height": 3767,
+          "bytes": 347635
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/04-whitespace-reason-private-action-available.png",
+          "sha256": "806bd37cebf0a719498775b215bb2f8ecb01d89b013ae7e632b0299d1ad5fd02",
+          "width": 390,
+          "height": 3767,
+          "bytes": 346321
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/05-global-moderation-pending.png",
+          "sha256": "746988534cf3055c9e3dc97a0bc658aff9206500d223691287b9f68abcbe28b8",
+          "width": 390,
+          "height": 3825,
+          "bytes": 346251
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/06-moderation-error-drafts-retained.png",
+          "sha256": "1647a79df6c0b471399fb4231511b79b0374d3d9b48c401aa65a47fba53c48be",
+          "width": 390,
+          "height": 3817,
+          "bytes": 349652
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/07-keep-private-success-without-consent.png",
+          "sha256": "3d315377cdfa80be94c0b70710a1e1b8f9069914e5ce5978e2ed66baca53d6e0",
+          "width": 390,
+          "height": 3767,
+          "bytes": 345023
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/08-consented-unpublished-publish-enabled.png",
+          "sha256": "cf6007b80117b4324a4cd7c011da8f82072e30874a75bfdbfc1b9c7305a65954",
+          "width": 390,
+          "height": 3767,
+          "bytes": 345047
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/09-publish-pending-global-guard.png",
+          "sha256": "abf12cdab8cc5f7960bbe13c9144b1f18a84e75c26a5bbd4258b3bce1966479f",
+          "width": 390,
+          "height": 3825,
+          "bytes": 346259
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/10-publish-error-retains-reasons.png",
+          "sha256": "c51bd4682c715ab2cda8bec54aeb2ac0cff137b3e262f2acf90e95a5e03244ec",
+          "width": 390,
+          "height": 3817,
+          "bytes": 349575
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/11-publish-success-exact-local-reason.png",
+          "sha256": "5ef82ba7e383eb2c86dd88530b9b617e103f88898afce5277361cc4d4efda3d9",
+          "width": 390,
+          "height": 3767,
+          "bytes": 345042
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/12-published-with-consent-action-mechanics-retained.png",
+          "sha256": "58de4c3866124ac27a60fded5cd2ab5e84039c7d6d79445e852a8ddeaeed8778",
+          "width": 390,
+          "height": 3767,
+          "bytes": 345010
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/13-inconsistent-published-no-consent-truthful-facts.png",
+          "sha256": "cd705e1ee9f1c7f75a3eb8ac1935c255569300533447a7f1e1e4ed7592c2b632",
+          "width": 390,
+          "height": 3767,
+          "bytes": 345008
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/14-keyboard-reason-focus.png",
+          "sha256": "50d7bd38b6e17b49d0a24e9bbdd2573d094e1aa33129bffa39e3c86a822462bf",
+          "width": 390,
+          "height": 3767,
+          "bytes": 346072
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/15-keyboard-keep-private-focus.png",
+          "sha256": "9fe183e2998dd46249a5857fdf7753078c4e0c6721a83abaa5dca21b273fa941",
+          "width": 390,
+          "height": 3767,
+          "bytes": 345821
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/16-keyboard-publish-focus.png",
+          "sha256": "2a69602f27352c8e5aeb426c8a03c0f8462e5dbf26df8226e22ea7f30fa9f3ae",
+          "width": 390,
+          "height": 3767,
+          "bytes": 345803
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/17-200-percent-reflow-proxy.png",
+          "sha256": "e7b52d017ab17955da5141f3da86646726f3eb08f46758d5d109faa9a255d7aa",
+          "width": 320,
+          "height": 4290,
+          "bytes": 345848
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/18-summary-pending-usable-reviews.png",
+          "sha256": "141937988d9cbae1a57e35ef8f4afb487238678881f2566dd4ca58b2a49aa429",
+          "width": 390,
+          "height": 3679,
+          "bytes": 336446
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/19-summary-cold-error-usable-reviews.png",
+          "sha256": "17a1068ef60f54fdd39e6dee58ab363bd29be048e5f695b22a54bd69305bfcad",
+          "width": 390,
+          "height": 3705,
+          "bytes": 338263
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/20-zero-summary-does-not-empty-loaded-reviews.png",
+          "sha256": "17bd59cb4be91c7391659d428ef36237e1ca9a39411222d62920353cb0c44478",
+          "width": 390,
+          "height": 3767,
+          "bytes": 344310
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/21-ratings-cold-loading-no-actions.png",
+          "sha256": "0bf9e15524e4f6ff9801078c16c26cd334afb2cdacc74070c0295ec585502178",
+          "width": 390,
+          "height": 1481,
+          "bytes": 114482
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/22-ratings-cold-error-not-empty.png",
+          "sha256": "4fbf742aa13e7d56c3d9f966af88e4b6c9eba169a49b2672190a916bda7eaf46",
+          "width": 390,
+          "height": 1481,
+          "bytes": 115125
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/23-successful-empty-loaded-list-nonzero-summary.png",
+          "sha256": "ac96e3923a1cc99c2a3f772f4f680fab93b9eaef3f9e783673c865c380878c2e",
+          "width": 390,
+          "height": 1481,
+          "bytes": 115197
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/24-ratings-cached-refresh-error-actions-preserved.png",
+          "sha256": "8e7bfae07a74c80ba66dd728803eac2d5dab98853587b133e921ee3b3b59cfda",
+          "width": 390,
+          "height": 3825,
+          "bytes": 350901
+        },
+        {
+          "classification": "MOCKED UI-CONTRACT EVIDENCE",
+          "file": "browser-final/platform-rating-archetype--fbec6--aware-moderation-workspace/25-summary-cached-refresh-error-independent-context.png",
+          "sha256": "a416e875336b1dd8ddbf9d4d5932055cb2c70c1630c67e6574ee8dd993e9b417",
+          "width": 390,
+          "height": 3917,
+          "bytes": 356707
+        }
+      ]
+    }
+  ],
+  "previews": [
+    {
+      "file": "contact-en-light.png",
+      "sha256": "dc0ec6fe1e01935836043e0578a39ff8b1c630c4331f23f8bb20052b6aedc903",
+      "bytes": 2235531,
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "note": "Selected cropped previews; full originals external to Git at captureRoot."
+    },
+    {
+      "file": "contact-en-dark.png",
+      "sha256": "1f90c7f0377ef07ae4311c916bb22b32bf160e31c99f45707650ff0ddd672e89",
+      "bytes": 2477655,
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "note": "Selected cropped previews; full originals external to Git at captureRoot."
+    },
+    {
+      "file": "contact-ar-light.png",
+      "sha256": "37302df1de187f989ca1ca4b992b2aa5302ea9ee9cb11063eff4a7518ce9282c",
+      "bytes": 1945217,
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "note": "Selected cropped previews; full originals external to Git at captureRoot."
+    },
+    {
+      "file": "contact-ar-dark.png",
+      "sha256": "8be4348226c049a7fd21307e63af811266709f399f1f09614aaa63f30a1d90d2",
+      "bytes": 2200479,
+      "classification": "MOCKED UI-CONTRACT EVIDENCE",
+      "note": "Selected cropped previews; full originals external to Git at captureRoot."
+    }
+  ],
+  "coverage": {
+    "01-populated-summary-consent-publication-score-comment-facts": "01-populated-summary-consent-publication-score-comment-facts.png",
+    "02-long-server-ordered-list": "02-long-server-ordered-list.png",
+    "03-independent-reason-drafts-long-arabic": "03-independent-reason-drafts-long-arabic.png",
+    "04-whitespace-reason-private-action-available": "04-whitespace-reason-private-action-available.png",
+    "05-global-moderation-pending": "05-global-moderation-pending.png",
+    "06-moderation-error-drafts-retained": "06-moderation-error-drafts-retained.png",
+    "07-keep-private-success-without-consent": "07-keep-private-success-without-consent.png",
+    "08-consented-unpublished-publish-enabled": "08-consented-unpublished-publish-enabled.png",
+    "09-publish-pending-global-guard": "09-publish-pending-global-guard.png",
+    "10-publish-error-retains-reasons": "10-publish-error-retains-reasons.png",
+    "11-publish-success-exact-local-reason": "11-publish-success-exact-local-reason.png",
+    "12-published-with-consent-action-mechanics-retained": "12-published-with-consent-action-mechanics-retained.png",
+    "13-inconsistent-published-no-consent-truthful-facts": "13-inconsistent-published-no-consent-truthful-facts.png",
+    "14-keyboard-reason-focus": "14-keyboard-reason-focus.png",
+    "15-keyboard-keep-private-focus": "15-keyboard-keep-private-focus.png",
+    "16-keyboard-publish-focus": "16-keyboard-publish-focus.png",
+    "17-200-percent-reflow-proxy": "17-200-percent-reflow-proxy.png",
+    "18-summary-pending-usable-reviews": "18-summary-pending-usable-reviews.png",
+    "19-summary-cold-error-usable-reviews": "19-summary-cold-error-usable-reviews.png",
+    "20-zero-summary-does-not-empty-loaded-reviews": "20-zero-summary-does-not-empty-loaded-reviews.png",
+    "21-ratings-cold-loading-no-actions": "21-ratings-cold-loading-no-actions.png",
+    "22-ratings-cold-error-not-empty": "22-ratings-cold-error-not-empty.png",
+    "23-successful-empty-loaded-list-nonzero-summary": "23-successful-empty-loaded-list-nonzero-summary.png",
+    "24-ratings-cached-refresh-error-actions-preserved": "24-ratings-cached-refresh-error-actions-preserved.png",
+    "25-summary-cached-refresh-error-independent-context": "25-summary-cached-refresh-error-independent-context.png"
+  },
+  "queryEvidence": "Independent exact ratings and summary queries; no added parameters, requests or options. Actual existing retry/refetch requests are retained in the scenario records. Server order is preserved, including a synthetic long list.",
+  "consentEvidence": "Publish disabled for every no-consent row, including published/no-consent legacy fixture. A real mouse click on the disabled legacy button produces no POST. Keep Private remains available without consent.",
+  "mutationEvidence": "Actual intercepted exact publish true/false POST and trimmed/null local reason; global pending disables all row actions. Unit spies and direct invariants independently freeze all three invalidation families, including inactive public ratings.",
+  "summaryEvidence": "Platform totals/average use separate server summary, never loaded rows. Cold errors, successful empty, zero summary with populated rows and valid cached data remain distinct. Publication and consent are independent facts; no new lifecycle inferred.",
+  "backendContract": {
+    "classification": "EXISTING INMEMORY DIRECT CONTROLLER CONTRACT TESTS",
+    "command": "dotnet test backend/tests/Betcco.IntegrationTests/Betcco.IntegrationTests.csproj --filter FullyQualifiedName~PlatformRatingsControllerTests",
+    "passed": 4,
+    "failed": 0,
+    "trx": "backend-contract/platform-ratings-contract.trx",
+    "sha256": "20fd261f1bffbeed4abfc22e4d08d3e30a5b2032db3fc9f428e2d464e65651c8",
+    "limits": "No PostgreSQL, HTTP authorization, legal consent, real public publication or production persistence proof. Existing controller/tests unchanged.",
+    "warnings": "NuGet NU1902/NU1903 warnings for existing cryptography packages; no dependency change."
+  },
+  "reflowNote": "Half CSS viewport with 320px minimum: 720/417/320; a proxy, not native browser zoom.",
+  "themeEvidence": "Every capture verifies the selected app data-theme, including reloads; theme behavior unchanged.",
+  "validation": {
+    "baselineFocused": "405 passed / 8 files",
+    "focused": "515 passed / 10 files after documented projection-path correction",
+    "fullFrontend": "3299 passed / 133 files; pnpm test --maxWorkers=2",
+    "browser": "12 passed; EN/AR x light/dark x 1440x900, 834x1112, 390x844; 300 captures",
+    "format": "pnpm format:check passed",
+    "lint": "pnpm exec eslint . --max-warnings 0 passed",
+    "typecheck": "pnpm typecheck passed",
+    "build": "pnpm build passed on final production sources",
+    "diffCheck": "git diff --check and final complete base-to-HEAD audit passed"
+  },
+  "originalFailures": [
+    {
+      "run": "focused-first.log",
+      "result": "1 failed / 514 passed; 9 of 10 files passed",
+      "cause": "New owner projection matched only relative paths; whole-Admin audit supplied an absolute path.",
+      "correction": "Accept only the same exact owner suffix for absolute or relative paths; add absolute-path regression and rerun all 10 files together: 515/515 passed."
+    },
+    {
+      "run": "browser-pilot.log",
+      "result": "2 pilot cases failed before any capture",
+      "cause": "New browser harness used /admin/platform-ratings instead of the existing /admin/ratings route, rendering dashboard articles.",
+      "correction": "Inspect AdminArea route, correct test URL only; both complete pilot cases passed. Full final-build matrix then passed together."
+    },
+    {
+      "run": "format-final.log",
+      "result": "Format check rejected only the new direct test file",
+      "cause": "Remaining formatter line wrapping in chained calls.",
+      "correction": "Prettier write and debug-check; diff confirmed whitespace only; full format check passed."
+    }
+  ],
+  "nonFatalDiagnostics": "Local next start standalone-output warning; Node NO_COLOR/FORCE_COLOR notice; jsdom navigation diagnostics, if emitted, remain in full test log. No target browser page errors.",
+  "limitations": [
+    "Intercepted synthetic UI/request evidence only; no real moderation writes",
+    "No real moderation persistence, consent legality, database correctness, authorization, public publication, deployment, production-readiness or full-WCAG proof",
+    "Existing SpecializationId integration debt is unchanged and out of scope",
+    "Full original screenshots external to Git; committed contact sheets are cropped previews"
+  ],
+  "externalLogHashes": {
+    "backend-contract.log": "2419f2e58aaa13507af77c102435e007b9d52e3cb162d48308a72e90ee52fbf8",
+    "baseline-focused.log": "874503141b318177f5faf44354987c3f17e0c53e7f8aa0e37a90c9b265b70e67",
+    "browser-final.log": "daad9164ffd77c2d380465a1f5d68235bc580c4d2b49cbfd1298c829cffc2529",
+    "browser-pilot-corrected.log": "0effd031f6bd484e2709e08b172ce223f7230d2f9165962ce055dc9fd7dd7c8e",
+    "browser-pilot.log": "922abfef7a490b15730a877ea17a953e95557901adcc0b7a9b26e198e8bebeb9",
+    "build-final.log": "e3f77f686b864d407b17f62d3696022e1c2dc7b96cb4f7c4a82eb31ad8233ec1",
+    "build-first.log": "a7c0514c3a4d85416dc17d0533757c93edaa00535847e2af3cd6b179b837147d",
+    "focused-corrected.log": "f286c0e0d2a02c8d294525ffe139d3b3071e504ea58440eb07fc7389f6a21f43",
+    "focused-first.log": "95f95b0c6a13cf2d6c41afe43007c95934fa14333b3348f8a7e7724568f46876",
+    "format-final.log": "01874310837dc8cb1e97273b6254e6285620a76a7eda937c79b0adc4c16ff886",
+    "format-verified.log": "0b95efe7a1df96aa81440f70658e5c8169546d284587f7ba2e8d268fd1aaea15",
+    "full-tests-final.log": "b30b1a232b1de3755eb8264becdf702cc6d9876e4731ca5179263f7191665597",
+    "lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lint-first.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck-final.log": "3dd115a54d9decc15d9b6f1babec63f20d21966a914759ea6530c5b714007d15",
+    "typecheck-first.log": "3dd115a54d9decc15d9b6f1babec63f20d21966a914759ea6530c5b714007d15"
+  }
+}

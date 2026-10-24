@@ -1,3 +1,4 @@
+import { projectPlatformRatingBoundary } from "./helpers/platform-rating-projection";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import ts from "typescript";
@@ -12,7 +13,11 @@ import {
 } from "./helpers/qualification-registry-projection";
 
 const path = "src/features/admin/account-identity-management.tsx";
-const read = (p: string) => readFileSync(p, "utf8").replace(/\r\n/g, "\n");
+const read = (p: string) =>
+  projectPlatformRatingBoundary(
+    readFileSync(p, "utf8").replace(/\r\n/g, "\n"),
+    p,
+  );
 const hash = (s: string) => createHash("sha256").update(s).digest("hex");
 const source = read(path);
 describe("Account Identity independently frozen presentation boundary", () => {

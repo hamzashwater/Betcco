@@ -1,0 +1,268 @@
+{
+  "base": "30322f0d73f6ad390025cb4b5e29447d336288dd",
+  "path": "src/features/admin/platform-rating-moderation.tsx",
+  "originalHash": "3f9243790c04ee03ba309c6676b4404095b124b471eea5471e9e7c333d8557c1",
+  "invariants": {
+    "setup": [
+      "const locale = useLocale();",
+      "const t = useTranslations(\"adminWorkspace\");",
+      "const client = useQueryClient();",
+      "const [reasons, setReasons] = useState<Record<string, string>>({});",
+      "const ratings = useQuery({ queryKey: [\"admin-platform-ratings\"], queryFn: () => api<AdminPlatformRating[]>(\"/admin/platform-ratings\"), });",
+      "const summary = useQuery({ queryKey: [\"admin-platform-ratings-summary\"], queryFn: () => api<AdminPlatformRatingSummary>(\"/admin/platform-ratings/summary\"), });",
+      "const moderate = useMutation({ mutationFn: ({ id, publish }: { id: string; publish: boolean }) => api<AdminPlatformRating>(`/admin/platform-ratings/${id}/moderation`, { method: \"POST\", body: JSON.stringify({ publish, reason: reasons[id]?.trim() || null }), }), onSuccess: () => { client.invalidateQueries({ queryKey: [\"admin-platform-ratings\"] }); client.invalidateQueries({ queryKey: [\"admin-platform-ratings-summary\"], }); client.invalidateQueries({ queryKey: [\"platform-ratings\"] }); }, });"
+    ],
+    "types": [
+      "type AdminPlatformRating = { id: string; courseQualityScore: number; easeOfUseScore: number; supportScore: number; recommendationScore: number; comment?: string; allowPublicDisplay: boolean; isPublished: boolean; moderationReason?: string; updatedAtUtc: string; };",
+      "type AdminPlatformRatingSummary = { totalCount: number; publishedCount: number; awaitingModerationCount: number; privateWithoutConsentCount: number; averageScore?: number; courseQualityScore?: number; easeOfUseScore?: number; supportScore?: number; recommendationScore?: number; };"
+    ],
+    "props": [
+      "key={String(label)}",
+      "key={rating.id}",
+      "key={String(label)}",
+      "value={reasons[rating.id] ?? rating.moderationReason ?? \"\"}",
+      "maxLength={500}",
+      "onChange={(event) => setReasons((current) => ({ ...current, [rating.id]: event.target.value, })) }",
+      "type=\"button\"",
+      "disabled={moderate.isPending}",
+      "onClick={() => moderate.mutate({ id: rating.id, publish: false }) }",
+      "type=\"button\"",
+      "disabled={moderate.isPending || !rating.allowPublicDisplay}",
+      "onClick={() => moderate.mutate({ id: rating.id, publish: true }) }"
+    ],
+    "averages": [
+      "average = (rating.courseQualityScore + rating.easeOfUseScore + rating.supportScore + rating.recommendationScore) / 4",
+      "formatLocalizedDateTime(rating.updatedAtUtc, locale)",
+      "formatLocalizedNumber(average, locale, { minimumFractionDigits: 1, maximumFractionDigits: 1, })"
+    ]
+  },
+  "protected": {
+    "src/features/admin/admin-home.module.css": "ac79c0de856bbe49cf75c1d1efe84c2c022c28ec7dd18c82cb4806a8d1926882",
+    "src/components/site-navigation.tsx": "0de34aad9672812cec0fa8e77c6ea0e53a16ac3615f2cbec65501d12579bce2a",
+    "src/components/dashboard/dashboard-ui.tsx": "e5f68fc7bfc3a9c48727d8ab9ce039533732c73342a02059c0d0351c1dac65c6",
+    "src/features/admin/gradebook.tsx": "f70921c116ffa0880ce27803bc1911410c28ec56f008016b930846a4ed0e84e9",
+    "src/features/admin/retake-management.tsx": "0bb81eb909d3f8d58ed81440cc33e1bc74f7e826f6f1de705a7a8a2d96456c84",
+    "src/features/teacher/course-editor.tsx": "261f7f37db8e13bfdf177eacb08bec39e8dbf27d8467c33f11a0ca591a96037b",
+    "src/features/teacher/teacher-area.tsx": "e78441b27e96d46b8f1c429b5c33352b96313e3633f62ed1f3f56122c6a5bd43",
+    "src/features/student/student-area.tsx": "a0542eb7ebdd5608f23d4953f444f973ee06a8ce357894bbdf331e02496779e0",
+    "package.json": "38b49d24cd42cc223cb609364d2a30302095671503e1f351f91523a0e92a5609",
+    "pnpm-lock.yaml": "ad0f5192f977ad72ed3a364d7f6d6a3d6d04521dbfefff790a68af0b0f63e9c2",
+    "../backend/src/Betcco.Api/Controllers/AssessmentCoordinationController.cs": "50783ce247f38cf7cd6bc371d4fa27beb4e8284b0b4104b56aa8971c2a66476e",
+    "../backend/src/Betcco.Api/Controllers/EvaluationsController.cs": "8b02ff0e97921c74d4eba8c2eec93a9537044cf7ea91eb823787d016f095efd0",
+    "../backend/src/Betcco.Api/Controllers/InternalVerificationPlansController.cs": "f4d5dfbb3bb6e5072b033c9a284bbb8c7905933ee8c84904800e7d677f153ea9",
+    "../backend/src/Betcco.Api/Controllers/EvaluationAppealsController.cs": "2daa017c136ffc388e55c7a87568124acb97e5d64bdb490ea46ee8737f6e53ae",
+    "../backend/src/Betcco.Api/Controllers/AdminEvaluatorSpecialismsController.cs": "46bd5e58881cbbfbf48ef1b5dbe6e0b5008f8dcfd2b47969f55eb075bc69af68",
+    "../backend/src/Betcco.Api/Controllers/ResitsController.cs": "46c87feb421b4441e43c9f66ad0764a01faa5e563d237e984835cbc65998cfda",
+    "../backend/src/Betcco.Api/Controllers/AdminDashboardController.cs": "67355ff1ad7cf4b335108dca152e9e947e2d3c2c6be63fda785132766b3d0e03",
+    "src/features/admin/admin-area.tsx": "1d4139c8255ce9d0e1204883524dec0fb006e99b904693a44d9d8dc9331b6f4a",
+    "src/features/admin/assessment-coordination-queue.tsx": "9764c079db4c4150050bbb24e0ce6037bc3d593f9d134eb028dabee251fe06ed",
+    "src/features/admin/eligible-evaluator-assignment.tsx": "a060b8758fa1291086260f6338a7397df4a2dbe2c0398e7df144d2f6ba335203",
+    "src/features/admin/resit-coordination-panel.tsx": "71cb411ac6b581fb6a2886431c73f9d9f48ac5e64299332ffce01175a2c2e293",
+    "src/features/admin/internal-verification-plan-management.tsx": "4f9f51ea019fef3bb717fb4a2eba0921884aa5ab18d6b721c803e202915978e5",
+    "src/features/admin/evaluation-appeal-management.tsx": "7e87f493c0cdb1dc48eb54492ab75d769481d3ca2570e5dcf98807c2518005b9",
+    "src/features/admin/evaluator-specialism-management.tsx": "d9e6adb1e966c818f1f4419a004c2467259f25f4e2f038620a606e7a0a09d78e",
+    "src/features/admin/assessment-operations.module.css": "b9a65963ffdb73816871efecc449b2a15e09c03bf42b79e29b4e8f882ffef9e9",
+    "src/features/admin/assessment-operations-state.ts": "e34f8576c4ec297443d69e13d0977f33976cb06f4e9e5d41171354c34b15dee3",
+    "src/features/admin/academic-catalogue.tsx": "18548cd5a6568b46916ebebbcef29401427054fb95b1e983690f33206b4b6334",
+    "src/features/admin/academic-catalog-management.tsx": "7b798f2c3a9d6ca819b13af7a97d436f0124cf33b8a1d5862c763641dff603d4",
+    "src/features/admin/delivery-planning.tsx": "0460f2f7e2fc7d0dd7b395c7ec4b0d9d7c4d7af82e3da07daa5448491c191d0c",
+    "src/features/admin/audit-log.tsx": "54fd25156a73ca5f04ad83df46f729673e529cd7b730cabf45d288b5e045a75c",
+    "src/features/admin/privacy-request-management.tsx": "45fdbf0ff5ee245d5eb1391b413455c4b72026d351bbe4e9812a4a55a0c90a4d",
+    "src/features/admin/security-incident-management.tsx": "79c8597d99c75a70285182840791225dde66c516420ce3353a2414cbff4da31c",
+    "src/features/admin/content-studio.tsx": "b708d05cd53733c8dca5731170323959ac9d3ba5c530b9d3714c1fb8c4aa8721",
+    "src/features/admin/commission-settings.tsx": "0438d0e301a2f8cd775286e5baacc618b0cce5a6c90e308b3dac2c95da5d5f45",
+    "src/features/admin/audit-log.module.css": "959d18fbbe0c4d5482920e04fdb881f77b47cba4b846a61f548cccef4da6ddaf",
+    "../backend/src/Betcco.Api/Controllers/AdminUsersController.cs": "39d697dc29fa5c1ca9f83241a26e633ff61367200cd167887f89421a5c7e611e",
+    "tests/audit-log.test.tsx": "17d7dccfb80d96f28bc605fef56d057cdc3d66cadf38319a08bae3ba0cdb26ce",
+    "tests/audit-log-archetype.test.tsx": "0ceddf59f3d9ab46ffafc2b72c9f11c26a4977696ca42d5a12518eabc7947985",
+    "tests/audit-log-archetype-contract.test.ts": "4f4c802eb94959eb616c6548dd4d7354941f7399e65419a58cbb4199dcbda5bd",
+    "tests/e2e/audit-log-archetype.spec.ts": "8339012bf5a4c878bc97bfde28a6269ed42e47c5a54ab6a25d1f7e0f58b063d9",
+    "tests/fixtures/ui-d01-15-audit-log-baseline.json": "9380faca74594c598ba7b06aab22c2e94faeb85587fc84be8d53f51c94902633",
+    "src/features/admin/account-identity-management.tsx": "e3dc679208ccd3729ca48dd4bcf43349e1b510add02a157bb18e9d29443d4969",
+    "src/features/admin/account-identity-management.module.css": "28dde300f13454cda2927a7bf04fa975bf0ea23d39b451b594a335a399f6d876",
+    "../backend/src/Betcco.Api/Controllers/QualificationRegistryController.cs": "9ec874c6a2896f074a9c6e1359db5f7dcad079a81deb63714766682123248b54",
+    "../backend/src/Betcco.Application/Evaluations/QualificationRegistryContracts.cs": "8a6c50cc53e51c0d5a5be205fa55f9ebcf8c09768e1524fad294cbd9a7a09fec",
+    "../backend/src/Betcco.Infrastructure/Services/QualificationRegistryService.cs": "181289da5f52709abc3c995d33d5ea713faa5801ce5b2265a8252341cf47bf34",
+    "src/features/admin/qualification-registry-management.tsx": "9c2737e6ea09c854ff8640752caabc7cdbcff450217331b925a88af1f42c8cec",
+    "src/features/admin/qualification-registry-management.module.css": "72c501048b620dd4d9d069dc70d18fae87bf07426fb4f1dcceffaaf425ff9a86",
+    "src/features/public/platform-rating.tsx": "22766d4e5c1cf67a65b80df928a111b5a44947a9d44fea2ace806f98cb6ebfe6",
+    "../backend/src/Betcco.Api/Controllers/PlatformRatingsController.cs": "92261f756237a6ea3cd554c2d6393aa2589ad9d18eb33184bbf40a727c524c99",
+    "../backend/tests/Betcco.IntegrationTests/PlatformRatingsControllerTests.cs": "d0a25e3ce29852d45104404b74e91c6811f0a4ba8cec823a9510456f0f6750d6",
+    "tests/fixtures/ui-d01-15-qualification-registry-baseline.json": "b7d9c6d0ea872f8e33db472145932f71c2284305e1500fede98b5cbe7e3881a8",
+    "tests/fixtures/ui-d01-15-account-identity-baseline.json": "baeb39c0af864e65cb9086ab56f9c2351f9b42e33404d6ff7762fc51375ba6ca"
+  },
+  "messageHashes": {
+    "en": "922d912fe0a9290b248435d0af7dcc52755ca21cda24a8c4656d60e31a327c1b",
+    "ar": "fa52bdd10d590a72e0d5fe8fd2dc2fb293ebbd24c450798ee1db42d9f4dfd487"
+  },
+  "additions": {
+    "en": {
+      "published": "Published",
+      "notPublished": "Not published",
+      "consentGranted": "Public display consent granted",
+      "loadingReviews": "Loading reviews…",
+      "loadingSummary": "Loading rating summary…",
+      "summaryUnavailable": "The rating summary request failed. Review data is handled separately.",
+      "moderating": "Updating review…",
+      "loadedScope": "Reviews are shown in server order, up to 200 entries. Platform totals come from the separate summary.",
+      "emptyLoaded": "No reviews were returned."
+    },
+    "ar": {
+      "published": "منشور",
+      "notPublished": "غير منشور",
+      "consentGranted": "موافقة على العرض العام",
+      "loadingReviews": "جارٍ تحميل المراجعات…",
+      "loadingSummary": "جارٍ تحميل ملخص التقييمات…",
+      "summaryUnavailable": "تعذر إتمام طلب ملخص التقييمات. بيانات المراجعات مستقلة عنه.",
+      "moderating": "جارٍ تحديث المراجعة…",
+      "loadedScope": "تُعرض المراجعات بترتيب الخادم، بحد أقصى 200 مراجعة. إجماليات المنصة تأتي من الملخص المستقل.",
+      "emptyLoaded": "لم تُرجع الاستجابة أي مراجعات."
+    }
+  },
+  "seams": [
+    {
+      "previous": "import { formatLocalizedNumber } from \"@/i18n/number-format\";\nimport { api } from \"@/lib/api\";\nimport { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\nimport { Eye, EyeOff, MessageSquareQuote, Star } from \"lucide-react\";\nimport { useLocale, useTranslations } from \"next-intl\";\nimport { useState } from \"react\";\n\ntype AdminPlatformRating = {\n  id: string;\n",
+      "approved": "import { formatLocalizedNumber } from \"@/i18n/number-format\";\nimport { api } from \"@/lib/api\";\nimport { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\nimport { Eye, EyeOff } from \"lucide-react\";\nimport { useLocale, useTranslations } from \"next-intl\";\nimport { useState } from \"react\";\nimport { QueryState, MutationOutcome } from \"@/components/ui/query-state\";\nimport styles from \"./platform-rating-moderation.module.css\";\n\ntype AdminPlatformRating = {\n  id: string;\n"
+    },
+    {
+      "previous": "      client.invalidateQueries({ queryKey: [\"platform-ratings\"] });\n    },\n  });\n  if (ratings.isPending)\n    return (\n      <section className=\"shell py-10\">\n        <div className=\"card p-6\" aria-busy>\n          …\n        </div>\n      </section>\n    );\n  if (ratings.isError || !ratings.data)\n    return (\n      <section className=\"shell py-10\">\n        <p className=\"card p-6\" role=\"alert\">\n          {t(\"platformRatingModeration.platformReviewsCouldNotBeLoaded\")}\n        </p>\n      </section>\n    );\n  const pending = ratings.data.filter((rating) => !rating.isPublished);\n  return (\n    <section className=\"shell py-10\">\n      <div className=\"flex flex-wrap items-start justify-between gap-4\">\n        <div>\n          <p className=\"text-xs font-black uppercase tracking-[0.18em] text-primary\">\n            {t(\"platformRatingModeration.bETCCOFeedback\")}\n          </p>\n          <h1 className=\"mt-2 text-3xl font-black\">\n            {t(\"platformRatingModeration.platformReviewModeration\")}\n          </h1>\n          <p className=\"mt-2 max-w-3xl leading-7 text-muted\">\n            {t(\n              \"platformRatingModeration.aReviewCanBePublishedOnlyWhenTheLearnerOptedInReviewItsTextAndSco\",\n            )}\n          </p>\n        </div>\n        <span className=\"rounded-full border border-border bg-surface/80 px-4 py-2 text-sm font-black text-primary\">\n          {t(\"platformRatingModeration.countAwaitingReview\", {\n            count: pending.length,\n          })}\n        </span>\n      </div>\n      {summary.data ? (\n        <section\n          className=\"mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4\"\n          aria-label={t(\"platformRatingModeration.learnerExperienceSummary\")}\n        >\n          {[\n            [\n              t(\"platformRatingModeration.allFeedback\"),\n              summary.data.totalCount,\n              t(\"platformRatingModeration.realLearnerSignals\"),\n            ],\n            [\n              t(\"platformRatingModeration.experienceAverage\"),\n              summary.data.averageScore\n                ? `${summary.data.averageScore} / 5`\n                : \"—\",\n              t(\n                \"platformRatingModeration.coursesUsabilitySupportRecommendation\",\n              ),\n            ],\n            [\n              t(\"platformRatingModeration.awaitingModeration\"),\n              summary.data.awaitingModerationCount,\n              t(\"platformRatingModeration.withLearnerDisplayConsent\"),\n            ],\n            [\n              t(\"platformRatingModeration.privateWithoutConsent\"),\n              summary.data.privateWithoutConsentCount,\n              t(\"platformRatingModeration.cannotBePublished\"),\n            ],\n          ].map(([label, value, detail]) => (\n            <article key={String(label)} className=\"card p-4\">\n              <p className=\"text-xs font-bold text-muted\">{label}</p>\n              <p className=\"mt-2 text-2xl font-black text-primary\">{value}</p>\n              <p className=\"mt-1 text-xs text-muted\">{detail}</p>\n            </article>\n          ))}\n        </section>\n      ) : null}\n      <div className=\"mt-7 grid gap-4\">\n        {ratings.data.map((rating) => {\n          const average =\n            (rating.courseQualityScore +\n              rating.easeOfUseScore +\n",
+      "approved": "      client.invalidateQueries({ queryKey: [\"platform-ratings\"] });\n    },\n  });\n  return (\n    <section className={`shell py-8 ${styles.workspace}`}>\n      <header className={styles.header}>\n        <p className={styles.eyebrow}>\n          {t(\"platformRatingModeration.bETCCOFeedback\")}\n        </p>\n        <h1 className={styles.title}>\n          {t(\"platformRatingModeration.platformReviewModeration\")}\n        </h1>\n        <p className={styles.description}>\n          {t(\n            \"platformRatingModeration.aReviewCanBePublishedOnlyWhenTheLearnerOptedInReviewItsTextAndSco\",\n          )}\n        </p>\n      </header>\n      <div className={styles.context}>\n        {summary.isPending ? (\n          <QueryState\n            kind=\"loading\"\n            title={t(\"platformRatingModeration.loadingSummary\")}\n          />\n        ) : null}\n        {summary.isError ? (\n          <QueryState\n            kind=\"error\"\n            title={t(\"platformRatingModeration.summaryUnavailable\")}\n          />\n        ) : null}\n        {summary.data ? (\n          <section\n            aria-label={t(\"platformRatingModeration.learnerExperienceSummary\")}\n          >\n            <dl className={styles.summary}>\n              {[\n                [\n                  t(\"platformRatingModeration.allFeedback\"),\n                  summary.data.totalCount,\n                ],\n                [\n                  t(\"platformRatingModeration.published\"),\n                  summary.data.publishedCount,\n                ],\n                [\n                  t(\"platformRatingModeration.awaitingModeration\"),\n                  summary.data.awaitingModerationCount,\n                ],\n                [\n                  t(\"platformRatingModeration.privateWithoutConsent\"),\n                  summary.data.privateWithoutConsentCount,\n                ],\n                [\n                  t(\"platformRatingModeration.experienceAverage\"),\n                  summary.data.averageScore\n                    ? `${summary.data.averageScore} / 5`\n                    : \"—\",\n                ],\n              ].map(([label, value]) => (\n                <div key={String(label)}>\n                  <dt>{label}</dt>\n                  <dd>{value}</dd>\n                </div>\n              ))}\n            </dl>\n          </section>\n        ) : null}\n      </div>\n      <p className={styles.scope}>\n        {t(\"platformRatingModeration.loadedScope\")}\n      </p>\n      {moderate.isPending ? (\n        <QueryState\n          kind=\"loading\"\n          title={t(\"platformRatingModeration.moderating\")}\n        />\n      ) : null}\n      {moderate.isError ? (\n        <MutationOutcome kind=\"error\">\n          {moderate.error instanceof Error\n            ? moderate.error.message\n            : t(\"platformRatingModeration.reviewStatusCouldNotBeUpdated\")}\n        </MutationOutcome>\n      ) : null}\n      <div className={styles.ledger}>\n        {ratings.isPending ? (\n          <QueryState\n            kind=\"loading\"\n            title={t(\"platformRatingModeration.loadingReviews\")}\n          />\n        ) : null}\n        {ratings.isError ? (\n          <QueryState\n            kind=\"error\"\n            title={t(\n              \"platformRatingModeration.platformReviewsCouldNotBeLoaded\",\n            )}\n          />\n        ) : null}\n        {ratings.data?.map((rating) => {\n          const average =\n            (rating.courseQualityScore +\n              rating.easeOfUseScore +\n"
+    },
+    {
+      "previous": "              rating.recommendationScore) /\n            4;\n          return (\n            <article key={rating.id} className=\"card p-5 sm:p-6\">\n              <div className=\"flex flex-wrap items-start justify-between gap-4\">\n                <div className=\"flex items-center gap-3\">\n                  <span className=\"grid size-10 place-items-center rounded-xl bg-primary/12 text-primary\">\n                    <MessageSquareQuote size={20} aria-hidden=\"true\" />\n                  </span>\n                  <div>\n                    <p className=\"font-black\">\n                      {t(\"platformRatingModeration.learnerReview\")}\n                    </p>\n                    <p className=\"mt-1 text-xs text-muted\">\n                      {formatLocalizedDateTime(rating.updatedAtUtc, locale)}\n                    </p>\n                  </div>\n                </div>\n                <div className=\"flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-sm font-black text-primary\">\n                  <Star size={15} className=\"fill-primary\" aria-hidden=\"true\" />\n                  {formatLocalizedNumber(average, locale, {\n                    minimumFractionDigits: 1,\n                    maximumFractionDigits: 1,\n",
+      "approved": "              rating.recommendationScore) /\n            4;\n          return (\n            <article key={rating.id} className={styles.row}>\n              <div className={styles.rowHeading}>\n                <div>\n                  <h2 className={styles.rowTitle}>\n                    {t(\"platformRatingModeration.learnerReview\")}\n                  </h2>\n                  <p className={styles.date}>\n                    {formatLocalizedDateTime(rating.updatedAtUtc, locale)}\n                  </p>\n                </div>\n                <div className={styles.facts}>\n                  <span\n                    className={styles.publication}\n                    data-published={rating.isPublished}\n                  >\n                    {rating.isPublished\n                      ? t(\"platformRatingModeration.published\")\n                      : t(\"platformRatingModeration.notPublished\")}\n                  </span>\n                  <span\n                    className={styles.consent}\n                    data-consent={rating.allowPublicDisplay}\n                  >\n                    {rating.allowPublicDisplay\n                      ? t(\"platformRatingModeration.consentGranted\")\n                      : t(\"platformRatingModeration.noDisplayConsent\")}\n                  </span>\n                </div>\n                <div className={styles.average}>\n                  {formatLocalizedNumber(average, locale, {\n                    minimumFractionDigits: 1,\n                    maximumFractionDigits: 1,\n"
+    },
+    {
+      "previous": "                  / 5\n                </div>\n              </div>\n              <div className=\"mt-5 grid gap-3 sm:grid-cols-4\">\n                {[\n                  [\n                    t(\"platformRatingModeration.courses\"),\n",
+      "approved": "                  / 5\n                </div>\n              </div>\n              <div className={styles.scores}>\n                {[\n                  [\n                    t(\"platformRatingModeration.courses\"),\n"
+    },
+    {
+      "previous": "                    rating.recommendationScore,\n                  ],\n                ].map(([label, score]) => (\n                  <div\n                    key={String(label)}\n                    className=\"rounded-xl border border-border bg-surface/70 p-3 text-sm\"\n                  >\n                    <span className=\"text-muted\">{label}</span>\n                    <strong className=\"ms-2\">{score} / 5</strong>\n                  </div>\n                ))}\n              </div>\n              {rating.comment ? (\n                <p className=\"mt-5 whitespace-pre-wrap leading-7 text-muted\">\n                  {rating.comment}\n                </p>\n              ) : (\n                <p className=\"mt-5 text-sm text-muted\">\n                  {t(\n                    \"platformRatingModeration.theLearnerDidNotAddAWrittenComment\",\n                  )}\n                </p>\n              )}\n              <div className=\"mt-5 grid gap-3 border-t border-border pt-5 lg:grid-cols-[minmax(0,1fr)_auto_auto]\">\n                <label className=\"grid gap-1 text-sm font-bold\">\n                  <span>\n                    {t(\n                      \"platformRatingModeration.reasonForKeepingPrivateInternalNote\",\n                    )}\n                  </span>\n                  <input\n                    value={reasons[rating.id] ?? rating.moderationReason ?? \"\"}\n                    maxLength={500}\n                    onChange={(event) =>\n",
+      "approved": "                    rating.recommendationScore,\n                  ],\n                ].map(([label, score]) => (\n                  <div key={String(label)}>\n                    <span>{label}</span>\n                    <strong>{score} / 5</strong>\n                  </div>\n                ))}\n              </div>\n              {rating.comment ? (\n                <p className={styles.comment}>{rating.comment}</p>\n              ) : (\n                <p className={styles.noComment}>\n                  {t(\n                    \"platformRatingModeration.theLearnerDidNotAddAWrittenComment\",\n                  )}\n                </p>\n              )}\n              <div className={styles.controls}>\n                <label className={styles.field}>\n                  <span>\n                    {t(\n                      \"platformRatingModeration.reasonForKeepingPrivateInternalNote\",\n                    )}\n                  </span>\n                  <textarea\n                    value={reasons[rating.id] ?? rating.moderationReason ?? \"\"}\n                    maxLength={500}\n                    onChange={(event) =>\n"
+    },
+    {
+      "previous": "                        [rating.id]: event.target.value,\n                      }))\n                    }\n                    className=\"focus-ring rounded-xl border border-border bg-transparent px-3 py-2.5 text-foreground\"\n                  />\n                </label>\n                <button\n",
+      "approved": "                        [rating.id]: event.target.value,\n                      }))\n                    }\n                    rows={2}\n                  />\n                </label>\n                <button\n"
+    },
+    {
+      "previous": "                  onClick={() =>\n                    moderate.mutate({ id: rating.id, publish: false })\n                  }\n                  className=\"focus-ring inline-flex items-center justify-center gap-2 self-end rounded-xl border border-border px-4 py-2.5 text-sm font-black text-muted disabled:opacity-60\"\n                >\n                  <EyeOff size={16} aria-hidden=\"true\" />\n                  {t(\"platformRatingModeration.keepPrivate\")}\n                </button>\n                <button\n",
+      "approved": "                  onClick={() =>\n                    moderate.mutate({ id: rating.id, publish: false })\n                  }\n                  aria-busy={moderate.isPending}\n                >\n                  <EyeOff size={16} strokeWidth={2} aria-hidden=\"true\" />\n                  {t(\"platformRatingModeration.keepPrivate\")}\n                </button>\n                <button\n"
+    },
+    {
+      "previous": "                  onClick={() =>\n                    moderate.mutate({ id: rating.id, publish: true })\n                  }\n                  className=\"focus-ring inline-flex items-center justify-center gap-2 self-end rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-50\"\n                >\n                  <Eye size={16} aria-hidden=\"true\" />\n                  {rating.allowPublicDisplay\n                    ? t(\"platformRatingModeration.publishReview\")\n                    : t(\"platformRatingModeration.noDisplayConsent\")}\n",
+      "approved": "                  onClick={() =>\n                    moderate.mutate({ id: rating.id, publish: true })\n                  }\n                  className={styles.publish}\n                  aria-busy={moderate.isPending}\n                >\n                  <Eye size={16} strokeWidth={2} aria-hidden=\"true\" />\n                  {rating.allowPublicDisplay\n                    ? t(\"platformRatingModeration.publishReview\")\n                    : t(\"platformRatingModeration.noDisplayConsent\")}\n"
+    },
+    {
+      "previous": "            </article>\n          );\n        })}\n        {!ratings.data.length ? (\n          <p className=\"card p-6 text-muted\">\n            {t(\"platformRatingModeration.noReviewsHaveBeenSubmittedYet\")}\n          </p>\n        ) : null}\n      </div>\n      {moderate.isError ? (\n        <p role=\"alert\" className=\"mt-5 text-sm text-red-500\">\n          {moderate.error instanceof Error\n            ? moderate.error.message\n            : t(\"platformRatingModeration.reviewStatusCouldNotBeUpdated\")}\n        </p>\n      ) : null}\n    </section>\n  );\n}\n",
+      "approved": "            </article>\n          );\n        })}\n        {ratings.isSuccess && ratings.data.length === 0 ? (\n          <QueryState\n            kind=\"empty\"\n            title={t(\"platformRatingModeration.emptyLoaded\")}\n          />\n        ) : null}\n      </div>\n    </section>\n  );\n}\n"
+    }
+  ],
+  "messageSeams": {
+    "en": [
+      {
+        "previous": "      \"publishReview\": \"Publish review\",\n      \"noDisplayConsent\": \"No display consent\",\n      \"noReviewsHaveBeenSubmittedYet\": \"No reviews have been submitted yet.\",\n      \"reviewStatusCouldNotBeUpdated\": \"Review status could not be updated.\"\n    },\n    \"wallet\": {\n      \"bETCCOPlatformWallet\": \"BETCCO Platform Wallet\",\n",
+        "approved": "      \"publishReview\": \"Publish review\",\n      \"noDisplayConsent\": \"No display consent\",\n      \"noReviewsHaveBeenSubmittedYet\": \"No reviews have been submitted yet.\",\n      \"reviewStatusCouldNotBeUpdated\": \"Review status could not be updated.\",\n      \"published\": \"Published\",\n      \"notPublished\": \"Not published\",\n      \"consentGranted\": \"Public display consent granted\",\n      \"loadingReviews\": \"Loading reviews…\",\n      \"loadingSummary\": \"Loading rating summary…\",\n      \"summaryUnavailable\": \"The rating summary request failed. Review data is handled separately.\",\n      \"moderating\": \"Updating review…\",\n      \"loadedScope\": \"Reviews are shown in server order, up to 200 entries. Platform totals come from the separate summary.\",\n      \"emptyLoaded\": \"No reviews were returned.\"\n    },\n    \"wallet\": {\n      \"bETCCOPlatformWallet\": \"BETCCO Platform Wallet\",\n"
+      }
+    ],
+    "ar": [
+      {
+        "previous": "      \"publishReview\": \"نشر المراجعة\",\n      \"noDisplayConsent\": \"لا توجد موافقة للعرض\",\n      \"noReviewsHaveBeenSubmittedYet\": \"لا توجد مراجعات مرسلة حتى الآن.\",\n      \"reviewStatusCouldNotBeUpdated\": \"تعذر تحديث حالة المراجعة.\"\n    },\n    \"wallet\": {\n      \"bETCCOPlatformWallet\": \"محفظة منصة BETCCO\",\n",
+        "approved": "      \"publishReview\": \"نشر المراجعة\",\n      \"noDisplayConsent\": \"لا توجد موافقة للعرض\",\n      \"noReviewsHaveBeenSubmittedYet\": \"لا توجد مراجعات مرسلة حتى الآن.\",\n      \"reviewStatusCouldNotBeUpdated\": \"تعذر تحديث حالة المراجعة.\",\n      \"published\": \"منشور\",\n      \"notPublished\": \"غير منشور\",\n      \"consentGranted\": \"موافقة على العرض العام\",\n      \"loadingReviews\": \"جارٍ تحميل المراجعات…\",\n      \"loadingSummary\": \"جارٍ تحميل ملخص التقييمات…\",\n      \"summaryUnavailable\": \"تعذر إتمام طلب ملخص التقييمات. بيانات المراجعات مستقلة عنه.\",\n      \"moderating\": \"جارٍ تحديث المراجعة…\",\n      \"loadedScope\": \"تُعرض المراجعات بترتيب الخادم، بحد أقصى 200 مراجعة. إجماليات المنصة تأتي من الملخص المستقل.\",\n      \"emptyLoaded\": \"لم تُرجع الاستجابة أي مراجعات.\"\n    },\n    \"wallet\": {\n      \"bETCCOPlatformWallet\": \"محفظة منصة BETCCO\",\n"
+      }
+    ]
+  },
+  "guardSeams": {
+    "tests/account-identity-archetype-contract.test.ts": [
+      {
+        "previous": "import { createHash } from \"node:crypto\";\nimport { readFileSync } from \"node:fs\";\nimport ts from \"typescript\";\n",
+        "approved": "import { projectPlatformRatingBoundary } from \"./helpers/platform-rating-projection\";\nimport { createHash } from \"node:crypto\";\nimport { readFileSync } from \"node:fs\";\nimport ts from \"typescript\";\n"
+      },
+      {
+        "previous": "} from \"./helpers/qualification-registry-projection\";\n\nconst path = \"src/features/admin/account-identity-management.tsx\";\nconst read = (p: string) => readFileSync(p, \"utf8\").replace(/\\r\\n/g, \"\\n\");\nconst hash = (s: string) => createHash(\"sha256\").update(s).digest(\"hex\");\nconst source = read(path);\ndescribe(\"Account Identity independently frozen presentation boundary\", () => {\n",
+        "approved": "} from \"./helpers/qualification-registry-projection\";\n\nconst path = \"src/features/admin/account-identity-management.tsx\";\nconst read = (p: string) =>\n  projectPlatformRatingBoundary(\n    readFileSync(p, \"utf8\").replace(/\\r\\n/g, \"\\n\"),\n    p,\n  );\nconst hash = (s: string) => createHash(\"sha256\").update(s).digest(\"hex\");\nconst source = read(path);\ndescribe(\"Account Identity independently frozen presentation boundary\", () => {\n"
+      }
+    ],
+    "tests/qualification-registry-archetype-contract.test.ts": [
+      {
+        "previous": "import { createHash } from \"node:crypto\";\nimport { readFileSync } from \"node:fs\";\nimport ts from \"typescript\";\n",
+        "approved": "import { projectPlatformRatingBoundary } from \"./helpers/platform-rating-projection\";\nimport { createHash } from \"node:crypto\";\nimport { readFileSync } from \"node:fs\";\nimport ts from \"typescript\";\n"
+      },
+      {
+        "previous": "  withoutQualificationRegistryAdditions,\n} from \"./helpers/qualification-registry-projection\";\nconst path = baseline.path,\n  read = (p: string) => readFileSync(p, \"utf8\").replace(/\\r\\n/g, \"\\n\"),\n  hash = (s: string) => createHash(\"sha256\").update(s).digest(\"hex\"),\n  source = read(path);\ndescribe(\"Slice 3 Qualification Registry independent presentation boundary\", () => {\n",
+        "approved": "  withoutQualificationRegistryAdditions,\n} from \"./helpers/qualification-registry-projection\";\nconst path = baseline.path,\n  read = (p: string) =>\n    projectPlatformRatingBoundary(\n      readFileSync(p, \"utf8\").replace(/\\r\\n/g, \"\\n\"),\n      p,\n    ),\n  hash = (s: string) => createHash(\"sha256\").update(s).digest(\"hex\"),\n  source = read(path);\ndescribe(\"Slice 3 Qualification Registry independent presentation boundary\", () => {\n"
+      }
+    ],
+    "tests/assessment-operations-contract.test.ts": [
+      {
+        "previous": "import { createHash } from \"node:crypto\";\nimport { readFileSync } from \"node:fs\";\nimport ts from \"typescript\";\n",
+        "approved": "import { projectPlatformRatingBoundary } from \"./helpers/platform-rating-projection\";\nimport { createHash } from \"node:crypto\";\nimport { readFileSync } from \"node:fs\";\nimport ts from \"typescript\";\n"
+      },
+      {
+        "previous": "import baseline from \"./fixtures/ui-d01-14-assessment-operations-baseline.json\";\nimport { projectAssessmentOperationsSource } from \"./helpers/assessment-operations-projection\";\nimport { projectQualificationRegistryCopy } from \"./helpers/qualification-registry-projection\";\nconst read = (p: string) => readFileSync(p, \"utf8\").replace(/\\r\\n/g, \"\\n\");\nconst hash = (s: string) => createHash(\"sha256\").update(s).digest(\"hex\");\nfunction contracts(source: string) {\n  const sf = ts.createSourceFile(\n",
+        "approved": "import baseline from \"./fixtures/ui-d01-14-assessment-operations-baseline.json\";\nimport { projectAssessmentOperationsSource } from \"./helpers/assessment-operations-projection\";\nimport { projectQualificationRegistryCopy } from \"./helpers/qualification-registry-projection\";\nconst read = (p: string) =>\n  projectPlatformRatingBoundary(\n    readFileSync(p, \"utf8\").replace(/\\r\\n/g, \"\\n\"),\n    p,\n  );\nconst hash = (s: string) => createHash(\"sha256\").update(s).digest(\"hex\");\nfunction contracts(source: string) {\n  const sf = ts.createSourceFile(\n"
+      }
+    ],
+    "tests/audit-log-archetype-contract.test.ts": [
+      {
+        "previous": "import { createHash } from \"node:crypto\";\nimport { readFileSync } from \"node:fs\";\nimport { describe, expect, it } from \"vitest\";\n",
+        "approved": "import { projectPlatformRatingBoundary } from \"./helpers/platform-rating-projection\";\nimport { createHash } from \"node:crypto\";\nimport { readFileSync } from \"node:fs\";\nimport { describe, expect, it } from \"vitest\";\n"
+      },
+      {
+        "previous": "import { projectQualificationRegistryCopy } from \"./helpers/qualification-registry-projection\";\n\nconst read = (path: string) =>\n  readFileSync(path, \"utf8\").replace(/\\r\\n/g, \"\\n\");\nconst hash = (text: string) => createHash(\"sha256\").update(text).digest(\"hex\");\nconst path = \"src/features/admin/audit-log.tsx\";\nconst source = read(path);\n",
+        "approved": "import { projectQualificationRegistryCopy } from \"./helpers/qualification-registry-projection\";\n\nconst read = (path: string) =>\n  projectPlatformRatingBoundary(\n    readFileSync(path, \"utf8\").replace(/\\r\\n/g, \"\\n\"),\n    path,\n  );\nconst hash = (text: string) => createHash(\"sha256\").update(text).digest(\"hex\");\nconst path = \"src/features/admin/audit-log.tsx\";\nconst source = read(path);\n"
+      }
+    ],
+    "tests/admin-final-i18n-residual-audit.test.ts": [
+      {
+        "previous": "import { describe, expect, it } from \"vitest\";\nimport ts from \"typescript\";\nimport { mkdtempSync, mkdirSync, writeFileSync, rmSync } from \"node:fs\";\n",
+        "approved": "import { projectPlatformRatingBoundary } from \"./helpers/platform-rating-projection\";\nimport { describe, expect, it } from \"vitest\";\nimport ts from \"typescript\";\nimport { mkdtempSync, mkdirSync, writeFileSync, rmSync } from \"node:fs\";\n"
+      },
+      {
+        "previous": "    : projectAssessmentOperationsSource(\n        projectAuditLogSource(\n          projectAccountIdentitySource(\n            projectQualificationRegistrySource(source, path),\n            path,\n          ),\n          path,\n",
+        "approved": "    : projectAssessmentOperationsSource(\n        projectAuditLogSource(\n          projectAccountIdentitySource(\n            projectQualificationRegistrySource(\n              projectPlatformRatingBoundary(source, path),\n              path,\n            ),\n            path,\n          ),\n          path,\n"
+      }
+    ],
+    "tests/admin-a5-5-10-15-source-audit.test.ts": [
+      {
+        "previous": "import { readFileSync } from \"node:fs\";\nimport ts from \"typescript\";\nimport { createTranslator } from \"next-intl\";\n",
+        "approved": "import { projectPlatformRatingBoundary } from \"./helpers/platform-rating-projection\";\nimport { readFileSync } from \"node:fs\";\nimport ts from \"typescript\";\nimport { createTranslator } from \"next-intl\";\n"
+      },
+      {
+        "previous": "    ? projectAdminStateSource(\n        readFileSync(`src/features/admin/${scopes[name][0]}.tsx`, \"utf8\"),\n      )\n    : readFileSync(`src/features/admin/${scopes[name][0]}.tsx`, \"utf8\");\nfunction leaves(v: unknown, prefix = \"\"): string[] {\n  return typeof v === \"string\"\n    ? [prefix]\n",
+        "approved": "    ? projectAdminStateSource(\n        readFileSync(`src/features/admin/${scopes[name][0]}.tsx`, \"utf8\"),\n      )\n    : projectPlatformRatingBoundary(\n        readFileSync(`src/features/admin/${scopes[name][0]}.tsx`, \"utf8\"),\n        `src/features/admin/${scopes[name][0]}.tsx`,\n      );\nfunction leaves(v: unknown, prefix = \"\"): string[] {\n  return typeof v === \"string\"\n    ? [prefix]\n"
+      }
+    ],
+    "tests/admin-platform-rating-moderation-translation.test.tsx": [
+      {
+        "previous": "import { PlatformRatingModeration } from \"@/features/admin/platform-rating-moderation\";\nimport { formatLocalizedDateTime } from \"@/i18n/date-time\";\nimport { formatLocalizedNumber } from \"@/i18n/number-format\";\n",
+        "approved": "import enMessages from \"../messages/en.json\";\nimport arMessages from \"../messages/ar.json\";\nimport { PlatformRatingModeration } from \"@/features/admin/platform-rating-moderation\";\nimport { formatLocalizedDateTime } from \"@/i18n/date-time\";\nimport { formatLocalizedNumber } from \"@/i18n/number-format\";\n"
+      },
+      {
+        "previous": "  );\n});\nfor (const locale of [\"ar\", \"en\"] as const) {\n  const copy = (en: string) =>\n    baseline.scopes.platformRatingModeration.cases.find((c) => c.en === en)![\n      locale\n",
+        "approved": "  );\n});\nfor (const locale of [\"ar\", \"en\"] as const) {\n  const newCopy = (locale === \"ar\" ? arMessages : enMessages).adminWorkspace\n    .platformRatingModeration;\n  const copy = (en: string) =>\n    baseline.scopes.platformRatingModeration.cases.find((c) => c.en === en)![\n      locale\n"
+      },
+      {
+        "previous": "            e.textContent === formatLocalizedDateTime(timestamp, locale),\n        ),\n      ).toBeVisible();\n      expect(\n        screen.getByText(\n          copy(\"{count} awaiting review\").replace(\"{count}\", \"1\"),\n        ),\n      ).toBeVisible();\n      expect(\n        screen.getByLabelText(\n          copy(\"Reason for keeping private / internal note\"),\n",
+        "approved": "            e.textContent === formatLocalizedDateTime(timestamp, locale),\n        ),\n      ).toBeVisible();\n      const summaryRegion = screen.getByRole(\"region\", {\n        name: copy(\"Learner experience summary\"),\n      });\n      expect(\n        within(summaryRegion).getByText(copy(\"Awaiting moderation\"))\n          .parentElement,\n      ).toHaveTextContent(String(summary.awaitingModerationCount));\n      expect(\n        screen.queryByText(\n          copy(\"{count} awaiting review\").replace(\"{count}\", \"1\"),\n        ),\n      ).not.toBeInTheDocument();\n      expect(\n        screen.getByLabelText(\n          copy(\"Reason for keeping private / internal note\"),\n"
+      },
+      {
+        "previous": "          : Promise.resolve([{ ...rating, isPublished: true, comment: null }]),\n      );\n      await ready();\n      expect(\n        screen.getByText(\n          copy(\"{count} awaiting review\").replace(\"{count}\", \"0\"),\n        ),\n      ).toBeVisible();\n      expect(\n        screen.getByText(copy(\"The learner did not add a written comment.\")),\n      ).toBeVisible();\n",
+        "approved": "          : Promise.resolve([{ ...rating, isPublished: true, comment: null }]),\n      );\n      await ready();\n      expect(screen.getByText(newCopy.published)).toBeVisible();\n      expect(\n        screen.queryByText(\n          copy(\"{count} awaiting review\").replace(\"{count}\", \"0\"),\n        ),\n      ).not.toBeInTheDocument();\n      expect(\n        screen.getByText(copy(\"The learner did not add a written comment.\")),\n      ).toBeVisible();\n"
+      },
+      {
+        "previous": "        Promise.resolve(p.endsWith(\"/summary\") ? summary : []),\n      );\n      mount(locale, <PlatformRatingModeration />);\n      expect(\n        await screen.findByText(copy(\"No reviews have been submitted yet.\")),\n      ).toBeVisible();\n      expect(\n        within(\n          screen.getByRole(\"region\", {\n",
+        "approved": "        Promise.resolve(p.endsWith(\"/summary\") ? summary : []),\n      );\n      mount(locale, <PlatformRatingModeration />);\n      expect(await screen.findByText(newCopy.emptyLoaded)).toBeVisible();\n      expect(\n        within(\n          screen.getByRole(\"region\", {\n"
+      }
+    ],
+    "tests/helpers/admin-home-projection.ts": [
+      {
+        "previous": "import baseline from \"../fixtures/ui-d01-13-admin-home-baseline.json\";\nimport { projectAssessmentOperationsSource } from \"./assessment-operations-projection\";\nimport { withoutQualificationRegistryAdditions } from \"./qualification-registry-projection\";\n",
+        "approved": "import { withoutPlatformRatingAdditions } from \"./platform-rating-projection\";\nimport baseline from \"../fixtures/ui-d01-13-admin-home-baseline.json\";\nimport { projectAssessmentOperationsSource } from \"./assessment-operations-projection\";\nimport { withoutQualificationRegistryAdditions } from \"./qualification-registry-projection\";\n"
+      },
+      {
+        "previous": "  return result;\n}\nexport function withoutAdminHomeAdditions(value: Record<string, unknown>) {\n  withoutQualificationRegistryAdditions(value);\n  if (!Object.hasOwn(value, \"adminHomePresentation\")) return value;\n  if (\n",
+        "approved": "  return result;\n}\nexport function withoutAdminHomeAdditions(value: Record<string, unknown>) {\n  withoutPlatformRatingAdditions(value);\n  withoutQualificationRegistryAdditions(value);\n  if (!Object.hasOwn(value, \"adminHomePresentation\")) return value;\n  if (\n"
+      }
+    ]
+  }
+}
