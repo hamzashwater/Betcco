@@ -1,0 +1,245 @@
+{
+  "base": "f7b87b4fb6e7132cb30d57a6cd48c2219745e559",
+  "path": "src/features/admin/commission-settings.tsx",
+  "originalHash": "0438d0e301a2f8cd775286e5baacc618b0cce5a6c90e308b3dac2c95da5d5f45",
+  "invariants": {
+    "setup": [
+      "const locale = useLocale();",
+      "const t = useTranslations(\"commerceCatalog\");",
+      "const client = useQueryClient();",
+      "const [draft, setDraft] = useState<string>();",
+      "const [taxDraft, setTaxDraft] = useState<string>();",
+      "const [notice, setNotice] = useState<string>();",
+      "const commission = useQuery({ queryKey: [\"platform-commission\"], queryFn: () => api<Commission>(\"/admin/commerce-catalog/commission\"), });",
+      "const salesTax = useQuery({ queryKey: [\"sales-tax\"], queryFn: () => api<SalesTax>(\"/admin/commerce-catalog/sales-tax\"), });",
+      "const displayed = draft ?? commission.data?.platformCommissionPercent.toString() ?? \"\";",
+      "const value = Number(displayed);",
+      "const valid = Number.isFinite(value) && value >= 0 && value <= 100;",
+      "const teacherShare = valid ? 100 - value : commission.data?.teacherSharePercent;",
+      "const displayedTax = taxDraft ?? salesTax.data?.salesTaxPercent.toString() ?? \"\";",
+      "const taxValue = Number(displayedTax);",
+      "const taxIsValid = Number.isFinite(taxValue) && taxValue >= 0 && taxValue <= 100;"
+    ],
+    "mutations": [
+      [
+        "mutationFn: (platformCommissionPercent: number) => api(\"/admin/commerce-catalog/commission\", { method: \"PUT\", body: JSON.stringify({ platformCommissionPercent }), })",
+        [
+          "onSuccess",
+          [
+            "setDraft(undefined);",
+            "setNotice(t(\"commissionUpdated\"));",
+            "client.invalidateQueries({ queryKey: [\"platform-commission\"] });",
+            "client.invalidateQueries({ queryKey: [\"admin-wallet\"] });"
+          ]
+        ],
+        [
+          "onError",
+          [
+            "setNotice(error instanceof Error ? error.message : t(\"requestFailed\"))"
+          ]
+        ]
+      ],
+      [
+        "mutationFn: (salesTaxPercent: number) => api(\"/admin/commerce-catalog/sales-tax\", { method: \"PUT\", body: JSON.stringify({ salesTaxPercent }), })",
+        [
+          "onSuccess",
+          [
+            "setTaxDraft(undefined);",
+            "setNotice(t(\"taxUpdated\"));",
+            "client.invalidateQueries({ queryKey: [\"sales-tax\"] });"
+          ]
+        ],
+        [
+          "onError",
+          [
+            "setNotice(error instanceof Error ? error.message : t(\"requestFailed\"))"
+          ]
+        ]
+      ]
+    ],
+    "props": [
+      "onSubmit={(event) => { event.preventDefault(); if (!valid || save.isPending) return; if (!window.confirm(t(\"commissionConfirm\"))) return; save.mutate(value); }}",
+      "required",
+      "type=\"number\"",
+      "min=\"0\"",
+      "max=\"100\"",
+      "step=\"0.001\"",
+      "value={displayed}",
+      "onChange={(event) => setDraft(event.target.value)}",
+      "dir=\"ltr\"",
+      "type=\"submit\"",
+      "disabled={!valid || save.isPending || commission.isPending}",
+      "onSubmit={(event) => { event.preventDefault(); if (!taxIsValid || saveTax.isPending) return; if (!window.confirm(t(\"taxConfirm\"))) return; saveTax.mutate(taxValue); }}",
+      "required",
+      "type=\"number\"",
+      "min=\"0\"",
+      "max=\"100\"",
+      "step=\"0.001\"",
+      "value={displayedTax}",
+      "onChange={(event) => setTaxDraft(event.target.value)}",
+      "dir=\"ltr\"",
+      "type=\"submit\"",
+      "disabled={!taxIsValid || saveTax.isPending || salesTax.isPending}"
+    ],
+    "preview": [
+      "formatLocalizedPercentage(teacherShare, locale, { minimumFractionDigits: 3, maximumFractionDigits: 3, })"
+    ],
+    "types": [
+      "type Commission = { platformCommissionPercent: number; teacherSharePercent: number; };",
+      "type SalesTax = { salesTaxPercent: number };"
+    ]
+  },
+  "protected": {
+    "src/features/admin/admin-home.module.css": "ac79c0de856bbe49cf75c1d1efe84c2c022c28ec7dd18c82cb4806a8d1926882",
+    "src/components/site-navigation.tsx": "0de34aad9672812cec0fa8e77c6ea0e53a16ac3615f2cbec65501d12579bce2a",
+    "src/components/dashboard/dashboard-ui.tsx": "e5f68fc7bfc3a9c48727d8ab9ce039533732c73342a02059c0d0351c1dac65c6",
+    "src/features/admin/gradebook.tsx": "f70921c116ffa0880ce27803bc1911410c28ec56f008016b930846a4ed0e84e9",
+    "src/features/admin/retake-management.tsx": "0bb81eb909d3f8d58ed81440cc33e1bc74f7e826f6f1de705a7a8a2d96456c84",
+    "src/features/teacher/course-editor.tsx": "261f7f37db8e13bfdf177eacb08bec39e8dbf27d8467c33f11a0ca591a96037b",
+    "src/features/teacher/teacher-area.tsx": "e78441b27e96d46b8f1c429b5c33352b96313e3633f62ed1f3f56122c6a5bd43",
+    "src/features/student/student-area.tsx": "a0542eb7ebdd5608f23d4953f444f973ee06a8ce357894bbdf331e02496779e0",
+    "package.json": "38b49d24cd42cc223cb609364d2a30302095671503e1f351f91523a0e92a5609",
+    "pnpm-lock.yaml": "ad0f5192f977ad72ed3a364d7f6d6a3d6d04521dbfefff790a68af0b0f63e9c2",
+    "../backend/src/Betcco.Api/Controllers/AssessmentCoordinationController.cs": "50783ce247f38cf7cd6bc371d4fa27beb4e8284b0b4104b56aa8971c2a66476e",
+    "../backend/src/Betcco.Api/Controllers/EvaluationsController.cs": "8b02ff0e97921c74d4eba8c2eec93a9537044cf7ea91eb823787d016f095efd0",
+    "../backend/src/Betcco.Api/Controllers/InternalVerificationPlansController.cs": "f4d5dfbb3bb6e5072b033c9a284bbb8c7905933ee8c84904800e7d677f153ea9",
+    "../backend/src/Betcco.Api/Controllers/EvaluationAppealsController.cs": "2daa017c136ffc388e55c7a87568124acb97e5d64bdb490ea46ee8737f6e53ae",
+    "../backend/src/Betcco.Api/Controllers/AdminEvaluatorSpecialismsController.cs": "46bd5e58881cbbfbf48ef1b5dbe6e0b5008f8dcfd2b47969f55eb075bc69af68",
+    "../backend/src/Betcco.Api/Controllers/ResitsController.cs": "46c87feb421b4441e43c9f66ad0764a01faa5e563d237e984835cbc65998cfda",
+    "../backend/src/Betcco.Api/Controllers/AdminDashboardController.cs": "67355ff1ad7cf4b335108dca152e9e947e2d3c2c6be63fda785132766b3d0e03",
+    "src/features/admin/admin-area.tsx": "1d4139c8255ce9d0e1204883524dec0fb006e99b904693a44d9d8dc9331b6f4a",
+    "src/features/admin/assessment-coordination-queue.tsx": "9764c079db4c4150050bbb24e0ce6037bc3d593f9d134eb028dabee251fe06ed",
+    "src/features/admin/eligible-evaluator-assignment.tsx": "a060b8758fa1291086260f6338a7397df4a2dbe2c0398e7df144d2f6ba335203",
+    "src/features/admin/resit-coordination-panel.tsx": "71cb411ac6b581fb6a2886431c73f9d9f48ac5e64299332ffce01175a2c2e293",
+    "src/features/admin/internal-verification-plan-management.tsx": "4f9f51ea019fef3bb717fb4a2eba0921884aa5ab18d6b721c803e202915978e5",
+    "src/features/admin/evaluation-appeal-management.tsx": "7e87f493c0cdb1dc48eb54492ab75d769481d3ca2570e5dcf98807c2518005b9",
+    "src/features/admin/evaluator-specialism-management.tsx": "d9e6adb1e966c818f1f4419a004c2467259f25f4e2f038620a606e7a0a09d78e",
+    "src/features/admin/assessment-operations.module.css": "b9a65963ffdb73816871efecc449b2a15e09c03bf42b79e29b4e8f882ffef9e9",
+    "src/features/admin/assessment-operations-state.ts": "e34f8576c4ec297443d69e13d0977f33976cb06f4e9e5d41171354c34b15dee3",
+    "src/features/admin/academic-catalogue.tsx": "18548cd5a6568b46916ebebbcef29401427054fb95b1e983690f33206b4b6334",
+    "src/features/admin/academic-catalog-management.tsx": "7b798f2c3a9d6ca819b13af7a97d436f0124cf33b8a1d5862c763641dff603d4",
+    "src/features/admin/delivery-planning.tsx": "0460f2f7e2fc7d0dd7b395c7ec4b0d9d7c4d7af82e3da07daa5448491c191d0c",
+    "src/features/admin/audit-log.tsx": "54fd25156a73ca5f04ad83df46f729673e529cd7b730cabf45d288b5e045a75c",
+    "src/features/admin/privacy-request-management.tsx": "45fdbf0ff5ee245d5eb1391b413455c4b72026d351bbe4e9812a4a55a0c90a4d",
+    "src/features/admin/security-incident-management.tsx": "79c8597d99c75a70285182840791225dde66c516420ce3353a2414cbff4da31c",
+    "src/features/admin/content-studio.tsx": "b708d05cd53733c8dca5731170323959ac9d3ba5c530b9d3714c1fb8c4aa8721",
+    "src/features/admin/audit-log.module.css": "959d18fbbe0c4d5482920e04fdb881f77b47cba4b846a61f548cccef4da6ddaf",
+    "../backend/src/Betcco.Api/Controllers/AdminUsersController.cs": "39d697dc29fa5c1ca9f83241a26e633ff61367200cd167887f89421a5c7e611e",
+    "tests/audit-log.test.tsx": "17d7dccfb80d96f28bc605fef56d057cdc3d66cadf38319a08bae3ba0cdb26ce",
+    "tests/audit-log-archetype.test.tsx": "0ceddf59f3d9ab46ffafc2b72c9f11c26a4977696ca42d5a12518eabc7947985",
+    "tests/audit-log-archetype-contract.test.ts": "61863ee44cd559411147362d114b4ff9b2211c50cbff8639dcd180c7e356ad8b",
+    "tests/e2e/audit-log-archetype.spec.ts": "8339012bf5a4c878bc97bfde28a6269ed42e47c5a54ab6a25d1f7e0f58b063d9",
+    "tests/fixtures/ui-d01-15-audit-log-baseline.json": "9380faca74594c598ba7b06aab22c2e94faeb85587fc84be8d53f51c94902633",
+    "src/features/admin/account-identity-management.tsx": "e3dc679208ccd3729ca48dd4bcf43349e1b510add02a157bb18e9d29443d4969",
+    "src/features/admin/account-identity-management.module.css": "28dde300f13454cda2927a7bf04fa975bf0ea23d39b451b594a335a399f6d876",
+    "../backend/src/Betcco.Api/Controllers/QualificationRegistryController.cs": "9ec874c6a2896f074a9c6e1359db5f7dcad079a81deb63714766682123248b54",
+    "../backend/src/Betcco.Application/Evaluations/QualificationRegistryContracts.cs": "8a6c50cc53e51c0d5a5be205fa55f9ebcf8c09768e1524fad294cbd9a7a09fec",
+    "../backend/src/Betcco.Infrastructure/Services/QualificationRegistryService.cs": "181289da5f52709abc3c995d33d5ea713faa5801ce5b2265a8252341cf47bf34",
+    "src/features/admin/qualification-registry-management.tsx": "9c2737e6ea09c854ff8640752caabc7cdbcff450217331b925a88af1f42c8cec",
+    "src/features/admin/qualification-registry-management.module.css": "72c501048b620dd4d9d069dc70d18fae87bf07426fb4f1dcceffaaf425ff9a86",
+    "src/features/public/platform-rating.tsx": "22766d4e5c1cf67a65b80df928a111b5a44947a9d44fea2ace806f98cb6ebfe6",
+    "../backend/src/Betcco.Api/Controllers/PlatformRatingsController.cs": "92261f756237a6ea3cd554c2d6393aa2589ad9d18eb33184bbf40a727c524c99",
+    "../backend/tests/Betcco.IntegrationTests/PlatformRatingsControllerTests.cs": "d0a25e3ce29852d45104404b74e91c6811f0a4ba8cec823a9510456f0f6750d6",
+    "tests/fixtures/ui-d01-15-qualification-registry-baseline.json": "b7d9c6d0ea872f8e33db472145932f71c2284305e1500fede98b5cbe7e3881a8",
+    "tests/fixtures/ui-d01-15-account-identity-baseline.json": "baeb39c0af864e65cb9086ab56f9c2351f9b42e33404d6ff7762fc51375ba6ca",
+    "src/features/admin/platform-rating-moderation.tsx": "3c262fb3f204ab6b095d0d54f2f07ffb009eb0525821835606b87a5a66d5116b",
+    "src/features/admin/platform-rating-moderation.module.css": "6910aa8778799ce4990d472276d690f31b5d4e7ae59865759d5a87962f4a5674",
+    "src/features/admin/commerce-catalog.tsx": "d3ef466d2714720d45d9e5ebbd507be64a3352d298c3489ea56c4fa1901a3f3a",
+    "../backend/src/Betcco.Api/Controllers/AdminCommerceCatalogController.cs": "9603de5497ba3172ebc731b859ac51b181f077cb71a8cf083e2ccd397d583db6",
+    "../backend/tests/Betcco.IntegrationTests/AdminCommerceCatalogControllerTests.cs": "3417bb3ef70e4bc2018e4b4802e2716ad99f1c2478df7e35aa6d43da59926511",
+    "../backend/tests/Betcco.IntegrationTests/WalletAccountingTests.cs": "a2f0f714c11d6ac1ea26e98faaa812c19c954d35107f6cd58a046ebf4bfc2e3b",
+    "tests/fixtures/ui-d01-15-platform-rating-baseline.json": "a2244a66da0a34f2d93590eeed9d64c1038fcaa8e22c531278b3205618755bc5",
+    "tests/platform-rating-archetype-contract.test.ts": "f6830d6634a077a566f11e7a2a9ba88076a7aeee5f087ffc3aa8cb5f64e3cd03",
+    "tests/helpers/platform-rating-projection.ts": "0ea69431a4a9be7b71b8f09be6c2a83028e4a61519646e32f0648a74c1970e4e"
+  },
+  "messageHashes": {
+    "en": "ec166f1f666349dac40ac91d6b4545fe0e40512274a205f628dcd806b49bc910",
+    "ar": "9695251635f085688d8be22065ef286cd33d372b8b3df403d37e91467ca5c7c1"
+  },
+  "additions": {
+    "en": {
+      "financeSettings": "Finance settings",
+      "currentServerValue": "Current server value",
+      "localDraft": "Local draft · not saved",
+      "derivedPreview": "Derived preview",
+      "previewHint": "Preview only. Teacher share is not saved separately.",
+      "confirmationRequired": "Saving requires confirmation. Changes apply only after the server accepts the update.",
+      "commissionLoading": "Loading the current commission…",
+      "commissionUnavailable": "The current commission could not be refreshed.",
+      "taxLoading": "Loading the current sales tax…",
+      "taxUnavailable": "The current sales tax could not be refreshed.",
+      "invalidPercentage": "Enter a finite percentage between 0 and 100."
+    },
+    "ar": {
+      "financeSettings": "الإعدادات المالية",
+      "currentServerValue": "القيمة الحالية من الخادم",
+      "localDraft": "مسودة محلية · غير محفوظة",
+      "derivedPreview": "معاينة مشتقة",
+      "previewHint": "معاينة فقط. لا تُحفظ حصة المعلم بشكل مستقل.",
+      "confirmationRequired": "يتطلب الحفظ تأكيدًا. لا تُطبّق التغييرات إلا بعد قبول الخادم للتحديث.",
+      "commissionLoading": "جارٍ تحميل العمولة الحالية…",
+      "commissionUnavailable": "تعذر تحديث بيانات العمولة الحالية.",
+      "taxLoading": "جارٍ تحميل ضريبة المبيعات الحالية…",
+      "taxUnavailable": "تعذر تحديث بيانات ضريبة المبيعات الحالية.",
+      "invalidPercentage": "أدخل نسبة مئوية محدودة بين 0 و100."
+    }
+  },
+  "seams": [
+    {
+      "previous": "\"use client\";\n\nimport { formatLocalizedPercentage } from \"@/i18n/number-format\";\nimport { api } from \"@/lib/api\";\nimport { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\n",
+      "approved": "\"use client\";\n\nimport { MutationOutcome, QueryState } from \"@/components/ui/query-state\";\nimport styles from \"./commission-settings.module.css\";\nimport { formatLocalizedPercentage } from \"@/i18n/number-format\";\nimport { api } from \"@/lib/api\";\nimport { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\n"
+    },
+    {
+      "previous": "  const [draft, setDraft] = useState<string>();\n  const [taxDraft, setTaxDraft] = useState<string>();\n  const [notice, setNotice] = useState<string>();\n  const commission = useQuery({\n    queryKey: [\"platform-commission\"],\n    queryFn: () => api<Commission>(\"/admin/commerce-catalog/commission\"),\n",
+      "approved": "  const [draft, setDraft] = useState<string>();\n  const [taxDraft, setTaxDraft] = useState<string>();\n  const [notice, setNotice] = useState<string>();\n  const [noticeContext, setNoticeContext] = useState<{\n    owner: \"commission\" | \"tax\";\n    kind: \"success\" | \"error\";\n  }>();\n  const commission = useQuery({\n    queryKey: [\"platform-commission\"],\n    queryFn: () => api<Commission>(\"/admin/commerce-catalog/commission\"),\n"
+    },
+    {
+      "previous": "    onSuccess: () => {\n      setDraft(undefined);\n      setNotice(t(\"commissionUpdated\"));\n      client.invalidateQueries({ queryKey: [\"platform-commission\"] });\n      client.invalidateQueries({ queryKey: [\"admin-wallet\"] });\n    },\n    onError: (error) =>\n      setNotice(error instanceof Error ? error.message : t(\"requestFailed\")),\n  });\n  const value = Number(displayed);\n  const valid = Number.isFinite(value) && value >= 0 && value <= 100;\n",
+      "approved": "    onSuccess: () => {\n      setDraft(undefined);\n      setNotice(t(\"commissionUpdated\"));\n      setNoticeContext({ owner: \"commission\", kind: \"success\" });\n      client.invalidateQueries({ queryKey: [\"platform-commission\"] });\n      client.invalidateQueries({ queryKey: [\"admin-wallet\"] });\n    },\n    onError: (error) => {\n      setNotice(error instanceof Error ? error.message : t(\"requestFailed\"));\n      setNoticeContext({ owner: \"commission\", kind: \"error\" });\n    },\n  });\n  const value = Number(displayed);\n  const valid = Number.isFinite(value) && value >= 0 && value <= 100;\n"
+    },
+    {
+      "previous": "    onSuccess: () => {\n      setTaxDraft(undefined);\n      setNotice(t(\"taxUpdated\"));\n      client.invalidateQueries({ queryKey: [\"sales-tax\"] });\n    },\n    onError: (error) =>\n      setNotice(error instanceof Error ? error.message : t(\"requestFailed\")),\n  });\n\n  return (\n    <section className=\"card mt-6 grid gap-4 p-5\">\n      <div className=\"flex items-start gap-3\">\n        <span className=\"grid size-10 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary\">\n          <BadgePercent size={20} aria-hidden=\"true\" />\n        </span>\n        <div>\n          <h2 className=\"font-black\">{t(\"commissionTitle\")}</h2>\n          <p className=\"mt-1 text-sm leading-6 text-muted\">\n            {t(\"commissionDescription\")}\n          </p>\n        </div>\n      </div>\n      <form\n        className=\"grid gap-3 sm:grid-cols-[minmax(0,15rem)_1fr_auto] sm:items-end\"\n        onSubmit={(event) => {\n          event.preventDefault();\n          if (!valid || save.isPending) return;\n          if (!window.confirm(t(\"commissionConfirm\"))) return;\n          save.mutate(value);\n        }}\n      >\n        <label className=\"grid gap-1.5 text-sm font-bold\">\n          <span>{t(\"platformCommission\")}</span>\n          <input\n            required\n            type=\"number\"\n            min=\"0\"\n            max=\"100\"\n            step=\"0.001\"\n            value={displayed}\n            onChange={(event) => setDraft(event.target.value)}\n            className=\"focus-ring rounded-xl border border-border bg-transparent px-3 py-2.5 text-foreground\"\n            dir=\"ltr\"\n          />\n        </label>\n        <p className=\"pb-2.5 text-sm text-muted\">\n          {t(\"teacherShare\", {\n            percentage:\n              teacherShare === undefined\n                ? \"—\"\n                : formatLocalizedPercentage(teacherShare, locale, {\n                    minimumFractionDigits: 3,\n                    maximumFractionDigits: 3,\n                  }),\n          })}\n        </p>\n        <button\n          type=\"submit\"\n          disabled={!valid || save.isPending || commission.isPending}\n          className=\"focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50\"\n        >\n          <Save size={16} aria-hidden=\"true\" />\n          {save.isPending ? t(\"saving\") : t(\"commissionSave\")}\n        </button>\n      </form>\n      <form\n        className=\"border-t border-border pt-4\"\n        onSubmit={(event) => {\n          event.preventDefault();\n          if (!taxIsValid || saveTax.isPending) return;\n          if (!window.confirm(t(\"taxConfirm\"))) return;\n          saveTax.mutate(taxValue);\n        }}\n      >\n        <label className=\"grid max-w-xs gap-1.5 text-sm font-bold\">\n          <span>{t(\"salesTax\")}</span>\n          <input\n            required\n            type=\"number\"\n            min=\"0\"\n            max=\"100\"\n            step=\"0.001\"\n            value={displayedTax}\n            onChange={(event) => setTaxDraft(event.target.value)}\n            className=\"focus-ring rounded-xl border border-border bg-transparent px-3 py-2.5 text-foreground\"\n            dir=\"ltr\"\n          />\n          <span className=\"text-xs font-normal leading-5 text-muted\">\n            {t(\"salesTaxDescription\")}\n          </span>\n        </label>\n        <button\n          type=\"submit\"\n          disabled={!taxIsValid || saveTax.isPending || salesTax.isPending}\n          className=\"focus-ring mt-3 inline-flex items-center justify-center gap-2 rounded-xl border border-primary px-4 py-2.5 text-sm font-black text-primary disabled:opacity-50\"\n        >\n          <Save size={16} aria-hidden=\"true\" />\n          {saveTax.isPending ? t(\"saving\") : t(\"salesTaxSave\")}\n        </button>\n      </form>\n      {notice ? (\n        <p\n          role=\"status\"\n          className={`text-sm ${save.isError ? \"text-red-500\" : \"text-primary\"}`}\n        >\n          {notice}\n        </p>\n      ) : null}\n    </section>\n  );\n}\n",
+      "approved": "    onSuccess: () => {\n      setTaxDraft(undefined);\n      setNotice(t(\"taxUpdated\"));\n      setNoticeContext({ owner: \"tax\", kind: \"success\" });\n      client.invalidateQueries({ queryKey: [\"sales-tax\"] });\n    },\n    onError: (error) => {\n      setNotice(error instanceof Error ? error.message : t(\"requestFailed\"));\n      setNoticeContext({ owner: \"tax\", kind: \"error\" });\n    },\n  });\n\n  return (\n    <section\n      className={styles.workspace}\n      aria-labelledby=\"finance-settings-title\"\n    >\n      <header className={styles.header}>\n        <BadgePercent size={20} strokeWidth={2} aria-hidden=\"true\" />\n        <h2 id=\"finance-settings-title\" className={styles.title}>\n          {t(\"financeSettings\")}\n        </h2>\n      </header>\n      <div className={styles.panel}>\n        <form\n          className={styles.setting}\n          aria-labelledby=\"commission-heading\"\n          onSubmit={(event) => {\n            event.preventDefault();\n            if (!valid || save.isPending) return;\n            if (!window.confirm(t(\"commissionConfirm\"))) return;\n            save.mutate(value);\n          }}\n        >\n          <div className={styles.context}>\n            <h3 id=\"commission-heading\" className={styles.settingTitle}>\n              {t(\"commissionTitle\")}\n            </h3>\n            <p className={styles.description}>{t(\"commissionDescription\")}</p>\n            <dl className={styles.current}>\n              <dt>{t(\"currentServerValue\")}</dt>\n              <dd>\n                <bdi>\n                  {commission.data === undefined\n                    ? \"—\"\n                    : formatLocalizedPercentage(\n                        commission.data.platformCommissionPercent,\n                        locale,\n                      )}\n                </bdi>\n              </dd>\n            </dl>\n            {commission.isPending && commission.data === undefined ? (\n              <QueryState kind=\"loading\" title={t(\"commissionLoading\")} />\n            ) : null}\n            {commission.isError ? (\n              <QueryState kind=\"error\" title={t(\"commissionUnavailable\")} />\n            ) : null}\n          </div>\n          <div className={styles.editor}>\n            <p className={styles.draftLabel}>\n              {t(draft === undefined ? \"currentServerValue\" : \"localDraft\")}\n            </p>\n            <label className={styles.field} htmlFor=\"commission-percent\">\n              {t(\"platformCommission\")}\n            </label>\n            <input\n              id=\"commission-percent\"\n              required\n              type=\"number\"\n              min=\"0\"\n              max=\"100\"\n              step=\"0.001\"\n              value={displayed}\n              onChange={(event) => setDraft(event.target.value)}\n              className={styles.input}\n              dir=\"ltr\"\n              aria-describedby=\"commission-hint\"\n              aria-invalid={!valid || undefined}\n            />\n            {!valid ? (\n              <p className={styles.invalid}>{t(\"invalidPercentage\")}</p>\n            ) : null}\n            <div className={styles.preview}>\n              <p className={styles.draftLabel}>{t(\"derivedPreview\")}</p>\n              <p>\n                {t(\"teacherShare\", {\n                  percentage:\n                    commission.data === undefined && draft === undefined\n                      ? \"—\"\n                      : teacherShare === undefined\n                        ? \"—\"\n                        : formatLocalizedPercentage(teacherShare, locale, {\n                            minimumFractionDigits: 3,\n                            maximumFractionDigits: 3,\n                          }),\n                })}\n              </p>\n              <p className={styles.previewHint}>{t(\"previewHint\")}</p>\n            </div>\n            <p id=\"commission-hint\" className={styles.hint}>\n              {t(\"confirmationRequired\")}\n            </p>\n            <button\n              type=\"submit\"\n              disabled={!valid || save.isPending || commission.isPending}\n              className={styles.save}\n              aria-busy={save.isPending}\n            >\n              <Save size={16} strokeWidth={2} aria-hidden=\"true\" />\n              {save.isPending ? t(\"saving\") : t(\"commissionSave\")}\n            </button>\n            {notice && noticeContext?.owner === \"commission\" ? (\n              <MutationOutcome kind={noticeContext.kind}>\n                {notice}\n              </MutationOutcome>\n            ) : null}\n          </div>\n        </form>\n        <form\n          className={styles.setting}\n          aria-labelledby=\"tax-heading\"\n          onSubmit={(event) => {\n            event.preventDefault();\n            if (!taxIsValid || saveTax.isPending) return;\n            if (!window.confirm(t(\"taxConfirm\"))) return;\n            saveTax.mutate(taxValue);\n          }}\n        >\n          <div className={styles.context}>\n            <h3 id=\"tax-heading\" className={styles.settingTitle}>\n              {t(\"salesTax\")}\n            </h3>\n            <p className={styles.description}>{t(\"salesTaxDescription\")}</p>\n            <dl className={styles.current}>\n              <dt>{t(\"currentServerValue\")}</dt>\n              <dd>\n                <bdi>\n                  {salesTax.data === undefined\n                    ? \"—\"\n                    : formatLocalizedPercentage(\n                        salesTax.data.salesTaxPercent,\n                        locale,\n                      )}\n                </bdi>\n              </dd>\n            </dl>\n            {salesTax.isPending && salesTax.data === undefined ? (\n              <QueryState kind=\"loading\" title={t(\"taxLoading\")} />\n            ) : null}\n            {salesTax.isError ? (\n              <QueryState kind=\"error\" title={t(\"taxUnavailable\")} />\n            ) : null}\n          </div>\n          <div className={styles.editor}>\n            <p className={styles.draftLabel}>\n              {t(taxDraft === undefined ? \"currentServerValue\" : \"localDraft\")}\n            </p>\n            <label className={styles.field} htmlFor=\"sales-tax-percent\">\n              {t(\"salesTax\")}\n            </label>\n            <input\n              id=\"sales-tax-percent\"\n              required\n              type=\"number\"\n              min=\"0\"\n              max=\"100\"\n              step=\"0.001\"\n              value={displayedTax}\n              onChange={(event) => setTaxDraft(event.target.value)}\n              className={styles.input}\n              dir=\"ltr\"\n              aria-describedby=\"tax-hint\"\n              aria-invalid={!taxIsValid || undefined}\n            />\n            {!taxIsValid ? (\n              <p className={styles.invalid}>{t(\"invalidPercentage\")}</p>\n            ) : null}\n            <p id=\"tax-hint\" className={styles.hint}>\n              {t(\"confirmationRequired\")}\n            </p>\n            <button\n              type=\"submit\"\n              disabled={!taxIsValid || saveTax.isPending || salesTax.isPending}\n              className={styles.save}\n              aria-busy={saveTax.isPending}\n            >\n              <Save size={16} strokeWidth={2} aria-hidden=\"true\" />\n              {saveTax.isPending ? t(\"saving\") : t(\"salesTaxSave\")}\n            </button>\n            {notice && noticeContext?.owner === \"tax\" ? (\n              <MutationOutcome kind={noticeContext.kind}>\n                {notice}\n              </MutationOutcome>\n            ) : null}\n          </div>\n        </form>\n      </div>\n    </section>\n  );\n}\n"
+    }
+  ],
+  "messageSeams": {
+    "en": [
+      {
+        "previous": "    \"salesTaxSave\": \"Save sales tax\",\n    \"taxUpdated\": \"The sales tax for future payments was updated.\",\n    \"taxConfirm\": \"Update the sales tax for future payments?\",\n    \"requestFailed\": \"The request could not be completed.\"\n  },\n  \"teacherCoursesManagement\": {\n    \"title\": \"My courses\",\n",
+        "approved": "    \"salesTaxSave\": \"Save sales tax\",\n    \"taxUpdated\": \"The sales tax for future payments was updated.\",\n    \"taxConfirm\": \"Update the sales tax for future payments?\",\n    \"requestFailed\": \"The request could not be completed.\",\n    \"financeSettings\": \"Finance settings\",\n    \"currentServerValue\": \"Current server value\",\n    \"localDraft\": \"Local draft · not saved\",\n    \"derivedPreview\": \"Derived preview\",\n    \"previewHint\": \"Preview only. Teacher share is not saved separately.\",\n    \"confirmationRequired\": \"Saving requires confirmation. Changes apply only after the server accepts the update.\",\n    \"commissionLoading\": \"Loading the current commission…\",\n    \"commissionUnavailable\": \"The current commission could not be refreshed.\",\n    \"taxLoading\": \"Loading the current sales tax…\",\n    \"taxUnavailable\": \"The current sales tax could not be refreshed.\",\n    \"invalidPercentage\": \"Enter a finite percentage between 0 and 100.\"\n  },\n  \"teacherCoursesManagement\": {\n    \"title\": \"My courses\",\n"
+      }
+    ],
+    "ar": [
+      {
+        "previous": "    \"salesTaxSave\": \"حفظ ضريبة المبيعات\",\n    \"taxUpdated\": \"تم تحديث ضريبة المبيعات للدفعات القادمة.\",\n    \"taxConfirm\": \"هل تريد تحديث ضريبة المبيعات للدفعات القادمة؟\",\n    \"requestFailed\": \"تعذر تنفيذ الطلب.\"\n  },\n  \"teacherCoursesManagement\": {\n    \"title\": \"دوراتي\",\n",
+        "approved": "    \"salesTaxSave\": \"حفظ ضريبة المبيعات\",\n    \"taxUpdated\": \"تم تحديث ضريبة المبيعات للدفعات القادمة.\",\n    \"taxConfirm\": \"هل تريد تحديث ضريبة المبيعات للدفعات القادمة؟\",\n    \"requestFailed\": \"تعذر تنفيذ الطلب.\",\n    \"financeSettings\": \"الإعدادات المالية\",\n    \"currentServerValue\": \"القيمة الحالية من الخادم\",\n    \"localDraft\": \"مسودة محلية · غير محفوظة\",\n    \"derivedPreview\": \"معاينة مشتقة\",\n    \"previewHint\": \"معاينة فقط. لا تُحفظ حصة المعلم بشكل مستقل.\",\n    \"confirmationRequired\": \"يتطلب الحفظ تأكيدًا. لا تُطبّق التغييرات إلا بعد قبول الخادم للتحديث.\",\n    \"commissionLoading\": \"جارٍ تحميل العمولة الحالية…\",\n    \"commissionUnavailable\": \"تعذر تحديث بيانات العمولة الحالية.\",\n    \"taxLoading\": \"جارٍ تحميل ضريبة المبيعات الحالية…\",\n    \"taxUnavailable\": \"تعذر تحديث بيانات ضريبة المبيعات الحالية.\",\n    \"invalidPercentage\": \"أدخل نسبة مئوية محدودة بين 0 و100.\"\n  },\n  \"teacherCoursesManagement\": {\n    \"title\": \"دوراتي\",\n"
+      }
+    ]
+  },
+  "guardSeams": {
+    "tests/platform-rating-archetype-contract.test.ts": [
+      {
+        "previous": "import { createHash } from \"node:crypto\";\nimport { readFileSync } from \"node:fs\";\nimport { describe, expect, it } from \"vitest\";\nimport baseline from \"./fixtures/ui-d01-15-platform-rating-baseline.json\";\n",
+        "approved": "import { createHash } from \"node:crypto\";\nimport { projectCommissionBoundary } from \"./helpers/commission-projection\";\nimport { readFileSync } from \"node:fs\";\nimport { describe, expect, it } from \"vitest\";\nimport baseline from \"./fixtures/ui-d01-15-platform-rating-baseline.json\";\n"
+      },
+      {
+        "previous": "  projectPlatformRatingBoundary,\n  withoutPlatformRatingAdditions,\n} from \"./helpers/platform-rating-projection\";\nconst read = (p: string) => readFileSync(p, \"utf8\").replace(/\\r\\n/g, \"\\n\"),\n  hash = (s: string) => createHash(\"sha256\").update(s).digest(\"hex\"),\n  path = baseline.path,\n  source = read(path);\n",
+        "approved": "  projectPlatformRatingBoundary,\n  withoutPlatformRatingAdditions,\n} from \"./helpers/platform-rating-projection\";\nconst read = (p: string) =>\n    projectCommissionBoundary(\n      readFileSync(p, \"utf8\").replace(/\\r\\n/g, \"\\n\"),\n      p,\n    ),\n  hash = (s: string) => createHash(\"sha256\").update(s).digest(\"hex\"),\n  path = baseline.path,\n  source = read(path);\n"
+      }
+    ],
+    "tests/helpers/platform-rating-projection.ts": [
+      {
+        "previous": "import baseline from \"../fixtures/ui-d01-15-platform-rating-baseline.json\";\nfunction reverse(\n  source: string,\n  seams: { approved: string; previous: string }[],\n",
+        "approved": "import baseline from \"../fixtures/ui-d01-15-platform-rating-baseline.json\";\nimport {\n  projectCommissionBoundary,\n  withoutCommissionAdditions,\n} from \"./commission-projection\";\nfunction reverse(\n  source: string,\n  seams: { approved: string; previous: string }[],\n"
+      },
+      {
+        "previous": "// Exact owner/copy and test-guard alignment seams only. No baseline rewrite,\n// wildcard omission or projection of unknown/missing/duplicate/changed seams.\nexport function projectPlatformRatingBoundary(source: string, path: string) {\n  const key = path.replaceAll(\"\\\\\", \"/\");\n  if (\n    /(?:^|\\/)src\\/features\\/admin\\/platform-rating-moderation\\.tsx$/.test(key)\n",
+        "approved": "// Exact owner/copy and test-guard alignment seams only. No baseline rewrite,\n// wildcard omission or projection of unknown/missing/duplicate/changed seams.\nexport function projectPlatformRatingBoundary(source: string, path: string) {\n  source = projectCommissionBoundary(source, path);\n  const key = path.replaceAll(\"\\\\\", \"/\");\n  if (\n    /(?:^|\\/)src\\/features\\/admin\\/platform-rating-moderation\\.tsx$/.test(key)\n"
+      },
+      {
+        "previous": "  return seams ? reverse(source, seams) : source;\n}\nexport function withoutPlatformRatingAdditions(value: Record<string, unknown>) {\n  const workspace = value.adminWorkspace as\n      Record<string, Record<string, unknown>> | undefined,\n    target = workspace?.platformRatingModeration;\n",
+        "approved": "  return seams ? reverse(source, seams) : source;\n}\nexport function withoutPlatformRatingAdditions(value: Record<string, unknown>) {\n  withoutCommissionAdditions(value);\n  const workspace = value.adminWorkspace as\n      Record<string, Record<string, unknown>> | undefined,\n    target = workspace?.platformRatingModeration;\n"
+      }
+    ]
+  }
+}

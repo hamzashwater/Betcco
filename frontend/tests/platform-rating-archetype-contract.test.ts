@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { projectCommissionBoundary } from "./helpers/commission-projection";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import baseline from "./fixtures/ui-d01-15-platform-rating-baseline.json";
@@ -7,7 +8,11 @@ import {
   projectPlatformRatingBoundary,
   withoutPlatformRatingAdditions,
 } from "./helpers/platform-rating-projection";
-const read = (p: string) => readFileSync(p, "utf8").replace(/\r\n/g, "\n"),
+const read = (p: string) =>
+    projectCommissionBoundary(
+      readFileSync(p, "utf8").replace(/\r\n/g, "\n"),
+      p,
+    ),
   hash = (s: string) => createHash("sha256").update(s).digest("hex"),
   path = baseline.path,
   source = read(path);
