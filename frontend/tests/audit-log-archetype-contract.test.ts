@@ -1,3 +1,4 @@
+import { projectPlatformRatingBoundary } from "./helpers/platform-rating-projection";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
@@ -7,7 +8,10 @@ import { projectAuditLogSource } from "./helpers/audit-log-projection";
 import { projectQualificationRegistryCopy } from "./helpers/qualification-registry-projection";
 
 const read = (path: string) =>
-  readFileSync(path, "utf8").replace(/\r\n/g, "\n");
+  projectPlatformRatingBoundary(
+    readFileSync(path, "utf8").replace(/\r\n/g, "\n"),
+    path,
+  );
 const hash = (text: string) => createHash("sha256").update(text).digest("hex");
 const path = "src/features/admin/audit-log.tsx";
 const source = read(path);

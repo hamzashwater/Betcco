@@ -4,9 +4,11 @@ import { formatLocalizedDateTime } from "@/i18n/date-time";
 import { formatLocalizedNumber } from "@/i18n/number-format";
 import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Eye, EyeOff, MessageSquareQuote, Star } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
+import { QueryState, MutationOutcome } from "@/components/ui/query-state";
+import styles from "./platform-rating-moderation.module.css";
 
 type AdminPlatformRating = {
   id: string;
@@ -62,86 +64,104 @@ export function PlatformRatingModeration() {
       client.invalidateQueries({ queryKey: ["platform-ratings"] });
     },
   });
-  if (ratings.isPending)
-    return (
-      <section className="shell py-10">
-        <div className="card p-6" aria-busy>
-          …
-        </div>
-      </section>
-    );
-  if (ratings.isError || !ratings.data)
-    return (
-      <section className="shell py-10">
-        <p className="card p-6" role="alert">
-          {t("platformRatingModeration.platformReviewsCouldNotBeLoaded")}
-        </p>
-      </section>
-    );
-  const pending = ratings.data.filter((rating) => !rating.isPublished);
   return (
-    <section className="shell py-10">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-            {t("platformRatingModeration.bETCCOFeedback")}
-          </p>
-          <h1 className="mt-2 text-3xl font-black">
-            {t("platformRatingModeration.platformReviewModeration")}
-          </h1>
-          <p className="mt-2 max-w-3xl leading-7 text-muted">
-            {t(
-              "platformRatingModeration.aReviewCanBePublishedOnlyWhenTheLearnerOptedInReviewItsTextAndSco",
-            )}
-          </p>
-        </div>
-        <span className="rounded-full border border-border bg-surface/80 px-4 py-2 text-sm font-black text-primary">
-          {t("platformRatingModeration.countAwaitingReview", {
-            count: pending.length,
-          })}
-        </span>
+    <section className={`shell py-8 ${styles.workspace}`}>
+      <header className={styles.header}>
+        <p className={styles.eyebrow}>
+          {t("platformRatingModeration.bETCCOFeedback")}
+        </p>
+        <h1 className={styles.title}>
+          {t("platformRatingModeration.platformReviewModeration")}
+        </h1>
+        <p className={styles.description}>
+          {t(
+            "platformRatingModeration.aReviewCanBePublishedOnlyWhenTheLearnerOptedInReviewItsTextAndSco",
+          )}
+        </p>
+      </header>
+      <div className={styles.context}>
+        {summary.isPending ? (
+          <QueryState
+            kind="loading"
+            title={t("platformRatingModeration.loadingSummary")}
+          />
+        ) : null}
+        {summary.isError ? (
+          <QueryState
+            kind="error"
+            title={t("platformRatingModeration.summaryUnavailable")}
+          />
+        ) : null}
+        {summary.data ? (
+          <section
+            aria-label={t("platformRatingModeration.learnerExperienceSummary")}
+          >
+            <dl className={styles.summary}>
+              {[
+                [
+                  t("platformRatingModeration.allFeedback"),
+                  summary.data.totalCount,
+                ],
+                [
+                  t("platformRatingModeration.published"),
+                  summary.data.publishedCount,
+                ],
+                [
+                  t("platformRatingModeration.awaitingModeration"),
+                  summary.data.awaitingModerationCount,
+                ],
+                [
+                  t("platformRatingModeration.privateWithoutConsent"),
+                  summary.data.privateWithoutConsentCount,
+                ],
+                [
+                  t("platformRatingModeration.experienceAverage"),
+                  summary.data.averageScore
+                    ? `${summary.data.averageScore} / 5`
+                    : "—",
+                ],
+              ].map(([label, value]) => (
+                <div key={String(label)}>
+                  <dt>{label}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        ) : null}
       </div>
-      {summary.data ? (
-        <section
-          className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
-          aria-label={t("platformRatingModeration.learnerExperienceSummary")}
-        >
-          {[
-            [
-              t("platformRatingModeration.allFeedback"),
-              summary.data.totalCount,
-              t("platformRatingModeration.realLearnerSignals"),
-            ],
-            [
-              t("platformRatingModeration.experienceAverage"),
-              summary.data.averageScore
-                ? `${summary.data.averageScore} / 5`
-                : "—",
-              t(
-                "platformRatingModeration.coursesUsabilitySupportRecommendation",
-              ),
-            ],
-            [
-              t("platformRatingModeration.awaitingModeration"),
-              summary.data.awaitingModerationCount,
-              t("platformRatingModeration.withLearnerDisplayConsent"),
-            ],
-            [
-              t("platformRatingModeration.privateWithoutConsent"),
-              summary.data.privateWithoutConsentCount,
-              t("platformRatingModeration.cannotBePublished"),
-            ],
-          ].map(([label, value, detail]) => (
-            <article key={String(label)} className="card p-4">
-              <p className="text-xs font-bold text-muted">{label}</p>
-              <p className="mt-2 text-2xl font-black text-primary">{value}</p>
-              <p className="mt-1 text-xs text-muted">{detail}</p>
-            </article>
-          ))}
-        </section>
+      <p className={styles.scope}>
+        {t("platformRatingModeration.loadedScope")}
+      </p>
+      {moderate.isPending ? (
+        <QueryState
+          kind="loading"
+          title={t("platformRatingModeration.moderating")}
+        />
       ) : null}
-      <div className="mt-7 grid gap-4">
-        {ratings.data.map((rating) => {
+      {moderate.isError ? (
+        <MutationOutcome kind="error">
+          {moderate.error instanceof Error
+            ? moderate.error.message
+            : t("platformRatingModeration.reviewStatusCouldNotBeUpdated")}
+        </MutationOutcome>
+      ) : null}
+      <div className={styles.ledger}>
+        {ratings.isPending ? (
+          <QueryState
+            kind="loading"
+            title={t("platformRatingModeration.loadingReviews")}
+          />
+        ) : null}
+        {ratings.isError ? (
+          <QueryState
+            kind="error"
+            title={t(
+              "platformRatingModeration.platformReviewsCouldNotBeLoaded",
+            )}
+          />
+        ) : null}
+        {ratings.data?.map((rating) => {
           const average =
             (rating.courseQualityScore +
               rating.easeOfUseScore +
@@ -149,23 +169,35 @@ export function PlatformRatingModeration() {
               rating.recommendationScore) /
             4;
           return (
-            <article key={rating.id} className="card p-5 sm:p-6">
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <span className="grid size-10 place-items-center rounded-xl bg-primary/12 text-primary">
-                    <MessageSquareQuote size={20} aria-hidden="true" />
-                  </span>
-                  <div>
-                    <p className="font-black">
-                      {t("platformRatingModeration.learnerReview")}
-                    </p>
-                    <p className="mt-1 text-xs text-muted">
-                      {formatLocalizedDateTime(rating.updatedAtUtc, locale)}
-                    </p>
-                  </div>
+            <article key={rating.id} className={styles.row}>
+              <div className={styles.rowHeading}>
+                <div>
+                  <h2 className={styles.rowTitle}>
+                    {t("platformRatingModeration.learnerReview")}
+                  </h2>
+                  <p className={styles.date}>
+                    {formatLocalizedDateTime(rating.updatedAtUtc, locale)}
+                  </p>
                 </div>
-                <div className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-sm font-black text-primary">
-                  <Star size={15} className="fill-primary" aria-hidden="true" />
+                <div className={styles.facts}>
+                  <span
+                    className={styles.publication}
+                    data-published={rating.isPublished}
+                  >
+                    {rating.isPublished
+                      ? t("platformRatingModeration.published")
+                      : t("platformRatingModeration.notPublished")}
+                  </span>
+                  <span
+                    className={styles.consent}
+                    data-consent={rating.allowPublicDisplay}
+                  >
+                    {rating.allowPublicDisplay
+                      ? t("platformRatingModeration.consentGranted")
+                      : t("platformRatingModeration.noDisplayConsent")}
+                  </span>
+                </div>
+                <div className={styles.average}>
                   {formatLocalizedNumber(average, locale, {
                     minimumFractionDigits: 1,
                     maximumFractionDigits: 1,
@@ -173,7 +205,7 @@ export function PlatformRatingModeration() {
                   / 5
                 </div>
               </div>
-              <div className="mt-5 grid gap-3 sm:grid-cols-4">
+              <div className={styles.scores}>
                 {[
                   [
                     t("platformRatingModeration.courses"),
@@ -189,34 +221,29 @@ export function PlatformRatingModeration() {
                     rating.recommendationScore,
                   ],
                 ].map(([label, score]) => (
-                  <div
-                    key={String(label)}
-                    className="rounded-xl border border-border bg-surface/70 p-3 text-sm"
-                  >
-                    <span className="text-muted">{label}</span>
-                    <strong className="ms-2">{score} / 5</strong>
+                  <div key={String(label)}>
+                    <span>{label}</span>
+                    <strong>{score} / 5</strong>
                   </div>
                 ))}
               </div>
               {rating.comment ? (
-                <p className="mt-5 whitespace-pre-wrap leading-7 text-muted">
-                  {rating.comment}
-                </p>
+                <p className={styles.comment}>{rating.comment}</p>
               ) : (
-                <p className="mt-5 text-sm text-muted">
+                <p className={styles.noComment}>
                   {t(
                     "platformRatingModeration.theLearnerDidNotAddAWrittenComment",
                   )}
                 </p>
               )}
-              <div className="mt-5 grid gap-3 border-t border-border pt-5 lg:grid-cols-[minmax(0,1fr)_auto_auto]">
-                <label className="grid gap-1 text-sm font-bold">
+              <div className={styles.controls}>
+                <label className={styles.field}>
                   <span>
                     {t(
                       "platformRatingModeration.reasonForKeepingPrivateInternalNote",
                     )}
                   </span>
-                  <input
+                  <textarea
                     value={reasons[rating.id] ?? rating.moderationReason ?? ""}
                     maxLength={500}
                     onChange={(event) =>
@@ -225,7 +252,7 @@ export function PlatformRatingModeration() {
                         [rating.id]: event.target.value,
                       }))
                     }
-                    className="focus-ring rounded-xl border border-border bg-transparent px-3 py-2.5 text-foreground"
+                    rows={2}
                   />
                 </label>
                 <button
@@ -234,9 +261,9 @@ export function PlatformRatingModeration() {
                   onClick={() =>
                     moderate.mutate({ id: rating.id, publish: false })
                   }
-                  className="focus-ring inline-flex items-center justify-center gap-2 self-end rounded-xl border border-border px-4 py-2.5 text-sm font-black text-muted disabled:opacity-60"
+                  aria-busy={moderate.isPending}
                 >
-                  <EyeOff size={16} aria-hidden="true" />
+                  <EyeOff size={16} strokeWidth={2} aria-hidden="true" />
                   {t("platformRatingModeration.keepPrivate")}
                 </button>
                 <button
@@ -245,9 +272,10 @@ export function PlatformRatingModeration() {
                   onClick={() =>
                     moderate.mutate({ id: rating.id, publish: true })
                   }
-                  className="focus-ring inline-flex items-center justify-center gap-2 self-end rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
+                  className={styles.publish}
+                  aria-busy={moderate.isPending}
                 >
-                  <Eye size={16} aria-hidden="true" />
+                  <Eye size={16} strokeWidth={2} aria-hidden="true" />
                   {rating.allowPublicDisplay
                     ? t("platformRatingModeration.publishReview")
                     : t("platformRatingModeration.noDisplayConsent")}
@@ -256,19 +284,13 @@ export function PlatformRatingModeration() {
             </article>
           );
         })}
-        {!ratings.data.length ? (
-          <p className="card p-6 text-muted">
-            {t("platformRatingModeration.noReviewsHaveBeenSubmittedYet")}
-          </p>
+        {ratings.isSuccess && ratings.data.length === 0 ? (
+          <QueryState
+            kind="empty"
+            title={t("platformRatingModeration.emptyLoaded")}
+          />
         ) : null}
       </div>
-      {moderate.isError ? (
-        <p role="alert" className="mt-5 text-sm text-red-500">
-          {moderate.error instanceof Error
-            ? moderate.error.message
-            : t("platformRatingModeration.reviewStatusCouldNotBeUpdated")}
-        </p>
-      ) : null}
     </section>
   );
 }

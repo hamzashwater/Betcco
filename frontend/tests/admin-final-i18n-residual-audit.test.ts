@@ -1,3 +1,4 @@
+import { projectPlatformRatingBoundary } from "./helpers/platform-rating-projection";
 import { describe, expect, it } from "vitest";
 import ts from "typescript";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
@@ -30,7 +31,10 @@ const project = (path: string, source: string) =>
     : projectAssessmentOperationsSource(
         projectAuditLogSource(
           projectAccountIdentitySource(
-            projectQualificationRegistrySource(source, path),
+            projectQualificationRegistrySource(
+              projectPlatformRatingBoundary(source, path),
+              path,
+            ),
             path,
           ),
           path,

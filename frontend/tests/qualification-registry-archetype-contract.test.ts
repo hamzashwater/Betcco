@@ -1,3 +1,4 @@
+import { projectPlatformRatingBoundary } from "./helpers/platform-rating-projection";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import ts from "typescript";
@@ -11,7 +12,11 @@ import {
   withoutQualificationRegistryAdditions,
 } from "./helpers/qualification-registry-projection";
 const path = baseline.path,
-  read = (p: string) => readFileSync(p, "utf8").replace(/\r\n/g, "\n"),
+  read = (p: string) =>
+    projectPlatformRatingBoundary(
+      readFileSync(p, "utf8").replace(/\r\n/g, "\n"),
+      p,
+    ),
   hash = (s: string) => createHash("sha256").update(s).digest("hex"),
   source = read(path);
 describe("Slice 3 Qualification Registry independent presentation boundary", () => {

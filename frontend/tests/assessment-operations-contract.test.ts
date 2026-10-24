@@ -1,3 +1,4 @@
+import { projectPlatformRatingBoundary } from "./helpers/platform-rating-projection";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import ts from "typescript";
@@ -5,7 +6,11 @@ import { describe, expect, it } from "vitest";
 import baseline from "./fixtures/ui-d01-14-assessment-operations-baseline.json";
 import { projectAssessmentOperationsSource } from "./helpers/assessment-operations-projection";
 import { projectQualificationRegistryCopy } from "./helpers/qualification-registry-projection";
-const read = (p: string) => readFileSync(p, "utf8").replace(/\r\n/g, "\n");
+const read = (p: string) =>
+  projectPlatformRatingBoundary(
+    readFileSync(p, "utf8").replace(/\r\n/g, "\n"),
+    p,
+  );
 const hash = (s: string) => createHash("sha256").update(s).digest("hex");
 function contracts(source: string) {
   const sf = ts.createSourceFile(
