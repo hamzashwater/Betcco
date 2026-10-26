@@ -56,7 +56,7 @@ jobs:
     needs: classify
     if: ${{ always() && needs.classify.outputs.docs_only != 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     services:
       postgres:
         image: pgvector/pgvector:pg16@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b
