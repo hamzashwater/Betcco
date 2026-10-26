@@ -6,6 +6,7 @@ import { AcademicCatalogManagement } from "@/features/admin/academic-catalog-man
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
+import styles from "./academic-catalogue.module.css";
 
 type Version = {
   id: string;
@@ -150,440 +151,575 @@ export function AcademicCatalogue() {
 
   return (
     <section
-      className="shell min-w-0 py-8 sm:py-10"
+      className={`shell ${styles.workspace}`}
       aria-labelledby="academic-title"
     >
-      <div className="max-w-4xl">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-          BETCCO · {t("eyebrow")}
-        </p>
-        <h1
-          id="academic-title"
-          className="mt-3 text-3xl font-black tracking-tight sm:text-4xl"
-        >
+      <header className={styles.header}>
+        <h1 id="academic-title" className={styles.title}>
           {t("title")}
         </h1>
-        <p className="mt-3 leading-7 text-muted">{t("description")}</p>
-      </div>
+        <p className={styles.description}>{t("description")}</p>
+      </header>
       {versions.isSuccess ? <AcademicCatalogManagement /> : null}
-
-      {versions.isPending ? (
-        <p className="card mt-7 p-6" role="status" aria-busy="true">
-          {t("loading")}
-        </p>
-      ) : versions.isError ? (
-        <div className="card mt-7 p-6" role="alert">
-          <p>{t("loadError")}</p>
-          <button
-            type="button"
-            className="focus-ring mt-3 rounded-lg border border-border px-4 py-2"
-            onClick={() => void versions.refetch()}
-          >
-            {t("retry")}
-          </button>
-        </div>
-      ) : versions.data?.length === 0 ? (
-        <p className="card mt-7 p-6" role="status">
-          {t("noVersions")}
-        </p>
-      ) : (
-        <>
-          <div className="card mt-7 max-w-xl p-5">
-            <label
-              htmlFor="academic-version"
-              className="block text-sm font-bold"
-            >
-              {t("qualificationVersion")}
-            </label>
-            <select
-              id="academic-version"
-              value={versionId}
-              onChange={(event) => setChosenVersionId(event.target.value)}
-              className="focus-ring mt-2 w-full min-w-0 rounded-lg border border-border bg-background px-3 py-2"
-            >
-              {versions.data?.map((version) => (
-                <option key={version.id} value={version.id}>
-                  {version.qualificationCode} ·{" "}
-                  {academicText(
-                    locale,
-                    version.qualificationArabicName,
-                    version.qualificationEnglishName,
-                  ) || version.qualificationCode}{" "}
-                  · {version.versionCode}
-                </option>
-              ))}
-            </select>
-          </div>
-          {catalogue.isPending ? (
-            <p className="card mt-6 p-6" role="status" aria-busy="true">
-              {t("loadingUnits")}
-            </p>
-          ) : catalogue.isError || !catalogue.data ? (
-            <div className="card mt-6 p-6" role="alert">
-              <p>{t("loadError")}</p>
-              <button
-                type="button"
-                className="focus-ring mt-3 rounded-lg border border-border px-4 py-2"
-                onClick={() => void catalogue.refetch()}
-              >
-                {t("retry")}
-              </button>
-            </div>
-          ) : catalogue.data.units.length === 0 ? (
-            <p className="card mt-6 p-6" role="status">
-              {t("noUnits")}
-            </p>
+      <section
+        className={styles.contextPanel}
+        aria-label={t("qualificationVersion")}
+      >
+        <h2 className={styles.sectionTitle}>{t("qualificationVersion")}</h2>
+        <ReadState query={versions} loading={t("loading")} />
+        {versions.data !== undefined &&
+          (versions.data.length === 0 ? (
+            <p className={styles.empty}>{t("noVersions")}</p>
           ) : (
-            <div className="mt-6 grid min-w-0 gap-5">
-              {catalogue.data.units.map((unit) => {
-                const aims = new Map(unit.aims.map((aim) => [aim.id, aim]));
-                const criteria = new Map(
-                  unit.aims.flatMap((aim) =>
-                    aim.criteria.map(
-                      (criterion) => [criterion.id, criterion] as const,
-                    ),
-                  ),
-                );
-                return (
-                  <article key={unit.id} className="card min-w-0 p-5 sm:p-6">
-                    <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold uppercase tracking-wide text-muted">
-                          {t("unit")} ·{" "}
-                          {catalogue.data.version.qualificationCode} /{" "}
-                          {catalogue.data.version.versionCode}
-                        </p>
-                        <h2 className="mt-2 break-words text-xl font-black">
-                          {academicUnitLabel(
-                            locale,
-                            unit.code,
-                            unit.arabicTitle,
-                            unit.englishTitle,
-                          )}
-                        </h2>
-                        <p
-                          className="mt-1 break-words text-sm text-muted"
-                          lang="en"
+            <>
+              <label className={styles.field} htmlFor="academic-version">
+                {t("qualificationVersion")}
+              </label>
+              <select
+                id="academic-version"
+                value={versionId}
+                onChange={(event) => setChosenVersionId(event.target.value)}
+                className={styles.control}
+              >
+                {versions.data?.map((version) => (
+                  <option key={version.id} value={version.id}>
+                    {version.qualificationCode} ·{" "}
+                    {academicText(
+                      locale,
+                      version.qualificationArabicName,
+                      version.qualificationEnglishName,
+                    ) || version.qualificationCode}{" "}
+                    · {version.versionCode}
+                  </option>
+                ))}
+              </select>
+              <p className={styles.hint}>{t("versionContextHelp")}</p>
+            </>
+          ))}
+      </section>
+      <section className={styles.register} aria-label={t("unitRegister")}>
+        <div className={styles.registerHeader}>
+          <h2 className={styles.sectionTitle}>{t("unitRegister")}</h2>
+          <p className={styles.hint}>{t("registerHelp")}</p>
+        </div>
+        {!versionId ? (
+          <p className={styles.empty}>{t("waitingForVersion")}</p>
+        ) : (
+          <>
+            <ReadState query={catalogue} loading={t("loadingUnits")} />
+            {catalogue.data !== undefined &&
+              (catalogue.data.units.length === 0 ? (
+                <p className={styles.empty}>{t("noUnits")}</p>
+              ) : (
+                <div className={styles.units}>
+                  {catalogue.data.units.map((unit, unitIndex) => {
+                    const aims = new Map(unit.aims.map((aim) => [aim.id, aim]));
+                    const criteria = new Map(
+                      unit.aims.flatMap((aim) =>
+                        aim.criteria.map(
+                          (criterion) => [criterion.id, criterion] as const,
+                        ),
+                      ),
+                    );
+                    return (
+                      <article key={unit.id} className={styles.unit}>
+                        <details
+                          open={unitIndex === 0}
+                          className={styles.expander}
                         >
-                          {t("residualenglish")} {unit.englishTitle}
-                        </p>
-                        <p
-                          className="mt-1 break-words text-sm text-muted"
-                          lang="ar"
-                          dir="rtl"
-                        >
-                          {t("residualarabicLabel")}{" "}
-                          {academicText(
-                            "ar",
-                            unit.arabicTitle,
-                            unit.englishTitle,
-                          )}
-                        </p>
-                        <p className="mt-1 text-xs text-muted">
-                          {unit.source === "PearsonOfficial"
-                            ? "PearsonOfficial"
-                            : unit.source === "AdminCustom"
-                              ? "AdminCustom"
-                              : "Unknown"}
-                        </p>
-                        {unit.source === "PearsonOfficial" ? (
-                          <div className="mt-3 grid max-w-xl gap-2">
-                            <p className="text-xs text-muted">
-                              {t(
-                                "residualtheEnglishTitleIsPearsonsOfficialIdentityTheArabicDisplayTitleIsB",
-                              )}
-                            </p>
-                            <label className="grid gap-1 text-sm font-semibold">
-                              {t("residualbETCCOArabicDisplayTitle")}
-                              <input
-                                dir="rtl"
-                                lang="ar"
-                                value={
-                                  arabicDrafts[unit.id] ?? unit.arabicTitle
-                                }
-                                onChange={(event) =>
-                                  setArabicDrafts((current) => ({
-                                    ...current,
-                                    [unit.id]: event.target.value,
-                                  }))
-                                }
-                                className="focus-ring rounded-lg border border-border bg-background px-3 py-2"
-                              />
-                            </label>
-                            <button
-                              type="button"
-                              className="focus-ring justify-self-start rounded-lg border border-primary px-3 py-2 text-sm font-bold text-primary disabled:opacity-50"
-                              disabled={
-                                localizeUnit.isPending ||
-                                !arabicDrafts[unit.id]?.trim() ||
-                                arabicDrafts[unit.id]?.trim() ===
-                                  unit.arabicTitle
-                              }
-                              onClick={() =>
-                                localizeUnit.mutate({
-                                  id: unit.id,
-                                  arabicTitle: arabicDrafts[unit.id],
-                                })
-                              }
-                            >
-                              {t("residualsaveArabicDisplayTitle")}
-                            </button>
-                          </div>
-                        ) : null}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          text={unit.isActive ? t("active") : t("draft")}
-                          ready={unit.isActive}
-                        />
-                        <button
-                          type="button"
-                          disabled={unitStatus.isPending}
-                          className="focus-ring rounded-lg border border-border px-2 py-1 text-xs disabled:opacity-50"
-                          onClick={() => unitStatus.mutate(unit)}
-                        >
-                          {unit.isActive
-                            ? t("residualarchive")
-                            : t("residualactivate")}
-                        </button>
-                      </div>
-                    </div>
-                    <div className="mt-5 grid min-w-0 gap-5 lg:grid-cols-2">
-                      <div className="min-w-0 rounded-xl border border-border p-4">
-                        <h3 className="font-black">{t("learningAims")}</h3>
-                        {unit.aims.length === 0 ? (
-                          <p className="mt-2 text-sm text-muted">
-                            {t("noAims")}
-                          </p>
-                        ) : (
-                          <div className="mt-3 grid gap-4">
-                            {unit.aims.map((aim) => (
-                              <div
-                                key={aim.id}
-                                className="min-w-0 border-t border-border pt-3 first:border-0 first:pt-0"
-                              >
-                                <h4 className="break-words font-bold">
-                                  <span dir="ltr">{aim.code}</span> ·{" "}
-                                  {academicText(
-                                    locale,
-                                    aim.arabicTitle,
-                                    aim.englishTitle,
-                                  )}
-                                </h4>
-                                {aim.criteria.length === 0 ? (
-                                  <p className="mt-2 text-sm text-muted">
-                                    {t("noCriteria")}
-                                  </p>
-                                ) : (
-                                  <ul className="mt-2 space-y-2">
-                                    {aim.criteria.map((criterion) => (
-                                      <li
-                                        key={criterion.id}
-                                        className="min-w-0 rounded-lg bg-surface px-3 py-2 text-sm"
-                                      >
-                                        <div className="flex flex-wrap items-center gap-2 font-semibold">
-                                          <span dir="ltr">
-                                            {criterion.code}
-                                          </span>
-                                          <span className="rounded-full border border-border px-2 py-0.5 text-xs">
-                                            {t(`band.${criterion.band}`)}
-                                          </span>
-                                        </div>
-                                        <p className="mt-1 break-words text-muted">
-                                          {academicText(
-                                            locale,
-                                            criterion.arabicDescription,
-                                            criterion.englishDescription,
-                                          )}
-                                        </p>
-                                      </li>
-                                    ))}
-                                  </ul>
+                          <summary>
+                            <div className={styles.identity}>
+                              <h2 className={styles.unitTitle}>
+                                {academicUnitLabel(
+                                  locale,
+                                  unit.code,
+                                  unit.arabicTitle,
+                                  unit.englishTitle,
                                 )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <div className="min-w-0 rounded-xl border border-border p-4">
-                        <h3 className="font-black">
-                          {t("assessmentDefinitions")}
-                        </h3>
-                        {unit.definitions.length === 0 ? (
-                          <p className="mt-2 text-sm text-muted">
-                            {t("noDefinitions")}
-                          </p>
-                        ) : (
-                          <div className="mt-3 grid gap-4">
-                            {unit.definitions.map((definition) => (
-                              <div
-                                key={definition.id}
-                                className="min-w-0 border-t border-border pt-3 first:border-0 first:pt-0"
-                              >
-                                <div className="flex flex-wrap items-start justify-between gap-2">
-                                  <h4 className="break-words font-bold">
-                                    <span dir="ltr">{definition.code}</span> ·{" "}
-                                    {academicText(
-                                      locale,
-                                      definition.arabicTitle,
-                                      definition.englishTitle,
-                                    )}{" "}
-                                    <span className="text-muted">
-                                      {t("versionLabel", {
-                                        version: definition.version,
-                                      })}
-                                    </span>
-                                  </h4>
-                                  <Badge
-                                    text={state(
-                                      definition.validation,
-                                      definition.isActive,
-                                    )}
-                                    ready={
-                                      definition.validation.length === 0 &&
-                                      definition.isActive
-                                    }
-                                  />
-                                </div>
-                                <p className="mt-2 break-words text-sm text-muted">
-                                  {t("linkedAims")}:{" "}
-                                  {definition.aimIds
-                                    .map((id) => aims.get(id)?.code)
-                                    .filter(Boolean)
-                                    .join(", ") || t("none")}
+                              </h2>
+                              <p className={styles.meta}>
+                                {unit.source === "PearsonOfficial"
+                                  ? "PearsonOfficial"
+                                  : unit.source === "AdminCustom"
+                                    ? "AdminCustom"
+                                    : "Unknown"}{" "}
+                                · {catalogue.data.version.qualificationCode} /{" "}
+                                {catalogue.data.version.versionCode}
+                              </p>
+                            </div>
+                            <Badge
+                              text={unit.isActive ? t("active") : t("draft")}
+                              ready={unit.isActive}
+                            />
+                            <span className={styles.inspect}>
+                              {t("inspectUnit")}
+                            </span>
+                          </summary>
+                          <div className={styles.unitBody}>
+                            <div className={styles.identityLayout}>
+                              <div className={styles.identity}>
+                                <p className={styles.meta}>
+                                  {t("unit")} ·{" "}
+                                  {catalogue.data.version.qualificationCode} /{" "}
+                                  {catalogue.data.version.versionCode}
                                 </p>
-                                <p className="mt-1 break-words text-sm text-muted">
-                                  {t("linkedCriteria")}:{" "}
-                                  {definition.criterionIds
-                                    .map((id) => criteria.get(id)?.code)
-                                    .filter(Boolean)
-                                    .join(", ") || t("none")}
+                                <h3 className={styles.sectionTitle}>
+                                  {t("unitIdentity")}
+                                </h3>
+                                <p className={styles.hint} lang="en">
+                                  {t("residualenglish")} {unit.englishTitle}
                                 </p>
-                                {definition.validation.length === 0 &&
-                                  !definition.isActive && (
+                                <p className={styles.hint} lang="ar" dir="rtl">
+                                  {t("residualarabicLabel")}{" "}
+                                  {academicText(
+                                    "ar",
+                                    unit.arabicTitle,
+                                    unit.englishTitle,
+                                  )}
+                                </p>
+                                <p className={styles.meta}>
+                                  {unit.source === "PearsonOfficial"
+                                    ? "PearsonOfficial"
+                                    : unit.source === "AdminCustom"
+                                      ? "AdminCustom"
+                                      : "Unknown"}
+                                </p>
+                                {unit.source === "PearsonOfficial" ? (
+                                  <div className={styles.localization}>
+                                    <p className={styles.hint}>
+                                      {t(
+                                        "residualtheEnglishTitleIsPearsonsOfficialIdentityTheArabicDisplayTitleIsB",
+                                      )}
+                                    </p>
+                                    <label className={styles.field}>
+                                      {t("residualbETCCOArabicDisplayTitle")}
+                                      <input
+                                        dir="rtl"
+                                        lang="ar"
+                                        value={
+                                          arabicDrafts[unit.id] ??
+                                          unit.arabicTitle
+                                        }
+                                        onChange={(event) =>
+                                          setArabicDrafts((current) => ({
+                                            ...current,
+                                            [unit.id]: event.target.value,
+                                          }))
+                                        }
+                                        className={styles.control}
+                                      />
+                                    </label>
                                     <button
                                       type="button"
-                                      className="focus-ring mt-3 rounded-lg border border-primary px-3 py-2 text-sm font-bold text-primary disabled:opacity-50"
-                                      disabled={publish.isPending}
+                                      className={styles.secondary}
+                                      disabled={
+                                        localizeUnit.isPending ||
+                                        !arabicDrafts[unit.id]?.trim() ||
+                                        arabicDrafts[unit.id]?.trim() ===
+                                          unit.arabicTitle
+                                      }
                                       onClick={() =>
-                                        publish.mutate(definition.id)
+                                        localizeUnit.mutate({
+                                          id: unit.id,
+                                          arabicTitle: arabicDrafts[unit.id],
+                                        })
                                       }
                                     >
-                                      {publish.isPending
-                                        ? t("saving")
-                                        : t("publish")}
+                                      {t("residualsaveArabicDisplayTitle")}
                                     </button>
-                                  )}
-                                <div className="mt-4 min-w-0">
-                                  <h5 className="text-sm font-bold">
-                                    {t("assessmentScopes")}
-                                  </h5>
-                                  {definition.scopes.length === 0 ? (
-                                    <p className="mt-2 text-sm text-muted">
-                                      {t("noScopes")}
-                                    </p>
-                                  ) : (
-                                    <ul className="mt-2 grid gap-2">
-                                      {definition.scopes.map((scope) => (
-                                        <li
-                                          key={scope.id}
-                                          className="min-w-0 rounded-lg border border-border p-3 text-sm"
-                                        >
-                                          <div className="flex flex-wrap items-center justify-between gap-2">
-                                            <span className="break-words font-semibold">
-                                              {academicText(
-                                                locale,
-                                                scope.gradeArabicName,
-                                                scope.gradeEnglishName,
-                                              )}{" "}
-                                              ·{" "}
-                                              {academicText(
-                                                locale,
-                                                scope.specializationArabicName,
-                                                scope.specializationEnglishName,
-                                              )}
-                                            </span>
-                                            <Badge
-                                              text={state(
-                                                scope.validation,
-                                                scope.isActive,
-                                              )}
-                                              ready={
-                                                scope.validation.length === 0 &&
-                                                scope.isActive
-                                              }
-                                            />
-                                          </div>
-                                          <p className="mt-1 break-words text-muted">
-                                            {t("rubric")}:{" "}
+                                    {localizeUnit.variables?.id === unit.id && (
+                                      <OperationFeedback
+                                        mutation={localizeUnit}
+                                        label={t(
+                                          "residualsaveArabicDisplayTitle",
+                                        )}
+                                      />
+                                    )}
+                                  </div>
+                                ) : null}
+                              </div>
+                              <div className={styles.actions}>
+                                <Badge
+                                  text={
+                                    unit.isActive ? t("active") : t("draft")
+                                  }
+                                  ready={unit.isActive}
+                                />
+                                <button
+                                  type="button"
+                                  disabled={unitStatus.isPending}
+                                  className={styles.secondary}
+                                  onClick={() => unitStatus.mutate(unit)}
+                                >
+                                  {unit.isActive
+                                    ? t("residualarchive")
+                                    : t("residualactivate")}
+                                </button>
+                                {unitStatus.variables?.id === unit.id && (
+                                  <OperationFeedback
+                                    mutation={unitStatus}
+                                    label={t("unitStatus")}
+                                  />
+                                )}
+                              </div>
+                            </div>
+                            <div className={styles.detailLayout}>
+                              <div className={styles.workingSection}>
+                                <h3 className={styles.sectionTitle}>
+                                  {t("learningAims")}
+                                </h3>
+                                {unit.aims.length === 0 ? (
+                                  <p className={styles.empty}>{t("noAims")}</p>
+                                ) : (
+                                  <div className={styles.rows}>
+                                    {unit.aims.map((aim) => (
+                                      <div
+                                        key={aim.id}
+                                        className={styles.record}
+                                      >
+                                        <h4 className={styles.itemTitle}>
+                                          <span dir="ltr">{aim.code}</span> ·{" "}
+                                          {academicText(
+                                            locale,
+                                            aim.arabicTitle,
+                                            aim.englishTitle,
+                                          )}
+                                        </h4>
+                                        {aim.criteria.length === 0 ? (
+                                          <p className={styles.empty}>
+                                            {t("noCriteria")}
+                                          </p>
+                                        ) : (
+                                          <ul className={styles.criteria}>
+                                            {aim.criteria.map((criterion) => (
+                                              <li
+                                                key={criterion.id}
+                                                className={styles.criterion}
+                                              >
+                                                <div
+                                                  className={styles.rowHeading}
+                                                >
+                                                  <span dir="ltr">
+                                                    {criterion.code}
+                                                  </span>
+                                                  <span className={styles.band}>
+                                                    {t(
+                                                      `band.${criterion.band}`,
+                                                    )}
+                                                  </span>
+                                                </div>
+                                                <p className={styles.hint}>
+                                                  {academicText(
+                                                    locale,
+                                                    criterion.arabicDescription,
+                                                    criterion.englishDescription,
+                                                  )}
+                                                </p>
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                              <div className={styles.workingSection}>
+                                <h3 className={styles.sectionTitle}>
+                                  {t("assessmentDefinitions")}
+                                </h3>
+                                {unit.definitions.length === 0 ? (
+                                  <p className={styles.empty}>
+                                    {t("noDefinitions")}
+                                  </p>
+                                ) : (
+                                  <div className={styles.rows}>
+                                    {unit.definitions.map((definition) => (
+                                      <div
+                                        key={definition.id}
+                                        className={styles.record}
+                                      >
+                                        <div className={styles.rowHeading}>
+                                          <h4 className={styles.itemTitle}>
+                                            <span dir="ltr">
+                                              {definition.code}
+                                            </span>{" "}
+                                            ·{" "}
                                             {academicText(
                                               locale,
-                                              scope.rubricArabicTitle,
-                                              scope.rubricEnglishTitle,
+                                              definition.arabicTitle,
+                                              definition.englishTitle,
                                             )}{" "}
-                                            ·{" "}
-                                            {t("versionLabel", {
-                                              version: scope.version,
-                                            })}
-                                          </p>
-                                          {scope.validation.length === 0 &&
-                                            !scope.isActive && (
-                                              <button
-                                                type="button"
-                                                className="focus-ring mt-2 rounded-lg border border-primary px-3 py-2 font-bold text-primary disabled:opacity-50"
-                                                disabled={activate.isPending}
-                                                onClick={() =>
-                                                  activate.mutate(scope.id)
-                                                }
-                                              >
-                                                {activate.isPending
-                                                  ? t("saving")
-                                                  : t("activate")}
-                                              </button>
+                                            <span className={styles.hint}>
+                                              {t("definitionVersion", {
+                                                version: definition.version,
+                                              })}
+                                            </span>
+                                          </h4>
+                                          <span className={styles.meta}>
+                                            {t("validation")}
+                                          </span>
+                                          <Badge
+                                            text={state(
+                                              definition.validation,
+                                              definition.isActive,
                                             )}
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  )}
-                                </div>
+                                            ready={
+                                              definition.validation.length ===
+                                                0 && definition.isActive
+                                            }
+                                          />
+                                        </div>
+                                        <p className={styles.meta}>
+                                          {t("publicationState")}:{" "}
+                                          {definition.isActive
+                                            ? t("active")
+                                            : t("draft")}
+                                        </p>
+                                        {definition.sourceReference && (
+                                          <p className={styles.hint} dir="auto">
+                                            {t("sourceReference")}:{" "}
+                                            {definition.sourceReference}
+                                          </p>
+                                        )}
+                                        {publish.variables ===
+                                          definition.id && (
+                                          <OperationFeedback
+                                            mutation={publish}
+                                            label={t("publish")}
+                                          />
+                                        )}
+                                        <p className={styles.hint}>
+                                          {t("linkedAims")}:{" "}
+                                          {definition.aimIds
+                                            .map((id) => aims.get(id)?.code)
+                                            .filter(Boolean)
+                                            .join(", ") || t("none")}
+                                        </p>
+                                        <p className={styles.hint}>
+                                          {t("linkedCriteria")}:{" "}
+                                          {definition.criterionIds
+                                            .map((id) => criteria.get(id)?.code)
+                                            .filter(Boolean)
+                                            .join(", ") || t("none")}
+                                        </p>
+                                        {definition.validation.length === 0 &&
+                                          !definition.isActive && (
+                                            <button
+                                              type="button"
+                                              className={styles.primary}
+                                              disabled={publish.isPending}
+                                              onClick={() =>
+                                                publish.mutate(definition.id)
+                                              }
+                                            >
+                                              {publish.isPending &&
+                                              publish.variables ===
+                                                definition.id
+                                                ? t("saving")
+                                                : t("publish")}
+                                            </button>
+                                          )}
+                                        <div className={styles.scopes}>
+                                          <h5 className={styles.sectionTitle}>
+                                            {t("assessmentScopes")}
+                                          </h5>
+                                          {definition.scopes.length === 0 ? (
+                                            <p className={styles.empty}>
+                                              {t("noScopes")}
+                                            </p>
+                                          ) : (
+                                            <ul className={styles.rows}>
+                                              {definition.scopes.map(
+                                                (scope) => (
+                                                  <li
+                                                    key={scope.id}
+                                                    className={styles.scope}
+                                                  >
+                                                    <div
+                                                      className={
+                                                        styles.rowHeading
+                                                      }
+                                                    >
+                                                      <span
+                                                        className={
+                                                          styles.itemTitle
+                                                        }
+                                                      >
+                                                        {academicText(
+                                                          locale,
+                                                          scope.gradeArabicName,
+                                                          scope.gradeEnglishName,
+                                                        )}{" "}
+                                                        ·{" "}
+                                                        {academicText(
+                                                          locale,
+                                                          scope.specializationArabicName,
+                                                          scope.specializationEnglishName,
+                                                        )}
+                                                      </span>
+                                                      <span
+                                                        className={styles.meta}
+                                                      >
+                                                        {t("validation")}
+                                                      </span>
+                                                      <Badge
+                                                        text={state(
+                                                          scope.validation,
+                                                          scope.isActive,
+                                                        )}
+                                                        ready={
+                                                          scope.validation
+                                                            .length === 0 &&
+                                                          scope.isActive
+                                                        }
+                                                      />
+                                                    </div>
+                                                    <p className={styles.meta}>
+                                                      {t("scopeState")}:{" "}
+                                                      {scope.isActive
+                                                        ? t("active")
+                                                        : t("draft")}
+                                                    </p>
+                                                    {activate.variables ===
+                                                      scope.id && (
+                                                      <OperationFeedback
+                                                        mutation={activate}
+                                                        label={t("activate")}
+                                                      />
+                                                    )}
+                                                    <p className={styles.hint}>
+                                                      {t("rubric")}:{" "}
+                                                      {academicText(
+                                                        locale,
+                                                        scope.rubricArabicTitle,
+                                                        scope.rubricEnglishTitle,
+                                                      )}{" "}
+                                                      ·{" "}
+                                                      {t("scopeVersion", {
+                                                        version: scope.version,
+                                                      })}
+                                                    </p>
+                                                    {scope.validation.length ===
+                                                      0 &&
+                                                      !scope.isActive && (
+                                                        <button
+                                                          type="button"
+                                                          className={
+                                                            styles.primary
+                                                          }
+                                                          disabled={
+                                                            activate.isPending
+                                                          }
+                                                          onClick={() =>
+                                                            activate.mutate(
+                                                              scope.id,
+                                                            )
+                                                          }
+                                                        >
+                                                          {activate.isPending &&
+                                                          activate.variables ===
+                                                            scope.id
+                                                            ? t("saving")
+                                                            : t("activate")}
+                                                        </button>
+                                                      )}
+                                                  </li>
+                                                ),
+                                              )}
+                                            </ul>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
-                            ))}
+                            </div>
                           </div>
-                        )}
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          )}
-        </>
-      )}
-      {(publish.isError ||
-        activate.isError ||
-        unitStatus.isError ||
-        localizeUnit.isError) && (
-        <p className="card mt-5 p-4 text-red-700" role="alert">
-          {t("saveError")}
-        </p>
-      )}
-      {(publish.isSuccess ||
-        activate.isSuccess ||
-        unitStatus.isSuccess ||
-        localizeUnit.isSuccess) && (
-        <p className="mt-5 text-sm text-green-700" role="status">
-          {t("saved")}
-        </p>
-      )}
+                        </details>
+                      </article>
+                    );
+                  })}
+                </div>
+              ))}
+          </>
+        )}
+      </section>
     </section>
   );
 }
 
+function ReadState({
+  query,
+  loading,
+}: {
+  query: {
+    isPending: boolean;
+    isError: boolean;
+    isFetching: boolean;
+    data: unknown;
+    refetch: () => unknown;
+  };
+  loading: string;
+}) {
+  const t = useTranslations("academicCatalogue");
+  if (query.isPending)
+    return (
+      <p className={styles.notice} role="status" aria-busy="true">
+        {loading}
+      </p>
+    );
+  if (!query.isError) return null;
+  return (
+    <div
+      className={styles.notice}
+      data-tone={query.data === undefined ? "danger" : "warning"}
+      role="alert"
+    >
+      <p>{query.data === undefined ? t("loadError") : t("refreshWarning")}</p>
+      <button
+        type="button"
+        className={styles.secondary}
+        disabled={query.isFetching}
+        onClick={() => void query.refetch()}
+      >
+        {t("retry")}
+      </button>
+    </div>
+  );
+}
+function OperationFeedback({
+  mutation,
+  label,
+}: {
+  mutation: { isPending: boolean; isError: boolean; isSuccess: boolean };
+  label: string;
+}) {
+  const t = useTranslations("academicCatalogue");
+  if (!mutation.isPending && !mutation.isError && !mutation.isSuccess)
+    return null;
+  return (
+    <div
+      className={styles.notice}
+      data-tone={mutation.isError ? "danger" : "info"}
+      role={mutation.isError ? "alert" : "status"}
+      aria-busy={mutation.isPending}
+    >
+      <strong>{label}</strong>
+      <span>
+        {mutation.isPending
+          ? t("saving")
+          : mutation.isError
+            ? t("saveError")
+            : t("saved")}
+      </span>
+    </div>
+  );
+}
 function Badge({ text, ready }: { text: string; ready: boolean }) {
   return (
-    <span
-      className={`max-w-full break-words rounded-full px-3 py-1 text-xs font-bold ${ready ? "bg-green-100 text-green-900" : "bg-amber-100 text-amber-900"}`}
-    >
+    <span className={styles.badge} data-ready={ready}>
       {text}
     </span>
   );

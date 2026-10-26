@@ -1,9 +1,14 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import baseline from "../fixtures/ui-d01-15-academic-catalog-management-baseline.json";
+import {
+  projectCatalogueBoundary,
+  withoutCatalogueAdditions,
+} from "./academic-catalogue-projection";
 
 const hash = (s: string) => createHash("sha256").update(s).digest("hex");
 export function projectAcademicCatalogBoundary(source: string, path: string) {
+  source = projectCatalogueBoundary(source, path);
   const original = source.replace(/\r\n/g, "\n"),
     key = path.replaceAll("\\", "/");
   if (
@@ -28,6 +33,7 @@ export function projectAcademicCatalogBoundary(source: string, path: string) {
 export function withoutAcademicCatalogAdditions(
   value: Record<string, unknown>,
 ) {
+  withoutCatalogueAdditions(value);
   const target = (
     value.adminWorkspace as Record<string, Record<string, unknown>> | undefined
   )?.academicCatalogManagement;
