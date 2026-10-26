@@ -5,6 +5,7 @@ import { academicText } from "@/lib/academic-localization";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
+import styles from "./academic-catalog-management.module.css";
 
 type Track = { id: string; name: string; isBtecFocused: boolean };
 type Taxonomy = { tracks: Track[] };
@@ -35,12 +36,57 @@ type Qualification = {
   versions: Version[];
 };
 
+function QueryState({
+  query,
+}: {
+  query: {
+    isPending: boolean;
+    isError: boolean;
+    isFetching: boolean;
+    data: unknown;
+    refetch: () => unknown;
+  };
+}) {
+  const t = useTranslations("adminWorkspace.academicCatalogManagement");
+  if (query.isPending)
+    return (
+      <p className={styles.notice} role="status" aria-busy="true">
+        {t("loading")}
+      </p>
+    );
+  if (!query.isError) return null;
+  return (
+    <div
+      className={styles.notice}
+      data-tone={query.data === undefined ? "danger" : "warning"}
+      role="alert"
+    >
+      <span>
+        {t(
+          query.data === undefined
+            ? "couldNotLoadTheCatalogue"
+            : "refreshWarning",
+        )}
+      </span>
+      <button
+        type="button"
+        className={styles.secondary}
+        disabled={query.isFetching}
+        onClick={() => void query.refetch()}
+      >
+        {t("retry")}
+      </button>
+    </div>
+  );
+}
+
 export function AcademicCatalogManagement() {
   const locale = useLocale();
   const t = useTranslations("adminWorkspace");
   const ar = locale === "ar";
   const client = useQueryClient();
   const [message, setMessage] = useState("");
+  const [operation, setOperation] = useState("specializations");
   const [specialization, setSpecialization] = useState({
     slug: "",
     arabicName: "",
@@ -138,221 +184,396 @@ export function AcademicCatalogManagement() {
       setMessage(t("academicCatalogManagement.couldNotSaveChanges")),
   });
   const save = (path: string, method: "POST" | "PUT", body: object) => {
+    if (write.isPending) return;
     setMessage("");
-    if (!write.isPending) write.mutate({ path, method, body });
+    setOperation(
+      path.startsWith("/admin/academic-taxonomy/specializations")
+        ? "specializations"
+        : path.startsWith("/admin/academic-taxonomy/grades")
+          ? "grades"
+          : path === "/qualification-registry/qualifications"
+            ? "customQualification"
+            : path === "/qualification-registry/versions"
+              ? "customVersion"
+              : path === "/admin/academic-catalogue/units"
+                ? "customUnit"
+                : "qualificationsAndVersions",
+    );
+    write.mutate({ path, method, body });
   };
-  const inputClass =
-    "min-w-0 rounded-lg border border-border bg-background px-3 py-2";
-
+  const inputClass = styles.control;
+  const track = taxonomy.data?.tracks.find((item) => item.isBtecFocused);
   return (
     <section
-      className="card mt-7 min-w-0 p-5"
+      className={styles.workspace}
       aria-label={t("academicCatalogManagement.manageAcademicCatalogue")}
     >
-      <h2 className="text-xl font-bold">
-        {t("academicCatalogManagement.manageTaxonomyAndCatalogue")}
-      </h2>
-      {(taxonomy.isPending ||
-        specializations.isPending ||
-        grades.isPending ||
-        qualifications.isPending) && (
-        <p aria-busy="true" role="status">
-          {t("academicCatalogManagement.loading")}
+      <header className={styles.header}>
+        <h2 className={styles.title}>
+          {t("academicCatalogManagement.manageTaxonomyAndCatalogue")}
+        </h2>
+        <p className={styles.description}>
+          {t("academicCatalogManagement.workspaceHelp")}
         </p>
-      )}
-      {(taxonomy.isError ||
-        specializations.isError ||
-        grades.isError ||
-        qualifications.isError) && (
-        <p role="alert" className="text-red-500">
-          {t("academicCatalogManagement.couldNotLoadTheCatalogue")}
-        </p>
-      )}
-      <div className="mt-4 grid gap-5 lg:grid-cols-2">
-        <form
-          className="grid gap-2"
-          onSubmit={(event) => {
-            event.preventDefault();
-            save("/admin/academic-taxonomy/specializations", "POST", {
-              ...specialization,
-              learningTrackId: trackId,
-              sortOrder: 100,
-            });
-          }}
+        <QueryState query={taxonomy} />
+        {taxonomy.data !== undefined && (
+          <p className={styles.context}>
+            <strong>{t("academicCatalogManagement.trackContext")}</strong>
+            <span dir="auto">
+              {trackId
+                ? track?.name
+                : t("academicCatalogManagement.noBtecTrack")}
+            </span>
+          </p>
+        )}
+        <ol
+          className={styles.chain}
+          aria-label={t("academicCatalogManagement.authoringSequence")}
         >
-          <h3 className="font-bold">
-            {t("academicCatalogManagement.newCustomSpecialization")}
-          </h3>
-          <input
-            className={inputClass}
-            required
-            placeholder="slug"
-            aria-label={t("academicCatalogManagement.specializationSlug")}
-            value={specialization.slug}
-            onChange={(event) =>
-              setSpecialization({ ...specialization, slug: event.target.value })
-            }
-          />
-          <input
-            className={inputClass}
-            required
-            placeholder={t("academicCatalogManagement.arabicName")}
-            aria-label={t("academicCatalogManagement.specializationArabicName")}
-            value={specialization.arabicName}
-            onChange={(event) =>
-              setSpecialization({
-                ...specialization,
-                arabicName: event.target.value,
-              })
-            }
-          />
-          <input
-            className={inputClass}
-            required
-            placeholder={t("academicCatalogManagement.englishName")}
-            aria-label={t(
-              "academicCatalogManagement.specializationEnglishName",
-            )}
-            value={specialization.englishName}
-            onChange={(event) =>
-              setSpecialization({
-                ...specialization,
-                englishName: event.target.value,
-              })
-            }
-          />
-          <button
-            className="rounded-lg bg-primary px-3 py-2 font-bold disabled:opacity-50"
-            disabled={write.isPending || !trackId}
+          {[
+            "trackContext",
+            "taxonomyRegistry",
+            "customQualification",
+            "customVersion",
+            "customUnit",
+          ].map((key) => (
+            <li key={key}>{t(`academicCatalogManagement.${key}`)}</li>
+          ))}
+        </ol>
+        {(message || write.isPending) && (
+          <div
+            className={styles.notice}
+            role={write.isError ? "alert" : "status"}
+            data-tone={write.isError ? "danger" : "info"}
+            aria-busy={write.isPending}
           >
-            {t("academicCatalogManagement.addSpecialization")}
-          </button>
-        </form>
-        <form
-          className="grid gap-2"
-          onSubmit={(event) => {
-            event.preventDefault();
-            save("/admin/academic-taxonomy/grades", "POST", {
-              ...grade,
-              learningTrackId: trackId,
-              sortOrder: 100,
-            });
-          }}
+            <strong>{t(`academicCatalogManagement.${operation}`)}</strong>
+            <span>
+              {write.isPending
+                ? t("academicCatalogManagement.saving")
+                : message}
+            </span>
+          </div>
+        )}
+      </header>
+      <section
+        aria-label={t("academicCatalogManagement.taxonomyRegistry")}
+        className={styles.taxonomy}
+      >
+        <section
+          className={styles.panel}
+          aria-label={t("academicCatalogManagement.specializations")}
         >
-          <h3 className="font-bold">
-            {t("academicCatalogManagement.newGrade")}
-          </h3>
-          <input
-            className={inputClass}
-            required
-            placeholder="slug"
-            aria-label={t("academicCatalogManagement.gradeSlug")}
-            value={grade.slug}
-            onChange={(event) =>
-              setGrade({ ...grade, slug: event.target.value })
-            }
-          />
-          <input
-            className={inputClass}
-            required
-            placeholder={t("academicCatalogManagement.arabicName")}
-            aria-label={t("academicCatalogManagement.gradeArabicName")}
-            value={grade.arabicName}
-            onChange={(event) =>
-              setGrade({ ...grade, arabicName: event.target.value })
-            }
-          />
-          <input
-            className={inputClass}
-            required
-            placeholder={t("academicCatalogManagement.englishName")}
-            aria-label={t("academicCatalogManagement.gradeEnglishName")}
-            value={grade.englishName}
-            onChange={(event) =>
-              setGrade({ ...grade, englishName: event.target.value })
-            }
-          />
-          <button
-            className="rounded-lg bg-primary px-3 py-2 font-bold disabled:opacity-50"
-            disabled={write.isPending || !trackId}
-          >
-            {t("academicCatalogManagement.addGrade")}
-          </button>
-        </form>
-      </div>
-      <div className="mt-5 grid gap-5 lg:grid-cols-2">
-        <div>
-          <h3 className="font-bold">
+          <h3 className={styles.sectionTitle}>
             {t("academicCatalogManagement.specializations")}
           </h3>
-          <ul className="mt-2 grid gap-2 text-sm">
-            {specializations.data
-              ?.filter((item) => item.learningTrackId === trackId)
-              .map((item) => (
-                <li
-                  key={item.id}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-2"
-                >
+          <QueryState query={specializations} />
+          {taxonomy.data !== undefined &&
+            trackId &&
+            specializations.data !== undefined && (
+              <>
+                {specializations.data.filter(
+                  (item) => item.learningTrackId === trackId,
+                ).length === 0 && (
+                  <p className={styles.empty}>
+                    {t("academicCatalogManagement.noSpecializations")}
+                  </p>
+                )}
+                <ul className={styles.rows}>
+                  {specializations.data
+                    .filter((item) => item.learningTrackId === trackId)
+                    .map((item) => (
+                      <li key={item.id} className={styles.row}>
+                        <div className={styles.identity}>
+                          <strong>
+                            {academicText(
+                              locale,
+                              item.arabicName,
+                              item.englishName,
+                            )}
+                          </strong>
+                          <span lang={ar ? "en" : "ar"} dir="auto">
+                            {ar ? item.englishName : item.arabicName}
+                          </span>
+                          <span className={styles.meta} dir="auto">
+                            {item.slug}
+                          </span>
+                        </div>
+                        <span
+                          className={styles.status}
+                          data-active={item.isVisible}
+                        >
+                          {t(
+                            item.isVisible
+                              ? "academicCatalogManagement.visible"
+                              : "academicCatalogManagement.archived",
+                          )}
+                        </span>
+                        <button
+                          type="button"
+                          disabled={write.isPending}
+                          className={styles.secondary}
+                          onClick={() =>
+                            save(
+                              `/admin/academic-taxonomy/specializations/${item.id}`,
+                              "PUT",
+                              { ...item, isVisible: !item.isVisible },
+                            )
+                          }
+                        >
+                          {t(
+                            item.isVisible
+                              ? "academicCatalogManagement.archive"
+                              : "academicCatalogManagement.activate",
+                          )}
+                        </button>
+                      </li>
+                    ))}
+                </ul>
+              </>
+            )}
+          <div className={styles.editor}>
+            <form
+              className={styles.form}
+              aria-label={t(
+                "academicCatalogManagement.newCustomSpecialization",
+              )}
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (!trackId) return;
+                save("/admin/academic-taxonomy/specializations", "POST", {
+                  ...specialization,
+                  learningTrackId: trackId,
+                  sortOrder: 100,
+                });
+              }}
+            >
+              <h3 className={styles.sectionTitle}>
+                {t("academicCatalogManagement.newCustomSpecialization")}
+              </h3>
+              <p className={styles.hint}>
+                {t("academicCatalogManagement.specializationHelp")}
+              </p>
+              <div className={styles.fields}>
+                <label className={styles.field}>
                   <span>
-                    {ar ? item.arabicName : item.englishName} · {item.slug}
+                    {t("academicCatalogManagement.specializationSlug")}
                   </span>
-                  <button
-                    type="button"
-                    disabled={write.isPending}
-                    className="underline disabled:opacity-50"
-                    onClick={() =>
-                      save(
-                        `/admin/academic-taxonomy/specializations/${item.id}`,
-                        "PUT",
-                        { ...item, isVisible: !item.isVisible },
-                      )
+                  <input
+                    className={inputClass}
+                    required
+                    placeholder="slug"
+                    aria-label={t(
+                      "academicCatalogManagement.specializationSlug",
+                    )}
+                    value={specialization.slug}
+                    onChange={(event) =>
+                      setSpecialization({
+                        ...specialization,
+                        slug: event.target.value,
+                      })
                     }
-                  >
-                    {item.isVisible
-                      ? t("academicCatalogManagement.archive")
-                      : t("academicCatalogManagement.activate")}
-                  </button>
-                </li>
-              ))}
-          </ul>
-        </div>
-        <div>
-          <h3 className="font-bold">{t("academicCatalogManagement.grades")}</h3>
-          <ul className="mt-2 grid gap-2 text-sm">
-            {grades.data
-              ?.filter((item) => item.learningTrackId === trackId)
-              .map((item) => (
-                <li
-                  key={item.id}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-2"
-                >
+                  />
+                </label>
+                <label className={styles.field}>
                   <span>
-                    {ar ? item.arabicName : item.englishName} · {item.slug}
+                    {t("academicCatalogManagement.specializationArabicName")}
                   </span>
-                  <button
-                    type="button"
-                    disabled={write.isPending}
-                    className="underline disabled:opacity-50"
-                    onClick={() =>
-                      save(
-                        `/admin/academic-taxonomy/grades/${item.id}`,
-                        "PUT",
-                        { ...item, isVisible: !item.isVisible },
-                      )
+                  <input
+                    className={inputClass}
+                    required
+                    placeholder={t("academicCatalogManagement.arabicName")}
+                    aria-label={t(
+                      "academicCatalogManagement.specializationArabicName",
+                    )}
+                    value={specialization.arabicName}
+                    onChange={(event) =>
+                      setSpecialization({
+                        ...specialization,
+                        arabicName: event.target.value,
+                      })
                     }
-                  >
-                    {item.isVisible
-                      ? t("academicCatalogManagement.archive")
-                      : t("academicCatalogManagement.activate")}
-                  </button>
-                </li>
-              ))}
-          </ul>
-        </div>
-      </div>
-      <div className="mt-6 grid gap-5 lg:grid-cols-3">
+                  />
+                </label>
+                <label className={styles.field}>
+                  <span>
+                    {t("academicCatalogManagement.specializationEnglishName")}
+                  </span>
+                  <input
+                    className={inputClass}
+                    required
+                    placeholder={t("academicCatalogManagement.englishName")}
+                    aria-label={t(
+                      "academicCatalogManagement.specializationEnglishName",
+                    )}
+                    value={specialization.englishName}
+                    onChange={(event) =>
+                      setSpecialization({
+                        ...specialization,
+                        englishName: event.target.value,
+                      })
+                    }
+                  />
+                </label>
+              </div>
+              <button
+                className={styles.primary}
+                disabled={write.isPending || !trackId}
+              >
+                {t("academicCatalogManagement.addSpecialization")}
+              </button>
+            </form>
+          </div>
+        </section>
+        <section
+          className={styles.panel}
+          aria-label={t("academicCatalogManagement.grades")}
+        >
+          <h3 className={styles.sectionTitle}>
+            {t("academicCatalogManagement.grades")}
+          </h3>
+          <QueryState query={grades} />
+          {taxonomy.data !== undefined &&
+            trackId &&
+            grades.data !== undefined && (
+              <>
+                {grades.data.filter((item) => item.learningTrackId === trackId)
+                  .length === 0 && (
+                  <p className={styles.empty}>
+                    {t("academicCatalogManagement.noGrades")}
+                  </p>
+                )}
+                <ul className={styles.rows}>
+                  {grades.data
+                    .filter((item) => item.learningTrackId === trackId)
+                    .map((item) => (
+                      <li key={item.id} className={styles.row}>
+                        <div className={styles.identity}>
+                          <strong>
+                            {academicText(
+                              locale,
+                              item.arabicName,
+                              item.englishName,
+                            )}
+                          </strong>
+                          <span lang={ar ? "en" : "ar"} dir="auto">
+                            {ar ? item.englishName : item.arabicName}
+                          </span>
+                          <span className={styles.meta} dir="auto">
+                            {item.slug}
+                          </span>
+                        </div>
+                        <span
+                          className={styles.status}
+                          data-active={item.isVisible}
+                        >
+                          {t(
+                            item.isVisible
+                              ? "academicCatalogManagement.visible"
+                              : "academicCatalogManagement.archived",
+                          )}
+                        </span>
+                        <button
+                          type="button"
+                          disabled={write.isPending}
+                          className={styles.secondary}
+                          onClick={() =>
+                            save(
+                              `/admin/academic-taxonomy/grades/${item.id}`,
+                              "PUT",
+                              { ...item, isVisible: !item.isVisible },
+                            )
+                          }
+                        >
+                          {t(
+                            item.isVisible
+                              ? "academicCatalogManagement.archive"
+                              : "academicCatalogManagement.activate",
+                          )}
+                        </button>
+                      </li>
+                    ))}
+                </ul>
+              </>
+            )}
+          <div className={styles.editor}>
+            <form
+              className={styles.form}
+              aria-label={t("academicCatalogManagement.newGrade")}
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (!trackId) return;
+                save("/admin/academic-taxonomy/grades", "POST", {
+                  ...grade,
+                  learningTrackId: trackId,
+                  sortOrder: 100,
+                });
+              }}
+            >
+              <h3 className={styles.sectionTitle}>
+                {t("academicCatalogManagement.newGrade")}
+              </h3>
+              <p className={styles.hint}>
+                {t("academicCatalogManagement.gradeHelp")}
+              </p>
+              <div className={styles.fields}>
+                <label className={styles.field}>
+                  <span>{t("academicCatalogManagement.gradeSlug")}</span>
+                  <input
+                    className={inputClass}
+                    required
+                    placeholder="slug"
+                    aria-label={t("academicCatalogManagement.gradeSlug")}
+                    value={grade.slug}
+                    onChange={(event) =>
+                      setGrade({ ...grade, slug: event.target.value })
+                    }
+                  />
+                </label>
+                <label className={styles.field}>
+                  <span>{t("academicCatalogManagement.gradeArabicName")}</span>
+                  <input
+                    className={inputClass}
+                    required
+                    placeholder={t("academicCatalogManagement.arabicName")}
+                    aria-label={t("academicCatalogManagement.gradeArabicName")}
+                    value={grade.arabicName}
+                    onChange={(event) =>
+                      setGrade({ ...grade, arabicName: event.target.value })
+                    }
+                  />
+                </label>
+                <label className={styles.field}>
+                  <span>{t("academicCatalogManagement.gradeEnglishName")}</span>
+                  <input
+                    className={inputClass}
+                    required
+                    placeholder={t("academicCatalogManagement.englishName")}
+                    aria-label={t("academicCatalogManagement.gradeEnglishName")}
+                    value={grade.englishName}
+                    onChange={(event) =>
+                      setGrade({ ...grade, englishName: event.target.value })
+                    }
+                  />
+                </label>
+              </div>
+              <button
+                className={styles.primary}
+                disabled={write.isPending || !trackId}
+              >
+                {t("academicCatalogManagement.addGrade")}
+              </button>
+            </form>
+          </div>
+        </section>
+      </section>
+      <section
+        className={styles.authoring}
+        aria-label={t("academicCatalogManagement.customAuthoring")}
+      >
         <form
-          className="grid gap-2"
+          className={styles.form}
+          aria-label={t("academicCatalogManagement.customQualification")}
           onSubmit={(event) => {
             event.preventDefault();
             save(
@@ -362,81 +583,110 @@ export function AcademicCatalogManagement() {
             );
           }}
         >
-          <h3 className="font-bold">
+          <h3 className={styles.sectionTitle}>
             {t("academicCatalogManagement.customQualification")}
           </h3>
-          <select
-            className={inputClass}
-            required
-            aria-label={t(
-              "academicCatalogManagement.qualificationSpecialization",
-            )}
-            value={qualification.specializationId}
-            onChange={(event) =>
-              setQualification({
-                ...qualification,
-                specializationId: event.target.value,
-              })
-            }
-          >
-            <option value="">
-              {t("academicCatalogManagement.chooseSpecialization")}
-            </option>
-            {specializations.data
-              ?.filter(
-                (item) => item.isVisible && item.learningTrackId === trackId,
-              )
-              .map((item) => (
-                <option key={item.id} value={item.id}>
-                  {ar ? item.arabicName : item.englishName}
+          <p className={styles.hint}>
+            {t("academicCatalogManagement.qualificationHelp")}
+          </p>
+          <div className={styles.fields}>
+            <label className={styles.field}>
+              <span>
+                {t("academicCatalogManagement.qualificationSpecialization")}
+              </span>
+              <select
+                className={inputClass}
+                required
+                aria-label={t(
+                  "academicCatalogManagement.qualificationSpecialization",
+                )}
+                value={qualification.specializationId}
+                onChange={(event) =>
+                  setQualification({
+                    ...qualification,
+                    specializationId: event.target.value,
+                  })
+                }
+              >
+                <option value="">
+                  {t("academicCatalogManagement.chooseSpecialization")}
                 </option>
-              ))}
-          </select>
-          <input
-            className={inputClass}
-            required
-            placeholder={t("academicCatalogManagement.qualificationCode")}
-            aria-label={t("academicCatalogManagement.qualificationCode")}
-            value={qualification.code}
-            onChange={(event) =>
-              setQualification({ ...qualification, code: event.target.value })
-            }
-          />
-          <input
-            className={inputClass}
-            required
-            placeholder={t("academicCatalogManagement.localArabicName")}
-            aria-label={t("academicCatalogManagement.qualificationArabicName")}
-            value={qualification.arabicName}
-            onChange={(event) =>
-              setQualification({
-                ...qualification,
-                arabicName: event.target.value,
-              })
-            }
-          />
-          <input
-            className={inputClass}
-            required
-            placeholder={t("academicCatalogManagement.englishName")}
-            aria-label={t("academicCatalogManagement.qualificationEnglishName")}
-            value={qualification.englishName}
-            onChange={(event) =>
-              setQualification({
-                ...qualification,
-                englishName: event.target.value,
-              })
-            }
-          />
-          <button
-            className="rounded-lg bg-primary px-3 py-2 font-bold disabled:opacity-50"
-            disabled={write.isPending}
-          >
+                {specializations.data
+                  ?.filter(
+                    (item) =>
+                      item.isVisible && item.learningTrackId === trackId,
+                  )
+                  .map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {ar ? item.arabicName : item.englishName}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            <label className={styles.field}>
+              <span>{t("academicCatalogManagement.qualificationCode")}</span>
+              <input
+                className={inputClass}
+                required
+                placeholder={t("academicCatalogManagement.qualificationCode")}
+                aria-label={t("academicCatalogManagement.qualificationCode")}
+                value={qualification.code}
+                onChange={(event) =>
+                  setQualification({
+                    ...qualification,
+                    code: event.target.value,
+                  })
+                }
+              />
+            </label>
+            <label className={styles.field}>
+              <span>
+                {t("academicCatalogManagement.qualificationArabicName")}
+              </span>
+              <input
+                className={inputClass}
+                required
+                placeholder={t("academicCatalogManagement.localArabicName")}
+                aria-label={t(
+                  "academicCatalogManagement.qualificationArabicName",
+                )}
+                value={qualification.arabicName}
+                onChange={(event) =>
+                  setQualification({
+                    ...qualification,
+                    arabicName: event.target.value,
+                  })
+                }
+              />
+            </label>
+            <label className={styles.field}>
+              <span>
+                {t("academicCatalogManagement.qualificationEnglishName")}
+              </span>
+              <input
+                className={inputClass}
+                required
+                placeholder={t("academicCatalogManagement.englishName")}
+                aria-label={t(
+                  "academicCatalogManagement.qualificationEnglishName",
+                )}
+                value={qualification.englishName}
+                onChange={(event) =>
+                  setQualification({
+                    ...qualification,
+                    englishName: event.target.value,
+                  })
+                }
+              />
+            </label>
+          </div>
+          <button className={styles.primary} disabled={write.isPending}>
             {t("academicCatalogManagement.addQualification")}
           </button>
         </form>
         <form
-          className="grid gap-2"
+          className={styles.form}
+          aria-label={t("academicCatalogManagement.customVersion")}
           onSubmit={(event) => {
             event.preventDefault();
             save("/qualification-registry/versions", "POST", {
@@ -448,70 +698,100 @@ export function AcademicCatalogManagement() {
             });
           }}
         >
-          <h3 className="font-bold">
+          <h3 className={styles.sectionTitle}>
             {t("academicCatalogManagement.customVersion")}
           </h3>
-          <select
-            className={inputClass}
-            required
-            aria-label={t("academicCatalogManagement.qualification")}
-            value={version.qualificationId}
-            onChange={(event) =>
-              setVersion({ ...version, qualificationId: event.target.value })
-            }
-          >
-            <option value="">
-              {t("academicCatalogManagement.chooseQualification")}
-            </option>
-            {qualifications.data
-              ?.filter((item) => item.isActive && item.source === "AdminCustom")
-              .map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.code} ·{" "}
-                  {academicText(locale, item.arabicName, item.englishName)}
+          <p className={styles.hint}>
+            {t("academicCatalogManagement.versionHelp")}
+          </p>
+          <div className={styles.fields}>
+            <label className={styles.field}>
+              <span>{t("academicCatalogManagement.qualification")}</span>
+              <select
+                className={inputClass}
+                required
+                aria-label={t("academicCatalogManagement.qualification")}
+                value={version.qualificationId}
+                onChange={(event) =>
+                  setVersion({
+                    ...version,
+                    qualificationId: event.target.value,
+                  })
+                }
+              >
+                <option value="">
+                  {t("academicCatalogManagement.chooseQualification")}
                 </option>
-              ))}
-          </select>
-          <input
-            className={inputClass}
-            required
-            placeholder={t("academicCatalogManagement.versionCode")}
-            aria-label={t("academicCatalogManagement.versionCode")}
-            value={version.versionCode}
-            onChange={(event) =>
-              setVersion({ ...version, versionCode: event.target.value })
-            }
-          />
-          <input
-            className={inputClass}
-            required
-            minLength={10}
-            placeholder={t("academicCatalogManagement.sourceReference")}
-            aria-label={t("academicCatalogManagement.versionSourceReference")}
-            value={version.sourceReference}
-            onChange={(event) =>
-              setVersion({ ...version, sourceReference: event.target.value })
-            }
-          />
-          <input
-            className={inputClass}
-            required
-            type="date"
-            aria-label={t("academicCatalogManagement.effectiveDate")}
-            value={version.effectiveFromUtc}
-            onChange={(event) =>
-              setVersion({ ...version, effectiveFromUtc: event.target.value })
-            }
-          />
-          <button
-            className="rounded-lg bg-primary px-3 py-2 font-bold disabled:opacity-50"
-            disabled={write.isPending}
-          >
+                {qualifications.data
+                  ?.filter(
+                    (item) => item.isActive && item.source === "AdminCustom",
+                  )
+                  .map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.code} ·{" "}
+                      {academicText(locale, item.arabicName, item.englishName)}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            <label className={styles.field}>
+              <span>{t("academicCatalogManagement.versionCode")}</span>
+              <input
+                className={inputClass}
+                required
+                placeholder={t("academicCatalogManagement.versionCode")}
+                aria-label={t("academicCatalogManagement.versionCode")}
+                value={version.versionCode}
+                onChange={(event) =>
+                  setVersion({ ...version, versionCode: event.target.value })
+                }
+              />
+            </label>
+            <label className={styles.field}>
+              <span>
+                {t("academicCatalogManagement.versionSourceReference")}
+              </span>
+              <input
+                className={inputClass}
+                required
+                minLength={10}
+                placeholder={t("academicCatalogManagement.sourceReference")}
+                aria-label={t(
+                  "academicCatalogManagement.versionSourceReference",
+                )}
+                value={version.sourceReference}
+                onChange={(event) =>
+                  setVersion({
+                    ...version,
+                    sourceReference: event.target.value,
+                  })
+                }
+              />
+            </label>
+            <label className={styles.field}>
+              <span>{t("academicCatalogManagement.effectiveDate")}</span>
+              <input
+                className={inputClass}
+                required
+                type="date"
+                aria-label={t("academicCatalogManagement.effectiveDate")}
+                value={version.effectiveFromUtc}
+                onChange={(event) =>
+                  setVersion({
+                    ...version,
+                    effectiveFromUtc: event.target.value,
+                  })
+                }
+              />
+            </label>
+          </div>
+          <button className={styles.primary} disabled={write.isPending}>
             {t("academicCatalogManagement.addVersion")}
           </button>
         </form>
         <form
-          className="grid gap-2"
+          className={styles.form}
+          aria-label={t("academicCatalogManagement.customUnit")}
           onSubmit={(event) => {
             event.preventDefault();
             save("/admin/academic-catalogue/units", "POST", {
@@ -520,104 +800,144 @@ export function AcademicCatalogManagement() {
             });
           }}
         >
-          <h3 className="font-bold">
+          <h3 className={styles.sectionTitle}>
             {t("academicCatalogManagement.customUnit")}
           </h3>
-          <p className="text-xs text-muted">
+          <p className={styles.hint}>
+            {t("academicCatalogManagement.unitHelp")}
+          </p>
+          <p className={styles.hint}>
             {t(
               "academicCatalogManagement.createdAsADraftActivationPublishesAndLocksItsAcademicIdentity",
             )}
           </p>
-          <select
-            className={inputClass}
-            required
-            aria-label={t("academicCatalogManagement.customUnitVersion")}
-            value={unit.qualificationVersionId}
-            onChange={(event) =>
-              setUnit({ ...unit, qualificationVersionId: event.target.value })
-            }
-          >
-            <option value="">
-              {t("academicCatalogManagement.chooseVersion")}
-            </option>
-            {versionChoices.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name}
-              </option>
-            ))}
-          </select>
-          <input
-            className={inputClass}
-            required
-            placeholder={t("academicCatalogManagement.unitNumber")}
-            aria-label={t("academicCatalogManagement.unitCode")}
-            value={unit.code}
-            onChange={(event) => setUnit({ ...unit, code: event.target.value })}
-          />
-          <input
-            className={inputClass}
-            required
-            placeholder={t("academicCatalogManagement.englishTitle")}
-            aria-label={t("academicCatalogManagement.unitEnglishTitle")}
-            value={unit.englishTitle}
-            onChange={(event) =>
-              setUnit({ ...unit, englishTitle: event.target.value })
-            }
-          />
-          <input
-            className={inputClass}
-            placeholder={t(
-              "academicCatalogManagement.localArabicDisplayOptional",
-            )}
-            aria-label={t("academicCatalogManagement.unitLocalArabicDisplay")}
-            value={unit.arabicTitle}
-            onChange={(event) =>
-              setUnit({ ...unit, arabicTitle: event.target.value })
-            }
-          />
-          <input
-            className={inputClass}
-            placeholder={t("academicCatalogManagement.sourceReference")}
-            aria-label={t("academicCatalogManagement.unitSourceReference")}
-            value={unit.sourceReference}
-            onChange={(event) =>
-              setUnit({ ...unit, sourceReference: event.target.value })
-            }
-          />
-          <button
-            className="rounded-lg bg-primary px-3 py-2 font-bold disabled:opacity-50"
-            disabled={write.isPending}
-          >
+          <div className={styles.fields}>
+            <label className={styles.field}>
+              <span>{t("academicCatalogManagement.customUnitVersion")}</span>
+              <select
+                className={inputClass}
+                required
+                aria-label={t("academicCatalogManagement.customUnitVersion")}
+                value={unit.qualificationVersionId}
+                onChange={(event) =>
+                  setUnit({
+                    ...unit,
+                    qualificationVersionId: event.target.value,
+                  })
+                }
+              >
+                <option value="">
+                  {t("academicCatalogManagement.chooseVersion")}
+                </option>
+                {versionChoices.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className={styles.field}>
+              <span>{t("academicCatalogManagement.unitCode")}</span>
+              <input
+                className={inputClass}
+                required
+                placeholder={t("academicCatalogManagement.unitNumber")}
+                aria-label={t("academicCatalogManagement.unitCode")}
+                value={unit.code}
+                onChange={(event) =>
+                  setUnit({ ...unit, code: event.target.value })
+                }
+              />
+            </label>
+            <label className={styles.field}>
+              <span>{t("academicCatalogManagement.unitEnglishTitle")}</span>
+              <input
+                className={inputClass}
+                required
+                placeholder={t("academicCatalogManagement.englishTitle")}
+                aria-label={t("academicCatalogManagement.unitEnglishTitle")}
+                value={unit.englishTitle}
+                onChange={(event) =>
+                  setUnit({ ...unit, englishTitle: event.target.value })
+                }
+              />
+            </label>
+            <label className={styles.field}>
+              <span>
+                {t("academicCatalogManagement.unitLocalArabicDisplay")}
+              </span>
+              <input
+                className={inputClass}
+                placeholder={t(
+                  "academicCatalogManagement.localArabicDisplayOptional",
+                )}
+                aria-label={t(
+                  "academicCatalogManagement.unitLocalArabicDisplay",
+                )}
+                value={unit.arabicTitle}
+                onChange={(event) =>
+                  setUnit({ ...unit, arabicTitle: event.target.value })
+                }
+              />
+            </label>
+            <label className={styles.field}>
+              <span>{t("academicCatalogManagement.unitSourceReference")}</span>
+              <input
+                className={inputClass}
+                placeholder={t("academicCatalogManagement.sourceReference")}
+                aria-label={t("academicCatalogManagement.unitSourceReference")}
+                value={unit.sourceReference}
+                onChange={(event) =>
+                  setUnit({ ...unit, sourceReference: event.target.value })
+                }
+              />
+            </label>
+          </div>
+          <button className={styles.primary} disabled={write.isPending}>
             {t("academicCatalogManagement.addUnit")}
           </button>
         </form>
-      </div>
-      <div className="mt-6">
-        <h3 className="font-bold">
+      </section>{" "}
+      <section
+        className={styles.panel}
+        aria-label={t("academicCatalogManagement.qualificationsAndVersions")}
+      >
+        <h3 className={styles.sectionTitle}>
           {t("academicCatalogManagement.qualificationsAndVersions")}
         </h3>
-        <ul className="mt-2 grid gap-2 text-sm">
+        <p className={styles.hint}>
+          {t("academicCatalogManagement.registryHelp")}
+        </p>
+        <QueryState query={qualifications} />
+        {qualifications.data !== undefined &&
+          qualifications.data.length === 0 && (
+            <p className={styles.empty}>
+              {t("academicCatalogManagement.noQualifications")}
+            </p>
+          )}
+        <ul className={styles.rows}>
           {qualifications.data?.map((item) => (
-            <li
-              key={item.id}
-              className="min-w-0 rounded-lg border border-border p-3"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="break-words font-bold">
+            <li key={item.id} className={styles.qualificationRow}>
+              <div className={styles.row}>
+                <span className={styles.identity}>
                   {item.code} ·{" "}
                   {academicText(locale, item.arabicName, item.englishName)} ·{" "}
                   {item.source}
-                  <span
-                    className="mt-1 block text-xs font-normal text-muted"
-                    lang={ar ? "en" : "ar"}
-                  >
+                  <span className={styles.meta} lang={ar ? "en" : "ar"}>
                     {ar ? item.englishName : item.arabicName}
                   </span>
+                </span>
+                <span className={styles.status} data-active={item.isActive}>
+                  {t(
+                    item.isActive
+                      ? "academicCatalogManagement.active"
+                      : "academicCatalogManagement.archived",
+                  )}
                 </span>
                 <button
                   type="button"
                   disabled={write.isPending}
-                  className="underline disabled:opacity-50"
+                  className={styles.secondary}
                   onClick={() =>
                     save(
                       `/admin/academic-records/qualifications/${item.id}/status`,
@@ -631,19 +951,38 @@ export function AcademicCatalogManagement() {
                     : t("academicCatalogManagement.activate")}
                 </button>
               </div>
-              <ul className="mt-2 grid gap-1">
+              <p className={styles.hint}>
+                {t("academicCatalogManagement.versionStatusHelp")}
+              </p>
+              {item.versions.length === 0 && (
+                <p className={styles.empty}>
+                  {t("academicCatalogManagement.noVersions")}
+                </p>
+              )}
+              <ul
+                className={styles.versions}
+                aria-label={t("academicCatalogManagement.versions")}
+              >
                 {item.versions.map((v) => (
-                  <li
-                    key={v.id}
-                    className="flex flex-wrap items-center justify-between gap-2 ps-3"
-                  >
+                  <li key={v.id} className={styles.versionRow}>
                     <span>
-                      {v.versionCode} · {v.source}
+                      {t("academicCatalogManagement.version")} · {v.versionCode}{" "}
+                      · {v.source}
+                      <span className={styles.meta} dir="auto">
+                        {v.sourceReference}
+                      </span>
+                    </span>
+                    <span className={styles.status} data-active={v.isActive}>
+                      {t(
+                        v.isActive
+                          ? "academicCatalogManagement.active"
+                          : "academicCatalogManagement.archived",
+                      )}
                     </span>
                     <button
                       type="button"
                       disabled={write.isPending}
-                      className="underline disabled:opacity-50"
+                      className={styles.secondary}
                       onClick={() =>
                         save(
                           `/admin/academic-records/versions/${v.id}/status`,
@@ -662,12 +1001,7 @@ export function AcademicCatalogManagement() {
             </li>
           ))}
         </ul>
-      </div>
-      {message && (
-        <p className="mt-3 text-sm" role="status">
-          {message}
-        </p>
-      )}
+      </section>
     </section>
   );
 }
