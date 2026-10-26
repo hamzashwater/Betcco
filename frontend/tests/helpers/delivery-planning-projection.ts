@@ -1,4 +1,8 @@
 import baseline from "../fixtures/ui-d01-15-delivery-planning-baseline.json";
+import {
+  projectAcademicCatalogBoundary,
+  withoutAcademicCatalogAdditions,
+} from "./academic-catalog-management-projection";
 function reverse(
   source: string,
   seams: { approved: string; previous: string }[],
@@ -12,6 +16,7 @@ function reverse(
   return result;
 }
 export function projectDeliveryPlanningBoundary(source: string, path: string) {
+  source = projectAcademicCatalogBoundary(source, path);
   const key = path.replaceAll("\\", "/");
   if (/(?:^|\/)src\/features\/admin\/delivery-planning\.tsx$/.test(key))
     return reverse(source, baseline.seams);
@@ -24,6 +29,7 @@ export function projectDeliveryPlanningBoundary(source: string, path: string) {
 export function withoutDeliveryPlanningAdditions(
   value: Record<string, unknown>,
 ) {
+  withoutAcademicCatalogAdditions(value);
   const target = value.deliveryPlanning as Record<string, unknown> | undefined;
   if (
     !target ||

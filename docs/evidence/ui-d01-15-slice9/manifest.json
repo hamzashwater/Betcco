@@ -1,0 +1,2473 @@
+{
+  "classification": "MOCKED UI-CONTRACT EVIDENCE",
+  "base": "2431f36dffc96dd420c602167caf5c4c1d4db24a",
+  "cases": [
+    {
+      "locale": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "captures": [
+        {
+          "state": "01-populated-taxonomy-hierarchy-long-source",
+          "path": "browser-final/academic-catalog-managemen-03919-TRACT-EVIDENCE-en-dark-1440/01-populated-taxonomy-hierarchy-long-source.png",
+          "size": [1440, 3672],
+          "sha256": "e6f8d315c2b3da4060a34ce5819c82b1f643e416b3aa82e00352bcccca39ebb2"
+        },
+        {
+          "state": "02-keyboard-focus",
+          "path": "browser-final/academic-catalog-managemen-03919-TRACT-EVIDENCE-en-dark-1440/02-keyboard-focus.png",
+          "size": [1440, 3672],
+          "sha256": "5a31ac4f279dd1b2ebaaae1aa43fd24dcbe5492c26e02afb14e6b60e86f3d09c"
+        },
+        {
+          "state": "03-specialization-pending",
+          "path": "browser-final/academic-catalog-managemen-03919-TRACT-EVIDENCE-en-dark-1440/03-specialization-pending.png",
+          "size": [1440, 3752],
+          "sha256": "fa1f255f9bf309a7d179a6c5d2dfffdd94e039a371b24ceeff22ab29e5bdc77f"
+        },
+        {
+          "state": "04-specialization-error-retained-draft",
+          "path": "browser-final/academic-catalog-managemen-03919-TRACT-EVIDENCE-en-dark-1440/04-specialization-error-retained-draft.png",
+          "size": [1440, 3752],
+          "sha256": "cb1ee2132e4e953a220ad9016d21f2e409a2ead8719b3ffcde0c74d862b787d8"
+        },
+        {
+          "state": "05-specialization-server-success",
+          "path": "browser-final/academic-catalog-managemen-03919-TRACT-EVIDENCE-en-dark-1440/05-specialization-server-success.png",
+          "size": [1440, 3752],
+          "sha256": "838c3cd5341c298d9127f0d0e5ad6a5c672e7bc1d61da77b6778427f23ff5ad4"
+        },
+        {
+          "state": "06-grade-create",
+          "path": "browser-final/academic-catalog-managemen-03919-TRACT-EVIDENCE-en-dark-1440/06-grade-create.png",
+          "size": [1440, 3752],
+          "sha256": "868b16ed4bd0c2c91f09d2b1f01b5ba1b0a2174721650fe99e789ca4c0d6ee72"
+        },
+        {
+          "state": "07-taxonomy-independent-visible-archived-actions",
+          "path": "browser-final/academic-catalog-managemen-03919-TRACT-EVIDENCE-en-dark-1440/07-taxonomy-independent-visible-archived-actions.png",
+          "size": [1440, 3752],
+          "sha256": "93046ecb4bfbde5be8b6192399c1b2de8049da7f56d65e74cdfec89531cc7f0b"
+        },
+        {
+          "state": "08-qualification-specialization-dependency",
+          "path": "browser-final/academic-catalog-managemen-03919-TRACT-EVIDENCE-en-dark-1440/08-qualification-specialization-dependency.png",
+          "size": [1440, 3752],
+          "sha256": "7bcaca5c7ae92689ed2a09a2c675de8316e49510a64c3d48ab835e9793924103"
+        },
+        {
+          "state": "09-version-source-reference-validation",
+          "path": "browser-final/academic-catalog-managemen-03919-TRACT-EVIDENCE-en-dark-1440/09-version-source-reference-validation.png",
+          "size": [1440, 3752],
+          "sha256": "a0011b3c013f088415905d6189cf38c8e5a0a987035e73e257ebaa9e2ef8abde"
+        },
+        {
+          "state": "10-version-date-and-custom-qualification",
+          "path": "browser-final/academic-catalog-managemen-03919-TRACT-EVIDENCE-en-dark-1440/10-version-date-and-custom-qualification.png",
+          "size": [1440, 3752],
+          "sha256": "6275cd0255af4edd359a411534476300ee63b22ea0be8289ce54aeda3186ded9"
+        },
+        {
+          "state": "11-unit-arabic-fallback-empty",
+          "path": "browser-final/academic-catalog-managemen-03919-TRACT-EVIDENCE-en-dark-1440/11-unit-arabic-fallback-empty.png",
+          "size": [1440, 3752],
+          "sha256": "2b16f6b83b8e45fba699e3dc160c55fbda01a4183ffe2b388e565f0f38599f30"
+        },
+        {
+          "state": "12-unit-local-arabic-draft-semantics",
+          "path": "browser-final/academic-catalog-managemen-03919-TRACT-EVIDENCE-en-dark-1440/12-unit-local-arabic-draft-semantics.png",
+          "size": [1440, 3752],
+          "sha256": "910f6d9cae72182910e6f89553b9dab084c18c4c7fde9f507bfc1325fa42171d"
+        },
+        {
+          "state": "13-qualification-version-independent-status",
+          "path": "browser-final/academic-catalog-managemen-03919-TRACT-EVIDENCE-en-dark-1440/13-qualification-version-independent-status.png",
+          "size": [1440, 3752],
+          "sha256": "dcf81771d8cabc3fa497fdc235b49f7e7ce965fe2cc219b92897bc85aea723d6"
+        },
+        {
+          "state": "14-cached-data-refresh-warning",
+          "path": "browser-final/academic-catalog-managemen-03919-TRACT-EVIDENCE-en-dark-1440/14-cached-data-refresh-warning.png",
+          "size": [1440, 3942],
+          "sha256": "76edc41a5f074a74a1ad263201c93410328f25214178e3262f9dc9b5f7749f90"
+        },
+        {
+          "state": "15-four-independent-pending-queries",
+          "path": "browser-final/academic-catalog-managemen-03919-TRACT-EVIDENCE-en-dark-1440/15-four-independent-pending-queries.png",
+          "size": [1440, 2797],
+          "sha256": "c596a136a15a50eb85d0d366f18853f44a58adcd9e563c2b15875bf162a02091"
+        },
+        {
+          "state": "16-cold-errors-no-false-empty",
+          "path": "browser-final/academic-catalog-managemen-03919-TRACT-EVIDENCE-en-dark-1440/16-cold-errors-no-false-empty.png",
+          "size": [1440, 2851],
+          "sha256": "2590c3a3d9dd2be7fb9e5890c80396ee8d4c08d183b5b43a33a3eff0b37c91b0"
+        },
+        {
+          "state": "17-missing-btec-context",
+          "path": "browser-final/academic-catalog-managemen-03919-TRACT-EVIDENCE-en-dark-1440/17-missing-btec-context.png",
+          "size": [1440, 2689],
+          "sha256": "7c80f925171df47a54da4d24c92962b9a0f6864de5d37c63f4000c7a3a980731"
+        },
+        {
+          "state": "18-empty-taxonomy-and-qualifications",
+          "path": "browser-final/academic-catalog-managemen-03919-TRACT-EVIDENCE-en-dark-1440/18-empty-taxonomy-and-qualifications.png",
+          "size": [1440, 2751],
+          "sha256": "7b31662b4bb086f6cb66ac3fff9bccb7d971c87d2c1a3db6e5f0d8ed7ff8d8e2"
+        },
+        {
+          "state": "19-200-percent-equivalent-reflow",
+          "path": "browser-final/academic-catalog-managemen-03919-TRACT-EVIDENCE-en-dark-1440/19-200-percent-equivalent-reflow.png",
+          "size": [720, 4854],
+          "sha256": "8fb5991c98ded8ae929197af1ae0d451d585173d5acccfed6ae0f226b09a4aca"
+        }
+      ],
+      "writeCount": 16,
+      "reads": [
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "captures": [
+        {
+          "state": "01-populated-taxonomy-hierarchy-long-source",
+          "path": "browser-final/academic-catalog-managemen-03da5-NTRACT-EVIDENCE-ar-dark-834/01-populated-taxonomy-hierarchy-long-source.png",
+          "size": [834, 4642],
+          "sha256": "bce77f2fada263b422371b5e41489ddfa0b23919223e4c18f3da0413ee69d362"
+        },
+        {
+          "state": "02-keyboard-focus",
+          "path": "browser-final/academic-catalog-managemen-03da5-NTRACT-EVIDENCE-ar-dark-834/02-keyboard-focus.png",
+          "size": [834, 4642],
+          "sha256": "0b0bdce81fbd0727abee1eca0bd5f3521d499e157882dde8089b64617be453b9"
+        },
+        {
+          "state": "03-specialization-pending",
+          "path": "browser-final/academic-catalog-managemen-03da5-NTRACT-EVIDENCE-ar-dark-834/03-specialization-pending.png",
+          "size": [834, 4725],
+          "sha256": "16bb2e4c9c5d5f0faf4252a1c4e55a9c51d1ad39d464a0c3693290415411b239"
+        },
+        {
+          "state": "04-specialization-error-retained-draft",
+          "path": "browser-final/academic-catalog-managemen-03da5-NTRACT-EVIDENCE-ar-dark-834/04-specialization-error-retained-draft.png",
+          "size": [834, 4725],
+          "sha256": "0bb8b53f6085ab86cf391c5b71febe5085aaeb42b23ce27760571e06e751057a"
+        },
+        {
+          "state": "05-specialization-server-success",
+          "path": "browser-final/academic-catalog-managemen-03da5-NTRACT-EVIDENCE-ar-dark-834/05-specialization-server-success.png",
+          "size": [834, 4725],
+          "sha256": "af4aa1c3efcc1a9d122e350006b5a7bf13259f94e30341cfbc647d9e74d16b34"
+        },
+        {
+          "state": "06-grade-create",
+          "path": "browser-final/academic-catalog-managemen-03da5-NTRACT-EVIDENCE-ar-dark-834/06-grade-create.png",
+          "size": [834, 4725],
+          "sha256": "4073af41058b2aa0beec7266e463ae669c8b368fbe608b7186b1e29378be036e"
+        },
+        {
+          "state": "07-taxonomy-independent-visible-archived-actions",
+          "path": "browser-final/academic-catalog-managemen-03da5-NTRACT-EVIDENCE-ar-dark-834/07-taxonomy-independent-visible-archived-actions.png",
+          "size": [834, 4725],
+          "sha256": "62c34eb73d34577b7ad526bac9c6a55140c2314264f25ed18dff02f96a046129"
+        },
+        {
+          "state": "08-qualification-specialization-dependency",
+          "path": "browser-final/academic-catalog-managemen-03da5-NTRACT-EVIDENCE-ar-dark-834/08-qualification-specialization-dependency.png",
+          "size": [834, 4725],
+          "sha256": "8fa569e8f84b46459f1863b2bbcad66a51460df047e543e9f1392420089b926f"
+        },
+        {
+          "state": "09-version-source-reference-validation",
+          "path": "browser-final/academic-catalog-managemen-03da5-NTRACT-EVIDENCE-ar-dark-834/09-version-source-reference-validation.png",
+          "size": [834, 4725],
+          "sha256": "c1deaf96ee2737bb6f31c88d86b096171019b3de1374e92a04bd97013760ad27"
+        },
+        {
+          "state": "10-version-date-and-custom-qualification",
+          "path": "browser-final/academic-catalog-managemen-03da5-NTRACT-EVIDENCE-ar-dark-834/10-version-date-and-custom-qualification.png",
+          "size": [834, 4725],
+          "sha256": "2ad51b4566713363f605b9942eac13232c9cfdc542f5239935d5bb053c5e29f0"
+        },
+        {
+          "state": "11-unit-arabic-fallback-empty",
+          "path": "browser-final/academic-catalog-managemen-03da5-NTRACT-EVIDENCE-ar-dark-834/11-unit-arabic-fallback-empty.png",
+          "size": [834, 4725],
+          "sha256": "afdc5db427b8a2c72aed24e83a817d4f8922dac2cf17bac3c93bd7f9c016b280"
+        },
+        {
+          "state": "12-unit-local-arabic-draft-semantics",
+          "path": "browser-final/academic-catalog-managemen-03da5-NTRACT-EVIDENCE-ar-dark-834/12-unit-local-arabic-draft-semantics.png",
+          "size": [834, 4725],
+          "sha256": "abfd86952570984ae7be8d4bf6271149d7b3b13d02d17f7e0dd4c65b1a0edd86"
+        },
+        {
+          "state": "13-qualification-version-independent-status",
+          "path": "browser-final/academic-catalog-managemen-03da5-NTRACT-EVIDENCE-ar-dark-834/13-qualification-version-independent-status.png",
+          "size": [834, 4725],
+          "sha256": "d506727d8129cc560f13fc3a09e57548eb568e828f5889304ef52c8ce7db6ed9"
+        },
+        {
+          "state": "14-cached-data-refresh-warning",
+          "path": "browser-final/academic-catalog-managemen-03da5-NTRACT-EVIDENCE-ar-dark-834/14-cached-data-refresh-warning.png",
+          "size": [834, 4959],
+          "sha256": "ff0e47098042dca7fcade1c4cb45a0f9b47bfcc15fd7668ee675807886b336c3"
+        },
+        {
+          "state": "15-four-independent-pending-queries",
+          "path": "browser-final/academic-catalog-managemen-03da5-NTRACT-EVIDENCE-ar-dark-834/15-four-independent-pending-queries.png",
+          "size": [834, 3374],
+          "sha256": "8be1cee968046ec2b3a4106f19f05f5484072ce7c0758da8cdf7dd95e0f48e1a"
+        },
+        {
+          "state": "16-cold-errors-no-false-empty",
+          "path": "browser-final/academic-catalog-managemen-03da5-NTRACT-EVIDENCE-ar-dark-834/16-cold-errors-no-false-empty.png",
+          "size": [834, 3434],
+          "sha256": "1cd8dd03d1f70423c4e3ee1d5a2d359bc5de2ae9a36c9183d913df6242d561aa"
+        },
+        {
+          "state": "17-missing-btec-context",
+          "path": "browser-final/academic-catalog-managemen-03da5-NTRACT-EVIDENCE-ar-dark-834/17-missing-btec-context.png",
+          "size": [834, 3201],
+          "sha256": "a475e220aa8b66d0217cd2fcfb236f6798df8198d83ad1134942e552b81f12bb"
+        },
+        {
+          "state": "18-empty-taxonomy-and-qualifications",
+          "path": "browser-final/academic-catalog-managemen-03da5-NTRACT-EVIDENCE-ar-dark-834/18-empty-taxonomy-and-qualifications.png",
+          "size": [834, 3331],
+          "sha256": "a6ce4b7be094cfd51158addb26638139aff270e4e59cdd010c13871eca3c2f3a"
+        },
+        {
+          "state": "19-200-percent-equivalent-reflow",
+          "path": "browser-final/academic-catalog-managemen-03da5-NTRACT-EVIDENCE-ar-dark-834/19-200-percent-equivalent-reflow.png",
+          "size": [720, 4941],
+          "sha256": "447d65f544fc5b193b947d177197e6a2be06e827ac330fbdf09bc3e29e25957e"
+        }
+      ],
+      "writeCount": 16,
+      "reads": [
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "ar",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "captures": [
+        {
+          "state": "01-populated-taxonomy-hierarchy-long-source",
+          "path": "browser-final/academic-catalog-managemen-28c61-TRACT-EVIDENCE-ar-light-390/01-populated-taxonomy-hierarchy-long-source.png",
+          "size": [390, 7253],
+          "sha256": "3be4b8b9231caa3bac75752488bfd24082cd9409e9002a235894c4d23fd04278"
+        },
+        {
+          "state": "02-keyboard-focus",
+          "path": "browser-final/academic-catalog-managemen-28c61-TRACT-EVIDENCE-ar-light-390/02-keyboard-focus.png",
+          "size": [390, 7253],
+          "sha256": "7887241d892791a4d85655475df060a344f86c3758e1636e22dae72d74c54c75"
+        },
+        {
+          "state": "03-specialization-pending",
+          "path": "browser-final/academic-catalog-managemen-28c61-TRACT-EVIDENCE-ar-light-390/03-specialization-pending.png",
+          "size": [390, 7336],
+          "sha256": "aa9e5d486f4d0860b39fbcfcaae313becb09ceabe7046ba660151c531c18a541"
+        },
+        {
+          "state": "04-specialization-error-retained-draft",
+          "path": "browser-final/academic-catalog-managemen-28c61-TRACT-EVIDENCE-ar-light-390/04-specialization-error-retained-draft.png",
+          "size": [390, 7336],
+          "sha256": "dbc5be57f2f49536b4e1a86198cb7e770fa48e2fa31d93fb51aaaab701b2b0fd"
+        },
+        {
+          "state": "05-specialization-server-success",
+          "path": "browser-final/academic-catalog-managemen-28c61-TRACT-EVIDENCE-ar-light-390/05-specialization-server-success.png",
+          "size": [390, 7336],
+          "sha256": "8a399e0db7a2cb2dcf362411ce8c5b9bac27bba99bc6ba87ae15914bb9b4498c"
+        },
+        {
+          "state": "06-grade-create",
+          "path": "browser-final/academic-catalog-managemen-28c61-TRACT-EVIDENCE-ar-light-390/06-grade-create.png",
+          "size": [390, 7336],
+          "sha256": "560222347a95743c2e8e976311e0b2c056121d682948a9c910025684e010d154"
+        },
+        {
+          "state": "07-taxonomy-independent-visible-archived-actions",
+          "path": "browser-final/academic-catalog-managemen-28c61-TRACT-EVIDENCE-ar-light-390/07-taxonomy-independent-visible-archived-actions.png",
+          "size": [390, 7336],
+          "sha256": "00c78f07a8ae01d0619cb9dc85308b5221e4d848ce0c106aa2124ce6876081cd"
+        },
+        {
+          "state": "08-qualification-specialization-dependency",
+          "path": "browser-final/academic-catalog-managemen-28c61-TRACT-EVIDENCE-ar-light-390/08-qualification-specialization-dependency.png",
+          "size": [390, 7336],
+          "sha256": "2a9f8c4df7f8781b8579947d80eb0af0d572b596914baec0d3bb479594ccdd93"
+        },
+        {
+          "state": "09-version-source-reference-validation",
+          "path": "browser-final/academic-catalog-managemen-28c61-TRACT-EVIDENCE-ar-light-390/09-version-source-reference-validation.png",
+          "size": [390, 7336],
+          "sha256": "8bc930534653d6f9389a49a748443c358da9cc4a08a1c4da8e30908d004ff3bc"
+        },
+        {
+          "state": "10-version-date-and-custom-qualification",
+          "path": "browser-final/academic-catalog-managemen-28c61-TRACT-EVIDENCE-ar-light-390/10-version-date-and-custom-qualification.png",
+          "size": [390, 7336],
+          "sha256": "bc3fce78bee27764234fecb5339c13efcf24189b10acd9f0efe0ec0f893ddee4"
+        },
+        {
+          "state": "11-unit-arabic-fallback-empty",
+          "path": "browser-final/academic-catalog-managemen-28c61-TRACT-EVIDENCE-ar-light-390/11-unit-arabic-fallback-empty.png",
+          "size": [390, 7336],
+          "sha256": "a01c6305459829514bf2490d32df799c19ba552fc8be1a1ea9b3561671f8fc46"
+        },
+        {
+          "state": "12-unit-local-arabic-draft-semantics",
+          "path": "browser-final/academic-catalog-managemen-28c61-TRACT-EVIDENCE-ar-light-390/12-unit-local-arabic-draft-semantics.png",
+          "size": [390, 7336],
+          "sha256": "184e280f270795fbfb1722f5d22456d533b8d956640b947fe495392065e90632"
+        },
+        {
+          "state": "13-qualification-version-independent-status",
+          "path": "browser-final/academic-catalog-managemen-28c61-TRACT-EVIDENCE-ar-light-390/13-qualification-version-independent-status.png",
+          "size": [390, 7336],
+          "sha256": "a35b58dce2201cbfba53b8a7355bb4c19498151a80121e44eec6397c4ba7c52c"
+        },
+        {
+          "state": "14-cached-data-refresh-warning",
+          "path": "browser-final/academic-catalog-managemen-28c61-TRACT-EVIDENCE-ar-light-390/14-cached-data-refresh-warning.png",
+          "size": [390, 7768],
+          "sha256": "379a6b778b86892d0e66b132afd76ac2b0c13d6e90ee23310ab03351330babaf"
+        },
+        {
+          "state": "15-four-independent-pending-queries",
+          "path": "browser-final/academic-catalog-managemen-28c61-TRACT-EVIDENCE-ar-light-390/15-four-independent-pending-queries.png",
+          "size": [390, 4817],
+          "sha256": "57f6dc9c2096fbb7f5b7412a005836ed3f28f6d8ac644173dace7b766acbaef0"
+        },
+        {
+          "state": "16-cold-errors-no-false-empty",
+          "path": "browser-final/academic-catalog-managemen-28c61-TRACT-EVIDENCE-ar-light-390/16-cold-errors-no-false-empty.png",
+          "size": [390, 4877],
+          "sha256": "ff1c5dba55a763d01fa50c34e375f7ad086ad78fdd7b54e24014f78c6583c5bd"
+        },
+        {
+          "state": "17-missing-btec-context",
+          "path": "browser-final/academic-catalog-managemen-28c61-TRACT-EVIDENCE-ar-light-390/17-missing-btec-context.png",
+          "size": [390, 4733],
+          "sha256": "49427fa96dc079f13d4d0ff543d5762b9ad468c2cfbd49e29b8af4fe2fac7d8e"
+        },
+        {
+          "state": "18-empty-taxonomy-and-qualifications",
+          "path": "browser-final/academic-catalog-managemen-28c61-TRACT-EVIDENCE-ar-light-390/18-empty-taxonomy-and-qualifications.png",
+          "size": [390, 4861],
+          "sha256": "01cf2c054088ddbe974706dfa5eadf9cd741b8e93498fd75fb3dc9a9a64fa779"
+        },
+        {
+          "state": "19-200-percent-equivalent-reflow",
+          "path": "browser-final/academic-catalog-managemen-28c61-TRACT-EVIDENCE-ar-light-390/19-200-percent-equivalent-reflow.png",
+          "size": [720, 4941],
+          "sha256": "c3f61c2bb71b9cbc3455303b1458559ed380ecf0eafe4c63db018f51bbfbaefe"
+        }
+      ],
+      "writeCount": 16,
+      "reads": [
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "captures": [
+        {
+          "state": "01-populated-taxonomy-hierarchy-long-source",
+          "path": "browser-final/academic-catalog-managemen-2e128-RACT-EVIDENCE-en-light-1440/01-populated-taxonomy-hierarchy-long-source.png",
+          "size": [1440, 3672],
+          "sha256": "a6a02e5aa0959f8484cd44a553b3133ede31e143a3276c47eab6ba647476016e"
+        },
+        {
+          "state": "02-keyboard-focus",
+          "path": "browser-final/academic-catalog-managemen-2e128-RACT-EVIDENCE-en-light-1440/02-keyboard-focus.png",
+          "size": [1440, 3672],
+          "sha256": "156d1b6356edb446454de36b5e47b6d261eac258f88c19eb2cc6989a75964118"
+        },
+        {
+          "state": "03-specialization-pending",
+          "path": "browser-final/academic-catalog-managemen-2e128-RACT-EVIDENCE-en-light-1440/03-specialization-pending.png",
+          "size": [1440, 3752],
+          "sha256": "07ec1cfe484bc170058a6170f810499a70cea4bc586f12cb015db22f45f0e701"
+        },
+        {
+          "state": "04-specialization-error-retained-draft",
+          "path": "browser-final/academic-catalog-managemen-2e128-RACT-EVIDENCE-en-light-1440/04-specialization-error-retained-draft.png",
+          "size": [1440, 3752],
+          "sha256": "5da2a4b1b79f991f4260b042eafbc1492dd6a439248edac3a3c53d314c6c86f1"
+        },
+        {
+          "state": "05-specialization-server-success",
+          "path": "browser-final/academic-catalog-managemen-2e128-RACT-EVIDENCE-en-light-1440/05-specialization-server-success.png",
+          "size": [1440, 3752],
+          "sha256": "6156f54caa97c2c6d231325d2006829e65d76f14ce7482e0381fbcd565c48e2f"
+        },
+        {
+          "state": "06-grade-create",
+          "path": "browser-final/academic-catalog-managemen-2e128-RACT-EVIDENCE-en-light-1440/06-grade-create.png",
+          "size": [1440, 3752],
+          "sha256": "15485478dfad1db55c9d572672a6ca186a5c92341458647b58859ed87e68356a"
+        },
+        {
+          "state": "07-taxonomy-independent-visible-archived-actions",
+          "path": "browser-final/academic-catalog-managemen-2e128-RACT-EVIDENCE-en-light-1440/07-taxonomy-independent-visible-archived-actions.png",
+          "size": [1440, 3752],
+          "sha256": "d9416585bafdd8645b778208d352fe9a56401ee96a22a6a9a093ed8c7e44d6a6"
+        },
+        {
+          "state": "08-qualification-specialization-dependency",
+          "path": "browser-final/academic-catalog-managemen-2e128-RACT-EVIDENCE-en-light-1440/08-qualification-specialization-dependency.png",
+          "size": [1440, 3752],
+          "sha256": "b223ee86cfd05fae2c658a48b45358e0de830c5848fdfa3b49dfc30b517a877c"
+        },
+        {
+          "state": "09-version-source-reference-validation",
+          "path": "browser-final/academic-catalog-managemen-2e128-RACT-EVIDENCE-en-light-1440/09-version-source-reference-validation.png",
+          "size": [1440, 3752],
+          "sha256": "10b2babd1ede829344f6a282c557f30cb5a9185b2169fcc2e676e8929d4b8424"
+        },
+        {
+          "state": "10-version-date-and-custom-qualification",
+          "path": "browser-final/academic-catalog-managemen-2e128-RACT-EVIDENCE-en-light-1440/10-version-date-and-custom-qualification.png",
+          "size": [1440, 3752],
+          "sha256": "1697dcceac62ebca78e9a99c99044c376d10b0f8c745ff997383d4755437c094"
+        },
+        {
+          "state": "11-unit-arabic-fallback-empty",
+          "path": "browser-final/academic-catalog-managemen-2e128-RACT-EVIDENCE-en-light-1440/11-unit-arabic-fallback-empty.png",
+          "size": [1440, 3752],
+          "sha256": "9651922d8a4d7fa283aa12f2311d2329593ef9cb69efe62608d115dcd9294373"
+        },
+        {
+          "state": "12-unit-local-arabic-draft-semantics",
+          "path": "browser-final/academic-catalog-managemen-2e128-RACT-EVIDENCE-en-light-1440/12-unit-local-arabic-draft-semantics.png",
+          "size": [1440, 3752],
+          "sha256": "52f824e9a60643293a1de369d843e6b3dcdbc10cba070fd1d233a14a6a1614eb"
+        },
+        {
+          "state": "13-qualification-version-independent-status",
+          "path": "browser-final/academic-catalog-managemen-2e128-RACT-EVIDENCE-en-light-1440/13-qualification-version-independent-status.png",
+          "size": [1440, 3752],
+          "sha256": "6a1ec805d5a73430302291d7644dc0fb5788942f69ee5a29c0c3213e65d48754"
+        },
+        {
+          "state": "14-cached-data-refresh-warning",
+          "path": "browser-final/academic-catalog-managemen-2e128-RACT-EVIDENCE-en-light-1440/14-cached-data-refresh-warning.png",
+          "size": [1440, 3942],
+          "sha256": "b96c43d362e8a354c2cba01d7ee275991bd7e663fc5e93ca2d17c1463e3cfe7b"
+        },
+        {
+          "state": "15-four-independent-pending-queries",
+          "path": "browser-final/academic-catalog-managemen-2e128-RACT-EVIDENCE-en-light-1440/15-four-independent-pending-queries.png",
+          "size": [1440, 2797],
+          "sha256": "41d16e56e2dc92e9e9cb6337cd5e72647164f9af4577f50a6e25887600b4669f"
+        },
+        {
+          "state": "16-cold-errors-no-false-empty",
+          "path": "browser-final/academic-catalog-managemen-2e128-RACT-EVIDENCE-en-light-1440/16-cold-errors-no-false-empty.png",
+          "size": [1440, 2851],
+          "sha256": "7336a31c242c64d7cb013cbfff6cc9deafcebc70bd4957496a11b7013e94757c"
+        },
+        {
+          "state": "17-missing-btec-context",
+          "path": "browser-final/academic-catalog-managemen-2e128-RACT-EVIDENCE-en-light-1440/17-missing-btec-context.png",
+          "size": [1440, 2689],
+          "sha256": "d9ff98e71d733b19e491666fc6cf368a74db57d3016dd9b6e9ca7ab7f9c4f8ea"
+        },
+        {
+          "state": "18-empty-taxonomy-and-qualifications",
+          "path": "browser-final/academic-catalog-managemen-2e128-RACT-EVIDENCE-en-light-1440/18-empty-taxonomy-and-qualifications.png",
+          "size": [1440, 2751],
+          "sha256": "d28d198fcd702e46eebc698d74e5eee07bbf92fd360caeb0523d3273d9b06ab0"
+        },
+        {
+          "state": "19-200-percent-equivalent-reflow",
+          "path": "browser-final/academic-catalog-managemen-2e128-RACT-EVIDENCE-en-light-1440/19-200-percent-equivalent-reflow.png",
+          "size": [720, 4854],
+          "sha256": "e685913ede27743411afdb6c096b5d8e2bfcbcc75172c1ac8b5572e90c510897"
+        }
+      ],
+      "writeCount": 16,
+      "reads": [
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "captures": [
+        {
+          "state": "01-populated-taxonomy-hierarchy-long-source",
+          "path": "browser-final/academic-catalog-managemen-36d09-TRACT-EVIDENCE-en-light-390/01-populated-taxonomy-hierarchy-long-source.png",
+          "size": [390, 7262],
+          "sha256": "11a607ba395f0a1c7477bffeec5f6af5b125d44700180d17dbfca9ab8686d0d3"
+        },
+        {
+          "state": "02-keyboard-focus",
+          "path": "browser-final/academic-catalog-managemen-36d09-TRACT-EVIDENCE-en-light-390/02-keyboard-focus.png",
+          "size": [390, 7262],
+          "sha256": "56f1228f6ac729940bce602e8a9a50893437e8eb10cb5a58b774996fc78837ab"
+        },
+        {
+          "state": "03-specialization-pending",
+          "path": "browser-final/academic-catalog-managemen-36d09-TRACT-EVIDENCE-en-light-390/03-specialization-pending.png",
+          "size": [390, 7342],
+          "sha256": "3947e08e66ed766403d0b9cc33c543af2500d066d243ed8e5064778d3a1ea781"
+        },
+        {
+          "state": "04-specialization-error-retained-draft",
+          "path": "browser-final/academic-catalog-managemen-36d09-TRACT-EVIDENCE-en-light-390/04-specialization-error-retained-draft.png",
+          "size": [390, 7342],
+          "sha256": "fc0f01c75ab016941b369dd92e14ed11f5d9c20d34eb9784114828e91735edf2"
+        },
+        {
+          "state": "05-specialization-server-success",
+          "path": "browser-final/academic-catalog-managemen-36d09-TRACT-EVIDENCE-en-light-390/05-specialization-server-success.png",
+          "size": [390, 7342],
+          "sha256": "783811fe76062ce196227f1111623f6f1f6713368ec417b548f61e381afacf5a"
+        },
+        {
+          "state": "06-grade-create",
+          "path": "browser-final/academic-catalog-managemen-36d09-TRACT-EVIDENCE-en-light-390/06-grade-create.png",
+          "size": [390, 7342],
+          "sha256": "0a901f1b4334c269015573d00910b634098f84ae2fe9daf6c80b17ba53c5c94c"
+        },
+        {
+          "state": "07-taxonomy-independent-visible-archived-actions",
+          "path": "browser-final/academic-catalog-managemen-36d09-TRACT-EVIDENCE-en-light-390/07-taxonomy-independent-visible-archived-actions.png",
+          "size": [390, 7342],
+          "sha256": "3e5a4724e2531ada2882bc28c45c0028a0f37887af12200c0dca67ddb10b2d72"
+        },
+        {
+          "state": "08-qualification-specialization-dependency",
+          "path": "browser-final/academic-catalog-managemen-36d09-TRACT-EVIDENCE-en-light-390/08-qualification-specialization-dependency.png",
+          "size": [390, 7342],
+          "sha256": "a3611c8aa39ec63a1e8881ad2583eb789cae80f58d4e5faf0cae7699f76e6ff1"
+        },
+        {
+          "state": "09-version-source-reference-validation",
+          "path": "browser-final/academic-catalog-managemen-36d09-TRACT-EVIDENCE-en-light-390/09-version-source-reference-validation.png",
+          "size": [390, 7342],
+          "sha256": "72965093a8dfd79fb104bd35160aa941ef93bf569bdb6b8bee71b60fc720a038"
+        },
+        {
+          "state": "10-version-date-and-custom-qualification",
+          "path": "browser-final/academic-catalog-managemen-36d09-TRACT-EVIDENCE-en-light-390/10-version-date-and-custom-qualification.png",
+          "size": [390, 7342],
+          "sha256": "b9898e7b83d3e77d112cc9a15a2b945855b2da0656a3472062d8affbb4fad5ae"
+        },
+        {
+          "state": "11-unit-arabic-fallback-empty",
+          "path": "browser-final/academic-catalog-managemen-36d09-TRACT-EVIDENCE-en-light-390/11-unit-arabic-fallback-empty.png",
+          "size": [390, 7342],
+          "sha256": "354a3e12eac4ccbf671a02d5a632aaa4e90c554ecf350443bb44437e4496161e"
+        },
+        {
+          "state": "12-unit-local-arabic-draft-semantics",
+          "path": "browser-final/academic-catalog-managemen-36d09-TRACT-EVIDENCE-en-light-390/12-unit-local-arabic-draft-semantics.png",
+          "size": [390, 7342],
+          "sha256": "8831c925700c65ad83d815ae10f567d83e995ad5e49e49d29477d8098a2cfe40"
+        },
+        {
+          "state": "13-qualification-version-independent-status",
+          "path": "browser-final/academic-catalog-managemen-36d09-TRACT-EVIDENCE-en-light-390/13-qualification-version-independent-status.png",
+          "size": [390, 7342],
+          "sha256": "6553d4ea7191c54492209b302a0daf462399ee5ab2f60fac3c8710a04f0631a8"
+        },
+        {
+          "state": "14-cached-data-refresh-warning",
+          "path": "browser-final/academic-catalog-managemen-36d09-TRACT-EVIDENCE-en-light-390/14-cached-data-refresh-warning.png",
+          "size": [390, 7756],
+          "sha256": "4ccbdf7f53d9c96d9a615639266090ded48a0fb96f4e9dd255b5c0e99cfd3e1a"
+        },
+        {
+          "state": "15-four-independent-pending-queries",
+          "path": "browser-final/academic-catalog-managemen-36d09-TRACT-EVIDENCE-en-light-390/15-four-independent-pending-queries.png",
+          "size": [390, 4811],
+          "sha256": "c88c3d4e8d09cc5260fa45865e109d4cbb5d5b247cc5494abadb2b98583231d8"
+        },
+        {
+          "state": "16-cold-errors-no-false-empty",
+          "path": "browser-final/academic-catalog-managemen-36d09-TRACT-EVIDENCE-en-light-390/16-cold-errors-no-false-empty.png",
+          "size": [390, 5019],
+          "sha256": "3549b7e29304b2a4ea98c323bbcf65a59431d3dd23a890f0b9f8f65620c07dbd"
+        },
+        {
+          "state": "17-missing-btec-context",
+          "path": "browser-final/academic-catalog-managemen-36d09-TRACT-EVIDENCE-en-light-390/17-missing-btec-context.png",
+          "size": [390, 4747],
+          "sha256": "bf506ea5b58a6586063c2ec758748b78771003ca6f8e7198b4cb9275e52eca55"
+        },
+        {
+          "state": "18-empty-taxonomy-and-qualifications",
+          "path": "browser-final/academic-catalog-managemen-36d09-TRACT-EVIDENCE-en-light-390/18-empty-taxonomy-and-qualifications.png",
+          "size": [390, 4871],
+          "sha256": "8170018a54135cb415c5f16a17d5061d4ba6eb683504da47da1ce921d40f1094"
+        },
+        {
+          "state": "19-200-percent-equivalent-reflow",
+          "path": "browser-final/academic-catalog-managemen-36d09-TRACT-EVIDENCE-en-light-390/19-200-percent-equivalent-reflow.png",
+          "size": [720, 4854],
+          "sha256": "b8d7c4b9db32f0996aeb5839392111ad24e904bd3b085c025de9590009cb0a87"
+        }
+      ],
+      "writeCount": 16,
+      "reads": [
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "captures": [
+        {
+          "state": "01-populated-taxonomy-hierarchy-long-source",
+          "path": "browser-final/academic-catalog-managemen-6e75c-NTRACT-EVIDENCE-en-dark-834/01-populated-taxonomy-hierarchy-long-source.png",
+          "size": [834, 4517],
+          "sha256": "2f0c4e930abce6b2f95251c896a224ddd88df2afe2b7b98a24287af9a34076bd"
+        },
+        {
+          "state": "02-keyboard-focus",
+          "path": "browser-final/academic-catalog-managemen-6e75c-NTRACT-EVIDENCE-en-dark-834/02-keyboard-focus.png",
+          "size": [834, 4517],
+          "sha256": "dbb3fc94d0a1410e01c4eb347c13c144eb4f8583bee83f219acb048e79415974"
+        },
+        {
+          "state": "03-specialization-pending",
+          "path": "browser-final/academic-catalog-managemen-6e75c-NTRACT-EVIDENCE-en-dark-834/03-specialization-pending.png",
+          "size": [834, 4597],
+          "sha256": "41981a29a7857ca097c99bffe2a76f4b9bfb570a06e05f86ef5eed8edddb7fd7"
+        },
+        {
+          "state": "04-specialization-error-retained-draft",
+          "path": "browser-final/academic-catalog-managemen-6e75c-NTRACT-EVIDENCE-en-dark-834/04-specialization-error-retained-draft.png",
+          "size": [834, 4597],
+          "sha256": "143269ee66109a2e2c842bb937a53374dccb00ddfeb633bba5d504ccb4352070"
+        },
+        {
+          "state": "05-specialization-server-success",
+          "path": "browser-final/academic-catalog-managemen-6e75c-NTRACT-EVIDENCE-en-dark-834/05-specialization-server-success.png",
+          "size": [834, 4597],
+          "sha256": "b6480e72a9f2c52acba9b787b88a05e5f768520bfe8364fe91f08e4de9cb4e71"
+        },
+        {
+          "state": "06-grade-create",
+          "path": "browser-final/academic-catalog-managemen-6e75c-NTRACT-EVIDENCE-en-dark-834/06-grade-create.png",
+          "size": [834, 4597],
+          "sha256": "f63870a83c5c4bab9b3cfd7463569ee2fc3717102ab23c6e8a42fbe4940dbddb"
+        },
+        {
+          "state": "07-taxonomy-independent-visible-archived-actions",
+          "path": "browser-final/academic-catalog-managemen-6e75c-NTRACT-EVIDENCE-en-dark-834/07-taxonomy-independent-visible-archived-actions.png",
+          "size": [834, 4597],
+          "sha256": "5789c608d698fbfea2b42a17c904218abcc82eba3fdc06c8d103f02677841530"
+        },
+        {
+          "state": "08-qualification-specialization-dependency",
+          "path": "browser-final/academic-catalog-managemen-6e75c-NTRACT-EVIDENCE-en-dark-834/08-qualification-specialization-dependency.png",
+          "size": [834, 4597],
+          "sha256": "6e41477027115a1f2776a88cae4971793fae89ad894cd14c0ef92770183a9606"
+        },
+        {
+          "state": "09-version-source-reference-validation",
+          "path": "browser-final/academic-catalog-managemen-6e75c-NTRACT-EVIDENCE-en-dark-834/09-version-source-reference-validation.png",
+          "size": [834, 4597],
+          "sha256": "351a9118340d9b62b5bef8394dd9e84d0abf63a859be57f017b40e40a4d49cfd"
+        },
+        {
+          "state": "10-version-date-and-custom-qualification",
+          "path": "browser-final/academic-catalog-managemen-6e75c-NTRACT-EVIDENCE-en-dark-834/10-version-date-and-custom-qualification.png",
+          "size": [834, 4597],
+          "sha256": "1448bc27645b357268912814e09642d5b9c44dbd3e79cac486b4d729eaf302b0"
+        },
+        {
+          "state": "11-unit-arabic-fallback-empty",
+          "path": "browser-final/academic-catalog-managemen-6e75c-NTRACT-EVIDENCE-en-dark-834/11-unit-arabic-fallback-empty.png",
+          "size": [834, 4597],
+          "sha256": "533775e46d3b6890bc72da31a034f765471e8fd25ba755c812d6bd5901e0d085"
+        },
+        {
+          "state": "12-unit-local-arabic-draft-semantics",
+          "path": "browser-final/academic-catalog-managemen-6e75c-NTRACT-EVIDENCE-en-dark-834/12-unit-local-arabic-draft-semantics.png",
+          "size": [834, 4597],
+          "sha256": "4a29b859680a616c42fbc1473584e19f5278ac4d7319a0f4d752faa2b904846a"
+        },
+        {
+          "state": "13-qualification-version-independent-status",
+          "path": "browser-final/academic-catalog-managemen-6e75c-NTRACT-EVIDENCE-en-dark-834/13-qualification-version-independent-status.png",
+          "size": [834, 4597],
+          "sha256": "9c06f9a2e949452eb64e81b0040fc992ef5afb1a91f63da132c559e5769b7e12"
+        },
+        {
+          "state": "14-cached-data-refresh-warning",
+          "path": "browser-final/academic-catalog-managemen-6e75c-NTRACT-EVIDENCE-en-dark-834/14-cached-data-refresh-warning.png",
+          "size": [834, 4831],
+          "sha256": "e9047e4411352ab2dbe6c1fc4878105ad3cce961b70f796966a005819bd4e2a3"
+        },
+        {
+          "state": "15-four-independent-pending-queries",
+          "path": "browser-final/academic-catalog-managemen-6e75c-NTRACT-EVIDENCE-en-dark-834/15-four-independent-pending-queries.png",
+          "size": [834, 3330],
+          "sha256": "f904c412644c68d4bec1afe81875e09874070691055b384c844aab492fe3b13f"
+        },
+        {
+          "state": "16-cold-errors-no-false-empty",
+          "path": "browser-final/academic-catalog-managemen-6e75c-NTRACT-EVIDENCE-en-dark-834/16-cold-errors-no-false-empty.png",
+          "size": [834, 3402],
+          "sha256": "9b38e8946b06823f2e9abf41ace5e444c60644da39f99c36438dd380a4ac1455"
+        },
+        {
+          "state": "17-missing-btec-context",
+          "path": "browser-final/academic-catalog-managemen-6e75c-NTRACT-EVIDENCE-en-dark-834/17-missing-btec-context.png",
+          "size": [834, 3162],
+          "sha256": "fe72febd9af055c9715ec1d6fc8b0fc10fcb7247afc00d822b698b59ebffbdee"
+        },
+        {
+          "state": "18-empty-taxonomy-and-qualifications",
+          "path": "browser-final/academic-catalog-managemen-6e75c-NTRACT-EVIDENCE-en-dark-834/18-empty-taxonomy-and-qualifications.png",
+          "size": [834, 3286],
+          "sha256": "420fbb9157714e3a94e3bd6e8753b10de8e6b1abae7efbbda5a63625d165fc45"
+        },
+        {
+          "state": "19-200-percent-equivalent-reflow",
+          "path": "browser-final/academic-catalog-managemen-6e75c-NTRACT-EVIDENCE-en-dark-834/19-200-percent-equivalent-reflow.png",
+          "size": [720, 4854],
+          "sha256": "effe0411086322e2c24d8b79f7be5a1cd231e545bda62e3b36ee5cdaee500a40"
+        }
+      ],
+      "writeCount": 16,
+      "reads": [
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "captures": [
+        {
+          "state": "01-populated-taxonomy-hierarchy-long-source",
+          "path": "browser-final/academic-catalog-managemen-6ec1f-NTRACT-EVIDENCE-en-dark-390/01-populated-taxonomy-hierarchy-long-source.png",
+          "size": [390, 7262],
+          "sha256": "bc2c48dbc166a59b38632783b2a6f4e8b56203e9b054523cecafb8435ad68860"
+        },
+        {
+          "state": "02-keyboard-focus",
+          "path": "browser-final/academic-catalog-managemen-6ec1f-NTRACT-EVIDENCE-en-dark-390/02-keyboard-focus.png",
+          "size": [390, 7262],
+          "sha256": "afb2c1d3dd166fb2b0d641e0e4a3bb056a436934987c455c6c1e6d0bdab20a99"
+        },
+        {
+          "state": "03-specialization-pending",
+          "path": "browser-final/academic-catalog-managemen-6ec1f-NTRACT-EVIDENCE-en-dark-390/03-specialization-pending.png",
+          "size": [390, 7342],
+          "sha256": "d71bbd3677e891aa3d25ba71d6c6994de2dae09a12800863472cd2e4d2580f55"
+        },
+        {
+          "state": "04-specialization-error-retained-draft",
+          "path": "browser-final/academic-catalog-managemen-6ec1f-NTRACT-EVIDENCE-en-dark-390/04-specialization-error-retained-draft.png",
+          "size": [390, 7342],
+          "sha256": "686507fb6e1998e61e99425bb228f286ca4905b74b34ccdd994c4195b6461a40"
+        },
+        {
+          "state": "05-specialization-server-success",
+          "path": "browser-final/academic-catalog-managemen-6ec1f-NTRACT-EVIDENCE-en-dark-390/05-specialization-server-success.png",
+          "size": [390, 7342],
+          "sha256": "80a929430a46e29651f8dc468cd24dd2d41509592fd403996417406d3d082783"
+        },
+        {
+          "state": "06-grade-create",
+          "path": "browser-final/academic-catalog-managemen-6ec1f-NTRACT-EVIDENCE-en-dark-390/06-grade-create.png",
+          "size": [390, 7342],
+          "sha256": "874dc17bf34bb71a916173be487f9da5d259c121bb636eeb6e74738f284b9ace"
+        },
+        {
+          "state": "07-taxonomy-independent-visible-archived-actions",
+          "path": "browser-final/academic-catalog-managemen-6ec1f-NTRACT-EVIDENCE-en-dark-390/07-taxonomy-independent-visible-archived-actions.png",
+          "size": [390, 7342],
+          "sha256": "42d4e8a89219cce8d1ce706f35fab0250d2697147f23aac4ce416c3a918d34e8"
+        },
+        {
+          "state": "08-qualification-specialization-dependency",
+          "path": "browser-final/academic-catalog-managemen-6ec1f-NTRACT-EVIDENCE-en-dark-390/08-qualification-specialization-dependency.png",
+          "size": [390, 7342],
+          "sha256": "3d00ef42313e623015c9226914d6764dcb75dd04471f93933ea4292aa8ab5f3b"
+        },
+        {
+          "state": "09-version-source-reference-validation",
+          "path": "browser-final/academic-catalog-managemen-6ec1f-NTRACT-EVIDENCE-en-dark-390/09-version-source-reference-validation.png",
+          "size": [390, 7342],
+          "sha256": "0fd66fcff9293342e3061e6abbf3afe7d6b0651396cc2c322bfa61b8f27cb888"
+        },
+        {
+          "state": "10-version-date-and-custom-qualification",
+          "path": "browser-final/academic-catalog-managemen-6ec1f-NTRACT-EVIDENCE-en-dark-390/10-version-date-and-custom-qualification.png",
+          "size": [390, 7342],
+          "sha256": "0a491c519ad4dd2aa8eabdbe4795fe3c100d8a215abe389c34fce2376a503663"
+        },
+        {
+          "state": "11-unit-arabic-fallback-empty",
+          "path": "browser-final/academic-catalog-managemen-6ec1f-NTRACT-EVIDENCE-en-dark-390/11-unit-arabic-fallback-empty.png",
+          "size": [390, 7342],
+          "sha256": "d0be9fe1d3ee769c74f48f5179ade207bbeb80d4ff63afe7ba40ea7b4aa8320f"
+        },
+        {
+          "state": "12-unit-local-arabic-draft-semantics",
+          "path": "browser-final/academic-catalog-managemen-6ec1f-NTRACT-EVIDENCE-en-dark-390/12-unit-local-arabic-draft-semantics.png",
+          "size": [390, 7342],
+          "sha256": "9ba84cab465d37cd8f18575be6be723b2d8c4f6119c912ad1bef3c95f8a1e84a"
+        },
+        {
+          "state": "13-qualification-version-independent-status",
+          "path": "browser-final/academic-catalog-managemen-6ec1f-NTRACT-EVIDENCE-en-dark-390/13-qualification-version-independent-status.png",
+          "size": [390, 7342],
+          "sha256": "50f563c8d2fb43139c22096f87e17d6cbc1f703ba40a6fbef705dcd06b8a846c"
+        },
+        {
+          "state": "14-cached-data-refresh-warning",
+          "path": "browser-final/academic-catalog-managemen-6ec1f-NTRACT-EVIDENCE-en-dark-390/14-cached-data-refresh-warning.png",
+          "size": [390, 7756],
+          "sha256": "b8eb169087f0e488a9750725ca4d0ba17d5eac32c1d1d0645834c1394b318167"
+        },
+        {
+          "state": "15-four-independent-pending-queries",
+          "path": "browser-final/academic-catalog-managemen-6ec1f-NTRACT-EVIDENCE-en-dark-390/15-four-independent-pending-queries.png",
+          "size": [390, 4811],
+          "sha256": "148be7ce68221a9b1ba293456dd55d9dbe36d5c4b2751be05902fe182e1e8cc7"
+        },
+        {
+          "state": "16-cold-errors-no-false-empty",
+          "path": "browser-final/academic-catalog-managemen-6ec1f-NTRACT-EVIDENCE-en-dark-390/16-cold-errors-no-false-empty.png",
+          "size": [390, 5019],
+          "sha256": "ecccab7388f672af36473e26b41852f6c59e0bf96429af5398738fffad58f027"
+        },
+        {
+          "state": "17-missing-btec-context",
+          "path": "browser-final/academic-catalog-managemen-6ec1f-NTRACT-EVIDENCE-en-dark-390/17-missing-btec-context.png",
+          "size": [390, 4747],
+          "sha256": "8249bcf2fe21d3a92551d6edd808d8bc61e1cb9a263b3034a025d81fc280f030"
+        },
+        {
+          "state": "18-empty-taxonomy-and-qualifications",
+          "path": "browser-final/academic-catalog-managemen-6ec1f-NTRACT-EVIDENCE-en-dark-390/18-empty-taxonomy-and-qualifications.png",
+          "size": [390, 4871],
+          "sha256": "37efd9959a8ffe8a2664945e3191423ea4b5ae118ac7063f4aea49f1ec133441"
+        },
+        {
+          "state": "19-200-percent-equivalent-reflow",
+          "path": "browser-final/academic-catalog-managemen-6ec1f-NTRACT-EVIDENCE-en-dark-390/19-200-percent-equivalent-reflow.png",
+          "size": [720, 4854],
+          "sha256": "63100ea83789f4aa07a77442192cf671d6ec57f2fedacf4ec91dc06e8cfabe24"
+        }
+      ],
+      "writeCount": 16,
+      "reads": [
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "ar",
+      "theme": "light",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "captures": [
+        {
+          "state": "01-populated-taxonomy-hierarchy-long-source",
+          "path": "browser-final/academic-catalog-managemen-a3895-TRACT-EVIDENCE-ar-light-834/01-populated-taxonomy-hierarchy-long-source.png",
+          "size": [834, 4642],
+          "sha256": "c9472c950a95557d3e217e479c6e86bf1867d4b1705021e5db906b166fb12eb1"
+        },
+        {
+          "state": "02-keyboard-focus",
+          "path": "browser-final/academic-catalog-managemen-a3895-TRACT-EVIDENCE-ar-light-834/02-keyboard-focus.png",
+          "size": [834, 4642],
+          "sha256": "9dd5d1109208a1713151a548a5ca2099a195cd029d269f0667c2353c29864835"
+        },
+        {
+          "state": "03-specialization-pending",
+          "path": "browser-final/academic-catalog-managemen-a3895-TRACT-EVIDENCE-ar-light-834/03-specialization-pending.png",
+          "size": [834, 4725],
+          "sha256": "9b6c7225d38f7c50e3b859a7b4e8abcd82ae15dc7bbb6e9d9a42b0ab960acdd9"
+        },
+        {
+          "state": "04-specialization-error-retained-draft",
+          "path": "browser-final/academic-catalog-managemen-a3895-TRACT-EVIDENCE-ar-light-834/04-specialization-error-retained-draft.png",
+          "size": [834, 4725],
+          "sha256": "0b04a1c8c30d224408029715b952ac32e833ab789e27993e9ed337c981353844"
+        },
+        {
+          "state": "05-specialization-server-success",
+          "path": "browser-final/academic-catalog-managemen-a3895-TRACT-EVIDENCE-ar-light-834/05-specialization-server-success.png",
+          "size": [834, 4725],
+          "sha256": "6b16cbff11bce658655ea12263dfc4b575eb5d3ecde80bbb8b76d86652fd9add"
+        },
+        {
+          "state": "06-grade-create",
+          "path": "browser-final/academic-catalog-managemen-a3895-TRACT-EVIDENCE-ar-light-834/06-grade-create.png",
+          "size": [834, 4725],
+          "sha256": "3645fd2037006d3228c8f98ce934516ac1c6b4ac2c3607e70250c83b982b9d9d"
+        },
+        {
+          "state": "07-taxonomy-independent-visible-archived-actions",
+          "path": "browser-final/academic-catalog-managemen-a3895-TRACT-EVIDENCE-ar-light-834/07-taxonomy-independent-visible-archived-actions.png",
+          "size": [834, 4725],
+          "sha256": "3438d9e28855dc287d36008f9c4400cde472712b1d0dad098749fd0ff6c9fabb"
+        },
+        {
+          "state": "08-qualification-specialization-dependency",
+          "path": "browser-final/academic-catalog-managemen-a3895-TRACT-EVIDENCE-ar-light-834/08-qualification-specialization-dependency.png",
+          "size": [834, 4725],
+          "sha256": "7f6e111ca11ecd02a9f29bad05d26c30a92f58e1771053ba429f76e42efe54e4"
+        },
+        {
+          "state": "09-version-source-reference-validation",
+          "path": "browser-final/academic-catalog-managemen-a3895-TRACT-EVIDENCE-ar-light-834/09-version-source-reference-validation.png",
+          "size": [834, 4725],
+          "sha256": "1506ec165a5e0e990270ac21e7834892d383c5375632f709dd5451553ee7018f"
+        },
+        {
+          "state": "10-version-date-and-custom-qualification",
+          "path": "browser-final/academic-catalog-managemen-a3895-TRACT-EVIDENCE-ar-light-834/10-version-date-and-custom-qualification.png",
+          "size": [834, 4725],
+          "sha256": "787fe53d720550a5365257c225f4a1cb3195efbfafa00927806a3990c9f0aca4"
+        },
+        {
+          "state": "11-unit-arabic-fallback-empty",
+          "path": "browser-final/academic-catalog-managemen-a3895-TRACT-EVIDENCE-ar-light-834/11-unit-arabic-fallback-empty.png",
+          "size": [834, 4725],
+          "sha256": "07a20245e1c14fa0f828ad357714fa921fab00432e5de43476dbd3c810666ba9"
+        },
+        {
+          "state": "12-unit-local-arabic-draft-semantics",
+          "path": "browser-final/academic-catalog-managemen-a3895-TRACT-EVIDENCE-ar-light-834/12-unit-local-arabic-draft-semantics.png",
+          "size": [834, 4725],
+          "sha256": "d608c7778785bbb7a5bbcee7305cc746dfa3bf93b18624eb39af0e0975b31551"
+        },
+        {
+          "state": "13-qualification-version-independent-status",
+          "path": "browser-final/academic-catalog-managemen-a3895-TRACT-EVIDENCE-ar-light-834/13-qualification-version-independent-status.png",
+          "size": [834, 4725],
+          "sha256": "358bc4f7c25e7e3a6375f6608e22687b4e76fdb09a2dc353ae7ae606a5a0ef6f"
+        },
+        {
+          "state": "14-cached-data-refresh-warning",
+          "path": "browser-final/academic-catalog-managemen-a3895-TRACT-EVIDENCE-ar-light-834/14-cached-data-refresh-warning.png",
+          "size": [834, 4959],
+          "sha256": "d7b5e511adcea34473a57ea76638e9a04fd72a9809b2892ba9752eada233f662"
+        },
+        {
+          "state": "15-four-independent-pending-queries",
+          "path": "browser-final/academic-catalog-managemen-a3895-TRACT-EVIDENCE-ar-light-834/15-four-independent-pending-queries.png",
+          "size": [834, 3374],
+          "sha256": "a45c256552dd1aba13c228c4a4555dcaf60c28280aee1f8b3c34a8e9701d441c"
+        },
+        {
+          "state": "16-cold-errors-no-false-empty",
+          "path": "browser-final/academic-catalog-managemen-a3895-TRACT-EVIDENCE-ar-light-834/16-cold-errors-no-false-empty.png",
+          "size": [834, 3434],
+          "sha256": "a4e0a7b67aa075bcad98e7717fe9fd9bac99b3709888b083a5d0305e41e9b528"
+        },
+        {
+          "state": "17-missing-btec-context",
+          "path": "browser-final/academic-catalog-managemen-a3895-TRACT-EVIDENCE-ar-light-834/17-missing-btec-context.png",
+          "size": [834, 3201],
+          "sha256": "c49198e567aa588053aea6965ad8217b3560af7db3536be7b90245ccc1ecef35"
+        },
+        {
+          "state": "18-empty-taxonomy-and-qualifications",
+          "path": "browser-final/academic-catalog-managemen-a3895-TRACT-EVIDENCE-ar-light-834/18-empty-taxonomy-and-qualifications.png",
+          "size": [834, 3331],
+          "sha256": "f37d4b6a31c3d5b4d2b755906ae671da3b117ee52f470b3a29a056444e8b5e0f"
+        },
+        {
+          "state": "19-200-percent-equivalent-reflow",
+          "path": "browser-final/academic-catalog-managemen-a3895-TRACT-EVIDENCE-ar-light-834/19-200-percent-equivalent-reflow.png",
+          "size": [720, 4941],
+          "sha256": "3685459952c69e0e5b615261c46b2cf61c41ac3f4bb6891d17cf59cdc37321bf"
+        }
+      ],
+      "writeCount": 16,
+      "reads": [
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "captures": [
+        {
+          "state": "01-populated-taxonomy-hierarchy-long-source",
+          "path": "browser-final/academic-catalog-managemen-a85c7-NTRACT-EVIDENCE-ar-dark-390/01-populated-taxonomy-hierarchy-long-source.png",
+          "size": [390, 7253],
+          "sha256": "e7b5e8b63b7aa31f506a646a35640194409c7ce671a6bcddda23c244190014bf"
+        },
+        {
+          "state": "02-keyboard-focus",
+          "path": "browser-final/academic-catalog-managemen-a85c7-NTRACT-EVIDENCE-ar-dark-390/02-keyboard-focus.png",
+          "size": [390, 7253],
+          "sha256": "3bce364563c5b16741943b86ea62668d285aa13bd0d2a7f59081967976f2aa5e"
+        },
+        {
+          "state": "03-specialization-pending",
+          "path": "browser-final/academic-catalog-managemen-a85c7-NTRACT-EVIDENCE-ar-dark-390/03-specialization-pending.png",
+          "size": [390, 7336],
+          "sha256": "e5920765b2f36b6a8cf92dc254796c744e7bd22f169cf5ac48f16623837dd1a7"
+        },
+        {
+          "state": "04-specialization-error-retained-draft",
+          "path": "browser-final/academic-catalog-managemen-a85c7-NTRACT-EVIDENCE-ar-dark-390/04-specialization-error-retained-draft.png",
+          "size": [390, 7336],
+          "sha256": "ab0ac754104447f2b3b3c743b83cdd8dd2ece0983b436f9cc1a0aff780c51a4d"
+        },
+        {
+          "state": "05-specialization-server-success",
+          "path": "browser-final/academic-catalog-managemen-a85c7-NTRACT-EVIDENCE-ar-dark-390/05-specialization-server-success.png",
+          "size": [390, 7336],
+          "sha256": "c93d992a779790b05f137235b3c721fdcd55f0f80443879c9df25e219a67ff81"
+        },
+        {
+          "state": "06-grade-create",
+          "path": "browser-final/academic-catalog-managemen-a85c7-NTRACT-EVIDENCE-ar-dark-390/06-grade-create.png",
+          "size": [390, 7336],
+          "sha256": "3922342eed7d8fd44fcd9bbb51cf22b61422481db374c4c0d5bc0f7a2a1eb78b"
+        },
+        {
+          "state": "07-taxonomy-independent-visible-archived-actions",
+          "path": "browser-final/academic-catalog-managemen-a85c7-NTRACT-EVIDENCE-ar-dark-390/07-taxonomy-independent-visible-archived-actions.png",
+          "size": [390, 7336],
+          "sha256": "b837b631fa2a2627c7375e98e3c02b9bb5f0ddc420e2611cdf265f18226a255a"
+        },
+        {
+          "state": "08-qualification-specialization-dependency",
+          "path": "browser-final/academic-catalog-managemen-a85c7-NTRACT-EVIDENCE-ar-dark-390/08-qualification-specialization-dependency.png",
+          "size": [390, 7336],
+          "sha256": "4bf32181f669ca4865751e1d6408e3dce0fa0bdbc1270a503cf9a8d487bf6ed9"
+        },
+        {
+          "state": "09-version-source-reference-validation",
+          "path": "browser-final/academic-catalog-managemen-a85c7-NTRACT-EVIDENCE-ar-dark-390/09-version-source-reference-validation.png",
+          "size": [390, 7336],
+          "sha256": "2b30dc14539d4228c806e91e0a8b37fcc8504c8b917814d0dda60ffe3cb707fd"
+        },
+        {
+          "state": "10-version-date-and-custom-qualification",
+          "path": "browser-final/academic-catalog-managemen-a85c7-NTRACT-EVIDENCE-ar-dark-390/10-version-date-and-custom-qualification.png",
+          "size": [390, 7336],
+          "sha256": "88754c06e7f0bfebc1ad1c718658e25f5a56c8a04580f6bbb3f27344bbae9c7e"
+        },
+        {
+          "state": "11-unit-arabic-fallback-empty",
+          "path": "browser-final/academic-catalog-managemen-a85c7-NTRACT-EVIDENCE-ar-dark-390/11-unit-arabic-fallback-empty.png",
+          "size": [390, 7336],
+          "sha256": "f57b6624745b95ab2b4fb9bbfaff0926f5bb805f6030d069ee6d57df7e6bb4c7"
+        },
+        {
+          "state": "12-unit-local-arabic-draft-semantics",
+          "path": "browser-final/academic-catalog-managemen-a85c7-NTRACT-EVIDENCE-ar-dark-390/12-unit-local-arabic-draft-semantics.png",
+          "size": [390, 7336],
+          "sha256": "edb233c68fa6d5385ce2ef1d067e006bab29a43672d639602727a67ef894f922"
+        },
+        {
+          "state": "13-qualification-version-independent-status",
+          "path": "browser-final/academic-catalog-managemen-a85c7-NTRACT-EVIDENCE-ar-dark-390/13-qualification-version-independent-status.png",
+          "size": [390, 7336],
+          "sha256": "11a6535422d858f6b548bc9967dd20281275595e821ec7fe2f43af13da0ec127"
+        },
+        {
+          "state": "14-cached-data-refresh-warning",
+          "path": "browser-final/academic-catalog-managemen-a85c7-NTRACT-EVIDENCE-ar-dark-390/14-cached-data-refresh-warning.png",
+          "size": [390, 7768],
+          "sha256": "d484cf40bde58cc94ed9292a71e59b3d277c93b1809a5e456fd359d25da7c30b"
+        },
+        {
+          "state": "15-four-independent-pending-queries",
+          "path": "browser-final/academic-catalog-managemen-a85c7-NTRACT-EVIDENCE-ar-dark-390/15-four-independent-pending-queries.png",
+          "size": [390, 4817],
+          "sha256": "2a735a090f3b69e84058c291b81fd68aae2cb436481c5f7070c1f98b099bb817"
+        },
+        {
+          "state": "16-cold-errors-no-false-empty",
+          "path": "browser-final/academic-catalog-managemen-a85c7-NTRACT-EVIDENCE-ar-dark-390/16-cold-errors-no-false-empty.png",
+          "size": [390, 4877],
+          "sha256": "020501daa9e8054857af8c9edacaa1efce4f64e9e0eed629d03e98c7a3f078e3"
+        },
+        {
+          "state": "17-missing-btec-context",
+          "path": "browser-final/academic-catalog-managemen-a85c7-NTRACT-EVIDENCE-ar-dark-390/17-missing-btec-context.png",
+          "size": [390, 4733],
+          "sha256": "9ac7bda9151ee6401c6c29114d75f925be3b26175c18bc62c8babd6083f38cf1"
+        },
+        {
+          "state": "18-empty-taxonomy-and-qualifications",
+          "path": "browser-final/academic-catalog-managemen-a85c7-NTRACT-EVIDENCE-ar-dark-390/18-empty-taxonomy-and-qualifications.png",
+          "size": [390, 4861],
+          "sha256": "82a1e1a7f6b95d77d09e5ebc83c72bd001e6636fe2cbb70aedf1725e6f2ec54c"
+        },
+        {
+          "state": "19-200-percent-equivalent-reflow",
+          "path": "browser-final/academic-catalog-managemen-a85c7-NTRACT-EVIDENCE-ar-dark-390/19-200-percent-equivalent-reflow.png",
+          "size": [720, 4941],
+          "sha256": "d8e7a65bb8ff485f3487d470fd2237d00859045b1f809b6401d8c42f602f6565"
+        }
+      ],
+      "writeCount": 16,
+      "reads": [
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "captures": [
+        {
+          "state": "01-populated-taxonomy-hierarchy-long-source",
+          "path": "browser-final/academic-catalog-managemen-d446a-TRACT-EVIDENCE-ar-dark-1440/01-populated-taxonomy-hierarchy-long-source.png",
+          "size": [1440, 3787],
+          "sha256": "1264e42fd9499ea974afb16790de04f3fb5ceacc580ef6851ce12d9c95d51343"
+        },
+        {
+          "state": "02-keyboard-focus",
+          "path": "browser-final/academic-catalog-managemen-d446a-TRACT-EVIDENCE-ar-dark-1440/02-keyboard-focus.png",
+          "size": [1440, 3787],
+          "sha256": "48ea571fdbfbac5c7a0f67dfced79984008cfd561225bf4f2bb44dcf9e75a35a"
+        },
+        {
+          "state": "03-specialization-pending",
+          "path": "browser-final/academic-catalog-managemen-d446a-TRACT-EVIDENCE-ar-dark-1440/03-specialization-pending.png",
+          "size": [1440, 3870],
+          "sha256": "c75e2f7b596bd2e611d5d6aea555d1089c534bc79af8a47619cbfee82b8fa4a9"
+        },
+        {
+          "state": "04-specialization-error-retained-draft",
+          "path": "browser-final/academic-catalog-managemen-d446a-TRACT-EVIDENCE-ar-dark-1440/04-specialization-error-retained-draft.png",
+          "size": [1440, 3870],
+          "sha256": "e2be3339baacec5f843b3d8bb3086cdbf6b19782fa7859ef543bd7bfdf7bbea5"
+        },
+        {
+          "state": "05-specialization-server-success",
+          "path": "browser-final/academic-catalog-managemen-d446a-TRACT-EVIDENCE-ar-dark-1440/05-specialization-server-success.png",
+          "size": [1440, 3870],
+          "sha256": "a58a681bc7c6136046b0340fd74d92611aea261e7ce6752a591b5bf86d967a6f"
+        },
+        {
+          "state": "06-grade-create",
+          "path": "browser-final/academic-catalog-managemen-d446a-TRACT-EVIDENCE-ar-dark-1440/06-grade-create.png",
+          "size": [1440, 3870],
+          "sha256": "53561bf4cb65baa20ff05d84fc39eaec7582b6c29537ad970b21dc0f04bea9e8"
+        },
+        {
+          "state": "07-taxonomy-independent-visible-archived-actions",
+          "path": "browser-final/academic-catalog-managemen-d446a-TRACT-EVIDENCE-ar-dark-1440/07-taxonomy-independent-visible-archived-actions.png",
+          "size": [1440, 3870],
+          "sha256": "bf36032b4a3a065f6f831ce9af23c7e24196aa489c21ef7349200a43876da1dd"
+        },
+        {
+          "state": "08-qualification-specialization-dependency",
+          "path": "browser-final/academic-catalog-managemen-d446a-TRACT-EVIDENCE-ar-dark-1440/08-qualification-specialization-dependency.png",
+          "size": [1440, 3870],
+          "sha256": "cda9a2dcdf7d1b4b0ed3d1056cc01d622165a6ad5b9a43be26f6888b5d475d23"
+        },
+        {
+          "state": "09-version-source-reference-validation",
+          "path": "browser-final/academic-catalog-managemen-d446a-TRACT-EVIDENCE-ar-dark-1440/09-version-source-reference-validation.png",
+          "size": [1440, 3870],
+          "sha256": "4b56d9247a4049d9de51044633d9cd6a065771ba6b59a46e4c3624d77d522fe7"
+        },
+        {
+          "state": "10-version-date-and-custom-qualification",
+          "path": "browser-final/academic-catalog-managemen-d446a-TRACT-EVIDENCE-ar-dark-1440/10-version-date-and-custom-qualification.png",
+          "size": [1440, 3870],
+          "sha256": "b1fc675a5503c5c65f188efb063dd673e64b1088bd3e1c74eeabd22bea677c1d"
+        },
+        {
+          "state": "11-unit-arabic-fallback-empty",
+          "path": "browser-final/academic-catalog-managemen-d446a-TRACT-EVIDENCE-ar-dark-1440/11-unit-arabic-fallback-empty.png",
+          "size": [1440, 3870],
+          "sha256": "b0159936b3c19495e70a08b8dd30f8e9c27d3a4742c291f77f1ebaaee5ab8565"
+        },
+        {
+          "state": "12-unit-local-arabic-draft-semantics",
+          "path": "browser-final/academic-catalog-managemen-d446a-TRACT-EVIDENCE-ar-dark-1440/12-unit-local-arabic-draft-semantics.png",
+          "size": [1440, 3870],
+          "sha256": "25309ea41721f7cbf751978877d5d5bde9324a7d7e7787cc95ec68601757bf97"
+        },
+        {
+          "state": "13-qualification-version-independent-status",
+          "path": "browser-final/academic-catalog-managemen-d446a-TRACT-EVIDENCE-ar-dark-1440/13-qualification-version-independent-status.png",
+          "size": [1440, 3870],
+          "sha256": "9d5630b6dbc7ba438cd641fb49ac1c377c895f1c293e5997822fd6a4588f08c5"
+        },
+        {
+          "state": "14-cached-data-refresh-warning",
+          "path": "browser-final/academic-catalog-managemen-d446a-TRACT-EVIDENCE-ar-dark-1440/14-cached-data-refresh-warning.png",
+          "size": [1440, 4026],
+          "sha256": "ce85232f524d0fa29b283e2a70b6e6196b7ff058956408f7682df574e81db37a"
+        },
+        {
+          "state": "15-four-independent-pending-queries",
+          "path": "browser-final/academic-catalog-managemen-d446a-TRACT-EVIDENCE-ar-dark-1440/15-four-independent-pending-queries.png",
+          "size": [1440, 2878],
+          "sha256": "83d2f200611949122540ce23107ad1a6d6a76a72c4e793ed0e28759daeb8fd49"
+        },
+        {
+          "state": "16-cold-errors-no-false-empty",
+          "path": "browser-final/academic-catalog-managemen-d446a-TRACT-EVIDENCE-ar-dark-1440/16-cold-errors-no-false-empty.png",
+          "size": [1440, 2923],
+          "sha256": "cc1d55431e7fb97dadbe9f596b12f5b3fa983495b80eb474c8e37614ef190b4f"
+        },
+        {
+          "state": "17-missing-btec-context",
+          "path": "browser-final/academic-catalog-managemen-d446a-TRACT-EVIDENCE-ar-dark-1440/17-missing-btec-context.png",
+          "size": [1440, 2768],
+          "sha256": "f725cdc85718c8f5f7131d3a790be0ca0c1d3d720c5685c9cb0d0826c2e5fd61"
+        },
+        {
+          "state": "18-empty-taxonomy-and-qualifications",
+          "path": "browser-final/academic-catalog-managemen-d446a-TRACT-EVIDENCE-ar-dark-1440/18-empty-taxonomy-and-qualifications.png",
+          "size": [1440, 2862],
+          "sha256": "45538b90a3e349b1183fab4ec813e255aa2cee184b1f8fee894288c6f8bee33c"
+        },
+        {
+          "state": "19-200-percent-equivalent-reflow",
+          "path": "browser-final/academic-catalog-managemen-d446a-TRACT-EVIDENCE-ar-dark-1440/19-200-percent-equivalent-reflow.png",
+          "size": [720, 4941],
+          "sha256": "7b398854d0cb329ccb149c5eaf848470dbde72eeaf9a44bb3ed029b528972eb2"
+        }
+      ],
+      "writeCount": 16,
+      "reads": [
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "captures": [
+        {
+          "state": "01-populated-taxonomy-hierarchy-long-source",
+          "path": "browser-final/academic-catalog-managemen-dcb6e-TRACT-EVIDENCE-en-light-834/01-populated-taxonomy-hierarchy-long-source.png",
+          "size": [834, 4517],
+          "sha256": "51d65c69ff38c04326468bff7ac646fcdf94ee49cb10a3ede1ea0df9d452dce8"
+        },
+        {
+          "state": "02-keyboard-focus",
+          "path": "browser-final/academic-catalog-managemen-dcb6e-TRACT-EVIDENCE-en-light-834/02-keyboard-focus.png",
+          "size": [834, 4517],
+          "sha256": "c42fcae498efd16c72625fbae1b04e2aff3c536a89108a3e26796681fe122bc0"
+        },
+        {
+          "state": "03-specialization-pending",
+          "path": "browser-final/academic-catalog-managemen-dcb6e-TRACT-EVIDENCE-en-light-834/03-specialization-pending.png",
+          "size": [834, 4597],
+          "sha256": "c38d680b2287dc747c634742cbe1b544a6cd38e69211265a85bdaebc5531c8d6"
+        },
+        {
+          "state": "04-specialization-error-retained-draft",
+          "path": "browser-final/academic-catalog-managemen-dcb6e-TRACT-EVIDENCE-en-light-834/04-specialization-error-retained-draft.png",
+          "size": [834, 4597],
+          "sha256": "b39a985663f2ef31b1462865d01b43903579d4b52a68fd8b90dec94e18391f58"
+        },
+        {
+          "state": "05-specialization-server-success",
+          "path": "browser-final/academic-catalog-managemen-dcb6e-TRACT-EVIDENCE-en-light-834/05-specialization-server-success.png",
+          "size": [834, 4597],
+          "sha256": "1277c79772927b5c91dfe4027c3bbe0b81189de3e4229d127f204c933ead10f3"
+        },
+        {
+          "state": "06-grade-create",
+          "path": "browser-final/academic-catalog-managemen-dcb6e-TRACT-EVIDENCE-en-light-834/06-grade-create.png",
+          "size": [834, 4597],
+          "sha256": "3bdc596e228528368e8fc6895a40eddf4d95786e6e49a93e064ab88f3a44ef00"
+        },
+        {
+          "state": "07-taxonomy-independent-visible-archived-actions",
+          "path": "browser-final/academic-catalog-managemen-dcb6e-TRACT-EVIDENCE-en-light-834/07-taxonomy-independent-visible-archived-actions.png",
+          "size": [834, 4597],
+          "sha256": "c3c2dd9f000c2dedd806840813f1919db7e4f10e429b3c61975c7569bcc332f8"
+        },
+        {
+          "state": "08-qualification-specialization-dependency",
+          "path": "browser-final/academic-catalog-managemen-dcb6e-TRACT-EVIDENCE-en-light-834/08-qualification-specialization-dependency.png",
+          "size": [834, 4597],
+          "sha256": "4487df471cd02da0d78a396d10bc3bd3646f0bb87a27d77213d74f804f2ac344"
+        },
+        {
+          "state": "09-version-source-reference-validation",
+          "path": "browser-final/academic-catalog-managemen-dcb6e-TRACT-EVIDENCE-en-light-834/09-version-source-reference-validation.png",
+          "size": [834, 4597],
+          "sha256": "b1f6ef648d862aaca28cff41e529e7a6e45b92b31d8515706b9c67ba436d7ae2"
+        },
+        {
+          "state": "10-version-date-and-custom-qualification",
+          "path": "browser-final/academic-catalog-managemen-dcb6e-TRACT-EVIDENCE-en-light-834/10-version-date-and-custom-qualification.png",
+          "size": [834, 4597],
+          "sha256": "2eaf9769b718893a542444c8c046920e6a48b5eedbfadc79dfc6ed1ec1e50540"
+        },
+        {
+          "state": "11-unit-arabic-fallback-empty",
+          "path": "browser-final/academic-catalog-managemen-dcb6e-TRACT-EVIDENCE-en-light-834/11-unit-arabic-fallback-empty.png",
+          "size": [834, 4597],
+          "sha256": "1f38be9b534b0e77d6b4d36ca37b1c06170f71fcbed463f431a5972e9a526435"
+        },
+        {
+          "state": "12-unit-local-arabic-draft-semantics",
+          "path": "browser-final/academic-catalog-managemen-dcb6e-TRACT-EVIDENCE-en-light-834/12-unit-local-arabic-draft-semantics.png",
+          "size": [834, 4597],
+          "sha256": "89ae64c5f99dc64a1939e205fb06a0dce829a030685fd1078507c345233e7bf3"
+        },
+        {
+          "state": "13-qualification-version-independent-status",
+          "path": "browser-final/academic-catalog-managemen-dcb6e-TRACT-EVIDENCE-en-light-834/13-qualification-version-independent-status.png",
+          "size": [834, 4597],
+          "sha256": "d088120ed21851143638645e23ef0151a499d5537b59c8ca7d7d2f30cefe197d"
+        },
+        {
+          "state": "14-cached-data-refresh-warning",
+          "path": "browser-final/academic-catalog-managemen-dcb6e-TRACT-EVIDENCE-en-light-834/14-cached-data-refresh-warning.png",
+          "size": [834, 4831],
+          "sha256": "90d25fcae86f9f8352598d12b932d87a619847b44d13db140e563ff418e7b837"
+        },
+        {
+          "state": "15-four-independent-pending-queries",
+          "path": "browser-final/academic-catalog-managemen-dcb6e-TRACT-EVIDENCE-en-light-834/15-four-independent-pending-queries.png",
+          "size": [834, 3330],
+          "sha256": "128f4df44922ea797baddd3903b0d92ea5e21ecec2ce39934f6a4c34bdebbb81"
+        },
+        {
+          "state": "16-cold-errors-no-false-empty",
+          "path": "browser-final/academic-catalog-managemen-dcb6e-TRACT-EVIDENCE-en-light-834/16-cold-errors-no-false-empty.png",
+          "size": [834, 3402],
+          "sha256": "f50ebc758c592a4bebe22e30056f5bba3e1dd38fbb8fbe9caa7b8b2befbd3891"
+        },
+        {
+          "state": "17-missing-btec-context",
+          "path": "browser-final/academic-catalog-managemen-dcb6e-TRACT-EVIDENCE-en-light-834/17-missing-btec-context.png",
+          "size": [834, 3162],
+          "sha256": "692b54a1e5e51c73c4c8dbc830a6733ccabc738f624b506b228dbbf75a80a068"
+        },
+        {
+          "state": "18-empty-taxonomy-and-qualifications",
+          "path": "browser-final/academic-catalog-managemen-dcb6e-TRACT-EVIDENCE-en-light-834/18-empty-taxonomy-and-qualifications.png",
+          "size": [834, 3286],
+          "sha256": "efbd1f5c7c65bdd102052da3f0579edaf04c8460f0215ba7343c7acb3aa5f10b"
+        },
+        {
+          "state": "19-200-percent-equivalent-reflow",
+          "path": "browser-final/academic-catalog-managemen-dcb6e-TRACT-EVIDENCE-en-light-834/19-200-percent-equivalent-reflow.png",
+          "size": [720, 4854],
+          "sha256": "3e4c36b575e9d4e458c7b1254f28b2047937f3ada5972d34e9cfdc1eab52a83c"
+        }
+      ],
+      "writeCount": 16,
+      "reads": [
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "ar",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "captures": [
+        {
+          "state": "01-populated-taxonomy-hierarchy-long-source",
+          "path": "browser-final/academic-catalog-managemen-f124c-RACT-EVIDENCE-ar-light-1440/01-populated-taxonomy-hierarchy-long-source.png",
+          "size": [1440, 3787],
+          "sha256": "17229410393c05ff7447026c0f02cbd81f56eb4ff6ac59fb86aba74df42a9319"
+        },
+        {
+          "state": "02-keyboard-focus",
+          "path": "browser-final/academic-catalog-managemen-f124c-RACT-EVIDENCE-ar-light-1440/02-keyboard-focus.png",
+          "size": [1440, 3787],
+          "sha256": "bb8772217cea3d65ad4b8a0e98588659d101f0943c35256b65ed432c03f1a210"
+        },
+        {
+          "state": "03-specialization-pending",
+          "path": "browser-final/academic-catalog-managemen-f124c-RACT-EVIDENCE-ar-light-1440/03-specialization-pending.png",
+          "size": [1440, 3870],
+          "sha256": "a8af4aef6a21ce859b5135e620323fcbf3fd5419906f5f4ff4f76b10212d5c15"
+        },
+        {
+          "state": "04-specialization-error-retained-draft",
+          "path": "browser-final/academic-catalog-managemen-f124c-RACT-EVIDENCE-ar-light-1440/04-specialization-error-retained-draft.png",
+          "size": [1440, 3870],
+          "sha256": "79610694d1cf93572dfe749ae7602a605942a09f432e1ab0dcc1e6f429724ef0"
+        },
+        {
+          "state": "05-specialization-server-success",
+          "path": "browser-final/academic-catalog-managemen-f124c-RACT-EVIDENCE-ar-light-1440/05-specialization-server-success.png",
+          "size": [1440, 3870],
+          "sha256": "8bcd25ac6b95441548f54485a26209f0c8efcbf81f34385f4d675594f9fa10a1"
+        },
+        {
+          "state": "06-grade-create",
+          "path": "browser-final/academic-catalog-managemen-f124c-RACT-EVIDENCE-ar-light-1440/06-grade-create.png",
+          "size": [1440, 3870],
+          "sha256": "54cdcfb0efcae7d339b5b887b58c754d4faddb248398192e288a71f395fdd739"
+        },
+        {
+          "state": "07-taxonomy-independent-visible-archived-actions",
+          "path": "browser-final/academic-catalog-managemen-f124c-RACT-EVIDENCE-ar-light-1440/07-taxonomy-independent-visible-archived-actions.png",
+          "size": [1440, 3870],
+          "sha256": "0291a16b1051ab6786a6ca180aeeedeafd8a47d57d7584d10a13e62c52a2c757"
+        },
+        {
+          "state": "08-qualification-specialization-dependency",
+          "path": "browser-final/academic-catalog-managemen-f124c-RACT-EVIDENCE-ar-light-1440/08-qualification-specialization-dependency.png",
+          "size": [1440, 3870],
+          "sha256": "b17e8d4987838ba21b3bc726e078f9fc465e235de38b924d8e2fe8a8cbe0c276"
+        },
+        {
+          "state": "09-version-source-reference-validation",
+          "path": "browser-final/academic-catalog-managemen-f124c-RACT-EVIDENCE-ar-light-1440/09-version-source-reference-validation.png",
+          "size": [1440, 3870],
+          "sha256": "6d20fc8057f28a6c7e707fbd49b2720b4b00afc8211124c545931cf40fe1f838"
+        },
+        {
+          "state": "10-version-date-and-custom-qualification",
+          "path": "browser-final/academic-catalog-managemen-f124c-RACT-EVIDENCE-ar-light-1440/10-version-date-and-custom-qualification.png",
+          "size": [1440, 3870],
+          "sha256": "2981d01f81ddc821682648241ba482a6fa8a395f6844f4c23ec509a7a1076290"
+        },
+        {
+          "state": "11-unit-arabic-fallback-empty",
+          "path": "browser-final/academic-catalog-managemen-f124c-RACT-EVIDENCE-ar-light-1440/11-unit-arabic-fallback-empty.png",
+          "size": [1440, 3870],
+          "sha256": "2360f26a8564981811fa975cc27a3c565d77bd8f03f25d6a67575040e08de804"
+        },
+        {
+          "state": "12-unit-local-arabic-draft-semantics",
+          "path": "browser-final/academic-catalog-managemen-f124c-RACT-EVIDENCE-ar-light-1440/12-unit-local-arabic-draft-semantics.png",
+          "size": [1440, 3870],
+          "sha256": "e377120fabe35dba11248f4fa453d9cfd0305c3cc8d2a624421b4c1bcd8ca49b"
+        },
+        {
+          "state": "13-qualification-version-independent-status",
+          "path": "browser-final/academic-catalog-managemen-f124c-RACT-EVIDENCE-ar-light-1440/13-qualification-version-independent-status.png",
+          "size": [1440, 3870],
+          "sha256": "b885790d03406c2dbf7da8829a5f5b0e1dd48e5bb1e5dd16f455620705b21d4d"
+        },
+        {
+          "state": "14-cached-data-refresh-warning",
+          "path": "browser-final/academic-catalog-managemen-f124c-RACT-EVIDENCE-ar-light-1440/14-cached-data-refresh-warning.png",
+          "size": [1440, 4026],
+          "sha256": "d98919f305ef2b5f6e3898feebcc8b0cab664c71cd3001beee17cb08e770b43e"
+        },
+        {
+          "state": "15-four-independent-pending-queries",
+          "path": "browser-final/academic-catalog-managemen-f124c-RACT-EVIDENCE-ar-light-1440/15-four-independent-pending-queries.png",
+          "size": [1440, 2878],
+          "sha256": "2e62220d1e82a9778541859a972442a0336b0042419b54b79b096b1aab26a417"
+        },
+        {
+          "state": "16-cold-errors-no-false-empty",
+          "path": "browser-final/academic-catalog-managemen-f124c-RACT-EVIDENCE-ar-light-1440/16-cold-errors-no-false-empty.png",
+          "size": [1440, 2923],
+          "sha256": "3c2847c4132ac24e6da656ef39a3c0bf3536e61db1137250acfe71e77ff32a98"
+        },
+        {
+          "state": "17-missing-btec-context",
+          "path": "browser-final/academic-catalog-managemen-f124c-RACT-EVIDENCE-ar-light-1440/17-missing-btec-context.png",
+          "size": [1440, 2768],
+          "sha256": "78dea372f0d36d8cf303666eda395d55bfd19351bc205653274fac67afa3fef1"
+        },
+        {
+          "state": "18-empty-taxonomy-and-qualifications",
+          "path": "browser-final/academic-catalog-managemen-f124c-RACT-EVIDENCE-ar-light-1440/18-empty-taxonomy-and-qualifications.png",
+          "size": [1440, 2862],
+          "sha256": "d3ffb5f57dfbec0f096019a4a0ca8b07b7f15a06df93afa9f6a3b3f0e3b085ef"
+        },
+        {
+          "state": "19-200-percent-equivalent-reflow",
+          "path": "browser-final/academic-catalog-managemen-f124c-RACT-EVIDENCE-ar-light-1440/19-200-percent-equivalent-reflow.png",
+          "size": [720, 4941],
+          "sha256": "05e33e08f72251bb1a1ad2f774e5b9068e53e374d60c2ef609141567709acea8"
+        }
+      ],
+      "writeCount": 16,
+      "reads": [
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry",
+        "/taxonomy?locale=en",
+        "/admin/academic-taxonomy/specializations",
+        "/admin/academic-taxonomy/grades",
+        "/qualification-registry"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    }
+  ],
+  "rawScreenshotCount": 228,
+  "limitations": [
+    "Synthetic HTTP fixtures; no production persistence, authorization, deployment, academic compliance, full WCAG or real Pearson-data proof.",
+    "200% equivalent reflow uses a 720 CSS-pixel viewport representing 1440px at 200%; native browser zoom was not measured.",
+    "Chromium only.",
+    "Parent Academic Catalogue remains unchanged; its existing typography is outside this owner."
+  ]
+}
