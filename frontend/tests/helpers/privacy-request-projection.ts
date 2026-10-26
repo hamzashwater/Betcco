@@ -1,4 +1,8 @@
 import baseline from "../fixtures/ui-d01-15-privacy-request-baseline.json";
+import {
+  projectSecurityIncidentBoundary,
+  withoutSecurityIncidentAdditions,
+} from "./security-incident-projection";
 function reverse(
   source: string,
   seams: { approved: string; previous: string }[],
@@ -13,6 +17,7 @@ function reverse(
 }
 // Exact unique reviewed Privacy owner/copy/guard seams, no broad omission.
 export function projectPrivacyRequestBoundary(source: string, path: string) {
+  source = projectSecurityIncidentBoundary(source, path);
   const key = path.replaceAll("\\", "/");
   if (
     /(?:^|\/)src\/features\/admin\/privacy-request-management\.tsx$/.test(key)
@@ -25,6 +30,7 @@ export function projectPrivacyRequestBoundary(source: string, path: string) {
   return seams ? reverse(source, seams) : source;
 }
 export function withoutPrivacyRequestAdditions(value: Record<string, unknown>) {
+  withoutSecurityIncidentAdditions(value);
   const target = (
     value.adminWorkspace as Record<string, Record<string, unknown>> | undefined
   )?.privacyRequests;
