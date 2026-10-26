@@ -1,5 +1,9 @@
 "use client";
 
+import { MutationOutcome, QueryState } from "@/components/ui/query-state";
+import { ArrowDown, ArrowUp, Check } from "lucide-react";
+import styles from "./delivery-planning.module.css";
+
 import { api, ApiError } from "@/lib/api";
 import { academicText, academicUnitLabel } from "@/lib/academic-localization";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -308,13 +312,10 @@ export function DeliveryPlanning() {
     removeEntry,
   ];
   const isSaving = mutations.some((mutation) => mutation.isPending);
-  const hasError = mutations.some((mutation) => mutation.isError);
-  const hasSuccess = mutations.some((mutation) => mutation.isSuccess);
-  const failedError = mutations.find((mutation) => mutation.isError)?.error;
-  const errorCode =
-    failedError instanceof ApiError ? failedError.code : undefined;
-  const errorMessage =
-    errorCode === "InvalidCode"
+  const operationError = (failedError: unknown) => {
+    const errorCode =
+      failedError instanceof ApiError ? failedError.code : undefined;
+    return errorCode === "InvalidCode"
       ? t("errors.invalidCode")
       : errorCode === "InvalidDateRange" ||
           errorCode === "TermOutsideAcademicYear"
@@ -330,6 +331,7 @@ export function DeliveryPlanning() {
                 : errorCode === "DeliveryPlanNotEditable"
                   ? t("errors.inactivePlan")
                   : t("saveError");
+  };
   const availableUnits = useMemo(() => {
     const selected = new Set(
       plan.data?.entries.map((entry) => entry.unitDefinitionId),
@@ -358,598 +360,819 @@ export function DeliveryPlanning() {
     reorder.mutate(ids);
   };
 
-  if (years.isPending || versions.isPending)
+  const retryAction = (
+    <button
+      className={styles.secondary}
+      onClick={() => {
+        void years.refetch();
+        void versions.refetch();
+      }}
+    >
+      {t("retry")}
+    </button>
+  );
+  if (
+    (years.isPending && years.data === undefined) ||
+    (versions.isPending && versions.data === undefined)
+  )
     return (
-      <section className="shell py-10">
-        <p className="card p-6" aria-busy="true">
+      <section className={`shell py-10 ${styles.workspace}`}>
+        <p role="status" aria-busy="true" className={styles.state}>
           {t("loading")}
         </p>
       </section>
     );
-  if (years.isError || versions.isError)
+  if (
+    (years.isError && years.data === undefined) ||
+    (versions.isError && versions.data === undefined)
+  )
     return (
-      <section className="shell py-10">
-        <div className="card p-6" role="alert">
-          <p>{t("loadError")}</p>
-          <button
-            className="focus-ring mt-4 rounded-lg border border-primary px-4 py-2"
-            onClick={() => {
-              void years.refetch();
-              void versions.refetch();
-            }}
-          >
-            {t("retry")}
-          </button>
-        </div>
+      <section className={`shell py-10 ${styles.workspace}`}>
+        <QueryState kind="error" title={t("loadError")} action={retryAction} />
       </section>
     );
 
   return (
     <section
-      className="shell min-w-0 py-10"
+      className={`shell py-8 sm:py-10 ${styles.workspace}`}
       dir={locale === "ar" ? "rtl" : "ltr"}
     >
-      <p className="eyebrow">{t("eyebrow")}</p>
-      <h1 className="mt-2 text-3xl font-black">{t("title")}</h1>
-      <p className="mt-3 max-w-3xl text-muted">{t("description")}</p>
-
-      {hasError && (
-        <p className="card mt-5 border-red-300 p-4 text-red-700" role="alert">
-          {errorMessage}
+      <header className={styles.header}>
+        <p className={styles.eyebrow}>{t("eyebrow")}</p>
+        <h1 className={styles.title}>{t("title")}</h1>
+        <p className={styles.description}>{t("description")}</p>
+        <p className={styles.context}>
+          {currentYearId
+            ? t("yearContext", {
+                year:
+                  years.data?.items.find((item) => item.id === currentYearId)
+                    ?.code ?? "",
+              })
+            : t("chooseYearContext")}
         </p>
-      )}
-      {hasSuccess && !hasError && (
-        <p className="mt-5 text-sm text-green-700" role="status">
-          {t("saved")}
-        </p>
-      )}
-
-      <div className="mt-8 grid min-w-0 gap-6 xl:grid-cols-2">
-        <form className="card min-w-0 p-5" onSubmit={submitYear}>
-          <h2 className="text-xl font-bold">
-            {yearId ? t("editYear") : t("newYear")}
-          </h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <Field label={t("code")}>
-              <input
-                required
-                minLength={2}
-                maxLength={64}
-                className="input"
-                value={yearForm.code}
-                onChange={(e) =>
-                  setYearForm({ ...yearForm, code: e.target.value })
-                }
-              />
-            </Field>
-            <Field label={t("status")}>
-              <select
-                className="input"
-                value={String(yearForm.isActive)}
-                onChange={(e) =>
-                  setYearForm({
-                    ...yearForm,
-                    isActive: e.target.value === "true",
-                  })
-                }
-              >
-                <option value="true">{t("active")}</option>
-                <option value="false">{t("inactive")}</option>
-              </select>
-            </Field>
-            <Field label={t("startDate")}>
-              <input
-                required
-                type="date"
-                className="input"
-                value={yearForm.startDate}
-                onChange={(e) =>
-                  setYearForm({ ...yearForm, startDate: e.target.value })
-                }
-              />
-            </Field>
-            <Field label={t("endDate")}>
-              <input
-                required
-                type="date"
-                className="input"
-                value={yearForm.endDate}
-                onChange={(e) =>
-                  setYearForm({ ...yearForm, endDate: e.target.value })
-                }
-              />
-            </Field>
-          </div>
-          <FormActions
-            editing={Boolean(yearId)}
-            saving={isSaving}
-            cancel={() => {
-              setYearId(null);
-              setYearForm(emptyYear);
-            }}
+        {(years.isError || versions.isError) && (
+          <QueryState
+            kind="error"
+            title={t("loadError")}
+            action={retryAction}
           />
-        </form>
-
-        <div className="card min-w-0 p-5">
-          <h2 className="text-xl font-bold">{t("academicYears")}</h2>
-          {years.data.items.length === 0 ? (
-            <p className="mt-4 text-muted">{t("noYears")}</p>
-          ) : (
-            <div className="mt-4 grid gap-2">
-              {years.data.items.map((item) => (
-                <div
-                  key={item.id}
-                  className={`min-w-0 rounded-xl border p-3 ${currentYearId === item.id ? "border-primary bg-primary/5" : "border-border"}`}
+        )}
+      </header>
+      <div className={styles.layout}>
+        <aside
+          className={styles.yearPanel}
+          aria-labelledby="delivery-years-title"
+        >
+          <div className={styles.panelHeader}>
+            <h2 id="delivery-years-title" className={styles.sectionTitle}>
+              {t("academicYears")}
+            </h2>
+            <p className={styles.hint}>{t("yearScope")}</p>
+          </div>
+          {years.data?.items.length === 0 && !years.isError ? (
+            <QueryState kind="empty" title={t("noYears")} />
+          ) : null}
+          <ul className={styles.yearRows}>
+            {years.data?.items.map((item) => (
+              <li
+                key={item.id}
+                className={styles.yearRow}
+                data-selected={currentYearId === item.id}
+              >
+                <button
+                  type="button"
+                  className={styles.yearSelect}
+                  aria-pressed={currentYearId === item.id}
+                  onClick={() => {
+                    setSelectedYearId(item.id);
+                    setSelectedPlanId("");
+                    setEntryTermId("");
+                  }}
                 >
+                  <strong className={styles.itemTitle}>{item.code}</strong>
+                  <span className={styles.date} dir="ltr">
+                    {item.startDate} — {item.endDate}
+                  </span>
+                  <span className={styles.chip} data-active={item.isActive}>
+                    {item.isActive ? t("active") : t("inactive")}
+                  </span>
+                  {currentYearId === item.id && (
+                    <span className={styles.selected}>
+                      <Check size={16} aria-hidden="true" />
+                      {t("selectedYear")}
+                    </span>
+                  )}
+                </button>
+                <div className={styles.rowFooter}>
+                  {yearId === item.id && (
+                    <span className={styles.hint}>{t("editing")}</span>
+                  )}
                   <button
                     type="button"
-                    className="focus-ring block w-full min-w-0 text-start"
+                    className={styles.textButton}
+                    aria-label={t("editYearLabel", { year: item.code })}
                     onClick={() => {
-                      setSelectedYearId(item.id);
-                      setSelectedPlanId("");
-                      setEntryTermId("");
+                      setYearId(item.id);
+                      setYearForm({
+                        code: item.code,
+                        startDate: item.startDate,
+                        endDate: item.endDate,
+                        isActive: item.isActive,
+                      });
                     }}
                   >
-                    <span className="flex flex-wrap items-center justify-between gap-2">
-                      <strong className="break-words">{item.code}</strong>
-                      <span className="text-xs text-muted">
-                        {item.startDate} — {item.endDate}
-                      </span>
-                    </span>
+                    {t("edit")}
                   </button>
-                  <span className="mt-2 flex items-center justify-between gap-2 text-sm">
-                    <span>{item.isActive ? t("active") : t("inactive")}</span>
-                    <button
-                      type="button"
-                      className="focus-ring text-primary underline"
-                      onClick={() => {
-                        setYearId(item.id);
-                        setYearForm({
-                          code: item.code,
-                          startDate: item.startDate,
-                          endDate: item.endDate,
-                          isActive: item.isActive,
-                        });
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className={styles.editor}>
+            <p className={styles.hint}>{t("yearDraftHint")}</p>
+            <form
+              className={styles.form}
+              onSubmit={submitYear}
+              aria-label={t("yearWorkbench")}
+            >
+              <h3 className={styles.itemTitle}>
+                {yearId ? t("editYear") : t("newYear")}
+              </h3>
+              <div className={styles.fields}>
+                <Field label={t("code")}>
+                  <input
+                    required
+                    minLength={2}
+                    maxLength={64}
+                    className={styles.control}
+                    value={yearForm.code}
+                    onChange={(e) =>
+                      setYearForm({ ...yearForm, code: e.target.value })
+                    }
+                  />
+                </Field>
+                <Field label={t("status")}>
+                  <select
+                    className={styles.control}
+                    value={String(yearForm.isActive)}
+                    onChange={(e) =>
+                      setYearForm({
+                        ...yearForm,
+                        isActive: e.target.value === "true",
+                      })
+                    }
+                  >
+                    <option value="true">{t("active")}</option>
+                    <option value="false">{t("inactive")}</option>
+                  </select>
+                </Field>
+                <Field label={t("startDate")}>
+                  <input
+                    required
+                    type="date"
+                    className={styles.control}
+                    value={yearForm.startDate}
+                    onChange={(e) =>
+                      setYearForm({ ...yearForm, startDate: e.target.value })
+                    }
+                  />
+                </Field>
+                <Field label={t("endDate")}>
+                  <input
+                    required
+                    type="date"
+                    className={styles.control}
+                    value={yearForm.endDate}
+                    onChange={(e) =>
+                      setYearForm({ ...yearForm, endDate: e.target.value })
+                    }
+                  />
+                </Field>
+              </div>
+              <FormActions
+                editing={Boolean(yearId)}
+                saving={isSaving}
+                cancel={() => {
+                  setYearId(null);
+                  setYearForm(emptyYear);
+                }}
+              />
+              <OperationFeedback
+                state={saveYear}
+                message={operationError(saveYear.error)}
+              />
+            </form>
+          </div>
+        </aside>
+
+        <div className={styles.main}>
+          {currentYearId && (
+            <section
+              className={styles.panel}
+              aria-labelledby="delivery-terms-title"
+            >
+              <div className={styles.panelHeader}>
+                <h2 id="delivery-terms-title" className={styles.sectionTitle}>
+                  {t("terms")}
+                </h2>
+                <p className={styles.hint}>
+                  {t("termContext", {
+                    year:
+                      years.data?.items.find(
+                        (item) => item.id === currentYearId,
+                      )?.code ?? "",
+                  })}
+                </p>
+              </div>
+              <div className={styles.termLayout}>
+                <div className={styles.termList}>
+                  {terms.isPending && terms.data === undefined ? (
+                    <QueryState kind="loading" title={t("loadingTerms")} />
+                  ) : null}
+                  {terms.isError ? (
+                    <QueryState kind="error" title={t("termsError")} />
+                  ) : null}
+                  {terms.data?.items.length === 0 && !terms.isError ? (
+                    <QueryState kind="empty" title={t("noTerms")} />
+                  ) : null}
+                  <ul className={styles.rows}>
+                    {terms.data?.items.map((item) => (
+                      <li key={item.id} className={styles.termRow}>
+                        <div className={styles.rowHeading}>
+                          <strong className={styles.itemTitle}>
+                            {item.sortOrder}. {item.code}
+                          </strong>
+                          <span
+                            className={styles.chip}
+                            data-active={item.isActive}
+                          >
+                            {item.isActive ? t("active") : t("inactive")}
+                          </span>
+                        </div>
+                        <p className={styles.date} dir="ltr">
+                          {item.startDate} — {item.endDate}
+                        </p>
+                        <div className={styles.rowFooter}>
+                          {termId === item.id && (
+                            <span className={styles.hint}>{t("editing")}</span>
+                          )}
+                          <button
+                            type="button"
+                            className={styles.textButton}
+                            aria-label={t("editTermLabel", { term: item.code })}
+                            onClick={() => {
+                              setTermId(item.id);
+                              setTermForm({
+                                code: item.code,
+                                startDate: item.startDate,
+                                endDate: item.endDate,
+                                sortOrder: item.sortOrder,
+                                isActive: item.isActive,
+                              });
+                            }}
+                          >
+                            {t("edit")}
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className={styles.termEditor}>
+                  <form
+                    className={styles.form}
+                    onSubmit={submitTerm}
+                    aria-label={t("termWorkbench")}
+                  >
+                    <h3 className={styles.itemTitle}>
+                      {termId ? t("editTerm") : t("newTerm")}
+                    </h3>
+                    <div className={styles.fields}>
+                      <Field label={t("code")}>
+                        <input
+                          required
+                          minLength={2}
+                          maxLength={64}
+                          className={styles.control}
+                          value={termForm.code}
+                          onChange={(e) =>
+                            setTermForm({ ...termForm, code: e.target.value })
+                          }
+                        />
+                      </Field>
+                      <Field label={t("sortOrder")}>
+                        <input
+                          required
+                          type="number"
+                          min={0}
+                          max={10000}
+                          className={styles.control}
+                          value={termForm.sortOrder}
+                          onChange={(e) =>
+                            setTermForm({
+                              ...termForm,
+                              sortOrder: Number(e.target.value),
+                            })
+                          }
+                        />
+                      </Field>
+                      <Field label={t("startDate")}>
+                        <input
+                          required
+                          type="date"
+                          className={styles.control}
+                          value={termForm.startDate}
+                          onChange={(e) =>
+                            setTermForm({
+                              ...termForm,
+                              startDate: e.target.value,
+                            })
+                          }
+                        />
+                      </Field>
+                      <Field label={t("endDate")}>
+                        <input
+                          required
+                          type="date"
+                          className={styles.control}
+                          value={termForm.endDate}
+                          onChange={(e) =>
+                            setTermForm({
+                              ...termForm,
+                              endDate: e.target.value,
+                            })
+                          }
+                        />
+                      </Field>
+                      <label className={styles.checkbox}>
+                        <input
+                          type="checkbox"
+                          checked={termForm.isActive}
+                          onChange={(e) =>
+                            setTermForm({
+                              ...termForm,
+                              isActive: e.target.checked,
+                            })
+                          }
+                        />
+                        {t("active")}
+                      </label>
+                    </div>
+                    <FormActions
+                      editing={Boolean(termId)}
+                      saving={isSaving}
+                      cancel={() => {
+                        setTermId(null);
+                        setTermForm(emptyTerm);
+                      }}
+                    />
+                    <OperationFeedback
+                      state={saveTerm}
+                      message={operationError(saveTerm.error)}
+                    />
+                  </form>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {currentYearId && (
+            <section
+              className={styles.panel}
+              aria-labelledby="delivery-plans-title"
+            >
+              <div className={styles.panelHeader}>
+                <h2 id="delivery-plans-title" className={styles.sectionTitle}>
+                  {t("deliveryPlans")}
+                </h2>
+                <p className={styles.hint}>{t("planScope")}</p>
+              </div>
+              <section
+                className={styles.planCreate}
+                aria-label={t("planWorkbench")}
+              >
+                <h3 className={styles.itemTitle}>{t("createPlan")}</h3>
+                <p className={styles.hint}>{t("planDraftHint")}</p>
+                <div className={styles.createFields}>
+                  <Field label={t("qualificationVersion")}>
+                    <select
+                      className={styles.control}
+                      value={versionId}
+                      onChange={(e) => {
+                        setVersionId(e.target.value);
+                        setGradeId("");
                       }}
                     >
-                      {t("edit")}
-                    </button>
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {currentYearId && (
-        <div className="mt-6 grid min-w-0 gap-6 xl:grid-cols-2">
-          <form className="card min-w-0 p-5" onSubmit={submitTerm}>
-            <h2 className="text-xl font-bold">
-              {termId ? t("editTerm") : t("newTerm")}
-            </h2>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <Field label={t("code")}>
-                <input
-                  required
-                  minLength={2}
-                  maxLength={64}
-                  className="input"
-                  value={termForm.code}
-                  onChange={(e) =>
-                    setTermForm({ ...termForm, code: e.target.value })
-                  }
-                />
-              </Field>
-              <Field label={t("sortOrder")}>
-                <input
-                  required
-                  type="number"
-                  min={0}
-                  max={10000}
-                  className="input"
-                  value={termForm.sortOrder}
-                  onChange={(e) =>
-                    setTermForm({
-                      ...termForm,
-                      sortOrder: Number(e.target.value),
-                    })
-                  }
-                />
-              </Field>
-              <Field label={t("startDate")}>
-                <input
-                  required
-                  type="date"
-                  className="input"
-                  value={termForm.startDate}
-                  onChange={(e) =>
-                    setTermForm({ ...termForm, startDate: e.target.value })
-                  }
-                />
-              </Field>
-              <Field label={t("endDate")}>
-                <input
-                  required
-                  type="date"
-                  className="input"
-                  value={termForm.endDate}
-                  onChange={(e) =>
-                    setTermForm({ ...termForm, endDate: e.target.value })
-                  }
-                />
-              </Field>
-              <label className="flex items-center gap-2 text-sm font-semibold">
-                <input
-                  type="checkbox"
-                  checked={termForm.isActive}
-                  onChange={(e) =>
-                    setTermForm({ ...termForm, isActive: e.target.checked })
-                  }
-                />
-                {t("active")}
-              </label>
-            </div>
-            <FormActions
-              editing={Boolean(termId)}
-              saving={isSaving}
-              cancel={() => {
-                setTermId(null);
-                setTermForm(emptyTerm);
-              }}
-            />
-          </form>
-          <div className="card min-w-0 p-5">
-            <h2 className="text-xl font-bold">{t("terms")}</h2>
-            {terms.isPending ? (
-              <p className="mt-4" aria-busy="true">
-                {t("loadingTerms")}
-              </p>
-            ) : terms.isError ? (
-              <p className="mt-4 text-red-700" role="alert">
-                {t("loadError")}
-              </p>
-            ) : terms.data?.items.length === 0 ? (
-              <p className="mt-4 text-muted">{t("noTerms")}</p>
-            ) : (
-              <ul className="mt-4 grid gap-2">
-                {terms.data?.items.map((item) => (
-                  <li
-                    key={item.id}
-                    className="min-w-0 rounded-xl border border-border p-3"
+                      <option value="">{t("chooseVersion")}</option>
+                      {versions.data?.items
+                        .filter(
+                          (item) =>
+                            item.isActive && Boolean(item.specializationId),
+                        )
+                        .map((item) => (
+                          <option key={item.id} value={item.id}>
+                            {item.qualificationCode} ·{" "}
+                            {academicText(
+                              locale,
+                              item.qualificationArabicName,
+                              item.qualificationEnglishName,
+                            ) || item.qualificationCode}{" "}
+                            · {item.versionCode}
+                          </option>
+                        ))}
+                    </select>
+                  </Field>
+                  <Field label={t("residualgrade")}>
+                    <select
+                      className={styles.control}
+                      value={gradeId}
+                      onChange={(event) => setGradeId(event.target.value)}
+                    >
+                      <option value="">{t("residualchooseGrade")}</option>
+                      {grades.data
+                        ?.filter(
+                          (item) =>
+                            item.isVisible &&
+                            item.learningTrackId ===
+                              selectedSpecialization?.learningTrackId,
+                        )
+                        .map((item) => (
+                          <option key={item.id} value={item.id}>
+                            {academicText(
+                              locale,
+                              item.arabicName,
+                              item.englishName,
+                            )}
+                          </option>
+                        ))}
+                    </select>
+                  </Field>
+                  <p className={styles.derived}>
+                    {t("residualspecialization")}
+                    {academicText(
+                      locale,
+                      selectedVersion?.specializationArabicName,
+                      selectedVersion?.specializationEnglishName,
+                    )}
+                  </p>
+                  <button
+                    type="button"
+                    className={styles.primary}
+                    disabled={
+                      !versionId ||
+                      !gradeId ||
+                      !currentYearId ||
+                      isSaving ||
+                      Boolean(
+                        plans.data?.items.some(
+                          (item) =>
+                            item.qualificationVersionId === versionId &&
+                            item.gradeId === gradeId,
+                        ),
+                      )
+                    }
+                    onClick={() => createPlan.mutate()}
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <strong>
-                        {item.sortOrder}. {item.code}
-                      </strong>
-                      <button
-                        type="button"
-                        className="focus-ring text-sm text-primary underline"
-                        onClick={() => {
-                          setTermId(item.id);
-                          setTermForm({
-                            code: item.code,
-                            startDate: item.startDate,
-                            endDate: item.endDate,
-                            sortOrder: item.sortOrder,
-                            isActive: item.isActive,
-                          });
-                        }}
-                      >
-                        {t("edit")}
-                      </button>
-                    </div>
-                    <p className="mt-1 break-words text-sm text-muted">
-                      {item.startDate} — {item.endDate} ·{" "}
-                      {item.isActive ? t("active") : t("inactive")}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-      )}
-
-      {currentYearId && (
-        <div className="card mt-6 min-w-0 p-5">
-          <h2 className="text-xl font-bold">{t("deliveryPlans")}</h2>
-          <div className="mt-4 flex min-w-0 flex-col gap-3 sm:flex-row sm:items-end">
-            <Field label={t("qualificationVersion")}>
-              <select
-                className="input min-w-0 max-w-full"
-                value={versionId}
-                onChange={(e) => {
-                  setVersionId(e.target.value);
-                  setGradeId("");
-                }}
-              >
-                <option value="">{t("chooseVersion")}</option>
-                {versions.data.items
-                  .filter(
-                    (item) => item.isActive && Boolean(item.specializationId),
-                  )
-                  .map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.qualificationCode} ·{" "}
-                      {academicText(
-                        locale,
-                        item.qualificationArabicName,
-                        item.qualificationEnglishName,
-                      ) || item.qualificationCode}{" "}
-                      · {item.versionCode}
-                    </option>
-                  ))}
-              </select>
-            </Field>
-            <Field label={t("residualgrade")}>
-              <select
-                className="input"
-                value={gradeId}
-                onChange={(event) => setGradeId(event.target.value)}
-              >
-                <option value="">{t("residualchooseGrade")}</option>
-                {grades.data
-                  ?.filter(
-                    (item) =>
-                      item.isVisible &&
-                      item.learningTrackId ===
-                        selectedSpecialization?.learningTrackId,
-                  )
-                  .map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {academicText(locale, item.arabicName, item.englishName)}
-                    </option>
-                  ))}
-              </select>
-            </Field>
-            <p className="text-sm text-muted">
-              {t("residualspecialization")}
-              {academicText(
-                locale,
-                selectedVersion?.specializationArabicName,
-                selectedVersion?.specializationEnglishName,
-              )}
-            </p>
-            <button
-              type="button"
-              className="focus-ring rounded-lg bg-primary px-4 py-3 font-bold text-white disabled:opacity-50"
-              disabled={
-                !versionId ||
-                !gradeId ||
-                !currentYearId ||
-                isSaving ||
-                Boolean(
+                    {isSaving ? t("saving") : t("createPlan")}
+                  </button>
+                </div>
+                <p className={styles.hint}>{t("derivedSpecialization")}</p>
+                {grades.isPending || specializations.isPending ? (
+                  <QueryState kind="loading" title={t("loadingTaxonomy")} />
+                ) : null}
+                {grades.isError ? (
+                  <QueryState kind="error" title={t("gradesError")} />
+                ) : null}
+                {specializations.isError ? (
+                  <QueryState kind="error" title={t("specializationsError")} />
+                ) : null}
+                {Boolean(
                   plans.data?.items.some(
                     (item) =>
                       item.qualificationVersionId === versionId &&
                       item.gradeId === gradeId,
                   ),
-                )
-              }
-              onClick={() => createPlan.mutate()}
-            >
-              {isSaving ? t("saving") : t("createPlan")}
-            </button>
-          </div>
-          {plans.isPending ? (
-            <p className="mt-4" aria-busy="true">
-              {t("loadingPlans")}
-            </p>
-          ) : plans.isError ? (
-            <p className="mt-4 text-red-700" role="alert">
-              {t("loadError")}
-            </p>
-          ) : plans.data?.items.length === 0 ? (
-            <p className="mt-4 text-muted">{t("noPlans")}</p>
-          ) : (
-            <div className="mt-4 flex min-w-0 flex-wrap gap-2">
-              {plans.data?.items.map((item) => (
-                <button
-                  type="button"
-                  key={item.id}
-                  onClick={() => setSelectedPlanId(item.id)}
-                  className={`focus-ring min-w-0 rounded-lg border px-3 py-2 text-sm ${currentPlanId === item.id ? "border-primary bg-primary/5" : "border-border"}`}
-                >
-                  <span className="break-words font-bold">
-                    {academicText(
-                      locale,
-                      item.qualificationArabicName,
-                      item.qualificationEnglishName,
-                    ) || item.qualificationCode}{" "}
-                    · {item.qualificationVersionCode} ·{" "}
-                    {academicText(
-                      locale,
-                      item.gradeArabicName,
-                      item.gradeEnglishName,
-                    )}
-                  </span>{" "}
-                  <span className="text-muted">({item.entryCount})</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {currentPlanId && (
-        <div className="card mt-6 min-w-0 p-5">
-          {plan.isPending ? (
-            <p aria-busy="true">{t("loadingPlan")}</p>
-          ) : plan.isError || !plan.data ? (
-            <p className="text-red-700" role="alert">
-              {t("loadError")}
-            </p>
-          ) : (
-            <>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h2 className="break-words text-xl font-bold">
-                    {academicText(
-                      locale,
-                      plan.data.plan.qualificationArabicName,
-                      plan.data.plan.qualificationEnglishName,
-                    ) || plan.data.plan.qualificationCode}{" "}
-                    · {plan.data.plan.qualificationVersionCode} ·{" "}
-                    {plan.data.plan.academicYearCode}
-                  </h2>
-                  <p className="mt-1 text-sm text-muted">
-                    {plan.data.plan.isActive
-                      ? t("editable")
-                      : t("inactivePlan")}
+                ) && <p className={styles.hint}>{t("loadedDuplicate")}</p>}
+                <OperationFeedback
+                  state={createPlan}
+                  message={operationError(createPlan.error)}
+                />
+              </section>
+              <div className={styles.planRegister}>
+                {plans.isPending && plans.data === undefined ? (
+                  <QueryState kind="loading" title={t("loadingPlans")} />
+                ) : null}
+                {plans.isError ? (
+                  <QueryState kind="error" title={t("plansError")} />
+                ) : null}
+                {plans.data ? (
+                  <p className={styles.hint}>
+                    {t("planTotal", { count: plans.data.totalCount })}
                   </p>
-                </div>
-                <button
-                  type="button"
-                  className="focus-ring rounded-lg border border-primary px-3 py-2 font-bold text-primary disabled:opacity-50"
-                  disabled={isSaving}
-                  onClick={() => updatePlan.mutate(!plan.data.plan.isActive)}
-                >
-                  {plan.data.plan.isActive ? t("deactivate") : t("activate")}
-                </button>
-              </div>
-              {plan.data.plan.isActive && (
-                <div className="mt-5 grid min-w-0 gap-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_auto] sm:items-end">
-                  <Field label={t("canonicalUnit")}>
-                    <select
-                      className="input min-w-0 max-w-full"
-                      value={unitId}
-                      onChange={(e) => setUnitId(e.target.value)}
-                    >
-                      <option value="">{t("chooseUnit")}</option>
-                      {availableUnits.map((item) => (
-                        <option key={item.id} value={item.id}>
-                          {academicUnitLabel(
+                ) : null}
+                {plans.data?.items.length === 0 && !plans.isError ? (
+                  <QueryState kind="empty" title={t("noPlans")} />
+                ) : null}
+                <ul className={styles.rows}>
+                  {plans.data?.items.map((item) => (
+                    <li key={item.id}>
+                      <button
+                        type="button"
+                        className={styles.planRow}
+                        onClick={() => setSelectedPlanId(item.id)}
+                        aria-pressed={currentPlanId === item.id}
+                      >
+                        <span className={styles.itemTitle}>
+                          {academicText(
                             locale,
-                            item.code,
-                            item.arabicTitle,
-                            item.englishTitle,
+                            item.qualificationArabicName,
+                            item.qualificationEnglishName,
+                          ) || item.qualificationCode}{" "}
+                          · {item.qualificationVersionCode} ·{" "}
+                          {academicText(
+                            locale,
+                            item.gradeArabicName,
+                            item.gradeEnglishName,
                           )}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
-                  <Field label={t("term")}>
-                    <select
-                      className="input"
-                      value={currentEntryTermId}
-                      onChange={(e) => setEntryTermId(e.target.value)}
-                    >
-                      <option value="">{t("chooseTerm")}</option>
-                      {terms.data?.items
-                        .filter((item) => item.isActive)
-                        .map((item) => (
-                          <option key={item.id} value={item.id}>
-                            {item.code}
-                          </option>
-                        ))}
-                    </select>
-                  </Field>
-                  <button
-                    type="button"
-                    className="focus-ring rounded-lg bg-primary px-4 py-3 font-bold text-white disabled:opacity-50"
-                    disabled={!unitId || !currentEntryTermId || isSaving}
-                    onClick={() => addEntry.mutate()}
-                  >
-                    {t("addUnit")}
-                  </button>
-                </div>
-              )}
-              {plan.data.entries.length === 0 ? (
-                <p className="mt-5 text-muted">{t("noEntries")}</p>
-              ) : (
-                <ol className="mt-5 grid min-w-0 gap-3">
-                  {plan.data.entries.map((entry, index) => (
-                    <li
-                      key={entry.id}
-                      className="min-w-0 rounded-xl border border-border p-4"
-                    >
-                      <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center">
-                        <div className="min-w-0 flex-1">
-                          <strong className="break-words">
-                            {index + 1}.{" "}
-                            {academicUnitLabel(
-                              locale,
-                              entry.unitCode,
-                              entry.unitArabicTitle,
-                              entry.unitEnglishTitle,
-                            )}
-                          </strong>
-                        </div>
-                        <label className="grid gap-1 text-sm font-semibold">
-                          <span>{t("term")}</span>
-                          <select
-                            className="input"
-                            value={entry.academicTermId}
-                            disabled={!plan.data.plan.isActive || isSaving}
-                            onChange={(e) =>
-                              updateEntry.mutate({
-                                id: entry.id,
-                                academicTermId: e.target.value,
-                              })
-                            }
+                        </span>
+                        <span className={styles.rowMetadata}>
+                          <span>
+                            {t("entryCount", { count: item.entryCount })}
+                          </span>
+                          <span
+                            className={styles.chip}
+                            data-active={item.isActive}
                           >
-                            {terms.data?.items
-                              .filter((item) => item.isActive)
-                              .map((item) => (
-                                <option key={item.id} value={item.id}>
-                                  {item.code}
-                                </option>
-                              ))}
-                          </select>
-                        </label>
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            className="focus-ring rounded-lg border border-border px-3 py-2 disabled:opacity-40"
-                            aria-label={t("moveUp", { unit: entry.unitCode })}
-                            disabled={
-                              !plan.data.plan.isActive ||
-                              index === 0 ||
-                              isSaving
-                            }
-                            onClick={() => move(index, -1)}
-                          >
-                            ↑
-                          </button>
-                          <button
-                            type="button"
-                            className="focus-ring rounded-lg border border-border px-3 py-2 disabled:opacity-40"
-                            aria-label={t("moveDown", { unit: entry.unitCode })}
-                            disabled={
-                              !plan.data.plan.isActive ||
-                              index === plan.data.entries.length - 1 ||
-                              isSaving
-                            }
-                            onClick={() => move(index, 1)}
-                          >
-                            ↓
-                          </button>
-                          <button
-                            type="button"
-                            className="focus-ring rounded-lg border border-red-300 px-3 py-2 text-red-700 disabled:opacity-40"
-                            disabled={!plan.data.plan.isActive || isSaving}
-                            onClick={() => removeEntry.mutate(entry.id)}
-                          >
-                            {t("remove")}
-                          </button>
-                        </div>
-                      </div>
+                            {item.isActive ? t("active") : t("inactive")}
+                          </span>
+                          {currentPlanId === item.id && (
+                            <span className={styles.selected}>
+                              <Check size={16} aria-hidden="true" />
+                              {t("selectedPlan")}
+                            </span>
+                          )}
+                        </span>
+                      </button>
                     </li>
                   ))}
-                </ol>
-              )}
-            </>
+                </ul>
+              </div>
+            </section>
           )}
+
+          <section
+            className={styles.panel}
+            aria-label={t("selectedPlanWorkspace")}
+          >
+            <div className={styles.panelHeader}>
+              <h2 className={styles.sectionTitle}>
+                {t("selectedPlanWorkspace")}
+              </h2>
+            </div>
+            {!currentPlanId && (
+              <p className={styles.description}>{t("choosePlanContext")}</p>
+            )}
+            {currentPlanId && plan.isPending && plan.data === undefined ? (
+              <QueryState kind="loading" title={t("loadingPlan")} />
+            ) : null}
+            {currentPlanId && plan.isError ? (
+              <QueryState kind="error" title={t("planError")} />
+            ) : null}
+            {currentPlanId && !plan.isPending && !plan.isError && !plan.data ? (
+              <QueryState kind="empty" title={t("noSelectedPlan")} />
+            ) : null}
+            {plan.data && (
+              <div className={styles.planWorkspace}>
+                <div className={styles.selectedHeader}>
+                  <div>
+                    <h3 className={styles.itemTitle}>
+                      {academicText(
+                        locale,
+                        plan.data.plan.qualificationArabicName,
+                        plan.data.plan.qualificationEnglishName,
+                      ) || plan.data.plan.qualificationCode}{" "}
+                      · {plan.data.plan.qualificationVersionCode} ·{" "}
+                      {plan.data.plan.academicYearCode}
+                    </h3>
+                    <p className={styles.hint}>
+                      {plan.data.plan.isActive
+                        ? t("editable")
+                        : t("inactivePlan")}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.secondary}
+                    disabled={isSaving}
+                    onClick={() => updatePlan.mutate(!plan.data.plan.isActive)}
+                  >
+                    {plan.data.plan.isActive ? t("deactivate") : t("activate")}
+                  </button>
+                </div>
+
+                <p className={styles.hint}>
+                  {t("planGrade", {
+                    grade:
+                      academicText(
+                        locale,
+                        plan.data.plan.gradeArabicName,
+                        plan.data.plan.gradeEnglishName,
+                      ) || "—",
+                  })}
+                </p>
+                <OperationFeedback
+                  state={updatePlan}
+                  message={operationError(updatePlan.error)}
+                />
+                <section
+                  className={styles.unitAdd}
+                  aria-label={t("unitWorkbench")}
+                >
+                  <h3 className={styles.itemTitle}>{t("unitWorkbench")}</h3>
+                  <p className={styles.hint}>{t("unitDraftHint")}</p>
+                  {plan.data.plan.isActive &&
+                  units.isPending &&
+                  units.data === undefined ? (
+                    <QueryState kind="loading" title={t("loadingUnits")} />
+                  ) : null}
+                  {plan.data.plan.isActive && units.isError ? (
+                    <QueryState kind="error" title={t("unitsError")} />
+                  ) : null}
+                  {plan.data.plan.isActive && (
+                    <div className={styles.unitFields}>
+                      <Field label={t("canonicalUnit")}>
+                        <select
+                          className={styles.control}
+                          value={unitId}
+                          onChange={(e) => setUnitId(e.target.value)}
+                        >
+                          <option value="">{t("chooseUnit")}</option>
+                          {availableUnits.map((item) => (
+                            <option key={item.id} value={item.id}>
+                              {academicUnitLabel(
+                                locale,
+                                item.code,
+                                item.arabicTitle,
+                                item.englishTitle,
+                              )}
+                            </option>
+                          ))}
+                        </select>
+                      </Field>
+                      <Field label={t("term")}>
+                        <select
+                          className={styles.control}
+                          value={currentEntryTermId}
+                          onChange={(e) => setEntryTermId(e.target.value)}
+                        >
+                          <option value="">{t("chooseTerm")}</option>
+                          {terms.data?.items
+                            .filter((item) => item.isActive)
+                            .map((item) => (
+                              <option key={item.id} value={item.id}>
+                                {item.code}
+                              </option>
+                            ))}
+                        </select>
+                      </Field>
+                      <button
+                        type="button"
+                        className={styles.primary}
+                        disabled={!unitId || !currentEntryTermId || isSaving}
+                        onClick={() => addEntry.mutate()}
+                      >
+                        {t("addUnit")}
+                      </button>
+                    </div>
+                  )}
+
+                  <OperationFeedback
+                    state={addEntry}
+                    message={operationError(addEntry.error)}
+                  />
+                </section>
+                <section
+                  className={styles.sequence}
+                  aria-label={t("unitSequence")}
+                >
+                  <h3 className={styles.sectionTitle}>{t("unitSequence")}</h3>
+                  <p className={styles.hint}>{t("sequenceHint")}</p>
+                  <OperationFeedback
+                    state={updateEntry}
+                    message={operationError(updateEntry.error)}
+                  />
+                  <OperationFeedback
+                    state={reorder}
+                    message={operationError(reorder.error)}
+                  />
+                  <OperationFeedback
+                    state={removeEntry}
+                    message={operationError(removeEntry.error)}
+                  />
+                  {plan.data.entries.length === 0 ? (
+                    <p className={styles.description}>{t("noEntries")}</p>
+                  ) : (
+                    <ol className={styles.entries}>
+                      {plan.data.entries.map((entry, index) => (
+                        <li key={entry.id} className={styles.entry}>
+                          <div className={styles.entryLayout}>
+                            <div className={styles.entryIdentity}>
+                              <strong className={styles.itemTitle}>
+                                {index + 1}.{" "}
+                                {academicUnitLabel(
+                                  locale,
+                                  entry.unitCode,
+                                  entry.unitArabicTitle,
+                                  entry.unitEnglishTitle,
+                                )}
+                              </strong>
+                              <p className={styles.assignedTerm}>
+                                {t("assignedTerm", { term: entry.termCode })}
+                              </p>
+                            </div>
+                            <label
+                              className={styles.field}
+                              hidden={!plan.data.plan.isActive}
+                            >
+                              <span>{t("term")}</span>
+                              <select
+                                className={styles.control}
+                                value={entry.academicTermId}
+                                hidden={!plan.data.plan.isActive}
+                                disabled={!plan.data.plan.isActive || isSaving}
+                                onChange={(e) =>
+                                  updateEntry.mutate({
+                                    id: entry.id,
+                                    academicTermId: e.target.value,
+                                  })
+                                }
+                              >
+                                {terms.data?.items
+                                  .filter((item) => item.isActive)
+                                  .map((item) => (
+                                    <option key={item.id} value={item.id}>
+                                      {item.code}
+                                    </option>
+                                  ))}
+                              </select>
+                            </label>
+                            <div className={styles.entryActions}>
+                              <button
+                                type="button"
+                                className={styles.secondary}
+                                aria-label={t("moveUp", {
+                                  unit: entry.unitCode,
+                                })}
+                                disabled={
+                                  !plan.data.plan.isActive ||
+                                  index === 0 ||
+                                  isSaving
+                                }
+                                onClick={() => move(index, -1)}
+                              >
+                                <ArrowUp size={18} aria-hidden="true" />
+                              </button>
+                              <button
+                                type="button"
+                                className={styles.secondary}
+                                aria-label={t("moveDown", {
+                                  unit: entry.unitCode,
+                                })}
+                                disabled={
+                                  !plan.data.plan.isActive ||
+                                  index === plan.data.entries.length - 1 ||
+                                  isSaving
+                                }
+                                onClick={() => move(index, 1)}
+                              >
+                                <ArrowDown size={18} aria-hidden="true" />
+                              </button>
+                              <button
+                                type="button"
+                                className={styles.remove}
+                                disabled={!plan.data.plan.isActive || isSaving}
+                                onClick={() => removeEntry.mutate(entry.id)}
+                              >
+                                {t("removeFromPlan")}
+                              </button>
+                            </div>
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
+                </section>
+              </div>
+            )}
+          </section>
         </div>
-      )}
+      </div>
     </section>
   );
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="grid min-w-0 flex-1 gap-1 text-sm font-semibold">
+    <label className={styles.field}>
       <span>{label}</span>
       {children}
     </label>
@@ -967,24 +1190,43 @@ function FormActions({
 }) {
   const t = useTranslations("deliveryPlanning");
   return (
-    <div className="mt-5 flex flex-wrap gap-2">
-      <button
-        type="submit"
-        className="focus-ring rounded-lg bg-primary px-4 py-2 font-bold text-white disabled:opacity-50"
-        disabled={saving}
-      >
+    <div className={styles.formActions}>
+      <button type="submit" className={styles.primary} disabled={saving}>
         {saving ? t("saving") : editing ? t("update") : t("create")}
       </button>
       {editing && (
         <button
           type="button"
-          className="focus-ring rounded-lg border border-border px-4 py-2"
+          className={styles.secondary}
           disabled={saving}
           onClick={cancel}
         >
           {t("cancel")}
         </button>
       )}
+    </div>
+  );
+}
+
+function OperationFeedback({
+  state,
+  message,
+}: {
+  state: { isPending: boolean; isError: boolean; isSuccess: boolean };
+  message: string;
+}) {
+  const t = useTranslations("deliveryPlanning");
+  return (
+    <div className={styles.feedback}>
+      {state.isPending ? (
+        <QueryState kind="loading" title={t("saving")} />
+      ) : null}
+      {state.isError ? (
+        <MutationOutcome kind="error">{message}</MutationOutcome>
+      ) : null}
+      {state.isSuccess && !state.isError && !state.isPending ? (
+        <MutationOutcome kind="success">{t("saved")}</MutationOutcome>
+      ) : null}
     </div>
   );
 }
