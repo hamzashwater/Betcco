@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { projectDeliveryPlanningBoundary } from "./helpers/delivery-planning-projection";
 import { describe, expect, it } from "vitest";
 import baseline from "./fixtures/ui-d01-15-security-incident-baseline.json";
 import { securityIncidentContracts } from "./helpers/security-incident-contracts";
@@ -7,7 +8,11 @@ import {
   projectSecurityIncidentBoundary,
   withoutSecurityIncidentAdditions,
 } from "./helpers/security-incident-projection";
-const read = (p: string) => readFileSync(p, "utf8").replace(/\r\n/g, "\n"),
+const read = (p: string) =>
+    projectDeliveryPlanningBoundary(
+      readFileSync(p, "utf8").replace(/\r\n/g, "\n"),
+      p,
+    ),
   hash = (s: string) => createHash("sha256").update(s).digest("hex"),
   path = baseline.path,
   source = read(path);

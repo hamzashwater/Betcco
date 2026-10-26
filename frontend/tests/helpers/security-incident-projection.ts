@@ -1,4 +1,8 @@
 import baseline from "../fixtures/ui-d01-15-security-incident-baseline.json";
+import {
+  projectDeliveryPlanningBoundary,
+  withoutDeliveryPlanningAdditions,
+} from "./delivery-planning-projection";
 function reverse(
   source: string,
   seams: { approved: string; previous: string }[],
@@ -12,6 +16,7 @@ function reverse(
   return result;
 }
 export function projectSecurityIncidentBoundary(source: string, path: string) {
+  source = projectDeliveryPlanningBoundary(source, path);
   const key = path.replaceAll("\\", "/");
   if (
     /(?:^|\/)src\/features\/admin\/security-incident-management\.tsx$/.test(key)
@@ -26,6 +31,7 @@ export function projectSecurityIncidentBoundary(source: string, path: string) {
 export function withoutSecurityIncidentAdditions(
   value: Record<string, unknown>,
 ) {
+  withoutDeliveryPlanningAdditions(value);
   const target = (
     value.adminWorkspace as Record<string, Record<string, unknown>> | undefined
   )?.securityIncidents;
