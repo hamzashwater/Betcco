@@ -1091,7 +1091,21 @@
     "residualbETCCOArabicDisplayTitle": "BETCCO Arabic display title",
     "residualsaveArabicDisplayTitle": "Save Arabic display title",
     "residualarchive": "Archive",
-    "residualactivate": "Activate"
+    "residualactivate": "Activate",
+    "unitRegister": "Unit register",
+    "inspectUnit": "Inspect unit",
+    "unitIdentity": "Academic identity",
+    "unitStatus": "Unit status",
+    "validation": "Validation",
+    "publicationState": "Definition state",
+    "scopeState": "Scope state",
+    "sourceReference": "Source reference",
+    "definitionVersion": "Definition version {version}",
+    "scopeVersion": "Scope version {version}",
+    "versionContextHelp": "The selected qualification version defines the units shown below. Versions follow the server order.",
+    "registerHelp": "Inspect academic identity, learning structure, definitions and scopes. Validation issues take precedence over active state.",
+    "waitingForVersion": "A qualification version is required to load its units.",
+    "refreshWarning": "The refresh failed. Previously loaded data remains available."
   },
   "deliveryPlanning": {
     "eyebrow": "academic operations",

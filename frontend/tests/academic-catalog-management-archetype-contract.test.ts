@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { projectCatalogueBoundary } from "./helpers/academic-catalogue-projection";
 import { describe, expect, it } from "vitest";
 import baseline from "./fixtures/ui-d01-15-academic-catalog-management-baseline.json";
 import {
@@ -11,7 +12,8 @@ import {
   withoutAcademicCatalogAdditions,
 } from "./helpers/academic-catalog-management-projection";
 
-const read = (p: string) => readFileSync(p, "utf8").replace(/\r\n/g, "\n"),
+const read = (p: string) =>
+    projectCatalogueBoundary(readFileSync(p, "utf8").replace(/\r\n/g, "\n"), p),
   hash = (s: string) => createHash("sha256").update(s).digest("hex"),
   source = read(baseline.path),
   previous = read("tests/fixtures/academic-catalog-management-original.txt");

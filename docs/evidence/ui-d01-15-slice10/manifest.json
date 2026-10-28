@@ -1,0 +1,2142 @@
+{
+  "classification": "MOCKED UI-CONTRACT EVIDENCE",
+  "base": "84acc7ea50af4d10a5b92552d4e4b1de36cc34d0",
+  "cases": [
+    {
+      "locale": "ar",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "captures": [
+        {
+          "state": "01-version-register-learning-validation-hierarchy",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/01-version-register-learning-validation-hierarchy.png",
+          "size": [1440, 5632],
+          "sha256": "32782142c3076304e0c48626bdb6f9288e91228ed984f160a95d0455472a9fdf"
+        },
+        {
+          "state": "02-official-custom-unknown-empty-learning-structure",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/02-official-custom-unknown-empty-learning-structure.png",
+          "size": [1440, 6696],
+          "sha256": "f6dbda62e66e705123cd304ec2287e0f78941dd1e564672a8ed4d96adce2a0ca"
+        },
+        {
+          "state": "03-keyboard-version-selector-focus",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/03-keyboard-version-selector-focus.png",
+          "size": [1440, 6696],
+          "sha256": "90d07c45e125f5b05ad2bcb0dc75b37074feba6475caf222bfdffe85fa234c11"
+        },
+        {
+          "state": "04-localization-pending-independent-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/04-localization-pending-independent-drafts.png",
+          "size": [1440, 6787],
+          "sha256": "c46c89a3cf9d1d9825922f8899f22e28c2f16b11b20bd96b78770bf17f83764f"
+        },
+        {
+          "state": "05-localization-error-retained-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/05-localization-error-retained-drafts.png",
+          "size": [1440, 6787],
+          "sha256": "cf5a7c01f80e0058ec253e8306552811ece1d2ef8727cc882caf47ae55cc1a80"
+        },
+        {
+          "state": "06-localization-success-target-only-clear",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/06-localization-success-target-only-clear.png",
+          "size": [1440, 6787],
+          "sha256": "8316a4e988ed1788a8545ccf1852380844d15ede41b4ccfd1783443c2221bb49"
+        },
+        {
+          "state": "unit-status-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/unit-status-pending.png",
+          "size": [1440, 6787],
+          "sha256": "92fea41ee833b5d5d42c253568470628e2b2fab12867c168e72e4f1567f6c513"
+        },
+        {
+          "state": "unit-status-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/unit-status-error.png",
+          "size": [1440, 6842],
+          "sha256": "5eb88f33b5748e14e0e71773530bfc1ac3c573f84da3e887626fdad4a5955d84"
+        },
+        {
+          "state": "unit-status-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/unit-status-success.png",
+          "size": [1440, 6787],
+          "sha256": "8f6d4293b0b1579fbb13280a9b3fc373511c3a582a1be8bce6a7054e88d1cd4c"
+        },
+        {
+          "state": "definition-publish-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/definition-publish-pending.png",
+          "size": [1440, 6866],
+          "sha256": "692be961f719ce3aee4c587bc91079ef3bd66830d0e8cef96a7f1d160855c281"
+        },
+        {
+          "state": "definition-publish-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/definition-publish-error.png",
+          "size": [1440, 6866],
+          "sha256": "153004e5529a111542de4b92fa8c1af1c6f316cda8569743c2ad0b5768f5a7e0"
+        },
+        {
+          "state": "definition-publish-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/definition-publish-success.png",
+          "size": [1440, 6814],
+          "sha256": "2c87d41973b3e9bcd93db91cb868a6a87c5e14b5147103fc236657c4ac9ad9db"
+        },
+        {
+          "state": "scope-activate-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/scope-activate-pending.png",
+          "size": [1440, 6893],
+          "sha256": "cfa921f6810a8ef5d8e4b358b6cc84bd851bbf85cfc299c09927e101c7180a12"
+        },
+        {
+          "state": "scope-activate-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/scope-activate-error.png",
+          "size": [1440, 6893],
+          "sha256": "b6078d80b66aa97b25c631d3a3238ce8c0b9957cb5164a4c3896969e871b43c5"
+        },
+        {
+          "state": "scope-activate-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/scope-activate-success.png",
+          "size": [1440, 6841],
+          "sha256": "ad2f8f43636853e534cfb267c90ee9472c3a71aef9174d0ab01536936b189cee"
+        },
+        {
+          "state": "07-explicit-other-version-no-cross-version-content",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/07-explicit-other-version-no-cross-version-content.png",
+          "size": [1440, 3054],
+          "sha256": "700af65984ec13b54bd5f6e68cebd69b33283fc30937887b9e67d0e3b1d72396"
+        },
+        {
+          "state": "08-cached-catalogue-refresh-warning",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/08-cached-catalogue-refresh-warning.png",
+          "size": [1440, 5867],
+          "sha256": "f65470bc47fe27d1d06c3d9e6ea3f25a7ea2c80ac65d445ad9ab61434ee6e4a0"
+        },
+        {
+          "state": "09-versions-initial-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/09-versions-initial-pending.png",
+          "size": [1440, 983],
+          "sha256": "e91c2cbee98a9bc9da4fec47c0026d09610fbd617b729fa84bde0b9f3f717490"
+        },
+        {
+          "state": "10-versions-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/10-versions-cold-error.png",
+          "size": [1440, 1006],
+          "sha256": "f1a5beb2d7ea8eac82942e8af8d18f41e9d2dc75b58f7cae93f3a4a163e225fb"
+        },
+        {
+          "state": "11-no-versions-waiting-context",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/11-no-versions-waiting-context.png",
+          "size": [1440, 2976],
+          "sha256": "59008e0ebabbfe1a0113c2f6d4bd75fe42bb5f4e0ffe08d2e2e1e60e3451b1c1"
+        },
+        {
+          "state": "12-selected-catalogue-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/12-selected-catalogue-pending.png",
+          "size": [1440, 3068],
+          "sha256": "1e99c7706408da02d69098987110191736d375d66033a309b71ee18b7b4b2c1b"
+        },
+        {
+          "state": "13-selected-catalogue-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/13-selected-catalogue-cold-error.png",
+          "size": [1440, 3091],
+          "sha256": "7c23b09b05baf3157bb23113402a88da88f44ff723878d02b3d7c52210d32a87"
+        },
+        {
+          "state": "14-selected-catalogue-successful-empty",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/14-selected-catalogue-successful-empty.png",
+          "size": [1440, 3054],
+          "sha256": "70b62c38816c8e9401ef81d100dd44ce2db9443ae7a77f4c726c8d1004207789"
+        },
+        {
+          "state": "15-200-percent-equivalent-reflow",
+          "path": "browser-matrix-first/academic-catalogue-archety-1001d-RACT-EVIDENCE-ar-light-1440/15-200-percent-equivalent-reflow.png",
+          "size": [720, 6750],
+          "sha256": "193cac7a43461b66042daf2218e031775bedd4a4448c2d199614c6f27a9c9435"
+        }
+      ],
+      "writeCount": 9,
+      "reads": [
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-a",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "ar",
+      "theme": "light",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "captures": [
+        {
+          "state": "01-version-register-learning-validation-hierarchy",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/01-version-register-learning-validation-hierarchy.png",
+          "size": [834, 6663],
+          "sha256": "2ccbbda3f609691af2b020b510a83efaa098a1e02df0d8a8a370c9be079717a1"
+        },
+        {
+          "state": "02-official-custom-unknown-empty-learning-structure",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/02-official-custom-unknown-empty-learning-structure.png",
+          "size": [834, 8309],
+          "sha256": "0ab91e32a2eae4b7219cd180242634f9ef036a3b36aba16a05200eb9fbff1713"
+        },
+        {
+          "state": "03-keyboard-version-selector-focus",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/03-keyboard-version-selector-focus.png",
+          "size": [834, 8309],
+          "sha256": "9ce6e2a74a2cb7f0173dd8880930696563f8025a692572152640f94ca2f878fb"
+        },
+        {
+          "state": "04-localization-pending-independent-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/04-localization-pending-independent-drafts.png",
+          "size": [834, 8400],
+          "sha256": "2669ef71bfbf6afdde268e61107de03d1b9abc5ee327f3385e00005df67c3704"
+        },
+        {
+          "state": "05-localization-error-retained-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/05-localization-error-retained-drafts.png",
+          "size": [834, 8400],
+          "sha256": "2aa05c3199387054971b8984b20f411d2607e7804e30419939c6a43d4dab5ca3"
+        },
+        {
+          "state": "06-localization-success-target-only-clear",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/06-localization-success-target-only-clear.png",
+          "size": [834, 8400],
+          "sha256": "dee3ef55d5c8843b56b784aece7e638b03613d25545ff3f8953e02a55e7bee0d"
+        },
+        {
+          "state": "unit-status-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/unit-status-pending.png",
+          "size": [834, 8427],
+          "sha256": "f7d630a23a63945cb3ba2efe0bfe0e64f930392ac4422928483adf62fb976ecc"
+        },
+        {
+          "state": "unit-status-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/unit-status-error.png",
+          "size": [834, 8427],
+          "sha256": "3e35937cb125344df3d0cf696d8f945faa322aaea5c3511e451ccaeed3c3e558"
+        },
+        {
+          "state": "unit-status-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/unit-status-success.png",
+          "size": [834, 8427],
+          "sha256": "801466c00828aa994d17743464255fd02355f9bbe2ccc6c3034613af04fd35c4"
+        },
+        {
+          "state": "definition-publish-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/definition-publish-pending.png",
+          "size": [834, 8506],
+          "sha256": "b9eb97ee5b243c3d1cd1261a66696bfaeb0dbdbe164beb0a7625c9aed0ac8bca"
+        },
+        {
+          "state": "definition-publish-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/definition-publish-error.png",
+          "size": [834, 8506],
+          "sha256": "94b0c8c0044761e164571adeb37be9b760a35b76fd9d009b44bffa0511459533"
+        },
+        {
+          "state": "definition-publish-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/definition-publish-success.png",
+          "size": [834, 8454],
+          "sha256": "47084ac700c49f4623f0d6e7aa32b2d37d13f789743f9f7e7304f160dbc33750"
+        },
+        {
+          "state": "scope-activate-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/scope-activate-pending.png",
+          "size": [834, 8533],
+          "sha256": "3302c30a9f3f5cde1a7ba48d48269d94f8ec9f6adf7de03b27d79c3836d2b0f8"
+        },
+        {
+          "state": "scope-activate-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/scope-activate-error.png",
+          "size": [834, 8533],
+          "sha256": "b2b4cf256ed377299dac47d70a124391c577aa1207a4624b1f298a88b235a323"
+        },
+        {
+          "state": "scope-activate-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/scope-activate-success.png",
+          "size": [834, 8481],
+          "sha256": "d66503d34bc8aa273b419671e042abe4500efeaf041b8e81a4ffc2a80d47db97"
+        },
+        {
+          "state": "07-explicit-other-version-no-cross-version-content",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/07-explicit-other-version-no-cross-version-content.png",
+          "size": [834, 3487],
+          "sha256": "cd5aa1f9780cb96f540b96a77427a8030b8300e79f7d310f70a5810218befff4"
+        },
+        {
+          "state": "08-cached-catalogue-refresh-warning",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/08-cached-catalogue-refresh-warning.png",
+          "size": [834, 6925],
+          "sha256": "7ecfa2ca8394ed8be806b7c7067c0cd74615261db795f10cf51a4e62e6016075"
+        },
+        {
+          "state": "09-versions-initial-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/09-versions-initial-pending.png",
+          "size": [834, 1112],
+          "sha256": "8cb8893902567edd3c04bf1024df2bd2572970ecc26275cc2950208af3bdfef1"
+        },
+        {
+          "state": "10-versions-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/10-versions-cold-error.png",
+          "size": [834, 1112],
+          "sha256": "43bb226bf79de04790d0506be8b5a93ce49e50bc68e9ada972f9f5fdcb20da15"
+        },
+        {
+          "state": "11-no-versions-waiting-context",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/11-no-versions-waiting-context.png",
+          "size": [834, 3409],
+          "sha256": "817bf95243e97bf0a3b88463e01ba976c1bbe9d88a8cc23f691730f7105cf1ea"
+        },
+        {
+          "state": "12-selected-catalogue-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/12-selected-catalogue-pending.png",
+          "size": [834, 3501],
+          "sha256": "a3158c6b2d8b07ed27dc934af63810b3762078850188609c71db293b28686159"
+        },
+        {
+          "state": "13-selected-catalogue-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/13-selected-catalogue-cold-error.png",
+          "size": [834, 3524],
+          "sha256": "e879a7e6954f4f5000d230905d226f9af0f7f996230b7e709eea8b1f0fb50aac"
+        },
+        {
+          "state": "14-selected-catalogue-successful-empty",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/14-selected-catalogue-successful-empty.png",
+          "size": [834, 3487],
+          "sha256": "aae65db25474a4f961b027b31d218c3c78e59a213bd677908809a01bb609216d"
+        },
+        {
+          "state": "15-200-percent-equivalent-reflow",
+          "path": "browser-matrix-first/academic-catalogue-archety-2adbd-TRACT-EVIDENCE-ar-light-834/15-200-percent-equivalent-reflow.png",
+          "size": [720, 6750],
+          "sha256": "e2febabe0334e779a07608289bd6ab4fb578771816b35c8a7c1a095fb7e288f0"
+        }
+      ],
+      "writeCount": 9,
+      "reads": [
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-a",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "captures": [
+        {
+          "state": "01-version-register-learning-validation-hierarchy",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/01-version-register-learning-validation-hierarchy.png",
+          "size": [390, 9503],
+          "sha256": "1cc83cce9f613804d980a5f6790c168285ca9c16ba024ef5ca2ec794cd3b3009"
+        },
+        {
+          "state": "02-official-custom-unknown-empty-learning-structure",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/02-official-custom-unknown-empty-learning-structure.png",
+          "size": [390, 11168],
+          "sha256": "28098767b26b49c9575f960ed34b1ab80e8e648057d577509ccc578e3553e45a"
+        },
+        {
+          "state": "03-keyboard-version-selector-focus",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/03-keyboard-version-selector-focus.png",
+          "size": [390, 11168],
+          "sha256": "6491cb8a316be44ef2701032f62dcb7d03b04b009d9711856e8a37e81f7780cf"
+        },
+        {
+          "state": "04-localization-pending-independent-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/04-localization-pending-independent-drafts.png",
+          "size": [390, 11256],
+          "sha256": "80bc81f4ba8ec4874175a1ec34164feaec1c4dbbf99d37349d7559ce90b63196"
+        },
+        {
+          "state": "05-localization-error-retained-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/05-localization-error-retained-drafts.png",
+          "size": [390, 11316],
+          "sha256": "fa739eb1584ca4383180a3c65be8a708a8857c4cd1586db1ea2e8a01de68d009"
+        },
+        {
+          "state": "06-localization-success-target-only-clear",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/06-localization-success-target-only-clear.png",
+          "size": [390, 11290],
+          "sha256": "5b93ef6ac1e22100484b0bfde5f90801e46ea468834367304662303a59469020"
+        },
+        {
+          "state": "unit-status-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/unit-status-pending.png",
+          "size": [390, 11378],
+          "sha256": "754ad23fb88daa3044162c899a80544c0d2edb2e7909d4d1d69157d46fb8885e"
+        },
+        {
+          "state": "unit-status-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/unit-status-error.png",
+          "size": [390, 11438],
+          "sha256": "6abe0dcd4295e9f0251e6b580f7e86227890337dd57a5ff85d760c503599cf12"
+        },
+        {
+          "state": "unit-status-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/unit-status-success.png",
+          "size": [390, 11378],
+          "sha256": "64414c996751c339c7384daa91ec3bede8a16ced538a752195e62638602bd0bd"
+        },
+        {
+          "state": "definition-publish-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/definition-publish-pending.png",
+          "size": [390, 11454],
+          "sha256": "b6332502d23fd3531d051bf2f3911943c2cf9d82d4618515014db5c60a732260"
+        },
+        {
+          "state": "definition-publish-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/definition-publish-error.png",
+          "size": [390, 11514],
+          "sha256": "06a14d334d60e1e45627ede93f6a596f3df80a9c7bea928405c01fa1b0f1c25f"
+        },
+        {
+          "state": "definition-publish-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/definition-publish-success.png",
+          "size": [390, 11402],
+          "sha256": "63bc75a175057cf2b1a8bf887f390a2bd9e27a060e7240a24c7a61eaa6d342bd"
+        },
+        {
+          "state": "scope-activate-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/scope-activate-pending.png",
+          "size": [390, 11478],
+          "sha256": "57ff3379d50ce1d36f5396a9c9d22a2da6f085c38c919b5ff37bf45edf533dfb"
+        },
+        {
+          "state": "scope-activate-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/scope-activate-error.png",
+          "size": [390, 11538],
+          "sha256": "445752b5d37ce22c153c319537e3c24538963aac75c624927268fc2c0c26c48b"
+        },
+        {
+          "state": "scope-activate-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/scope-activate-success.png",
+          "size": [390, 11426],
+          "sha256": "774cdc67525e12ff5361ea651aa734d05a91ab93e06bbb85f0e3aa5520f6a14f"
+        },
+        {
+          "state": "07-explicit-other-version-no-cross-version-content",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/07-explicit-other-version-no-cross-version-content.png",
+          "size": [390, 5116],
+          "sha256": "1fb2b7a936ad9f581172c6c0d81656051f85b06a239439232c96b3eb1a8612a4"
+        },
+        {
+          "state": "08-cached-catalogue-refresh-warning",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/08-cached-catalogue-refresh-warning.png",
+          "size": [390, 9911],
+          "sha256": "7610e9e63f6f8cd815a89def0c6a5e5362a271cf0efb978be24c603b050863ed"
+        },
+        {
+          "state": "09-versions-initial-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/09-versions-initial-pending.png",
+          "size": [390, 1624],
+          "sha256": "b96efcaba0b175c98164058eb97accc1ec7c0319df6739453b8d0172802bd549"
+        },
+        {
+          "state": "10-versions-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/10-versions-cold-error.png",
+          "size": [390, 1710],
+          "sha256": "a12f09c9968f746d2e751c13c97877ce4b93ebf5f3467ac79dacbcd6e40f9cf6"
+        },
+        {
+          "state": "11-no-versions-waiting-context",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/11-no-versions-waiting-context.png",
+          "size": [390, 5019],
+          "sha256": "f3fdd8adc889b6bc3fb1af6998856dc00dae57da94359afb7884b2164539abf8"
+        },
+        {
+          "state": "12-selected-catalogue-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/12-selected-catalogue-pending.png",
+          "size": [390, 5130],
+          "sha256": "84828f4b11508dae175c144d6652ce473c79fb26a2dca12a3e9bbf85b9bc94e8"
+        },
+        {
+          "state": "13-selected-catalogue-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/13-selected-catalogue-cold-error.png",
+          "size": [390, 5216],
+          "sha256": "80638d5e15da4705cec26f5b1bedc9930c983c4e21844c9521c7e5857f9368fd"
+        },
+        {
+          "state": "14-selected-catalogue-successful-empty",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/14-selected-catalogue-successful-empty.png",
+          "size": [390, 5116],
+          "sha256": "aa91cba43cb8e4097fdad70bd2b3c5f8787e5053b6c86dcc2341d25ce965a192"
+        },
+        {
+          "state": "15-200-percent-equivalent-reflow",
+          "path": "browser-matrix-first/academic-catalogue-archety-3e804-TRACT-EVIDENCE-en-light-390/15-200-percent-equivalent-reflow.png",
+          "size": [720, 6805],
+          "sha256": "4c2b9f9fe9d34322729e566a573138dc79dc2f452cf03493de2417b605a8b61a"
+        }
+      ],
+      "writeCount": 9,
+      "reads": [
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-a",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "captures": [
+        {
+          "state": "01-version-register-learning-validation-hierarchy",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/01-version-register-learning-validation-hierarchy.png",
+          "size": [390, 9503],
+          "sha256": "eb20d80830e7478a30772beef35f4a55ca98c60afa4d11567f87ccc6abf48fa1"
+        },
+        {
+          "state": "02-official-custom-unknown-empty-learning-structure",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/02-official-custom-unknown-empty-learning-structure.png",
+          "size": [390, 11168],
+          "sha256": "23929267fe2602d77b63dbe29026e4655fa29e3655af5a4b800f00a52b0f3163"
+        },
+        {
+          "state": "03-keyboard-version-selector-focus",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/03-keyboard-version-selector-focus.png",
+          "size": [390, 11168],
+          "sha256": "4addc144476c9be7e8c07a31e1e682756e2493dee86aeb8af119a3d35dd93a9f"
+        },
+        {
+          "state": "04-localization-pending-independent-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/04-localization-pending-independent-drafts.png",
+          "size": [390, 11256],
+          "sha256": "2137f01dbcbe980c7450a55d91df58f4d39d3d33778dd712c8abdeb7e7448260"
+        },
+        {
+          "state": "05-localization-error-retained-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/05-localization-error-retained-drafts.png",
+          "size": [390, 11316],
+          "sha256": "13ed394594bb18c45c0fe1d7023ed32abdfe7c09574e45c1c6be714129493bb6"
+        },
+        {
+          "state": "06-localization-success-target-only-clear",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/06-localization-success-target-only-clear.png",
+          "size": [390, 11290],
+          "sha256": "85c2bda49d71589f092286092c27712abdfd2c26fa3ef6cab598777e9e77c241"
+        },
+        {
+          "state": "unit-status-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/unit-status-pending.png",
+          "size": [390, 11378],
+          "sha256": "629f72ad7b18652235d5964a4a5995ac86547b753aa195e12108a8f4ab3b9dd0"
+        },
+        {
+          "state": "unit-status-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/unit-status-error.png",
+          "size": [390, 11438],
+          "sha256": "8df2a648c714944a30e7b4b6276c0b5b599fa5c4b100290bb02c9e296960b208"
+        },
+        {
+          "state": "unit-status-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/unit-status-success.png",
+          "size": [390, 11378],
+          "sha256": "c0e4a0105b1c1af493a41700d47faf4af05441b61c14ae5c28d495ef665d16ac"
+        },
+        {
+          "state": "definition-publish-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/definition-publish-pending.png",
+          "size": [390, 11454],
+          "sha256": "7e2c48f352b3076dade93a4324c7e8b5037c2f4b15ac02ce541e893bc17d29bd"
+        },
+        {
+          "state": "definition-publish-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/definition-publish-error.png",
+          "size": [390, 11514],
+          "sha256": "e28ff3938b7f3a7257795225f1c3558d12889d2ad9b429e640bf0476c2e32545"
+        },
+        {
+          "state": "definition-publish-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/definition-publish-success.png",
+          "size": [390, 11402],
+          "sha256": "f7c593073fdbdf96cb735f0fbcf98e67d8c78dd8fff6fcfb1188b8092cc4a2cc"
+        },
+        {
+          "state": "scope-activate-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/scope-activate-pending.png",
+          "size": [390, 11478],
+          "sha256": "f499a9a51a26b9989f94106c9a177f7e0ff1a8f5c33e79d484f951aab192e80a"
+        },
+        {
+          "state": "scope-activate-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/scope-activate-error.png",
+          "size": [390, 11538],
+          "sha256": "cbec8a0659a9434f8855bd26bbad74f31ae440e132649a52ec6403269c8b4087"
+        },
+        {
+          "state": "scope-activate-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/scope-activate-success.png",
+          "size": [390, 11426],
+          "sha256": "f17ad37c17bee239480edddda09ca38a31636f30728fb349e6195663f058641c"
+        },
+        {
+          "state": "07-explicit-other-version-no-cross-version-content",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/07-explicit-other-version-no-cross-version-content.png",
+          "size": [390, 5116],
+          "sha256": "880e060d7111077f241aab9802f684315807e3a3a6b6c2ff5bd4f361c7510e44"
+        },
+        {
+          "state": "08-cached-catalogue-refresh-warning",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/08-cached-catalogue-refresh-warning.png",
+          "size": [390, 9911],
+          "sha256": "ece88a6bcd0204ecb2feed076748940c62819afabe3f23862f6b0c2cfdea1622"
+        },
+        {
+          "state": "09-versions-initial-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/09-versions-initial-pending.png",
+          "size": [390, 1624],
+          "sha256": "53a461badba1bf44a19da7380d49f65b53dd0c8dc93cb5702499377f40291447"
+        },
+        {
+          "state": "10-versions-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/10-versions-cold-error.png",
+          "size": [390, 1710],
+          "sha256": "d74787bffbcc68f2c89d16825c8822e28be2748a745eba97a1fd70bea4337647"
+        },
+        {
+          "state": "11-no-versions-waiting-context",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/11-no-versions-waiting-context.png",
+          "size": [390, 5019],
+          "sha256": "45871cea75aff00b094b5525532d5d74686e311f4cf40909556344d06d1c202e"
+        },
+        {
+          "state": "12-selected-catalogue-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/12-selected-catalogue-pending.png",
+          "size": [390, 5130],
+          "sha256": "74989dd0e3a0d75e51cbbda9ec012ce09ba5bfdd3a34ab9486d0c0f9adab9120"
+        },
+        {
+          "state": "13-selected-catalogue-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/13-selected-catalogue-cold-error.png",
+          "size": [390, 5216],
+          "sha256": "1925945e02ee7d18924b672eca8aa78965d4beae88027ce16fa22e84bff154cd"
+        },
+        {
+          "state": "14-selected-catalogue-successful-empty",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/14-selected-catalogue-successful-empty.png",
+          "size": [390, 5116],
+          "sha256": "77f9dd5d5fd9c14d6e12b8d5dcbe112d0f687ddb34462edf9138b4b2766122a2"
+        },
+        {
+          "state": "15-200-percent-equivalent-reflow",
+          "path": "browser-matrix-first/academic-catalogue-archety-43760-NTRACT-EVIDENCE-en-dark-390/15-200-percent-equivalent-reflow.png",
+          "size": [720, 6805],
+          "sha256": "870036def44e3f6c494a7c79fbda9c7dc8e3da51539d38198a7d9128cdd121c9"
+        }
+      ],
+      "writeCount": 9,
+      "reads": [
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-a",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "captures": [
+        {
+          "state": "01-version-register-learning-validation-hierarchy",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/01-version-register-learning-validation-hierarchy.png",
+          "size": [1440, 5453],
+          "sha256": "da046a98935c15af3b8502e8de5ad505f751052925e5e0efad2af77609fdf87d"
+        },
+        {
+          "state": "02-official-custom-unknown-empty-learning-structure",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/02-official-custom-unknown-empty-learning-structure.png",
+          "size": [1440, 6453],
+          "sha256": "e411ba037e29c43804b68360089c109cacd4db3fca900cd474b30c9dfa4f1244"
+        },
+        {
+          "state": "03-keyboard-version-selector-focus",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/03-keyboard-version-selector-focus.png",
+          "size": [1440, 6453],
+          "sha256": "9a5baf59496d447fbe63cf73087489e56451fe3aad5907f8de1ca09a0607c1dc"
+        },
+        {
+          "state": "04-localization-pending-independent-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/04-localization-pending-independent-drafts.png",
+          "size": [1440, 6541],
+          "sha256": "2c2f1d4f861db52dfd7f1ba45ef34a8e193a2933ba90f366b68acbad7aff4740"
+        },
+        {
+          "state": "05-localization-error-retained-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/05-localization-error-retained-drafts.png",
+          "size": [1440, 6541],
+          "sha256": "145eb22a9efc1b1f35bbf3e311e9d87c5ebb92a5bfa543c0b4210f07877fa39e"
+        },
+        {
+          "state": "06-localization-success-target-only-clear",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/06-localization-success-target-only-clear.png",
+          "size": [1440, 6541],
+          "sha256": "3782ff6775fdf73ec8a09037720e5fe4f8de8c2222cfe59f4667b40063e9fc91"
+        },
+        {
+          "state": "unit-status-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/unit-status-pending.png",
+          "size": [1440, 6541],
+          "sha256": "d2543f00f297c2c091411613618a9ca719f13e9d412fca5e2acbe7e39186eb6d"
+        },
+        {
+          "state": "unit-status-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/unit-status-error.png",
+          "size": [1440, 6653],
+          "sha256": "0b31f5777eabb3b3c9780e5167fc30cb26dd28714ea1a96445b209dbd66c026b"
+        },
+        {
+          "state": "unit-status-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/unit-status-success.png",
+          "size": [1440, 6541],
+          "sha256": "ee70a62c31a336764cea9172f34e686c6bfdbc0b1c2735f3e4b6634637eea92e"
+        },
+        {
+          "state": "definition-publish-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/definition-publish-pending.png",
+          "size": [1440, 6617],
+          "sha256": "b3086bb1ac60d8c18de3d5ce5679fd14407eef1b347c3d0a81a7ddc8e5be1b4e"
+        },
+        {
+          "state": "definition-publish-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/definition-publish-error.png",
+          "size": [1440, 6651],
+          "sha256": "24c218911b9d8153c962e08865c0c70522bf73c5af0409e7139670c6e97af53a"
+        },
+        {
+          "state": "definition-publish-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/definition-publish-success.png",
+          "size": [1440, 6565],
+          "sha256": "221031aa5e1105b91beb328366416a8e2f6230047cdaee8b7589996316c13be4"
+        },
+        {
+          "state": "scope-activate-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/scope-activate-pending.png",
+          "size": [1440, 6641],
+          "sha256": "783cf68cb9ae10cd4f6062fa2978c030d66b8b2a32d193e6dc88020ee1a92d9d"
+        },
+        {
+          "state": "scope-activate-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/scope-activate-error.png",
+          "size": [1440, 6675],
+          "sha256": "ea68e19e059a3e247727d4b65b82c8d1757efbbdc250621c5e4aba8217b8f75b"
+        },
+        {
+          "state": "scope-activate-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/scope-activate-success.png",
+          "size": [1440, 6589],
+          "sha256": "118da0ff6f09c9c64301b19286dc0c40e13c79250a7fc6ede4360e8146d1214a"
+        },
+        {
+          "state": "07-explicit-other-version-no-cross-version-content",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/07-explicit-other-version-no-cross-version-content.png",
+          "size": [1440, 2968],
+          "sha256": "7bc334edd910257e5ec0854d8fb658db22d4ceef3cbf31e75092e9573d3b83da"
+        },
+        {
+          "state": "08-cached-catalogue-refresh-warning",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/08-cached-catalogue-refresh-warning.png",
+          "size": [1440, 5679],
+          "sha256": "671cf56da44c3b357b61ad10965de38142350e1f4ff13f8b14b0e7afc0377863"
+        },
+        {
+          "state": "09-versions-initial-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/09-versions-initial-pending.png",
+          "size": [1440, 983],
+          "sha256": "480a6c77f7498b68607cc742cf774e93dfbb0cc9cdf3010fce1ad5696f4bdd5a"
+        },
+        {
+          "state": "10-versions-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/10-versions-cold-error.png",
+          "size": [1440, 1009],
+          "sha256": "5ce3e8074ab662a5103ac02355aafcc0737909c9a1128d2ec0b6fbab10f204c6"
+        },
+        {
+          "state": "11-no-versions-waiting-context",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/11-no-versions-waiting-context.png",
+          "size": [1440, 2897],
+          "sha256": "71e5eea01b67f8d788f2f156afebf4a08ccb348c55ac1fe63b877fd3ae138b7f"
+        },
+        {
+          "state": "12-selected-catalogue-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/12-selected-catalogue-pending.png",
+          "size": [1440, 2982],
+          "sha256": "eb41ac96fb4e624c41553376b9ee6c957e63f025d2de96dd075684dd4168b46e"
+        },
+        {
+          "state": "13-selected-catalogue-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/13-selected-catalogue-cold-error.png",
+          "size": [1440, 3008],
+          "sha256": "047b84cda9836fd49f7ffd20833ee866be7dd7a8f17aba4af5e60fd3cd40fedc"
+        },
+        {
+          "state": "14-selected-catalogue-successful-empty",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/14-selected-catalogue-successful-empty.png",
+          "size": [1440, 2968],
+          "sha256": "2dc42b6e50a37f3906e2b9e72229e7006e5b0003cadea1780b4ecf3dc35d2d52"
+        },
+        {
+          "state": "15-200-percent-equivalent-reflow",
+          "path": "browser-matrix-first/academic-catalogue-archety-4f0ea-TRACT-EVIDENCE-en-dark-1440/15-200-percent-equivalent-reflow.png",
+          "size": [720, 6805],
+          "sha256": "b99cedf262c1ef4dcbf732a350947672f82ffe5107bdff59e258cbae48e73a4c"
+        }
+      ],
+      "writeCount": 9,
+      "reads": [
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-a",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "ar",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "captures": [
+        {
+          "state": "01-version-register-learning-validation-hierarchy",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/01-version-register-learning-validation-hierarchy.png",
+          "size": [390, 9560],
+          "sha256": "efbf0065e47575789ebf586880b4c423e441cd30b573d150f5fda2b464851c4a"
+        },
+        {
+          "state": "02-official-custom-unknown-empty-learning-structure",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/02-official-custom-unknown-empty-learning-structure.png",
+          "size": [390, 11313],
+          "sha256": "e916b755d23b54b767fab9117640c908104dc447e06d97e3320e1c6a8ea967e0"
+        },
+        {
+          "state": "03-keyboard-version-selector-focus",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/03-keyboard-version-selector-focus.png",
+          "size": [390, 11313],
+          "sha256": "71fd93b183314548f81cba84587d3464141ae4f77f133eabeace5246f3443353"
+        },
+        {
+          "state": "04-localization-pending-independent-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/04-localization-pending-independent-drafts.png",
+          "size": [390, 11404],
+          "sha256": "629c9de6725fe8413ee578316648126ec1485a5ca075698fdb2c25ea3af84806"
+        },
+        {
+          "state": "05-localization-error-retained-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/05-localization-error-retained-drafts.png",
+          "size": [390, 11441],
+          "sha256": "3893dc7635aa853ff476a72708be0802cc17a6b8da63004f892b30238a980f18"
+        },
+        {
+          "state": "06-localization-success-target-only-clear",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/06-localization-success-target-only-clear.png",
+          "size": [390, 11404],
+          "sha256": "52ac18f0fe6b70a01ae11d1aae469055bb11552639fe723cf73927224064e083"
+        },
+        {
+          "state": "unit-status-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/unit-status-pending.png",
+          "size": [390, 11431],
+          "sha256": "58b88c47caa9fea48f34c9f3bfe82d9aa95d6cd63e8c40c1c07966531515402d"
+        },
+        {
+          "state": "unit-status-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/unit-status-error.png",
+          "size": [390, 11532],
+          "sha256": "d5f6a132068550c07944abe311ab915627b1ac45fab056aef1a2ceacda28288e"
+        },
+        {
+          "state": "unit-status-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/unit-status-success.png",
+          "size": [390, 11495],
+          "sha256": "427eba769df0b1ce1ae533c19dce62084129322333611312ad883dd04b175c6c"
+        },
+        {
+          "state": "definition-publish-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/definition-publish-pending.png",
+          "size": [390, 11574],
+          "sha256": "ab987a69bead5d77c02c3f6c23b4faf870ea8d1f4b1219a2077b9f7414ef5e7f"
+        },
+        {
+          "state": "definition-publish-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/definition-publish-error.png",
+          "size": [390, 11611],
+          "sha256": "6d7ca2fcdfd4e6d756d8ab521f172985a243baa001d4f0e8803a5c4042186962"
+        },
+        {
+          "state": "definition-publish-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/definition-publish-success.png",
+          "size": [390, 11522],
+          "sha256": "ac002b00b385c01f3465bed08d78299069d1292409dc70b215e0ed96efa63595"
+        },
+        {
+          "state": "scope-activate-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/scope-activate-pending.png",
+          "size": [390, 11601],
+          "sha256": "4f3f84657cd12d1d70e1bc9b9b675345e1954353893439faed465ef00a415c9d"
+        },
+        {
+          "state": "scope-activate-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/scope-activate-error.png",
+          "size": [390, 11667],
+          "sha256": "c30a45fbece5551cfdf1baeaa69ca0ff937c089c19dc5e2eb979ff1e63505805"
+        },
+        {
+          "state": "scope-activate-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/scope-activate-success.png",
+          "size": [390, 11549],
+          "sha256": "1e83525fb9f85af114771020ff86a82020e63f1610e63340722524534faf74cf"
+        },
+        {
+          "state": "07-explicit-other-version-no-cross-version-content",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/07-explicit-other-version-no-cross-version-content.png",
+          "size": [390, 5123],
+          "sha256": "e750e240cacfa96541210c1b1a174e193ac24bbba1166ee1fbdd00332bdd9cab"
+        },
+        {
+          "state": "08-cached-catalogue-refresh-warning",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/08-cached-catalogue-refresh-warning.png",
+          "size": [390, 9952],
+          "sha256": "5ea8933f17de45ffb6c7513385ce2a90f7b2037c2e44e8f9ee1169ec0e5764cc"
+        },
+        {
+          "state": "09-versions-initial-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/09-versions-initial-pending.png",
+          "size": [390, 1555],
+          "sha256": "93699bd5fec16970ba841322304c21fa05a93dc91997be5756abada5ebf65c03"
+        },
+        {
+          "state": "10-versions-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/10-versions-cold-error.png",
+          "size": [390, 1615],
+          "sha256": "cdd3875fb73d920f9b4a12c1919ecb7ee61dc5cfe83c4f9268937b9f403e6ca9"
+        },
+        {
+          "state": "11-no-versions-waiting-context",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/11-no-versions-waiting-context.png",
+          "size": [390, 5016],
+          "sha256": "59ca5929a8c8c84ef0f8032101a07dd3b84a280d0e65f48e63eb6d51727d8994"
+        },
+        {
+          "state": "12-selected-catalogue-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/12-selected-catalogue-pending.png",
+          "size": [390, 5137],
+          "sha256": "e8c9e42fda8d247629d2fb9ada5e7b3f218a5610db39a40ded360c546921b2bf"
+        },
+        {
+          "state": "13-selected-catalogue-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/13-selected-catalogue-cold-error.png",
+          "size": [390, 5197],
+          "sha256": "766a309b2d8765fe397375ca982a5b662df9813e19f59aabfe42cf479859452f"
+        },
+        {
+          "state": "14-selected-catalogue-successful-empty",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/14-selected-catalogue-successful-empty.png",
+          "size": [390, 5123],
+          "sha256": "eb741942488701fb44d5ef5620e07d3f95651183efc94864d8a17b080431caae"
+        },
+        {
+          "state": "15-200-percent-equivalent-reflow",
+          "path": "browser-matrix-first/academic-catalogue-archety-5dcb1-TRACT-EVIDENCE-ar-light-390/15-200-percent-equivalent-reflow.png",
+          "size": [720, 6750],
+          "sha256": "cda991894bae5977e097ce3da198e7a8d02b84473e89a6598b3a2eb076cad004"
+        }
+      ],
+      "writeCount": 9,
+      "reads": [
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-a",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "captures": [
+        {
+          "state": "01-version-register-learning-validation-hierarchy",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/01-version-register-learning-validation-hierarchy.png",
+          "size": [834, 6663],
+          "sha256": "de7f8b7b132d07726704105affd5339bd4e8e23ac420295ebdeec30bc3ee4f76"
+        },
+        {
+          "state": "02-official-custom-unknown-empty-learning-structure",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/02-official-custom-unknown-empty-learning-structure.png",
+          "size": [834, 8309],
+          "sha256": "2b244c11abd7458ecc323ea5ea9dcba9372ac8a5fbfc307a2d768c007a093ed6"
+        },
+        {
+          "state": "03-keyboard-version-selector-focus",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/03-keyboard-version-selector-focus.png",
+          "size": [834, 8309],
+          "sha256": "63989e2c43cdbe89f251d00c7aba4b7ea788a7a840a9405bd2f36e48ed938e2c"
+        },
+        {
+          "state": "04-localization-pending-independent-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/04-localization-pending-independent-drafts.png",
+          "size": [834, 8400],
+          "sha256": "44a7245b24e9d7f85db561542103fc54e5d4c4af052cc22c22b334329df031d6"
+        },
+        {
+          "state": "05-localization-error-retained-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/05-localization-error-retained-drafts.png",
+          "size": [834, 8400],
+          "sha256": "b5d39219e6a112a3b8e8bbc146f553e70901c0816cf92d287faff35571f50352"
+        },
+        {
+          "state": "06-localization-success-target-only-clear",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/06-localization-success-target-only-clear.png",
+          "size": [834, 8400],
+          "sha256": "277d0fa07f0f9eb28c171b3e0be80e1321cd216b86bd05ead52737f142fab94b"
+        },
+        {
+          "state": "unit-status-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/unit-status-pending.png",
+          "size": [834, 8427],
+          "sha256": "23983c71ad25ecbae66dddbd13c7a5ace04f1362b75eb0dc35548cd1f64bcf77"
+        },
+        {
+          "state": "unit-status-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/unit-status-error.png",
+          "size": [834, 8427],
+          "sha256": "57d4b28d0da8bed711e4e6776b32aa27167415eaf44610a1984435b3bcc19ac1"
+        },
+        {
+          "state": "unit-status-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/unit-status-success.png",
+          "size": [834, 8427],
+          "sha256": "d63117a27d51f409756b147b339484366e2f5ebef40b6c5cfc1a6e7be04c8623"
+        },
+        {
+          "state": "definition-publish-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/definition-publish-pending.png",
+          "size": [834, 8506],
+          "sha256": "8c37098303849a9fde456ad86055fc9a5ff526e02b87c6d7af038cf1a39c90af"
+        },
+        {
+          "state": "definition-publish-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/definition-publish-error.png",
+          "size": [834, 8506],
+          "sha256": "6cfd847e7c0cd9dfd29f1a4ba80433b63f443ede91270a5ead3b645a4124a409"
+        },
+        {
+          "state": "definition-publish-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/definition-publish-success.png",
+          "size": [834, 8454],
+          "sha256": "d5fb2b28b9a6a25173354f707fed145638ea9b30def483a4c10ae825ee7b230e"
+        },
+        {
+          "state": "scope-activate-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/scope-activate-pending.png",
+          "size": [834, 8533],
+          "sha256": "171583cc2ed4bfca13e019feaf907d55d39d8b1506e8f7f4fe645c9960a5ff1a"
+        },
+        {
+          "state": "scope-activate-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/scope-activate-error.png",
+          "size": [834, 8533],
+          "sha256": "bfbbae96704d0c3447e9ed58cc2880e76e7d3d404f3f5775fa444d9ffec0ae2b"
+        },
+        {
+          "state": "scope-activate-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/scope-activate-success.png",
+          "size": [834, 8481],
+          "sha256": "b7ba3d4383b51efa2e1781823c451064021ad2e24dca91c1b97e429e84b50ffb"
+        },
+        {
+          "state": "07-explicit-other-version-no-cross-version-content",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/07-explicit-other-version-no-cross-version-content.png",
+          "size": [834, 3487],
+          "sha256": "48125ab2ba3e821be21c5c629a972adccbd2ad5bf748827961975f9641b0877e"
+        },
+        {
+          "state": "08-cached-catalogue-refresh-warning",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/08-cached-catalogue-refresh-warning.png",
+          "size": [834, 6925],
+          "sha256": "c3fed3ffcbcbe3b1000b96832dc0cc71368e7af926c547bf84903924024c3989"
+        },
+        {
+          "state": "09-versions-initial-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/09-versions-initial-pending.png",
+          "size": [834, 1112],
+          "sha256": "fe2521f125d93a53e14e9c9a4c62312154082a897955f432c91432371909f55a"
+        },
+        {
+          "state": "10-versions-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/10-versions-cold-error.png",
+          "size": [834, 1112],
+          "sha256": "163455f39d36d2c8f1812eb8090bed30eb68792febc4b9108a9bb1ee940a9c0b"
+        },
+        {
+          "state": "11-no-versions-waiting-context",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/11-no-versions-waiting-context.png",
+          "size": [834, 3409],
+          "sha256": "7629d7b93d2bf43921a612da17441a44651459d3b280a237e4904a7f70f08dd5"
+        },
+        {
+          "state": "12-selected-catalogue-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/12-selected-catalogue-pending.png",
+          "size": [834, 3501],
+          "sha256": "3830453f64a14081d111f63fedcd311c90a7aa728c9dc55823abf1f6955963f1"
+        },
+        {
+          "state": "13-selected-catalogue-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/13-selected-catalogue-cold-error.png",
+          "size": [834, 3524],
+          "sha256": "75819d73b2340e54a36855d637a5fb83f8d727e9e743b62585013ad0d2bc5244"
+        },
+        {
+          "state": "14-selected-catalogue-successful-empty",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/14-selected-catalogue-successful-empty.png",
+          "size": [834, 3487],
+          "sha256": "02e7c49c538ca27a809e7acd5d811e0bf5142a9b51a82b334fd2732a60135d0f"
+        },
+        {
+          "state": "15-200-percent-equivalent-reflow",
+          "path": "browser-matrix-first/academic-catalogue-archety-8330f-NTRACT-EVIDENCE-ar-dark-834/15-200-percent-equivalent-reflow.png",
+          "size": [720, 6750],
+          "sha256": "a654172f235b532433286b689d641901a51ab56d62ff9c0c37974fc4491f1b3f"
+        }
+      ],
+      "writeCount": 9,
+      "reads": [
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-a",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "captures": [
+        {
+          "state": "01-version-register-learning-validation-hierarchy",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/01-version-register-learning-validation-hierarchy.png",
+          "size": [390, 9560],
+          "sha256": "fd8dfd4371efcbbf59f8f86f4bdd97e91a41098a49f42afab192198b61d14882"
+        },
+        {
+          "state": "02-official-custom-unknown-empty-learning-structure",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/02-official-custom-unknown-empty-learning-structure.png",
+          "size": [390, 11313],
+          "sha256": "6bf57213abfbfd32b3eec3101d4c5e598b38e5c121afdeca6744839682f0690c"
+        },
+        {
+          "state": "03-keyboard-version-selector-focus",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/03-keyboard-version-selector-focus.png",
+          "size": [390, 11313],
+          "sha256": "cdbe957491d0db38ddfa1a416539a190c8e627745ec3d2c47c8ef3b16c42adae"
+        },
+        {
+          "state": "04-localization-pending-independent-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/04-localization-pending-independent-drafts.png",
+          "size": [390, 11404],
+          "sha256": "ff636cb06dcb8d5733a93c89ed08c51cbfae2af58406a168892b1a5a0e1c1f59"
+        },
+        {
+          "state": "05-localization-error-retained-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/05-localization-error-retained-drafts.png",
+          "size": [390, 11441],
+          "sha256": "0a706533956f3ce7cd251be95c67189f8bd707fa6841a68db5f0822f4d0611d0"
+        },
+        {
+          "state": "06-localization-success-target-only-clear",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/06-localization-success-target-only-clear.png",
+          "size": [390, 11404],
+          "sha256": "b06c941ef6064d3f0c747e768763d639bc15daf118beb5c239281ffebe35918d"
+        },
+        {
+          "state": "unit-status-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/unit-status-pending.png",
+          "size": [390, 11431],
+          "sha256": "76cd9c601ccca6bfdf8892ee88668cc2107266a18f4b66f958a010dd2f34e713"
+        },
+        {
+          "state": "unit-status-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/unit-status-error.png",
+          "size": [390, 11532],
+          "sha256": "f9f9d698d3f3cf97d5f7cb8330c2db46735f0e370197d9d05dae07b4ae6bff8d"
+        },
+        {
+          "state": "unit-status-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/unit-status-success.png",
+          "size": [390, 11495],
+          "sha256": "d26d03574907ed87a7db5aec8854a9b8cbf8486043a6fbf750dd1d259da2ba5c"
+        },
+        {
+          "state": "definition-publish-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/definition-publish-pending.png",
+          "size": [390, 11574],
+          "sha256": "2b716e5faae29f1f64fd893c7e60831809db69b928d11a90763bb9013f60b482"
+        },
+        {
+          "state": "definition-publish-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/definition-publish-error.png",
+          "size": [390, 11611],
+          "sha256": "ca1ae636e4cbc7d1bfdb516e4671cda03a6249446adb3457a862afb76be744cf"
+        },
+        {
+          "state": "definition-publish-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/definition-publish-success.png",
+          "size": [390, 11522],
+          "sha256": "fadd00704a98b28f44440ac84a6626a6b3b6e15fea22be926aab9aabb1a8dc40"
+        },
+        {
+          "state": "scope-activate-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/scope-activate-pending.png",
+          "size": [390, 11601],
+          "sha256": "03b47c4a8c9af975dfdf9300c10c83dba153e50c6ae46c59cb88fef34ab323e8"
+        },
+        {
+          "state": "scope-activate-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/scope-activate-error.png",
+          "size": [390, 11667],
+          "sha256": "56f2fd0856be5a7a2cf7e5346bf8a2ad5fcb03699e1e576d02537be024d2ce4a"
+        },
+        {
+          "state": "scope-activate-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/scope-activate-success.png",
+          "size": [390, 11549],
+          "sha256": "b3c803b3e1dc87c1dfbe2ee2504a6ec0b4a5a1705e1f02311436b761fd21c24c"
+        },
+        {
+          "state": "07-explicit-other-version-no-cross-version-content",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/07-explicit-other-version-no-cross-version-content.png",
+          "size": [390, 5123],
+          "sha256": "8f9d5e18fe0643e095ef874ecfe038203c8c5b8d7296dbe272252606ef4eaa22"
+        },
+        {
+          "state": "08-cached-catalogue-refresh-warning",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/08-cached-catalogue-refresh-warning.png",
+          "size": [390, 9952],
+          "sha256": "ffd08820f092cf0d575c8e34b24d4a30554b611b05626154971c2ee1438eb0c1"
+        },
+        {
+          "state": "09-versions-initial-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/09-versions-initial-pending.png",
+          "size": [390, 1555],
+          "sha256": "5cff4a2b80833cabab169ec47d11f821dcc034c038fd20d0921c8da72645ced4"
+        },
+        {
+          "state": "10-versions-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/10-versions-cold-error.png",
+          "size": [390, 1615],
+          "sha256": "3f517ce2918d235e8016e3b43a859d36a1eaffb56a0151b3faa231fdea74d36c"
+        },
+        {
+          "state": "11-no-versions-waiting-context",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/11-no-versions-waiting-context.png",
+          "size": [390, 5016],
+          "sha256": "8f14a399c7a0cbacfe58badc886534088732cde659fe70c965c658613f75f9ac"
+        },
+        {
+          "state": "12-selected-catalogue-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/12-selected-catalogue-pending.png",
+          "size": [390, 5137],
+          "sha256": "b7f55c9c247005663ca485ed6202f57b89a799a7ce501d686174184b6cda764f"
+        },
+        {
+          "state": "13-selected-catalogue-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/13-selected-catalogue-cold-error.png",
+          "size": [390, 5197],
+          "sha256": "d6f387d75308cb67e382c183a1c8c843696ac20ef30700963f4fcf6e97b673ba"
+        },
+        {
+          "state": "14-selected-catalogue-successful-empty",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/14-selected-catalogue-successful-empty.png",
+          "size": [390, 5123],
+          "sha256": "8bfd617c8006e063b072f8ae8c0dfa2eb9d162fad88d9e876a99a585588383de"
+        },
+        {
+          "state": "15-200-percent-equivalent-reflow",
+          "path": "browser-matrix-first/academic-catalogue-archety-91c8e-NTRACT-EVIDENCE-ar-dark-390/15-200-percent-equivalent-reflow.png",
+          "size": [720, 6750],
+          "sha256": "fec122d816103ab8c175d0069a20e20a37ccc1417f06daf0a430a8edfd927b55"
+        }
+      ],
+      "writeCount": 9,
+      "reads": [
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-a",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "captures": [
+        {
+          "state": "01-version-register-learning-validation-hierarchy",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/01-version-register-learning-validation-hierarchy.png",
+          "size": [834, 6398],
+          "sha256": "33fdcb258fbac744800cfcf1119881cf36fb5e9d991b3a45cc369a548f803554"
+        },
+        {
+          "state": "02-official-custom-unknown-empty-learning-structure",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/02-official-custom-unknown-empty-learning-structure.png",
+          "size": [834, 7959],
+          "sha256": "3a1ff6ffb76442ca3e1321b44061a856d00118fba263bd6f82f517ba77b1da9d"
+        },
+        {
+          "state": "03-keyboard-version-selector-focus",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/03-keyboard-version-selector-focus.png",
+          "size": [834, 7959],
+          "sha256": "42b47dc374f4225131d400b08330390e7a5af5402674fa82a165612045c79705"
+        },
+        {
+          "state": "04-localization-pending-independent-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/04-localization-pending-independent-drafts.png",
+          "size": [834, 8047],
+          "sha256": "d61787f402d73f1a10e691cb53567983a14ddd91b22e4a070e402112d7659a50"
+        },
+        {
+          "state": "05-localization-error-retained-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/05-localization-error-retained-drafts.png",
+          "size": [834, 8047],
+          "sha256": "990febbe03645353384bc8fbce51cee86b82b6a4006f4b4094cf124d9016168b"
+        },
+        {
+          "state": "06-localization-success-target-only-clear",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/06-localization-success-target-only-clear.png",
+          "size": [834, 8047],
+          "sha256": "35711db0bddb2285d0e930c34494f378ce09b0e07ff44934b246abf212df733f"
+        },
+        {
+          "state": "unit-status-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/unit-status-pending.png",
+          "size": [834, 8071],
+          "sha256": "dd3ad9af714089d0f0357f6125ee3b550e6d51f39a690a7a0dcdc520ed78a8ec"
+        },
+        {
+          "state": "unit-status-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/unit-status-error.png",
+          "size": [834, 8071],
+          "sha256": "8f0a1a6d8226eb00b625501406850c3a7dd4ed99a72feb82a520a12058f8d3e1"
+        },
+        {
+          "state": "unit-status-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/unit-status-success.png",
+          "size": [834, 8071],
+          "sha256": "c27ef31ac519df7f7edb91bdfd129b8c87c6fa80200471ae05807757d0147d7d"
+        },
+        {
+          "state": "definition-publish-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/definition-publish-pending.png",
+          "size": [834, 8147],
+          "sha256": "3d3d47b21f27821ed81f7cffea2fb5c80f12cf43f74387c154ac44e8fc5c611a"
+        },
+        {
+          "state": "definition-publish-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/definition-publish-error.png",
+          "size": [834, 8147],
+          "sha256": "a43e04a566b50bfbf45ba3ca9a4866165bf5bf52c4dff2ddf22070efc9cce794"
+        },
+        {
+          "state": "definition-publish-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/definition-publish-success.png",
+          "size": [834, 8095],
+          "sha256": "1b498cd61d094fc1142809fc30e01bc4678d3fea5195453f57922bb9e7e10212"
+        },
+        {
+          "state": "scope-activate-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/scope-activate-pending.png",
+          "size": [834, 8171],
+          "sha256": "b61f348fbf7e341f32dd1962de801df20fefc7c38c736fdff939d699617f5798"
+        },
+        {
+          "state": "scope-activate-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/scope-activate-error.png",
+          "size": [834, 8171],
+          "sha256": "3c7121333007cb253a080cf62d46ceb8ef88fc04167d73af9c69b2153ad3b3db"
+        },
+        {
+          "state": "scope-activate-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/scope-activate-success.png",
+          "size": [834, 8119],
+          "sha256": "94e1f2e78e1e56de15d3eb20bf89d3779abfe4d311e2c35979a84545707a6921"
+        },
+        {
+          "state": "07-explicit-other-version-no-cross-version-content",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/07-explicit-other-version-no-cross-version-content.png",
+          "size": [834, 3467],
+          "sha256": "e9ddd1f3606801b4d7a5dd1b7c15e867222c9a1473ca930014298eba24c1b9e6"
+        },
+        {
+          "state": "08-cached-catalogue-refresh-warning",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/08-cached-catalogue-refresh-warning.png",
+          "size": [834, 6648],
+          "sha256": "1f7ecc9c67fde1f62b2cda132ad428291ce9ceaf9c47ae042eeca8f289f9c53d"
+        },
+        {
+          "state": "09-versions-initial-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/09-versions-initial-pending.png",
+          "size": [834, 1112],
+          "sha256": "04151979beac7bfa063ce3810d9334d570ef17e6e4955e6570b38b598677f45f"
+        },
+        {
+          "state": "10-versions-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/10-versions-cold-error.png",
+          "size": [834, 1112],
+          "sha256": "c8f2b00a9622b620d76524052ce8d9a6f19d931153ccc52587997a9a16462705"
+        },
+        {
+          "state": "11-no-versions-waiting-context",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/11-no-versions-waiting-context.png",
+          "size": [834, 3396],
+          "sha256": "118db2182545bfefb4dc2397fdf4862b052df0dc2c74bfb8020cd5e28730f8f2"
+        },
+        {
+          "state": "12-selected-catalogue-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/12-selected-catalogue-pending.png",
+          "size": [834, 3481],
+          "sha256": "c579cac14df11c0cca7ec16be9d25f68158afc5e9b765a6ff1a355e01c2484c8"
+        },
+        {
+          "state": "13-selected-catalogue-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/13-selected-catalogue-cold-error.png",
+          "size": [834, 3507],
+          "sha256": "5538c0f88532b7622f06a26068e4ff913d9ca9805fe35a290ca3799722715276"
+        },
+        {
+          "state": "14-selected-catalogue-successful-empty",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/14-selected-catalogue-successful-empty.png",
+          "size": [834, 3467],
+          "sha256": "f14a024072a1fbdb36eb779d35e60bc4652d3d00d5cac01805debbcacb54a128"
+        },
+        {
+          "state": "15-200-percent-equivalent-reflow",
+          "path": "browser-matrix-first/academic-catalogue-archety-9d590-TRACT-EVIDENCE-en-light-834/15-200-percent-equivalent-reflow.png",
+          "size": [720, 6805],
+          "sha256": "d0bdb97509372fa6e3ed19251ec3c7a27795979763d4350cd687c52427b4c785"
+        }
+      ],
+      "writeCount": 9,
+      "reads": [
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-a",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "theme": "dark",
+      "viewport": {
+        "width": 834,
+        "height": 1112
+      },
+      "captures": [
+        {
+          "state": "01-version-register-learning-validation-hierarchy",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/01-version-register-learning-validation-hierarchy.png",
+          "size": [834, 6398],
+          "sha256": "9ccf48c302b410b15dc152635b80286e430806a6fed3f312ccacecde8d0b9e2b"
+        },
+        {
+          "state": "02-official-custom-unknown-empty-learning-structure",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/02-official-custom-unknown-empty-learning-structure.png",
+          "size": [834, 7959],
+          "sha256": "690bd13961db247d723f66ca4ecc722a3bd6ff5076a22e0a81879bd66819f449"
+        },
+        {
+          "state": "03-keyboard-version-selector-focus",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/03-keyboard-version-selector-focus.png",
+          "size": [834, 7959],
+          "sha256": "dc883e16a0f843c4406420abdaf5ca21182639cd8220e78e9ff6516e8f1fd68e"
+        },
+        {
+          "state": "04-localization-pending-independent-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/04-localization-pending-independent-drafts.png",
+          "size": [834, 8047],
+          "sha256": "cd3fc74ad9505aad9e5c2489998cc6d2927169efa02dbfb33a8a3cff40e474ac"
+        },
+        {
+          "state": "05-localization-error-retained-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/05-localization-error-retained-drafts.png",
+          "size": [834, 8047],
+          "sha256": "4445e7363458e52531a3f0bc6cd661fe71e55ef8e516ad22a41fa94e427f7830"
+        },
+        {
+          "state": "06-localization-success-target-only-clear",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/06-localization-success-target-only-clear.png",
+          "size": [834, 8047],
+          "sha256": "8e7c1ef99b9349f58b5367051b98d965691009bbca0c9b822b46377983c71700"
+        },
+        {
+          "state": "unit-status-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/unit-status-pending.png",
+          "size": [834, 8071],
+          "sha256": "692067c08da08ce33b43aa25f3d526162241b9a10d38ce1b7f48d62ee0e3d96b"
+        },
+        {
+          "state": "unit-status-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/unit-status-error.png",
+          "size": [834, 8071],
+          "sha256": "6a2ae2cf4703e73e401f28b5f19a2d5b2a4f9c24ad91df57919644112ae8fc39"
+        },
+        {
+          "state": "unit-status-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/unit-status-success.png",
+          "size": [834, 8071],
+          "sha256": "55c558d3881b4dc565b278b5d1449ec2d71c87fa203e52b96c8a13887f7503bf"
+        },
+        {
+          "state": "definition-publish-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/definition-publish-pending.png",
+          "size": [834, 8147],
+          "sha256": "a6068cb3d9ba0d0d310b0aae16e9e2d356993d2576206d0092b6b01f852d0801"
+        },
+        {
+          "state": "definition-publish-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/definition-publish-error.png",
+          "size": [834, 8147],
+          "sha256": "2234d6ea19198ba86d991715c5c4ac5930b79d5f04d8bf30a63ac8f2bcf65f8e"
+        },
+        {
+          "state": "definition-publish-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/definition-publish-success.png",
+          "size": [834, 8095],
+          "sha256": "455c1fd255594d76f15f068e70b2693283ba383e02ca19c0c5569c7c7fdb97fb"
+        },
+        {
+          "state": "scope-activate-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/scope-activate-pending.png",
+          "size": [834, 8171],
+          "sha256": "0ff6ce36fec49c23101c92051b16dcbdf808805ec0b7991ee91a5a331806fbb6"
+        },
+        {
+          "state": "scope-activate-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/scope-activate-error.png",
+          "size": [834, 8171],
+          "sha256": "08ad05f6bd3ad0d379edba0d08201680e72e884ff76fad613f34ab726a676e8e"
+        },
+        {
+          "state": "scope-activate-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/scope-activate-success.png",
+          "size": [834, 8119],
+          "sha256": "a44a8a492d4c9d2a7e27970a739aa6e4a0bd0b610254400bb057ce921170295d"
+        },
+        {
+          "state": "07-explicit-other-version-no-cross-version-content",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/07-explicit-other-version-no-cross-version-content.png",
+          "size": [834, 3467],
+          "sha256": "17a37d2bb1f331a83a7eda5f75463554e6eb9a708eadbbf5c00e322023046463"
+        },
+        {
+          "state": "08-cached-catalogue-refresh-warning",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/08-cached-catalogue-refresh-warning.png",
+          "size": [834, 6648],
+          "sha256": "249ae6e99574b8326222299584567be480b8408c774a996f8cf0a994023c0176"
+        },
+        {
+          "state": "09-versions-initial-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/09-versions-initial-pending.png",
+          "size": [834, 1112],
+          "sha256": "25fa77cf149b272c8f73c59656c77ef5312b28051ebe080635f6c85aab567ef1"
+        },
+        {
+          "state": "10-versions-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/10-versions-cold-error.png",
+          "size": [834, 1112],
+          "sha256": "c6c4f4502091a1c19a805ea8a800acb1f6025846e33e1fbee891d753da7099a7"
+        },
+        {
+          "state": "11-no-versions-waiting-context",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/11-no-versions-waiting-context.png",
+          "size": [834, 3396],
+          "sha256": "915585788bcbf4c40aebf718719769f0d30e06523f7ac1df30a922463ee7b874"
+        },
+        {
+          "state": "12-selected-catalogue-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/12-selected-catalogue-pending.png",
+          "size": [834, 3481],
+          "sha256": "f44440e9d26b3f0f4bce9d5572f9118692114c4dd0b47127d72ee5a5d40a5e41"
+        },
+        {
+          "state": "13-selected-catalogue-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/13-selected-catalogue-cold-error.png",
+          "size": [834, 3507],
+          "sha256": "0d39ac5b2c9b372bdf62dc3744d31221e7d4fd13ff562a4ce6e8a6fe017f0aa0"
+        },
+        {
+          "state": "14-selected-catalogue-successful-empty",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/14-selected-catalogue-successful-empty.png",
+          "size": [834, 3467],
+          "sha256": "60bf447d86b407489151d774bb44a05046d8564c8a14fdc24285bb112492c217"
+        },
+        {
+          "state": "15-200-percent-equivalent-reflow",
+          "path": "browser-matrix-first/academic-catalogue-archety-a8bfa-NTRACT-EVIDENCE-en-dark-834/15-200-percent-equivalent-reflow.png",
+          "size": [720, 6805],
+          "sha256": "73429e11496f9f3e2ddb06f3335307f8c21ffcd3db1d56c99d932edd7755be7c"
+        }
+      ],
+      "writeCount": 9,
+      "reads": [
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-a",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "ar",
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "captures": [
+        {
+          "state": "01-version-register-learning-validation-hierarchy",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/01-version-register-learning-validation-hierarchy.png",
+          "size": [1440, 5632],
+          "sha256": "17168659d6943927130614b8216b5904f04fba5dc34794922d060f23d953e374"
+        },
+        {
+          "state": "02-official-custom-unknown-empty-learning-structure",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/02-official-custom-unknown-empty-learning-structure.png",
+          "size": [1440, 6696],
+          "sha256": "d7ab66a225acd134bc2865c2ac843e8ec2185e37b51c73d971ac9925bccb7d9b"
+        },
+        {
+          "state": "03-keyboard-version-selector-focus",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/03-keyboard-version-selector-focus.png",
+          "size": [1440, 6696],
+          "sha256": "7232af2698caa46f1f9c23563a0cb61afbe1df775dca8de89036e6ce33692639"
+        },
+        {
+          "state": "04-localization-pending-independent-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/04-localization-pending-independent-drafts.png",
+          "size": [1440, 6787],
+          "sha256": "31459abb909a4519542b6ee0c1af2d4cb58242043794b0d2fdc3d91b2a44c281"
+        },
+        {
+          "state": "05-localization-error-retained-drafts",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/05-localization-error-retained-drafts.png",
+          "size": [1440, 6787],
+          "sha256": "2ff0b9c4e88084d4b2850a40b611ad5a3c5fbbb864f410acce5e5fa778b07aec"
+        },
+        {
+          "state": "06-localization-success-target-only-clear",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/06-localization-success-target-only-clear.png",
+          "size": [1440, 6787],
+          "sha256": "150214d3a6428de8888886699b65f83e2133490b946eb2e2b0c2a8e18f86db44"
+        },
+        {
+          "state": "unit-status-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/unit-status-pending.png",
+          "size": [1440, 6787],
+          "sha256": "8ba6a9418d51ead82f03ef3a82f5e194d22e3681dccbf3e71faff8e2a7ea2d39"
+        },
+        {
+          "state": "unit-status-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/unit-status-error.png",
+          "size": [1440, 6842],
+          "sha256": "5b9026358c4ea2c5545a9374bed8b21173cac63e12e662e3a931866826391ab5"
+        },
+        {
+          "state": "unit-status-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/unit-status-success.png",
+          "size": [1440, 6787],
+          "sha256": "326675acf26ce010cd1253073db6ba5d70cc9304fc85a119d545c494066551cf"
+        },
+        {
+          "state": "definition-publish-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/definition-publish-pending.png",
+          "size": [1440, 6866],
+          "sha256": "4ac071bd5af03a8df123c99bb942594953e8e2819bf6ea730ad49a05c80484d7"
+        },
+        {
+          "state": "definition-publish-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/definition-publish-error.png",
+          "size": [1440, 6866],
+          "sha256": "4aab23b31e16d4211d991c12a143b1b394d8bfd28637ac6344e7bf9cc876c17f"
+        },
+        {
+          "state": "definition-publish-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/definition-publish-success.png",
+          "size": [1440, 6814],
+          "sha256": "1ea3909ffa65c1a1cc925b8111d20df23b369676d7b81bbc68f9bede9d718d9f"
+        },
+        {
+          "state": "scope-activate-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/scope-activate-pending.png",
+          "size": [1440, 6893],
+          "sha256": "527c2622ec021c296bbafa825a23c75d4c88b1b09c1493128b9ab6107b4dde09"
+        },
+        {
+          "state": "scope-activate-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/scope-activate-error.png",
+          "size": [1440, 6893],
+          "sha256": "802dc3e613c082f4b69a9975d41981282931ace0e8e91549946444e12a77739d"
+        },
+        {
+          "state": "scope-activate-success",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/scope-activate-success.png",
+          "size": [1440, 6841],
+          "sha256": "28cfcb6b704e96cf3f4caf6e8e69b82545635a8331ed2f169ef06f360c9f4c4b"
+        },
+        {
+          "state": "07-explicit-other-version-no-cross-version-content",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/07-explicit-other-version-no-cross-version-content.png",
+          "size": [1440, 3054],
+          "sha256": "ce6ec670a04b8709400da468e76849db5dd9e329d30a1696aa9c8913ec10201c"
+        },
+        {
+          "state": "08-cached-catalogue-refresh-warning",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/08-cached-catalogue-refresh-warning.png",
+          "size": [1440, 5867],
+          "sha256": "276c6ba0d7098ee4501e65e4ef112c671f407a9a14a3014ab3ffbd47126e15c8"
+        },
+        {
+          "state": "09-versions-initial-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/09-versions-initial-pending.png",
+          "size": [1440, 983],
+          "sha256": "0f58885ac0626710dc58c1fdf9e0e38bd03114b5cd1a10c16b7adbae9beec4aa"
+        },
+        {
+          "state": "10-versions-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/10-versions-cold-error.png",
+          "size": [1440, 1006],
+          "sha256": "cb7ad90331d3c51741309cca6ad9ff63a0eee0b280e039502364838066e5d0b2"
+        },
+        {
+          "state": "11-no-versions-waiting-context",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/11-no-versions-waiting-context.png",
+          "size": [1440, 2976],
+          "sha256": "dc69aeb2cd7f3874f05cdd5d60f199557f429488bcb3fc9b765d3fe68ab4beaf"
+        },
+        {
+          "state": "12-selected-catalogue-pending",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/12-selected-catalogue-pending.png",
+          "size": [1440, 3068],
+          "sha256": "7eb571c7bbc8dc9d3e705efc9316bd12661a994881a27272e501a1695c0f114a"
+        },
+        {
+          "state": "13-selected-catalogue-cold-error",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/13-selected-catalogue-cold-error.png",
+          "size": [1440, 3091],
+          "sha256": "9491057c706abe68d26a7cc2b53fdcd01aa193395e189c0125a73d05151a44a9"
+        },
+        {
+          "state": "14-selected-catalogue-successful-empty",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/14-selected-catalogue-successful-empty.png",
+          "size": [1440, 3054],
+          "sha256": "d69671dd7b3ef6f925763facab656af066133fa46ecebb4723fb12c7c9964bd0"
+        },
+        {
+          "state": "15-200-percent-equivalent-reflow",
+          "path": "browser-matrix-first/academic-catalogue-archety-bf0e9-TRACT-EVIDENCE-ar-dark-1440/15-200-percent-equivalent-reflow.png",
+          "size": [720, 6750],
+          "sha256": "6edddb20e5a0ef688ef17b676736d0ba4df535da9338d7c873648ed3457470a1"
+        }
+      ],
+      "writeCount": 9,
+      "reads": [
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-a",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    },
+    {
+      "locale": "en",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "captures": [
+        {
+          "state": "01-version-register-learning-validation-hierarchy",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/01-version-register-learning-validation-hierarchy.png",
+          "size": [1440, 5453],
+          "sha256": "8238d0988810bc420259df20fd9bbb5e6960b161c183697e48d72ca605a70da6"
+        },
+        {
+          "state": "02-official-custom-unknown-empty-learning-structure",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/02-official-custom-unknown-empty-learning-structure.png",
+          "size": [1440, 6453],
+          "sha256": "c81f09d49c3a079a5b83ba7ef1fee734ea4f57e3d18e7623173db0b02ed78f41"
+        },
+        {
+          "state": "03-keyboard-version-selector-focus",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/03-keyboard-version-selector-focus.png",
+          "size": [1440, 6453],
+          "sha256": "c6614c2ef76ffc123fa211c5d1b347299356d16cc93079a71363cde6144091c4"
+        },
+        {
+          "state": "04-localization-pending-independent-drafts",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/04-localization-pending-independent-drafts.png",
+          "size": [1440, 6541],
+          "sha256": "54d610a5e2c5fe65eeb9782c1e4eb56105a3bde090f9c4f3ba55c5ade762187e"
+        },
+        {
+          "state": "05-localization-error-retained-drafts",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/05-localization-error-retained-drafts.png",
+          "size": [1440, 6541],
+          "sha256": "7c834fd4e5d55d192a14119a1926119b5f741148ef828578882ae397003ce203"
+        },
+        {
+          "state": "06-localization-success-target-only-clear",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/06-localization-success-target-only-clear.png",
+          "size": [1440, 6541],
+          "sha256": "903a00ae7b7ba2af7c2c6fd890181960e443c88102c10a76df1eb01884132639"
+        },
+        {
+          "state": "unit-status-pending",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/unit-status-pending.png",
+          "size": [1440, 6541],
+          "sha256": "149ed5a59c2ca0563b72ce8664ed2c9ee0af7948781af27edcd51ede5327ed36"
+        },
+        {
+          "state": "unit-status-error",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/unit-status-error.png",
+          "size": [1440, 6653],
+          "sha256": "cd76da2c5dbf101cd02ac282d41e4bbd232ab42f2de41ce4dc8e596c896ad662"
+        },
+        {
+          "state": "unit-status-success",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/unit-status-success.png",
+          "size": [1440, 6541],
+          "sha256": "96776cf0a932aded835862d24c6e4658350e510ed2da9206f490f36be0553a00"
+        },
+        {
+          "state": "definition-publish-pending",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/definition-publish-pending.png",
+          "size": [1440, 6617],
+          "sha256": "3629b9fe6d7d2f1d131bb9c58668a94a9f629013bb5efc5d769bd85e7395c88a"
+        },
+        {
+          "state": "definition-publish-error",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/definition-publish-error.png",
+          "size": [1440, 6651],
+          "sha256": "cd126767ed6882cb4023142f9937fa6e70624e247e4d0e5071114af17b7eddc5"
+        },
+        {
+          "state": "definition-publish-success",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/definition-publish-success.png",
+          "size": [1440, 6565],
+          "sha256": "e2f107077f584de340ca69584cb48d2dbdad88ff3dfc5fd251542d7f727e998f"
+        },
+        {
+          "state": "scope-activate-pending",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/scope-activate-pending.png",
+          "size": [1440, 6641],
+          "sha256": "2538ab62492e26a5389c99c18169944a06e4b243024f8e2736a6cda19a8c2e5c"
+        },
+        {
+          "state": "scope-activate-error",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/scope-activate-error.png",
+          "size": [1440, 6675],
+          "sha256": "9f66d7f2e749980340af53bc08e0245cbc9882b54a273a0262791589797fee1d"
+        },
+        {
+          "state": "scope-activate-success",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/scope-activate-success.png",
+          "size": [1440, 6589],
+          "sha256": "7641160af2cf81840a0cde218410dadae4816bc25c014690d5a98d9f794bb301"
+        },
+        {
+          "state": "07-explicit-other-version-no-cross-version-content",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/07-explicit-other-version-no-cross-version-content.png",
+          "size": [1440, 2968],
+          "sha256": "f42fe459230a807ba9e8265273bdf402f190090576312395e8addb60ce0130e2"
+        },
+        {
+          "state": "08-cached-catalogue-refresh-warning",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/08-cached-catalogue-refresh-warning.png",
+          "size": [1440, 5679],
+          "sha256": "86572b978496b4fcb9fca676bfbba77802458286a0e04da517c4c8fbc42e9c86"
+        },
+        {
+          "state": "09-versions-initial-pending",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/09-versions-initial-pending.png",
+          "size": [1440, 983],
+          "sha256": "a5ce94a439c3843ae87eb7200644ea0ff09c109faa40fefdf5eac89d1a33e5f0"
+        },
+        {
+          "state": "10-versions-cold-error",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/10-versions-cold-error.png",
+          "size": [1440, 1009],
+          "sha256": "96012be3fc5a6b149d0c0db589dd7a38daf09d2d52f5d516f9455fc06a87063c"
+        },
+        {
+          "state": "11-no-versions-waiting-context",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/11-no-versions-waiting-context.png",
+          "size": [1440, 2897],
+          "sha256": "a6bea377c35d487f0c0ecbcae8c74461e731f1104488c62d79e7137b9e70356a"
+        },
+        {
+          "state": "12-selected-catalogue-pending",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/12-selected-catalogue-pending.png",
+          "size": [1440, 2982],
+          "sha256": "89e2299f187ee39579ab4ed7b7977b0a43a9da2faf90b15f41821d28846f1548"
+        },
+        {
+          "state": "13-selected-catalogue-cold-error",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/13-selected-catalogue-cold-error.png",
+          "size": [1440, 3008],
+          "sha256": "49546eb8543df9d066e7a527087776a4febdb5cea816d760771f39375098d3f8"
+        },
+        {
+          "state": "14-selected-catalogue-successful-empty",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/14-selected-catalogue-successful-empty.png",
+          "size": [1440, 2968],
+          "sha256": "9c57e308eca2abf6f2ddba7262abcce3176378c337bfb8038d68b3fd71b4f545"
+        },
+        {
+          "state": "15-200-percent-equivalent-reflow",
+          "path": "browser-pilot-first/academic-catalogue-archety-40d50-RACT-EVIDENCE-en-light-1440/15-200-percent-equivalent-reflow.png",
+          "size": [720, 6805],
+          "sha256": "25deadca3fb7ee640876c6b087462257932917f283cefaf54db8cc7dfbeed6d8"
+        }
+      ],
+      "writeCount": 9,
+      "reads": [
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-a",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions/version-z",
+        "/admin/academic-catalogue/versions",
+        "/admin/academic-catalogue/versions/version-z"
+      ],
+      "unexpected": [],
+      "errors": [],
+      "status": "passed"
+    }
+  ],
+  "rawScreenshotCount": 290,
+  "limitations": [
+    "Synthetic HTTP fixtures; no production persistence, authorization, deployment, academic compliance, full WCAG or real Pearson-data proof.",
+    "200% equivalent reflow uses a 720 CSS-pixel viewport representing 1440px at 200%; native browser zoom was not measured.",
+    "Chromium only.",
+    "Slice 9 Academic Catalog Management child remains unchanged."
+  ],
+  "matrixScreenshotCount": 288,
+  "supplementalCaptures": [
+    {
+      "path": "browser-keyboard-final/academic-catalogue-archety-42313--cached-version-recovery-en/cached-version-and-keyboard.png",
+      "size": [390, 6256],
+      "sha256": "bbbe8533ffe4df55dc487c1dc6eb39f8643c61d13ac32bc77ce93a26bb7db0e2",
+      "status": "passed",
+      "scenario": "keyboard traversal and cached version recovery en"
+    },
+    {
+      "path": "browser-keyboard-final/academic-catalogue-archety-9abf0--cached-version-recovery-ar/cached-version-and-keyboard.png",
+      "size": [390, 6253],
+      "sha256": "fa8a0449b71f0c9cd0a92282ebbf7f2fbc30f876d4f7bb22431c6a4d17ccbe97",
+      "status": "passed",
+      "scenario": "keyboard traversal and cached version recovery ar"
+    }
+  ]
+}

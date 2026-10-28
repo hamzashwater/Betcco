@@ -1091,7 +1091,21 @@
     "residualbETCCOArabicDisplayTitle": "العنوان العربي المحلي",
     "residualsaveArabicDisplayTitle": "حفظ العنوان العربي",
     "residualarchive": "أرشفة",
-    "residualactivate": "تفعيل"
+    "residualactivate": "تفعيل",
+    "unitRegister": "سجل الوحدات",
+    "inspectUnit": "فحص الوحدة",
+    "unitIdentity": "الهوية الأكاديمية",
+    "unitStatus": "حالة الوحدة",
+    "validation": "التحقق",
+    "publicationState": "حالة التعريف",
+    "scopeState": "حالة النطاق",
+    "sourceReference": "مرجع المصدر",
+    "definitionVersion": "إصدار التعريف {version}",
+    "scopeVersion": "إصدار النطاق {version}",
+    "versionContextHelp": "يحدد إصدار المؤهل المختار الوحدات المعروضة أدناه. تتبع الإصدارات ترتيب الخادم.",
+    "registerHelp": "افحص الهوية الأكاديمية وبنية التعلم والتعريفات والنطاقات. تتقدم مشكلات التحقق على حالة التفعيل.",
+    "waitingForVersion": "يلزم توفر إصدار مؤهل لتحميل وحداته.",
+    "refreshWarning": "تعذر تحديث البيانات. لا تزال البيانات المحملة سابقًا متاحة."
   },
   "deliveryPlanning": {
     "eyebrow": "العمليات الأكاديمية",
