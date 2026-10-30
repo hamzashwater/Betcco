@@ -1,0 +1,222 @@
+{
+  "status": "All required local gates passed; Draft PR stop boundary",
+  "classification": "Browser/component calls synthetic; not live backend proof",
+  "gates": [
+    {
+      "gate": "focused",
+      "result": "692/692",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "vitest",
+        "run",
+        "tests/content-studio-archetype-contract.test.ts",
+        "tests/content-studio-archetype.test.tsx",
+        "tests/content-studio-archetype-states.test.tsx",
+        "tests/content-studio-attendance-synchronization.test.tsx",
+        "tests/admin-content-studio-residual-translation.test.tsx",
+        "tests/content-studio-date-formatting.test.tsx",
+        "--maxWorkers=2",
+        "--reporter=dot"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 33.15,
+      "logFile": "focused.log",
+      "logSha256": "d137bf5ad2004ee664f455e32d52ddb61ff0536d026038f3b8af795c4edb7ce6"
+    },
+    {
+      "gate": "exact-four",
+      "result": "4/4 original cases",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "playwright",
+        "test",
+        "tests/e2e/content-studio-archetype.spec.ts",
+        "--grep",
+        "Content Studio stress",
+        "--workers=2",
+        "--reporter=line",
+        "--output",
+        "test-results/s11-m-exact"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 20.75,
+      "logFile": "exact-four.log",
+      "logSha256": "fb577b0e34c6ccc07412ebdc1de5d3e04799a8bba8c1b3915dfba5594dee9bcf"
+    },
+    {
+      "gate": "narrow-stress",
+      "result": "4/4, five widths each",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "playwright",
+        "test",
+        "tests/e2e/content-studio-archetype.spec.ts",
+        "--grep",
+        "Content Studio narrow",
+        "--workers=2",
+        "--reporter=line",
+        "--output",
+        "test-results/s11-m-narrow"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 13.36,
+      "logFile": "narrow-stress.log",
+      "logSha256": "7cf5fdfc7594151aca124aacb27bcdb0133cf8d1cbe69149d6ff7b96f338b2e4"
+    },
+    {
+      "gate": "full-frontend",
+      "result": "4931/4931,148 files,zero skips",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "vitest",
+        "run",
+        "--maxWorkers=2",
+        "--reporter=dot"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 347.88,
+      "logFile": "full-frontend.log",
+      "logSha256": "800f5fac81c54a8dba220afa697bf98b9b392f2218c1d98c11d5f484638cebf6"
+    },
+    {
+      "gate": "guards",
+      "result": "2159/2159,30 files",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "vitest",
+        "run",
+        "archetype",
+        "academic-catalogue",
+        "admin-content-studio-residual-translation",
+        "content-studio-date-formatting",
+        "admin-final-i18n-residual-audit",
+        "admin-a5-5-10-15-source-audit",
+        "ui-bilingual-typography",
+        "ui-interaction-adoption",
+        "ui-color-surface-roles",
+        "--maxWorkers=2",
+        "--reporter=dot"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 95.41,
+      "logFile": "guards.log",
+      "logSha256": "9dd9a5a7450df9c2a094faeae9e517e25b026fc03f018071aaef2acaedc3d94d"
+    },
+    {
+      "gate": "full-browser",
+      "result": "22/22",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "playwright",
+        "test",
+        "tests/e2e/content-studio-archetype.spec.ts",
+        "tests/e2e/admin-content-studio-residual-translation.spec.ts",
+        "--workers=2",
+        "--reporter=line",
+        "--output",
+        "test-results/s11-m-full"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 283.89,
+      "logFile": "full-browser.log",
+      "logSha256": "53c539a4abb73aeb905cd75c668f2a9cf65f620fa0a41d4d8443c53408807eb2"
+    },
+    {
+      "gate": "format",
+      "result": "Passed",
+      "command": [
+        "pnpm.cmd",
+        "format:check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 14.5,
+      "logFile": "format.log",
+      "logSha256": "9d9ab8f40b4630103cf8d64505f0a8af69fb0f1951add63e917f30e744686f1b"
+    },
+    {
+      "gate": "eslint-corrected",
+      "result": "Passed,zero warnings",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "eslint",
+        ".",
+        "--max-warnings=0"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 23.46,
+      "logFile": "eslint-corrected.log",
+      "logSha256": "7977d996b80a01c666c63dc6a891c960882d9447767cc7095415d84f57ee8cfe"
+    },
+    {
+      "gate": "typescript",
+      "result": "Passed",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "tsc",
+        "--noEmit"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 7.04,
+      "logFile": "typescript.log",
+      "logSha256": "8f203ac13b4fbba5649b7640f8ba14f789c95b90891eab4b2709c0d8b9fd5068"
+    },
+    {
+      "gate": "production-build-final",
+      "result": "Passed,fresh build",
+      "command": [
+        "pnpm.cmd",
+        "build"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 14.09,
+      "logFile": "production-build-final.log",
+      "logSha256": "7d7babce8cb723437435baf0b98b33738a6513ce0b886942da5b451b9c4daf4f"
+    },
+    {
+      "gate": "backend",
+      "result": "5/5 unchanged InMemory/pure tests",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/tests/Betcco.IntegrationTests/Betcco.IntegrationTests.csproj",
+        "--no-restore",
+        "--filter",
+        "FullyQualifiedName~CoursePackageAdminControllerTests|FullyQualifiedName~LiveSessionProviderCatalogTests",
+        "--logger",
+        "trx;LogFileName=slice11-mobile-content.trx",
+        "--results-directory",
+        "C:\\Users\\user\\Documents\\Codex\\2026-10-26\\files-pasted-by-the-user-task\\outputs\\slice11\\mobile-recovery\\backend"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 14.11,
+      "logFile": "backend.log",
+      "logSha256": "080d0ed964eb17c0fbe902195b8695619e73b1d409ec3e93d65a7e262980187e"
+    },
+    {
+      "gate": "diff-check",
+      "result": "Passed",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 0.05,
+      "logFile": "diff-check.log",
+      "logSha256": "acf4c635bc9e59e773cca835d696bf22246ae1803059de9cf852cf405680dfc0"
+    }
+  ],
+  "preservedFirstFailures": [
+    "before-four:4 original geometry failures before correction",
+    "eslint:generated live Playwright trace resources; identical rerun passed",
+    "audit helper incorrect sibling path; corrected audit passed"
+  ]
+}

@@ -1,0 +1,162 @@
+{
+  "classification": "MOCKED COMPONENT-CONTRACT EVIDENCE",
+  "locale": "en",
+  "timeline": [
+    {
+      "step": "GET response",
+      "session": "session-a",
+      "items": [
+        {
+          "id": "attendance-0",
+          "status": "Present"
+        },
+        {
+          "id": "attendance-1",
+          "status": "Late"
+        },
+        {
+          "id": "attendance-2",
+          "status": "Absent"
+        },
+        {
+          "id": "attendance-3",
+          "status": "Excused"
+        }
+      ]
+    },
+    {
+      "step": "initial server status and local draft",
+      "itemId": "attendance-0",
+      "itemStatusInCache": "Present",
+      "itemStatusRendered": "Present",
+      "localDraft": "Present",
+      "otherDraft": "Late",
+      "updateDisabled": true,
+      "originalNodeConnected": true,
+      "originalNodeDraft": "Present",
+      "writes": 0
+    },
+    {
+      "step": "user changed independent local drafts",
+      "itemId": "attendance-0",
+      "itemStatusInCache": "Present",
+      "itemStatusRendered": "Present",
+      "localDraft": "Excused",
+      "otherDraft": "Absent",
+      "updateDisabled": false,
+      "originalNodeConnected": true,
+      "originalNodeDraft": "Excused",
+      "writes": 0
+    },
+    {
+      "step": "GET response",
+      "session": "session-a",
+      "items": [
+        {
+          "id": "attendance-0",
+          "status": "Late"
+        },
+        {
+          "id": "attendance-1",
+          "status": "Late"
+        },
+        {
+          "id": "attendance-2",
+          "status": "Absent"
+        },
+        {
+          "id": "attendance-3",
+          "status": "Excused"
+        }
+      ]
+    },
+    {
+      "step": "refetch promise resolved; before waiting for committed render",
+      "itemId": "attendance-0",
+      "itemStatusInCache": "Late",
+      "itemStatusRendered": "Present",
+      "localDraft": "Excused",
+      "otherDraft": "Absent",
+      "updateDisabled": false,
+      "originalNodeConnected": true,
+      "originalNodeDraft": "Excused",
+      "writes": 0
+    },
+    {
+      "step": "server status committed; key reconciliation complete",
+      "itemId": "attendance-0",
+      "itemStatusInCache": "Late",
+      "itemStatusRendered": "Late",
+      "localDraft": "Late",
+      "otherDraft": "Absent",
+      "updateDisabled": true,
+      "originalNodeConnected": false,
+      "originalNodeDraft": "Excused",
+      "writes": 0
+    },
+    {
+      "step": "GET response",
+      "session": "session-a",
+      "items": [
+        {
+          "id": "attendance-0",
+          "status": "Late"
+        },
+        {
+          "id": "attendance-1",
+          "status": "Late"
+        },
+        {
+          "id": "attendance-2",
+          "status": "Absent"
+        },
+        {
+          "id": "attendance-3",
+          "status": "Excused"
+        }
+      ]
+    },
+    {
+      "step": "unrelated timestamp refresh preserves legitimate unsaved draft",
+      "itemId": "attendance-0",
+      "itemStatusInCache": "Late",
+      "itemStatusRendered": "Late",
+      "localDraft": "Excused",
+      "otherDraft": "Absent",
+      "updateDisabled": false,
+      "originalNodeConnected": true,
+      "originalNodeDraft": "Excused",
+      "writes": 0
+    },
+    {
+      "step": "GET response",
+      "session": "session-b",
+      "items": [
+        {
+          "id": "attendance-0",
+          "status": "Present"
+        },
+        {
+          "id": "attendance-1",
+          "status": "Late"
+        },
+        {
+          "id": "attendance-2",
+          "status": "Absent"
+        },
+        {
+          "id": "attendance-3",
+          "status": "Excused"
+        }
+      ]
+    },
+    {
+      "step": "different session resets unrelated row drafts",
+      "session": "session-b",
+      "itemId": "attendance-0",
+      "itemStatus": "Present",
+      "localDraft": "Present"
+    }
+  ],
+  "writes": []
+}

@@ -1,0 +1,66 @@
+[
+  {
+    "test": "Content Studio stress en light MOCKED UI-CONTRACT EVIDENCE",
+    "locale": "en",
+    "theme": "light",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "fontFamily": "Tajawal, \"Noto Sans Arabic\", \"Segoe UI\", Arial, sans-serif",
+    "fontSize": "14px",
+    "lineHeight": "21px",
+    "textFragmentHeight": 29,
+    "rowHeight": 44,
+    "scrollWidth": 390,
+    "clientWidth": 390
+  },
+  {
+    "test": "Content Studio stress ar light MOCKED UI-CONTRACT EVIDENCE",
+    "locale": "ar",
+    "theme": "light",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "fontFamily": "Tajawal, \"Noto Sans Arabic\", \"Segoe UI\", Tahoma, Arial, sans-serif",
+    "fontSize": "15px",
+    "lineHeight": "22.5px",
+    "textFragmentHeight": 32,
+    "rowHeight": 45,
+    "scrollWidth": 390,
+    "clientWidth": 390
+  },
+  {
+    "test": "Content Studio stress en dark MOCKED UI-CONTRACT EVIDENCE",
+    "locale": "en",
+    "theme": "dark",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "fontFamily": "Tajawal, \"Noto Sans Arabic\", \"Segoe UI\", Arial, sans-serif",
+    "fontSize": "14px",
+    "lineHeight": "21px",
+    "textFragmentHeight": 29,
+    "rowHeight": 44,
+    "scrollWidth": 390,
+    "clientWidth": 390
+  },
+  {
+    "test": "Content Studio stress ar dark MOCKED UI-CONTRACT EVIDENCE",
+    "locale": "ar",
+    "theme": "dark",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "fontFamily": "Tajawal, \"Noto Sans Arabic\", \"Segoe UI\", Tahoma, Arial, sans-serif",
+    "fontSize": "15px",
+    "lineHeight": "22.5px",
+    "textFragmentHeight": 32,
+    "rowHeight": 45,
+    "scrollWidth": 390,
+    "clientWidth": 390
+  }
+]

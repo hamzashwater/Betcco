@@ -77,7 +77,22 @@ for (const locale of ["ar", "en"] as const) {
           return Promise.resolve([]);
         });
         const { invalidations } = mount(locale, <ContentStudio />);
-        await screen.findByRole("option", { name: "RAW Teacher" });
+        await waitFor(() =>
+          expect(
+            document.querySelector('option[value="teacher"]'),
+          ).not.toBeNull(),
+        );
+        fireEvent.click(
+          screen.getByRole("button", {
+            name: [
+              copy.articlesNav,
+              copy.teachersNav,
+              copy.packagesNav,
+              copy.sessionsNav,
+              copy.attendance,
+            ][mutation.form === -1 ? 4 : mutation.form],
+          }),
+        );
         const forms = document.querySelectorAll("form");
         if (mutation.form === 1)
           fireEvent.change(forms[1].querySelector("select")!, {
@@ -101,8 +116,10 @@ for (const locale of ["ar", "en"] as const) {
             screen.getByRole("button", { name: copy.markAttendance }),
           );
         } else fireEvent.submit(forms[mutation.form]);
-        expect(await screen.findByRole("status")).toHaveTextContent(
-          copy.requestFailed,
+        await waitFor(() =>
+          expect(screen.getByRole("status")).toHaveTextContent(
+            copy.requestFailed,
+          ),
         );
         const writes = apiMock.mock.calls.filter(
           ([, options]) => options?.method,
@@ -175,12 +192,14 @@ for (const locale of ["ar", "en"] as const) {
       mount(locale, <ContentStudio />);
       const forms = document.querySelectorAll("form");
       fireEvent.submit(forms[1]);
+      fireEvent.click(screen.getByRole("button", { name: copy.attendance }));
       expect(
         screen.getByRole("button", { name: copy.markAttendance }),
       ).toBeDisabled();
       expect(
         apiMock.mock.calls.filter(([, options]) => options?.method),
       ).toHaveLength(0);
+      fireEvent.click(screen.getByRole("button", { name: copy.articlesNav }));
       fireEvent.submit(forms[0]);
       await waitFor(() =>
         expect(screen.getByRole("status")).toHaveTextContent(
