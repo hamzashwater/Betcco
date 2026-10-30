@@ -1,0 +1,440 @@
+{
+  "classification": "Local verification; browser and component API responses are synthetic",
+  "gates": [
+    {
+      "gate": "diagnostic-first",
+      "result": "4/4 independent EN/AR diagnostics against unchanged production",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "vitest",
+        "run",
+        "content-studio-attendance-synchronization",
+        "--maxWorkers=1",
+        "--reporter=verbose"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 85.82,
+      "logFile": "diagnostic-first.log",
+      "logSha256": "886d7af8d4878209881e3c9f8485d2c1239135061186b7b5487182d0552f7a63"
+    },
+    {
+      "gate": "exact-two",
+      "result": "2/2 exact previously failing EN/AR scenarios; 32 filtered only in this invocation",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "vitest",
+        "run",
+        "tests/content-studio-archetype-states.test.tsx",
+        "-t",
+        "retains attendance cache on refresh failure",
+        "--maxWorkers=1",
+        "--reporter=verbose"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 7.55,
+      "logFile": "exact-two.log",
+      "logSha256": "cc19ef65ade528b79afebaff94ad0b1bb89084e1557b0b0404543fc558d6b6da"
+    },
+    {
+      "gate": "focused-34",
+      "result": "34/34 focused states, zero skipped",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "vitest",
+        "run",
+        "tests/content-studio-archetype-states.test.tsx",
+        "--maxWorkers=1",
+        "--reporter=dot"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 13.17,
+      "logFile": "focused-34.log",
+      "logSha256": "7a4f201cb9cb548ff74306a5cb36683629ea30e537c25ecc368f575e601629f1"
+    },
+    {
+      "gate": "synchronization-regression",
+      "result": "4/4 independent EN/AR synchronization and mutation lifecycle tests",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "vitest",
+        "run",
+        "tests/content-studio-attendance-synchronization.test.tsx",
+        "--maxWorkers=1",
+        "--reporter=verbose"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 9.96,
+      "logFile": "synchronization-regression.log",
+      "logSha256": "0db2c4bab06f02ee1ae7cc09fab5a5fa8020d287ca6c0fac0ff85eb1965c9b31"
+    },
+    {
+      "gate": "original-translation-date",
+      "result": "14/14 existing translation/date tests",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "vitest",
+        "run",
+        "tests/admin-content-studio-residual-translation.test.tsx",
+        "tests/content-studio-date-formatting.test.tsx",
+        "--maxWorkers=1",
+        "--reporter=dot"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 12.49,
+      "logFile": "original-translation-date.log",
+      "logSha256": "18fb619ed97cee393594b9dc5c1d487fc46d2249a72f1aade2d76c4d3dd7b173"
+    },
+    {
+      "gate": "previous-guards",
+      "result": "2159/2159 previous UI-D01-15 guards across 30 files",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "vitest",
+        "run",
+        "archetype",
+        "academic-catalogue",
+        "admin-content-studio-residual-translation",
+        "content-studio-date-formatting",
+        "admin-final-i18n-residual-audit",
+        "admin-a5-5-10-15-source-audit",
+        "ui-bilingual-typography",
+        "ui-interaction-adoption",
+        "ui-color-surface-roles",
+        "--maxWorkers=2",
+        "--reporter=dot"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 136.5,
+      "logFile": "previous-guards.log",
+      "logSha256": "64dcf1c9b05aa09b2695fb256f3009e4b3a0b14a86522ba51802cfa14c7121ce"
+    },
+    {
+      "gate": "full-frontend",
+      "result": "4931/4931 across 148 files, zero skipped",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "vitest",
+        "run",
+        "--maxWorkers=2",
+        "--reporter=dot"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 501.97,
+      "logFile": "full-frontend.log",
+      "logSha256": "cbc5179aecdb9e2309be896ef2f235dcf51f65355f9c02ea06a14479977d7c47"
+    },
+    {
+      "gate": "format-check-corrected",
+      "result": "Full frontend format check passed after whitespace-only baseline correction",
+      "command": [
+        "pnpm.cmd",
+        "format:check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 22.48,
+      "logFile": "format-check-corrected.log",
+      "logSha256": "9d9ab8f40b4630103cf8d64505f0a8af69fb0f1951add63e917f30e744686f1b"
+    },
+    {
+      "gate": "eslint",
+      "result": "Full frontend ESLint, max-warnings=0, passed",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "eslint",
+        ".",
+        "--max-warnings=0"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 132.33,
+      "logFile": "eslint.log",
+      "logSha256": "7977d996b80a01c666c63dc6a891c960882d9447767cc7095415d84f57ee8cfe"
+    },
+    {
+      "gate": "typescript",
+      "result": "Full frontend TypeScript passed",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "tsc",
+        "--noEmit"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 45.7,
+      "logFile": "typescript.log",
+      "logSha256": "8f203ac13b4fbba5649b7640f8ba14f789c95b90891eab4b2709c0d8b9fd5068"
+    },
+    {
+      "gate": "production-build",
+      "result": "Fresh production build passed",
+      "command": [
+        "pnpm.cmd",
+        "build"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 43.91,
+      "logFile": "production-build.log",
+      "logSha256": "d60a949cb337d7ef72f401d9050695eb379ccedd785587372c2b773c4b444209"
+    },
+    {
+      "gate": "backend",
+      "result": "5/5 unchanged relevant backend tests, zero skipped; InMemory/pure only",
+      "command": [
+        "dotnet",
+        "test",
+        "backend/tests/Betcco.IntegrationTests/Betcco.IntegrationTests.csproj",
+        "--no-restore",
+        "--filter",
+        "FullyQualifiedName~CoursePackageAdminControllerTests|FullyQualifiedName~LiveSessionProviderCatalogTests",
+        "--logger",
+        "trx;LogFileName=slice11-recovery-content.trx",
+        "--results-directory",
+        "C:\\Users\\user\\Documents\\Codex\\2026-10-26\\files-pasted-by-the-user-task\\outputs\\slice11\\recovery\\backend"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 18.22,
+      "logFile": "backend.log",
+      "logSha256": "997929ad88ea76b82560d1bda51ed60af7b9fc414c06d665f463d2f1928e709f"
+    },
+    {
+      "gate": "browser-pilot-final",
+      "result": "1/1 production matrix pilot: EN light 1440, 35 captures",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "playwright",
+        "test",
+        "tests/e2e/content-studio-archetype.spec.ts",
+        "--grep",
+        "en light 1440",
+        "--workers=1",
+        "--reporter=line",
+        "--output",
+        "test-results/s11-r-pilot-2"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 79.22,
+      "logFile": "browser-pilot-final.log",
+      "logSha256": "7ebb1423f4ddd6f5ceebdb142c35d0353d5c117771101b3462e8a8395ba52efa"
+    },
+    {
+      "gate": "browser-matrix",
+      "result": "13/13: remaining 11 matrix cases plus 2 original residual cases",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "playwright",
+        "test",
+        "tests/e2e/content-studio-archetype.spec.ts",
+        "tests/e2e/admin-content-studio-residual-translation.spec.ts",
+        "--grep-invert",
+        "en light 1440",
+        "--workers=2",
+        "--reporter=line",
+        "--output",
+        "test-results/s11-r-matrix"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 563.48,
+      "logFile": "browser-matrix.log",
+      "logSha256": "cce18dcc38b18e31a348863c2206e987aa950d9098a430bb87093422466358a5"
+    },
+    {
+      "gate": "browser-stress",
+      "result": "4/4 supplementary EN/AR light/dark stress cases, 24 captures",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "playwright",
+        "test",
+        "tests/e2e/content-studio-archetype.spec.ts",
+        "--grep",
+        "Content Studio stress",
+        "--workers=2",
+        "--reporter=line",
+        "--output",
+        "test-results/s11-r-stress"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 29.64,
+      "logFile": "browser-stress.log",
+      "logSha256": "593d144f81d7c4e6450e8664abd0856f3c042dbfaf7cc085535843299d072657"
+    },
+    {
+      "gate": "format-browser-stress",
+      "result": "Changed E2E file formatted after stress appendix",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "prettier",
+        "--write",
+        "tests/e2e/content-studio-archetype.spec.ts"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 1.4,
+      "logFile": "format-browser-stress.log",
+      "logSha256": "bcc7c112b641c974181de30a24e4005dc593cca40e3453d228b895ecd00e850b"
+    },
+    {
+      "gate": "lint-browser-stress",
+      "result": "Final changed E2E ESLint, zero warnings",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "eslint",
+        "tests/e2e/content-studio-archetype.spec.ts",
+        "--max-warnings=0"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 7.67,
+      "logFile": "lint-browser-stress.log",
+      "logSha256": "05c6ede1b007270cae0e4474aaff8534542fc1cb8def1be7513177f8dac37784"
+    },
+    {
+      "gate": "types-stress",
+      "result": "Full TypeScript rechecked after final E2E appendix",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "tsc",
+        "--noEmit"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 10.4,
+      "logFile": "types-stress.log",
+      "logSha256": "8f203ac13b4fbba5649b7640f8ba14f789c95b90891eab4b2709c0d8b9fd5068"
+    }
+  ],
+  "finalStatus": "BLOCKED",
+  "latestBrowserGate": "course-fix-browser: four failures",
+  "laterChecks": [
+    {
+      "gate": "production-build-diagnostic",
+      "command": [
+        "pnpm.cmd",
+        "build"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 27.8,
+      "logFile": "production-build-diagnostic.log",
+      "logSha256": "a41a89f49dd2f07323c3224da6231ca7d492a469a503a906ea57a9b250f76d6b"
+    },
+    {
+      "gate": "course-geometry-production",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "playwright",
+        "test",
+        "tests/e2e/content-studio-archetype.spec.ts",
+        "--grep",
+        "Content Studio stress en light",
+        "--workers=1",
+        "--reporter=line",
+        "--output",
+        "test-results/s11-r-geometry-production"
+      ],
+      "exitCode": 1,
+      "durationSeconds": 8.18,
+      "logFile": "course-geometry-production.log",
+      "logSha256": "2bab8286fe8f203aee0bc8f9fb8cfdb4a2d6666cc29574db27c04565618448ac"
+    },
+    {
+      "gate": "production-build-course-fix",
+      "command": [
+        "pnpm.cmd",
+        "build"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 11.16,
+      "logFile": "production-build-course-fix.log",
+      "logSha256": "18fcd6f0fff15d9522fcf8eaef476b0ba7405497c8cb4c296f9002fbd3f6f050"
+    },
+    {
+      "gate": "course-fix-component",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "vitest",
+        "run",
+        "tests/content-studio-archetype-contract.test.ts",
+        "tests/content-studio-archetype.test.tsx",
+        "tests/content-studio-archetype-states.test.tsx",
+        "tests/content-studio-attendance-synchronization.test.tsx",
+        "tests/admin-content-studio-residual-translation.test.tsx",
+        "tests/content-studio-date-formatting.test.tsx",
+        "--maxWorkers=2",
+        "--reporter=dot"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 34.34,
+      "logFile": "course-fix-component.log",
+      "logSha256": "d85905896099a573689c253dd9084ec047fbcbf50283742aa41dddff1f7eab4b"
+    },
+    {
+      "gate": "format-course-fix",
+      "command": [
+        "pnpm.cmd",
+        "format:check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 10.89,
+      "logFile": "format-course-fix.log",
+      "logSha256": "9d9ab8f40b4630103cf8d64505f0a8af69fb0f1951add63e917f30e744686f1b"
+    },
+    {
+      "gate": "lint-course-fix",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "eslint",
+        "tests/e2e/content-studio-archetype.spec.ts",
+        "--max-warnings=0"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 36.04,
+      "logFile": "lint-course-fix.log",
+      "logSha256": "180425e1a8556816e79422313eb00b1dbab831edd981bfdc09541ffb72f89d08"
+    },
+    {
+      "gate": "types-course-fix",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "tsc",
+        "--noEmit"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 4.71,
+      "logFile": "types-course-fix.log",
+      "logSha256": "8f203ac13b4fbba5649b7640f8ba14f789c95b90891eab4b2709c0d8b9fd5068"
+    },
+    {
+      "gate": "course-fix-browser",
+      "command": [
+        "pnpm.cmd",
+        "exec",
+        "playwright",
+        "test",
+        "tests/e2e/content-studio-archetype.spec.ts",
+        "--grep",
+        "Content Studio stress",
+        "--workers=2",
+        "--reporter=line",
+        "--output",
+        "test-results/s11-r-course-fix"
+      ],
+      "exitCode": 1,
+      "durationSeconds": 12.84,
+      "logFile": "course-fix-browser.log",
+      "logSha256": "271c5c50e067c0487ce88ce2bdc7f231384ce85d3ae8c4e35daa6e79c86fbd72"
+    }
+  ]
+}

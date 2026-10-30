@@ -1,3 +1,4 @@
+import { projectContentStudioBoundary } from "./content-studio-projection";
 import ts from "typescript";
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
@@ -675,4 +676,5 @@ export function contentContract(source: string) {
       source.slice(slot.end);
   return { slots: slots.length, hash: digest(source) };
 }
-export const read = (path: string) => readFileSync(path, "utf8");
+export const read = (path: string) =>
+  projectContentStudioBoundary(readFileSync(path, "utf8"), path);

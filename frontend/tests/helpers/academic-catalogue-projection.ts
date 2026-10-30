@@ -1,8 +1,13 @@
+import {
+  projectContentStudioBoundary,
+  withoutContentStudioAdditions,
+} from "./content-studio-projection";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import baseline from "../fixtures/ui-d01-15-academic-catalogue-baseline.json";
 const hash = (s: string) => createHash("sha256").update(s).digest("hex");
 export function projectCatalogueBoundary(source: string, path: string) {
+  source = projectContentStudioBoundary(source, path);
   const key = path.replaceAll("\\", "/"),
     s = source.replace(/\r\n/g, "\n");
   if (/(?:^|\/)src\/features\/admin\/academic-catalogue\.tsx$/.test(key)) {
@@ -25,6 +30,7 @@ export function projectCatalogueBoundary(source: string, path: string) {
     : source;
 }
 export function withoutCatalogueAdditions(value: Record<string, unknown>) {
+  withoutContentStudioAdditions(value);
   const target = value.academicCatalogue as Record<string, unknown> | undefined;
   if (
     !target ||

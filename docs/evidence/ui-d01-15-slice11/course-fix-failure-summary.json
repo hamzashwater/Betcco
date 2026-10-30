@@ -1,0 +1,54 @@
+{
+  "classification": "MOCKED UI-CONTRACT EVIDENCE",
+  "status": "BLOCKED",
+  "cases": [
+    {
+      "case": "content-studio-archetype-C-6588c-MOCKED-UI-CONTRACT-EVIDENCE",
+      "rows": 14,
+      "overflowing": 13,
+      "first": {
+        "label": "دورة عربية طويلة للاختبار · Synthetic course with a long English title (JOD 12.345)",
+        "top": -30.28125,
+        "bottom": 13.71875,
+        "textTop": -33.28125,
+        "textBottom": 16.71875
+      }
+    },
+    {
+      "case": "content-studio-archetype-C-9b564-MOCKED-UI-CONTRACT-EVIDENCE",
+      "rows": 14,
+      "overflowing": 13,
+      "first": {
+        "label": "دورة عربية طويلة للاختبار · Synthetic course with a long English title (‏١٢٫٣٤٥ JOD)",
+        "top": -256.4375,
+        "bottom": -211.4375,
+        "textTop": -261.4375,
+        "textBottom": -206.9375
+      }
+    },
+    {
+      "case": "content-studio-archetype-C-d0f02-MOCKED-UI-CONTRACT-EVIDENCE",
+      "rows": 14,
+      "overflowing": 13,
+      "first": {
+        "label": "دورة عربية طويلة للاختبار · Synthetic course with a long English title (JOD 12.345)",
+        "top": -30.28125,
+        "bottom": 13.71875,
+        "textTop": -33.28125,
+        "textBottom": 16.71875
+      }
+    },
+    {
+      "case": "content-studio-archetype-C-f45d2-MOCKED-UI-CONTRACT-EVIDENCE",
+      "rows": 14,
+      "overflowing": 13,
+      "first": {
+        "label": "دورة عربية طويلة للاختبار · Synthetic course with a long English title (‏١٢٫٣٤٥ JOD)",
+        "top": -256.4375,
+        "bottom": -211.4375,
+        "textTop": -261.4375,
+        "textBottom": -206.9375
+      }
+    }
+  ]
+}

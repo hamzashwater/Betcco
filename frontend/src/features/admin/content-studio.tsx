@@ -6,12 +6,14 @@ import { api } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CalendarClock,
+  ClipboardList,
   FileText,
   PackageCheck,
   UsersRound,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
+import styles from "./content-studio.module.css";
 
 type TeacherOption = {
   id: string;
@@ -129,21 +131,20 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="grid gap-1.5 text-sm font-bold text-foreground">
+    <label className={styles.field}>
       <span>{label}</span>
       {children}
     </label>
   );
 }
 
-const inputClass =
-  "focus-ring w-full rounded-xl border border-border bg-transparent px-3 py-2.5 text-sm text-foreground";
+const inputClass = styles.input;
 
 export function ContentStudio() {
   const locale = useLocale();
   const t = useTranslations("adminContent");
   const client = useQueryClient();
-  const [notice, setNotice] = useState<string>();
+  const [workspace, setWorkspace] = useState("articles");
   const [article, setArticle] = useState(initialArticle);
   const [profile, setProfile] = useState({
     teacherId: "",
@@ -208,11 +209,8 @@ export function ContentStudio() {
       }),
     onSuccess: () => {
       setArticle(initialArticle);
-      setNotice(t("saved"));
       refresh("admin-content-blog");
     },
-    onError: (error) =>
-      setNotice(error instanceof Error ? error.message : t("requestFailed")),
   });
   const saveProfile = useMutation({
     mutationFn: () =>
@@ -227,11 +225,8 @@ export function ContentStudio() {
         }),
       }),
     onSuccess: () => {
-      setNotice(t("saved"));
       refresh("admin-content-teachers");
     },
-    onError: (error) =>
-      setNotice(error instanceof Error ? error.message : t("requestFailed")),
   });
   const savePackage = useMutation({
     mutationFn: () =>
@@ -256,11 +251,8 @@ export function ContentStudio() {
     onSuccess: () => {
       setPackageValue(initialPackage);
       setSelectedPackageId("");
-      setNotice(t("saved"));
       refresh("admin-content-packages");
     },
-    onError: (error) =>
-      setNotice(error instanceof Error ? error.message : t("requestFailed")),
   });
   const createSession = useMutation({
     mutationFn: () =>
@@ -280,11 +272,8 @@ export function ContentStudio() {
       }),
     onSuccess: () => {
       setSession(initialSession);
-      setNotice(t("saved"));
       refresh("admin-content-sessions");
     },
-    onError: (error) =>
-      setNotice(error instanceof Error ? error.message : t("requestFailed")),
   });
   const markAttendance = useMutation({
     mutationFn: ({
@@ -303,12 +292,10 @@ export function ContentStudio() {
       client.invalidateQueries({
         queryKey: ["admin-live-attendance", attendanceSessionId],
       });
-      setNotice(t("saved"));
     },
-    onError: (error) =>
-      setNotice(error instanceof Error ? error.message : t("requestFailed")),
   });
   function selectTeacher(teacherId: string) {
+    saveProfile.reset();
     const selected = teachers.data?.find((teacher) => teacher.id === teacherId);
     setProfile({
       teacherId,
@@ -328,6 +315,7 @@ export function ContentStudio() {
     }));
   }
   function selectPackage(packageId: string) {
+    savePackage.reset();
     setSelectedPackageId(packageId);
     const selected = packages.data?.find((item) => item.id === packageId);
     if (!selected) {
@@ -350,422 +338,212 @@ export function ContentStudio() {
   const selectedLiveProvider = liveSessionProviders.data?.find(
     (provider) => provider.id === session.provider,
   );
-  const busy =
-    createArticle.isPending ||
-    saveProfile.isPending ||
-    savePackage.isPending ||
-    createSession.isPending;
+  const sections = [
+    { id: "articles", label: t("articlesNav"), icon: FileText },
+    { id: "teachers", label: t("teachersNav"), icon: UsersRound },
+    { id: "packages", label: t("packagesNav"), icon: PackageCheck },
+    { id: "sessions", label: t("sessionsNav"), icon: CalendarClock },
+    { id: "attendance", label: t("attendance"), icon: ClipboardList },
+  ];
   return (
-    <section className="shell py-10">
-      <header className="relative overflow-hidden rounded-3xl border border-border bg-[radial-gradient(circle_at_85%_15%,color-mix(in_srgb,var(--primary)_24%,transparent),transparent_38%),linear-gradient(125deg,color-mix(in_srgb,var(--surface)_92%,transparent),color-mix(in_srgb,var(--surface-solid)_72%,transparent))] p-6 shadow-[var(--shadow)] sm:p-8">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-          {t("eyebrow")}
-        </p>
-        <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
-          {t("title")}
-        </h1>
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
-          {t("description")}
-        </p>
+    <section className={`shell ${styles.workspace}`}>
+      <header className={styles.header}>
+        <h1>{t("title")}</h1>
+        <p>{t("description")}</p>
       </header>
-      {notice ? (
-        <p
-          role="status"
-          className="mt-5 rounded-xl border border-primary/30 bg-primary/10 p-3 text-sm text-primary"
-        >
-          {notice}
-        </p>
-      ) : null}
-      <div className="mt-6 grid gap-6 xl:grid-cols-2">
-        <form
-          className="card grid gap-4 p-6"
-          onSubmit={(event) => {
-            event.preventDefault();
-            createArticle.mutate();
-          }}
-        >
-          <SectionHeading icon={FileText} title={t("article")} />
-          <Field label={t("slug")}>
-            <input
-              required
-              pattern="[a-z0-9]+(-[a-z0-9]+)*"
-              value={article.slug}
-              onChange={(event) =>
-                setArticle({ ...article, slug: event.target.value })
-              }
-              className={inputClass}
-              dir="ltr"
-            />
-          </Field>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t("arabicTitle")}>
+      <nav aria-label={t("workspaceNavigation")} className={styles.navigation}>
+        {sections.map(({ id, label, icon: Icon }) => (
+          <button
+            key={id}
+            type="button"
+            aria-pressed={workspace === id}
+            aria-controls={`content-${id}`}
+            onClick={() => setWorkspace(id)}
+          >
+            <Icon size={18} aria-hidden="true" />
+            {label}
+          </button>
+        ))}
+      </nav>
+      <p className={styles.draftHint}>{t("draftHint")}</p>
+      <section
+        id="content-articles"
+        aria-label={t("articlesNav")}
+        hidden={workspace !== "articles"}
+        className={styles.panel}
+      >
+        <div className={styles.panelLayout}>
+          {" "}
+          <form
+            className={styles.editor}
+            aria-label={t("article")}
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (!createArticle.isPending) createArticle.mutate();
+            }}
+          >
+            <SectionHeading icon={FileText} title={t("article")} />
+            <Field label={t("slug")}>
               <input
                 required
-                value={article.arabicTitle}
+                pattern="[a-z0-9]+(-[a-z0-9]+)*"
+                value={article.slug}
                 onChange={(event) =>
-                  setArticle({ ...article, arabicTitle: event.target.value })
-                }
-                className={inputClass}
-              />
-            </Field>
-            <Field label={t("englishTitle")}>
-              <input
-                required
-                value={article.englishTitle}
-                onChange={(event) =>
-                  setArticle({ ...article, englishTitle: event.target.value })
+                  setArticle({ ...article, slug: event.target.value })
                 }
                 className={inputClass}
                 dir="ltr"
               />
             </Field>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t("arabicExcerpt")}>
-              <textarea
-                required
-                value={article.arabicExcerpt}
-                onChange={(event) =>
-                  setArticle({ ...article, arabicExcerpt: event.target.value })
-                }
-                className={`${inputClass} min-h-20`}
-              />
-            </Field>
-            <Field label={t("englishExcerpt")}>
-              <textarea
-                required
-                value={article.englishExcerpt}
-                onChange={(event) =>
-                  setArticle({ ...article, englishExcerpt: event.target.value })
-                }
-                className={`${inputClass} min-h-20`}
-                dir="ltr"
-              />
-            </Field>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t("arabicBody")}>
-              <textarea
-                required
-                value={article.arabicBody}
-                onChange={(event) =>
-                  setArticle({ ...article, arabicBody: event.target.value })
-                }
-                className={`${inputClass} min-h-36`}
-              />
-            </Field>
-            <Field label={t("englishBody")}>
-              <textarea
-                required
-                value={article.englishBody}
-                onChange={(event) =>
-                  setArticle({ ...article, englishBody: event.target.value })
-                }
-                className={`${inputClass} min-h-36`}
-                dir="ltr"
-              />
-            </Field>
-          </div>
-          <PublishToggle
-            checked={article.isPublished}
-            onChange={(isPublished) => setArticle({ ...article, isPublished })}
-            label={t("publish")}
-          />
-          <SaveButton
-            busy={createArticle.isPending}
-            label={t("save")}
-            busyLabel={t("saving")}
-          />
-        </form>
-
-        <form
-          className="card grid gap-4 p-6"
-          onSubmit={(event) => {
-            event.preventDefault();
-            if (profile.teacherId) saveProfile.mutate();
-          }}
-        >
-          <SectionHeading icon={UsersRound} title={t("teacher")} />
-          <Field label={t("chooseTeacher")}>
-            <select
-              required
-              value={profile.teacherId}
-              onChange={(event) => selectTeacher(event.target.value)}
-              className={inputClass}
-            >
-              <option value="">—</option>
-              {teachers.data
-                ?.filter((teacher) => !teacher.isFrozen)
-                .map((teacher) => (
-                  <option key={teacher.id} value={teacher.id}>
-                    {teacher.displayName} · {teacher.email}
-                  </option>
-                ))}
-            </select>
-          </Field>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t("arabicBio")}>
-              <textarea
-                value={profile.arabicBio}
-                onChange={(event) =>
-                  setProfile({ ...profile, arabicBio: event.target.value })
-                }
-                className={`${inputClass} min-h-28`}
-              />
-            </Field>
-            <Field label={t("englishBio")}>
-              <textarea
-                value={profile.englishBio}
-                onChange={(event) =>
-                  setProfile({ ...profile, englishBio: event.target.value })
-                }
-                className={`${inputClass} min-h-28`}
-                dir="ltr"
-              />
-            </Field>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t("arabicSpecializations")}>
-              <input
-                value={profile.arabicSpecializations}
-                onChange={(event) =>
-                  setProfile({
-                    ...profile,
-                    arabicSpecializations: event.target.value,
-                  })
-                }
-                className={inputClass}
-              />
-            </Field>
-            <Field label={t("englishSpecializations")}>
-              <input
-                value={profile.englishSpecializations}
-                onChange={(event) =>
-                  setProfile({
-                    ...profile,
-                    englishSpecializations: event.target.value,
-                  })
-                }
-                className={inputClass}
-                dir="ltr"
-              />
-            </Field>
-          </div>
-          <PublishToggle
-            checked={profile.isPublic}
-            onChange={(isPublic) => setProfile({ ...profile, isPublic })}
-            label={t("showProfile")}
-          />
-          <SaveButton
-            busy={saveProfile.isPending}
-            label={t("save")}
-            busyLabel={t("saving")}
-          />
-        </form>
-
-        <form
-          className="card grid gap-4 p-6"
-          onSubmit={(event) => {
-            event.preventDefault();
-            savePackage.mutate();
-          }}
-        >
-          <SectionHeading icon={PackageCheck} title={t("package")} />
-          <Field label={t("managePackage")}>
-            <select
-              value={selectedPackageId}
-              onChange={(event) => selectPackage(event.target.value)}
-              className={inputClass}
-            >
-              <option value="">{t("newPackage")}</option>
-              {packages.data?.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.arabicTitle} · {item.englishTitle}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label={t("slug")}>
-            <input
-              required
-              pattern="[a-z0-9]+(-[a-z0-9]+)*"
-              value={packageValue.slug}
-              onChange={(event) =>
-                setPackageValue({ ...packageValue, slug: event.target.value })
-              }
-              className={inputClass}
-              dir="ltr"
-            />
-          </Field>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t("arabicTitle")}>
-              <input
-                required
-                value={packageValue.arabicTitle}
-                onChange={(event) =>
-                  setPackageValue({
-                    ...packageValue,
-                    arabicTitle: event.target.value,
-                  })
-                }
-                className={inputClass}
-              />
-            </Field>
-            <Field label={t("englishTitle")}>
-              <input
-                required
-                value={packageValue.englishTitle}
-                onChange={(event) =>
-                  setPackageValue({
-                    ...packageValue,
-                    englishTitle: event.target.value,
-                  })
-                }
-                className={inputClass}
-                dir="ltr"
-              />
-            </Field>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t("arabicDescription")}>
-              <textarea
-                required
-                value={packageValue.arabicDescription}
-                onChange={(event) =>
-                  setPackageValue({
-                    ...packageValue,
-                    arabicDescription: event.target.value,
-                  })
-                }
-                className={`${inputClass} min-h-24`}
-              />
-            </Field>
-            <Field label={t("englishDescription")}>
-              <textarea
-                required
-                value={packageValue.englishDescription}
-                onChange={(event) =>
-                  setPackageValue({
-                    ...packageValue,
-                    englishDescription: event.target.value,
-                  })
-                }
-                className={`${inputClass} min-h-24`}
-                dir="ltr"
-              />
-            </Field>
-          </div>
-          <Field label={t("price")}>
-            <input
-              required
-              min="0"
-              step="0.001"
-              type="number"
-              value={packageValue.price}
-              onChange={(event) =>
-                setPackageValue({ ...packageValue, price: event.target.value })
-              }
-              className={inputClass}
-            />
-          </Field>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t("availableFrom")}>
-              <input
-                type="datetime-local"
-                value={packageValue.availableFromUtc}
-                onChange={(event) =>
-                  setPackageValue({
-                    ...packageValue,
-                    availableFromUtc: event.target.value,
-                  })
-                }
-                className={inputClass}
-              />
-            </Field>
-            <Field label={t("availableUntil")}>
-              <input
-                type="datetime-local"
-                value={packageValue.availableUntilUtc}
-                onChange={(event) =>
-                  setPackageValue({
-                    ...packageValue,
-                    availableUntilUtc: event.target.value,
-                  })
-                }
-                className={inputClass}
-              />
-            </Field>
-          </div>
-          <fieldset className="grid gap-2">
-            <legend className="text-sm font-bold">{t("chooseCourses")}</legend>
-            <div className="grid max-h-48 gap-2 overflow-y-auto rounded-xl border border-border p-3">
-              {courses.data?.map((course) => (
-                <label
-                  key={course.id}
-                  className="flex items-center gap-2 text-sm"
-                >
-                  <input
-                    type="checkbox"
-                    checked={packageValue.courseIds.includes(course.id)}
-                    onChange={() => toggleCourse(course.id)}
-                  />
-                  {course.arabicTitle} · {course.englishTitle} (
-                  {formatLocalizedCurrency(
-                    course.price,
-                    course.currency,
-                    locale,
-                  )}
-                  )
-                </label>
-              ))}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t("arabicTitle")}>
+                <input
+                  required
+                  value={article.arabicTitle}
+                  onChange={(event) =>
+                    setArticle({ ...article, arabicTitle: event.target.value })
+                  }
+                  className={inputClass}
+                />
+              </Field>
+              <Field label={t("englishTitle")}>
+                <input
+                  required
+                  value={article.englishTitle}
+                  onChange={(event) =>
+                    setArticle({ ...article, englishTitle: event.target.value })
+                  }
+                  className={inputClass}
+                  dir="ltr"
+                />
+              </Field>
             </div>
-          </fieldset>
-          <PublishToggle
-            checked={packageValue.isPublished}
-            onChange={(isPublished) =>
-              setPackageValue({ ...packageValue, isPublished })
-            }
-            label={t("publish")}
-          />
-          <SaveButton
-            busy={savePackage.isPending}
-            label={selectedPackageId ? t("update") : t("save")}
-            busyLabel={t("saving")}
-          />
-        </form>
-
-        <form
-          className="card grid gap-4 p-6"
-          onSubmit={(event) => {
-            event.preventDefault();
-            createSession.mutate();
-          }}
-        >
-          <SectionHeading icon={CalendarClock} title={t("session")} />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t("courseOptional")}>
-              <select
-                value={session.courseId}
-                onChange={(event) =>
-                  setSession({ ...session, courseId: event.target.value })
-                }
-                className={inputClass}
-              >
-                <option value="">{t("noCourse")}</option>
-                {courses.data?.map((course) => (
-                  <option key={course.id} value={course.id}>
-                    {course.arabicTitle} · {course.englishTitle}
-                  </option>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t("arabicExcerpt")}>
+                <textarea
+                  required
+                  value={article.arabicExcerpt}
+                  onChange={(event) =>
+                    setArticle({
+                      ...article,
+                      arabicExcerpt: event.target.value,
+                    })
+                  }
+                  className={`${inputClass} min-h-20`}
+                />
+              </Field>
+              <Field label={t("englishExcerpt")}>
+                <textarea
+                  required
+                  value={article.englishExcerpt}
+                  onChange={(event) =>
+                    setArticle({
+                      ...article,
+                      englishExcerpt: event.target.value,
+                    })
+                  }
+                  className={`${inputClass} min-h-20`}
+                  dir="ltr"
+                />
+              </Field>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t("arabicBody")}>
+                <textarea
+                  required
+                  value={article.arabicBody}
+                  onChange={(event) =>
+                    setArticle({ ...article, arabicBody: event.target.value })
+                  }
+                  className={`${inputClass} min-h-36`}
+                />
+              </Field>
+              <Field label={t("englishBody")}>
+                <textarea
+                  required
+                  value={article.englishBody}
+                  onChange={(event) =>
+                    setArticle({ ...article, englishBody: event.target.value })
+                  }
+                  className={`${inputClass} min-h-36`}
+                  dir="ltr"
+                />
+              </Field>
+            </div>
+            <PublishToggle
+              checked={article.isPublished}
+              onChange={(isPublished) =>
+                setArticle({ ...article, isPublished })
+              }
+              label={t("publish")}
+            />
+            <OperationFeedback
+              mutation={createArticle}
+              t={t}
+              success={t("articleSaved")}
+            />
+            <SaveButton
+              busy={createArticle.isPending}
+              label={t("save")}
+              busyLabel={t("saving")}
+            />
+          </form>
+          <aside className={styles.records}>
+            <h3>{t("recent")}</h3>
+            <ReadState
+              query={blog}
+              t={t}
+              empty={!blog.data?.length}
+              emptyText={t("noArticles")}
+            />
+            {blog.data?.length ? (
+              <ul>
+                {blog.data.slice(0, 4).map((item) => (
+                  <li key={item.id}>
+                    <p className={styles.recordTitle}>
+                      {locale === "ar" ? item.arabicTitle : item.englishTitle}
+                    </p>
+                    <p className={styles.hint}>{item.slug}</p>
+                    <span className={styles.badge}>
+                      {item.isPublished ? t("publishedState") : t("draftState")}
+                    </span>
+                  </li>
                 ))}
-              </select>
-            </Field>
-            <Field label={t("host")}>
+              </ul>
+            ) : null}
+          </aside>
+        </div>
+      </section>
+      <section
+        id="content-teachers"
+        aria-label={t("teachersNav")}
+        hidden={workspace !== "teachers"}
+        className={styles.panel}
+      >
+        <div className={styles.panelLayout}>
+          {" "}
+          <form
+            className={styles.editor}
+            aria-label={t("teacher")}
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (profile.teacherId && !saveProfile.isPending)
+                saveProfile.mutate();
+            }}
+          >
+            <SectionHeading icon={UsersRound} title={t("teacher")} />
+            <ReadState
+              query={teachers}
+              t={t}
+              empty={!teachers.data?.filter((x) => !x.isFrozen).length}
+              emptyText={t("noTeachers")}
+            />
+            <Field label={t("chooseTeacher")}>
               <select
                 required
-                value={session.hostUserId}
-                onChange={(event) =>
-                  setSession({ ...session, hostUserId: event.target.value })
-                }
+                disabled={saveProfile.isPending}
+                value={profile.teacherId}
+                onChange={(event) => selectTeacher(event.target.value)}
                 className={inputClass}
               >
                 <option value="">—</option>
@@ -773,208 +551,610 @@ export function ContentStudio() {
                   ?.filter((teacher) => !teacher.isFrozen)
                   .map((teacher) => (
                     <option key={teacher.id} value={teacher.id}>
-                      {teacher.displayName}
+                      {teacher.displayName} · {teacher.email}
                     </option>
                   ))}
               </select>
             </Field>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t("arabicTitle")}>
-              <input
-                required
-                value={session.arabicTitle}
-                onChange={(event) =>
-                  setSession({ ...session, arabicTitle: event.target.value })
-                }
-                className={inputClass}
-              />
-            </Field>
-            <Field label={t("englishTitle")}>
-              <input
-                required
-                value={session.englishTitle}
-                onChange={(event) =>
-                  setSession({ ...session, englishTitle: event.target.value })
-                }
-                className={inputClass}
-                dir="ltr"
-              />
-            </Field>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t("arabicDescription")}>
-              <textarea
-                value={session.arabicDescription}
-                onChange={(event) =>
-                  setSession({
-                    ...session,
-                    arabicDescription: event.target.value,
-                  })
-                }
-                className={`${inputClass} min-h-20`}
-              />
-            </Field>
-            <Field label={t("englishDescription")}>
-              <textarea
-                value={session.englishDescription}
-                onChange={(event) =>
-                  setSession({
-                    ...session,
-                    englishDescription: event.target.value,
-                  })
-                }
-                className={`${inputClass} min-h-20`}
-                dir="ltr"
-              />
-            </Field>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t("provider")}>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t("arabicBio")}>
+                <textarea
+                  value={profile.arabicBio}
+                  onChange={(event) =>
+                    setProfile({ ...profile, arabicBio: event.target.value })
+                  }
+                  className={`${inputClass} min-h-28`}
+                />
+              </Field>
+              <Field label={t("englishBio")}>
+                <textarea
+                  value={profile.englishBio}
+                  onChange={(event) =>
+                    setProfile({ ...profile, englishBio: event.target.value })
+                  }
+                  className={`${inputClass} min-h-28`}
+                  dir="ltr"
+                />
+              </Field>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t("arabicSpecializations")}>
+                <input
+                  value={profile.arabicSpecializations}
+                  onChange={(event) =>
+                    setProfile({
+                      ...profile,
+                      arabicSpecializations: event.target.value,
+                    })
+                  }
+                  className={inputClass}
+                />
+              </Field>
+              <Field label={t("englishSpecializations")}>
+                <input
+                  value={profile.englishSpecializations}
+                  onChange={(event) =>
+                    setProfile({
+                      ...profile,
+                      englishSpecializations: event.target.value,
+                    })
+                  }
+                  className={inputClass}
+                  dir="ltr"
+                />
+              </Field>
+            </div>
+            <PublishToggle
+              checked={profile.isPublic}
+              onChange={(isPublic) => setProfile({ ...profile, isPublic })}
+              label={t("showProfile")}
+            />
+            <OperationFeedback
+              mutation={saveProfile}
+              t={t}
+              success={t("profileSaved")}
+            />
+            <SaveButton
+              busy={saveProfile.isPending}
+              disabled={!profile.teacherId}
+              label={t("save")}
+              busyLabel={t("saving")}
+            />
+          </form>
+          <aside className={styles.records}>
+            <h3>{t("profileContext")}</h3>
+            <p className={styles.hint}>{t("profileHint")}</p>
+            {profile.teacherId ? (
+              <>
+                <p className={styles.recordTitle}>
+                  {
+                    teachers.data?.find((x) => x.id === profile.teacherId)
+                      ?.displayName
+                  }
+                </p>
+                <span className={styles.badge}>
+                  {profile.isPublic ? t("publicProfile") : t("privateProfile")}
+                </span>
+              </>
+            ) : (
+              <p className={styles.empty}>{t("chooseTeacher")}</p>
+            )}
+          </aside>
+        </div>
+      </section>
+      <section
+        id="content-packages"
+        aria-label={t("packagesNav")}
+        hidden={workspace !== "packages"}
+        className={styles.panel}
+      >
+        <div className={styles.panelLayout}>
+          {" "}
+          <form
+            className={styles.editor}
+            aria-label={t("packagesNav")}
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (!savePackage.isPending) savePackage.mutate();
+            }}
+          >
+            <SectionHeading
+              icon={PackageCheck}
+              title={selectedPackageId ? t("editPackage") : t("package")}
+            />
+            <Field label={t("managePackage")}>
               <select
-                required
-                value={session.provider}
-                onChange={(event) =>
-                  setSession({ ...session, provider: event.target.value })
-                }
+                disabled={savePackage.isPending}
+                value={selectedPackageId}
+                onChange={(event) => selectPackage(event.target.value)}
                 className={inputClass}
-                disabled={liveSessionProviders.isPending}
               >
-                <option value="">—</option>
-                {liveSessionProviders.data?.map((provider) => (
-                  <option key={provider.id} value={provider.id}>
-                    {locale === "ar"
-                      ? provider.arabicName
-                      : provider.englishName}
+                <option value="">{t("newPackage")}</option>
+                {packages.data?.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.arabicTitle} · {item.englishTitle}
                   </option>
                 ))}
               </select>
             </Field>
-            <Field label={t("joinUrl")}>
+            <Field label={t("slug")}>
               <input
-                type="url"
-                value={session.joinUrl}
+                required
+                pattern="[a-z0-9]+(-[a-z0-9]+)*"
+                value={packageValue.slug}
                 onChange={(event) =>
-                  setSession({ ...session, joinUrl: event.target.value })
+                  setPackageValue({ ...packageValue, slug: event.target.value })
                 }
                 className={inputClass}
                 dir="ltr"
               />
             </Field>
-            <Field label={t("recordingUrl")}>
-              <input
-                type="url"
-                value={session.recordingUrl}
-                onChange={(event) =>
-                  setSession({ ...session, recordingUrl: event.target.value })
-                }
-                className={inputClass}
-                dir="ltr"
-              />
-            </Field>
-          </div>
-          {liveSessionProviders.isPending ? (
-            <p className="text-sm text-muted">{t("loading")}</p>
-          ) : liveSessionProviders.isError ? (
-            <p role="alert" className="text-sm text-red-500">
-              {t("providerLoadError")}
-            </p>
-          ) : selectedLiveProvider ? (
-            <p className="text-sm leading-6 text-muted">
-              {locale === "ar"
-                ? selectedLiveProvider.arabicDescription
-                : selectedLiveProvider.englishDescription}
-            </p>
-          ) : null}
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Field label={t("starts")}>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t("arabicTitle")}>
+                <input
+                  required
+                  value={packageValue.arabicTitle}
+                  onChange={(event) =>
+                    setPackageValue({
+                      ...packageValue,
+                      arabicTitle: event.target.value,
+                    })
+                  }
+                  className={inputClass}
+                />
+              </Field>
+              <Field label={t("englishTitle")}>
+                <input
+                  required
+                  value={packageValue.englishTitle}
+                  onChange={(event) =>
+                    setPackageValue({
+                      ...packageValue,
+                      englishTitle: event.target.value,
+                    })
+                  }
+                  className={inputClass}
+                  dir="ltr"
+                />
+              </Field>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t("arabicDescription")}>
+                <textarea
+                  required
+                  value={packageValue.arabicDescription}
+                  onChange={(event) =>
+                    setPackageValue({
+                      ...packageValue,
+                      arabicDescription: event.target.value,
+                    })
+                  }
+                  className={`${inputClass} min-h-24`}
+                />
+              </Field>
+              <Field label={t("englishDescription")}>
+                <textarea
+                  required
+                  value={packageValue.englishDescription}
+                  onChange={(event) =>
+                    setPackageValue({
+                      ...packageValue,
+                      englishDescription: event.target.value,
+                    })
+                  }
+                  className={`${inputClass} min-h-24`}
+                  dir="ltr"
+                />
+              </Field>
+            </div>
+            <Field label={t("price")}>
               <input
                 required
-                type="datetime-local"
-                value={session.startsAtUtc}
-                onChange={(event) =>
-                  setSession({ ...session, startsAtUtc: event.target.value })
-                }
-                className={inputClass}
-              />
-            </Field>
-            <Field label={t("ends")}>
-              <input
-                required
-                type="datetime-local"
-                value={session.endsAtUtc}
-                onChange={(event) =>
-                  setSession({ ...session, endsAtUtc: event.target.value })
-                }
-                className={inputClass}
-              />
-            </Field>
-            <Field label={t("capacity")}>
-              <input
-                min="1"
-                max="5000"
+                min="0"
+                step="0.001"
                 type="number"
-                value={session.capacity}
+                value={packageValue.price}
                 onChange={(event) =>
-                  setSession({ ...session, capacity: event.target.value })
+                  setPackageValue({
+                    ...packageValue,
+                    price: event.target.value,
+                  })
                 }
                 className={inputClass}
               />
             </Field>
-          </div>
-          <PublishToggle
-            checked={session.isPublished}
-            onChange={(isPublished) => setSession({ ...session, isPublished })}
-            label={t("publish")}
-          />
-          <SaveButton
-            busy={createSession.isPending || liveSessionProviders.isPending}
-            label={t("save")}
-            busyLabel={t("saving")}
-          />
-        </form>
-      </div>
-      <section className="mt-8 card p-6">
-        <h2 className="text-xl font-black">{t("recent")}</h2>
-        <div className="mt-5 grid gap-3 md:grid-cols-3">
-          <RecentList
-            icon={FileText}
-            values={
-              blog.data?.map(
-                (item) => `${item.arabicTitle} · ${item.englishTitle}`,
-              ) ?? []
-            }
-            empty={t("empty")}
-          />
-          <RecentList
-            icon={PackageCheck}
-            values={
-              packages.data?.map(
-                (item) =>
-                  `${item.arabicTitle} · ${formatLocalizedCurrency(item.price, item.currency, locale)}`,
-              ) ?? []
-            }
-            empty={t("empty")}
-          />
-          <RecentList
-            icon={CalendarClock}
-            values={
-              sessions.data?.map(
-                (item) => `${item.arabicTitle} · ${item.provider}`,
-              ) ?? []
-            }
-            empty={t("empty")}
-          />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t("availableFrom")}>
+                <input
+                  type="datetime-local"
+                  value={packageValue.availableFromUtc}
+                  onChange={(event) =>
+                    setPackageValue({
+                      ...packageValue,
+                      availableFromUtc: event.target.value,
+                    })
+                  }
+                  className={inputClass}
+                />
+              </Field>
+              <Field label={t("availableUntil")}>
+                <input
+                  type="datetime-local"
+                  value={packageValue.availableUntilUtc}
+                  onChange={(event) =>
+                    setPackageValue({
+                      ...packageValue,
+                      availableUntilUtc: event.target.value,
+                    })
+                  }
+                  className={inputClass}
+                />
+              </Field>
+            </div>
+            <fieldset className={styles.composition}>
+              <legend className={styles.legend}>{t("chooseCourses")}</legend>
+              <ReadState
+                query={courses}
+                t={t}
+                empty={!courses.data?.length}
+                emptyText={t("noCourses")}
+              />
+              <div className={styles.courseList}>
+                {courses.data?.map((course) => (
+                  <label key={course.id} className={styles.toggle}>
+                    <input
+                      type="checkbox"
+                      checked={packageValue.courseIds.includes(course.id)}
+                      onChange={() => toggleCourse(course.id)}
+                    />
+                    {course.arabicTitle} · {course.englishTitle} (
+                    {formatLocalizedCurrency(
+                      course.price,
+                      course.currency,
+                      locale,
+                    )}
+                    )
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <PublishToggle
+              checked={packageValue.isPublished}
+              onChange={(isPublished) =>
+                setPackageValue({ ...packageValue, isPublished })
+              }
+              label={t("publish")}
+            />
+            <OperationFeedback
+              mutation={savePackage}
+              t={t}
+              success={t("packageSaved")}
+            />
+            <SaveButton
+              busy={savePackage.isPending}
+              label={selectedPackageId ? t("update") : t("save")}
+              busyLabel={t("saving")}
+            />
+          </form>
+          <aside className={styles.records}>
+            <h3>{t("recent")}</h3>
+            <ReadState
+              query={packages}
+              t={t}
+              empty={!packages.data?.length}
+              emptyText={t("noPackages")}
+            />
+            {packages.data?.length ? (
+              <ul>
+                {packages.data.slice(0, 4).map((item) => (
+                  <li key={item.id}>
+                    <p className={styles.recordTitle}>
+                      {locale === "ar" ? item.arabicTitle : item.englishTitle}
+                    </p>
+                    <p className={styles.hint}>
+                      {formatLocalizedCurrency(
+                        item.price,
+                        item.currency,
+                        locale,
+                      )}
+                    </p>
+                    <span className={styles.badge}>
+                      {item.isPublished ? t("publishedState") : t("draftState")}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </aside>
         </div>
       </section>
-      <section className="mt-6 card p-6">
+      <section
+        id="content-sessions"
+        aria-label={t("sessionsNav")}
+        hidden={workspace !== "sessions"}
+        className={styles.panel}
+      >
+        <div className={styles.panelLayout}>
+          {" "}
+          <form
+            className={styles.editor}
+            aria-label={t("sessionsNav")}
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (!createSession.isPending) createSession.mutate();
+            }}
+          >
+            <SectionHeading icon={CalendarClock} title={t("session")} />
+            <ReadState
+              query={teachers}
+              t={t}
+              empty={!teachers.data?.filter((x) => !x.isFrozen).length}
+              emptyText={t("noTeachers")}
+            />
+            <ReadState
+              query={courses}
+              t={t}
+              empty={!courses.data?.length}
+              emptyText={t("noCourses")}
+            />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t("courseOptional")}>
+                <select
+                  value={session.courseId}
+                  onChange={(event) =>
+                    setSession({ ...session, courseId: event.target.value })
+                  }
+                  className={inputClass}
+                >
+                  <option value="">{t("noCourse")}</option>
+                  {courses.data?.map((course) => (
+                    <option key={course.id} value={course.id}>
+                      {course.arabicTitle} · {course.englishTitle}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label={t("host")}>
+                <select
+                  required
+                  value={session.hostUserId}
+                  onChange={(event) =>
+                    setSession({ ...session, hostUserId: event.target.value })
+                  }
+                  className={inputClass}
+                >
+                  <option value="">—</option>
+                  {teachers.data
+                    ?.filter((teacher) => !teacher.isFrozen)
+                    .map((teacher) => (
+                      <option key={teacher.id} value={teacher.id}>
+                        {teacher.displayName}
+                      </option>
+                    ))}
+                </select>
+              </Field>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t("arabicTitle")}>
+                <input
+                  required
+                  value={session.arabicTitle}
+                  onChange={(event) =>
+                    setSession({ ...session, arabicTitle: event.target.value })
+                  }
+                  className={inputClass}
+                />
+              </Field>
+              <Field label={t("englishTitle")}>
+                <input
+                  required
+                  value={session.englishTitle}
+                  onChange={(event) =>
+                    setSession({ ...session, englishTitle: event.target.value })
+                  }
+                  className={inputClass}
+                  dir="ltr"
+                />
+              </Field>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t("arabicDescription")}>
+                <textarea
+                  value={session.arabicDescription}
+                  onChange={(event) =>
+                    setSession({
+                      ...session,
+                      arabicDescription: event.target.value,
+                    })
+                  }
+                  className={`${inputClass} min-h-20`}
+                />
+              </Field>
+              <Field label={t("englishDescription")}>
+                <textarea
+                  value={session.englishDescription}
+                  onChange={(event) =>
+                    setSession({
+                      ...session,
+                      englishDescription: event.target.value,
+                    })
+                  }
+                  className={`${inputClass} min-h-20`}
+                  dir="ltr"
+                />
+              </Field>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t("provider")}>
+                <select
+                  required
+                  value={session.provider}
+                  onChange={(event) =>
+                    setSession({ ...session, provider: event.target.value })
+                  }
+                  className={inputClass}
+                  disabled={liveSessionProviders.isPending}
+                >
+                  <option value="">—</option>
+                  {liveSessionProviders.data?.map((provider) => (
+                    <option key={provider.id} value={provider.id}>
+                      {locale === "ar"
+                        ? provider.arabicName
+                        : provider.englishName}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label={t("joinUrl")}>
+                <input
+                  type="url"
+                  value={session.joinUrl}
+                  onChange={(event) =>
+                    setSession({ ...session, joinUrl: event.target.value })
+                  }
+                  className={inputClass}
+                  dir="ltr"
+                />
+              </Field>
+              <Field label={t("recordingUrl")}>
+                <input
+                  type="url"
+                  value={session.recordingUrl}
+                  onChange={(event) =>
+                    setSession({ ...session, recordingUrl: event.target.value })
+                  }
+                  className={inputClass}
+                  dir="ltr"
+                />
+              </Field>
+            </div>
+            <ReadState
+              query={liveSessionProviders}
+              t={t}
+              empty={!liveSessionProviders.data?.length}
+              emptyText={t("noProviders")}
+            />
+            {selectedLiveProvider ? (
+              <p className={styles.hint}>
+                {locale === "ar"
+                  ? selectedLiveProvider.arabicDescription
+                  : selectedLiveProvider.englishDescription}
+              </p>
+            ) : null}
+            <div className="grid gap-4 sm:grid-cols-3">
+              <Field label={t("starts")}>
+                <input
+                  required
+                  type="datetime-local"
+                  value={session.startsAtUtc}
+                  onChange={(event) =>
+                    setSession({ ...session, startsAtUtc: event.target.value })
+                  }
+                  className={inputClass}
+                />
+              </Field>
+              <Field label={t("ends")}>
+                <input
+                  required
+                  type="datetime-local"
+                  value={session.endsAtUtc}
+                  onChange={(event) =>
+                    setSession({ ...session, endsAtUtc: event.target.value })
+                  }
+                  className={inputClass}
+                />
+              </Field>
+              <Field label={t("capacity")}>
+                <input
+                  min="1"
+                  max="5000"
+                  type="number"
+                  value={session.capacity}
+                  onChange={(event) =>
+                    setSession({ ...session, capacity: event.target.value })
+                  }
+                  className={inputClass}
+                />
+              </Field>
+            </div>
+            <PublishToggle
+              checked={session.isPublished}
+              onChange={(isPublished) =>
+                setSession({ ...session, isPublished })
+              }
+              label={t("publish")}
+            />
+            <OperationFeedback
+              mutation={createSession}
+              t={t}
+              success={t("sessionSaved")}
+            />
+            <SaveButton
+              busy={createSession.isPending || liveSessionProviders.isPending}
+              label={t("save")}
+              busyLabel={t("saving")}
+            />
+          </form>
+          <aside className={styles.records}>
+            <h3>{t("recent")}</h3>
+            <ReadState
+              query={sessions}
+              t={t}
+              empty={!sessions.data?.length}
+              emptyText={t("noSessions")}
+            />
+            {sessions.data?.length ? (
+              <ul>
+                {sessions.data.slice(0, 4).map((item) => (
+                  <li key={item.id}>
+                    <p className={styles.recordTitle}>
+                      {locale === "ar" ? item.arabicTitle : item.englishTitle}
+                    </p>
+                    <p className={styles.hint}>
+                      {item.provider +
+                        " · " +
+                        formatLocalizedDateTime(item.startsAtUtc, locale)}
+                    </p>
+                    <span className={styles.badge}>
+                      {item.isPublished ? t("publishedState") : t("draftState")}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </aside>
+        </div>
+      </section>
+      <section
+        id="content-attendance"
+        aria-label={t("attendance")}
+        hidden={workspace !== "attendance"}
+        className={styles.panel}
+      >
         <SectionHeading icon={CalendarClock} title={t("attendance")} />
         <p className="mt-2 text-sm text-muted">{t("attendanceDescription")}</p>
-        <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_1fr_auto] lg:items-end">
+        <ReadState
+          query={sessions}
+          t={t}
+          empty={!sessions.data?.length}
+          emptyText={t("noSessions")}
+        />
+        <ReadState
+          query={students}
+          t={t}
+          empty={!students.data?.items.length}
+          emptyText={t("noStudents")}
+        />
+        <div className={styles.attendanceControls}>
           <Field label={t("attendanceSession")}>
             <select
+              disabled={markAttendance.isPending}
               value={attendanceSessionId}
-              onChange={(event) => setAttendanceSessionId(event.target.value)}
+              onChange={(event) => {
+                setAttendanceSessionId(event.target.value);
+                setAttendanceStudentId("");
+                markAttendance.reset();
+              }}
               className={inputClass}
             >
               <option value="">—</option>
@@ -988,14 +1168,17 @@ export function ContentStudio() {
           <Field label={t("attendanceStudent")}>
             <select
               value={attendanceStudentId}
-              onChange={(event) => setAttendanceStudentId(event.target.value)}
+              onChange={(event) => {
+                setAttendanceStudentId(event.target.value);
+                markAttendance.reset();
+              }}
               className={inputClass}
-              disabled={!attendanceSessionId}
+              disabled={!attendanceSessionId || markAttendance.isPending}
             >
               <option value="">—</option>
               {students.data?.items.map((student) => (
                 <option key={student.id} value={student.id}>
-                  {student.displayName} · {student.email}
+                  {student.displayName}
                 </option>
               ))}
             </select>
@@ -1026,47 +1209,50 @@ export function ContentStudio() {
                   status: attendanceStatus,
                 })
               }
-              className="focus-ring rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-50"
+              className={styles.primaryButton}
             >
               {t("markAttendance")}
             </button>
           </div>
         </div>
+        <OperationFeedback
+          mutation={markAttendance}
+          t={t}
+          success={t("attendanceSaved")}
+        />
         {attendanceSessionId ? (
-          attendance.isPending ? (
-            <p className="mt-5 text-sm text-muted">{t("loading")}</p>
-          ) : attendance.isError ? (
-            <p className="mt-5 text-sm text-red-500">
-              {t("attendanceLoadError")}
-            </p>
-          ) : attendance.data?.length ? (
-            <div className="mt-5 grid gap-2">
-              {attendance.data.map((item) => (
-                <AttendanceRow
-                  key={`${item.id}:${item.status}`}
-                  item={item}
-                  locale={locale}
-                  t={t}
-                  saving={markAttendance.isPending}
-                  onSave={(status) =>
-                    markAttendance.mutate({
-                      studentUserId: item.studentUserId,
-                      status,
-                    })
-                  }
-                />
-              ))}
-            </div>
-          ) : (
-            <p className="mt-5 text-sm text-muted">{t("attendanceEmpty")}</p>
-          )
-        ) : null}
+          <>
+            <ReadState
+              query={attendance}
+              t={t}
+              empty={!attendance.data?.length}
+              emptyText={t("attendanceEmpty")}
+              errorText={t("attendanceLoadError")}
+            />
+            {attendance.data?.length ? (
+              <div className={styles.ledger}>
+                {attendance.data.map((item) => (
+                  <AttendanceRow
+                    key={`${attendanceSessionId}:${item.id}:${item.status}`}
+                    item={item}
+                    locale={locale}
+                    t={t}
+                    saving={markAttendance.isPending}
+                    onSave={(status) =>
+                      markAttendance.mutate({
+                        studentUserId: item.studentUserId,
+                        status,
+                      })
+                    }
+                  />
+                ))}
+              </div>
+            ) : null}
+          </>
+        ) : (
+          <p className={styles.empty}>{t("selectSessionHint")}</p>
+        )}
       </section>
-      {busy ? (
-        <p className="sr-only" aria-live="polite">
-          {t("saving")}
-        </p>
-      ) : null}
     </section>
   );
 }
@@ -1087,10 +1273,8 @@ function SectionHeading({
   title: string;
 }) {
   return (
-    <h2 className="flex items-center gap-2 text-xl font-black">
-      <span className="grid size-9 place-items-center rounded-xl bg-primary/15 text-primary">
-        <Icon size={18} aria-hidden="true" />
-      </span>
+    <h2 className={styles.sectionHeading}>
+      <Icon size={20} aria-hidden="true" />
       {title}
     </h2>
   );
@@ -1105,7 +1289,7 @@ function PublishToggle({
   label: string;
 }) {
   return (
-    <label className="flex items-center gap-2 text-sm font-bold">
+    <label className={styles.toggle}>
       <input
         type="checkbox"
         checked={checked}
@@ -1117,48 +1301,102 @@ function PublishToggle({
 }
 function SaveButton({
   busy,
+  disabled = false,
   label,
   busyLabel,
 }: {
   busy: boolean;
+  disabled?: boolean;
   label: string;
   busyLabel: string;
 }) {
   return (
     <button
       type="submit"
-      disabled={busy}
-      className="focus-ring justify-self-start rounded-xl bg-primary px-4 py-3 text-sm font-black text-slate-950 disabled:opacity-60"
+      disabled={busy || disabled}
+      className={styles.primaryButton}
     >
       {busy ? busyLabel : label}
     </button>
   );
 }
-function RecentList({
-  icon: Icon,
-  values,
-  empty,
+type Operation = {
+  isPending: boolean;
+  isError: boolean;
+  isSuccess: boolean;
+  error: unknown;
+};
+function OperationFeedback({
+  mutation,
+  t,
+  success,
 }: {
-  icon: typeof FileText;
-  values: string[];
-  empty: string;
+  mutation: Operation;
+  t: ReturnType<typeof useTranslations>;
+  success: string;
 }) {
+  if (!mutation.isPending && !mutation.isError && !mutation.isSuccess)
+    return null;
   return (
-    <div className="rounded-2xl border border-border p-4">
-      <Icon size={18} className="text-primary" aria-hidden="true" />
-      {values.length ? (
-        <ul className="mt-3 grid gap-2 text-sm">
-          {values.slice(0, 4).map((value) => (
-            <li key={value}>{value}</li>
-          ))}
-        </ul>
-      ) : (
-        <p className="mt-3 text-sm text-muted">{empty}</p>
-      )}
-    </div>
+    <p
+      role="status"
+      aria-live={mutation.isError ? "assertive" : "polite"}
+      className={mutation.isError ? styles.error : styles.feedback}
+    >
+      {mutation.isPending
+        ? t("saving")
+        : mutation.isError
+          ? mutation.error instanceof Error
+            ? mutation.error.message
+            : t("requestFailed")
+          : success}
+    </p>
   );
 }
-
+type ReadQuery = {
+  isPending: boolean;
+  isError: boolean;
+  data: unknown;
+  refetch: () => unknown;
+};
+function ReadState({
+  query,
+  t,
+  empty,
+  emptyText,
+  errorText,
+}: {
+  query: ReadQuery;
+  t: ReturnType<typeof useTranslations>;
+  empty: boolean;
+  emptyText: string;
+  errorText?: string;
+}) {
+  if (query.isPending)
+    return (
+      <p role="status" className={styles.loading}>
+        {t("loading")}
+      </p>
+    );
+  if (query.isError)
+    return (
+      <div role="alert" className={styles.error}>
+        <p>
+          {query.data !== undefined
+            ? t("refreshFailed")
+            : (errorText ?? t("loadFailed"))}
+        </p>
+        <button
+          type="button"
+          className={styles.secondaryButton}
+          onClick={() => void query.refetch()}
+        >
+          {t("retry")}
+        </button>
+      </div>
+    );
+  return empty ? <p className={styles.empty}>{emptyText}</p> : null;
+}
 function AttendanceStatusOptions({
   t,
 }: {
@@ -1173,7 +1411,6 @@ function AttendanceStatusOptions({
     </>
   );
 }
-
 export function AttendanceRow({
   item,
   locale,
@@ -1188,22 +1425,30 @@ export function AttendanceRow({
   onSave: (status: AttendanceItem["status"]) => void;
 }) {
   const [status, setStatus] = useState(item.status);
+  const labels = {
+    Present: t("present"),
+    Late: t("late"),
+    Absent: t("absent"),
+    Excused: t("excused"),
+  };
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border p-3">
+    <div className={styles.attendanceRow}>
       <div>
-        <p className="font-bold">{item.studentName}</p>
-        <p className="mt-1 text-xs text-muted">
+        <p className={styles.recordTitle}>{item.studentName}</p>
+        <p className={styles.hint}>
           {formatLocalizedDateTime(item.joinedAtUtc, locale)}
         </p>
+        <span className={styles.badge}>{labels[item.status]}</span>
       </div>
-      <div className="flex items-center gap-2">
+      <div className={styles.rowActions}>
         <select
+          disabled={saving}
           value={status}
           onChange={(event) =>
             setStatus(event.target.value as AttendanceItem["status"])
           }
-          className="focus-ring rounded-lg border border-border bg-transparent px-2.5 py-2 text-sm"
-          aria-label={t("attendanceStatus")}
+          className={inputClass}
+          aria-label={`${t("attendanceStatus")} · ${item.studentName}`}
         >
           <AttendanceStatusOptions t={t} />
         </select>
@@ -1211,7 +1456,7 @@ export function AttendanceRow({
           type="button"
           disabled={saving || status === item.status}
           onClick={() => onSave(status)}
-          className="focus-ring rounded-lg border border-primary/40 px-3 py-2 text-xs font-black text-primary disabled:opacity-50"
+          className={styles.secondaryButton}
         >
           {t("updateAttendance")}
         </button>

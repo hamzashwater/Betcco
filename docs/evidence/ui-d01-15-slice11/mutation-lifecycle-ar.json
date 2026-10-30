@@ -1,0 +1,114 @@
+{
+  "classification": "MOCKED COMPONENT-CONTRACT EVIDENCE",
+  "locale": "ar",
+  "timeline": [
+    {
+      "step": "GET response",
+      "session": "session-a",
+      "items": [
+        {
+          "id": "attendance-0",
+          "status": "Present"
+        },
+        {
+          "id": "attendance-1",
+          "status": "Late"
+        },
+        {
+          "id": "attendance-2",
+          "status": "Absent"
+        },
+        {
+          "id": "attendance-3",
+          "status": "Excused"
+        }
+      ]
+    },
+    {
+      "step": "initial committed rows",
+      "itemId": "attendance-0",
+      "itemStatusInCache": "Present",
+      "itemStatusRendered": "حاضر",
+      "localDraft": "Present",
+      "otherDraft": "Late",
+      "updateDisabled": true,
+      "writes": 0
+    },
+    {
+      "step": "PUT pending; original committed status retained",
+      "itemId": "attendance-0",
+      "itemStatusInCache": "Present",
+      "itemStatusRendered": "حاضر",
+      "localDraft": "Late",
+      "otherDraft": "Absent",
+      "updateDisabled": true,
+      "writes": 1
+    },
+    {
+      "step": "PUT resolves; server now committed Late",
+      "itemId": "attendance-0",
+      "itemStatus": "Late",
+      "localDraft": "Late"
+    },
+    {
+      "step": "GET response",
+      "session": "session-a",
+      "items": [
+        {
+          "id": "attendance-0",
+          "status": "Late"
+        },
+        {
+          "id": "attendance-1",
+          "status": "Late"
+        },
+        {
+          "id": "attendance-2",
+          "status": "Absent"
+        },
+        {
+          "id": "attendance-3",
+          "status": "Excused"
+        }
+      ]
+    },
+    {
+      "step": "success invalidated exact session and rendered confirmed server status",
+      "itemId": "attendance-0",
+      "itemStatusInCache": "Late",
+      "itemStatusRendered": "متأخر",
+      "localDraft": "Late",
+      "otherDraft": "Absent",
+      "updateDisabled": true,
+      "writes": 1
+    },
+    {
+      "step": "PUT rejected; committed Late and unsaved Excused remain distinct",
+      "itemId": "attendance-0",
+      "itemStatusInCache": "Late",
+      "itemStatusRendered": "متأخر",
+      "localDraft": "Excused",
+      "otherDraft": "Absent",
+      "updateDisabled": false,
+      "writes": 2
+    }
+  ],
+  "writes": [
+    {
+      "path": "/admin/content/live-sessions/session-a/attendance",
+      "method": "PUT",
+      "body": {
+        "studentUserId": "student-0",
+        "status": "Late"
+      }
+    },
+    {
+      "path": "/admin/content/live-sessions/session-a/attendance",
+      "method": "PUT",
+      "body": {
+        "studentUserId": "student-0",
+        "status": "Excused"
+      }
+    }
+  ]
+}

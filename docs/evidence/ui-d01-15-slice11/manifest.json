@@ -1,0 +1,3481 @@
+{
+  "classification": "MOCKED UI-CONTRACT EVIDENCE",
+  "matrixScenarioCount": 12,
+  "supplementalScenarioCount": 8,
+  "captureCount": 472,
+  "limits": [
+    "Synthetic intercepted HTTP in Chromium; no live persistence, authorization, provider, payment, deployment or full-WCAG claim.",
+    "720CSSpx reflow is approximate; native200% zoom and screen readers are unverified."
+  ],
+  "build": {
+    "sourceSha256": "3b3c4d7b012033ef7d21a04995248c13a52dd890aa8aa80f409b11e8f08d9864",
+    "cssSha256": "f384329aad64bc0ab8a395e18b4d938146212aa11bca5f779dd63b16bda64a2c",
+    "buildId": "doILB-KMKa8hOuue4HzRM"
+  },
+  "scenarios": [
+    {
+      "key": "ar-dark-1440",
+      "kind": "matrix",
+      "locale": "ar",
+      "theme": "dark",
+      "captures": [
+        {
+          "name": "articles-blank-existing",
+          "file": "01-articles-blank-existing.png",
+          "imageWidth": 1440,
+          "imageHeight": 1399,
+          "sha256": "8de7c76801c950237e16b900c3dd5e33e0604654beaf8171896621b81366e77e"
+        },
+        {
+          "name": "articles-bilingual-published-draft",
+          "file": "02-articles-bilingual-published-draft.png",
+          "imageWidth": 1440,
+          "imageHeight": 1399,
+          "sha256": "18f1aeac45434919e8d98a6d5e69decd602e4df0d693c97579e3315a3a8d417c"
+        },
+        {
+          "name": "profile-no-selection",
+          "file": "03-profile-no-selection.png",
+          "imageWidth": 1440,
+          "imageHeight": 1287,
+          "sha256": "9a8abde8c69bdf123ec391a1fad146caa123042311e337216da294ee8d1126ce"
+        },
+        {
+          "name": "profile-selected-private-bilingual",
+          "file": "04-profile-selected-private-bilingual.png",
+          "imageWidth": 1440,
+          "imageHeight": 1287,
+          "sha256": "bf3e3a0d6725e5137808680a498bdf414348bd2ad14253b8b494ab4dacc1ae54"
+        },
+        {
+          "name": "المقالات-failure-draft-retained",
+          "file": "05-المقالات-failure-draft-retained.png",
+          "imageWidth": 1440,
+          "imageHeight": 1475,
+          "sha256": "f01fd2dbd4a3f6d2776307f65ef68f2b82d04293c09584c6101cd467bca11a98"
+        },
+        {
+          "name": "المقالات-pending",
+          "file": "06-المقالات-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1475,
+          "sha256": "f9ed69ac854328e14a258ac82545cc28276d142fc2eca4107b50247e82241ba8"
+        },
+        {
+          "name": "المقالات-success",
+          "file": "07-المقالات-success.png",
+          "imageWidth": 1440,
+          "imageHeight": 1475,
+          "sha256": "ed0649b9ef6931c0cdd5c20b5d18a923db6655daba1031385a0bc684ce38466a"
+        },
+        {
+          "name": "ملفات المعلمين-failure-draft-retained",
+          "file": "08-ملفات المعلمين-failure-draft-retained.png",
+          "imageWidth": 1440,
+          "imageHeight": 1363,
+          "sha256": "1801b7b7d5b1905edbf8765c6ff59a87a657a1269ae9c6e41b0283aff88e0923"
+        },
+        {
+          "name": "ملفات المعلمين-pending",
+          "file": "09-ملفات المعلمين-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1363,
+          "sha256": "8234eac8c61667d177071c3b68e9618438af58575984fda711c8ba18a0fdf5bf"
+        },
+        {
+          "name": "ملفات المعلمين-success",
+          "file": "10-ملفات المعلمين-success.png",
+          "imageWidth": 1440,
+          "imageHeight": 1363,
+          "sha256": "d47463521472ad415530423dfd45d7b87d41fe25df2cd00e999aafc9ec68edd2"
+        },
+        {
+          "name": "package-edit-price-dates-courses",
+          "file": "11-package-edit-price-dates-courses.png",
+          "imageWidth": 1440,
+          "imageHeight": 1731,
+          "sha256": "f60a6160883c797828710e5f70e7247e53387a0dad41a78616c5fa6a496d11e3"
+        },
+        {
+          "name": "الباقات-failure-draft-retained",
+          "file": "12-الباقات-failure-draft-retained.png",
+          "imageWidth": 1440,
+          "imageHeight": 1807,
+          "sha256": "cb873db4bfa38cbe5d487acdb233392e4b64d9f84096beae91ec3c8aef5ba291"
+        },
+        {
+          "name": "الباقات-pending",
+          "file": "13-الباقات-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1807,
+          "sha256": "90be7c2bb5f89deadeb1ed3b6c912770b35144da000acf5e0c84de539c38f66b"
+        },
+        {
+          "name": "الباقات-success",
+          "file": "14-الباقات-success.png",
+          "imageWidth": 1440,
+          "imageHeight": 1807,
+          "sha256": "b77dcb7025e783fb08138b514b9d68497d98b6234a0f7e5d55069c824b310f1d"
+        },
+        {
+          "name": "session-manual-general-host-schedule",
+          "file": "15-session-manual-general-host-schedule.png",
+          "imageWidth": 1440,
+          "imageHeight": 1631,
+          "sha256": "c83ea4c83ed6dd93432caf99ba39191b1fb3e16567ffdfc0fdeb59f515e2bf93"
+        },
+        {
+          "name": "session-course-provider-published",
+          "file": "16-session-course-provider-published.png",
+          "imageWidth": 1440,
+          "imageHeight": 1631,
+          "sha256": "796e2c705dac77c42187b3c6149f72b69e90bd520c1ac33d9104f0b4053b85e3"
+        },
+        {
+          "name": "الجلسات المباشرة-failure-draft-retained",
+          "file": "17-الجلسات المباشرة-failure-draft-retained.png",
+          "imageWidth": 1440,
+          "imageHeight": 1707,
+          "sha256": "710b11f3529cb8b797632dc3def4292491e12ee4443c6e463b12a8f4bfd4be67"
+        },
+        {
+          "name": "الجلسات المباشرة-pending",
+          "file": "18-الجلسات المباشرة-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1707,
+          "sha256": "2315ab7ffab40f11e16d5092eabddbc7b24dc08a265afe74ea0a1ea710b49d9a"
+        },
+        {
+          "name": "الجلسات المباشرة-success",
+          "file": "19-الجلسات المباشرة-success.png",
+          "imageWidth": 1440,
+          "imageHeight": 1707,
+          "sha256": "e9ff6466bc16de34d7abca36517bbf2fc3fceae0c8bf332d7bf1796c04b75e81"
+        },
+        {
+          "name": "attendance-no-selection",
+          "file": "20-attendance-no-selection.png",
+          "imageWidth": 1440,
+          "imageHeight": 1139,
+          "sha256": "a7fe1056dda0757bdaa64ad1def83fb7dc9bca49be195557aa2b1ce8a8b81caf"
+        },
+        {
+          "name": "attendance-four-statuses",
+          "file": "21-attendance-four-statuses.png",
+          "imageWidth": 1440,
+          "imageHeight": 1649,
+          "sha256": "ba925aa403daeed645332107b116b0ff8b7fa00eae953d40006b398f057eeab5"
+        },
+        {
+          "name": "attendance-row-correction",
+          "file": "22-attendance-row-correction.png",
+          "imageWidth": 1440,
+          "imageHeight": 1649,
+          "sha256": "e3562b67347e2859c1c8a43e0c89e6204ef7f70f0ac9b775b3d539e08e9c9820"
+        },
+        {
+          "name": "attendance-error",
+          "file": "23-attendance-error.png",
+          "imageWidth": 1440,
+          "imageHeight": 1722,
+          "sha256": "360e55924df4a78decc26ff020bf93dd87feb5d268aad395415fc31ac7789a37"
+        },
+        {
+          "name": "attendance-pending",
+          "file": "24-attendance-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1722,
+          "sha256": "e52200233e851a09226cae59143a01b54239249947e38ee043537237c6d34b00"
+        },
+        {
+          "name": "attendance-success-server-synchronized",
+          "file": "25-attendance-success-server-synchronized.png",
+          "imageWidth": 1440,
+          "imageHeight": 1722,
+          "sha256": "8ae293892ed5d64edd7e7f9021a5c03df5a4106e46088604df26deec3430f8f0"
+        },
+        {
+          "name": "attendance-marked",
+          "file": "26-attendance-marked.png",
+          "imageWidth": 1440,
+          "imageHeight": 1722,
+          "sha256": "5aaba42cf3cf12abea2098557176025a6be7a972ccad476f9a1135dc4f22e881"
+        },
+        {
+          "name": "package-new-explicit-reset",
+          "file": "27-package-new-explicit-reset.png",
+          "imageWidth": 1440,
+          "imageHeight": 1731,
+          "sha256": "800f842c648ac2331901fa624ebed24d70dd810e6f36ec85a075b9bd6bc95a9c"
+        },
+        {
+          "name": "keyboard-section-focus",
+          "file": "28-keyboard-section-focus.png",
+          "imageWidth": 1440,
+          "imageHeight": 1363,
+          "sha256": "086d045e0d729bc2cb6c48b361f4b37e1ed8bce91950b1e7f99ec6664dd624cc"
+        },
+        {
+          "name": "reflow-200-percent-equivalent",
+          "file": "29-reflow-200-percent-equivalent.png",
+          "imageWidth": 720,
+          "imageHeight": 1813,
+          "sha256": "ad3675f3c49b298f1caa073d1eb7321e0cf74b8ab1b800c6fc27ce5ebae9f8c2"
+        },
+        {
+          "name": "articles-cached-refresh-failure",
+          "file": "30-articles-cached-refresh-failure.png",
+          "imageWidth": 1440,
+          "imageHeight": 1475,
+          "sha256": "d609bf95bc66487c0e9e9dafa4b7df7a47bdf839e248aaf2364628ca492e0166"
+        },
+        {
+          "name": "articles-cold-error",
+          "file": "31-articles-cold-error.png",
+          "imageWidth": 1440,
+          "imageHeight": 1399,
+          "sha256": "4d20af16bcf822a1a27b813e5b74fda8f94d77830db3fda895b6792fe08950cc"
+        },
+        {
+          "name": "providers-cold-error",
+          "file": "32-providers-cold-error.png",
+          "imageWidth": 1440,
+          "imageHeight": 1720,
+          "sha256": "9c6937f4ae5831c154fbf3224c7f3f7f59b8d6bc501c5b2608e8d4109a052822"
+        },
+        {
+          "name": "packages-no-courses",
+          "file": "33-packages-no-courses.png",
+          "imageWidth": 1440,
+          "imageHeight": 1676,
+          "sha256": "7db31f2b48151536c0ad9fc6778de9fc74f9ce0b38a97575fa01265d2ea521bc"
+        },
+        {
+          "name": "attendance-empty",
+          "file": "34-attendance-empty.png",
+          "imageWidth": 1440,
+          "imageHeight": 1139,
+          "sha256": "c98987ff960640764ebfc42e425f32977b1c0ddab8deb883404dd0e448422b66"
+        },
+        {
+          "name": "providers-loading",
+          "file": "35-providers-loading.png",
+          "imageWidth": 1440,
+          "imageHeight": 1658,
+          "sha256": "2ab8d0f8410d890c7b542f4e46a2d23bebae2aa8967f7440a05230ba2423e583"
+        }
+      ]
+    },
+    {
+      "key": "ar-dark-834",
+      "kind": "matrix",
+      "locale": "ar",
+      "theme": "dark",
+      "captures": [
+        {
+          "name": "articles-blank-existing",
+          "file": "01-articles-blank-existing.png",
+          "imageWidth": 834,
+          "imageHeight": 1653,
+          "sha256": "41362dc4e8ad35b4fc27c981f47695b92a6a8ab6b1f19cf0b13928997437c8ba"
+        },
+        {
+          "name": "articles-bilingual-published-draft",
+          "file": "02-articles-bilingual-published-draft.png",
+          "imageWidth": 834,
+          "imageHeight": 1653,
+          "sha256": "bc9b2888ca4886f061b61dc7c0e26153254192774032f262681b318571bb03d6"
+        },
+        {
+          "name": "profile-no-selection",
+          "file": "03-profile-no-selection.png",
+          "imageWidth": 834,
+          "imageHeight": 1473,
+          "sha256": "662cc03811064ea0701b3572af9cb33ea7602ba4b7cc96c52cceac2fbddac3a7"
+        },
+        {
+          "name": "profile-selected-private-bilingual",
+          "file": "04-profile-selected-private-bilingual.png",
+          "imageWidth": 834,
+          "imageHeight": 1517,
+          "sha256": "bef252134b86e51706a04cf61d7ca4b9a99273ebf695255a4b46eb0f6d7a98bc"
+        },
+        {
+          "name": "المقالات-failure-draft-retained",
+          "file": "05-المقالات-failure-draft-retained.png",
+          "imageWidth": 834,
+          "imageHeight": 1728,
+          "sha256": "544dbcb4deefe80f29c63224789bcf61d0a335f41d4a17a28f80ea5f43cf69a3"
+        },
+        {
+          "name": "المقالات-pending",
+          "file": "06-المقالات-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 1728,
+          "sha256": "17af17907bee7c4f13bb1143a4197c6bca946c19f775c8bbd187ae0320bb1184"
+        },
+        {
+          "name": "المقالات-success",
+          "file": "07-المقالات-success.png",
+          "imageWidth": 834,
+          "imageHeight": 1728,
+          "sha256": "d25469562981811a1763f965797384489e3a4a92d13bb2bb85273ad85356d702"
+        },
+        {
+          "name": "ملفات المعلمين-failure-draft-retained",
+          "file": "08-ملفات المعلمين-failure-draft-retained.png",
+          "imageWidth": 834,
+          "imageHeight": 1593,
+          "sha256": "df73734d85598d41c0f088e753ee67c85f3568622aeb39214b4711e3b081d479"
+        },
+        {
+          "name": "ملفات المعلمين-pending",
+          "file": "09-ملفات المعلمين-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 1593,
+          "sha256": "cb07cdbf2ecc6cddb3e2c4f43cd4e8a1ea6ff77d6cc376a55909814b022b1e65"
+        },
+        {
+          "name": "ملفات المعلمين-success",
+          "file": "10-ملفات المعلمين-success.png",
+          "imageWidth": 834,
+          "imageHeight": 1593,
+          "sha256": "149c8e16e367fa880889410e23eb06086434c363278a0cb9d5d8cbcfa4e16e31"
+        },
+        {
+          "name": "package-edit-price-dates-courses",
+          "file": "11-package-edit-price-dates-courses.png",
+          "imageWidth": 834,
+          "imageHeight": 1985,
+          "sha256": "07f2c407f7feca43b05c2e86cb3a6e9414a5f43f30b390cbf9089d993db23fcb"
+        },
+        {
+          "name": "الباقات-failure-draft-retained",
+          "file": "12-الباقات-failure-draft-retained.png",
+          "imageWidth": 834,
+          "imageHeight": 2061,
+          "sha256": "4e159f077843395fb7657c3be81ac3441eadec6b8745df001ef05e1fe9f39f66"
+        },
+        {
+          "name": "الباقات-pending",
+          "file": "13-الباقات-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 2061,
+          "sha256": "dc36658c0320bf393eff7877fade8076b51f827b00f2247f1a91e6da653d0fcf"
+        },
+        {
+          "name": "الباقات-success",
+          "file": "14-الباقات-success.png",
+          "imageWidth": 834,
+          "imageHeight": 2061,
+          "sha256": "27f9f77f5b3b2bb7bbbf53bcb92855da42db9ac5c19643895199d24a74994fb2"
+        },
+        {
+          "name": "session-manual-general-host-schedule",
+          "file": "15-session-manual-general-host-schedule.png",
+          "imageWidth": 834,
+          "imageHeight": 2022,
+          "sha256": "a68825380f6c39aa2fe2e2c19c1c3a8757863baa4fdc0c0dd405d2f6b85bbd7c"
+        },
+        {
+          "name": "session-course-provider-published",
+          "file": "16-session-course-provider-published.png",
+          "imageWidth": 834,
+          "imageHeight": 2022,
+          "sha256": "88cea40c38e7a268b4b9882ec4bc950d7a268d52de2453b7b7e6432ee1153702"
+        },
+        {
+          "name": "الجلسات المباشرة-failure-draft-retained",
+          "file": "17-الجلسات المباشرة-failure-draft-retained.png",
+          "imageWidth": 834,
+          "imageHeight": 2098,
+          "sha256": "b09976223955f21f8a1e80bf9f85e51aa84ea56cf8ba80dadba36f06f750579a"
+        },
+        {
+          "name": "الجلسات المباشرة-pending",
+          "file": "18-الجلسات المباشرة-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 2098,
+          "sha256": "45070d22ca9c0e71e2aee27c0835b1c6f76532ac2cfc5932fcf94c66e4cc18af"
+        },
+        {
+          "name": "الجلسات المباشرة-success",
+          "file": "19-الجلسات المباشرة-success.png",
+          "imageWidth": 834,
+          "imageHeight": 2098,
+          "sha256": "a91675eebc37522aab5d337942ee07a271a283c23cefd80f63d92d02a133f51c"
+        },
+        {
+          "name": "attendance-no-selection",
+          "file": "20-attendance-no-selection.png",
+          "imageWidth": 834,
+          "imageHeight": 1162,
+          "sha256": "22bb34c306a41845175e3a66e1670d13aa0615b4844f4d1214a9f72845b12e0d"
+        },
+        {
+          "name": "attendance-four-statuses",
+          "file": "21-attendance-four-statuses.png",
+          "imageWidth": 834,
+          "imageHeight": 1671,
+          "sha256": "294cc209a106d72bb73f219db1142bf766b8d057733cc1a3e69150a5900ca5d2"
+        },
+        {
+          "name": "attendance-row-correction",
+          "file": "22-attendance-row-correction.png",
+          "imageWidth": 834,
+          "imageHeight": 1671,
+          "sha256": "bb6624eb062d2f0df98743b91c957b951ec6f6a080dd57b3a0584c2630538cfc"
+        },
+        {
+          "name": "attendance-error",
+          "file": "23-attendance-error.png",
+          "imageWidth": 834,
+          "imageHeight": 1744,
+          "sha256": "301da91699da21285761ff7adae694f2ca549da61f97fa6ddc0d293717613a27"
+        },
+        {
+          "name": "attendance-pending",
+          "file": "24-attendance-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 1744,
+          "sha256": "c71e409bcf0e73cf6dd39413082a3537be06cb7400335d2c022d5bda8b7733d0"
+        },
+        {
+          "name": "attendance-success-server-synchronized",
+          "file": "25-attendance-success-server-synchronized.png",
+          "imageWidth": 834,
+          "imageHeight": 1744,
+          "sha256": "1862b1f52fc6393dd977fd8ed3cbdb68566615c2159a5c626b345dc97bbb2008"
+        },
+        {
+          "name": "attendance-marked",
+          "file": "26-attendance-marked.png",
+          "imageWidth": 834,
+          "imageHeight": 1744,
+          "sha256": "489b18b870333e421dfac2bb758e4416544517c5984253ba27d3a3b858e35dfd"
+        },
+        {
+          "name": "package-new-explicit-reset",
+          "file": "27-package-new-explicit-reset.png",
+          "imageWidth": 834,
+          "imageHeight": 1985,
+          "sha256": "67a198099893478dd03893fe30681a1d308329f8551ebc578f838fd6be1734ec"
+        },
+        {
+          "name": "keyboard-section-focus",
+          "file": "28-keyboard-section-focus.png",
+          "imageWidth": 834,
+          "imageHeight": 1593,
+          "sha256": "102f18725664f859c11dc131aacca717d47829eaf8e06b165caba51d25a9ae7b"
+        },
+        {
+          "name": "reflow-200-percent-equivalent",
+          "file": "29-reflow-200-percent-equivalent.png",
+          "imageWidth": 720,
+          "imageHeight": 1813,
+          "sha256": "6ce4e2c3195f55667896604dfeebc67eea7c650f3d4144b6ec9726139dff09f9"
+        },
+        {
+          "name": "articles-cached-refresh-failure",
+          "file": "30-articles-cached-refresh-failure.png",
+          "imageWidth": 834,
+          "imageHeight": 1859,
+          "sha256": "b0683967f94058a5a536037c61fa202be6aa13f79a72f88ddd75d1e762469a1a"
+        },
+        {
+          "name": "articles-cold-error",
+          "file": "31-articles-cold-error.png",
+          "imageWidth": 834,
+          "imageHeight": 1633,
+          "sha256": "ddf495f1c147bc974b630b9e43b5d615418e512c7488923ae5cd22f8824b1e2f"
+        },
+        {
+          "name": "providers-cold-error",
+          "file": "32-providers-cold-error.png",
+          "imageWidth": 834,
+          "imageHeight": 2111,
+          "sha256": "9da83c0b3a6800bf8ce20cd04e517cd215d7e2f891bfcfa16b6808c6e3318bad"
+        },
+        {
+          "name": "packages-no-courses",
+          "file": "33-packages-no-courses.png",
+          "imageWidth": 834,
+          "imageHeight": 1930,
+          "sha256": "7258ec5477d93f9e82535b0d07bf17fea5c38f8ae0d50c9fc998671f65b74966"
+        },
+        {
+          "name": "attendance-empty",
+          "file": "34-attendance-empty.png",
+          "imageWidth": 834,
+          "imageHeight": 1162,
+          "sha256": "389d02b567b703bec78ec34f4d01bc984ff22d59ef4d51a4225c02437821e2d8"
+        },
+        {
+          "name": "providers-loading",
+          "file": "35-providers-loading.png",
+          "imageWidth": 834,
+          "imageHeight": 2050,
+          "sha256": "36f73acae8c16803c2fae014d37cff3582057db6d2a6aeba17423c97ea40d218"
+        }
+      ]
+    },
+    {
+      "key": "ar-dark-390",
+      "kind": "matrix",
+      "locale": "ar",
+      "theme": "dark",
+      "captures": [
+        {
+          "name": "articles-blank-existing",
+          "file": "01-articles-blank-existing.png",
+          "imageWidth": 390,
+          "imageHeight": 2538,
+          "sha256": "cf26ec7e38044065a5f92221ede07a892b0dc7ae8211cda45510159fbf5375f2"
+        },
+        {
+          "name": "articles-bilingual-published-draft",
+          "file": "02-articles-bilingual-published-draft.png",
+          "imageWidth": 390,
+          "imageHeight": 2538,
+          "sha256": "024ec3c4e69e9ed37ad84bc28883fafde190da5b187df4a5d22203e16dbbcda7"
+        },
+        {
+          "name": "profile-no-selection",
+          "file": "03-profile-no-selection.png",
+          "imageWidth": 390,
+          "imageHeight": 2266,
+          "sha256": "811b3a07252c2468258e15929d3cb538c11aecfac1b305f2bca937134f295724"
+        },
+        {
+          "name": "profile-selected-private-bilingual",
+          "file": "04-profile-selected-private-bilingual.png",
+          "imageWidth": 390,
+          "imageHeight": 2310,
+          "sha256": "2ef91610f0b46050c8ae239a636b16e7b554f10a6c1b2843dee697b8a868068e"
+        },
+        {
+          "name": "المقالات-failure-draft-retained",
+          "file": "05-المقالات-failure-draft-retained.png",
+          "imageWidth": 390,
+          "imageHeight": 2613,
+          "sha256": "0680ce217b0035851fcbff7a7d67dd96dba5c106ac3193d150a846a4388677ba"
+        },
+        {
+          "name": "المقالات-pending",
+          "file": "06-المقالات-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 2613,
+          "sha256": "01c46177b03e0262988239caa8ca0bbf43e3432065ebab78679be2f558237b2b"
+        },
+        {
+          "name": "المقالات-success",
+          "file": "07-المقالات-success.png",
+          "imageWidth": 390,
+          "imageHeight": 2613,
+          "sha256": "95f71ef11b80c68879c6d1f7900546e1c8005ceeb0237064fcb8c0396965fb3b"
+        },
+        {
+          "name": "ملفات المعلمين-failure-draft-retained",
+          "file": "08-ملفات المعلمين-failure-draft-retained.png",
+          "imageWidth": 390,
+          "imageHeight": 2385,
+          "sha256": "fd355fd6bb0a8f645eee77e8d507df0a696d644d17b38e7bce5d8e11d400df2c"
+        },
+        {
+          "name": "ملفات المعلمين-pending",
+          "file": "09-ملفات المعلمين-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 2385,
+          "sha256": "de8a451ababefc27a1df45e05b096d9e15d356f87dfd42f84d23518921dfd811"
+        },
+        {
+          "name": "ملفات المعلمين-success",
+          "file": "10-ملفات المعلمين-success.png",
+          "imageWidth": 390,
+          "imageHeight": 2385,
+          "sha256": "194375ab3bc9293c84b27003d21893c8f0ad6a689221376d2dc52e04edc048cd"
+        },
+        {
+          "name": "package-edit-price-dates-courses",
+          "file": "11-package-edit-price-dates-courses.png",
+          "imageWidth": 390,
+          "imageHeight": 2865,
+          "sha256": "7b5505775d24a35df57ae6a697d20591416f96e95e79afee5f836afb3018dfb4"
+        },
+        {
+          "name": "الباقات-failure-draft-retained",
+          "file": "12-الباقات-failure-draft-retained.png",
+          "imageWidth": 390,
+          "imageHeight": 2940,
+          "sha256": "b9d18f6a3fbdbf7e039360a082ef25e3b487cfb1fb3edbbc14b7f6ad022bf3ce"
+        },
+        {
+          "name": "الباقات-pending",
+          "file": "13-الباقات-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 2940,
+          "sha256": "5bca8f10d9ccb07403d93332f4e36b6de1c49c457a63bdf2ea294d5b9cde3dde"
+        },
+        {
+          "name": "الباقات-success",
+          "file": "14-الباقات-success.png",
+          "imageWidth": 390,
+          "imageHeight": 2940,
+          "sha256": "a9d4911681f07e9d3b6feebd91577079dddf42928aae95e45f8fa7beca5dedff"
+        },
+        {
+          "name": "session-manual-general-host-schedule",
+          "file": "15-session-manual-general-host-schedule.png",
+          "imageWidth": 390,
+          "imageHeight": 3168,
+          "sha256": "3ec22c69a5d6d3465514e6037dd8ecde46b1205117c9f3bb6c30ad70c7c71774"
+        },
+        {
+          "name": "session-course-provider-published",
+          "file": "16-session-course-provider-published.png",
+          "imageWidth": 390,
+          "imageHeight": 3168,
+          "sha256": "f71f4f063f3589705ddbe136b4bed7bd5462cda4a0f7d34e88df7927ac45f281"
+        },
+        {
+          "name": "الجلسات المباشرة-failure-draft-retained",
+          "file": "17-الجلسات المباشرة-failure-draft-retained.png",
+          "imageWidth": 390,
+          "imageHeight": 3243,
+          "sha256": "f4022bed3edbd92eaf84ea2172db7d35412aaa45109d005083b225349519058b"
+        },
+        {
+          "name": "الجلسات المباشرة-pending",
+          "file": "18-الجلسات المباشرة-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 3243,
+          "sha256": "e0fae2fd65ebbe61fdd214f0ce8d8b51ccb6ecbb73b58576a7efc73df5c61427"
+        },
+        {
+          "name": "الجلسات المباشرة-success",
+          "file": "19-الجلسات المباشرة-success.png",
+          "imageWidth": 390,
+          "imageHeight": 3243,
+          "sha256": "b9b1180a6dae08680cc47e9cfe913274281c2a13991677a06c57220c9b309b5a"
+        },
+        {
+          "name": "attendance-no-selection",
+          "file": "20-attendance-no-selection.png",
+          "imageWidth": 390,
+          "imageHeight": 1836,
+          "sha256": "5236715d94f2e22ede9ac27c84e2bfd6f200a59ad68fdbbd619891a65d23f83c"
+        },
+        {
+          "name": "attendance-four-statuses",
+          "file": "21-attendance-four-statuses.png",
+          "imageWidth": 390,
+          "imageHeight": 2645,
+          "sha256": "f1d603b2cd76569b9ddab1fb68e781f363771009948a158034ae7bfb5cbf3d5a"
+        },
+        {
+          "name": "attendance-row-correction",
+          "file": "22-attendance-row-correction.png",
+          "imageWidth": 390,
+          "imageHeight": 2645,
+          "sha256": "29516580deb404dc26c1b4655beb94cc2f1955cc9d4315009d00254b71c7f303"
+        },
+        {
+          "name": "attendance-error",
+          "file": "23-attendance-error.png",
+          "imageWidth": 390,
+          "imageHeight": 2718,
+          "sha256": "a003d329d8d9065b6e205435ce25ba68b86d9375f5c880537f6adcc1e3c45f31"
+        },
+        {
+          "name": "attendance-pending",
+          "file": "24-attendance-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 2718,
+          "sha256": "38f40101523ea8f16693d2f0fd9b06e2dfb26d62659de647f1d7eee720837670"
+        },
+        {
+          "name": "attendance-success-server-synchronized",
+          "file": "25-attendance-success-server-synchronized.png",
+          "imageWidth": 390,
+          "imageHeight": 2718,
+          "sha256": "3ed48246b38475a5ef811bdfb8d6de555579d7b5801e677021349945937e0685"
+        },
+        {
+          "name": "attendance-marked",
+          "file": "26-attendance-marked.png",
+          "imageWidth": 390,
+          "imageHeight": 2718,
+          "sha256": "39082c46b647438f4900419ef58e34099bb8f7ea8712365d3012747b97034cfe"
+        },
+        {
+          "name": "package-new-explicit-reset",
+          "file": "27-package-new-explicit-reset.png",
+          "imageWidth": 390,
+          "imageHeight": 2865,
+          "sha256": "6f88137286de25b6fd977d80ebd16cd80a6c664e66ac1064263e3e9f73b88ecc"
+        },
+        {
+          "name": "keyboard-section-focus",
+          "file": "28-keyboard-section-focus.png",
+          "imageWidth": 390,
+          "imageHeight": 2385,
+          "sha256": "990f5b34e3fb38d324515bf11a947a57edb318e6468b1a551be30fa51eb28643"
+        },
+        {
+          "name": "reflow-200-percent-equivalent",
+          "file": "29-reflow-200-percent-equivalent.png",
+          "imageWidth": 720,
+          "imageHeight": 1813,
+          "sha256": "8a452c701a825bdc338c90b2c260f302d4efcf33e6381070db46b1440cc62ea6"
+        },
+        {
+          "name": "articles-cached-refresh-failure",
+          "file": "30-articles-cached-refresh-failure.png",
+          "imageWidth": 390,
+          "imageHeight": 2773,
+          "sha256": "f485de194ab643fbb41a41181c8e4596f664910d19a0a3d8374b6651520e2f55"
+        },
+        {
+          "name": "articles-cold-error",
+          "file": "31-articles-cold-error.png",
+          "imageWidth": 390,
+          "imageHeight": 2518,
+          "sha256": "51291196cdf657b3d98c3c67c6bd35a8444bbc86e414a6afd9a561e72dbc1d14"
+        },
+        {
+          "name": "providers-cold-error",
+          "file": "32-providers-cold-error.png",
+          "imageWidth": 390,
+          "imageHeight": 3257,
+          "sha256": "066e6eeb0b61e07ab2f0ff80647d017219ccc67f80a2bb98d1d5ca064051b43f"
+        },
+        {
+          "name": "packages-no-courses",
+          "file": "33-packages-no-courses.png",
+          "imageWidth": 390,
+          "imageHeight": 2786,
+          "sha256": "0c1aaefc22fd0afba4a00cfac62d8f1f0ec7c6a0158e94ed5c5b5d7c6bead100"
+        },
+        {
+          "name": "attendance-empty",
+          "file": "34-attendance-empty.png",
+          "imageWidth": 390,
+          "imageHeight": 1836,
+          "sha256": "0a7df2e3b4d64fe0ec551f958414ffbf70d5c94dea338de12166c25a72107087"
+        },
+        {
+          "name": "providers-loading",
+          "file": "35-providers-loading.png",
+          "imageWidth": 390,
+          "imageHeight": 3195,
+          "sha256": "80d1923f773e93fade643d8ad172c526758824b1308a2973ac989f7c8b55518d"
+        }
+      ]
+    },
+    {
+      "key": "ar-dark-narrow-unbroken",
+      "kind": "narrow-unbroken",
+      "locale": "ar",
+      "theme": "dark",
+      "captures": [
+        {
+          "name": "unbroken-course-320",
+          "file": "unbroken-course-320.png",
+          "imageWidth": 320,
+          "imageHeight": 3128,
+          "sha256": "9056c2480bbd2450f9a925692f69b75add618f25fce106b50d47139cdddd13ee"
+        },
+        {
+          "name": "unbroken-course-360",
+          "file": "unbroken-course-360.png",
+          "imageWidth": 360,
+          "imageHeight": 3106,
+          "sha256": "e4430dafa05fe271793c8b31aabc33e7e51826a95fc7a263102228d2e545047f"
+        },
+        {
+          "name": "unbroken-course-390",
+          "file": "unbroken-course-390.png",
+          "imageWidth": 390,
+          "imageHeight": 3067,
+          "sha256": "fc63b78d6923f8aaf094c09ca5ff2e937ae042f02b165a586adcd9006810b009"
+        },
+        {
+          "name": "unbroken-course-834",
+          "file": "unbroken-course-834.png",
+          "imageWidth": 834,
+          "imageHeight": 2159,
+          "sha256": "3764b1ab1e389ad9a7c9fb6e1d3457b65717c9440ab0379b70f4140e1ae9f95c"
+        },
+        {
+          "name": "unbroken-course-1440",
+          "file": "unbroken-course-1440.png",
+          "imageWidth": 1440,
+          "imageHeight": 1906,
+          "sha256": "d0787270fb377c272e17cbf194dc4cad1b9db25131b1c7420b2355d0ad8e458f"
+        }
+      ]
+    },
+    {
+      "key": "ar-dark-supplemental-stress",
+      "kind": "supplemental-stress",
+      "locale": "ar",
+      "theme": "dark",
+      "captures": [
+        {
+          "name": "packages-course-geometry-mobile",
+          "file": "01-packages-course-geometry-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 3067,
+          "sha256": "29761d16edf06944c45df67a01ba8644bcd060223ac55aab8284b09e461590e7"
+        },
+        {
+          "name": "packages-create-many-courses-mobile",
+          "file": "02-packages-create-many-courses-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 3067,
+          "sha256": "56ef864cb0b94f2d3231ab0781d6ce93f05bf6cd8bfead77b10195a9bcdef913"
+        },
+        {
+          "name": "packages-create-success-mobile",
+          "file": "03-packages-create-success-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 3143,
+          "sha256": "52310f567bcff53642a87e958e8812de758d9fd624f09003aaad19903f320ec5"
+        },
+        {
+          "name": "profile-public-long-name-mobile",
+          "file": "04-profile-public-long-name-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 2339,
+          "sha256": "ff417c3636549d434f643c1e5729a02b204211fcceb6e84e6888b44d642d107c"
+        },
+        {
+          "name": "attendance-long-name-keyboard-mobile",
+          "file": "05-attendance-long-name-keyboard-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 2674,
+          "sha256": "44c3fde32d3b97ca15089b17e13b8a80be4598ca4355b01d4230bec29fe2aad6"
+        },
+        {
+          "name": "attendance-long-name-desktop",
+          "file": "06-attendance-long-name-desktop.png",
+          "imageWidth": 1440,
+          "imageHeight": 1649,
+          "sha256": "5adefa424dc411117810e54d5fbf8f62b4940ec9b7577bfde118a75bb6891e85"
+        },
+        {
+          "name": "packages-course-geometry-desktop",
+          "file": "07-packages-course-geometry-desktop.png",
+          "imageWidth": 1440,
+          "imageHeight": 2034,
+          "sha256": "0c81f2182b4f21c1571bb6bd9506db21bea4481a8afc74c6757d5fee45cb285b"
+        },
+        {
+          "name": "packages-many-courses-desktop",
+          "file": "08-packages-many-courses-desktop.png",
+          "imageWidth": 1440,
+          "imageHeight": 2034,
+          "sha256": "1cd3a67450d0be3e695eaad9a800b615d929ee67f228c636b60f0283224d496c"
+        }
+      ]
+    },
+    {
+      "key": "ar-light-1440",
+      "kind": "matrix",
+      "locale": "ar",
+      "theme": "light",
+      "captures": [
+        {
+          "name": "articles-blank-existing",
+          "file": "01-articles-blank-existing.png",
+          "imageWidth": 1440,
+          "imageHeight": 1399,
+          "sha256": "236665ce91686c2f629b3313968e268a1179a793ce2188ac176ceb58c7bcd52b"
+        },
+        {
+          "name": "articles-bilingual-published-draft",
+          "file": "02-articles-bilingual-published-draft.png",
+          "imageWidth": 1440,
+          "imageHeight": 1399,
+          "sha256": "19af1a2180d865f903c903108ea63fa5c2e42c644309bb70fb334e5ab53b06a6"
+        },
+        {
+          "name": "profile-no-selection",
+          "file": "03-profile-no-selection.png",
+          "imageWidth": 1440,
+          "imageHeight": 1287,
+          "sha256": "1d7a10247861c3219a10d3bf92c7dc5e22e323ab281641102f49e4891898de5e"
+        },
+        {
+          "name": "profile-selected-private-bilingual",
+          "file": "04-profile-selected-private-bilingual.png",
+          "imageWidth": 1440,
+          "imageHeight": 1287,
+          "sha256": "66401418d092faef0317801a8b917cbaba1cc065085ae45d089d9e0f975b0879"
+        },
+        {
+          "name": "المقالات-failure-draft-retained",
+          "file": "05-المقالات-failure-draft-retained.png",
+          "imageWidth": 1440,
+          "imageHeight": 1475,
+          "sha256": "0e32b743bd6fa070ae55e52382333b833ebbdff291df50d1851770c65dfb0390"
+        },
+        {
+          "name": "المقالات-pending",
+          "file": "06-المقالات-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1475,
+          "sha256": "0b5a6bbfb98f5d1a46b866cd2870a44f7210f4cf3e266be37da003a7643a05d3"
+        },
+        {
+          "name": "المقالات-success",
+          "file": "07-المقالات-success.png",
+          "imageWidth": 1440,
+          "imageHeight": 1475,
+          "sha256": "cc15680c1b79b578e7aaeb4d6733587c17d73973d4a11a4197693720a375064c"
+        },
+        {
+          "name": "ملفات المعلمين-failure-draft-retained",
+          "file": "08-ملفات المعلمين-failure-draft-retained.png",
+          "imageWidth": 1440,
+          "imageHeight": 1363,
+          "sha256": "d0e8be95c47db36b07f38da360558ed6394fee832e55a8cc16151add90d13f87"
+        },
+        {
+          "name": "ملفات المعلمين-pending",
+          "file": "09-ملفات المعلمين-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1363,
+          "sha256": "e0b0e251790bf3533a8f36312a413876a476988c289378bcf7922aa68db5c9d8"
+        },
+        {
+          "name": "ملفات المعلمين-success",
+          "file": "10-ملفات المعلمين-success.png",
+          "imageWidth": 1440,
+          "imageHeight": 1363,
+          "sha256": "fa26dbfe9cae7f1e6be68626011f3a9c8940be2b35ff529b73fc207374e583cf"
+        },
+        {
+          "name": "package-edit-price-dates-courses",
+          "file": "11-package-edit-price-dates-courses.png",
+          "imageWidth": 1440,
+          "imageHeight": 1731,
+          "sha256": "4b9d4c6855eab240cb9b8a7d651c22317bf49778179612c520b27ff9b96d682b"
+        },
+        {
+          "name": "الباقات-failure-draft-retained",
+          "file": "12-الباقات-failure-draft-retained.png",
+          "imageWidth": 1440,
+          "imageHeight": 1807,
+          "sha256": "ab3ec493389f7f59773990f323cccf3f5241d5ffb78ceef8fabff68f66296b89"
+        },
+        {
+          "name": "الباقات-pending",
+          "file": "13-الباقات-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1807,
+          "sha256": "3a96434c7d89ec24f6c26b8ca3a34b0064f730ab94e44fbe6a5cc63602492651"
+        },
+        {
+          "name": "الباقات-success",
+          "file": "14-الباقات-success.png",
+          "imageWidth": 1440,
+          "imageHeight": 1807,
+          "sha256": "e9fe0f2e365937d0177cde54d58314abf1250e7ac04fbba54b9d81f8a518bbf8"
+        },
+        {
+          "name": "session-manual-general-host-schedule",
+          "file": "15-session-manual-general-host-schedule.png",
+          "imageWidth": 1440,
+          "imageHeight": 1631,
+          "sha256": "c5b452c6304449762045f0a405893330109fca8d1d0560c9172b55166414e811"
+        },
+        {
+          "name": "session-course-provider-published",
+          "file": "16-session-course-provider-published.png",
+          "imageWidth": 1440,
+          "imageHeight": 1631,
+          "sha256": "d03d1914de51c6f3fede5e3f86e0bbd42d2f742a08cba49c1027426949428f97"
+        },
+        {
+          "name": "الجلسات المباشرة-failure-draft-retained",
+          "file": "17-الجلسات المباشرة-failure-draft-retained.png",
+          "imageWidth": 1440,
+          "imageHeight": 1707,
+          "sha256": "f6e106ae49e80d0495dbb907e74cadddf02bb1625baba25a1ce9821a7abd45df"
+        },
+        {
+          "name": "الجلسات المباشرة-pending",
+          "file": "18-الجلسات المباشرة-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1707,
+          "sha256": "a574d2cbd15fa21d8f64bca2129da56874ad07c4e70ea9e8bfab9ec93ffc9df2"
+        },
+        {
+          "name": "الجلسات المباشرة-success",
+          "file": "19-الجلسات المباشرة-success.png",
+          "imageWidth": 1440,
+          "imageHeight": 1707,
+          "sha256": "629cd4efb36a99d1cf314e57bbbafb6f47be2e6ea6ce3170071b92392d849321"
+        },
+        {
+          "name": "attendance-no-selection",
+          "file": "20-attendance-no-selection.png",
+          "imageWidth": 1440,
+          "imageHeight": 1139,
+          "sha256": "ab2d7894aafda95c2d5758f24527be6e570bab66189ecb5b40daaaf886bad706"
+        },
+        {
+          "name": "attendance-four-statuses",
+          "file": "21-attendance-four-statuses.png",
+          "imageWidth": 1440,
+          "imageHeight": 1649,
+          "sha256": "c94559c63c83528ab09830d16d383946c65cee9235537a610d09e5d4ea5fe460"
+        },
+        {
+          "name": "attendance-row-correction",
+          "file": "22-attendance-row-correction.png",
+          "imageWidth": 1440,
+          "imageHeight": 1649,
+          "sha256": "852dbc26fa7c4e57916d82caa98a38ae38cf346cf2e8010940b769ce6ee8f183"
+        },
+        {
+          "name": "attendance-error",
+          "file": "23-attendance-error.png",
+          "imageWidth": 1440,
+          "imageHeight": 1722,
+          "sha256": "193edc26da559681b3ba130999b04584bdecbf9b9585ac198d7709e8311b4432"
+        },
+        {
+          "name": "attendance-pending",
+          "file": "24-attendance-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1722,
+          "sha256": "fd9b07f64b1d2ba31860ea14a0b909ae4c3523a54af7f5f70941ca9ac580961f"
+        },
+        {
+          "name": "attendance-success-server-synchronized",
+          "file": "25-attendance-success-server-synchronized.png",
+          "imageWidth": 1440,
+          "imageHeight": 1722,
+          "sha256": "8b060a8fe8030581de81e813c06bd2327b2dbebe15cb4e5d336139fdcb913d28"
+        },
+        {
+          "name": "attendance-marked",
+          "file": "26-attendance-marked.png",
+          "imageWidth": 1440,
+          "imageHeight": 1722,
+          "sha256": "42fc6e3f410b2796b8bb92790b6389e6d3fcf14ea2f7830a4292dc235aeab298"
+        },
+        {
+          "name": "package-new-explicit-reset",
+          "file": "27-package-new-explicit-reset.png",
+          "imageWidth": 1440,
+          "imageHeight": 1731,
+          "sha256": "31299e6c5e51255e0898a7f0921f4b3048c15f7127dd6131df16d8f9a2311058"
+        },
+        {
+          "name": "keyboard-section-focus",
+          "file": "28-keyboard-section-focus.png",
+          "imageWidth": 1440,
+          "imageHeight": 1363,
+          "sha256": "28489141ab3dadee1fa6c54c5c87fb4926dda2e540b6974eec9b723c85c76b32"
+        },
+        {
+          "name": "reflow-200-percent-equivalent",
+          "file": "29-reflow-200-percent-equivalent.png",
+          "imageWidth": 720,
+          "imageHeight": 1813,
+          "sha256": "224f07e87163468b84b1fec22baca45db38a93a9f149f4d941c8d0c736509a2a"
+        },
+        {
+          "name": "articles-cached-refresh-failure",
+          "file": "30-articles-cached-refresh-failure.png",
+          "imageWidth": 1440,
+          "imageHeight": 1475,
+          "sha256": "ac14c7754f2fed6610f2d650032dda4c947e17d198b2f9a25eedb15a08c70dcc"
+        },
+        {
+          "name": "articles-cold-error",
+          "file": "31-articles-cold-error.png",
+          "imageWidth": 1440,
+          "imageHeight": 1399,
+          "sha256": "e15d4cb72f02f9317387bb95ffa8fbd0efa32105ca99590010fd2b9ba772d9e1"
+        },
+        {
+          "name": "providers-cold-error",
+          "file": "32-providers-cold-error.png",
+          "imageWidth": 1440,
+          "imageHeight": 1720,
+          "sha256": "634fb5be6413501741b93fb2cf75bb5f06a19276e54d6ee74169bae407419a0c"
+        },
+        {
+          "name": "packages-no-courses",
+          "file": "33-packages-no-courses.png",
+          "imageWidth": 1440,
+          "imageHeight": 1676,
+          "sha256": "b97fffe0b1c8b6a71cbe8f471d9716df170fde68d0b1bbe98cdc5d48d8b0cbf7"
+        },
+        {
+          "name": "attendance-empty",
+          "file": "34-attendance-empty.png",
+          "imageWidth": 1440,
+          "imageHeight": 1139,
+          "sha256": "f9f060c8d9ded200177924fa3df6736709072746ffe350053785be40ca8a9231"
+        },
+        {
+          "name": "providers-loading",
+          "file": "35-providers-loading.png",
+          "imageWidth": 1440,
+          "imageHeight": 1658,
+          "sha256": "d805f0bdb9d13bab049d87c80c9d40e7fc3531817fec054d98df18939f89979e"
+        }
+      ]
+    },
+    {
+      "key": "ar-light-834",
+      "kind": "matrix",
+      "locale": "ar",
+      "theme": "light",
+      "captures": [
+        {
+          "name": "articles-blank-existing",
+          "file": "01-articles-blank-existing.png",
+          "imageWidth": 834,
+          "imageHeight": 1653,
+          "sha256": "c9fcc936b545ca2dc3c23a5368bbc7646ebdfd7223f288f8dd4202e991a0d8f9"
+        },
+        {
+          "name": "articles-bilingual-published-draft",
+          "file": "02-articles-bilingual-published-draft.png",
+          "imageWidth": 834,
+          "imageHeight": 1653,
+          "sha256": "e8466b366e2b226357666a2549aea59142a66b623150737893261d26a7563b70"
+        },
+        {
+          "name": "profile-no-selection",
+          "file": "03-profile-no-selection.png",
+          "imageWidth": 834,
+          "imageHeight": 1473,
+          "sha256": "01114f67480bfb2d8172945701915cdc4fd3e6ca6fa94ae1a2f0bd53bb48c4a4"
+        },
+        {
+          "name": "profile-selected-private-bilingual",
+          "file": "04-profile-selected-private-bilingual.png",
+          "imageWidth": 834,
+          "imageHeight": 1517,
+          "sha256": "facf512341037e38a1604cdee8a235b55c9a730011b8a271bd1445bc6a429af2"
+        },
+        {
+          "name": "المقالات-failure-draft-retained",
+          "file": "05-المقالات-failure-draft-retained.png",
+          "imageWidth": 834,
+          "imageHeight": 1728,
+          "sha256": "526656d96c806a2d9bf0c9e8c368e9095e2f2ef965ad441019c84ea166c56412"
+        },
+        {
+          "name": "المقالات-pending",
+          "file": "06-المقالات-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 1728,
+          "sha256": "d499206c3e3e7ba48637e30cd1f55da39602029f2a1425f6e54bfe72ee9869bc"
+        },
+        {
+          "name": "المقالات-success",
+          "file": "07-المقالات-success.png",
+          "imageWidth": 834,
+          "imageHeight": 1728,
+          "sha256": "b8c06f1dba18a803867596cc0b43fab8a25c6aac944223f618ad4699df05926c"
+        },
+        {
+          "name": "ملفات المعلمين-failure-draft-retained",
+          "file": "08-ملفات المعلمين-failure-draft-retained.png",
+          "imageWidth": 834,
+          "imageHeight": 1593,
+          "sha256": "4ffa88bc37889541713ca5e47c2217b965555f0e08299c62ed9cf9d6137a3e8c"
+        },
+        {
+          "name": "ملفات المعلمين-pending",
+          "file": "09-ملفات المعلمين-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 1593,
+          "sha256": "b00155578f810c0f0f64096cd7370a277733465612d21071a1b918223a3de4f8"
+        },
+        {
+          "name": "ملفات المعلمين-success",
+          "file": "10-ملفات المعلمين-success.png",
+          "imageWidth": 834,
+          "imageHeight": 1593,
+          "sha256": "d4694a77385453601b348ee172d004b7a3450262405cb0520891fffda829ccb1"
+        },
+        {
+          "name": "package-edit-price-dates-courses",
+          "file": "11-package-edit-price-dates-courses.png",
+          "imageWidth": 834,
+          "imageHeight": 1985,
+          "sha256": "014f59047b315b348b823462628a08a840c0e708424b42bc0aaa9b0ae904524f"
+        },
+        {
+          "name": "الباقات-failure-draft-retained",
+          "file": "12-الباقات-failure-draft-retained.png",
+          "imageWidth": 834,
+          "imageHeight": 2061,
+          "sha256": "a3f1e883d99d11bd24e400a1a771459f684a8aa6b73ac2ac7194c27820f63f5f"
+        },
+        {
+          "name": "الباقات-pending",
+          "file": "13-الباقات-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 2061,
+          "sha256": "90703e3d492cfc8c7e0795a5aa130724545d4169ad02c87af4ad94e56d53018b"
+        },
+        {
+          "name": "الباقات-success",
+          "file": "14-الباقات-success.png",
+          "imageWidth": 834,
+          "imageHeight": 2061,
+          "sha256": "41a12a7e955a0179ce4461d08b77e5cd8b77e42e9ef16402b2478360aef242ce"
+        },
+        {
+          "name": "session-manual-general-host-schedule",
+          "file": "15-session-manual-general-host-schedule.png",
+          "imageWidth": 834,
+          "imageHeight": 2022,
+          "sha256": "3eb3c2974922f272563b58911984dde38e391051eacb6266a410f76c1ae7b740"
+        },
+        {
+          "name": "session-course-provider-published",
+          "file": "16-session-course-provider-published.png",
+          "imageWidth": 834,
+          "imageHeight": 2022,
+          "sha256": "9aede9778d06982d5712785d6b7c18dec93e41674932272ef3adb81f25a6c046"
+        },
+        {
+          "name": "الجلسات المباشرة-failure-draft-retained",
+          "file": "17-الجلسات المباشرة-failure-draft-retained.png",
+          "imageWidth": 834,
+          "imageHeight": 2098,
+          "sha256": "c86dce4241c73b4ecb4c81c27c1cd81fc9baa4c3f69573ea7e106324ec85fd70"
+        },
+        {
+          "name": "الجلسات المباشرة-pending",
+          "file": "18-الجلسات المباشرة-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 2098,
+          "sha256": "7467b3c2836a4775950fe6570b2691611a49ef40f7f274ce6598c20a72ec9182"
+        },
+        {
+          "name": "الجلسات المباشرة-success",
+          "file": "19-الجلسات المباشرة-success.png",
+          "imageWidth": 834,
+          "imageHeight": 2098,
+          "sha256": "e00a836010ce5c7dafe4b9a65022a66e050fc8b4f44156e2e7c297cee293b28f"
+        },
+        {
+          "name": "attendance-no-selection",
+          "file": "20-attendance-no-selection.png",
+          "imageWidth": 834,
+          "imageHeight": 1162,
+          "sha256": "a64d476433edb42f8e0282094d22b19be07e339f113ddb97e05e49499285512d"
+        },
+        {
+          "name": "attendance-four-statuses",
+          "file": "21-attendance-four-statuses.png",
+          "imageWidth": 834,
+          "imageHeight": 1671,
+          "sha256": "7055bb3c3b41e0fbcb1488d7966cb7fb8bafd3cfeb48f0019a53a2ed8ceb8b99"
+        },
+        {
+          "name": "attendance-row-correction",
+          "file": "22-attendance-row-correction.png",
+          "imageWidth": 834,
+          "imageHeight": 1671,
+          "sha256": "3275bab16569a64c7d6f509cc899cfd89bea142723802f3ea16a76cec786445b"
+        },
+        {
+          "name": "attendance-error",
+          "file": "23-attendance-error.png",
+          "imageWidth": 834,
+          "imageHeight": 1744,
+          "sha256": "228b02f3082b05dd7d682eb9c0adeb948135bb2ebb8b6d64fd6d789d7e6208b9"
+        },
+        {
+          "name": "attendance-pending",
+          "file": "24-attendance-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 1744,
+          "sha256": "93be11f53b9951e9714f3676dee98268e12ef6da829652052ab168bea599ac18"
+        },
+        {
+          "name": "attendance-success-server-synchronized",
+          "file": "25-attendance-success-server-synchronized.png",
+          "imageWidth": 834,
+          "imageHeight": 1744,
+          "sha256": "0531990bb0d0eeeadfd7276820e0624c04c35470dc70e7717756c1c47e6903c4"
+        },
+        {
+          "name": "attendance-marked",
+          "file": "26-attendance-marked.png",
+          "imageWidth": 834,
+          "imageHeight": 1744,
+          "sha256": "f248aabed2620f872393e554640985dd35cd0367c5295c0d9d566190cc3b9633"
+        },
+        {
+          "name": "package-new-explicit-reset",
+          "file": "27-package-new-explicit-reset.png",
+          "imageWidth": 834,
+          "imageHeight": 1985,
+          "sha256": "d5a2cfa1d6e80713952dce5034b36ca1d1f5f874c335790880466876199a43f2"
+        },
+        {
+          "name": "keyboard-section-focus",
+          "file": "28-keyboard-section-focus.png",
+          "imageWidth": 834,
+          "imageHeight": 1593,
+          "sha256": "20da821d6ce62bc26c3642677db5d250d3caba6f703f811d50bd25dd29cb7fbe"
+        },
+        {
+          "name": "reflow-200-percent-equivalent",
+          "file": "29-reflow-200-percent-equivalent.png",
+          "imageWidth": 720,
+          "imageHeight": 1813,
+          "sha256": "63bc546bc00b78a5da4c05d652a1b177bc452fd2add96526dbf719f16db98377"
+        },
+        {
+          "name": "articles-cached-refresh-failure",
+          "file": "30-articles-cached-refresh-failure.png",
+          "imageWidth": 834,
+          "imageHeight": 1859,
+          "sha256": "ac8190621ebdd59db9f2a24ba48b913e3dd0a6da21da71e251ab9d5406ca077c"
+        },
+        {
+          "name": "articles-cold-error",
+          "file": "31-articles-cold-error.png",
+          "imageWidth": 834,
+          "imageHeight": 1633,
+          "sha256": "11f92b4fe5b135c29d1a7c4e91dbeb72aac8ed5ab1780fda3f6e952a04109de5"
+        },
+        {
+          "name": "providers-cold-error",
+          "file": "32-providers-cold-error.png",
+          "imageWidth": 834,
+          "imageHeight": 2111,
+          "sha256": "ba0278bf1ae03988d9304ca67f9f84e445a8e41095ead47711ac86130e4bc075"
+        },
+        {
+          "name": "packages-no-courses",
+          "file": "33-packages-no-courses.png",
+          "imageWidth": 834,
+          "imageHeight": 1930,
+          "sha256": "5d947f6b89bfe6f485a0d2a669e548e58b6ca09654fb0609e86e8c083a15b1f8"
+        },
+        {
+          "name": "attendance-empty",
+          "file": "34-attendance-empty.png",
+          "imageWidth": 834,
+          "imageHeight": 1162,
+          "sha256": "fd32ba365f8e5c4d3bd1dbc02e25b1cb1f94d599e623aa531a6a88e62158d111"
+        },
+        {
+          "name": "providers-loading",
+          "file": "35-providers-loading.png",
+          "imageWidth": 834,
+          "imageHeight": 2050,
+          "sha256": "77bc989f055b397cb9094c90ba8ef00de6c936dcfeddf8781e560649c11ce579"
+        }
+      ]
+    },
+    {
+      "key": "ar-light-390",
+      "kind": "matrix",
+      "locale": "ar",
+      "theme": "light",
+      "captures": [
+        {
+          "name": "articles-blank-existing",
+          "file": "01-articles-blank-existing.png",
+          "imageWidth": 390,
+          "imageHeight": 2538,
+          "sha256": "6a3aec2eb67a2f9ad6c857049e4d715c3588acdbacec60a5c14bdfc3e0ec5e39"
+        },
+        {
+          "name": "articles-bilingual-published-draft",
+          "file": "02-articles-bilingual-published-draft.png",
+          "imageWidth": 390,
+          "imageHeight": 2538,
+          "sha256": "b05deedee1d96ec8f7b6af5fbaecf5ac504693feb44f11da5c3744278d2a8bfd"
+        },
+        {
+          "name": "profile-no-selection",
+          "file": "03-profile-no-selection.png",
+          "imageWidth": 390,
+          "imageHeight": 2266,
+          "sha256": "5892f830bc74059b9fd51ea2aa6628e205a30b9b908a2f8c2d055dc5b0e93e25"
+        },
+        {
+          "name": "profile-selected-private-bilingual",
+          "file": "04-profile-selected-private-bilingual.png",
+          "imageWidth": 390,
+          "imageHeight": 2310,
+          "sha256": "1d8ddb25a967f473db2eb48619e85b82ce204ed55f51705db7d4fc445e39d90a"
+        },
+        {
+          "name": "المقالات-failure-draft-retained",
+          "file": "05-المقالات-failure-draft-retained.png",
+          "imageWidth": 390,
+          "imageHeight": 2613,
+          "sha256": "4a81b94fa0d676191d4415e52038742abd9456e90b41cf33f9a8807b6c3e2cfa"
+        },
+        {
+          "name": "المقالات-pending",
+          "file": "06-المقالات-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 2613,
+          "sha256": "1b35849b72b022f1bfa0d5d47f85ac4cdf08cc748ac319c179cd0407d3baba22"
+        },
+        {
+          "name": "المقالات-success",
+          "file": "07-المقالات-success.png",
+          "imageWidth": 390,
+          "imageHeight": 2613,
+          "sha256": "59506c0013796a34a75c11c6b0d93a672733a8449bc8412e0246248169963dc0"
+        },
+        {
+          "name": "ملفات المعلمين-failure-draft-retained",
+          "file": "08-ملفات المعلمين-failure-draft-retained.png",
+          "imageWidth": 390,
+          "imageHeight": 2385,
+          "sha256": "42978c0b1bc1e1fa8c48486fa414b8b868ac6cb894b35b1d6990759e5b1fa6b0"
+        },
+        {
+          "name": "ملفات المعلمين-pending",
+          "file": "09-ملفات المعلمين-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 2385,
+          "sha256": "ac3c4b9140434ae9bfb7e3dfd6905fe18f2ed30a0974faa12a1aa83f1a8524ca"
+        },
+        {
+          "name": "ملفات المعلمين-success",
+          "file": "10-ملفات المعلمين-success.png",
+          "imageWidth": 390,
+          "imageHeight": 2385,
+          "sha256": "23b4e3631aadea15cea26a523bacf2b270ac0277d9b4b04d4e14a7d075ab5c2b"
+        },
+        {
+          "name": "package-edit-price-dates-courses",
+          "file": "11-package-edit-price-dates-courses.png",
+          "imageWidth": 390,
+          "imageHeight": 2865,
+          "sha256": "2de49c39faf2e562cdee417d34c600212f7436937ccd1f7c8c13459e53843a95"
+        },
+        {
+          "name": "الباقات-failure-draft-retained",
+          "file": "12-الباقات-failure-draft-retained.png",
+          "imageWidth": 390,
+          "imageHeight": 2940,
+          "sha256": "f4d22a7951069c97d7035ea2be47c182bbb88e9d46be1dd242e894d1c6708091"
+        },
+        {
+          "name": "الباقات-pending",
+          "file": "13-الباقات-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 2940,
+          "sha256": "5ed863b6e8d27700525cef9f97c28f67ff7d5c42b83889e4ecac02f77ca64f92"
+        },
+        {
+          "name": "الباقات-success",
+          "file": "14-الباقات-success.png",
+          "imageWidth": 390,
+          "imageHeight": 2940,
+          "sha256": "fff5b31d8bf5d40694c48d56086dae415b845964f18ba88221fac6befb49e16e"
+        },
+        {
+          "name": "session-manual-general-host-schedule",
+          "file": "15-session-manual-general-host-schedule.png",
+          "imageWidth": 390,
+          "imageHeight": 3168,
+          "sha256": "a511d1e47bffa2bad40bb30f84176cb662ab5340d67ae7339e5d28a63c6aaa3c"
+        },
+        {
+          "name": "session-course-provider-published",
+          "file": "16-session-course-provider-published.png",
+          "imageWidth": 390,
+          "imageHeight": 3168,
+          "sha256": "c2a2a16a98db0197e4f59eaf44b65102c61e55c95e7316715c1e35e2a19d39e8"
+        },
+        {
+          "name": "الجلسات المباشرة-failure-draft-retained",
+          "file": "17-الجلسات المباشرة-failure-draft-retained.png",
+          "imageWidth": 390,
+          "imageHeight": 3243,
+          "sha256": "9c1cd607237dfe72bbf0ef2ac93f5a942f6a0219756a5fd689bb5f534f2fe6b5"
+        },
+        {
+          "name": "الجلسات المباشرة-pending",
+          "file": "18-الجلسات المباشرة-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 3243,
+          "sha256": "cd7d0f1c997b8c618d174c8ad1c9a6e327c82639f4e38e25de98f4cd67488810"
+        },
+        {
+          "name": "الجلسات المباشرة-success",
+          "file": "19-الجلسات المباشرة-success.png",
+          "imageWidth": 390,
+          "imageHeight": 3243,
+          "sha256": "63c4a8a40c79019f623ecf05ee27d781e8165a41bd6d5f2688e611c40d317a91"
+        },
+        {
+          "name": "attendance-no-selection",
+          "file": "20-attendance-no-selection.png",
+          "imageWidth": 390,
+          "imageHeight": 1836,
+          "sha256": "d27970ff958d2be571bd2301f9a3e811ec4517f1b1119fa7b6137e2dc5b4768e"
+        },
+        {
+          "name": "attendance-four-statuses",
+          "file": "21-attendance-four-statuses.png",
+          "imageWidth": 390,
+          "imageHeight": 2645,
+          "sha256": "d2481d498d3e5951f7d0711f303739c2b64261a64566b5c1197fab2d5d57c473"
+        },
+        {
+          "name": "attendance-row-correction",
+          "file": "22-attendance-row-correction.png",
+          "imageWidth": 390,
+          "imageHeight": 2645,
+          "sha256": "1de3109f1e220841c81a355b0f03ef744efe3ab5d0e3276fd33b8515d0b5a43e"
+        },
+        {
+          "name": "attendance-error",
+          "file": "23-attendance-error.png",
+          "imageWidth": 390,
+          "imageHeight": 2718,
+          "sha256": "ea1944182dabe247af8c6cab3da1f31e7d01d4f5aea5c75ca51454590d5958d5"
+        },
+        {
+          "name": "attendance-pending",
+          "file": "24-attendance-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 2718,
+          "sha256": "8dfedf69d78aa26123eb302c96376f02baa9307a3967aa2f225ab03dc05951ac"
+        },
+        {
+          "name": "attendance-success-server-synchronized",
+          "file": "25-attendance-success-server-synchronized.png",
+          "imageWidth": 390,
+          "imageHeight": 2718,
+          "sha256": "a23e33de02220515393e0849fc6cfcee953661db0b6b4c2cfa5feed666cdad8f"
+        },
+        {
+          "name": "attendance-marked",
+          "file": "26-attendance-marked.png",
+          "imageWidth": 390,
+          "imageHeight": 2718,
+          "sha256": "f43cd6f7f9b6d71b8e296594a622d245c05d94a03ee2a6b211cfb0eb346775b5"
+        },
+        {
+          "name": "package-new-explicit-reset",
+          "file": "27-package-new-explicit-reset.png",
+          "imageWidth": 390,
+          "imageHeight": 2865,
+          "sha256": "0b0a99b92dad7e0fc2ea7871616fd2c46a4bb2b86c67da674559a6a1f2094ca6"
+        },
+        {
+          "name": "keyboard-section-focus",
+          "file": "28-keyboard-section-focus.png",
+          "imageWidth": 390,
+          "imageHeight": 2385,
+          "sha256": "671a263c1c1ffcb7467913df67431566040d6e6d37cfbe2f595b91f8e10bbdaa"
+        },
+        {
+          "name": "reflow-200-percent-equivalent",
+          "file": "29-reflow-200-percent-equivalent.png",
+          "imageWidth": 720,
+          "imageHeight": 1813,
+          "sha256": "92d7e97cdd181217bff92716649547a5a4af7986dda0d84f1a4a262cf82d4304"
+        },
+        {
+          "name": "articles-cached-refresh-failure",
+          "file": "30-articles-cached-refresh-failure.png",
+          "imageWidth": 390,
+          "imageHeight": 2773,
+          "sha256": "2db3c4597081db3dd8a4caba237e7a63914087c14ffe4b2cb3d62aaf7e6e4f26"
+        },
+        {
+          "name": "articles-cold-error",
+          "file": "31-articles-cold-error.png",
+          "imageWidth": 390,
+          "imageHeight": 2518,
+          "sha256": "6ff8ae7ec9bcc22434f0511f46b9352e18d7afc31a15cc5e7614060eeb668f9b"
+        },
+        {
+          "name": "providers-cold-error",
+          "file": "32-providers-cold-error.png",
+          "imageWidth": 390,
+          "imageHeight": 3257,
+          "sha256": "5cf9f740fd86dd61f326aeea33c208094983467733d01baa4629382a9bcffb45"
+        },
+        {
+          "name": "packages-no-courses",
+          "file": "33-packages-no-courses.png",
+          "imageWidth": 390,
+          "imageHeight": 2786,
+          "sha256": "d307e10cd2deb6d35ab857984c2593cd55c18064448ba114c86f9b90e4a11729"
+        },
+        {
+          "name": "attendance-empty",
+          "file": "34-attendance-empty.png",
+          "imageWidth": 390,
+          "imageHeight": 1836,
+          "sha256": "4f57a0a2a185353c0a24e22f7616b3b9f268e3d23e5456e846234d96bd245ca1"
+        },
+        {
+          "name": "providers-loading",
+          "file": "35-providers-loading.png",
+          "imageWidth": 390,
+          "imageHeight": 3195,
+          "sha256": "9a5c4acc7639188b5bd43703169a56a46e7a0ea60ebbaa42a4447d8077626068"
+        }
+      ]
+    },
+    {
+      "key": "ar-light-narrow-unbroken",
+      "kind": "narrow-unbroken",
+      "locale": "ar",
+      "theme": "light",
+      "captures": [
+        {
+          "name": "unbroken-course-320",
+          "file": "unbroken-course-320.png",
+          "imageWidth": 320,
+          "imageHeight": 3128,
+          "sha256": "a8202f5d36b939f514a0ad15e7f61bfca26daa36865062cddf00b092d71efa32"
+        },
+        {
+          "name": "unbroken-course-360",
+          "file": "unbroken-course-360.png",
+          "imageWidth": 360,
+          "imageHeight": 3106,
+          "sha256": "114efb31a44aebc019be1ac8730c3d1bdef68a4113b002e930d66ef18f2cdda9"
+        },
+        {
+          "name": "unbroken-course-390",
+          "file": "unbroken-course-390.png",
+          "imageWidth": 390,
+          "imageHeight": 3067,
+          "sha256": "734449158106b4f68732c2e8ca5a627fda7f39ea40217b8840ddeb23ddce9be3"
+        },
+        {
+          "name": "unbroken-course-834",
+          "file": "unbroken-course-834.png",
+          "imageWidth": 834,
+          "imageHeight": 2159,
+          "sha256": "1dea68ce5ce3dd87a81cd71cb523981bef8cf42e90dc8896b10d322190bdf787"
+        },
+        {
+          "name": "unbroken-course-1440",
+          "file": "unbroken-course-1440.png",
+          "imageWidth": 1440,
+          "imageHeight": 1906,
+          "sha256": "4879d1bfa5c09b51c7d6835f10d6267256744bb22844eeca9f866dc7d2a2e298"
+        }
+      ]
+    },
+    {
+      "key": "ar-light-supplemental-stress",
+      "kind": "supplemental-stress",
+      "locale": "ar",
+      "theme": "light",
+      "captures": [
+        {
+          "name": "packages-course-geometry-mobile",
+          "file": "01-packages-course-geometry-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 3067,
+          "sha256": "872f0dfb48c7096cc07a0927bbeb6dec4582b0b514bd50211bdf25bc36198090"
+        },
+        {
+          "name": "packages-create-many-courses-mobile",
+          "file": "02-packages-create-many-courses-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 3067,
+          "sha256": "cbcb40506540f6017bbc343a03905585a1aebf1a3fa37a392d9a6e9aacef551c"
+        },
+        {
+          "name": "packages-create-success-mobile",
+          "file": "03-packages-create-success-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 3143,
+          "sha256": "84f9f5f60f86a21401b372fd677f0f35cf619089ef344b58221413c55b5ed90e"
+        },
+        {
+          "name": "profile-public-long-name-mobile",
+          "file": "04-profile-public-long-name-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 2339,
+          "sha256": "a0413c9910fe852877b66e3beec3db3c164351de7e6114d344fb97b9f8f5adc1"
+        },
+        {
+          "name": "attendance-long-name-keyboard-mobile",
+          "file": "05-attendance-long-name-keyboard-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 2674,
+          "sha256": "fa01480b73b448a235aa6f7c4f76288f9e42270656ee8f30c383601334c4623f"
+        },
+        {
+          "name": "attendance-long-name-desktop",
+          "file": "06-attendance-long-name-desktop.png",
+          "imageWidth": 1440,
+          "imageHeight": 1649,
+          "sha256": "8b108a42684ce9fd2965c43bb479e2255744318740394260113870731b50051a"
+        },
+        {
+          "name": "packages-course-geometry-desktop",
+          "file": "07-packages-course-geometry-desktop.png",
+          "imageWidth": 1440,
+          "imageHeight": 2034,
+          "sha256": "29fdec271a3e08a6a82e26d5b5e81fd99c6aaac8954070d3dba2097465623014"
+        },
+        {
+          "name": "packages-many-courses-desktop",
+          "file": "08-packages-many-courses-desktop.png",
+          "imageWidth": 1440,
+          "imageHeight": 2034,
+          "sha256": "22ef45fed2478a070bc343c4bc047aebad2a2ebf792f76152f2c683402b6ddf3"
+        }
+      ]
+    },
+    {
+      "key": "en-dark-1440",
+      "kind": "matrix",
+      "locale": "en",
+      "theme": "dark",
+      "captures": [
+        {
+          "name": "articles-blank-existing",
+          "file": "01-articles-blank-existing.png",
+          "imageWidth": 1440,
+          "imageHeight": 1401,
+          "sha256": "4deeeb4a745b859b02fde3559eb270fd50635771350819aaaebb164a5311bd51"
+        },
+        {
+          "name": "articles-bilingual-published-draft",
+          "file": "02-articles-bilingual-published-draft.png",
+          "imageWidth": 1440,
+          "imageHeight": 1401,
+          "sha256": "f58a48467166e97f1b00a28969ea1b13424b8afcc85849ec06ee266d3d08e850"
+        },
+        {
+          "name": "profile-no-selection",
+          "file": "03-profile-no-selection.png",
+          "imageWidth": 1440,
+          "imageHeight": 1290,
+          "sha256": "23446fcb1c51ef1c5cbf83e00c8277d1a8fbc93c47b66fc765e7437f140e3918"
+        },
+        {
+          "name": "profile-selected-private-bilingual",
+          "file": "04-profile-selected-private-bilingual.png",
+          "imageWidth": 1440,
+          "imageHeight": 1290,
+          "sha256": "33868e9c3942e5a0e52078102a13fa858d6886dddfaba95cc4c55e18c3438f5a"
+        },
+        {
+          "name": "Articles-failure-draft-retained",
+          "file": "05-Articles-failure-draft-retained.png",
+          "imageWidth": 1440,
+          "imageHeight": 1473,
+          "sha256": "5b273c51571c59686965cfb18a65834a7d7f66937adfc393bf51dca2eec272ec"
+        },
+        {
+          "name": "Articles-pending",
+          "file": "06-Articles-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1473,
+          "sha256": "8cbf101520647871b5d308870c2521e7600e0e9de4371ecd303a8003d2c34b2a"
+        },
+        {
+          "name": "Articles-success",
+          "file": "07-Articles-success.png",
+          "imageWidth": 1440,
+          "imageHeight": 1473,
+          "sha256": "65fe0191eef0635c05ebec317b6e41e9cb6d6313a9f803f0bb1eb6df386e8618"
+        },
+        {
+          "name": "Teacher profiles-failure-draft-retained",
+          "file": "08-Teacher profiles-failure-draft-retained.png",
+          "imageWidth": 1440,
+          "imageHeight": 1363,
+          "sha256": "bcc79bd3281ccf723e8b96e8d7df903e658b6301aeec1e7f9d7993c6469b1351"
+        },
+        {
+          "name": "Teacher profiles-pending",
+          "file": "09-Teacher profiles-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1363,
+          "sha256": "a16469fa29eaa72417047ae6922cc5c835af2a3a4ffb81361c1940603cece14e"
+        },
+        {
+          "name": "Teacher profiles-success",
+          "file": "10-Teacher profiles-success.png",
+          "imageWidth": 1440,
+          "imageHeight": 1363,
+          "sha256": "88ed22254251e99468b73552ad3ba19171b1e36229612a994ef5bf46a53d227d"
+        },
+        {
+          "name": "package-edit-price-dates-courses",
+          "file": "11-package-edit-price-dates-courses.png",
+          "imageWidth": 1440,
+          "imageHeight": 1728,
+          "sha256": "3d689da5dfd8e85d71330fa59da72cb713a5acd8793cc19b979062cad39568e6"
+        },
+        {
+          "name": "Packages-failure-draft-retained",
+          "file": "12-Packages-failure-draft-retained.png",
+          "imageWidth": 1440,
+          "imageHeight": 1801,
+          "sha256": "9b0aab79dacd934681c5696156c3b3c27c0efaae118db62cd6761c260c9b825c"
+        },
+        {
+          "name": "Packages-pending",
+          "file": "13-Packages-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1801,
+          "sha256": "d0210b81813d927a46c4d4e7935f435b3cae778b30e8c2f4012ed222ea970bbf"
+        },
+        {
+          "name": "Packages-success",
+          "file": "14-Packages-success.png",
+          "imageWidth": 1440,
+          "imageHeight": 1801,
+          "sha256": "3ae06490d8d262b01e749f456dbfb1eba471540db9d4df1065e15c86b20968e5"
+        },
+        {
+          "name": "session-manual-general-host-schedule",
+          "file": "15-session-manual-general-host-schedule.png",
+          "imageWidth": 1440,
+          "imageHeight": 1626,
+          "sha256": "ca42a0224e0c90e53658bc6f4ae6fe95f3358fa3c45af314b5e3a5a14d8e84b6"
+        },
+        {
+          "name": "session-course-provider-published",
+          "file": "16-session-course-provider-published.png",
+          "imageWidth": 1440,
+          "imageHeight": 1626,
+          "sha256": "fd091ce953be9e0dd926f06a1b797b91c9a2bc92d2d2fdfc91afc02aa8132c88"
+        },
+        {
+          "name": "Live sessions-failure-draft-retained",
+          "file": "17-Live sessions-failure-draft-retained.png",
+          "imageWidth": 1440,
+          "imageHeight": 1699,
+          "sha256": "3dfac3e604bac18a6dd3a257385c8791a185e3f9e5dac417352725ba98d50465"
+        },
+        {
+          "name": "Live sessions-pending",
+          "file": "18-Live sessions-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1699,
+          "sha256": "62590775740911bc202fdf95586d571592903f1f3c2e4afe4d4d4aba43e8841e"
+        },
+        {
+          "name": "Live sessions-success",
+          "file": "19-Live sessions-success.png",
+          "imageWidth": 1440,
+          "imageHeight": 1699,
+          "sha256": "7f240ebef2f2b3125a629e3b9a1d7054de1bba2870a22a84930c001ead1b985e"
+        },
+        {
+          "name": "attendance-no-selection",
+          "file": "20-attendance-no-selection.png",
+          "imageWidth": 1440,
+          "imageHeight": 1142,
+          "sha256": "8a689e756f046424f08001b1fbc56ce2eef0437bb1177da42ae1c92d8b382a94"
+        },
+        {
+          "name": "attendance-four-statuses",
+          "file": "21-attendance-four-statuses.png",
+          "imageWidth": 1440,
+          "imageHeight": 1625,
+          "sha256": "a414d56f6718d9f5510b6425040d872328cc5a57fb6420c0e1f94d32336791b4"
+        },
+        {
+          "name": "attendance-row-correction",
+          "file": "22-attendance-row-correction.png",
+          "imageWidth": 1440,
+          "imageHeight": 1625,
+          "sha256": "cdbbfb1de436238e1eabf3a295934d96f07fa0d76fe1e3709a8644fb270bd913"
+        },
+        {
+          "name": "attendance-error",
+          "file": "23-attendance-error.png",
+          "imageWidth": 1440,
+          "imageHeight": 1694,
+          "sha256": "1edb251918c75ad8bcb6be3c6b27cef515516564165289bf342fba251ed0fa21"
+        },
+        {
+          "name": "attendance-pending",
+          "file": "24-attendance-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1694,
+          "sha256": "dc6ee179bdded1ecd02a9cc75634da45e18790abf70a36d16c30f6e5542faffb"
+        },
+        {
+          "name": "attendance-success-server-synchronized",
+          "file": "25-attendance-success-server-synchronized.png",
+          "imageWidth": 1440,
+          "imageHeight": 1694,
+          "sha256": "7cfbc69f2b111be048737dc4198221cb36696c51eb6652807b893a57cfbcdd3d"
+        },
+        {
+          "name": "attendance-marked",
+          "file": "26-attendance-marked.png",
+          "imageWidth": 1440,
+          "imageHeight": 1694,
+          "sha256": "abc0831078e2b77a30a81e13832bf89690838fc909a7377ff1f3c9edce07ce7a"
+        },
+        {
+          "name": "package-new-explicit-reset",
+          "file": "27-package-new-explicit-reset.png",
+          "imageWidth": 1440,
+          "imageHeight": 1728,
+          "sha256": "4e52cb78f5d9412b3d064a744416c6a6341368e1160349c4c6cbd5b6adde98b6"
+        },
+        {
+          "name": "keyboard-section-focus",
+          "file": "28-keyboard-section-focus.png",
+          "imageWidth": 1440,
+          "imageHeight": 1363,
+          "sha256": "7db987a94ae2719ab3d6d32732fdc810f41b84bfce6c311810c92f523c9e4aef"
+        },
+        {
+          "name": "reflow-200-percent-equivalent",
+          "file": "29-reflow-200-percent-equivalent.png",
+          "imageWidth": 720,
+          "imageHeight": 1832,
+          "sha256": "59c72f2bb87e4a6750c099b854db487fcff9010abea2d4bb987342c30d003453"
+        },
+        {
+          "name": "articles-cached-refresh-failure",
+          "file": "30-articles-cached-refresh-failure.png",
+          "imageWidth": 1440,
+          "imageHeight": 1473,
+          "sha256": "c318045ad9ce8544c74b8e99dd3e81daad99bd431f470f63a96899ebdd169e3b"
+        },
+        {
+          "name": "articles-cold-error",
+          "file": "31-articles-cold-error.png",
+          "imageWidth": 1440,
+          "imageHeight": 1401,
+          "sha256": "8a07b3973c6fd3bf99070dbfd95e6f342a2a9c9eed1fbc2014fab793941c3c8c"
+        },
+        {
+          "name": "providers-cold-error",
+          "file": "32-providers-cold-error.png",
+          "imageWidth": 1440,
+          "imageHeight": 1712,
+          "sha256": "08c950b448b78dc582489f2f5df87d90d1aa9a7b1e729d25a5dd1d10aaf6f134"
+        },
+        {
+          "name": "packages-no-courses",
+          "file": "33-packages-no-courses.png",
+          "imageWidth": 1440,
+          "imageHeight": 1670,
+          "sha256": "c0265038f64694a0d3bf181fc943720561ae6fde0962e3e8b4854789dc9aa933"
+        },
+        {
+          "name": "attendance-empty",
+          "file": "34-attendance-empty.png",
+          "imageWidth": 1440,
+          "imageHeight": 1142,
+          "sha256": "5ac4686d0d7f46589724611863ba2f9268b95fc8971712f48287fe86eb2e2f99"
+        },
+        {
+          "name": "providers-loading",
+          "file": "35-providers-loading.png",
+          "imageWidth": 1440,
+          "imageHeight": 1654,
+          "sha256": "d73c8950fd6d947cd6dda2032be693a22fe84c1af9560df9c99d5aa829e9d2cc"
+        }
+      ]
+    },
+    {
+      "key": "en-dark-834",
+      "kind": "matrix",
+      "locale": "en",
+      "theme": "dark",
+      "captures": [
+        {
+          "name": "articles-blank-existing",
+          "file": "01-articles-blank-existing.png",
+          "imageWidth": 834,
+          "imageHeight": 1677,
+          "sha256": "333a619d7c2d10372f5c4c06a8f073ec44fa5f3e004cf84664e60c1c5eb23d94"
+        },
+        {
+          "name": "articles-bilingual-published-draft",
+          "file": "02-articles-bilingual-published-draft.png",
+          "imageWidth": 834,
+          "imageHeight": 1677,
+          "sha256": "4f602d12b725c8041a85bf99066c595e7e98f6471f1d33a1484b1685b7b9181b"
+        },
+        {
+          "name": "profile-no-selection",
+          "file": "03-profile-no-selection.png",
+          "imageWidth": 834,
+          "imageHeight": 1500,
+          "sha256": "5dbc624d2a7d245268fd224531a89da40769f806c387862d6a26a2970e055888"
+        },
+        {
+          "name": "profile-selected-private-bilingual",
+          "file": "04-profile-selected-private-bilingual.png",
+          "imageWidth": 834,
+          "imageHeight": 1543,
+          "sha256": "bb7e0857f694f405bcb407cdba1b3dc26d061d4c54e47d61288d7ce1f86873a6"
+        },
+        {
+          "name": "Articles-failure-draft-retained",
+          "file": "05-Articles-failure-draft-retained.png",
+          "imageWidth": 834,
+          "imageHeight": 1750,
+          "sha256": "2fff3f3655f06cfad07700fb85abc8b684767b95f1e7b73b380a1f8461139701"
+        },
+        {
+          "name": "Articles-pending",
+          "file": "06-Articles-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 1750,
+          "sha256": "6da22b36af3f924da3d5b9f4e7ce98edc518e1cc17da38d7306707934600b16e"
+        },
+        {
+          "name": "Articles-success",
+          "file": "07-Articles-success.png",
+          "imageWidth": 834,
+          "imageHeight": 1750,
+          "sha256": "90979aa180c06f8b0c72fa90aeb0d651a6f55999815fa62eca6bad58fedf1e54"
+        },
+        {
+          "name": "Teacher profiles-failure-draft-retained",
+          "file": "08-Teacher profiles-failure-draft-retained.png",
+          "imageWidth": 834,
+          "imageHeight": 1615,
+          "sha256": "8fe07533056ca037bbfa12c23e64f8f8996dbe989e9acc7118c6abc91f5dfd38"
+        },
+        {
+          "name": "Teacher profiles-pending",
+          "file": "09-Teacher profiles-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 1615,
+          "sha256": "80e4aeb918dfa31585750f9a25695a91c246225457fd410922925b762343328d"
+        },
+        {
+          "name": "Teacher profiles-success",
+          "file": "10-Teacher profiles-success.png",
+          "imageWidth": 834,
+          "imageHeight": 1615,
+          "sha256": "5143f9a5d6053931e86c2c151a3602388c9d710072a0f6d6e36842ab4583cc29"
+        },
+        {
+          "name": "package-edit-price-dates-courses",
+          "file": "11-package-edit-price-dates-courses.png",
+          "imageWidth": 834,
+          "imageHeight": 2005,
+          "sha256": "d393737c478ab674f9f8f9d7815b6ddc1a9a9a61f805e35208f5c40951769dd1"
+        },
+        {
+          "name": "Packages-failure-draft-retained",
+          "file": "12-Packages-failure-draft-retained.png",
+          "imageWidth": 834,
+          "imageHeight": 2077,
+          "sha256": "524f4b776354830807d6e28c05807f3b857442249c01a50025763a15f631fd32"
+        },
+        {
+          "name": "Packages-pending",
+          "file": "13-Packages-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 2077,
+          "sha256": "39af33f4595a9e20c4f92981bb43bba7dae7cdab4104627287b66a48fb70fd61"
+        },
+        {
+          "name": "Packages-success",
+          "file": "14-Packages-success.png",
+          "imageWidth": 834,
+          "imageHeight": 2077,
+          "sha256": "53908c906e035e5b1f91baa27e19ff9e0c73b78e3b91b5ecf0b1f226dde87cb1"
+        },
+        {
+          "name": "session-manual-general-host-schedule",
+          "file": "15-session-manual-general-host-schedule.png",
+          "imageWidth": 834,
+          "imageHeight": 2033,
+          "sha256": "595c4f6de6cfb8a29885ad6b34b75e07d094c51410350a1b97b675dda6c7e381"
+        },
+        {
+          "name": "session-course-provider-published",
+          "file": "16-session-course-provider-published.png",
+          "imageWidth": 834,
+          "imageHeight": 2033,
+          "sha256": "5e0477374d9329db9dc5a969a695c15a404d691eec29d2c5538e54474c7c40a0"
+        },
+        {
+          "name": "Live sessions-failure-draft-retained",
+          "file": "17-Live sessions-failure-draft-retained.png",
+          "imageWidth": 834,
+          "imageHeight": 2106,
+          "sha256": "202f8fe882497beb6755fcda5c5332b1e14bf157aef67d72b82b4e981fa56a1b"
+        },
+        {
+          "name": "Live sessions-pending",
+          "file": "18-Live sessions-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 2106,
+          "sha256": "85dda21f3dd232c9d639feec347f4ed85dd3966f2c942b15be53a1d4fe130576"
+        },
+        {
+          "name": "Live sessions-success",
+          "file": "19-Live sessions-success.png",
+          "imageWidth": 834,
+          "imageHeight": 2106,
+          "sha256": "2ce8d9812c631905d23b11275ac7272bfc98cd4c4210e5d1e244f1f5a8583be6"
+        },
+        {
+          "name": "attendance-no-selection",
+          "file": "20-attendance-no-selection.png",
+          "imageWidth": 834,
+          "imageHeight": 1219,
+          "sha256": "09e8dc48d5fb9b17385ce49eceae15a2b7e8e386e1e35b132311a5f759373881"
+        },
+        {
+          "name": "attendance-four-statuses",
+          "file": "21-attendance-four-statuses.png",
+          "imageWidth": 834,
+          "imageHeight": 1702,
+          "sha256": "eac742c44329c734c0529eca1f2553b4ad6594ef4f1fb6929318632973f73263"
+        },
+        {
+          "name": "attendance-row-correction",
+          "file": "22-attendance-row-correction.png",
+          "imageWidth": 834,
+          "imageHeight": 1702,
+          "sha256": "7dff52986b7a093c492e011f7457bd20d76bc243a1ad2c8fe8edccb28c7f6005"
+        },
+        {
+          "name": "attendance-error",
+          "file": "23-attendance-error.png",
+          "imageWidth": 834,
+          "imageHeight": 1771,
+          "sha256": "b3b190f07a19e5f1e551169973ae096ac01417669162834312181fcc9cde59b9"
+        },
+        {
+          "name": "attendance-pending",
+          "file": "24-attendance-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 1771,
+          "sha256": "8afbd22566cc461500ebe86a00b69cdd01db3257bf1736a447d6b6f071ab016a"
+        },
+        {
+          "name": "attendance-success-server-synchronized",
+          "file": "25-attendance-success-server-synchronized.png",
+          "imageWidth": 834,
+          "imageHeight": 1771,
+          "sha256": "d42afa938341fb85e5f4c73771f383674fef0a9df4576cc98c61dc22c498d202"
+        },
+        {
+          "name": "attendance-marked",
+          "file": "26-attendance-marked.png",
+          "imageWidth": 834,
+          "imageHeight": 1771,
+          "sha256": "8a328ebce4c5e54c6ada86fb6a267c4b191a027a062a81b8b2cbeb2f5b5e5fe3"
+        },
+        {
+          "name": "package-new-explicit-reset",
+          "file": "27-package-new-explicit-reset.png",
+          "imageWidth": 834,
+          "imageHeight": 2005,
+          "sha256": "bf1ba963f084864aad340a069c3454e5afd27608e8c074bb1bb6162cbd2fc2c2"
+        },
+        {
+          "name": "keyboard-section-focus",
+          "file": "28-keyboard-section-focus.png",
+          "imageWidth": 834,
+          "imageHeight": 1615,
+          "sha256": "3a81c206d02ee0d112dcc01dccd8029e6d34b195eee838789e6c2f5a7b3de8f1"
+        },
+        {
+          "name": "reflow-200-percent-equivalent",
+          "file": "29-reflow-200-percent-equivalent.png",
+          "imageWidth": 720,
+          "imageHeight": 1832,
+          "sha256": "20edf83732ad5047178b4ec504f1106c3ce247bf77b6ccebf8698fda45edd115"
+        },
+        {
+          "name": "articles-cached-refresh-failure",
+          "file": "30-articles-cached-refresh-failure.png",
+          "imageWidth": 834,
+          "imageHeight": 1874,
+          "sha256": "97adbfe4da060a0ec74091809cb4a0e2b6a7c8bb1c3eaad0ae5e3c0e9d68a0f5"
+        },
+        {
+          "name": "articles-cold-error",
+          "file": "31-articles-cold-error.png",
+          "imageWidth": 834,
+          "imageHeight": 1658,
+          "sha256": "00104ee2e8a680b1ba453c7bbb08cba97d2de8b212cb8b54d9f11f0fccc10d66"
+        },
+        {
+          "name": "providers-cold-error",
+          "file": "32-providers-cold-error.png",
+          "imageWidth": 834,
+          "imageHeight": 2119,
+          "sha256": "e5b85777c3f239b6e4b3d61b0bf06d96e6514fbd6210997bfa9cfce4fa7ead18"
+        },
+        {
+          "name": "packages-no-courses",
+          "file": "33-packages-no-courses.png",
+          "imageWidth": 834,
+          "imageHeight": 1947,
+          "sha256": "db9ef95550d60dd168caa384065def96494b115fe84abeded5bf40b945e2d245"
+        },
+        {
+          "name": "attendance-empty",
+          "file": "34-attendance-empty.png",
+          "imageWidth": 834,
+          "imageHeight": 1219,
+          "sha256": "ba35e44bbf4ab64e1acc9a59eb296eb3fe67e3f53feaa71e4979f66e4bea567e"
+        },
+        {
+          "name": "providers-loading",
+          "file": "35-providers-loading.png",
+          "imageWidth": 834,
+          "imageHeight": 2060,
+          "sha256": "83a347121d9edccee174b26c10c1bdb6f6964ea598c48c84706fe813c8bca436"
+        }
+      ]
+    },
+    {
+      "key": "en-dark-390",
+      "kind": "matrix",
+      "locale": "en",
+      "theme": "dark",
+      "captures": [
+        {
+          "name": "articles-blank-existing",
+          "file": "01-articles-blank-existing.png",
+          "imageWidth": 390,
+          "imageHeight": 2570,
+          "sha256": "b5a0f666ddf01ac225d8580d41ff5eb4ae0c44adcc2d756cbf75bb46a49dd7b1"
+        },
+        {
+          "name": "articles-bilingual-published-draft",
+          "file": "02-articles-bilingual-published-draft.png",
+          "imageWidth": 390,
+          "imageHeight": 2570,
+          "sha256": "cd18035027b3a08c6e2ca4b5e4343794477ff749ea0af9578cac4581cba0f7eb"
+        },
+        {
+          "name": "profile-no-selection",
+          "file": "03-profile-no-selection.png",
+          "imageWidth": 390,
+          "imageHeight": 2299,
+          "sha256": "2f8045123a4ac84bd1ba3bc1efd990999fe13f034f4bffadf801b11a143eb71d"
+        },
+        {
+          "name": "profile-selected-private-bilingual",
+          "file": "04-profile-selected-private-bilingual.png",
+          "imageWidth": 390,
+          "imageHeight": 2341,
+          "sha256": "20729f4c7d0b3482c87b39fce49b620feeb7da3ad0f1460cb432e498f9dd1601"
+        },
+        {
+          "name": "Articles-failure-draft-retained",
+          "file": "05-Articles-failure-draft-retained.png",
+          "imageWidth": 390,
+          "imageHeight": 2642,
+          "sha256": "a5298396c3f384cd2d832ec92896a098f1404b04a5c0e2ef4433197d6ec6feaa"
+        },
+        {
+          "name": "Articles-pending",
+          "file": "06-Articles-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 2642,
+          "sha256": "04127c6c0cc59ab181a665f87336216731a95a2c18d7d27e6b98072ec596578d"
+        },
+        {
+          "name": "Articles-success",
+          "file": "07-Articles-success.png",
+          "imageWidth": 390,
+          "imageHeight": 2642,
+          "sha256": "dca7e612d44c76c4e73227170f35e40b1367f1564091c37cd99568bfd53f0bcb"
+        },
+        {
+          "name": "Teacher profiles-failure-draft-retained",
+          "file": "08-Teacher profiles-failure-draft-retained.png",
+          "imageWidth": 390,
+          "imageHeight": 2414,
+          "sha256": "9dacb4c70fedd45eb58f2cb337e2194963f63b3cb87bcaf229617be3b24e9ec9"
+        },
+        {
+          "name": "Teacher profiles-pending",
+          "file": "09-Teacher profiles-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 2414,
+          "sha256": "34cdba0ed51fc499e4b19f69f45a9edb4abe27fea2785f5a7c08ea386c87922f"
+        },
+        {
+          "name": "Teacher profiles-success",
+          "file": "10-Teacher profiles-success.png",
+          "imageWidth": 390,
+          "imageHeight": 2414,
+          "sha256": "86f9b3f24b0e0cd87bdd4db3458af3590245f89979f9c7cf3dcd9ec7d910733d"
+        },
+        {
+          "name": "package-edit-price-dates-courses",
+          "file": "11-package-edit-price-dates-courses.png",
+          "imageWidth": 390,
+          "imageHeight": 2887,
+          "sha256": "8623bd28e5536816e04e622ed8be52a078e3e84b761e0bb16a8ba3a4a33db511"
+        },
+        {
+          "name": "Packages-failure-draft-retained",
+          "file": "12-Packages-failure-draft-retained.png",
+          "imageWidth": 390,
+          "imageHeight": 2960,
+          "sha256": "bc454db4a99fdf8255557407d12ba76a12bf12d1828e7007ab18d447a3f865dc"
+        },
+        {
+          "name": "Packages-pending",
+          "file": "13-Packages-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 2960,
+          "sha256": "dbb63c1ef9801c4467cbcf336f37b72f8d86d3c99d4746474872237eefb0ce38"
+        },
+        {
+          "name": "Packages-success",
+          "file": "14-Packages-success.png",
+          "imageWidth": 390,
+          "imageHeight": 2960,
+          "sha256": "d033a29e7a7f19b5bbd75a92faf700ca7f76153e0f8ad11f90fcb4d501dbcee6"
+        },
+        {
+          "name": "session-manual-general-host-schedule",
+          "file": "15-session-manual-general-host-schedule.png",
+          "imageWidth": 390,
+          "imageHeight": 3182,
+          "sha256": "b434838ece7ae3c30fb3a1efed3ec5c54a1c5e6da1da5a78b8964106c8774df1"
+        },
+        {
+          "name": "session-course-provider-published",
+          "file": "16-session-course-provider-published.png",
+          "imageWidth": 390,
+          "imageHeight": 3182,
+          "sha256": "3af3c8c1644617682687a933878c758083795ad8f030e0e9995adb0629762ffd"
+        },
+        {
+          "name": "Live sessions-failure-draft-retained",
+          "file": "17-Live sessions-failure-draft-retained.png",
+          "imageWidth": 390,
+          "imageHeight": 3254,
+          "sha256": "bf272453c19f8325c85d9b938f9e9a7b3f434d9d0de96d36d2248d75d8828a43"
+        },
+        {
+          "name": "Live sessions-pending",
+          "file": "18-Live sessions-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 3254,
+          "sha256": "98bc2f3572090294fa5c5d8c798a7de7d100066d3d08592a8e462d5dd69197f1"
+        },
+        {
+          "name": "Live sessions-success",
+          "file": "19-Live sessions-success.png",
+          "imageWidth": 390,
+          "imageHeight": 3254,
+          "sha256": "201c321d446020ecfe48a1781c09818b5952930fc58eabaa343bf4307bf87d96"
+        },
+        {
+          "name": "attendance-no-selection",
+          "file": "20-attendance-no-selection.png",
+          "imageWidth": 390,
+          "imageHeight": 1904,
+          "sha256": "0eb044c9ad8a50b20b11387594a2c162c8c0a1f7e2612ce3bd99022ebe46915e"
+        },
+        {
+          "name": "attendance-four-statuses",
+          "file": "21-attendance-four-statuses.png",
+          "imageWidth": 390,
+          "imageHeight": 2686,
+          "sha256": "6bf50afe59791883bd195601ae6b1230340094d450d3e86d3d801dc775916d45"
+        },
+        {
+          "name": "attendance-row-correction",
+          "file": "22-attendance-row-correction.png",
+          "imageWidth": 390,
+          "imageHeight": 2686,
+          "sha256": "a262d4cc7adadfcd58e3c3dcec458f165a59ea79532ea64908a113d469940fe0"
+        },
+        {
+          "name": "attendance-error",
+          "file": "23-attendance-error.png",
+          "imageWidth": 390,
+          "imageHeight": 2756,
+          "sha256": "bf2af74bac148410b40227982c716c641fd860663f0199c336a6349c15d2f4eb"
+        },
+        {
+          "name": "attendance-pending",
+          "file": "24-attendance-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 2756,
+          "sha256": "9ea60a7c66762aad656b1e8034607d672cf6e99d482d44571bc0b07ad75c5773"
+        },
+        {
+          "name": "attendance-success-server-synchronized",
+          "file": "25-attendance-success-server-synchronized.png",
+          "imageWidth": 390,
+          "imageHeight": 2756,
+          "sha256": "d998ece0c97efca987a26eb4514a6152d0b142e691615dbc2027341707b8b0aa"
+        },
+        {
+          "name": "attendance-marked",
+          "file": "26-attendance-marked.png",
+          "imageWidth": 390,
+          "imageHeight": 2756,
+          "sha256": "1be8a136945b2a2816d470a86d9eeedaae0ad18d7ec7d682de190749fed8ed78"
+        },
+        {
+          "name": "package-new-explicit-reset",
+          "file": "27-package-new-explicit-reset.png",
+          "imageWidth": 390,
+          "imageHeight": 2887,
+          "sha256": "3faf05f6ff3f420cd4c2caea07c4361992e8dedc14521b7cb67db2c0c888f84e"
+        },
+        {
+          "name": "keyboard-section-focus",
+          "file": "28-keyboard-section-focus.png",
+          "imageWidth": 390,
+          "imageHeight": 2414,
+          "sha256": "3817e3f4aedf674a409184e8b06a3074a13d6e4d6e750f1731a28296e2bd8a8c"
+        },
+        {
+          "name": "reflow-200-percent-equivalent",
+          "file": "29-reflow-200-percent-equivalent.png",
+          "imageWidth": 720,
+          "imageHeight": 1832,
+          "sha256": "6659e8a6225bff3413160e8d9516e0e6c6cae97bc6931544ff67161120bf197c"
+        },
+        {
+          "name": "articles-cached-refresh-failure",
+          "file": "30-articles-cached-refresh-failure.png",
+          "imageWidth": 390,
+          "imageHeight": 2793,
+          "sha256": "007e9a42d22bd5768f39e34cace4f4acba016176bc90f77771612ce8db9146f9"
+        },
+        {
+          "name": "articles-cold-error",
+          "file": "31-articles-cold-error.png",
+          "imageWidth": 390,
+          "imageHeight": 2551,
+          "sha256": "b4fc35323b29dd33c58baaf4d404103724435d76030bd21f4b5493d2f34391e9"
+        },
+        {
+          "name": "providers-cold-error",
+          "file": "32-providers-cold-error.png",
+          "imageWidth": 390,
+          "imageHeight": 3268,
+          "sha256": "19a99e32172a916704d50f7b736eb444cf4c079531374a4558b9299e54d00e49"
+        },
+        {
+          "name": "packages-no-courses",
+          "file": "33-packages-no-courses.png",
+          "imageWidth": 390,
+          "imageHeight": 2810,
+          "sha256": "b26920d851b20d8cbc4828540d71ecc62671b0ebed82143e80862a405519ead4"
+        },
+        {
+          "name": "attendance-empty",
+          "file": "34-attendance-empty.png",
+          "imageWidth": 390,
+          "imageHeight": 1930,
+          "sha256": "95c33af8d755ed7ac72a6fbf5a4d9bb8051edaa930695eb60396e6baf07fef73"
+        },
+        {
+          "name": "providers-loading",
+          "file": "35-providers-loading.png",
+          "imageWidth": 390,
+          "imageHeight": 3209,
+          "sha256": "4caf0ccf168ac8033f867ba0c1c7eb46f2834b5f461accb4c5395f58db6be470"
+        }
+      ]
+    },
+    {
+      "key": "en-dark-narrow-unbroken",
+      "kind": "narrow-unbroken",
+      "locale": "en",
+      "theme": "dark",
+      "captures": [
+        {
+          "name": "unbroken-course-320",
+          "file": "unbroken-course-320.png",
+          "imageWidth": 320,
+          "imageHeight": 3252,
+          "sha256": "86f3c7f7ea985eafdda8751af3d1ad03c5ad6b251903ca62d6ed361b5dba0ead"
+        },
+        {
+          "name": "unbroken-course-360",
+          "file": "unbroken-course-360.png",
+          "imageWidth": 360,
+          "imageHeight": 3148,
+          "sha256": "519776f1a17734843776c52fd261ebd405bc0cc13ad5c3b6c9d858ca8227a6d0"
+        },
+        {
+          "name": "unbroken-course-390",
+          "file": "unbroken-course-390.png",
+          "imageWidth": 390,
+          "imageHeight": 3095,
+          "sha256": "4b3c813044e849daf1a430a66ed30e8574f613d07b44421966e99e70bdbaebd4"
+        },
+        {
+          "name": "unbroken-course-834",
+          "file": "unbroken-course-834.png",
+          "imageWidth": 834,
+          "imageHeight": 2168,
+          "sha256": "2ec41c06b2bc396016e5c8b0306381e895f7fa54e44bec1c531faf9a6e2c08f4"
+        },
+        {
+          "name": "unbroken-course-1440",
+          "file": "unbroken-course-1440.png",
+          "imageWidth": 1440,
+          "imageHeight": 1891,
+          "sha256": "a666f3c69ca70fd189becfebf165ccde01a137d0970bb91fb67c445c1597d627"
+        }
+      ]
+    },
+    {
+      "key": "en-dark-supplemental-stress",
+      "kind": "supplemental-stress",
+      "locale": "en",
+      "theme": "dark",
+      "captures": [
+        {
+          "name": "packages-course-geometry-mobile",
+          "file": "01-packages-course-geometry-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 3095,
+          "sha256": "4469169a4027391583fb930b253bf00193c381cf3e2792583bdfb71fcc47ec98"
+        },
+        {
+          "name": "packages-create-many-courses-mobile",
+          "file": "02-packages-create-many-courses-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 3095,
+          "sha256": "e6c4655b3029bd5803b1ed40f8efd74cbb74f1b3bce7d11748b049b6b2ccc333"
+        },
+        {
+          "name": "packages-create-success-mobile",
+          "file": "03-packages-create-success-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 3168,
+          "sha256": "85e982823eef4f1235c0bd03d1135c597c0f56dc818fef0fea1f2e83fc5e32c4"
+        },
+        {
+          "name": "profile-public-long-name-mobile",
+          "file": "04-profile-public-long-name-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 2367,
+          "sha256": "079f1200523b2ca2dd71a77d3c018ce60ba030b1678ace5ac97407bac51390f5"
+        },
+        {
+          "name": "attendance-long-name-keyboard-mobile",
+          "file": "05-attendance-long-name-keyboard-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 2712,
+          "sha256": "651a2b0b13b526ba7d3ec90dda43123e3a891bd5be1b6499f397067cffcd049e"
+        },
+        {
+          "name": "attendance-long-name-desktop",
+          "file": "06-attendance-long-name-desktop.png",
+          "imageWidth": 1440,
+          "imageHeight": 1625,
+          "sha256": "0e3b6cb95ff04cafbd2f9f6aa82a46de78171692b1c3bcf0dc9f40e9866df919"
+        },
+        {
+          "name": "packages-course-geometry-desktop",
+          "file": "07-packages-course-geometry-desktop.png",
+          "imageWidth": 1440,
+          "imageHeight": 2028,
+          "sha256": "da89323b1610bfd7e200594e72daf577e56c5cdf81a2a36da7f34b4da6a2533e"
+        },
+        {
+          "name": "packages-many-courses-desktop",
+          "file": "08-packages-many-courses-desktop.png",
+          "imageWidth": 1440,
+          "imageHeight": 2028,
+          "sha256": "9f7c6cff8344457ee5f77b6c6e3cdabe0dfdd84f42a3e9e5bea6f9e24a2a74fe"
+        }
+      ]
+    },
+    {
+      "key": "en-light-1440",
+      "kind": "matrix",
+      "locale": "en",
+      "theme": "light",
+      "captures": [
+        {
+          "name": "articles-blank-existing",
+          "file": "01-articles-blank-existing.png",
+          "imageWidth": 1440,
+          "imageHeight": 1401,
+          "sha256": "dfa543f5bbd7e603ce80e935cabaf033e721bc44a6e8aecbd6163b9b0a0d7cbc"
+        },
+        {
+          "name": "articles-bilingual-published-draft",
+          "file": "02-articles-bilingual-published-draft.png",
+          "imageWidth": 1440,
+          "imageHeight": 1401,
+          "sha256": "471ce0e3e7d5e43ea399af5a55612461082e7465e21dc5e51bc1b3062c7f251d"
+        },
+        {
+          "name": "profile-no-selection",
+          "file": "03-profile-no-selection.png",
+          "imageWidth": 1440,
+          "imageHeight": 1290,
+          "sha256": "29ecc8ed0979cb6ec1b098fc4bb34fd65a46cf0f7c00f4c744c2c08ccb69191c"
+        },
+        {
+          "name": "profile-selected-private-bilingual",
+          "file": "04-profile-selected-private-bilingual.png",
+          "imageWidth": 1440,
+          "imageHeight": 1290,
+          "sha256": "749f3a9fc84fbdd77d6438e8ad6c01720170974a0e82520270d96be3d5d16af4"
+        },
+        {
+          "name": "Articles-failure-draft-retained",
+          "file": "05-Articles-failure-draft-retained.png",
+          "imageWidth": 1440,
+          "imageHeight": 1473,
+          "sha256": "c2751a49e052d885c51efcac09609c73bbcae4e72ccba5bffdaf430e0206f4dc"
+        },
+        {
+          "name": "Articles-pending",
+          "file": "06-Articles-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1473,
+          "sha256": "4e1387e128b3ef7410d54716acde541079184e602a3dcf1c4b81b5b86a64ed64"
+        },
+        {
+          "name": "Articles-success",
+          "file": "07-Articles-success.png",
+          "imageWidth": 1440,
+          "imageHeight": 1473,
+          "sha256": "c5cf0d3d059023f1a9ce11758be0ad6288b25007eaa845afc82d5dfca5cd827f"
+        },
+        {
+          "name": "Teacher profiles-failure-draft-retained",
+          "file": "08-Teacher profiles-failure-draft-retained.png",
+          "imageWidth": 1440,
+          "imageHeight": 1363,
+          "sha256": "885ad8eae473d5a80d3f5e6f209bacccd3704ba9c8c1fef42114f925bb3d076a"
+        },
+        {
+          "name": "Teacher profiles-pending",
+          "file": "09-Teacher profiles-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1363,
+          "sha256": "0e0b04b9067b3d7ed050f2bdeebb082243ad99a53822abe26bcd3b0bcbb36270"
+        },
+        {
+          "name": "Teacher profiles-success",
+          "file": "10-Teacher profiles-success.png",
+          "imageWidth": 1440,
+          "imageHeight": 1363,
+          "sha256": "ce8a3eb4a823b471a6511ad7b85d3e4ea7d56ce4894e8fbd47eac8d72bacf543"
+        },
+        {
+          "name": "package-edit-price-dates-courses",
+          "file": "11-package-edit-price-dates-courses.png",
+          "imageWidth": 1440,
+          "imageHeight": 1728,
+          "sha256": "5bca14a364fb542bb453d80e5d8567173cdc2dd9eeca1e18d36079fde9539867"
+        },
+        {
+          "name": "Packages-failure-draft-retained",
+          "file": "12-Packages-failure-draft-retained.png",
+          "imageWidth": 1440,
+          "imageHeight": 1801,
+          "sha256": "c7e10e71207a428916747e9886544e1727ae9f2731941ddddb8c9975fe99a665"
+        },
+        {
+          "name": "Packages-pending",
+          "file": "13-Packages-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1801,
+          "sha256": "2fee8216010a6ce57057e5c7a8481a38f928c38a3fa4ed269a7156251076739e"
+        },
+        {
+          "name": "Packages-success",
+          "file": "14-Packages-success.png",
+          "imageWidth": 1440,
+          "imageHeight": 1801,
+          "sha256": "0b447ed2ad9d8d2015be2befb40bb7e41f13740ca71882e9b27ce009e38854ff"
+        },
+        {
+          "name": "session-manual-general-host-schedule",
+          "file": "15-session-manual-general-host-schedule.png",
+          "imageWidth": 1440,
+          "imageHeight": 1626,
+          "sha256": "e7df3fa01407e6c5e23010cae908ac0cc0ecc053abb9d10dd8579e0d9144c5d6"
+        },
+        {
+          "name": "session-course-provider-published",
+          "file": "16-session-course-provider-published.png",
+          "imageWidth": 1440,
+          "imageHeight": 1626,
+          "sha256": "743b49d5732c47025eec3dcccb6e9c972d4e9c08f65b93b1a94d3b22b7c75715"
+        },
+        {
+          "name": "Live sessions-failure-draft-retained",
+          "file": "17-Live sessions-failure-draft-retained.png",
+          "imageWidth": 1440,
+          "imageHeight": 1699,
+          "sha256": "ecc3aabb1abc6c58a6e55891b6b5b77872b908c0aac9220b48edc78836b8d463"
+        },
+        {
+          "name": "Live sessions-pending",
+          "file": "18-Live sessions-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1699,
+          "sha256": "7c48d3196befa25815d273a561b39603147392426c500a85ee4aa687a6ee46df"
+        },
+        {
+          "name": "Live sessions-success",
+          "file": "19-Live sessions-success.png",
+          "imageWidth": 1440,
+          "imageHeight": 1699,
+          "sha256": "3ff5c59c3f28c713be62ad59a42e9c9bcdc9a3ea07c0fc4a26eb719069dcc5b6"
+        },
+        {
+          "name": "attendance-no-selection",
+          "file": "20-attendance-no-selection.png",
+          "imageWidth": 1440,
+          "imageHeight": 1142,
+          "sha256": "54778140d1609be8d20f154336af2c4b2071aedbdba269a80a353739cec2721e"
+        },
+        {
+          "name": "attendance-four-statuses",
+          "file": "21-attendance-four-statuses.png",
+          "imageWidth": 1440,
+          "imageHeight": 1625,
+          "sha256": "b37443f4d45c11d539cf111a47da8f7639d79180ad0aa977e247cbcb56d80780"
+        },
+        {
+          "name": "attendance-row-correction",
+          "file": "22-attendance-row-correction.png",
+          "imageWidth": 1440,
+          "imageHeight": 1625,
+          "sha256": "933035378346d4f598b7b7f504fe4e68aee327e4b8952d9dba16a493a92537f3"
+        },
+        {
+          "name": "attendance-error",
+          "file": "23-attendance-error.png",
+          "imageWidth": 1440,
+          "imageHeight": 1694,
+          "sha256": "1cdc8d1ba139df44b598a5c92c2097be343187388f2a9284151254c9bfcecac2"
+        },
+        {
+          "name": "attendance-pending",
+          "file": "24-attendance-pending.png",
+          "imageWidth": 1440,
+          "imageHeight": 1694,
+          "sha256": "4799f74b4990d9b3b60d18cd4514f0b37b18f9641a164b8f5e2e17e273bc420e"
+        },
+        {
+          "name": "attendance-success-server-synchronized",
+          "file": "25-attendance-success-server-synchronized.png",
+          "imageWidth": 1440,
+          "imageHeight": 1694,
+          "sha256": "983a1ad6027be189a962b63f1eb89739bf749e0e38985f19ec3cc0e743be999f"
+        },
+        {
+          "name": "attendance-marked",
+          "file": "26-attendance-marked.png",
+          "imageWidth": 1440,
+          "imageHeight": 1694,
+          "sha256": "faee2c656183e6c55150886142aa1ccb9a81a06bffd12b637e5e091e4d10aae4"
+        },
+        {
+          "name": "package-new-explicit-reset",
+          "file": "27-package-new-explicit-reset.png",
+          "imageWidth": 1440,
+          "imageHeight": 1728,
+          "sha256": "c08c5d268db1b68cc58777d0a65a0eea9eed3fc42197de36c6b9d2026218c8f4"
+        },
+        {
+          "name": "keyboard-section-focus",
+          "file": "28-keyboard-section-focus.png",
+          "imageWidth": 1440,
+          "imageHeight": 1363,
+          "sha256": "ab78f674ae3792e857cf75e847ede5678efe0a56fd403df41fdb96bd93630f46"
+        },
+        {
+          "name": "reflow-200-percent-equivalent",
+          "file": "29-reflow-200-percent-equivalent.png",
+          "imageWidth": 720,
+          "imageHeight": 1832,
+          "sha256": "a4d3272a267cc93fe1ce0858f8585002ee92b0c572e9e87bb16b68d82ccf7ff9"
+        },
+        {
+          "name": "articles-cached-refresh-failure",
+          "file": "30-articles-cached-refresh-failure.png",
+          "imageWidth": 1440,
+          "imageHeight": 1473,
+          "sha256": "f9c041faed6e15793f9928cef46797a997259814cef0efec26799e7d9a2bcbf0"
+        },
+        {
+          "name": "articles-cold-error",
+          "file": "31-articles-cold-error.png",
+          "imageWidth": 1440,
+          "imageHeight": 1401,
+          "sha256": "02b79e625927589eff1a2cef937fa2c2d478da5f689913c3d998797b39168709"
+        },
+        {
+          "name": "providers-cold-error",
+          "file": "32-providers-cold-error.png",
+          "imageWidth": 1440,
+          "imageHeight": 1712,
+          "sha256": "9533c1cb423bc9eed499ad8dd60fc6427a6fa19ba943c29f9eb50df46c25afa6"
+        },
+        {
+          "name": "packages-no-courses",
+          "file": "33-packages-no-courses.png",
+          "imageWidth": 1440,
+          "imageHeight": 1670,
+          "sha256": "6e4c776214ee9f3b179a5d8e3acc74403ee877e8be456b53bec2c32afc04fe75"
+        },
+        {
+          "name": "attendance-empty",
+          "file": "34-attendance-empty.png",
+          "imageWidth": 1440,
+          "imageHeight": 1142,
+          "sha256": "0d89d6f489cfb833420785381a3abe653071a6a419bdde704b92eda5efa4067f"
+        },
+        {
+          "name": "providers-loading",
+          "file": "35-providers-loading.png",
+          "imageWidth": 1440,
+          "imageHeight": 1654,
+          "sha256": "75715070a62666de8094621a3af684e89c7ec74add9e777e9097f60ca9005bdd"
+        }
+      ]
+    },
+    {
+      "key": "en-light-834",
+      "kind": "matrix",
+      "locale": "en",
+      "theme": "light",
+      "captures": [
+        {
+          "name": "articles-blank-existing",
+          "file": "01-articles-blank-existing.png",
+          "imageWidth": 834,
+          "imageHeight": 1677,
+          "sha256": "49e412130cca106d08625a47a54e7eaf633efc95ad48de84363720f866a7d2fa"
+        },
+        {
+          "name": "articles-bilingual-published-draft",
+          "file": "02-articles-bilingual-published-draft.png",
+          "imageWidth": 834,
+          "imageHeight": 1677,
+          "sha256": "0b655441c8e284adb91b16d8b5d80077e1e68e86912f4a902f711200533cfc5c"
+        },
+        {
+          "name": "profile-no-selection",
+          "file": "03-profile-no-selection.png",
+          "imageWidth": 834,
+          "imageHeight": 1500,
+          "sha256": "ac165d9d2ccc543759477bbe25b554b0d0598dc2ec6efd9285951e3a09990fe3"
+        },
+        {
+          "name": "profile-selected-private-bilingual",
+          "file": "04-profile-selected-private-bilingual.png",
+          "imageWidth": 834,
+          "imageHeight": 1543,
+          "sha256": "e56088e8fe0ba05c07ec48d629a813b441d4e1a6af6a989edbe8d31043a3ddde"
+        },
+        {
+          "name": "Articles-failure-draft-retained",
+          "file": "05-Articles-failure-draft-retained.png",
+          "imageWidth": 834,
+          "imageHeight": 1750,
+          "sha256": "3bc9b51c23e7d586caf4cfd4aed1b745f62a4d65c957c1cf9b65cb801aa50427"
+        },
+        {
+          "name": "Articles-pending",
+          "file": "06-Articles-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 1750,
+          "sha256": "bf8090b9bac4d3c6963fe155f554119defe25dd1b07d5a4bf787400f38f595cf"
+        },
+        {
+          "name": "Articles-success",
+          "file": "07-Articles-success.png",
+          "imageWidth": 834,
+          "imageHeight": 1750,
+          "sha256": "3d32ceb2d7609bfb07bfd84f2043201df09d97cfb7679befb6bf65cadb1702cc"
+        },
+        {
+          "name": "Teacher profiles-failure-draft-retained",
+          "file": "08-Teacher profiles-failure-draft-retained.png",
+          "imageWidth": 834,
+          "imageHeight": 1615,
+          "sha256": "8c037155b3d1818a2acce9f0f382f2d34b245602b32e1ceea090a81bbb1a9026"
+        },
+        {
+          "name": "Teacher profiles-pending",
+          "file": "09-Teacher profiles-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 1615,
+          "sha256": "6444cf976f6a6618645f2e1ec5e3e341c038462dfa42d259deceac22f89a6039"
+        },
+        {
+          "name": "Teacher profiles-success",
+          "file": "10-Teacher profiles-success.png",
+          "imageWidth": 834,
+          "imageHeight": 1615,
+          "sha256": "29cf06115a82de4f80cd27d485c5f2a7b73eff0ce1f0809ee9f6ef177514e6eb"
+        },
+        {
+          "name": "package-edit-price-dates-courses",
+          "file": "11-package-edit-price-dates-courses.png",
+          "imageWidth": 834,
+          "imageHeight": 2005,
+          "sha256": "6759bf05709636e7636b7cf9ddcd711bec359dfdb32173c144adb54efb33ab0f"
+        },
+        {
+          "name": "Packages-failure-draft-retained",
+          "file": "12-Packages-failure-draft-retained.png",
+          "imageWidth": 834,
+          "imageHeight": 2077,
+          "sha256": "789403f034319d872b86b42b9e2fb4d84e255c80dcfb2efec9bae54e0651d3c1"
+        },
+        {
+          "name": "Packages-pending",
+          "file": "13-Packages-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 2077,
+          "sha256": "ac819992cd736c4733a60a02cca799cf668d6d32918c8c63b2aec4d2f6134f66"
+        },
+        {
+          "name": "Packages-success",
+          "file": "14-Packages-success.png",
+          "imageWidth": 834,
+          "imageHeight": 2077,
+          "sha256": "fb4e6339c265ca5a078bc287659ca74b0d34ffca35b6c87fbf0a90a5995ffce0"
+        },
+        {
+          "name": "session-manual-general-host-schedule",
+          "file": "15-session-manual-general-host-schedule.png",
+          "imageWidth": 834,
+          "imageHeight": 2033,
+          "sha256": "c0b18dbd974b650e4410782be618c9ce68b1c55432b7423257b6218f7b0fa3f9"
+        },
+        {
+          "name": "session-course-provider-published",
+          "file": "16-session-course-provider-published.png",
+          "imageWidth": 834,
+          "imageHeight": 2033,
+          "sha256": "3e50f7659471f41561fe225891718fdcd6b686ed3815e2e5bc283597e855a32d"
+        },
+        {
+          "name": "Live sessions-failure-draft-retained",
+          "file": "17-Live sessions-failure-draft-retained.png",
+          "imageWidth": 834,
+          "imageHeight": 2106,
+          "sha256": "09ad9ebcd6b931e847efb97b3029f149b90a04e5b0662b62e8607695f74c05a1"
+        },
+        {
+          "name": "Live sessions-pending",
+          "file": "18-Live sessions-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 2106,
+          "sha256": "7a2f93d329481b5f1b143f8275495fdb198aa50c0c0c7088c3267209331867a3"
+        },
+        {
+          "name": "Live sessions-success",
+          "file": "19-Live sessions-success.png",
+          "imageWidth": 834,
+          "imageHeight": 2106,
+          "sha256": "7650f59aa32ed4dee4764815c10ce7f9088e91994e150285cf36cf825b9eb12d"
+        },
+        {
+          "name": "attendance-no-selection",
+          "file": "20-attendance-no-selection.png",
+          "imageWidth": 834,
+          "imageHeight": 1219,
+          "sha256": "26fc9043ef47f67f28a6e80f8ce4bf46b656ce254f28385a7766f56fc3dcdb85"
+        },
+        {
+          "name": "attendance-four-statuses",
+          "file": "21-attendance-four-statuses.png",
+          "imageWidth": 834,
+          "imageHeight": 1702,
+          "sha256": "3c76c8b168abf7c99fb533d7a857fba116b9c3630609145f1ad68bb9d1bdc911"
+        },
+        {
+          "name": "attendance-row-correction",
+          "file": "22-attendance-row-correction.png",
+          "imageWidth": 834,
+          "imageHeight": 1702,
+          "sha256": "4345e2b8122a99c85be6d875d6b9f6901b92acb826ac77460605babcfd67cb37"
+        },
+        {
+          "name": "attendance-error",
+          "file": "23-attendance-error.png",
+          "imageWidth": 834,
+          "imageHeight": 1771,
+          "sha256": "34e2f2ab5727d06e288d9a20aad964b5e7fdc391a92c80c77d5ec09a369f6d8c"
+        },
+        {
+          "name": "attendance-pending",
+          "file": "24-attendance-pending.png",
+          "imageWidth": 834,
+          "imageHeight": 1771,
+          "sha256": "bbb3965da0e4eaecadc7b894e065434998b38a2cfcbe73de2117ed7817eae4fb"
+        },
+        {
+          "name": "attendance-success-server-synchronized",
+          "file": "25-attendance-success-server-synchronized.png",
+          "imageWidth": 834,
+          "imageHeight": 1771,
+          "sha256": "5f0dae0cc1d5e99f94f7f031e3f2054271d46d2d23c3c15170e0405d224232ce"
+        },
+        {
+          "name": "attendance-marked",
+          "file": "26-attendance-marked.png",
+          "imageWidth": 834,
+          "imageHeight": 1771,
+          "sha256": "e12229677fb07a4d9eef6ff2ca49db04e8945eda2e81560b888619f942575390"
+        },
+        {
+          "name": "package-new-explicit-reset",
+          "file": "27-package-new-explicit-reset.png",
+          "imageWidth": 834,
+          "imageHeight": 2005,
+          "sha256": "f45d74254f45d9698859c424fe5eee6f3ca519fceadae2c5a6324e37d0606bf3"
+        },
+        {
+          "name": "keyboard-section-focus",
+          "file": "28-keyboard-section-focus.png",
+          "imageWidth": 834,
+          "imageHeight": 1615,
+          "sha256": "bd1ec83b47feded2716db837e314ddb6477ef1108b0226876315066cb261163c"
+        },
+        {
+          "name": "reflow-200-percent-equivalent",
+          "file": "29-reflow-200-percent-equivalent.png",
+          "imageWidth": 720,
+          "imageHeight": 1832,
+          "sha256": "199de58c171b6b2930f1e4f04c3ef68b40efbbb0b7c72ca3f7e24cc38ece539d"
+        },
+        {
+          "name": "articles-cached-refresh-failure",
+          "file": "30-articles-cached-refresh-failure.png",
+          "imageWidth": 834,
+          "imageHeight": 1874,
+          "sha256": "46ab4380b66f301271672e562e5448c1ba89422a881b30d17fb66edb6821637e"
+        },
+        {
+          "name": "articles-cold-error",
+          "file": "31-articles-cold-error.png",
+          "imageWidth": 834,
+          "imageHeight": 1658,
+          "sha256": "ad7d9c2b95d9bf80fd60c6780a17e556cba12161930af7cb7c35194d258fbce6"
+        },
+        {
+          "name": "providers-cold-error",
+          "file": "32-providers-cold-error.png",
+          "imageWidth": 834,
+          "imageHeight": 2119,
+          "sha256": "ec410f667d23fd154c90552a118dd8bc4e0d38e21b4b775792523ddf43a15b28"
+        },
+        {
+          "name": "packages-no-courses",
+          "file": "33-packages-no-courses.png",
+          "imageWidth": 834,
+          "imageHeight": 1947,
+          "sha256": "75ff0742f9c2e5bb9021a502a42a318180751c3a510c26ed55b2b89932778e8b"
+        },
+        {
+          "name": "attendance-empty",
+          "file": "34-attendance-empty.png",
+          "imageWidth": 834,
+          "imageHeight": 1219,
+          "sha256": "f217d2841d447759714c6c9d7d7c6a51756a44b00e3e64885a3de15f1bf0c9d4"
+        },
+        {
+          "name": "providers-loading",
+          "file": "35-providers-loading.png",
+          "imageWidth": 834,
+          "imageHeight": 2060,
+          "sha256": "081352cb026a9a2cba4426c1c0c4488ff57af1c68410bfb67bf92ba84b2f733c"
+        }
+      ]
+    },
+    {
+      "key": "en-light-390",
+      "kind": "matrix",
+      "locale": "en",
+      "theme": "light",
+      "captures": [
+        {
+          "name": "articles-blank-existing",
+          "file": "01-articles-blank-existing.png",
+          "imageWidth": 390,
+          "imageHeight": 2570,
+          "sha256": "943f358e4a419025758c2c6325b502e0809ef7122f0a4a7caa48f06c28ac72f8"
+        },
+        {
+          "name": "articles-bilingual-published-draft",
+          "file": "02-articles-bilingual-published-draft.png",
+          "imageWidth": 390,
+          "imageHeight": 2570,
+          "sha256": "5b5539a4905c5ba4ebb04fa2b526b59fedbee4793b11c1a635966c2b9d9c284c"
+        },
+        {
+          "name": "profile-no-selection",
+          "file": "03-profile-no-selection.png",
+          "imageWidth": 390,
+          "imageHeight": 2299,
+          "sha256": "cb740851689a457412b36a660e27bee3104454a7ae74c23cdc362de6e4ecea41"
+        },
+        {
+          "name": "profile-selected-private-bilingual",
+          "file": "04-profile-selected-private-bilingual.png",
+          "imageWidth": 390,
+          "imageHeight": 2341,
+          "sha256": "ba67a5443cbbc6739644b1bf8909711f5f6f00bca829ac5bad3ac60fe8624e71"
+        },
+        {
+          "name": "Articles-failure-draft-retained",
+          "file": "05-Articles-failure-draft-retained.png",
+          "imageWidth": 390,
+          "imageHeight": 2642,
+          "sha256": "1576786823baf897eb502dddcace33a1cf9838fbf59f11f6cc1bbe2a61eaddb1"
+        },
+        {
+          "name": "Articles-pending",
+          "file": "06-Articles-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 2642,
+          "sha256": "9521bd5d9b0be6f23d06c3d170ef64d6c17a3ab7f0a525acf33171ac9858e71d"
+        },
+        {
+          "name": "Articles-success",
+          "file": "07-Articles-success.png",
+          "imageWidth": 390,
+          "imageHeight": 2642,
+          "sha256": "59aab8a331ff7d86c170bfa328dc2e3a5e2f96ca27208303994975c60ccb0dbb"
+        },
+        {
+          "name": "Teacher profiles-failure-draft-retained",
+          "file": "08-Teacher profiles-failure-draft-retained.png",
+          "imageWidth": 390,
+          "imageHeight": 2414,
+          "sha256": "a6182940feb6d07f159cc7b1ed62b9e49bb092d57a4997ea3332bcd3e31d26f5"
+        },
+        {
+          "name": "Teacher profiles-pending",
+          "file": "09-Teacher profiles-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 2414,
+          "sha256": "52dafa6fe46aaf4b5a58ee0237b08f4433f204216f918bf3d1ecff372661abfd"
+        },
+        {
+          "name": "Teacher profiles-success",
+          "file": "10-Teacher profiles-success.png",
+          "imageWidth": 390,
+          "imageHeight": 2414,
+          "sha256": "4559da86308bcfc61b6e6904221bf6aa944a35f43860b3809da596888a58f09e"
+        },
+        {
+          "name": "package-edit-price-dates-courses",
+          "file": "11-package-edit-price-dates-courses.png",
+          "imageWidth": 390,
+          "imageHeight": 2887,
+          "sha256": "48e09a8e3e2967479d9054b15769b18b4bc82209fc991fa21ca6c01047c18ee9"
+        },
+        {
+          "name": "Packages-failure-draft-retained",
+          "file": "12-Packages-failure-draft-retained.png",
+          "imageWidth": 390,
+          "imageHeight": 2960,
+          "sha256": "b3a8d3ad0f14ce4b2e04bf9ba5021b9b14979448f798eddfc2d2075181b28bd5"
+        },
+        {
+          "name": "Packages-pending",
+          "file": "13-Packages-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 2960,
+          "sha256": "98c7d7a513af0eac7e33f2f961c1ce819a59a030ead1fcc9909fd870f12c3a44"
+        },
+        {
+          "name": "Packages-success",
+          "file": "14-Packages-success.png",
+          "imageWidth": 390,
+          "imageHeight": 2960,
+          "sha256": "b25f1ae26725cb0d16fad46f38604b360690c6395110a61cac140bd822a61013"
+        },
+        {
+          "name": "session-manual-general-host-schedule",
+          "file": "15-session-manual-general-host-schedule.png",
+          "imageWidth": 390,
+          "imageHeight": 3182,
+          "sha256": "3d6706fb1a6631d5c3558911f384e1f92c384a98ebc4223897f395aea328025d"
+        },
+        {
+          "name": "session-course-provider-published",
+          "file": "16-session-course-provider-published.png",
+          "imageWidth": 390,
+          "imageHeight": 3182,
+          "sha256": "f5c88f64e7f0ad573e4eb82df3849b4ddabd6f0afaa8b09d9d910224bff9956f"
+        },
+        {
+          "name": "Live sessions-failure-draft-retained",
+          "file": "17-Live sessions-failure-draft-retained.png",
+          "imageWidth": 390,
+          "imageHeight": 3254,
+          "sha256": "29c694a74d9aff5650ff2ed121b233dd71df1012b0f31d3682768fe9823d9d58"
+        },
+        {
+          "name": "Live sessions-pending",
+          "file": "18-Live sessions-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 3254,
+          "sha256": "89bc43a93369151f07cd3521dfb7f6ebbb7e1cf75526177562a88f6caef5bbef"
+        },
+        {
+          "name": "Live sessions-success",
+          "file": "19-Live sessions-success.png",
+          "imageWidth": 390,
+          "imageHeight": 3254,
+          "sha256": "029ec26d61ad79baf7b2d9a7f1f2e514981909aa75b9df39909e258c53712911"
+        },
+        {
+          "name": "attendance-no-selection",
+          "file": "20-attendance-no-selection.png",
+          "imageWidth": 390,
+          "imageHeight": 1904,
+          "sha256": "6860f026dbac06777cb6ab4230f3153f85720559d05b52dda69bb6f1370c6a1d"
+        },
+        {
+          "name": "attendance-four-statuses",
+          "file": "21-attendance-four-statuses.png",
+          "imageWidth": 390,
+          "imageHeight": 2686,
+          "sha256": "a68c48f6c687efb248879a0af84f7474921288a48686a811a01fb350534570fd"
+        },
+        {
+          "name": "attendance-row-correction",
+          "file": "22-attendance-row-correction.png",
+          "imageWidth": 390,
+          "imageHeight": 2686,
+          "sha256": "8579f5c3540cba9dedb512f7a0eeda365c251f8785fd010a4d1ea6f905256dff"
+        },
+        {
+          "name": "attendance-error",
+          "file": "23-attendance-error.png",
+          "imageWidth": 390,
+          "imageHeight": 2756,
+          "sha256": "dc47ef228dfeef712920b6db10adbebd19d80af8014ea7aaad233cf56e2f7ce6"
+        },
+        {
+          "name": "attendance-pending",
+          "file": "24-attendance-pending.png",
+          "imageWidth": 390,
+          "imageHeight": 2756,
+          "sha256": "1f6621446cf8e3fe46d2cac28dca53db8d30b0eb713aad02c5fccdd7e9eb1fb5"
+        },
+        {
+          "name": "attendance-success-server-synchronized",
+          "file": "25-attendance-success-server-synchronized.png",
+          "imageWidth": 390,
+          "imageHeight": 2756,
+          "sha256": "f114d85fb21a8a868b16a1edd4ba2c71edf0c7b546cbcb6036e4ecf83f34a664"
+        },
+        {
+          "name": "attendance-marked",
+          "file": "26-attendance-marked.png",
+          "imageWidth": 390,
+          "imageHeight": 2756,
+          "sha256": "75cf1620b1ca4dcbf21dd52845dc8607307deb076393cb81b3ae4150f89e1742"
+        },
+        {
+          "name": "package-new-explicit-reset",
+          "file": "27-package-new-explicit-reset.png",
+          "imageWidth": 390,
+          "imageHeight": 2887,
+          "sha256": "73ce58eb9fa94c757ca81412a617ae90848b2f616371d693623486eb1f288ba7"
+        },
+        {
+          "name": "keyboard-section-focus",
+          "file": "28-keyboard-section-focus.png",
+          "imageWidth": 390,
+          "imageHeight": 2414,
+          "sha256": "70f159add1cb860b9c619984e1bc4e6b73350993cbeb13cf0208c5321c7ee01d"
+        },
+        {
+          "name": "reflow-200-percent-equivalent",
+          "file": "29-reflow-200-percent-equivalent.png",
+          "imageWidth": 720,
+          "imageHeight": 1832,
+          "sha256": "fc540bf8f168f6953364e9e19573941efe4194478410ea54b6fdfefe1c9f54d0"
+        },
+        {
+          "name": "articles-cached-refresh-failure",
+          "file": "30-articles-cached-refresh-failure.png",
+          "imageWidth": 390,
+          "imageHeight": 2793,
+          "sha256": "ef1053779075d3fc4b9bd4753a4de2a23c0c51332697f54d7691e6e7bb10a47e"
+        },
+        {
+          "name": "articles-cold-error",
+          "file": "31-articles-cold-error.png",
+          "imageWidth": 390,
+          "imageHeight": 2551,
+          "sha256": "0ad558ee9c0ce26fba980cb6c76c9b305e66c5d17800539200e81bf1bab77efd"
+        },
+        {
+          "name": "providers-cold-error",
+          "file": "32-providers-cold-error.png",
+          "imageWidth": 390,
+          "imageHeight": 3268,
+          "sha256": "f03bac791d9de78f29b2db81315f4db6f21fc8ea7214136bc0f987bacafd02f3"
+        },
+        {
+          "name": "packages-no-courses",
+          "file": "33-packages-no-courses.png",
+          "imageWidth": 390,
+          "imageHeight": 2810,
+          "sha256": "da130b7a99fbac408186d8a1768e3a14cfe3b2b6d8d1f02018bf4016f4bd5d1c"
+        },
+        {
+          "name": "attendance-empty",
+          "file": "34-attendance-empty.png",
+          "imageWidth": 390,
+          "imageHeight": 1930,
+          "sha256": "951472efbc1e930f917784541fb5288a0cdeb59c0a51e8da9b18ac22c0a76f28"
+        },
+        {
+          "name": "providers-loading",
+          "file": "35-providers-loading.png",
+          "imageWidth": 390,
+          "imageHeight": 3209,
+          "sha256": "5f0fa7124192cede98012e0b684be01c2d59e6f2537de414320d3c6bd677be0c"
+        }
+      ]
+    },
+    {
+      "key": "en-light-narrow-unbroken",
+      "kind": "narrow-unbroken",
+      "locale": "en",
+      "theme": "light",
+      "captures": [
+        {
+          "name": "unbroken-course-320",
+          "file": "unbroken-course-320.png",
+          "imageWidth": 320,
+          "imageHeight": 3252,
+          "sha256": "291f38a12ac4696d5ee03f6995708b36ef72347ffe62c9baf02dbebbd7dd0c06"
+        },
+        {
+          "name": "unbroken-course-360",
+          "file": "unbroken-course-360.png",
+          "imageWidth": 360,
+          "imageHeight": 3148,
+          "sha256": "38e8ee87ad52079216f50d4ddc5e6ccad07fbef0d5ba43dafd32294ff65ed140"
+        },
+        {
+          "name": "unbroken-course-390",
+          "file": "unbroken-course-390.png",
+          "imageWidth": 390,
+          "imageHeight": 3095,
+          "sha256": "69ef4dfa7aabd67585d08578a740226fe7f5b647df9d6b0edbebc709ba8ebbe2"
+        },
+        {
+          "name": "unbroken-course-834",
+          "file": "unbroken-course-834.png",
+          "imageWidth": 834,
+          "imageHeight": 2168,
+          "sha256": "000c9fc7da2e5d2aa56c68f3ee0a2ed85fa7f1b1992029946c5b665ffcadc9c6"
+        },
+        {
+          "name": "unbroken-course-1440",
+          "file": "unbroken-course-1440.png",
+          "imageWidth": 1440,
+          "imageHeight": 1891,
+          "sha256": "82dbcdbfbb0856458ee2f4060ba01401f0be51524ac28247d1375ee5ccbe47d6"
+        }
+      ]
+    },
+    {
+      "key": "en-light-supplemental-stress",
+      "kind": "supplemental-stress",
+      "locale": "en",
+      "theme": "light",
+      "captures": [
+        {
+          "name": "packages-course-geometry-mobile",
+          "file": "01-packages-course-geometry-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 3095,
+          "sha256": "f3f87ec5426fe61cac53dc872abcf47c7ddc4ef8e4264dff08e5a2d3a380df51"
+        },
+        {
+          "name": "packages-create-many-courses-mobile",
+          "file": "02-packages-create-many-courses-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 3095,
+          "sha256": "e169e8ad495beb8b54e0574f114e4d7dd40d2d0d5e567cc2f5c7c4c32d64c944"
+        },
+        {
+          "name": "packages-create-success-mobile",
+          "file": "03-packages-create-success-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 3168,
+          "sha256": "0dd8d9d58f9d45e1a2d38b515ac781415cfe36c9e312ec44ff5db4dc0a5a400f"
+        },
+        {
+          "name": "profile-public-long-name-mobile",
+          "file": "04-profile-public-long-name-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 2367,
+          "sha256": "a5a093f68f9ca1ba416ff2367739e6963555eaaa684ccfdb887ca8a9b2fea49a"
+        },
+        {
+          "name": "attendance-long-name-keyboard-mobile",
+          "file": "05-attendance-long-name-keyboard-mobile.png",
+          "imageWidth": 390,
+          "imageHeight": 2712,
+          "sha256": "2a4ad8bac8a66eb6353d3bacee4d9af1dbd90a8c8c8349a837a93f7eb6d11205"
+        },
+        {
+          "name": "attendance-long-name-desktop",
+          "file": "06-attendance-long-name-desktop.png",
+          "imageWidth": 1440,
+          "imageHeight": 1625,
+          "sha256": "0a8843f92613eb06b9f156189006e7af67bbbdca49006806c51e0a77060e16b8"
+        },
+        {
+          "name": "packages-course-geometry-desktop",
+          "file": "07-packages-course-geometry-desktop.png",
+          "imageWidth": 1440,
+          "imageHeight": 2028,
+          "sha256": "03cef2d97170e185af157be3e0a0367dd0e312325f63bded78c0c545d2ca84f2"
+        },
+        {
+          "name": "packages-many-courses-desktop",
+          "file": "08-packages-many-courses-desktop.png",
+          "imageWidth": 1440,
+          "imageHeight": 2028,
+          "sha256": "09a421222ae7754bf1edab175e8dbac62a0c7a1fa29c4e89530796ac21fff209"
+        }
+      ]
+    }
+  ]
+}
