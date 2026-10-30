@@ -1,4 +1,24 @@
 import { expect, test } from "@playwright/test";
+import { verifyThemeRestoration } from "../helpers/theme-restoration-browser";
+
+for (const locale of ["en", "ar"] as const) {
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 390, height: 844 },
+  ]) {
+    test(`@theme-csp ${locale} ${viewport.width}: persistent theme under production CSP`, async ({
+      page,
+    }, info) => {
+      test.skip(
+        !process.env.CI && process.env.BETCCO_THEME_PRODUCTION !== "1",
+        "Requires the production standalone build and its strict CSP.",
+      );
+      test.setTimeout(60_000);
+      await page.setViewportSize(viewport);
+      await verifyThemeRestoration(page, info, locale);
+    });
+  }
+}
 
 test("guest can open BETCCO and change to English", async ({ page }) => {
   await page.goto("/ar");
