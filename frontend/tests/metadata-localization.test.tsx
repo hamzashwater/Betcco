@@ -6,6 +6,13 @@ import en from "../messages/en.json";
 import { defaultBrand } from "@/lib/brand";
 
 const state = vi.hoisted(() => ({ locale: "en" as "ar" | "en" }));
+const requestNonce = vi.hoisted(() => ({
+  value: undefined as string | undefined,
+}));
+vi.mock("next/headers", () => ({
+  headers: async () =>
+    new Headers(requestNonce.value ? { "x-nonce": requestNonce.value } : {}),
+}));
 const image = vi.hoisted(() => vi.fn());
 vi.mock("next/og", () => ({
   ImageResponse: class {
@@ -46,6 +53,7 @@ vi.mock("@/lib/public-brand-settings.server", () => ({
 }));
 
 import LocaleLayout, { generateMetadata } from "@/app/[locale]/layout";
+import DefaultLocaleRootLayout from "@/app/(root)/layout";
 import {
   GET,
   generateStaticParams,
@@ -59,6 +67,7 @@ type NodeProps = {
   style?: Record<string, unknown>;
   lang?: string;
   dir?: string;
+  nonce?: string;
 };
 function elements(node: ReactNode): React.ReactElement<NodeProps>[] {
   return Children.toArray(node).flatMap((child) =>
@@ -78,11 +87,95 @@ function text(node: ReactNode): string {
 }
 const originalBrand = defaultBrand.BrandName;
 afterEach(() => {
+  requestNonce.value = undefined;
   defaultBrand.BrandName = originalBrand;
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
   image.mockClear();
 });
+
+const themeLayouts = [
+  [
+    "English",
+    () =>
+      LocaleLayout({
+        children: null,
+        params: Promise.resolve({ locale: "en" }),
+      }),
+  ],
+  [
+    "Arabic",
+    () =>
+      LocaleLayout({
+        children: null,
+        params: Promise.resolve({ locale: "ar" }),
+      }),
+  ],
+  [
+    "default root",
+    () =>
+      DefaultLocaleRootLayout({ children: null, params: Promise.resolve({}) }),
+  ],
+] as const;
+function themeBootstrap(tree: ReactNode) {
+  const script = elements(tree).find(
+    (node) =>
+      node.type === "script" &&
+      node.props.dangerouslySetInnerHTML?.__html.includes("betcco-theme"),
+  );
+  expect(script).toBeDefined();
+  return script!;
+}
+describe.each(themeLayouts)(
+  "request-authorized theme bootstrap: %s",
+  (_name, layout) => {
+    it("uses the current request nonce rather than a fixed or cached value", async () => {
+      requestNonce.value = "request-one";
+      expect(themeBootstrap(await layout()).props.nonce).toBe("request-one");
+      requestNonce.value = "request-two";
+      expect(themeBootstrap(await layout()).props.nonce).toBe("request-two");
+    });
+    it("does not invent an authorization nonce when the request has none", async () => {
+      expect(themeBootstrap(await layout()).props.nonce).toBeUndefined();
+    });
+    it.each([
+      ["light", "light"],
+      ["dark", "dark"],
+      ["invalid-theme", "dark"],
+      [null, "dark"],
+    ])(
+      "retains the stored %s value's existing safe theme %s",
+      async (stored, expected) => {
+        const script = themeBootstrap(await layout()).props
+          .dangerouslySetInnerHTML!.__html;
+        const target = {
+          documentElement: { dataset: {} as Record<string, string> },
+        };
+        new Function("localStorage", "document", script)(
+          { getItem: () => stored },
+          target,
+        );
+        expect(target.documentElement.dataset.theme).toBe(expected);
+      },
+    );
+    it("retains Dark when browser storage is unavailable", async () => {
+      const script = themeBootstrap(await layout()).props
+        .dangerouslySetInnerHTML!.__html;
+      const target = {
+        documentElement: { dataset: {} as Record<string, string> },
+      };
+      new Function("localStorage", "document", script)(
+        {
+          getItem: () => {
+            throw new Error("Storage unavailable");
+          },
+        },
+        target,
+      );
+      expect(target.documentElement.dataset.theme).toBe("dark");
+    });
+  },
+);
 
 describe("bounded server metadata and parsed JSON-LD", () => {
   it.each(["ar", "en"] as const)(

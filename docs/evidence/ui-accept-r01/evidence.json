@@ -1,0 +1,320 @@
+{
+  "task": "UI-ACCEPT-R01",
+  "baseline": "8ba977e96c9a5861de62141a2668bacfdf775ea6",
+  "capturedAt": "2026-10-30T15:21:25.014Z",
+  "browser": "151.0.7922.34",
+  "productionBrowserStats": {
+    "startTime": "2026-10-30T15:17:50.126Z",
+    "duration": 53784.454,
+    "expected": 27,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "normalizedCspUnchanged": true,
+  "normalizedCsp": "default-src 'self'; script-src 'self' 'nonce-<per-request>' 'strict-dynamic'; style-src 'self' 'nonce-<per-request>'; style-src-attr 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self' data:; media-src 'self' blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests",
+  "actualBeforeCsp": "default-src 'self'; script-src 'self' 'nonce-MmYyODNjYjEtZDJiYS00NGM4LTgwYWMtYmZiNWVjYzk1NjA5' 'strict-dynamic'; style-src 'self' 'nonce-MmYyODNjYjEtZDJiYS00NGM4LTgwYWMtYmZiNWVjYzk1NjA5'; style-src-attr 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self' data:; media-src 'self' blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests",
+  "actualAfterCsp": "default-src 'self'; script-src 'self' 'nonce-ZWMyZWJkYmQtZDhiMC00NTAyLWI3MjQtYTE0NjQ3MjkzZGFh' 'strict-dynamic'; style-src 'self' 'nonce-ZWMyZWJkYmQtZDhiMC00NTAyLWI3MjQtYTE0NjQ3MjkzZGFh'; style-src-attr 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self' data:; media-src 'self' blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests",
+  "cases": [
+    {
+      "locale": "en",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "serverHtmlTheme": null,
+      "initialDefault": "dark",
+      "freshStoredValue": null,
+      "selectedLight": "light",
+      "selectedLightStored": "light",
+      "lightReload": "light",
+      "lightLocaleNavigation": "light",
+      "darkReload": "dark",
+      "darkLocaleNavigation": "dark",
+      "invalidStoredValue": "invalid-theme",
+      "safeFallback": "dark",
+      "initialScript": {
+        "nonce": "ZDU2NDFlN2YtYWE5MC00ZDdjLThjZTctNTZjODExYmRiNzQ0",
+        "type": "",
+        "async": false,
+        "defer": false
+      },
+      "normalCspViolations": [],
+      "lightBeforeHydration": "light",
+      "lightAfterHydration": "light",
+      "localePaintFrames": 10,
+      "allLocalePaintFramesLight": true,
+      "pageErrors": [],
+      "coldPageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      ],
+      "coldConsoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      ],
+      "blockedUntrustedScripts": [
+        {
+          "directive": "script-src-elem",
+          "blockedURI": "inline"
+        },
+        {
+          "directive": "script-src-elem",
+          "blockedURI": "inline"
+        }
+      ]
+    },
+    {
+      "locale": "en",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "serverHtmlTheme": null,
+      "initialDefault": "dark",
+      "freshStoredValue": null,
+      "selectedLight": "light",
+      "selectedLightStored": "light",
+      "lightReload": "light",
+      "lightLocaleNavigation": "light",
+      "darkReload": "dark",
+      "darkLocaleNavigation": "dark",
+      "invalidStoredValue": "invalid-theme",
+      "safeFallback": "dark",
+      "initialScript": {
+        "nonce": "ZTE5MmE2ZDctOTk5MC00ZTA1LWIzZDUtZmRiOTBlYzM1NDNl",
+        "type": "",
+        "async": false,
+        "defer": false
+      },
+      "normalCspViolations": [],
+      "lightBeforeHydration": "light",
+      "lightAfterHydration": "light",
+      "localePaintFrames": 24,
+      "allLocalePaintFramesLight": true,
+      "pageErrors": [],
+      "coldPageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      ],
+      "coldConsoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      ],
+      "blockedUntrustedScripts": [
+        {
+          "directive": "script-src-elem",
+          "blockedURI": "inline"
+        },
+        {
+          "directive": "script-src-elem",
+          "blockedURI": "inline"
+        }
+      ]
+    },
+    {
+      "locale": "ar",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "serverHtmlTheme": null,
+      "initialDefault": "dark",
+      "freshStoredValue": null,
+      "selectedLight": "light",
+      "selectedLightStored": "light",
+      "lightReload": "light",
+      "lightLocaleNavigation": "light",
+      "darkReload": "dark",
+      "darkLocaleNavigation": "dark",
+      "invalidStoredValue": "invalid-theme",
+      "safeFallback": "dark",
+      "initialScript": {
+        "nonce": "NWVkOTI1MTMtMzY5OC00MzRjLTljYzEtODMwYjc1MGEwNjVm",
+        "type": "",
+        "async": false,
+        "defer": false
+      },
+      "normalCspViolations": [],
+      "lightBeforeHydration": "light",
+      "lightAfterHydration": "light",
+      "localePaintFrames": 8,
+      "allLocalePaintFramesLight": true,
+      "pageErrors": [],
+      "coldPageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      ],
+      "coldConsoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      ],
+      "blockedUntrustedScripts": [
+        {
+          "directive": "script-src-elem",
+          "blockedURI": "inline"
+        },
+        {
+          "directive": "script-src-elem",
+          "blockedURI": "inline"
+        }
+      ]
+    },
+    {
+      "locale": "ar",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "serverHtmlTheme": null,
+      "initialDefault": "dark",
+      "freshStoredValue": null,
+      "selectedLight": "light",
+      "selectedLightStored": "light",
+      "lightReload": "light",
+      "lightLocaleNavigation": "light",
+      "darkReload": "dark",
+      "darkLocaleNavigation": "dark",
+      "invalidStoredValue": "invalid-theme",
+      "safeFallback": "dark",
+      "initialScript": {
+        "nonce": "YWU1YjVhNTgtZTNjZi00ZDViLTk4MzAtYzUyMDc3NzI3OTEw",
+        "type": "",
+        "async": false,
+        "defer": false
+      },
+      "normalCspViolations": [],
+      "lightBeforeHydration": "light",
+      "lightAfterHydration": "light",
+      "localePaintFrames": 16,
+      "allLocalePaintFramesLight": true,
+      "pageErrors": [],
+      "coldPageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      ],
+      "coldConsoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      ],
+      "blockedUntrustedScripts": [
+        {
+          "directive": "script-src-elem",
+          "blockedURI": "inline"
+        },
+        {
+          "directive": "script-src-elem",
+          "blockedURI": "inline"
+        }
+      ]
+    }
+  ],
+  "before": [
+    {
+      "locale": "en",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "initialHtmlTheme": null,
+      "initialScriptTag": "<script>try{var t=localStorage.getItem('betcco-theme')",
+      "stored": "light",
+      "hydratedTheme": null,
+      "afterReload": null,
+      "afterHardLocaleNavigation": null,
+      "violations": [
+        {
+          "directive": "script-src-elem",
+          "blockedURI": "inline",
+          "sample": "",
+          "disposition": "enforce"
+        }
+      ]
+    },
+    {
+      "locale": "en",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "initialHtmlTheme": null,
+      "initialScriptTag": "<script>try{var t=localStorage.getItem('betcco-theme')",
+      "stored": "light",
+      "hydratedTheme": null,
+      "afterReload": null,
+      "afterHardLocaleNavigation": null,
+      "violations": [
+        {
+          "directive": "script-src-elem",
+          "blockedURI": "inline",
+          "sample": "",
+          "disposition": "enforce"
+        }
+      ]
+    },
+    {
+      "locale": "ar",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "initialHtmlTheme": null,
+      "initialScriptTag": "<script>try{var t=localStorage.getItem('betcco-theme')",
+      "stored": "light",
+      "hydratedTheme": null,
+      "afterReload": null,
+      "afterHardLocaleNavigation": null,
+      "violations": [
+        {
+          "directive": "script-src-elem",
+          "blockedURI": "inline",
+          "sample": "",
+          "disposition": "enforce"
+        }
+      ]
+    },
+    {
+      "locale": "ar",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "initialHtmlTheme": null,
+      "initialScriptTag": "<script>try{var t=localStorage.getItem('betcco-theme')",
+      "stored": "light",
+      "hydratedTheme": null,
+      "afterReload": null,
+      "afterHardLocaleNavigation": null,
+      "violations": [
+        {
+          "directive": "script-src-elem",
+          "blockedURI": "inline",
+          "sample": "",
+          "disposition": "enforce"
+        }
+      ]
+    }
+  ],
+  "rootRedirect": {
+    "status": 307,
+    "csp": "default-src 'self'; script-src 'self' 'nonce-MTM5ZTdhN2UtODZjNi00ZDIxLWE4MGItNmU5ZWMyNTEyZjQx' 'strict-dynamic'; style-src 'self' 'nonce-MTM5ZTdhN2UtODZjNi00ZDIxLWE4MGItNmU5ZWMyNTEyZjQx'; style-src-attr 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self' data:; media-src 'self' blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests",
+    "themeScript": null,
+    "htmlBytes": 8319
+  }
+}

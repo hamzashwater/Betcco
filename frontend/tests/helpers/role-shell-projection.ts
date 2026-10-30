@@ -1,4 +1,5 @@
 import baseline from "../fixtures/ui-d01-05-role-shell-baseline.json";
+import { projectThemeNonceSource } from "./theme-nonce-projection";
 import { withoutPlayerWorkspaceAdditions } from "./player-workspace-projection";
 import {
   projectTeacherWorkloadSource,
@@ -8,9 +9,9 @@ import {
 // Missing, duplicate or altered reviewed hunks leave the entire source intact.
 // Historical proofs retain their original hashes and all unrelated bytes.
 export function projectRoleShellSource(source: string, path: string) {
-  const original = projectTeacherWorkloadSource(source, path).replace(
-    /\r\n/g,
-    "\n",
+  const original = projectThemeNonceSource(
+    projectTeacherWorkloadSource(source, path).replace(/\r\n/g, "\n"),
+    path,
   );
   const file = baseline.files[path as keyof typeof baseline.files];
   if (!file) return original;

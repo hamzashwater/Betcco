@@ -6,6 +6,7 @@ import { ScrollProgress } from "@/components/visual/scroll-progress";
 import { AnalyticsTracker } from "@/components/analytics-tracker";
 import { PwaRegister } from "@/components/pwa-register";
 import { Providers } from "@/components/providers";
+import { ThemeRestoration } from "@/components/theme-restoration";
 import { MfaEnrollmentBoundary } from "@/features/auth/mfa-enrollment-boundary";
 import { routing } from "@/i18n/routing";
 import { defaultBrand, publicBrandSettingsQueryKey } from "@/lib/brand";
@@ -19,6 +20,7 @@ import {
   setRequestLocale,
 } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { baseMetadata } from "@/lib/site-metadata";
 import "../globals.css";
 
@@ -61,6 +63,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   const [messages, brandSettings] = await Promise.all([
     getMessages(),
     getPublicBrandSettings(locale),
@@ -85,7 +88,9 @@ export default async function LocaleLayout({ children, params }: Props) {
       suppressHydrationWarning
     >
       <body className="min-h-screen">
+        <ThemeRestoration locale={locale} />
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html:
               "try{var t=localStorage.getItem('betcco-theme');document.documentElement.dataset.theme=t==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}",
