@@ -1,4 +1,11 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import en from "../../messages/en.json" with { type: "json" };
+import ar from "../../messages/ar.json" with { type: "json" };
+import {
+  accountIds,
+  deniedManagementStatuses,
+  mockAccountActor,
+} from "../helpers/account-actor-mock";
 
 test.use({ trace: "off", screenshot: "off", video: "off" });
 
@@ -505,201 +512,245 @@ for (const { locale, width } of [
   { locale: "ar", width: 390 },
 ] as const) {
   test(`email and limited account controls in ${locale} at ${width}px`, async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width, height: 800 });
-    const errors: string[] = [];
-    page.on("pageerror", (error) => errors.push(error.message));
-    page.on("dialog", (dialog) => void dialog.accept());
-    let frozen = false;
-    await page.route("**/api/v1/**", async (route) => {
-      const url = new URL(route.request().url());
-      const path = url.pathname;
-      if (path === "/api/v1/security/antiforgery")
-        return route.fulfill({
-          contentType: "application/json",
-          body: JSON.stringify({ token: "browser-test-token" }),
-        });
-      if (path === "/api/v1/auth/me")
-        return route.fulfill({
-          contentType: "application/json",
-          body: JSON.stringify({
-            roles: ["SupportAdmin"],
-            displayName: "Support One",
-          }),
-        });
-      if (path === "/api/v1/auth/profile")
-        return route.fulfill({
-          contentType: "application/json",
-          body: JSON.stringify({
-            displayName: "Sam Learner",
-            email: "old@example.com",
-            phone: null,
-            marketingConsent: false,
-          }),
-        });
-      if (path === "/api/v1/memberships/me")
-        return route.fulfill({
-          contentType: "application/json",
-          body: JSON.stringify({ memberships: [], subscriptions: [] }),
-        });
-      if (path === "/api/v1/notifications")
-        return route.fulfill({ contentType: "application/json", body: "[]" });
-      if (path === "/api/v1/cart")
-        return route.fulfill({
-          contentType: "application/json",
-          body: JSON.stringify({ items: [] }),
-        });
-      if (path === "/api/v1/admin/users/freeze-targets")
-        return route.fulfill({
-          contentType: "application/json",
-          body: JSON.stringify({
-            items: [
-              {
-                id: "student-1",
-                displayName: "Student One",
-                email: "student@example.com",
-                isFrozen: frozen,
-              },
-            ],
-            totalCount: 1,
-          }),
-        });
-      if (path === "/api/v1/admin/users/student-1/freeze") {
-        frozen = route.request().postDataJSON().frozen;
-        return route.fulfill({ status: 204 });
-      }
-      if (path === "/api/v1/auth/email-change/request")
-        return route.fulfill({
-          status: 202,
-          contentType: "application/json",
-          body: JSON.stringify({ message: "Sent" }),
-        });
-      if (path === "/api/v1/auth/email-change/confirm")
-        return route.fulfill({ status: 204 });
-      if (path === "/api/v1/admin/users/teacher-1/email-change/request")
-        return route.fulfill({
-          status: 202,
-          contentType: "application/json",
-          body: JSON.stringify({ message: "Sent" }),
-        });
-      if (path === "/api/v1/admin/users/support-admins/invite")
-        return route.fulfill({
-          status: 202,
-          contentType: "application/json",
-          body: JSON.stringify({ id: "support-1" }),
-        });
-      if (path === "/api/v1/admin/users")
-        return route.fulfill({
-          contentType: "application/json",
-          body: JSON.stringify({
-            items:
-              url.searchParams.get("role") === "Teacher"
-                ? [
-                    {
-                      id: "teacher-1",
-                      displayName: "Teacher One",
-                      email: "teacher@example.com",
-                      emailConfirmed: true,
-                      isFrozen: false,
-                      mustChangePassword: false,
-                    },
-                  ]
-                : [],
-            totalCount: url.searchParams.get("role") === "Teacher" ? 1 : 0,
-          }),
-        });
-      return route.fulfill({ contentType: "application/json", body: "{}" });
-    });
+    page: studentPage,
+    browser,
+  }, info) => {
+    let page = studentPage;
+    const ownedPages: Page[] = [];
+    try {
+      await page.setViewportSize({ width, height: 800 });
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      page.on("dialog", (dialog) => void dialog.accept());
+      const messages = locale === "ar" ? ar : en;
+      const observe = (actorPage: Page) => {
+        actorPage.on("pageerror", (error) => errors.push(error.message));
+        actorPage.on("dialog", (dialog) => void dialog.accept());
+      };
+      const studentMock = await mockAccountActor(page, "Student");
+      await page.goto(`/${locale}/student/account`);
+      await page
+        .getByRole("textbox", {
+          name: locale === "ar" ? "البريد الجديد" : "New email",
+        })
+        .fill("new@example.com");
+      await page
+        .getByLabel(
+          locale === "ar" ? "كلمة المرور الحالية" : "Current password",
+        )
+        .fill("T!estPassword123");
+      const studentRequest = page.waitForRequest((request) =>
+        request.url().endsWith("/auth/email-change/request"),
+      );
+      const studentButton = page.getByRole("button", {
+        name: locale === "ar" ? "إرسال رابط التحقق" : "Send confirmation link",
+      });
+      await studentButton.focus();
+      await page.keyboard.press("Shift+Tab");
+      await page.keyboard.press("Tab");
+      await expect(studentButton).toBeFocused();
+      await page.keyboard.press("Enter");
+      expect((await studentRequest).postDataJSON()).toEqual({
+        newEmail: "new@example.com",
+        currentPassword: "T!estPassword123",
+      });
+      await expect(page.getByRole("status")).toBeVisible();
 
-    await page.goto(`/${locale}/student/account`);
-    await page
-      .getByRole("textbox", {
-        name: locale === "ar" ? "البريد الجديد" : "New email",
-      })
-      .fill("new@example.com");
-    await page
-      .getByLabel(locale === "ar" ? "كلمة المرور الحالية" : "Current password")
-      .fill("T!estPassword123");
-    const studentRequest = page.waitForRequest((request) =>
-      request.url().endsWith("/auth/email-change/request"),
-    );
-    const studentButton = page.getByRole("button", {
-      name: locale === "ar" ? "إرسال رابط التحقق" : "Send confirmation link",
-    });
-    await studentButton.focus();
-    await page.keyboard.press("Shift+Tab");
-    await page.keyboard.press("Tab");
-    await expect(studentButton).toBeFocused();
-    await page.keyboard.press("Enter");
-    expect((await studentRequest).postDataJSON()).toEqual({
-      newEmail: "new@example.com",
-      currentPassword: "T!estPassword123",
-    });
-    await expect(page.getByRole("status")).toBeVisible();
+      await page.goto(
+        `/${locale}/change-email?userId=00000000-0000-0000-0000-000000000001&email=new%40example.com&proof=proof&mode=student`,
+      );
+      await page
+        .getByRole("button", {
+          name: locale === "ar" ? "تأكيد تغيير البريد" : "Confirm email change",
+        })
+        .click();
+      await expect(page.getByRole("status")).toBeVisible();
 
-    await page.goto(
-      `/${locale}/change-email?userId=00000000-0000-0000-0000-000000000001&email=new%40example.com&proof=proof&mode=student`,
-    );
-    await page
-      .getByRole("button", {
-        name: locale === "ar" ? "تأكيد تغيير البريد" : "Confirm email change",
-      })
-      .click();
-    await expect(page.getByRole("status")).toBeVisible();
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+      // A distinct authenticated actor/context; never elevate the student fixture.
+      page = await browser.newPage({ viewport: { width, height: 800 } });
+      ownedPages.push(page);
+      observe(page);
+      const adminMock = await mockAccountActor(page, "SystemAdmin");
+      await page.goto(`/${locale}/admin/account-identities`);
+      const managedInput = page.getByPlaceholder(
+        locale === "ar" ? "البريد الجديد" : "New email",
+      );
+      const emailSection = page
+        .locator("details")
+        .filter({ has: managedInput });
+      await expect(managedInput).toBeHidden();
+      await emailSection.locator("summary").focus();
+      await page.keyboard.press("Enter");
+      await expect(managedInput).toBeVisible();
+      await managedInput.fill("teacher-new@example.com");
+      const managedButton = emailSection.getByRole("button", {
+        name: messages.adminWorkspace.accountIdentities.changeEmail,
+        exact: true,
+      });
+      adminMock.failNext("email");
+      const failedEmail = page.waitForResponse((response) =>
+        response
+          .url()
+          .endsWith(`/admin/users/${accountIds.Teacher}/email-change/request`),
+      );
+      await managedButton.click();
+      expect((await failedEmail).status()).toBe(500);
+      await expect(
+        page.locator("#main-content").getByRole("alert"),
+      ).toContainText(messages.adminWorkspace.accountIdentities.actionError);
+      await expect(managedInput).toHaveValue("teacher-new@example.com");
+      const managedRequest = page.waitForRequest((request) =>
+        request
+          .url()
+          .endsWith(`/admin/users/${accountIds.Teacher}/email-change/request`),
+      );
+      await page
+        .getByRole("button", {
+          name: locale === "ar" ? "طلب تغيير البريد" : "Request email change",
+        })
+        .click();
+      expect((await managedRequest).postDataJSON()).toEqual({
+        newEmail: "teacher-new@example.com",
+      });
+      await expect(page.getByRole("status")).toBeVisible();
+      await expect(page.getByRole("status")).toContainText(
+        messages.adminWorkspace.accountIdentities.emailSuccess,
+      );
+      await page
+        .getByRole("button", {
+          name: locale === "ar" ? "مساعدو الإدارة" : "Support administrators",
+        })
+        .click();
+      await page
+        .getByRole("textbox", { name: locale === "ar" ? "الاسم" : "Name" })
+        .fill("Support One");
+      await page
+        .getByRole("textbox", {
+          name: locale === "ar" ? "بريد العمل" : "Work email",
+        })
+        .fill("support@example.com");
+      adminMock.failNext("invite");
+      const failedInvite = page.waitForResponse((response) =>
+        response.url().endsWith("/admin/users/support-admins/invite"),
+      );
+      await page
+        .getByRole("button", {
+          name: messages.adminWorkspace.accountIdentities.send,
+          exact: true,
+        })
+        .click();
+      expect((await failedInvite).status()).toBe(500);
+      await expect(
+        page.locator("#main-content").getByRole("alert"),
+      ).toContainText(messages.adminWorkspace.accountIdentities.inviteError);
+      await expect(
+        page.getByRole("textbox", {
+          name: locale === "ar" ? "بريد العمل" : "Work email",
+        }),
+      ).toHaveValue("support@example.com");
+      const inviteRequest = page.waitForRequest((request) =>
+        request.url().endsWith("/admin/users/support-admins/invite"),
+      );
+      await page
+        .getByRole("button", {
+          name: locale === "ar" ? "إرسال الدعوة" : "Send invitation",
+        })
+        .click();
+      await expect(page.getByRole("status")).toBeVisible();
 
-    await page.goto(`/${locale}/admin/account-identities`);
-    await page
-      .getByPlaceholder(locale === "ar" ? "البريد الجديد" : "New email")
-      .fill("teacher-new@example.com");
-    await page
-      .getByRole("button", {
-        name: locale === "ar" ? "طلب تغيير البريد" : "Request email change",
-      })
-      .click();
-    await expect(page.getByRole("status")).toBeVisible();
-    await page
-      .getByRole("button", {
-        name: locale === "ar" ? "مساعدو الإدارة" : "Support administrators",
-      })
-      .click();
-    await page
-      .getByRole("textbox", { name: locale === "ar" ? "الاسم" : "Name" })
-      .fill("Support One");
-    await page
-      .getByRole("textbox", {
-        name: locale === "ar" ? "بريد العمل" : "Work email",
-      })
-      .fill("support@example.com");
-    await page
-      .getByRole("button", {
-        name: locale === "ar" ? "إرسال الدعوة" : "Send invitation",
-      })
-      .click();
-    await expect(page.getByRole("status")).toBeVisible();
-
-    await page.goto(`/${locale}/support/accounts`);
-    await page
-      .getByRole("button", { name: locale === "ar" ? "تجميد" : "Freeze" })
-      .click();
-    await expect(
-      page.getByRole("button", {
-        name: locale === "ar" ? "إعادة تفعيل" : "Reactivate",
-      }),
-    ).toBeVisible();
-    await page
-      .getByRole("button", {
-        name: locale === "ar" ? "إعادة تفعيل" : "Reactivate",
-      })
-      .click();
-    await expect(
-      page.getByRole("button", { name: locale === "ar" ? "تجميد" : "Freeze" }),
-    ).toBeVisible();
-    expect(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= window.innerWidth,
-      ),
-    ).toBe(true);
-    expect(errors).toEqual([]);
+      expect((await inviteRequest).postDataJSON()).toEqual({
+        displayName: "Support One",
+        email: "support@example.com",
+      });
+      await expect(page.getByRole("status")).toContainText(
+        messages.adminWorkspace.accountIdentities.inviteSuccess,
+      );
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+      // SupportAdmin has only the narrow freeze capability, in its own session.
+      page = await browser.newPage({ viewport: { width, height: 800 } });
+      ownedPages.push(page);
+      observe(page);
+      const supportMock = await mockAccountActor(page, "SupportAdmin");
+      await page.goto(`/${locale}/support/accounts`);
+      expect(await deniedManagementStatuses(page)).toEqual([403, 403, 403]);
+      supportMock.failNext("freeze");
+      const failedFreeze = page.waitForResponse((response) =>
+        response.url().endsWith(`/admin/users/${accountIds.Student}/freeze`),
+      );
+      await page
+        .getByRole("button", {
+          name: locale === "ar" ? "تجميد" : "Freeze",
+          exact: true,
+        })
+        .click();
+      expect((await failedFreeze).status()).toBe(500);
+      await expect(
+        page.locator("#main-content").getByRole("alert"),
+      ).toContainText(messages.supportWorkspace.account.updateFailed);
+      await expect(
+        page.getByRole("button", {
+          name: locale === "ar" ? "تجميد" : "Freeze",
+          exact: true,
+        }),
+      ).toBeEnabled();
+      const freezeRequest = page.waitForRequest((request) =>
+        request.url().endsWith(`/admin/users/${accountIds.Student}/freeze`),
+      );
+      await page
+        .getByRole("button", { name: locale === "ar" ? "تجميد" : "Freeze" })
+        .click();
+      expect((await freezeRequest).postDataJSON()).toEqual({ frozen: true });
+      await expect(
+        page.getByRole("button", {
+          name: locale === "ar" ? "إعادة تفعيل" : "Reactivate",
+        }),
+      ).toBeVisible();
+      const reactivateRequest = page.waitForRequest((request) =>
+        request.url().endsWith(`/admin/users/${accountIds.Student}/freeze`),
+      );
+      await page
+        .getByRole("button", {
+          name: locale === "ar" ? "إعادة تفعيل" : "Reactivate",
+        })
+        .click();
+      await expect(
+        page.getByRole("button", {
+          name: locale === "ar" ? "تجميد" : "Freeze",
+        }),
+      ).toBeVisible();
+      expect((await reactivateRequest).postDataJSON()).toEqual({
+        frozen: false,
+      });
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= window.innerWidth,
+        ),
+      ).toBe(true);
+      expect(errors).toEqual([]);
+      await info.attach("account-actor-contracts", {
+        contentType: "application/json",
+        body: JSON.stringify(
+          [studentMock, adminMock, supportMock].map((mock) => ({
+            actor: mock.actor,
+            calls: mock.calls.map(({ path, method, status }) => ({
+              path,
+              method,
+              status,
+            })),
+          })),
+        ),
+      });
+    } finally {
+      await Promise.all(ownedPages.map((actorPage) => actorPage.close()));
+    }
   });
 }

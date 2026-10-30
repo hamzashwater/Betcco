@@ -22,7 +22,8 @@ async function openLocaleSwitcher(page: Page, mobile = false) {
     return page
       .getByRole("dialog", { name: "قائمة التنقل" })
       .getByRole("link", {
-        name: "EN",
+        name: "التبديل إلى الإنجليزية",
+        exact: true,
       });
   }
 
@@ -69,6 +70,7 @@ test("preserves exact query encoding and fragment through the mobile drawer", as
 }) => {
   const errors = collectBrowserErrors(page);
   const search = "?page=2&track=it&filter=grade%2F11%20science";
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`/ar/courses${search}#course-list`);
   const rejectNonessential = page.getByRole("button", {
     name: "رفض غير الضرورية",
@@ -78,10 +80,14 @@ test("preserves exact query encoding and fragment through the mobile drawer", as
   await expect(
     page.getByRole("dialog", { name: "خيارات ملفات تعريف الارتباط" }),
   ).toHaveCount(0);
+  await page.getByRole("button", { name: "تبديل المظهر", exact: true }).focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   const languageLink = await openLocaleSwitcher(page, true);
   await expect(languageLink).toHaveAttribute("href", "/en/courses");
 
-  await languageLink.click();
+  await languageLink.focus();
+  await page.keyboard.press("Enter");
   await expect(page).toHaveURL(
     (url) =>
       url.pathname === "/en/courses" &&
@@ -94,6 +100,41 @@ test("preserves exact query encoding and fragment through the mobile drawer", as
   await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
   await expect(page.locator("html")).toHaveCount(1);
   await expect(page.locator("body")).toHaveCount(1);
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  expect(await page.evaluate(() => localStorage.getItem("betcco-theme"))).toBe(
+    "light",
+  );
+  await expect(
+    page.getByRole("dialog", { name: "Navigation menu" }),
+  ).toHaveCount(0);
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await page.getByRole("button", { name: "Toggle theme", exact: true }).focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.getByRole("button", { name: "Open menu", exact: true }).click();
+  const reverse = page
+    .getByRole("dialog", { name: "Navigation menu" })
+    .getByRole("link", { name: "Switch to Arabic", exact: true });
+  await expect(reverse).toHaveAttribute("href", "/ar/courses");
+  await reverse.focus();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(
+    (url) =>
+      url.pathname === "/ar/courses" &&
+      url.search === search &&
+      url.hash === "#course-list",
+  );
+  expect(new URL(page.url()).search).toBe(search);
+  expect(new URL(page.url()).hash).toBe("#course-list");
+  await expect(page.locator("html")).toHaveAttribute("lang", "ar");
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  expect(await page.evaluate(() => localStorage.getItem("betcco-theme"))).toBe(
+    "dark",
+  );
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   expect(errors.pageErrors).toEqual([]);
   expect(errors.hydrationErrors).toEqual([]);
 });
